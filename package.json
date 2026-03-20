@@ -19,6 +19,7 @@
     "docker:logs": "docker compose logs -f",
     "docker:reset": "docker compose down -v && docker compose up -d"
   },
+  "type": "module",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
