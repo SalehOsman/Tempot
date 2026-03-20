@@ -1,0 +1,49 @@
+{
+  "name": "tempot-monorepo",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter bot-server dev",
+    "build": "pnpm --recursive build",
+    "test": "vitest run",
+    "test:unit": "vitest run --reporter=verbose --project=unit",
+    "test:integration": "vitest run --reporter=verbose --project=integration",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prepare": "husky",
+    "docker:dev": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v && docker compose up -d"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^8.0.0",
+    "vitest": "^4.0.0",
+    "@vitest/coverage-v8": "^4.0.0",
+    "eslint": "^10.0.0",
+    "@eslint/js": "^10.0.0",
+    "typescript-eslint": "^8.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  }
+}

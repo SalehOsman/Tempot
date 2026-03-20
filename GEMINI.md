@@ -10,24 +10,28 @@ The project constitution is at `.specify/memory/constitution.md` (69 principles)
 Full architectural specification: `docs/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
 
 ## Tech Stack (Locked Versions)
-| Component | Technology |
-|-----------|-----------|
-| Runtime | Node.js 20+ |
-| Language | TypeScript Strict Mode |
-| Bot Engine | grammY 1.x |
-| Web Server | Hono 4.x |
-| Database | PostgreSQL + pgvector |
-| Primary ORM | Prisma 7.x |
-| Secondary ORM | Drizzle (pgvector only) |
-| Cache | cache-manager + Keyv adapters |
-| Queue | BullMQ via queue factory |
-| AI Abstraction | Vercel AI SDK |
-| Auth | CASL (@casl/ability + @casl/prisma) |
-| Error Handling | neverthrow 8.2.0 |
-| Testing | Vitest + Testcontainers |
-| i18n | i18next |
-| Logging | Pino |
-| Versioning | Changesets + Conventional Commits |
+| Component | Technology | Version |
+|-----------|-----------|--------|
+| Runtime | Node.js | 20+ |
+| Language | TypeScript Strict Mode | 5.9.3 |
+| Bot Engine | grammY | 1.41.1 |
+| Web Server | Hono | 4.x |
+| Database | PostgreSQL + pgvector | 16 |
+| Primary ORM | Prisma | 7.x |
+| Secondary ORM | Drizzle (pgvector only) | 0.45.x |
+| Cache | cache-manager + Keyv adapters | 6.x |
+| Queue | BullMQ via queue factory | 5.x |
+| AI Abstraction | Vercel AI SDK | 4.x |
+| Auth | CASL (@casl/ability + @casl/prisma) | 6.x |
+| Error Handling | neverthrow | 8.2.0 |
+| Testing | Vitest + Vite + Testcontainers | 4.1.0 / 8.0.1 |
+| i18n | i18next | 23.x |
+| Logging | Pino | 9.x |
+| Dev Runner | tsx | 4.21.0 |
+| Linter | ESLint | 10.0.3 |
+| Formatter | Prettier | 3.8.1 |
+| Git Hooks | Husky | 9.1.7 |
+| Versioning | Changesets + Conventional Commits | 2.x |
 
 ## Architecture
 Clean Architecture — 3 layers:
@@ -50,7 +54,8 @@ SpecKit (steps 1-5) + superpowers (steps 6-11). See `docs/developer/workflow-gui
 9. **Clean Diff** — only touch files related to the current task
 
 ## Current Phase
-Project Setup — creating foundational files and initial commit.
+Phase 0 complete. Minimal bot-server running (`apps/bot-server`).
+Next: Phase 1 — Core Bedrock packages (logger → shared → database).
 
 ## Key Documents
 - Constitution: `.specify/memory/constitution.md`

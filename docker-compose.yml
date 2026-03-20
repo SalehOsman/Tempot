@@ -1,0 +1,49 @@
+# Tempot — Local Development Infrastructure
+# Provides: PostgreSQL (pgvector) + Redis
+# Usage: pnpm docker:dev (starts) | pnpm docker:down (stops)
+#
+# Constitution Rule XVII — Graceful Shutdown:
+# Services are configured with health checks to support ordered shutdown.
+# Shutdown order: Hono → grammY → BullMQ → Redis → Prisma → Drizzle
+
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: tempot-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tempot
+      POSTGRES_PASSWORD: tempot_password
+      POSTGRES_DB: tempot_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tempot -d tempot_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: tempot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:
+    name: tempot_postgres_data
+  redis_data:
+    name: tempot_redis_data

@@ -94,8 +94,8 @@ Tempot enforces a **Security-by-Default**, **Privacy-by-Design**, and **Spec-Dri
 <table>
 <tr><th>Category</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
 <tr><td><b>Runtime</b></td><td>Node.js</td><td><code>v20+</code></td><td>ESM, native TypeScript support</td></tr>
-<tr><td><b>Language</b></td><td>TypeScript</td><td><code>5.x</code> Strict</td><td>Full type safety, no <code>any</code></td></tr>
-<tr><td><b>Bot Engine</b></td><td>grammY</td><td><code>v1.x</code></td><td>Modern, flexible, TypeScript-first</td></tr>
+<tr><td><b>Language</b></td><td>TypeScript</td><td><code>5.9.3</code> Strict</td><td>Full type safety, no <code>any</code></td></tr>
+<tr><td><b>Bot Engine</b></td><td>grammY</td><td><code>1.41.1</code></td><td>Modern, flexible, TypeScript-first</td></tr>
 <tr><td><b>Web Server</b></td><td>Hono</td><td><code>v4.x</code></td><td>Fastest, lightweight, Edge-compatible</td></tr>
 <tr><td><b>Database</b></td><td>PostgreSQL + pgvector</td><td><code>v16</code></td><td>Relational + vector search</td></tr>
 <tr><td><b>Primary ORM</b></td><td>Prisma</td><td><code>7.x</code></td><td>Type safety, auto migrations, Soft Delete via <code>$extends()</code></td></tr>
@@ -106,7 +106,7 @@ Tempot enforces a **Security-by-Default**, **Privacy-by-Design**, and **Spec-Dri
 <tr><td><b>Authorization</b></td><td>CASL</td><td><code>@casl/ability 6.x</code></td><td>RBAC + ABAC + Prisma adapter (ADR-013)</td></tr>
 <tr><td><b>Error Handling</b></td><td>neverthrow</td><td><code>8.2.0</code></td><td><code>Result&lt;T, E&gt;</code> — no thrown exceptions</td></tr>
 <tr><td><b>Event Bus</b></td><td>Emittery + BullMQ</td><td><code>1.2.0</code></td><td>Local + durable cross-process events</td></tr>
-<tr><td><b>Testing</b></td><td>Vitest + Testcontainers</td><td><code>latest</code></td><td>Fast unit + containerized integration</td></tr>
+<tr><td><b>Testing</b></td><td>Vitest + Vite + Testcontainers</td><td><code>4.1.0 / 8.0.1</code></td><td>Fast unit + containerized integration</td></tr>
 <tr><td><b>i18n</b></td><td>i18next</td><td><code>latest</code></td><td>Arabic (primary) + English</td></tr>
 <tr><td><b>Logging</b></td><td>Pino</td><td><code>9.x</code></td><td>Fastest JSON logger for Node.js</td></tr>
 <tr><td><b>Sanitization</b></td><td>sanitize-html</td><td><code>latest</code></td><td>XSS protection (ADR-020)</td></tr>
@@ -310,7 +310,7 @@ The [**Project Constitution**](.specify/memory/constitution.md) is the **highest
 ### Prerequisites
 
 - **Node.js** `v20+`
-- **pnpm** `v9+` (`corepack enable pnpm`)
+- **pnpm** `v10.32.1+` (`corepack enable pnpm`)
 - **Docker & Docker Compose** (for PostgreSQL/pgvector & Redis)
 - **AI Development Environment** (choose one):
   - **Gemini CLI + superpowers** (Recommended):
