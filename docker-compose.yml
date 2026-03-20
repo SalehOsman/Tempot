@@ -6,6 +6,27 @@
 # Services are configured with health checks to support ordered shutdown.
 # Shutdown order: Hono → grammY → BullMQ → Redis → Prisma → Drizzle
 
+# =============================================================================
+# DEVELOPMENT SERVICES ONLY
+# Current: PostgreSQL (pgvector) + Redis
+#
+# TODO — Phase 5: Add bot-server service after Dockerfile is created
+# bot-server:
+#   build:
+#     context: ./apps/bot-server
+#     dockerfile: Dockerfile
+#   container_name: tempot-bot
+#   restart: unless-stopped
+#   depends_on:
+#     postgres:
+#       condition: service_healthy
+#     redis:
+#       condition: service_healthy
+#   env_file: .env
+#   environment:
+#     - NODE_ENV=production
+# =============================================================================
+
 services:
   postgres:
     image: ankane/pgvector:latest
