@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/Tempot_Logo.png" alt="Tempot Logo" width="420">
+<img src="docs/Tempot_Logo.png" alt="Tempot Logo" style="width: 100%; height: auto;">
 
 <br><br>
 
