@@ -3,7 +3,7 @@
 ## Core Principles
 
 ### I. TypeScript Strict Mode
-TypeScript `strict: true` is mandatory. No `any` types, no `@ts-ignore` without ADR justification documenting why it's necessary and when it will be removed.
+TypeScript `strict: true` is mandatory. No `any` types. STRICTLY PROHIBITED: Using @ts-ignore, @ts-expect-error, or eslint-disable to bypass type or lint errors.
 
 ### II. Code Limits (ADR-030)
 - Maximum 200 lines per file
@@ -348,6 +348,11 @@ Four standardized status patterns:
 - Permission errors: denial reason only — no technical details
 - Session expired: notification + restart button
 
+### LXX. Critical Bug-Fixing Methodology
+1. NEVER write wrappers or proxy functions to patch or hide bad code.
+2. ALWAYS fix the root cause DIRECTLY inside the problematic original code.
+3. STRICTLY PROHIBITED: Using @ts-ignore, @ts-expect-error, or eslint-disable to bypass type or lint errors.
+
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-19 | **Last Amended**: 2026-03-19
+**Version**: 1.1.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-21
