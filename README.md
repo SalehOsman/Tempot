@@ -189,7 +189,7 @@ tempot/
 
 ## 📜 Architectural Decision Records (ADRs)
 
-Tempot's architecture is governed by **37 formal ADRs**, ensuring every technical choice is justified and documented.
+Tempot's architecture is governed by **29 formal ADRs**, ensuring every technical choice is justified and documented.
 
 | ADR | Decision | Key Detail |
 |-----|----------|------------|
@@ -201,9 +201,9 @@ Tempot's architecture is governed by **37 formal ADRs**, ensuring every technica
 | ADR-017 | Drizzle for pgvector | Native vector operations |
 | ADR-019 | Queue Factory | Centralized BullMQ management |
 | ADR-020 | sanitize-html + ratelimiter | Security libraries over custom |
-| ADR-030 | Code Limits | 200 lines/file, 50 lines/function |
-| ADR-034 | No Double Logging | `loggedAt` flag on errors |
-| ADR-037 | Hono Auth Strategy | Session-based authentication |
+| ADR-026 | neverthrow | Result Object Pattern |
+| ADR-028 | Vitest & Testcontainers | Testing strategy |
+| ADR-029 | Zod | Validation schemas |
 
 > 📄 Full ADR documents at `docs/architecture/adr/`
 
