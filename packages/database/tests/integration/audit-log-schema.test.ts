@@ -7,7 +7,11 @@ describe('AuditLog Schema', () => {
   beforeAll(async () => {
     await testDb.start();
     const { execSync } = await import('child_process');
-    execSync('pnpm prisma db push --accept-data-loss', { env: process.env });
+    const path = await import('path');
+    execSync('pnpm prisma db push --accept-data-loss', {
+      env: process.env,
+      cwd: path.resolve(__dirname, '../../'),
+    });
   }, 60000);
 
   afterAll(async () => {

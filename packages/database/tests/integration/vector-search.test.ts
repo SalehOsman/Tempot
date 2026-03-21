@@ -14,8 +14,12 @@ describe('Vector Search', () => {
   beforeAll(async () => {
     await testDb.start();
     const { execSync } = await import('child_process');
+    const path = await import('path');
     // We need to push the drizzle schema
-    execSync('pnpm exec drizzle-kit push', { env: process.env });
+    execSync('pnpm exec drizzle-kit push', {
+      env: process.env,
+      cwd: path.resolve(__dirname, '../../'),
+    });
 
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db = drizzle(pool);

@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Global Audit Fields (Constitution Rule XXVII)
+// These should be copied to every model that needs audit/soft-delete
+// until Prisma supports native mixins or global fields.
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([isDeleted])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userRole  String?
+  action    String
+  module    String
+  targetId  String?
+  before    Json?
+  after     Json?
+  status    String   @default("SUCCESS")
+  timestamp DateTime @default(now())
+
+  @@index([module, action])
+  @@index([userId])
+}
