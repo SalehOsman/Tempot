@@ -1,0 +1,22 @@
+{
+  "name": "@tempot/logger",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "pino": "^9.0.0",
+    "pino-pretty": "^13.0.0",
+    "neverthrow": "^8.2.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}
