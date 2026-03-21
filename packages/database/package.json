@@ -1,0 +1,33 @@
+{
+  "name": "@tempot/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "db:merge": "tsx scripts/merge-schemas.ts",
+    "db:generate": "pnpm db:merge && prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.0.0",
+    "drizzle-orm": "^0.45.x",
+    "@casl/prisma": "^1.x",
+    "neverthrow": "8.2.0",
+    "pg": "^8.x",
+    "glob": "^11.x"
+  },
+  "devDependencies": {
+    "prisma": "^7.0.0",
+    "drizzle-kit": "^0.x",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.0",
+    "@types/node": "^20.x",
+    "@testcontainers/postgresql": "^10.x",
+    "testcontainers": "^10.x"
+  }
+}
