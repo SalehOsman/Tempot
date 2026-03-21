@@ -1575,7 +1575,7 @@ SpecKit إطار عمل مفتوح المصدر من GitHub يعتمد على Sp
 | 4 | `/speckit.plan` | `plan.md` + `data-model.md` + `research.md` | مراجعة الخطة |
 | 5 | `/speckit.validate` | تقرير تحقق ضد المواصفات | حل كل التعارضات |
 
-> ⚠️ **لا تُستخدم** `/speckit.tasks` و`/speckit.implement` — يُستبدلان بـ superpowers (أدق وأقوى).
+> ✅ **التنفيذ:** يتم استخدام `writing-plans` و `executing-plans` (أدق وأقوى).
 
 ### المرحلة الثانية — التنفيذ والجودة (superpowers)
 
@@ -1962,7 +1962,7 @@ claude plugin install example-skills@anthropic-agent-skills --scope project
 | الاستقلالية | كل اختبار مستقل لا يعتمد على نتيجة اختبار آخر |
 | البيانات | كل اختبار ينشئ بياناته ويحذفها |
 | Mock | كل استدعاء خارجي (AI, Storage, Notifications) يُحاكى |
-| TDD | Test tasks تُكتب قبل Implementation tasks في `/speckit.tasks` |
+| TDD | يتم التخطيط للاختبارات في `writing-plans` والتنفيذ عبر `executing-plans` قبل الكود. |
 
 ## 24.5 Testcontainers
 

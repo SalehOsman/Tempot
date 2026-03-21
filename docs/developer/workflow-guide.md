@@ -97,7 +97,7 @@
 
 > بعد إتمام الخطوات 1-5، SpecKit أدى دوره. الآن superpowers يتولى التنفيذ.
 >
-> **لا تُستخدم** `/speckit.tasks` ولا `/speckit.implement` — superpowers أدق وأقوى.
+> **تنبيه:** superpowers تتولى التنفيذ بالكامل عبر `writing-plans` و `executing-plans`.
 
 ---
 
