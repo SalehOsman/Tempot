@@ -1,9 +1,16 @@
-// Minimal bot-server — connection test only
-// No database, no Redis, no external services
-// Purpose: verify BOT_TOKEN and Telegram connectivity before infrastructure setup
-//
-// To run: pnpm dev (from root) or pnpm dev (from apps/bot-server)
-// Requires: BOT_TOKEN in .env
+/**
+ * [PROTOTYPE - WILL NOT ENTER PRODUCTION]
+ *
+ * ⚠️ WARNING: This file currently violates several constitutional rules:
+ * - Rule XXXIX (i18n-Only): Contains hardcoded English strings.
+ * - Rule XXV (Security by Default): Lacks CASL, Ratelimiter, and Zod layers.
+ *
+ * This minimal implementation exists SOLELY to test the Telegram bot connection
+ * before the core infrastructure packages are built.
+ * IT MUST BE DELETED AND REWRITTEN as soon as the core packages (logger, i18n, etc.) are ready.
+ */
+
+// To run: pnpm dev (from root)
 
 import { Bot } from 'grammy';
 
@@ -44,3 +51,15 @@ bot.start({
     console.log('📡 Listening for messages... (Ctrl+C to stop)');
   },
 });
+
+// Basic graceful shutdown (Partial compliance with Rule XVII)
+const stopRunner = () => {
+  console.log('\n🛑 Stopping bot gracefully...');
+  bot.stop().then(() => {
+    console.log('✅ Bot stopped.');
+    process.exit(0);
+  });
+};
+
+process.once('SIGINT', stopRunner);
+process.once('SIGTERM', stopRunner);
