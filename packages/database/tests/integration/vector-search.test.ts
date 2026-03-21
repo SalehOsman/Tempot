@@ -33,36 +33,37 @@ describe('Vector Search', () => {
     await testDb.stop();
   });
 
-  it('should return semantically similar results', async () => {
+  it('should return semantically similar results via Result object', async () => {
     // Insert some mock embeddings
-    // Vector 1: [1, 0, 0, ...]
     const vec1 = new Array(768).fill(0);
     vec1[0] = 1;
 
-    // Vector 2: [0.9, 0.1, 0, ...] - Close to vec1
     const vec2 = new Array(768).fill(0);
     vec2[0] = 0.9;
     vec2[1] = 0.1;
 
-    // Vector 3: [0, 1, 0, ...] - Far from vec1
     const vec3 = new Array(768).fill(0);
     vec3[1] = 1;
 
-    await repo.create({
+    const createResult1 = await repo.create({
       contentId: 'item1',
       contentType: 'test',
       vector: vec1,
     });
+    expect(createResult1.isOk()).toBe(true);
 
-    await repo.create({
+    const createResult2 = await repo.create({
       contentId: 'item2',
       contentType: 'test',
       vector: vec3,
     });
+    expect(createResult2.isOk()).toBe(true);
 
     // Search using vec2 (should find vec1 first)
-    const results = await repo.search(vec2, 5);
+    const searchResult = await repo.search(vec2, 5);
+    expect(searchResult.isOk()).toBe(true);
 
+    const results = searchResult._unsafeUnwrap();
     expect(results.length).toBeGreaterThan(0);
     expect(results[0].contentId).toBe('item1');
   });

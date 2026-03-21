@@ -4,3 +4,4 @@ export * from './base/vector.repository';
 export * from './prisma/client';
 export * from './drizzle/schema';
 export * from './manager/transaction.manager';
+export * from './config';

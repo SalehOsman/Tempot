@@ -1,6 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { sessionContext } from '@tempot/session-manager';
+import { prisma } from '../prisma/client';
 
 /**
  * Abstract Base Repository with Result pattern and Audit Log triggers
@@ -8,11 +9,30 @@ import { sessionContext } from '@tempot/session-manager';
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export abstract class BaseRepository<T> {
-  protected abstract model: any;
   protected abstract moduleName: string;
   protected abstract entityName: string;
 
-  constructor(protected auditLogger: any) {}
+  /**
+   * Database client (can be standard prisma client or transaction client)
+   */
+  constructor(
+    protected auditLogger: any,
+    protected db: any = prisma,
+  ) {}
+
+  /**
+   * The Prisma model for this entity.
+   * Must be implemented by subclasses to return the correct model from this.db
+   */
+  protected abstract get model(): any;
+
+  /**
+   * Create a new instance of this repository using a transaction client
+   */
+  withTransaction(tx: any): this {
+    const RepositoryClass = this.constructor as any;
+    return new RepositoryClass(this.auditLogger, tx);
+  }
 
   /**
    * Helper to get user context from session
@@ -71,6 +91,9 @@ export abstract class BaseRepository<T> {
     try {
       // Get before state for audit log
       const before = await this.model.findUnique({ where: { id } });
+      if (!before) {
+        return err(new AppError(`${this.moduleName}.not_found`));
+      }
 
       const item = await this.model.update({
         where: { id },
@@ -102,9 +125,16 @@ export abstract class BaseRepository<T> {
     const { userId, userRole } = this.getContext();
     try {
       const before = await this.model.findUnique({ where: { id } });
+      if (!before) {
+        return err(new AppError(`${this.moduleName}.not_found`));
+      }
 
+      // Pass deletedBy to the delete call (extension will pick it up)
       await this.model.delete({
         where: { id },
+        data: {
+          deletedBy: userId,
+        },
       });
 
       // Trigger Audit Log

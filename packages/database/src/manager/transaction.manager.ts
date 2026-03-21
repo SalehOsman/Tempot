@@ -23,6 +23,7 @@ export class TransactionManager {
         return result;
       });
     } catch (e) {
+      console.error('Transaction failed:', e);
       if (e instanceof AppError) {
         return err(e);
       }

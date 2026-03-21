@@ -49,4 +49,13 @@ describe('Soft Delete Extension', () => {
     expect(activeUsers.some((u: { name: string }) => u.name === 'Active User')).toBe(true);
     expect(activeUsers.some((u: { name: string }) => u.name === 'Deleted User')).toBe(false);
   });
+
+  it('should return null when finding a deleted record via findUnique', async () => {
+    const user = await prisma.user.create({ data: { name: 'Unique Soft Delete' } });
+    await prisma.user.delete({ where: { id: user.id } });
+
+    // This should return null if the extension is working correctly
+    const found = await prisma.user.findUnique({ where: { id: user.id } });
+    expect(found).toBeNull();
+  });
 });
