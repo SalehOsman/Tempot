@@ -14,20 +14,25 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@prisma/client": "^7.0.0",
-    "drizzle-orm": "^0.45.x",
     "@casl/prisma": "^1.x",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.0.0",
+    "@tempot/session-manager": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "drizzle-orm": "^0.45.x",
+    "glob": "^11.x",
     "neverthrow": "8.2.0",
     "pg": "^8.x",
-    "glob": "^11.x"
+    "pgvector": "^0.2.1"
   },
   "devDependencies": {
-    "prisma": "^7.0.0",
-    "drizzle-kit": "^0.x",
-    "tsx": "^4.21.0",
-    "vitest": "^4.1.0",
-    "@types/node": "^20.x",
     "@testcontainers/postgresql": "^10.x",
-    "testcontainers": "^10.x"
+    "@types/node": "^20.x",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.x",
+    "prisma": "^7.0.0",
+    "testcontainers": "^10.x",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.0"
   }
 }
