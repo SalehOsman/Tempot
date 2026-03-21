@@ -28,3 +28,19 @@ model User {
 
   @@index([isDeleted])
 }
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userRole  String?
+  action    String
+  module    String
+  targetId  String?
+  before    Json?
+  after     Json?
+  status    String   @default("SUCCESS")
+  timestamp DateTime @default(now())
+
+  @@index([module, action])
+  @@index([userId])
+}
