@@ -301,6 +301,7 @@ The [**Project Constitution**](.specify/memory/constitution.md) is the **highest
 |----------|-------------|
 | [Architecture Spec](docs/tempot_v11_final.md) | Complete architectural specification (v11.0 — 2879 lines, 29 sections) |
 | [Constitution](.specify/memory/constitution.md) | 69 governing principles — the highest authority |
+| [UX Style Guide](docs/guides/UX-STYLE-GUIDE.md) | Standardized UX/UI rules for bot, dashboard, and mini-app |
 | [Workflow Guide](docs/developer/workflow-guide.md) | SpecKit + superpowers step-by-step guide |
 
 ---

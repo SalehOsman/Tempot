@@ -1,4 +1,10 @@
-# RTL Guidelines — Arabic Right-to-Left Implementation
+# RTL Guidelines (Legacy)
+
+> ⚠️ **NOTICE:** This document is now considered **legacy**. All UX and UI standards, including RTL implementation details, have been consolidated into the unified [**UX Style Guide**](./UX-STYLE-GUIDE.md). Please refer to the new guide for all future development.
+
+---
+
+# Original RTL Guidelines — Arabic Right-to-Left Implementation
 
 > Reference: Spec v11, Section 13.2 — Constitution Rule XLII
 
