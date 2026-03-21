@@ -20,6 +20,11 @@
     "docker:reset": "docker compose down -v && docker compose up -d"
   },
   "type": "module",
+  "dependencies": {
+    "@tempot/database": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "@tempot/session-manager": "workspace:*"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
