@@ -1,4 +1,5 @@
 import { Queue, QueueOptions } from 'bullmq';
+import { ShutdownManager } from '../shutdown/shutdown.manager';
 
 /**
  * Tracks all active queue instances for shutdown orchestration.
@@ -27,5 +28,12 @@ export function queueFactory(name: string, options?: Partial<QueueOptions>) {
   });
 
   activeQueues.push(queue);
+
+  // Register for graceful shutdown automatically
+  ShutdownManager.register(async () => {
+    console.log(`📡 Closing queue: ${name}`);
+    await queue.close();
+  });
+
   return queue;
 }

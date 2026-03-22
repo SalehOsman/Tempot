@@ -9,6 +9,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tempot/event-bus": "workspace:*",
+    "bullmq": "^5.71.0",
     "cache-manager": "^6.4.0",
     "i18next": "^25.10.3",
     "ioredis": "^5.5.0",

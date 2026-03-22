@@ -70,7 +70,9 @@ describe('ShutdownManager', () => {
     // Fast forward 30 seconds
     vi.advanceTimersByTime(30000);
 
-    expect(mockConsoleError).toHaveBeenCalledWith('FATAL: Shutdown exceeded 30s timeout.');
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      'FATAL: Shutdown exceeded 30s timeout. Forcing exit.',
+    );
     expect(mockExit).toHaveBeenCalledWith(1);
 
     mockExit.mockRestore();
