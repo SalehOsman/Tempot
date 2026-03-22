@@ -22,6 +22,7 @@
   "type": "module",
   "dependencies": {
     "@tempot/database": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
@@ -37,6 +38,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^10.0.0",
+    "@testcontainers/redis": "^11.13.0",
     "@vitest/coverage-v8": "^4.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.0.0",
