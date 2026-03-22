@@ -8,7 +8,8 @@
   "dependencies": {
     "@casl/ability": "^6.5.0",
     "@casl/prisma": "^1.4.0",
-    "@tempot/shared": "workspace:*"
+    "@tempot/shared": "workspace:*",
+    "neverthrow": "^8.2.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
