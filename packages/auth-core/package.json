@@ -1,0 +1,17 @@
+{
+  "name": "@tempot/auth-core",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@casl/ability": "^6.5.0",
+    "@casl/prisma": "^1.4.0",
+    "@tempot/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^1.4.0"
+  }
+}
