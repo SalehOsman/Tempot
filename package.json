@@ -22,6 +22,7 @@
   "type": "module",
   "dependencies": {
     "@tempot/database": "workspace:*",
+    "@tempot/logger": "workspace:*",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
     "tslib": "^2.8.1"
