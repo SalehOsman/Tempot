@@ -1,2 +1,1 @@
-// @tempot/event-bus stub
-export {};
+export * from './contracts.js';
