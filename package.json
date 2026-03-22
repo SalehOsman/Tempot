@@ -23,7 +23,8 @@
   "dependencies": {
     "@tempot/database": "workspace:*",
     "@tempot/session-manager": "workspace:*",
-    "@tempot/shared": "workspace:*"
+    "@tempot/shared": "workspace:*",
+    "tslib": "^2.8.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
