@@ -5,6 +5,12 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
+    "cache-manager": "^6.4.0",
+    "i18next": "^25.10.3",
+    "ioredis": "^5.5.0",
     "neverthrow": "8.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
   }
 }
