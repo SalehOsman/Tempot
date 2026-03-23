@@ -16,7 +16,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   name      String
-  
+
   // Audit fields
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,4 +43,29 @@ model AuditLog {
 
   @@index([module, action])
   @@index([userId])
+}
+
+model Session {
+  id                 String   @id // Composite of userId:chatId
+  userId             String
+  chatId             String
+  role               String   @default("GUEST")
+  status             String   @default("ACTIVE")
+  language           String   @default("ar-EG")
+  activeConversation String?
+  metadata           Json?
+  schemaVersion      Int      @default(1)
+  version            Int      @default(1)
+
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([userId, chatId])
+  @@index([isDeleted])
 }
