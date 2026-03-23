@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@prisma/client": "^7.5.0",
     "@tempot/database": "workspace:*",
     "@tempot/event-bus": "workspace:*",
     "@tempot/shared": "workspace:*",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "vitest": "4.1.0",
     "typescript": "5.9.3",
-    "@testcontainers/redis": "11.13.0"
+    "@testcontainers/redis": "11.13.0",
+    "@types/node": "^20.0.0"
   }
 }
