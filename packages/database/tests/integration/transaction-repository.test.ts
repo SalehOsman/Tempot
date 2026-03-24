@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { TestDB } from '../utils/test-db';
-import { BaseRepository } from '../../src/base/base.repository';
+import { BaseRepository, PrismaModelDelegate } from '../../src/base/base.repository';
 import { TransactionManager } from '../../src/manager/transaction.manager';
 import { AppError } from '@tempot/shared';
 import { err } from 'neverthrow';
@@ -22,10 +22,11 @@ class UserRepo extends BaseRepository<UserEntity> {
   protected moduleName = 'users';
   protected entityName = 'user';
 
-  // Override to use dynamic model selection based on this.db
-  protected get model() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (this.db as any).user;
+  // Access the user model delegate from the database client.
+  // TransactionClient doesn't expose model accessors in its type,
+  // but they exist at runtime. Cast through Record to access.
+  protected get model(): PrismaModelDelegate {
+    return (this.db as unknown as Record<string, PrismaModelDelegate>).user;
   }
 }
 

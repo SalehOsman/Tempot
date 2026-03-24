@@ -24,10 +24,10 @@ export class TestDB {
     // Enable pgvector extension explicitly
     await this.pool.query('CREATE EXTENSION IF NOT EXISTS vector;');
 
-    const adapter = new PrismaPg(this.pool);
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    this.prisma = new PrismaClient({ adapter } as any);
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    // PrismaPg expects its own bundled @types/pg Pool type (8.11.11),
+    // which conflicts with our @types/pg (8.20.0). Structurally compatible at runtime.
+    const adapter = new PrismaPg(this.pool as unknown as ConstructorParameters<typeof PrismaPg>[0]);
+    this.prisma = new PrismaClient({ adapter } as ConstructorParameters<typeof PrismaClient>[0]);
   }
 
   async stop() {

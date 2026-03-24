@@ -40,4 +40,29 @@ describe('TransactionManager', () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBe(expectedError);
   });
+
+  it('should write structured JSON to stderr on unexpected transaction failure', async () => {
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+    const unexpectedError = new Error('connection reset');
+
+    (prisma.$transaction as Mock).mockRejectedValue(unexpectedError);
+
+    const result = await TransactionManager.run(async (_tx) => {
+      return ok('never reached');
+    });
+
+    expect(result.isErr()).toBe(true);
+    expect(stderrSpy).toHaveBeenCalledTimes(1);
+
+    const written = stderrSpy.mock.calls[0][0] as string;
+    const parsed = JSON.parse(written);
+    expect(parsed).toMatchObject({
+      level: 'error',
+      module: 'database',
+      message: 'Transaction failed',
+    });
+    expect(parsed.error).toBeDefined();
+
+    stderrSpy.mockRestore();
+  });
 });

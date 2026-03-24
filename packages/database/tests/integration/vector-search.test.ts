@@ -4,6 +4,8 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { DrizzleVectorRepository } from '../../src/base/vector.repository';
 import { Pool } from 'pg';
 
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
 class TestVectorRepository extends DrizzleVectorRepository {}
 
 describe('Vector Search', () => {
@@ -22,10 +24,8 @@ describe('Vector Search', () => {
     });
 
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const db = drizzle(pool);
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    repo = new TestVectorRepository(db as any);
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const db: NodePgDatabase = drizzle(pool);
+    repo = new TestVectorRepository(db);
   }, 60000);
 
   afterAll(async () => {

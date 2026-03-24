@@ -3,7 +3,6 @@ import { BaseEntity } from '../../src/base/base.entity';
 
 describe('BaseEntity', () => {
   it('should have all mandatory audit fields defined', () => {
-    // @ts-expect-error - testing abstract class via subclass mock
     class MockEntity extends BaseEntity {
       id = 'uuid';
       createdAt = new Date();

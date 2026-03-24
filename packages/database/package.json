@@ -2,9 +2,16 @@
   "name": "@tempot/database",
   "version": "0.1.0",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
+    "build": "tsc",
     "db:merge": "tsx scripts/merge-schemas.ts",
     "db:generate": "pnpm db:merge && prisma generate",
     "db:migrate": "prisma migrate dev",

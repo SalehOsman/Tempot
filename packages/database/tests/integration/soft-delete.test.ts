@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TestDB } from '../utils/test-db';
+import { PrismaClient } from '@prisma/client';
 
 describe('Soft Delete Extension', () => {
   const testDb = new TestDB();
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  let prisma: any;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  // The extended prisma client from src/prisma/client (with soft-delete extensions).
+  // Typed as PrismaClient since $extends() produces a structurally compatible supertype.
+  let prisma: PrismaClient;
 
   beforeAll(async () => {
     await testDb.start();
@@ -38,6 +39,23 @@ describe('Soft Delete Extension', () => {
     expect(dbUser).toBeDefined();
     expect(dbUser?.isDeleted).toBe(true);
     expect(dbUser?.deletedAt).toBeDefined();
+  });
+
+  it('should propagate deletedBy through the soft-delete extension', async () => {
+    const user = await prisma.user.create({
+      data: { name: 'Test DeletedBy' },
+    });
+
+    await prisma.user.delete({
+      where: { id: user.id },
+      data: { deletedBy: 'user-123' },
+    } as Record<string, unknown>);
+
+    const dbUser = await testDb.prisma.user.findUnique({ where: { id: user.id } });
+
+    expect(dbUser).toBeDefined();
+    expect(dbUser?.isDeleted).toBe(true);
+    expect(dbUser?.deletedBy).toBe('user-123');
   });
 
   it('should filter out deleted records in findMany', async () => {

@@ -1,7 +1,16 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+// ISSUE-001: Deep import to avoid circular dependency.
+// @tempot/session-manager barrel re-exports ./repository which imports @tempot/database.
+// Fix: session-manager should add subpath export `@tempot/session-manager/context`.
 import { sessionContext } from '@tempot/session-manager/src/context';
 import { prisma, Prisma, PrismaClient } from '../prisma/client';
+
+/**
+ * Database client type that accepts base PrismaClient, TransactionClient,
+ * or the extended client (from $extends()) used by the prisma proxy.
+ */
+type DatabaseClient = PrismaClient | Prisma.TransactionClient | typeof prisma;
 
 /**
  * Local interface for Audit Logger to avoid circular dependencies
@@ -9,6 +18,22 @@ import { prisma, Prisma, PrismaClient } from '../prisma/client';
 export interface IAuditLogger {
   log: (data: Record<string, unknown>) => Promise<void>;
 }
+
+/**
+ * Minimal structural interface for a Prisma model delegate.
+ *
+ * Prisma 7 delegates use deeply-branded generics (Exact<A, Args<T, 'findUnique'>>)
+ * that cannot be expressed as a simple TypeScript interface without `any`.
+ * This interface captures the structural shape at the Prisma boundary layer.
+ * All `any` usage is isolated to this single interface definition.
+ *
+ * PRISMA-BOUNDARY: This is the ONLY place `any` appears in @tempot/database.
+ * When Prisma provides a proper base delegate type, replace this interface.
+ *
+ * @see https://github.com/prisma/prisma/issues/20798
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma boundary: delegates use branded generics incompatible with strict interfaces
+export type PrismaModelDelegate = Record<string, any>;
 
 /**
  * Abstract Base Repository with Result pattern and Audit Log triggers
@@ -23,15 +48,14 @@ export abstract class BaseRepository<T extends { id: string }> {
    */
   constructor(
     protected auditLogger: IAuditLogger,
-    protected db: PrismaClient | Prisma.TransactionClient = prisma,
+    protected db: DatabaseClient = prisma,
   ) {}
 
   /**
-   * The Prisma model for this entity.
-   * Must be implemented by subclasses to return the correct model from this.db
+   * The Prisma model delegate for this entity.
+   * Must be implemented by subclasses to return the correct model from this.db.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected abstract get model(): any;
+  protected abstract get model(): PrismaModelDelegate;
 
   /**
    * Create a new instance of this repository using a transaction client
@@ -66,6 +90,17 @@ export abstract class BaseRepository<T extends { id: string }> {
       return ok(item as T);
     } catch (e) {
       return err(new AppError(`${this.moduleName}.unexpected_error`, e));
+    }
+  }
+
+  async findMany(where?: Record<string, unknown>): Promise<Result<T[], AppError>> {
+    try {
+      const items = await this.model.findMany({
+        where: { isDeleted: false, ...where },
+      });
+      return ok(items as T[]);
+    } catch (e) {
+      return err(new AppError(`${this.moduleName}.find_many_failed`, e));
     }
   }
 
