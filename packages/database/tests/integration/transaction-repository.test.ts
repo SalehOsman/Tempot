@@ -1,31 +1,44 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { TestDB } from '../utils/test-db';
 import { BaseRepository } from '../../src/base/base.repository';
 import { TransactionManager } from '../../src/manager/transaction.manager';
 import { AppError } from '@tempot/shared';
 import { err } from 'neverthrow';
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-class UserRepo extends BaseRepository<any> {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+interface UserEntity {
+  id: string;
+  name: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+class UserRepo extends BaseRepository<UserEntity> {
   protected moduleName = 'users';
   protected entityName = 'user';
 
   // Override to use dynamic model selection based on this.db
   protected get model() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.db as any).user;
   }
 }
 
 describe('BaseRepository Transaction Support', () => {
   const testDb = new TestDB();
-  const auditLogger = { log: async () => {} };
+  const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
 
   beforeAll(async () => {
     await testDb.start();
-    const { execSync } = await import('child_process');
-    const path = await import('path');
-    execSync('pnpm prisma db push --accept-data-loss', {
-      env: process.env,
+
+    // Run schema push for integration tests
+    execSync('cmd.exe /c pnpm prisma db push --accept-data-loss', {
+      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       cwd: path.resolve(__dirname, '../../'),
     });
   }, 60000);
@@ -66,4 +79,3 @@ describe('BaseRepository Transaction Support', () => {
     expect(user?.name).toBe('CommitMe');
   });
 });
-/* eslint-enable @typescript-eslint/no-explicit-any */

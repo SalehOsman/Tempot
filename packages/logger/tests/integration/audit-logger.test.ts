@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { TestDB } from '../../../../packages/database/tests/utils/test-db';
+import { AuditLogRepository, IAuditLogger } from '@tempot/database';
 import { AuditLogger, AuditLogEntry } from '../../src/audit/audit.logger';
+import { sessionContext } from '@tempot/session-manager/src/context';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -20,7 +22,11 @@ describe('AuditLogger Integration', () => {
       cwd: path.resolve(__dirname, '../../../../packages/database'),
     });
 
-    auditLogger = new AuditLogger(testDb.prisma);
+    const mockAuditLogger = {
+      log: vi.fn().mockResolvedValue(undefined),
+    } as unknown as IAuditLogger;
+    const repository = new AuditLogRepository(mockAuditLogger, testDb.prisma);
+    auditLogger = new AuditLogger(repository);
   }, 60000);
 
   afterAll(async () => {
@@ -34,7 +40,12 @@ describe('AuditLogger Integration', () => {
       targetId: 'test-target-id',
     };
 
-    const result = await auditLogger.log(entry);
+    const result = await sessionContext.run(
+      { userId: 'test-user-id', userRole: 'ADMIN' },
+      async () => {
+        return await auditLogger.log(entry);
+      },
+    );
     expect(result.isOk()).toBe(true);
 
     const logEntry = await testDb.prisma.auditLog.findFirst({
@@ -42,8 +53,9 @@ describe('AuditLogger Integration', () => {
     });
 
     expect(logEntry).toBeDefined();
-    expect(logEntry?.userId).toBe('test-user-id'); // From mock sessionContext
-    expect(logEntry?.userRole).toBe('ADMIN'); // From mock sessionContext
+    // In our mock session context, the values are 'test-user-id' and 'ADMIN'
+    expect(logEntry?.userId).toBe('test-user-id');
+    expect(logEntry?.userRole).toBe('ADMIN');
     expect(logEntry?.module).toBe('test.module');
     expect(logEntry?.targetId).toBe('test-target-id');
   });

@@ -1,6 +1,6 @@
 import { Result, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma } from '../prisma/client';
+import { prisma, Prisma, PrismaClient } from '../prisma/client';
 
 /**
  * Manager for atomic multi-repository operations
@@ -11,10 +11,11 @@ export class TransactionManager {
    * Run a function within a database transaction
    * If the function returns an Err result, the transaction is rolled back
    */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  static async run<T>(fn: (tx: any) => Promise<Result<T, AppError>>): Promise<Result<T, AppError>> {
+  static async run<T>(
+    fn: (tx: Prisma.TransactionClient) => Promise<Result<T, AppError>>,
+  ): Promise<Result<T, AppError>> {
     try {
-      return await (prisma as any).$transaction(async (tx: any) => {
+      return await (prisma as PrismaClient).$transaction(async (tx: Prisma.TransactionClient) => {
         const result = await fn(tx);
         if (result.isErr()) {
           // In Prisma, throwing an error inside $transaction triggers rollback
@@ -30,5 +31,4 @@ export class TransactionManager {
       return err(new AppError('database.transaction_failed', e));
     }
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }

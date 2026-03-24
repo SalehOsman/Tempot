@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EventBusOrchestrator } from '../../src/orchestrator';
+import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator';
+import { ConnectionWatcher } from '../../src/distributed/connection.watcher';
+
+interface MockLogger {
+  error: ReturnType<typeof vi.fn>;
+  info: ReturnType<typeof vi.fn>;
+}
 
 describe('EventBus Degradation (Rule XXXII)', () => {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  let mockLogger: any;
+  let mockLogger: MockLogger;
   let orchestrator: EventBusOrchestrator;
 
   beforeEach(() => {
@@ -14,14 +19,17 @@ describe('EventBus Degradation (Rule XXXII)', () => {
 
     orchestrator = new EventBusOrchestrator({
       redis: { connectionString: 'redis://localhost:6379' },
-      logger: mockLogger,
+      logger: mockLogger as unknown as OrchestratorConfig['logger'],
     });
   });
 
   it('should trigger critical alert on degradation', async () => {
     // Manually trigger the status change callback for testing
-    const watcher = (orchestrator as any).watcher;
-    watcher.statusCallback(false);
+    // Using a type-safe-ish cast to access private members for testing
+    const testableOrchestrator = orchestrator as unknown as {
+      watcher: { statusCallback: (available: boolean) => void };
+    };
+    testableOrchestrator.watcher.statusCallback(false);
 
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -32,7 +40,10 @@ describe('EventBus Degradation (Rule XXXII)', () => {
   });
 
   it('should deliver to local bus when redis is unavailable', async () => {
-    const watcher = (orchestrator as any).watcher;
+    const testableOrchestrator = orchestrator as unknown as {
+      watcher: ConnectionWatcher;
+    };
+    const watcher = testableOrchestrator.watcher;
     vi.spyOn(watcher, 'isRedisAvailable').mockReturnValue(false);
 
     let received = false;
@@ -43,5 +54,4 @@ describe('EventBus Degradation (Rule XXXII)', () => {
     await orchestrator.publish('test.event.fired', {});
     expect(received).toBe(true);
   });
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 });

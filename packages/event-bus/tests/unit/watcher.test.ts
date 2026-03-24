@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import Redis from 'ioredis';
 import { ConnectionWatcher } from '../../src/distributed/connection.watcher';
 
 describe('ConnectionWatcher', () => {
@@ -9,8 +10,7 @@ describe('ConnectionWatcher', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    watcher = new ConnectionWatcher(mockRedis as any, {
+    watcher = new ConnectionWatcher(mockRedis as unknown as Redis, {
       intervalMs: 2000,
       stabilizationThreshold: 5,
     });

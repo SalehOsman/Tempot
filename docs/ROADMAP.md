@@ -44,15 +44,16 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 ### Critical Blockers
 
-| ID | Issue | Package |
-|----|-------|---------|
-| CRITICAL-001 | session-manager is a hollow stub | session-manager |
-| CRITICAL-002 | Silent failure in getPrismaClient | database |
-| CRITICAL-003 | eslint-disable any in 7 files | database, event-bus, logger |
+| ID | Issue | Package | Status |
+|----|-------|---------|--------|
+| CRITICAL-001 | session-manager is a hollow stub | session-manager | ✅ RESOLVED |
+| CRITICAL-002 | Silent failure in getPrismaClient | database | Pending verification |
+| CRITICAL-003 | eslint-disable any in 7 files | database, event-bus, logger | ✅ RESOLVED |
 
 ### Next Action
 
-**session-manager** — First package to go through the full SpecKit → Superpowers workflow as a reference implementation.
+**session-manager** — Built, pending code review + merge.
+**i18n-core** — Next package to start SpecKit workflow.
 
 ## Phase 2 — Bot Server Reconstruction
 

@@ -1,8 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { BaseRepository } from '../../src/base/base.repository';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-class TestRepository extends BaseRepository<any> {
+interface TestEntity {
+  id: string;
+  name?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+class TestRepository extends BaseRepository<TestEntity> {
   private _mockModel = {
     create: vi.fn().mockImplementation((args) => Promise.resolve({ id: 'new-id', ...args.data })),
     findUnique: vi.fn(),
@@ -26,7 +32,7 @@ class TestRepository extends BaseRepository<any> {
 describe('BaseRepository', () => {
   it('should trigger AuditLogger on create', async () => {
     const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
-    const repo = new TestRepository(auditLogger as any);
+    const repo = new TestRepository(auditLogger);
 
     const data = { name: 'test item' };
     const result = await repo.create(data);
@@ -41,4 +47,3 @@ describe('BaseRepository', () => {
     );
   });
 });
-/* eslint-enable @typescript-eslint/no-explicit-any */

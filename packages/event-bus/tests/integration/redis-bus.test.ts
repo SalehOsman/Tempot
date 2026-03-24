@@ -21,9 +21,7 @@ describe('RedisEventBus Integration', () => {
     const bus1 = new RedisEventBus({ connectionString: redisUrl });
     const bus2 = new RedisEventBus({ connectionString: redisUrl });
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    let receivedPayload: any = null;
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    let receivedPayload: unknown = null;
     let receivedEventName: string | null = null;
 
     await bus1.subscribe('user.profile.updated', (payload) => {

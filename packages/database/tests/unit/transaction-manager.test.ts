@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, Mock } from 'vitest';
 import { TransactionManager } from '../../src/manager/transaction.manager';
-import { prisma } from '../../src/prisma/client';
-import { ok, err } from 'neverthrow';
+import { prisma, Prisma } from '../../src/prisma/client';
+import { ok, err, Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
 vi.mock('../../src/prisma/client', () => ({
@@ -13,8 +13,7 @@ vi.mock('../../src/prisma/client', () => ({
 describe('TransactionManager', () => {
   it('should return ok result when transaction succeeds', async () => {
     const expectedResult = ok('success');
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    (prisma.$transaction as any).mockResolvedValue(expectedResult);
+    (prisma.$transaction as Mock).mockResolvedValue(expectedResult);
 
     const result = await TransactionManager.run(async (_tx) => {
       return expectedResult;
@@ -26,11 +25,13 @@ describe('TransactionManager', () => {
 
   it('should return err result and trigger rollback when task fails', async () => {
     const expectedError = new AppError('test.error');
-    (prisma.$transaction as any).mockImplementation(async (fn: any) => {
-      const result = await fn({});
-      if (result.isErr()) throw result.error;
-      return result;
-    });
+    (prisma.$transaction as Mock).mockImplementation(
+      async (fn: (tx: Prisma.TransactionClient) => Promise<Result<unknown, AppError>>) => {
+        const result = await fn({} as Prisma.TransactionClient);
+        if (result.isErr()) throw result.error;
+        return result;
+      },
+    );
 
     const result = await TransactionManager.run(async (_tx) => {
       return err(expectedError);
@@ -39,5 +40,4 @@ describe('TransactionManager', () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr()).toBe(expectedError);
   });
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 });
