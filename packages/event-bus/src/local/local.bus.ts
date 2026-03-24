@@ -26,18 +26,16 @@ export class LocalEventBus {
 
     const listeners = this.emitter.listeners(eventName);
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     for (const listener of listeners) {
       try {
         // Local listeners are executed synchronously
-        (listener as any)(payload);
+        (listener as (payload: unknown) => void)(payload);
       } catch (error) {
         // Listener isolation: errors in one listener do not stop others.
         // We log the error but continue.
         console.error(`[LocalEventBus] Error in listener for ${eventName}:`, error);
       }
     }
-    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     return ok(undefined);
   }
@@ -46,8 +44,7 @@ export class LocalEventBus {
    * Subscribes a handler to an event.
    * Validates the event name convention.
    */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  subscribe(eventName: string, handler: (payload: any) => void): void {
+  subscribe(eventName: string, handler: (payload: unknown) => void): void {
     if (!validateEventName(eventName)) {
       throw new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`);
     }
@@ -58,8 +55,7 @@ export class LocalEventBus {
   /**
    * Unsubscribes a handler from an event.
    */
-  unsubscribe(eventName: string, handler: (payload: any) => void): void {
+  unsubscribe(eventName: string, handler: (payload: unknown) => void): void {
     this.emitter.off(eventName, handler);
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }

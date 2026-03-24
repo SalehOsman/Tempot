@@ -4,11 +4,18 @@ import { LocalEventBus } from './local/local.bus';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus';
 import { ConnectionWatcher } from './distributed/connection.watcher';
 
+/**
+ * Minimal logger interface for the event bus.
+ * Avoids circular dependency with the main logger package.
+ */
+interface LoggerInterface {
+  error: (data: Record<string, unknown>) => void;
+  info: (message: string) => void;
+}
+
 export interface OrchestratorConfig {
   redis: RedisBusConfig;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  logger: any; // Using any to avoid circular dependency if logger uses event-bus
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  logger: LoggerInterface;
 }
 
 /**
@@ -16,19 +23,18 @@ export interface OrchestratorConfig {
  * Manages Local vs Distributed routing and graceful degradation.
  * Rule: Rule XXXII (Degradation), ADR-008
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export class EventBusOrchestrator {
   private localBus: LocalEventBus;
   private redisBus: RedisEventBus;
   private watcher: ConnectionWatcher;
-  private logger: any;
+  private logger: LoggerInterface;
 
   constructor(config: OrchestratorConfig) {
     this.localBus = new LocalEventBus();
     this.redisBus = new RedisEventBus(config.redis);
     this.logger = config.logger;
 
-    this.watcher = new ConnectionWatcher((this.redisBus as any).pub, {
+    this.watcher = new ConnectionWatcher(this.redisBus.pubClient, {
       intervalMs: 2000,
       stabilizationThreshold: 5,
     });
@@ -71,7 +77,7 @@ export class EventBusOrchestrator {
   /**
    * Subscribes to an event on BOTH buses to ensure delivery.
    */
-  async subscribe(eventName: string, handler: (payload: any) => void): Promise<void> {
+  async subscribe(eventName: string, handler: (payload: unknown) => void): Promise<void> {
     this.localBus.subscribe(eventName, handler);
     await this.redisBus.subscribe(eventName, handler);
   }
@@ -84,4 +90,3 @@ export class EventBusOrchestrator {
     await this.redisBus.dispose();
   }
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */

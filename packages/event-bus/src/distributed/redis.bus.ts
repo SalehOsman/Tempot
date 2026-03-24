@@ -11,11 +11,10 @@ export interface RedisBusConfig {
  * Distributed implementation of the event bus using Redis Pub/Sub.
  * Rule: Rule XXXII (Degradation), ADR-008
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export class RedisEventBus {
   private pub: Redis;
   private sub: Redis;
-  private handlers: Map<string, Array<(payload: any) => void>> = new Map();
+  private handlers: Map<string, Array<(payload: unknown) => void>> = new Map();
 
   constructor(config: RedisBusConfig) {
     this.pub = new Redis(config.connectionString, {
@@ -28,6 +27,14 @@ export class RedisEventBus {
     this.sub.on('message', (channel, message) => {
       this.handleMessage(channel, message);
     });
+  }
+
+  /**
+   * Returns the internal Redis publisher client.
+   * Required for external monitoring by ConnectionWatcher.
+   */
+  public get pubClient(): Redis {
+    return this.pub;
   }
 
   /**
@@ -50,7 +57,7 @@ export class RedisEventBus {
   /**
    * Subscribes a handler to a Redis channel.
    */
-  async subscribe(eventName: string, handler: (payload: any) => void): Promise<void> {
+  async subscribe(eventName: string, handler: (payload: unknown) => void): Promise<void> {
     if (!validateEventName(eventName)) {
       throw new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`);
     }
@@ -92,4 +99,3 @@ export class RedisEventBus {
     await Promise.all([this.pub.quit(), this.sub.quit()]);
   }
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */

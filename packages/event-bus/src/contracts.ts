@@ -1,6 +1,6 @@
 export type EventLevel = 'LOCAL' | 'INTERNAL' | 'EXTERNAL';
 
-export interface EventEnvelope<T = any> {
+export interface EventEnvelope<T = unknown> {
   eventId: string;
   eventName: string;
   module: string;
