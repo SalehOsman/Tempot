@@ -8,6 +8,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tempot/session-manager": "workspace:*",
     "glob": "^11.1.0",
     "i18next": "^25.10.3",
     "neverthrow": "^8.2.0",
