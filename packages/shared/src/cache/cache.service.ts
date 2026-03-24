@@ -8,37 +8,59 @@ export interface EventBus {
 }
 
 /**
+ * Logger interface for CacheService.
+ * Minimal to avoid circular dep with @tempot/logger.
+ */
+export interface CacheLogger {
+  warn: (message: string) => void;
+}
+
+/**
  * Unified Cache Service wrapper around cache-manager
  * Rule: XIX (Cache via cache-manager ONLY), XXI (Result Pattern)
  */
 export class CacheService {
   private cache?: Cache;
 
-  constructor(private eventBus?: EventBus) {}
+  constructor(
+    private eventBus?: EventBus,
+    private logger?: CacheLogger,
+  ) {}
 
   /**
-   * Initialize the cache store
+   * Initialize the cache store.
+   * Returns AsyncResult — no thrown exceptions, no console output.
+   * On failure, falls back to memory cache and publishes alert.
    */
-  async init(simulateFailure = false): Promise<void> {
+  async init(): AsyncResult<void> {
     try {
-      if (simulateFailure) {
-        throw new Error('Simulated Redis failure');
-      }
-      // Default to memory store for now
       this.cache = createCache();
+      return ok(undefined);
     } catch (e) {
-      console.warn('Cache initialization failed, falling back to memory');
+      const errorMessage = e instanceof Error ? e.message : String(e);
+
+      if (this.logger) {
+        this.logger.warn(`Cache initialization failed, falling back to memory: ${errorMessage}`);
+      }
+
       if (this.eventBus) {
         await this.eventBus.publish(
           'system.alert.critical',
           {
             message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
-            error: e instanceof Error ? e.message : String(e),
+            error: errorMessage,
           },
           'LOCAL',
         );
       }
-      this.cache = createCache();
+
+      // Fallback to memory cache (createCache with no args = memory)
+      try {
+        this.cache = createCache();
+        return ok(undefined);
+      } catch {
+        return err(new AppError('shared.cache_init_failed', { originalError: errorMessage }));
+      }
     }
   }
 
