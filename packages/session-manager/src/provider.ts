@@ -3,12 +3,15 @@ import { Session, ISessionProvider } from './types';
 import { AppError } from '@tempot/shared';
 import { SessionRepository } from './repository';
 import { migrateSession } from './migrator';
+import { DEFAULT_SESSION_TTL } from './constants';
 
 /** Cache adapter interface used by SessionProvider. */
 export interface CacheAdapter {
   get: <T>(key: string) => Promise<Result<T | null, AppError>>;
   set: <T>(key: string, value: T, ttl?: number) => Promise<Result<void, AppError>>;
   del: (key: string) => Promise<Result<void, AppError>>;
+  /** Extends the TTL of a key without reading or overwriting its value. */
+  expire: (key: string, ttl: number) => Promise<Result<void, AppError>>;
 }
 
 /** Event bus adapter interface used by SessionProvider. */
@@ -32,8 +35,6 @@ export interface SessionProviderDeps {
  * before transparently falling back to the repository.
  */
 export class SessionProvider implements ISessionProvider {
-  private readonly DEFAULT_TTL = 86400; // 24 hours in seconds
-
   constructor(private deps: SessionProviderDeps) {}
 
   private alertDegradation(operation: string, error: AppError): void {
@@ -49,7 +50,7 @@ export class SessionProvider implements ISessionProvider {
 
   /**
    * Reads the session from Redis; on cache miss or failure falls back to PostgreSQL.
-   * Each successful cache hit resets the 24h sliding TTL.
+   * Each successful cache hit resets the sliding TTL via EXPIRE.
    */
   async getSession(userId: string, chatId: string): Promise<Result<Session, AppError>> {
     const key = this.getSessionKey(userId, chatId);
@@ -62,8 +63,8 @@ export class SessionProvider implements ISessionProvider {
       this.alertDegradation('getSession', cachedResult.error);
     } else if (cachedResult.value) {
       const session = cachedResult.value;
-      // Sliding TTL: Extend expiration on each interaction
-      await this.deps.cache.set(key, session, this.DEFAULT_TTL);
+      // Sliding TTL: Extend expiration using EXPIRE to avoid redundant round-trip
+      await this.deps.cache.expire(key, DEFAULT_SESSION_TTL);
       return ok(session);
     }
 
@@ -78,7 +79,7 @@ export class SessionProvider implements ISessionProvider {
       }
       const session = migrationResult.value;
       // Sync migrated session back to cache
-      await this.deps.cache.set(key, session, this.DEFAULT_TTL);
+      await this.deps.cache.set(key, session, DEFAULT_SESSION_TTL);
       return ok(session);
     }
 
@@ -101,7 +102,9 @@ export class SessionProvider implements ISessionProvider {
     };
 
     // 1. Save to Cache
-    const cacheResult = await this.deps.cache.set(key, updatedSession, this.DEFAULT_TTL);
+    // NOTE: In production, the cache adapter should implement an atomic CAS (e.g. LUA script)
+    // to ensure the session version matches what we expect before overwriting.
+    const cacheResult = await this.deps.cache.set(key, updatedSession, DEFAULT_SESSION_TTL);
     if (cacheResult.isErr()) {
       // Rule XXXII: Redis failure → alert SUPER_ADMIN, continue to ensure persistence via event bus
       this.alertDegradation('saveSession', cacheResult.error);

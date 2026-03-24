@@ -3,6 +3,7 @@ import { SessionProvider } from '../src/provider';
 import { Session } from '../src/types';
 import { SessionRepository } from '../src/repository';
 import { CURRENT_SCHEMA_VERSION } from '../src/migrator';
+import { DEFAULT_SESSION_TTL } from '../src/constants';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
@@ -26,6 +27,7 @@ describe('SessionProvider', () => {
     get: ReturnType<typeof vi.fn>;
     set: ReturnType<typeof vi.fn>;
     del: ReturnType<typeof vi.fn>;
+    expire: ReturnType<typeof vi.fn>;
   };
   let mockBus: {
     publish: ReturnType<typeof vi.fn>;
@@ -45,6 +47,7 @@ describe('SessionProvider', () => {
       get: vi.fn(),
       set: vi.fn(),
       del: vi.fn(),
+      expire: vi.fn(),
     };
     mockBus = {
       publish: vi.fn(),
@@ -70,14 +73,16 @@ describe('SessionProvider', () => {
   describe('getSession', () => {
     it('should return session from cache if available', async () => {
       mockCache.get.mockResolvedValue(ok(mockSession));
+      mockCache.expire.mockResolvedValue(ok(undefined));
 
       const result = await provider.getSession('user-1', 'chat-1');
 
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap()).toEqual(mockSession);
       expect(mockCache.get).toHaveBeenCalledWith('session:user-1:chat-1');
-      // Should extend TTL
-      expect(mockCache.set).toHaveBeenCalled();
+      // Should extend TTL via expire, not set
+      expect(mockCache.expire).toHaveBeenCalledWith('session:user-1:chat-1', DEFAULT_SESSION_TTL);
+      expect(mockCache.set).not.toHaveBeenCalled();
     });
 
     it('should fallback to repository if cache miss', async () => {
@@ -90,7 +95,11 @@ describe('SessionProvider', () => {
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap()).toEqual(mockSession);
       expect(mockRepo.findById).toHaveBeenCalled();
-      expect(mockCache.set).toHaveBeenCalled();
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'session:user-1:chat-1',
+        expect.anything(),
+        DEFAULT_SESSION_TTL,
+      );
     });
 
     it('should fallback to repository if cache fails', async () => {
@@ -112,7 +121,11 @@ describe('SessionProvider', () => {
       const result = await provider.saveSession(mockSession);
 
       expect(result.isOk()).toBe(true);
-      expect(mockCache.set).toHaveBeenCalled();
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'session:user-1:chat-1',
+        expect.anything(),
+        DEFAULT_SESSION_TTL,
+      );
       expect(mockBus.publish).toHaveBeenCalledWith(
         'session-manager.session.updated',
         expect.anything(),
@@ -120,8 +133,6 @@ describe('SessionProvider', () => {
     });
 
     it('should handle version increments for OCC', async () => {
-      // In real impl, saveSession might increment version or expect it to be incremented
-      // Let's assume it increments it
       mockCache.set.mockResolvedValue(ok(undefined));
 
       const result = await provider.saveSession(mockSession);
@@ -131,7 +142,8 @@ describe('SessionProvider', () => {
       expect(savedSession.version).toBe(mockSession.version + 1);
     });
 
-    it('should alert SUPER_ADMIN via logger when cache.set fails (Rule XXXII)', async () => {
+    // Rule XXXII
+    it('should alert SUPER_ADMIN via logger when cache.set fails', async () => {
       mockCache.set.mockResolvedValue(err(new AppError('redis_error')));
       mockBus.publish.mockResolvedValue(ok(undefined));
 
@@ -147,7 +159,8 @@ describe('SessionProvider', () => {
     });
   });
 
-  describe('Rule XXXII degradation (getSession)', () => {
+  // Validates Redis degradation strategy (Constitution Rule XXXII)
+  describe('SessionProvider cache failure fallback', () => {
     it('should alert SUPER_ADMIN via logger when cache.get fails', async () => {
       mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
       mockRepo.findById.mockResolvedValue(ok(mockSession));

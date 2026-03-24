@@ -17,6 +17,7 @@ import { Session } from '../../src/types';
 import { SessionProvider } from '../../src/provider';
 import { SessionRepository } from '../../src/repository';
 import { TestRedis } from '../utils/test-redis';
+import { DEFAULT_SESSION_TTL } from '../../src/constants';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -124,7 +125,7 @@ describe('SessionProvider integration (Redis testcontainer)', () => {
   }, 30_000);
 
   // -------------------------------------------------------------------------
-  // Test 3: Sliding TTL — cache.set is called on every cache hit to extend TTL
+  // Test 3: Sliding TTL — cache.expire is called on every cache hit to extend TTL
   // -------------------------------------------------------------------------
   it('should extend TTL on cache hit (sliding TTL)', async () => {
     const session = makeSession({ userId: 'u-ttl', chatId: 'c-ttl' });
@@ -132,9 +133,9 @@ describe('SessionProvider integration (Redis testcontainer)', () => {
     // Seed the cache via save
     await provider.saveSession(session);
 
-    // Spy on the real adapter's set by wrapping the adapter
+    // Spy on the real adapter's expire by wrapping the adapter
     const adapter = testRedis.createCacheAdapter();
-    const setSpy = vi.spyOn(adapter, 'set');
+    const expireSpy = vi.spyOn(adapter, 'expire');
 
     const spiedProvider = new SessionProvider({
       cache: adapter,
@@ -142,15 +143,15 @@ describe('SessionProvider integration (Redis testcontainer)', () => {
       repository: mockRepo as unknown as SessionRepository,
     });
 
-    // Get — should extend TTL (calls set internally)
+    // Get — should extend TTL (calls expire internally)
     const result = await spiedProvider.getSession('u-ttl', 'c-ttl');
 
     expect(result.isOk()).toBe(true);
-    // set was called once with the DEFAULT_TTL (86400) to extend expiration
-    expect(setSpy).toHaveBeenCalledOnce();
-    const [calledKey, , calledTtl] = setSpy.mock.calls[0];
+    // expire was called once with the DEFAULT_SESSION_TTL (86400) to extend expiration
+    expect(expireSpy).toHaveBeenCalledOnce();
+    const [calledKey, calledTtl] = expireSpy.mock.calls[0];
     expect(calledKey).toBe('session:u-ttl:c-ttl');
-    expect(calledTtl).toBe(86400);
+    expect(calledTtl).toBe(DEFAULT_SESSION_TTL);
   }, 30_000);
 
   // -------------------------------------------------------------------------

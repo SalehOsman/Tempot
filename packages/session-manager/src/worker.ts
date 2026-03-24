@@ -14,6 +14,12 @@ export interface WorkerLogger {
 export interface SessionWorkerOptions {
   auditLogger?: AuditLogger;
   logger?: WorkerLogger;
+  /** Redis connection options; injected rather than hardcoded. */
+  connection?: {
+    host: string;
+    port: number;
+    password?: string;
+  };
 }
 
 const noopAuditLogger: AuditLogger = { log: async () => {} };
@@ -23,7 +29,7 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
   const logger = options.logger;
   const repository = new SessionRepository(auditLogger, prisma);
 
-  const connection = {
+  const connection = options.connection ?? {
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT) || 6379,
   };

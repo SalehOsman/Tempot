@@ -89,6 +89,15 @@ export class TestRedis {
           return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
         }
       },
+
+      expire: async (key: string, ttl: number): Promise<Result<void, AppError>> => {
+        try {
+          await client.expire(key, ttl);
+          return ok(undefined);
+        } catch (e) {
+          return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
+        }
+      },
     };
   }
 }
