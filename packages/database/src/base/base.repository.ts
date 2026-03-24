@@ -1,9 +1,6 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-// ISSUE-001: Deep import to avoid circular dependency.
-// @tempot/session-manager barrel re-exports ./repository which imports @tempot/database.
-// Fix: session-manager should add subpath export `@tempot/session-manager/context`.
-import { sessionContext } from '@tempot/session-manager/src/context';
+import { sessionContext } from '@tempot/session-manager/context';
 import { prisma, Prisma, PrismaClient } from '../prisma/client';
 
 /**
