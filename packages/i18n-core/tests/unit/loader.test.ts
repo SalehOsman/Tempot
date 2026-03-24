@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import { loadModuleLocales } from '../../src/loader';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { loadModuleLocales } from '../../src/loader.js';
 import i18next from 'i18next';
 import { glob } from 'glob';
+import { AppError } from '@tempot/shared';
 
 vi.mock('glob', () => ({
   glob: vi.fn(),
@@ -21,6 +22,10 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 describe('Modular Locale Loader', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should load JSON files from module directories', async () => {
     vi.mocked(glob).mockResolvedValue([
       'modules/auth/locales/ar.json',
@@ -46,5 +51,26 @@ describe('Modular Locale Loader', () => {
       true,
       true,
     );
+  });
+
+  it('should return Err with AppError when glob fails', async () => {
+    vi.mocked(glob).mockRejectedValue(new Error('ENOENT: directory not found'));
+
+    const result = await loadModuleLocales();
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(AppError);
+      expect(result.error.code).toBe('I18N_LOCALE_LOAD_FAILED');
+    }
+  });
+
+  it('should return Ok with no bundles when no locale files found', async () => {
+    vi.mocked(glob).mockResolvedValue([]);
+
+    const result = await loadModuleLocales();
+
+    expect(result.isOk()).toBe(true);
+    expect(i18next.addResourceBundle).not.toHaveBeenCalled();
   });
 });
