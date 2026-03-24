@@ -1,9 +1,42 @@
-import i18next, { TOptions } from 'i18next';
+import i18next from 'i18next';
 import { sessionContext } from '@tempot/session-manager';
 
-export function t(key: string | string[], options?: TOptions): string {
-  const store = sessionContext.getStore();
-  const lang = store?.lang || 'ar';
+/** Options passed to the `t()` translation function. */
+export interface TranslationOptions {
+  /** Pluralization count. */
+  count?: number;
+  /** Fallback value if key is not found. */
+  defaultValue?: string;
+  /** Context suffix for gender/mode variants. */
+  context?: string;
+  /** Additional interpolation variables. */
+  [key: string]: unknown;
+}
 
-  return i18next.t(key, { ...options, lng: lang }) as string;
+/**
+ * Context-aware translation function.
+ *
+ * Reads the current user's language from `sessionContext` (AsyncLocalStorage)
+ * and delegates to i18next. Falls back to Arabic (`'ar'`) when no session
+ * is available or the stored language is not a string.
+ *
+ * @param key - Translation key or array of keys (first match wins)
+ * @param options - Interpolation variables, pluralization count, etc.
+ * @returns The translated string, or the key name if no translation exists
+ *
+ * @example
+ * ```typescript
+ * // Inside a session context with lang = 'ar'
+ * t('common.greeting', { name: 'Ahmed' }); // "مرحبا Ahmed"
+ *
+ * // Without session context — falls back to Arabic
+ * t('common.greeting'); // Arabic translation
+ * ```
+ */
+export function t(key: string | string[], options?: TranslationOptions): string {
+  const store = sessionContext.getStore();
+  const rawLang = store?.lang;
+  const lang: string = typeof rawLang === 'string' ? rawLang : 'ar';
+
+  return i18next.t(key, { ...options, lng: lang });
 }

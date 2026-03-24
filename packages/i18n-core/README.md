@@ -1,81 +1,104 @@
 # @tempot/i18n-core
 
-> i18next configuration with Arabic as primary language. Enforces the i18n-Only rule.
+Core i18n package for Tempot. Configures i18next with Arabic as the primary language, provides context-aware translation, locale validation, and zero-hardcoding enforcement.
 
-## Purpose
+## Exports
 
-- Configures i18next with modular locale loading (per-package and per-module namespaces)
-- Provides the `t()` function used everywhere in the codebase
-- Enforces the i18n-Only rule — zero hardcoded user-facing text in `.ts` files
-- Context-aware translation — reads user language from `sessionContext`
-- Supports interpolation, pluralisation, and RTL formatting
-- `pnpm cms:check` script validates translation completeness in CI/CD
+| Export | Module | Description |
+|--------|--------|-------------|
+| `i18nConfig` | `i18n.config.ts` | i18next init options (`lng: 'ar'`, `fallbackLng: 'en'`) |
+| `t(key, options?)` | `t.ts` | Context-aware translation via `sessionContext` |
+| `TranslationOptions` | `t.ts` | Options type for `t()` (count, defaultValue, context, interpolation) |
+| `loadModuleLocales()` | `loader.ts` | Glob-loads `modules/*/locales/*.json` into i18next |
+| `getLocaleInfo(lang)` | `locale-info.ts` | Returns `{ lang, dir }` — `'rtl'` for Arabic, `'ltr'` otherwise |
+| `sanitizeValue(value)` | `sanitizer.ts` | Strips unsafe HTML, allows `<b>`, `<i>`, `<em>`, `<strong>`, `<a>`, `<p>`, `<br>` |
+| `LocaleSchema` | `schema.ts` | Zod schema validating locale JSON (recursive string records) |
+| `LocaleFile` | `schema.ts` | TypeScript type inferred from `LocaleSchema` |
+| `validateLocaleFile(data)` | `schema.ts` | Validates unknown data against `LocaleSchema` — returns `Result<LocaleFile, AppError>` |
+| `generateSchemaFromSource(source)` | `schema.ts` | Builds a strict Zod schema from a source locale for parity checks |
 
-## Phase
+## Usage
 
-Phase 3 — Presentation Layer
+### Initialise i18next
+
+```typescript
+import i18next from 'i18next';
+import { i18nConfig, loadModuleLocales } from '@tempot/i18n-core';
+
+await i18next.init(i18nConfig);
+
+const result = await loadModuleLocales();
+if (result.isErr()) {
+  console.error(result.error); // AppError with code I18N_LOCALE_LOAD_FAILED
+}
+```
+
+### Translate
+
+```typescript
+import { t } from '@tempot/i18n-core';
+
+// Reads language from sessionContext (AsyncLocalStorage).
+// Falls back to 'ar' when no session is active.
+const greeting = t('common.greeting', { name: 'Ahmed' });
+
+// Pluralisation
+const count = t('invoices.count', { count: 5 });
+
+// Multiple keys (first match wins)
+const msg = t(['custom.key', 'fallback.key']);
+```
+
+### Validate locale files
+
+```typescript
+import { validateLocaleFile, generateSchemaFromSource } from '@tempot/i18n-core';
+
+// Validate structure
+const result = validateLocaleFile(jsonData);
+if (result.isErr()) {
+  console.error(result.error); // AppError with code I18N_SCHEMA_VALIDATION_FAILED
+}
+
+// Parity check: ensure en.json has the same keys as ar.json
+const schema = generateSchemaFromSource(arJson);
+const parsed = schema.safeParse(enJson); // fails on missing/extra keys
+```
+
+## Module locale convention
+
+```
+modules/{moduleName}/locales/
+  ar.json   # Arabic — source of truth
+  en.json   # English — must match ar.json key structure
+```
+
+`loadModuleLocales()` registers each file as an i18next resource bundle where `moduleName` becomes the namespace and the filename (without `.json`) becomes the language code.
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm build` | Compiles TypeScript to `dist/` |
+| `pnpm test` | Runs Vitest test suite |
+| `pnpm cms:check` | Detects hardcoded strings and validates locale parity |
+
+`cms:check` is also wired into the Husky pre-commit hook via the root `package.json`.
 
 ## Dependencies
 
 | Package | Purpose |
 |---------|---------|
-| `i18next` 23.x | Internationalisation framework |
+| `i18next` | Internationalisation framework |
+| `neverthrow` | Result type for error handling |
+| `zod` | Locale file schema validation |
+| `sanitize-html` | HTML sanitisation for translation values |
+| `glob` | File pattern matching for locale loader |
 | `@tempot/session-manager` | User language from session context |
-| `@tempot/logger` | Missing key warnings |
-
-## Locale Structure
-
-```
-packages/i18n-core/locales/
-├── ar/
-│   ├── common.json       # Shared strings
-│   ├── errors.json       # Error messages
-│   └── notifications.json # Notification templates
-└── en/
-    ├── common.json
-    ├── errors.json
-    └── notifications.json
-
-modules/{name}/locales/
-├── ar.json               # Module strings (Arabic)
-└── en.json               # Module strings (English)
-```
-
-## API
-
-```typescript
-import { t, initI18n } from '@tempot/i18n-core';
-
-// Translate with user context (reads language from sessionContext)
-const message = t(ctx, 'common.welcome', { name: 'أحمد' });
-// → "مرحباً أحمد!" (if user language is 'ar')
-// → "Welcome, Ahmed!" (if user language is 'en')
-
-// Pluralisation
-const msg = t(ctx, 'invoices.count', { count: 5 });
-// → "5 فواتير"
-
-// Fallback chain: user language → default language → error key
-```
-
-## Scripts
-
-```bash
-pnpm cms:check              # Check all translations complete
-pnpm cms:check --module X   # Check specific module
-pnpm cms:report             # Report missing keys
-```
 
 ## Rules
 
-- ⚠️ Never hardcode Arabic or English strings in `.ts` files
-- All `t()` calls use i18n keys, never raw strings
-- Every new module must create both `ar.json` and `en.json` on day one
-
-## ADRs
-
-- ADR-014 — i18next backends for CMS Engine
-
-## Status
-
-⏳ **Not yet implemented** — Phase 3
+- Zero hardcoded user-facing text in `.ts` files (Constitution Rule XXXIX)
+- Arabic is the primary language; English is the fallback
+- Every module must provide both `ar.json` and `en.json`
+- All public functions return `Result<T, AppError>` where failure is possible
