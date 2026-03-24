@@ -1,4 +1,4 @@
-﻿# Tempot — Gemini CLI Context
+# Tempot — Claude Code Context
 
 ## Project Identity
 **Tempot** (Template × Bot) — Enterprise Telegram bot framework built with TypeScript Strict Mode.
@@ -24,22 +24,18 @@ Produces spec artifacts in `specs/{NNN}-{feature}/`. Commands:
 
 We do NOT use `/speckit.implement`. Superpowers handles execution.
 
-For numbered spec directories: `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"`
-
 ### Superpowers — Execution Toolchain
 Consumes SpecKit artifacts and produces working code. Skills:
 - `brainstorming` → reads `spec.md` + `plan.md`, deepens design via Socratic questions
 - `using-git-worktrees` → creates isolated feature branch
 - `writing-plans` → converts `tasks.md` to 2-5 min executable tasks
-- `executing-plans` → executes with TDD (used on Gemini CLI since no subagent support)
+- `subagent-driven-development` → executes with TDD + two-stage review (REQUIRED on Claude Code)
 - `requesting-code-review` → reviews against spec + constitution
 - `receiving-code-review` → processes review feedback
 - `verification-before-completion` → final validation
 - `finishing-a-development-branch` → merge or PR
-- `systematic-debugging` → 4-phase root cause analysis
-- `dispatching-parallel-agents` → concurrent workflows
-
-Note: On Claude Code, `subagent-driven-development` is used instead of `executing-plans`.
+- `systematic-debugging` → 4-phase root cause analysis (includes root-cause-tracing, defense-in-depth, condition-based-waiting)
+- `dispatching-parallel-agents` → concurrent subagent workflows
 
 ### How They Connect
 ```

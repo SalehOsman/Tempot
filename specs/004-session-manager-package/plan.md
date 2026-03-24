@@ -1,188 +1,72 @@
-# Session Manager Package Implementation Plan
+# Implementation Plan: [FEATURE]
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Goal:** Implement the foundational session-manager package with a dual-layer strategy (Redis + PostgreSQL) and global access via `AsyncLocalStorage`.
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
-**Architecture:** Primary fast read/write to Redis with asynchronous background sync to PostgreSQL via the `event-bus` for long-term persistence and historical queries.
+## Summary
 
-**Tech Stack:** TypeScript, ioredis, Prisma, AsyncLocalStorage, @tempot/event-bus.
+Establish the foundational `session-manager` package for the Tempot bot framework, utilizing a dual-layer strategy with Redis for primary fast read (<2ms latency) and PostgreSQL for secondary persistent storage, synced asynchronously via the event-bus and BullMQ. This ensures high performance while preventing data loss, and includes handling for conversation state, schema versioning, and Redis failure degradation.
 
----
+## Technical Context
 
-### Task 1: Dual-layer Persistence Logic with Event Bus Sync
+**Language/Version**: TypeScript Strict Mode 5.9.3
+**Primary Dependencies**: `ioredis` (via `cache-manager`), `bullmq` (via factory), `@tempot/shared`, `@tempot/event-bus`, `@tempot/database`, `neverthrow`
+**Storage**: Redis (Fast Cache), PostgreSQL (Persistent Storage via Prisma)
+**Testing**: Vitest + Testcontainers
+**Target Platform**: Node.js 20+ Server Environment
+**Project Type**: Internal NPM Package (`packages/session-manager`)
+**Performance Goals**: < 2ms Redis retrieval time on average
+**Constraints**: Zero hardcoded i18n text, strict Result pattern error handling, strictly no `any` types.
+**Scale/Scope**: Millions of sessions. Background sync needs to handle Telegram's rapid messaging frequency without dropping updates (using Optimistic Concurrency Control).
 
-**Files:**
-- Create: `packages/session-manager/src/persistence/session.provider.ts`
-- Test: `packages/session-manager/tests/unit/session-persistence.test.ts`
+## Constitution Check
 
-- [ ] **Step 1: Write the failing test**
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { SessionProvider } from '../src/persistence/session.provider';
+- **Rule I (TS Strict):** Passed - Package will strictly use TypeScript and no `any` types.
+- **Rule XIV (Repository Pattern):** Passed - Postgres access strictly relies on `BaseRepository` via `packages/database`.
+- **Rule XV (Event-Driven):** Passed - Synchronization strictly utilizes the `event-bus` rather than direct synchronous coupling.
+- **Rule XIX/XX (Cache & Queues):** Passed - `cache-manager` and queue factory strictly used over custom direct instances.
+- **Rule XXI (Result Pattern):** Passed - API completely wrapped in `neverthrow`.
+- **Rule XXXII (Redis Degradation):** Passed - Explicit fallbacks implemented for Redis failures.
+- **Rule XXXIV (TDD Mandatory):** Passed - Implementation will follow TDD as required by Superpowers.
 
-describe('Session Persistence', () => {
-  it('should save to Redis and emit event-bus sync event', async () => {
-    const eventBus = { publish: vi.fn() };
-    const provider = new SessionProvider(eventBus as any);
-    await provider.save({ userId: '1', role: 'USER' });
-    
-    const redisSession = await provider.getFromRedis('1');
-    expect(redisSession).toBeDefined();
-    expect(eventBus.publish).toHaveBeenCalledWith('session.updated', expect.any(Object), 'INTERNAL');
-  });
-});
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/004-session-manager-package/
+├── plan.md              # This file (/speckit.plan command output)
+├── research.md          # Phase 0 output (/speckit.plan command)
+├── data-model.md        # Phase 1 output (/speckit.plan command)
+├── quickstart.md        # Phase 1 output (/speckit.plan command)
+├── contracts/           # Phase 1 output (/speckit.plan command)
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+### Source Code (repository root)
 
-Run: `pnpm test packages/session-manager/tests/unit/session-persistence.test.ts`
-Expected: FAIL (SessionProvider not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-import { Redis } from 'ioredis';
-
-export class SessionProvider {
-  private redis = new Redis();
-
-  constructor(private eventBus: any) {}
-
-  async save(session: any) {
-    // Primary fast write
-    await this.redis.set(`session:${session.userId}`, JSON.stringify(session), 'EX', 86400);
-    
-    // Asynchronous background sync via event bus
-    this.eventBus.publish('session.updated', session, 'INTERNAL').catch(console.error);
-  }
-
-  async getFromRedis(userId: string) {
-    const data = await this.redis.get(`session:${userId}`);
-    return data ? JSON.parse(data) : null;
-  }
-}
+```text
+packages/session-manager/
+├── src/
+│   ├── index.ts
+│   ├── provider.ts
+│   ├── context.ts
+│   └── types.ts
+└── tests/
+    ├── provider.test.ts
+    └── integration.test.ts
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+**Structure Decision**: A single-package layout under `packages/session-manager` aligns with the Tempot V11 architecture.
 
-Run: `pnpm test packages/session-manager/tests/unit/session-persistence.test.ts`
-Expected: PASS
+## Complexity Tracking
 
-- [ ] **Step 5: Commit**
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-```bash
-git add packages/session-manager/src/persistence/session.provider.ts
-git commit -m "feat(session): implement basic dual-layer persistence with event-bus sync (FR-003)"
-```
-
----
-
-### Task 2: AsyncLocalStorage for Session Context
-
-**Files:**
-- Create: `packages/session-manager/src/context/session.context.ts`
-- Test: `packages/session-manager/tests/unit/session-context.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { sessionStore } from '../src/context/session.context';
-
-describe('Session Context', () => {
-  it('should retrieve the session from the current context', () => {
-    sessionStore.run({ userId: '123' }, () => {
-      const session = sessionStore.getStore();
-      expect(session?.userId).toBe('123');
-    });
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm test packages/session-manager/tests/unit/session-context.test.ts`
-Expected: FAIL (sessionStore not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-import { AsyncLocalStorage } from 'async_hooks';
-
-export const sessionStore = new AsyncLocalStorage<{ userId: string; role?: string }>();
-
-export function getSession() {
-  return sessionStore.getStore();
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/session-manager/tests/unit/session-context.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/session-manager/src/context/session.context.ts
-git commit -m "feat(session): add AsyncLocalStorage for global session access"
-```
-
----
-
-### Task 3: Session Schema Versioning (Section 15.6)
-
-**Files:**
-- Create: `packages/session-manager/src/versioning/session.migrator.ts`
-- Test: `packages/session-manager/tests/unit/session-versioning.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { migrateSession } from '../src/versioning/session.migrator';
-
-describe('Session Migrator', () => {
-  it('should migrate session data from v1 to v2', () => {
-    const oldData = { _version: 1, name: 'Test' };
-    const newData = migrateSession(oldData, 2);
-    expect(newData._version).toBe(2);
-    expect(newData.profile).toBeDefined();
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm test packages/session-manager/tests/unit/session-versioning.test.ts`
-Expected: FAIL (migrateSession not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-export function migrateSession(data: any, targetVersion: number) {
-  let current = { ...data };
-  
-  if (current._version === 1 && targetVersion >= 2) {
-    current.profile = { name: current.name };
-    delete current.name;
-    current._version = 2;
-  }
-  
-  return current;
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/session-manager/tests/unit/session-versioning.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/session-manager/src/versioning/session.migrator.ts
-git commit -m "feat(session): implement basic session schema versioning"
-```
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | N/A | N/A |

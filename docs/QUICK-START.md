@@ -87,12 +87,11 @@ Full bot functionality comes online in phases:
 
 | Phase | What gets built | Status |
 |-------|----------------|--------|
-| Phase 0 | Workspace setup + minimal bot | ✅ Done |
-| Phase 1 | Logger + Shared + Database | ⏳ Next |
-| Phase 2 | Event Bus + Sessions + Auth | Planned |
-| Phase 3 | i18n + UX + Regional | Planned |
-| Phase 4 | AI + Search + Storage + Engines | Planned |
-| Phase 5 | Full bot-server assembly | Planned |
+| Phase 0 | Workspace + 6 core packages | ✅ Done |
+| Phase 1 | Remaining 11 core packages | ⏳ In Progress |
+| Phase 2 | Bot Server reconstruction | Planned |
+| Phase 3 | Business Modules | Planned |
+| Phase 4 | Dashboard + Mini App | Planned |
 
 ---
 
@@ -114,6 +113,7 @@ pnpm docker:reset
 ## Next Steps
 
 - Read the [Architecture Spec](tempot_v11_final.md) — the authoritative reference
-- Read the [Project Constitution](.specify/memory/constitution.md) — 69 governing principles
-- Read the [Workflow Guide](developer/workflow-guide.md) — the 11-step development process
+- Read the [Project Constitution](../.specify/memory/constitution.md) — project governing rules
+- Read the [Workflow Guide](developer/workflow-guide.md) — SpecKit + Superpowers methodology
+- Read the [Roadmap](ROADMAP.md) — current project status
 - Set up your AI development tool (Claude Code or Gemini CLI) per [Section 22.8](tempot_v11_final.md)

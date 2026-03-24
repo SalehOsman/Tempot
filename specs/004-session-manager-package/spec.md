@@ -39,16 +39,23 @@ As a developer, I want to store the state of the current conversation (e.g., act
 
 ## Edge Cases
 
-- **Redis Sync Failure**: What happens if Redis fails to sync to Postgres? (Answer: Use a reliable event-driven mechanism or background worker with retries).
+- **Redis Sync Failure**: What happens if Redis fails to sync to Postgres? (Answer: Via `event-bus` + `BullMQ` with retries).
 - **Session Versioning**: Handling breaking changes to the session structure (Answer: Implement `Session Schema Versioning` with a migration handler as per Section 15.6).
-- **Concurrency**: Multiple updates to the same session from different requests (Answer: Redis atomic updates or simple last-write-wins with version checking).
+- **Concurrency**: Multiple updates to the same session from different requests (Answer: Optimistic Concurrency Control via Version checking).
 
 ## Clarifications
 
 - **Technical Constraints**: Dual-layer (Redis + Postgres). Uses `AsyncLocalStorage` for global access.
 - **Constitution Rules**: Rule XXXII (Redis Degradation) applies here for session retrieval. ADR-011 (Cache) usage for fast access.
 - **Integration Points**: Heart of the `bot-server`. Used by `input-engine` for multi-step form state.
-- **Edge Cases**: Redis to Postgres sync failure must be handled via background retries. Session Schema Versioning (Section 15.6) handles breaking changes to session metadata. Last-write-wins with version checking handles concurrency.
+- **Edge Cases**: Redis to Postgres sync failure must be handled via `event-bus` + `BullMQ` retries. Session Schema Versioning (Section 15.6) handles breaking changes to session metadata. Optimistic Concurrency Control via Version checking handles concurrency.
+
+### Session YYYY-MM-DD → 2026-03-23
+
+- Q: What is the session identity key — userId only, userId+chatId composite, or chatId only? → A: `userId + chatId` composite key (one session per user per chat, grammY default).
+- Q: How are concurrent session updates handled (multiple rapid messages)? → A: Optimistic Concurrency Control (Version checking).
+- Q: What specific mechanism handles the Redis to Postgres synchronization? → A: `event-bus` + `BullMQ` (Reliable Queue).
+- Q: How is the Redis TTL behavior defined? → A: Sliding TTL (resets on each user interaction).
 
 ## Requirements *(mandatory)*
 
@@ -56,11 +63,11 @@ As a developer, I want to store the state of the current conversation (e.g., act
 
 - **FR-001**: System MUST implement a dual-layer session strategy: Redis (Primary Fast Read) + PostgreSQL (Secondary Persistent Storage).
 - **FR-002**: System MUST use `AsyncLocalStorage` to make the current session globally accessible within a request context.
-- **FR-003**: System MUST automatically sync session changes from Redis to Postgres asynchronously via the `event-bus`.
+- **FR-003**: System MUST automatically sync session changes from Redis to Postgres asynchronously via the `event-bus` and `BullMQ` queues.
 - **FR-004**: System MUST support hierarchical session metadata stored as a JSON object.
 - **FR-005**: System MUST implement `Session Schema Versioning` for handling breaking changes to session data.
 - **FR-006**: System MUST provide a `SessionProvider` that hides Redis/Postgres complexity from the `bot-server`.
-- **FR-007**: System MUST support automatic session expiration (TTL) in Redis (e.g., 24 hours).
+- **FR-007**: System MUST support automatic sliding session expiration (TTL) in Redis that resets on each user interaction (e.g., 24 hours).
 
 ### Key Entities
 

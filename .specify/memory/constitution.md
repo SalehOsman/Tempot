@@ -197,29 +197,12 @@ Default locale: `ar-EG`. Default country: `EG` (Egypt). RTL support required for
 ### XLIII. Translation Completeness
 `pnpm cms:check` MANDATORY in CI/CD pipeline for every PR that touches `/locales/` files. Missing translations block the PR.
 
-## Workflow
+## Workflow & Tooling
 
-### XLIV. Combined SpecKit + superpowers Workflow
-11-step mandatory lifecycle:
-- **SpecKit (steps 1-5):** constitution → specify → clarify → plan → validate
-- **superpowers (steps 6-11):** brainstorming → git-worktrees → writing-plans → executing-plans + TDD → code-review → finish-branch
-
-Do NOT use `/speckit.tasks` or `/speckit.implement` — replaced by superpowers.
-
-### XLV. No Skip Rule
-- ❌ No implementation without approved `spec.md` + `/speckit.clarify`
-- ❌ No code without `brainstorming` + approved design
-- ❌ No module creation without approved `spec.md`
-- ❌ No code before tests (TDD enforced)
-- ✅ Exception: Spike/prototype with explicit "will not enter production" label
-
-### XLVI. Supported Tools
-Claude Code and Gemini CLI are both supported. `superpowers` extension is MANDATORY on whichever tool is used. Context file (`CLAUDE.md` or `GEMINI.md`) must exist at project root.
-
-### XLVII. ADR Requirement
+### XLIV. ADR Requirement
 Every architectural decision MUST have an ADR document at `docs/architecture/adr/ADR-{number}-{title}.md` BEFORE implementation. ADR format: Context → Decision → Consequences → Alternatives Rejected.
 
-### XLVIII. Dependency Rule
+### XLV. Dependency Rule
 External libraries must meet ALL criteria:
 - 500+ GitHub stars
 - Active development within last 6 months
@@ -228,25 +211,30 @@ External libraries must meet ALL criteria:
 
 ADR required for any substitution from the tech stack defined in `tempot_v11_final.md` Section 2.
 
-### XLIX. Module Creation Gate
+### XLVI. Module Creation Gate
 CLI Generator (`pnpm generate:module`) refuses to run without an approved `spec.md`. No module exists without specification.
 
-### L. Hotfix Track
-Limited exception for critical production bugs (P0/P1):
-- SUPER_ADMIN approval required
-- Maximum 50 lines of code
-- Unit test mandatory even for hotfix
-- `spec.md` created retroactively within 48 hours
-- PR prefix: `security:` or `fix!:`
-
-### LI. Technical Contracts
+### XLVII. Technical Contracts
 `detailed-specs.md` REQUIRED when module has:
 - `hasAI=true` — document AI usage, degradation mode
 - Complex algorithm — mathematical definition, edge cases
 - Advanced security — encryption mechanism, rate limiting details
 - Complex external integration — failure scenarios, retry mechanism
 
+### XLVIII. Supported Tools
+Claude Code and Gemini CLI are both supported. `superpowers` plugin is MANDATORY on whichever tool is used. Context file (`CLAUDE.md` or `GEMINI.md`) must exist at project root.
+
+### XLIX. No Skip Rule
+- ❌ No implementation without approved `spec.md` + `/speckit.clarify`
+- ❌ No code without brainstorming + approved design
+- ❌ No module creation without approved `spec.md`
+- ❌ No code before tests (TDD enforced)
+- ✅ Exception: Spike/prototype with explicit "will not enter production" label
+
 ## Governance
+
+> Note: Rules L-LX are in the Development Methodology section below.
+> Governance rules retain their original numbering (LII-LIV) for backward compatibility.
 
 ### LII. Constitution Authority
 This constitution is the highest authority in the project. All AI tools MUST reference it before making any architectural or implementation decision. Constitution overrides any conflicting instruction.
@@ -353,6 +341,124 @@ Four standardized status patterns:
 2. ALWAYS fix the root cause DIRECTLY inside the problematic original code.
 3. STRICTLY PROHIBITED: Using @ts-ignore, @ts-expect-error, or eslint-disable to bypass type or lint errors.
 
+## Development Methodology — SpecKit + Superpowers
+
+> **Authority:** This section is the SOLE reference for the development workflow.
+> **Reference:** `docs/developer/workflow-guide.md` for the detailed practical guide.
+
+### L. Spec-Driven Development is Mandatory
+
+No production code shall be written without a validated specification. The specification is the source of truth. "Vibe coding" (writing code from ad-hoc prompts without a spec) is FORBIDDEN.
+
+### LI. Two Toolchains, Two Roles
+
+**SpecKit** produces the specification artifacts — what to build and why.
+**Superpowers** consumes those artifacts and produces working code — how to build it.
+
+They are not two phases of a rigid pipeline. They are two complementary toolchains. SpecKit's output feeds Superpowers' input.
+
+### LII. SpecKit — Specification Toolchain
+
+SpecKit commands produce specification artifacts in `specs/{NNN}-{feature-name}/`:
+
+| Command | Purpose | Output | Required? |
+|---------|---------|--------|-----------|
+| `/speckit.constitution` | Project principles | `constitution.md` | Once (done) |
+| `/speckit.specify` | Define what & why (NO tech stack) | `spec.md` | YES |
+| `/speckit.clarify` | Expose edge cases & ambiguities | Updated `spec.md` | YES |
+| `/speckit.plan` | Technical implementation plan | `plan.md`, `data-model.md`, `research.md` | YES |
+| `/speckit.checklist` | Domain-specific quality validation | `checklists/*.md` | Recommended |
+| `/speckit.analyze` | Cross-artifact consistency check | Report | YES |
+| `/speckit.tasks` | Actionable task breakdown | `tasks.md` | YES |
+
+`/speckit.implement` exists but is NOT used in this project — Superpowers handles execution.
+
+For SpecKit branch detection with numbered directories: `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"`
+
+### LIII. Handoff Gate — SpecKit → Superpowers
+
+Before Superpowers begins, these MUST exist:
+- `spec.md` with clarifications resolved (no `[NEEDS CLARIFICATION]` markers)
+- `plan.md` with tech stack decisions
+- `tasks.md` with ordered task breakdown
+- `/speckit.analyze` passed with zero critical issues
+
+### LIV. Superpowers — Execution Toolchain
+
+Superpowers skills activate in this natural sequence. Each reads the SpecKit artifacts as input:
+
+| Skill | Purpose | Input | Output |
+|-------|---------|-------|--------|
+| `brainstorming` | Socratic design refinement | `spec.md` + `plan.md` | `docs/superpowers/specs/{date}-{feature}.md` |
+| `using-git-worktrees` | Isolated branch | Approved design | Feature branch + clean worktree |
+| `writing-plans` | Granular 2-5 min tasks | Design doc + `tasks.md` | `docs/superpowers/plans/{date}-{feature}.md` |
+| `subagent-driven-development` | Execute with TDD + review | Execution plan | Working code + tests |
+| `requesting-code-review` | Review against spec + constitution | Completed code | Review report |
+| `verification-before-completion` | Final validation | All code + tests | Verification report |
+| `finishing-a-development-branch` | Merge or PR | Verified code | Merged branch |
+
+On platforms with subagent support (Claude Code), `subagent-driven-development` is required.
+On platforms without (Gemini CLI), use `executing-plans` instead.
+
+Additional skills available during execution:
+- `systematic-debugging` — 4-phase root cause analysis (includes `root-cause-tracing`, `defense-in-depth`, `condition-based-waiting`)
+- `receiving-code-review` — Process review feedback systematically
+- `dispatching-parallel-agents` — Concurrent subagent workflows
+
+### LV. How the Tools Connect
+
+```
+SpecKit                              Superpowers
+────────                             ────────────
+specify → spec.md ──────────────────→ brainstorming reads spec.md
+clarify → updated spec.md            (asks Socratic questions to deepen design)
+plan    → plan.md  ─────────────────→ brainstorming reads plan.md
+checklist (optional)                  (validates tech choices)
+analyze → consistency check
+tasks   → tasks.md ─────────────────→ writing-plans converts to 2-5 min tasks
+                                      subagent-driven-development executes
+                                      requesting-code-review validates
+                                      finishing-a-development-branch merges
+```
+
+Key principle: Superpowers `brainstorming` does NOT replace SpecKit's specification.
+It DEEPENS the technical design by reading what SpecKit produced and asking implementation-level questions.
+
+### LVI. Git Workflow
+
+NEVER develop directly on `main`. Every feature gets its own branch via `using-git-worktrees`.
+Only ONE package may be in active execution at a time.
+Multiple packages may be in specification simultaneously.
+
+### LVII. Quality Gates
+
+| Gate | When | Criteria |
+|------|------|----------|
+| Spec Gate | After clarify | User stories have acceptance criteria, edge cases documented |
+| Plan Gate | After analyze | `/speckit.analyze` passes, no critical issues |
+| Handoff Gate | Before brainstorming | spec.md + plan.md + tasks.md exist |
+| TDD Gate | During execution | Every code change has a failing test first |
+| Review Gate | After code review | Zero CRITICAL issues |
+| Merge Gate | Before finish | All tests pass, all acceptance criteria met |
+
+### LVIII. Hotfix Track
+
+For P0/P1 production bugs only:
+- Document in GitHub Issue with `hotfix` label
+- Fix with mandatory unit test (≤2 hours, ≤50 lines)
+- PR with `fix!:` or `security:` prefix
+- Retroactive spec update within 48 hours
+- SUPER_ADMIN approval required
+
+### LIX. Retroactive Compliance
+
+Packages built before this methodology was ratified (database, shared, logger, event-bus, auth-core, session-manager) must be brought into compliance: generate missing `tasks.md`, create missing design docs, run code review.
+
+### LX. Roadmap Tracking
+
+`docs/ROADMAP.md` is the single source of truth for project progress. Updated after every branch merge.
+
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-21
+**Version**: 2.0.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-23
+**Amendment**: Replaced Workflow section (XLIV-LI) with unified Development Methodology (L-LX)
