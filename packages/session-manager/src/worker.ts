@@ -1,17 +1,27 @@
 import { Worker, Job } from 'bullmq';
-import { SessionRepository } from './repository';
+import { SessionRepository, AuditLogger } from './repository';
 import { Session } from './types';
 import { prisma } from '@tempot/database';
 
 export const SESSION_SYNC_QUEUE = 'session-sync';
 
-// Setup mock audit logger for worker
-const dummyAuditLogger = {
-  log: async () => {},
-};
+/** Logger interface accepted by createSessionWorker. */
+export interface WorkerLogger {
+  error: (data: object) => void;
+}
 
-export const createSessionWorker = () => {
-  const repository = new SessionRepository(dummyAuditLogger, prisma);
+/** Options for createSessionWorker. */
+export interface SessionWorkerOptions {
+  auditLogger?: AuditLogger;
+  logger?: WorkerLogger;
+}
+
+const noopAuditLogger: AuditLogger = { log: async () => {} };
+
+export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
+  const auditLogger = options.auditLogger ?? noopAuditLogger;
+  const logger = options.logger;
+  const repository = new SessionRepository(auditLogger, prisma);
 
   const connection = {
     host: process.env.REDIS_HOST || 'localhost',
@@ -51,9 +61,12 @@ export const createSessionWorker = () => {
         } else {
           await repository.create(payload);
         }
-      } catch (err) {
-        console.error('Failed to sync session to Postgres:', err);
-        throw err; // BullMQ handles retries
+      } catch (syncError) {
+        logger?.error({
+          code: 'SYSTEM_DEGRADATION',
+          payload: { target: 'SUPER_ADMIN', operation: 'session-sync', error: String(syncError) },
+        });
+        throw syncError; // BullMQ handles retries
       }
     },
     { connection },

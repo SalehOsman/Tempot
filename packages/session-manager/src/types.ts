@@ -35,5 +35,5 @@ export interface ISessionProvider {
   deleteSession(userId: string, chatId: string): Promise<Result<void, AppError>>;
 
   /** Applies incremental schema migrations when `session.schemaVersion` is behind. */
-  migrateSession?(session: Session): Result<Session, AppError>;
+  migrateSession(session: Session): Result<Session, AppError>;
 }

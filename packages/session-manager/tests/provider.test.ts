@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SessionProvider } from '../src/provider';
 import { Session } from '../src/types';
 import { SessionRepository } from '../src/repository';
+import { CURRENT_SCHEMA_VERSION } from '../src/migrator';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
@@ -161,6 +162,35 @@ describe('SessionProvider', () => {
           payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
         }),
       );
+    });
+
+    it('should alert SUPER_ADMIN via logger when cache.del fails in deleteSession', async () => {
+      mockCache.del.mockResolvedValue(err(new AppError('redis_error')));
+      mockRepo.delete.mockResolvedValue(ok(undefined));
+
+      await provider.deleteSession('user-1', 'chat-1');
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
+        }),
+      );
+    });
+  });
+
+  describe('schema migration', () => {
+    it('should apply migration when loading session from repository', async () => {
+      // Session in DB has schemaVersion below current — still returns ok since only v1 exists now
+      const oldSession = { ...mockSession, schemaVersion: CURRENT_SCHEMA_VERSION };
+      mockCache.get.mockResolvedValue(ok(null)); // cache miss
+      mockRepo.findById.mockResolvedValue(ok(oldSession));
+      mockCache.set.mockResolvedValue(ok(undefined));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap().schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     });
   });
 });

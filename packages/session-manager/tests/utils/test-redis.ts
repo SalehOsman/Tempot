@@ -4,17 +4,11 @@
  */
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redis } from 'ioredis';
-import { ok, err, Result } from 'neverthrow';
+import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+import type { CacheAdapter } from '../../src/provider';
 
-/**
- * Cache adapter interface matching SessionProvider's constructor parameter.
- */
-export interface CacheAdapter {
-  get: <T>(key: string) => Promise<Result<T | null, AppError>>;
-  set: <T>(key: string, value: T, ttl?: number) => Promise<Result<void, AppError>>;
-  del: (key: string) => Promise<Result<void, AppError>>;
-}
+export type { CacheAdapter };
 
 /**
  * TestRedis manages a Redis testcontainer lifecycle and exposes a cache adapter

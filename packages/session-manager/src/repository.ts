@@ -1,12 +1,16 @@
 import { BaseRepository, prisma } from '@tempot/database';
 import { Session } from '@prisma/client';
 
+/** Minimal audit logger interface required by BaseRepository. */
+export interface AuditLogger {
+  log: (data: unknown) => Promise<void>;
+}
+
 export class SessionRepository extends BaseRepository<Session> {
   protected moduleName = 'session-manager';
   protected entityName = 'session';
 
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  constructor(auditLogger: any, db = prisma) {
+  constructor(auditLogger: AuditLogger, db = prisma) {
     super(auditLogger, db);
   }
 

@@ -11,7 +11,8 @@
  * - Mocked eventBus (vi.fn()) — event publishing is covered by unit tests
  */
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
-import { ok } from 'neverthrow';
+import { ok, err } from 'neverthrow';
+import { AppError } from '@tempot/shared';
 import { Session } from '../../src/types';
 import { SessionProvider } from '../../src/provider';
 import { SessionRepository } from '../../src/repository';
@@ -176,7 +177,21 @@ describe('SessionProvider integration (Redis testcontainer)', () => {
   }, 30_000);
 
   // -------------------------------------------------------------------------
-  // Test 5: OCC version increment — saveSession bumps version by 1
+  // Test 5: Both layers fail — provider returns err
+  // -------------------------------------------------------------------------
+  it('should return err when both cache and repository fail', async () => {
+    // Cache miss + repository error
+    mockRepo.findById.mockResolvedValue(err(new AppError('not_found')));
+
+    const result = await provider.getSession('u-fail', 'c-fail');
+
+    expect(result.isErr()).toBe(true);
+    // Repository was consulted as fallback
+    expect(mockRepo.findById).toHaveBeenCalledWith('u-fail:c-fail');
+  }, 30_000);
+
+  // -------------------------------------------------------------------------
+  // Test 6: OCC version increment — saveSession bumps version by 1
   // -------------------------------------------------------------------------
   it('should increment version on save (OCC)', async () => {
     const session = makeSession({ userId: 'u-occ', chatId: 'c-occ', version: 1 });

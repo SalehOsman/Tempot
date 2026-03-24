@@ -2,6 +2,7 @@ import { Result, ok, err } from 'neverthrow';
 import { Session, ISessionProvider } from './types';
 import { AppError } from '@tempot/shared';
 import { SessionRepository } from './repository';
+import { migrateSession } from './migrator';
 
 /** Cache adapter interface used by SessionProvider. */
 export interface CacheAdapter {
@@ -71,10 +72,14 @@ export class SessionProvider implements ISessionProvider {
     const repoResult = await this.deps.repository.findById(id);
 
     if (repoResult.isOk()) {
-      const session = repoResult.value;
-      // Sync back to cache
+      const migrationResult = migrateSession(repoResult.value as unknown as Session);
+      if (migrationResult.isErr()) {
+        return err(migrationResult.error);
+      }
+      const session = migrationResult.value;
+      // Sync migrated session back to cache
       await this.deps.cache.set(key, session, this.DEFAULT_TTL);
-      return ok(session as unknown as Session);
+      return ok(session);
     }
 
     // If both fail or not found — narrow to Result<Session, AppError>
@@ -112,12 +117,22 @@ export class SessionProvider implements ISessionProvider {
     return ok(undefined);
   }
 
+  /** Delegates to the standalone migrateSession utility (satisfies ISessionProvider contract). */
+  migrateSession(session: Session) {
+    return migrateSession(session);
+  }
+
   /** Removes the session from both Redis and PostgreSQL. */
   async deleteSession(userId: string, chatId: string): Promise<Result<void, AppError>> {
     const key = this.getSessionKey(userId, chatId);
     const id = `${userId}:${chatId}`;
 
-    await this.deps.cache.del(key);
+    const delResult = await this.deps.cache.del(key);
+    if (delResult.isErr()) {
+      // Rule XXXII: Redis failure → alert SUPER_ADMIN; still proceed to delete from DB
+      this.alertDegradation('deleteSession', delResult.error);
+    }
+
     return this.deps.repository.delete(id);
   }
 }

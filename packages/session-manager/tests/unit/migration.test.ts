@@ -42,4 +42,12 @@ describe('migrateSession', () => {
     const result = migrateSession(session);
     expect(result.isErr()).toBe(true);
   });
+
+  it('should return ok for a schemaVersion below current (placeholder for future v0→v1 migration)', () => {
+    // Documents current behavior: no v0 migration step exists yet, so ok(session) is returned.
+    // When a real v0→v1 migration is added, this test will need to assert the transformed shape.
+    const session: Session = { ...baseSession, schemaVersion: 0 };
+    const result = migrateSession(session);
+    expect(result.isOk()).toBe(true);
+  });
 });

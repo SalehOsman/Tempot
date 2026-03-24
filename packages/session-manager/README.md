@@ -35,13 +35,13 @@ Sessions are keyed by `userId + chatId` composite. This means a single Telegram 
 ```typescript
 import { SessionProvider, sessionContext } from '@tempot/session-manager';
 
-// Construct with dependencies
-const provider = new SessionProvider(
-  cache,      // { get, set, del } — Result-returning cache adapter
-  eventBus,   // { publish } — Result-returning event bus
+// Construct with a deps object
+const provider = new SessionProvider({
+  cache,      // CacheAdapter — { get, set, del } returning Result
+  eventBus,   // EventBusAdapter — { publish } returning Result
   repository, // SessionRepository instance
-  logger,     // optional — { error: (data: object) => void }
-);
+  logger,     // optional WorkerLogger — { error: (data: object) => void }
+});
 
 // Read a session (Redis first, Postgres fallback)
 const result = await provider.getSession(userId, chatId);
