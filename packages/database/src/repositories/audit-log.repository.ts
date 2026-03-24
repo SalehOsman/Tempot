@@ -1,4 +1,4 @@
-import { AuditLog } from '@prisma/client';
+import { AuditLog, Prisma } from '@prisma/client';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { BaseRepository } from '../base/base.repository';
@@ -23,14 +23,21 @@ export class AuditLogRepository extends BaseRepository<AuditLog> {
     const { userId, userRole } = this.getContext();
     try {
       // Direct call to model.create without calling this.auditLogger.log
-      const item = (await this.model.create({
+      const beforeVal = data.before as Prisma.InputJsonValue;
+      const afterVal = data.after as Prisma.InputJsonValue;
+
+      const item = await this.model.create({
         data: {
-          ...data,
-          userId: (data.userId as string) || userId,
-          userRole: (data.userRole as string) || userRole,
-          timestamp: new Date(),
+          userId: (data.userId as string) || userId || null,
+          userRole: (data.userRole as string) || userRole || null,
+          action: (data.action as string) || 'UNKNOWN',
+          module: (data.module as string) || this.moduleName,
+          targetId: data.targetId as string | undefined,
+          before: beforeVal,
+          after: afterVal,
+          status: (data.status as string) || 'SUCCESS',
         },
-      })) as AuditLog;
+      });
 
       return ok(item);
     } catch (e) {
