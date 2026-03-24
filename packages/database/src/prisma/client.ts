@@ -13,9 +13,9 @@ const modelExtensions = {
   $allModels: {
     async delete<T, A>(this: T, args: Prisma.Exact<A, Prisma.Args<T, 'delete'>>) {
       const context = Prisma.getExtensionContext(this);
-      const data = (args as any).data || {};
+      const data = (args as any)?.data || {};
       return (context as any).update({
-        ...args,
+        ...(args as any),
         data: {
           ...data,
           isDeleted: true,
@@ -25,9 +25,9 @@ const modelExtensions = {
     },
     async deleteMany<T, A>(this: T, args: Prisma.Exact<A, Prisma.Args<T, 'deleteMany'>>) {
       const context = Prisma.getExtensionContext(this);
-      const data = (args as any).data || {};
+      const data = (args as any)?.data || {};
       return (context as any).updateMany({
-        ...args,
+        ...(args as any),
         data: {
           ...data,
           isDeleted: true,
@@ -44,11 +44,11 @@ const modelExtensions = {
 const queryExtensions = {
   $allModels: {
     async findMany({ args, query }: any) {
-      args.where = { isDeleted: false, ...args.where };
+      args.where = { isDeleted: false, ...(args.where || {}) };
       return query(args);
     },
     async findFirst({ args, query }: any) {
-      args.where = { isDeleted: false, ...args.where };
+      args.where = { isDeleted: false, ...(args.where || {}) };
       return query(args);
     },
     async findUnique({ args, query }: any) {
@@ -59,7 +59,7 @@ const queryExtensions = {
       return result;
     },
     async count({ args, query }: any) {
-      args.where = { isDeleted: false, ...args.where };
+      args.where = { isDeleted: false, ...(args.where || {}) };
       return query(args);
     },
   },
@@ -76,7 +76,7 @@ function getPrismaClient() {
     }
 
     const pool = new Pool({ connectionString });
-    const adapter = new PrismaPg(pool);
+    const adapter = new PrismaPg(pool as any);
 
     _prisma = new PrismaClient({ adapter }).$extends({
       model: modelExtensions,
@@ -95,5 +95,8 @@ export const prisma = new Proxy({} as any, {
     return (getPrismaClient() as any)[prop];
   },
 });
+
+export { Prisma, PrismaClient };
+export * from '@prisma/client';
 
 /* eslint-enable @typescript-eslint/no-explicit-any */

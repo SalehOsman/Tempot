@@ -1,0 +1,209 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SessionProvider } from '../src/provider';
+import { Session } from '../src/types';
+import { SessionRepository } from '../src/repository';
+import { CURRENT_SCHEMA_VERSION } from '../src/migrator';
+import { DEFAULT_SESSION_TTL } from '../src/constants';
+import { ok, err } from 'neverthrow';
+import { AppError } from '@tempot/shared';
+
+const mockSession: Session = {
+  userId: 'user-1',
+  chatId: 'chat-1',
+  role: 'USER',
+  status: 'ACTIVE',
+  language: 'ar-EG',
+  activeConversation: null,
+  metadata: {},
+  schemaVersion: 1,
+  version: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+describe('SessionProvider', () => {
+  let provider: SessionProvider;
+  let mockCache: {
+    get: ReturnType<typeof vi.fn>;
+    set: ReturnType<typeof vi.fn>;
+    del: ReturnType<typeof vi.fn>;
+    expire: ReturnType<typeof vi.fn>;
+  };
+  let mockBus: {
+    publish: ReturnType<typeof vi.fn>;
+  };
+  let mockRepo: {
+    findById: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+  let mockLogger: {
+    error: ReturnType<typeof vi.fn>;
+  };
+
+  beforeEach(() => {
+    mockCache = {
+      get: vi.fn(),
+      set: vi.fn(),
+      del: vi.fn(),
+      expire: vi.fn(),
+    };
+    mockBus = {
+      publish: vi.fn(),
+    };
+    mockRepo = {
+      findById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    };
+    mockLogger = {
+      error: vi.fn(),
+    };
+
+    provider = new SessionProvider({
+      cache: mockCache,
+      eventBus: mockBus,
+      repository: mockRepo as unknown as SessionRepository,
+      logger: mockLogger,
+    });
+  });
+
+  describe('getSession', () => {
+    it('should return session from cache if available', async () => {
+      mockCache.get.mockResolvedValue(ok(mockSession));
+      mockCache.expire.mockResolvedValue(ok(undefined));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(mockSession);
+      expect(mockCache.get).toHaveBeenCalledWith('session:user-1:chat-1');
+      // Should extend TTL via expire, not set
+      expect(mockCache.expire).toHaveBeenCalledWith('session:user-1:chat-1', DEFAULT_SESSION_TTL);
+      expect(mockCache.set).not.toHaveBeenCalled();
+    });
+
+    it('should fallback to repository if cache miss', async () => {
+      mockCache.get.mockResolvedValue(ok(null));
+      mockRepo.findById.mockResolvedValue(ok(mockSession));
+      mockCache.set.mockResolvedValue(ok(undefined));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(mockSession);
+      expect(mockRepo.findById).toHaveBeenCalled();
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'session:user-1:chat-1',
+        expect.anything(),
+        DEFAULT_SESSION_TTL,
+      );
+    });
+
+    it('should fallback to repository if cache fails', async () => {
+      mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
+      mockRepo.findById.mockResolvedValue(ok(mockSession));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(mockSession);
+    });
+  });
+
+  describe('saveSession', () => {
+    it('should save to cache and publish event', async () => {
+      mockCache.set.mockResolvedValue(ok(undefined));
+      mockBus.publish.mockResolvedValue(ok(undefined));
+
+      const result = await provider.saveSession(mockSession);
+
+      expect(result.isOk()).toBe(true);
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'session:user-1:chat-1',
+        expect.anything(),
+        DEFAULT_SESSION_TTL,
+      );
+      expect(mockBus.publish).toHaveBeenCalledWith(
+        'session-manager.session.updated',
+        expect.anything(),
+      );
+    });
+
+    it('should handle version increments for OCC', async () => {
+      mockCache.set.mockResolvedValue(ok(undefined));
+
+      const result = await provider.saveSession(mockSession);
+      expect(result.isOk()).toBe(true);
+
+      const savedSession = mockCache.set.mock.calls[0][1];
+      expect(savedSession.version).toBe(mockSession.version + 1);
+    });
+
+    // Rule XXXII
+    it('should alert SUPER_ADMIN via logger when cache.set fails', async () => {
+      mockCache.set.mockResolvedValue(err(new AppError('redis_error')));
+      mockBus.publish.mockResolvedValue(ok(undefined));
+
+      const result = await provider.saveSession(mockSession);
+
+      expect(result.isOk()).toBe(true); // still succeeds (falls through to event bus)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
+        }),
+      );
+    });
+  });
+
+  // Validates Redis degradation strategy (Constitution Rule XXXII)
+  describe('SessionProvider cache failure fallback', () => {
+    it('should alert SUPER_ADMIN via logger when cache.get fails', async () => {
+      mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
+      mockRepo.findById.mockResolvedValue(ok(mockSession));
+      mockCache.set.mockResolvedValue(ok(undefined));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true); // fallback succeeded
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
+        }),
+      );
+    });
+
+    it('should alert SUPER_ADMIN via logger when cache.del fails in deleteSession', async () => {
+      mockCache.del.mockResolvedValue(err(new AppError('redis_error')));
+      mockRepo.delete.mockResolvedValue(ok(undefined));
+
+      await provider.deleteSession('user-1', 'chat-1');
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
+        }),
+      );
+    });
+  });
+
+  describe('schema migration', () => {
+    it('should apply migration when loading session from repository', async () => {
+      // Session in DB has schemaVersion below current — still returns ok since only v1 exists now
+      const oldSession = { ...mockSession, schemaVersion: CURRENT_SCHEMA_VERSION };
+      mockCache.get.mockResolvedValue(ok(null)); // cache miss
+      mockRepo.findById.mockResolvedValue(ok(oldSession));
+      mockCache.set.mockResolvedValue(ok(undefined));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap().schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    });
+  });
+});

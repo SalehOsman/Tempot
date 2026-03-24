@@ -3,5 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.5.0",
+    "@tempot/database": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "bullmq": "^5.0.0",
+    "cache-manager": "^6.0.0",
+    "neverthrow": "8.2.0"
+  },
+  "devDependencies": {
+    "vitest": "4.1.0",
+    "typescript": "5.9.3",
+    "@testcontainers/redis": "11.13.0",
+    "@types/node": "^20.0.0",
+    "ioredis": "5.10.1"
+  }
 }
