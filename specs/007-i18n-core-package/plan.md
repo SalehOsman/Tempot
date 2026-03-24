@@ -4,9 +4,9 @@
 
 **Goal:** Establish the foundational i18n-core package providing multi-language support (Arabic primary) and enforcing the "i18n-Only Rule" (Rule XXXIX).
 
-**Architecture:** A wrapper around `i18next` that integrates with `@tempot/session-manager` (via `AsyncLocalStorage`) to automatically detect user language from the current session. It uses a modular loading strategy to fetch translations from `/modules/{module}/locales/{lang}.json`.
+**Architecture:** A wrapper around `i18next` that integrates with `@tempot/session-manager` (via `AsyncLocalStorage`) to automatically detect user language from the current session. It uses a modular loading strategy to fetch translations from `/modules/{module}/locales/{lang}.json`. Public APIs follow the **Result pattern** (Rule XXI) using `neverthrow`.
 
-**Tech Stack:** TypeScript, i18next, i18next-fs-backend, @tempot/session-manager, glob, zod (for locale validation).
+**Tech Stack:** TypeScript, i18next, i18next-fs-backend, @tempot/session-manager, glob, zod (for locale validation), neverthrow (for error handling), sanitize-html (for dynamic variable safety).
 
 ---
 

@@ -39,7 +39,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 
 ## Edge Cases
 
-- **Missing Translation Key**: What happens if a translation key is missing in a specific language? (Answer: Fallback to the `DEFAULT_LANGUAGE` and log a warning).
+- **Missing Translation Key**: What happens if a translation key is missing in a specific language? (Answer: Fallback to the `DEFAULT_LANGUAGE`. If missing in all, return the key name itself).
 - **Dynamic Variables**: Handling complex pluralization and gender-specific translations (Answer: Full support for `i18next` features like interpolation and pluralization).
 - **RTL Support**: Ensuring layouts (especially in the Mini App and Dashboard) adapt correctly for Arabic (Answer: Mandatory RTL check for all UI components).
 
@@ -50,6 +50,15 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **Integration Points**: Used by all UI components (`input-engine`, `ux-helpers`, `notifier`).
 - **Edge Cases**: Missing keys fall back to `DEFAULT_LANGUAGE` with a warning. RTL support is mandatory for all Arabic layouts. Dynamic variables are sanitized via `sanitize-html`.
 
+### Session 2026-03-24
+
+- Q: Which language should be the hardcoded fallback if the .env value is missing or invalid? → A: Arabic (ar)
+- Q: When a translation key is missing in both the user's language and the fallback language, what should the system return? → A: The translation key name (e.g., modules.auth.welcome)
+- Q: Should the i18n-core package provide utility functions or metadata (e.g., a getLocaleInfo() function) to indicate the current language's direction (RTL/LTR)? → A: Yes, provide locale metadata helpers
+- Q: What level of detection is required for the cms:check script to detect hardcoded strings? → A: AST-based analysis (e.g., ESLint/specialized tool)
+- Q: Should the i18n-core package enforce a specific schema for the JSON locale files (e.g., using Zod) during the cms:check process? → A: Yes, enforce JSON schema validation
+- Q: Do language priorities (Arabic primary, English secondary) differ between Bot Messages and Mini Apps? → A: No, priorities are uniform across all interfaces.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -59,8 +68,10 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **FR-003**: System MUST support `ar` (Arabic) as the primary and `en` (English) as the secondary default languages.
 - **FR-004**: System MUST organize translation files by module in `/modules/{module}/locales/{lang}.json`.
 - **FR-005**: System MUST provide a unified `t(key, options)` function that automatically detects the user's language from the current session context.
-- **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env`.
-- **FR-007**: System MUST provide a script (`pnpm cms:check`) to verify translation completeness and detect hardcoded strings.
+- **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env`. If `.env` is missing, system MUST fallback to Arabic (`ar`).
+- **FR-007**: System MUST provide a script (`pnpm cms:check`) that uses AST-based analysis and JSON schema validation (via Zod) to verify translation completeness, detect hardcoded strings, and ensure locale file integrity.
+- **FR-008**: System MUST provide a `getLocaleInfo()` helper returning the current language and its directionality (RTL/LTR).
+
 
 ### Key Entities
 
