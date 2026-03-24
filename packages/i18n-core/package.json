@@ -1,0 +1,22 @@
+{
+  "name": "@tempot/i18n-core",
+  "version": "1.0.0",
+  "description": "Multi-language support for Tempot",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "glob": "^11.1.0",
+    "i18next": "^25.10.3",
+    "neverthrow": "^8.2.0",
+    "sanitize-html": "^2.17.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/sanitize-html": "^2.16.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.1"
+  }
+}
