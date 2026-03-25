@@ -64,11 +64,15 @@ describe('LocalEventBus', () => {
     }
   });
 
-  it('should validate event name on subscribe', () => {
+  it('should return err on invalid event name in subscribe', () => {
     const bus = new LocalEventBus();
     const eventName = 'invalid-name';
     const handler = vi.fn();
 
-    expect(() => bus.subscribe(eventName, handler)).toThrow(/event_bus.invalid_name/);
+    const result = bus.subscribe(eventName, handler);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe('event_bus.invalid_name');
+    }
   });
 });

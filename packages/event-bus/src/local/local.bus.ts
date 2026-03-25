@@ -1,12 +1,8 @@
 import { EventEmitter } from 'node:events';
 import { ok, err } from 'neverthrow';
-import { AsyncResult, AppError } from '@tempot/shared';
+import { AsyncResult, AppError, Result } from '@tempot/shared';
 import { validateEventName } from '../contracts';
 
-/**
- * Local implementation of the event bus using Node.js EventEmitter.
- * Provides sync-like delivery and listener isolation.
- */
 export class LocalEventBus {
   private emitter: EventEmitter;
 
@@ -15,10 +11,6 @@ export class LocalEventBus {
     this.emitter.setMaxListeners(100);
   }
 
-  /**
-   * Publishes an event to all local subscribers.
-   * Ensures listener isolation by catching errors in each handler.
-   */
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
@@ -28,33 +20,30 @@ export class LocalEventBus {
 
     for (const listener of listeners) {
       try {
-        // Local listeners are executed synchronously
         (listener as (payload: unknown) => void)(payload);
       } catch (error) {
-        // Listener isolation: errors in one listener do not stop others.
-        // We log the error but continue.
-        console.error(`[LocalEventBus] Error in listener for ${eventName}:`, error);
+        process.stderr.write(
+          JSON.stringify({
+            level: 'error',
+            code: 'EVENT_BUS_LISTENER_ERROR',
+            eventName,
+            error: String(error),
+          }) + '\n',
+        );
       }
     }
 
     return ok(undefined);
   }
 
-  /**
-   * Subscribes a handler to an event.
-   * Validates the event name convention.
-   */
-  subscribe(eventName: string, handler: (payload: unknown) => void): void {
+  subscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
     if (!validateEventName(eventName)) {
-      throw new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`);
+      return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
-
     this.emitter.on(eventName, handler);
+    return ok(undefined);
   }
 
-  /**
-   * Unsubscribes a handler from an event.
-   */
   unsubscribe(eventName: string, handler: (payload: unknown) => void): void {
     this.emitter.off(eventName, handler);
   }

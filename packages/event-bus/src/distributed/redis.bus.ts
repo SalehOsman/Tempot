@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { ok, err } from 'neverthrow';
+import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, AppError } from '@tempot/shared';
 import { validateEventName } from '../contracts';
 
@@ -7,39 +7,24 @@ export interface RedisBusConfig {
   connectionString: string;
 }
 
-/**
- * Distributed implementation of the event bus using Redis Pub/Sub.
- * Rule: Rule XXXII (Degradation), ADR-008
- */
 export class RedisEventBus {
   private pub: Redis;
   private sub: Redis;
   private handlers: Map<string, Array<(payload: unknown) => void>> = new Map();
 
   constructor(config: RedisBusConfig) {
-    this.pub = new Redis(config.connectionString, {
-      maxRetriesPerRequest: null,
-    });
-    this.sub = new Redis(config.connectionString, {
-      maxRetriesPerRequest: null,
-    });
+    this.pub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
+    this.sub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
 
     this.sub.on('message', (channel, message) => {
       this.handleMessage(channel, message);
     });
   }
 
-  /**
-   * Returns the internal Redis publisher client.
-   * Required for external monitoring by ConnectionWatcher.
-   */
   public get pubClient(): Redis {
     return this.pub;
   }
 
-  /**
-   * Publishes an event to Redis.
-   */
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
@@ -54,26 +39,25 @@ export class RedisEventBus {
     }
   }
 
-  /**
-   * Subscribes a handler to a Redis channel.
-   */
-  async subscribe(eventName: string, handler: (payload: unknown) => void): Promise<void> {
+  async subscribe(eventName: string, handler: (payload: unknown) => void): AsyncResult<void> {
     if (!validateEventName(eventName)) {
-      throw new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`);
+      return errAsync(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
 
-    const currentHandlers = this.handlers.get(eventName) || [];
+    const currentHandlers = this.handlers.get(eventName) ?? [];
     if (currentHandlers.length === 0) {
-      await this.sub.subscribe(eventName);
+      try {
+        await this.sub.subscribe(eventName);
+      } catch (error) {
+        return errAsync(new AppError('event_bus.subscribe_failed', error));
+      }
     }
 
     currentHandlers.push(handler);
     this.handlers.set(eventName, currentHandlers);
+    return okAsync(undefined);
   }
 
-  /**
-   * Internal message handler.
-   */
   private handleMessage(channel: string, message: string): void {
     const handlers = this.handlers.get(channel);
     if (!handlers) return;
@@ -84,17 +68,28 @@ export class RedisEventBus {
         try {
           handler(payload);
         } catch (error) {
-          console.error(`[RedisEventBus] Error in handler for ${channel}:`, error);
+          process.stderr.write(
+            JSON.stringify({
+              level: 'error',
+              code: 'EVENT_BUS_HANDLER_ERROR',
+              channel,
+              error: String(error),
+            }) + '\n',
+          );
         }
       }
     } catch (error) {
-      console.error(`[RedisEventBus] Failed to parse message on ${channel}:`, error);
+      process.stderr.write(
+        JSON.stringify({
+          level: 'error',
+          code: 'EVENT_BUS_PARSE_ERROR',
+          channel,
+          error: String(error),
+        }) + '\n',
+      );
     }
   }
 
-  /**
-   * Closes connections.
-   */
   async dispose(): Promise<void> {
     await Promise.all([this.pub.quit(), this.sub.quit()]);
   }
