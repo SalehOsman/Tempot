@@ -1,13 +1,9 @@
-import { AsyncResult } from 'neverthrow';
-import { ShutdownManager } from '@tempot/shared';
+import { okAsync, errAsync } from 'neverthrow';
+import { AsyncResult, ShutdownManager } from '@tempot/shared';
 import { LocalEventBus } from './local/local.bus';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus';
 import { ConnectionWatcher } from './distributed/connection.watcher';
 
-/**
- * Minimal logger interface for the event bus.
- * Avoids circular dependency with the main logger package.
- */
 interface LoggerInterface {
   error: (data: Record<string, unknown>) => void;
   info: (message: string) => void;
@@ -16,23 +12,21 @@ interface LoggerInterface {
 export interface OrchestratorConfig {
   redis: RedisBusConfig;
   logger: LoggerInterface;
+  shutdownManager?: ShutdownManager;
 }
 
-/**
- * Main Orchestrator for the Event Bus.
- * Manages Local vs Distributed routing and graceful degradation.
- * Rule: Rule XXXII (Degradation), ADR-008
- */
 export class EventBusOrchestrator {
   private localBus: LocalEventBus;
   private redisBus: RedisEventBus;
   private watcher: ConnectionWatcher;
   private logger: LoggerInterface;
+  private shutdownManager?: ShutdownManager;
 
   constructor(config: OrchestratorConfig) {
     this.localBus = new LocalEventBus();
     this.redisBus = new RedisEventBus(config.redis);
     this.logger = config.logger;
+    this.shutdownManager = config.shutdownManager;
 
     this.watcher = new ConnectionWatcher(this.redisBus.pubClient, {
       intervalMs: 2000,
@@ -52,39 +46,37 @@ export class EventBusOrchestrator {
     });
   }
 
-  /**
-   * Initializes the bus and registers shutdown hooks.
-   */
-  async init(): Promise<void> {
+  async init(): AsyncResult<void> {
     this.watcher.start();
 
-    ShutdownManager.register(async () => {
-      await this.dispose();
-    });
+    if (this.shutdownManager) {
+      const result = this.shutdownManager.register(async () => {
+        await this.dispose();
+      });
+      if (result.isErr()) {
+        return errAsync(result.error);
+      }
+    }
+
+    return okAsync(undefined);
   }
 
-  /**
-   * Publishes an event. Uses Redis if available, otherwise falls back to local.
-   */
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
     if (this.watcher.isRedisAvailable()) {
       return this.redisBus.publish(eventName, payload);
     }
-
     return this.localBus.publish(eventName, payload);
   }
 
-  /**
-   * Subscribes to an event on BOTH buses to ensure delivery.
-   */
-  async subscribe(eventName: string, handler: (payload: unknown) => void): Promise<void> {
-    this.localBus.subscribe(eventName, handler);
-    await this.redisBus.subscribe(eventName, handler);
+  async subscribe(eventName: string, handler: (payload: unknown) => void): AsyncResult<void> {
+    const localResult = this.localBus.subscribe(eventName, handler);
+    if (localResult.isErr()) {
+      return errAsync(localResult.error);
+    }
+
+    return this.redisBus.subscribe(eventName, handler);
   }
 
-  /**
-   * Cleans up resources.
-   */
   async dispose(): Promise<void> {
     this.watcher.stop();
     await this.redisBus.dispose();

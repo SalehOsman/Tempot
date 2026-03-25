@@ -24,10 +24,11 @@ describe('RedisEventBus Integration', () => {
     let receivedPayload: unknown = null;
     let receivedEventName: string | null = null;
 
-    await bus1.subscribe('user.profile.updated', (payload) => {
+    const subResult = await bus1.subscribe('user.profile.updated', (payload) => {
       receivedPayload = payload;
       receivedEventName = 'user.profile.updated';
     });
+    expect(subResult.isOk()).toBe(true);
 
     // Short delay to ensure subscription is active in Redis
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -51,12 +52,14 @@ describe('RedisEventBus Integration', () => {
     const bus = new RedisEventBus({ connectionString: redisUrl });
     let count = 0;
 
-    await bus.subscribe('order.created.success', () => {
+    const subResult1 = await bus.subscribe('order.created.success', () => {
       count++;
     });
-    await bus.subscribe('order.created.success', () => {
+    expect(subResult1.isOk()).toBe(true);
+    const subResult2 = await bus.subscribe('order.created.success', () => {
       count++;
     });
+    expect(subResult2.isOk()).toBe(true);
 
     await new Promise((resolve) => setTimeout(resolve, 500));
     await bus.publish('order.created.success', { id: 'order-1' });
