@@ -1,17 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { queueFactory, activeQueues } from '../../src/queue/queue.factory';
 import { Queue } from 'bullmq';
+import { ShutdownManager } from '../../src/shutdown/shutdown.manager';
+import { AppError } from '../../src/errors';
 
 // Mock BullMQ
 vi.mock('bullmq', () => {
   return {
     Queue: vi.fn().mockImplementation(
-      class {
+      class MockQueue {
         name: string;
         opts: unknown;
         constructor(name: string, opts: unknown) {
           this.name = name;
           this.opts = opts;
+        }
+        async close() {
+          // noop
         }
       },
     ),
@@ -20,14 +25,18 @@ vi.mock('bullmq', () => {
 
 describe('QueueFactory', () => {
   beforeEach(() => {
-    activeQueues.length = 0; // Clear the array between tests
+    activeQueues.length = 0;
     vi.clearAllMocks();
   });
 
-  it('should create a BullMQ queue with default settings', () => {
-    const queue = queueFactory('test-queue');
+  it('should create a BullMQ queue and return ok Result', () => {
+    const result = queueFactory('test-queue');
 
-    expect(queue.name).toBe('test-queue');
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toBeInstanceOf(Queue);
+    }
+
     expect(Queue).toHaveBeenCalledWith(
       'test-queue',
       expect.objectContaining({
@@ -44,10 +53,8 @@ describe('QueueFactory', () => {
     queueFactory('queue-2');
 
     expect(activeQueues.length).toBe(2);
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    expect((activeQueues[0] as any).name).toBe('queue-1');
-    expect((activeQueues[1] as any).name).toBe('queue-2');
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    expect(activeQueues[0]).toBeInstanceOf(Queue);
+    expect(activeQueues[1]).toBeInstanceOf(Queue);
   });
 
   it('should allow overriding default options', () => {
@@ -56,9 +63,45 @@ describe('QueueFactory', () => {
         attempts: 5,
       },
     };
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const queue = queueFactory('custom-queue', customOptions as any);
-    expect((queue as any).opts.defaultJobOptions.attempts).toBe(5);
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const result = queueFactory('custom-queue', { queueOptions: customOptions });
+    expect(result.isOk()).toBe(true);
+
+    expect(Queue).toHaveBeenCalledWith(
+      'custom-queue',
+      expect.objectContaining({
+        defaultJobOptions: expect.objectContaining({
+          attempts: 5,
+        }),
+      }),
+    );
+  });
+
+  it('should register shutdown hook when shutdownManager is provided', () => {
+    const logger = { info: vi.fn(), error: vi.fn() };
+    const manager = new ShutdownManager(logger);
+    const registerSpy = vi.spyOn(manager, 'register');
+
+    queueFactory('queue-with-shutdown', { shutdownManager: manager });
+
+    expect(registerSpy).toHaveBeenCalled();
+  });
+
+  it('should not throw when shutdownManager is not provided', () => {
+    const result = queueFactory('queue-no-shutdown');
+    expect(result.isOk()).toBe(true);
+  });
+
+  it('should return err(AppError) when Queue constructor throws', () => {
+    vi.mocked(Queue).mockImplementationOnce(function () {
+      throw new Error('Redis connection refused');
+    } as unknown as typeof Queue);
+
+    const result = queueFactory('failing-queue');
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(AppError);
+      expect(result.error.code).toBe('shared.queue_factory_failed');
+    }
   });
 });

@@ -6,7 +6,14 @@ describe('CacheService', () => {
 
   beforeEach(async () => {
     cacheService = new CacheService();
-    await cacheService.init();
+    const initResult = await cacheService.init();
+    expect(initResult.isOk()).toBe(true);
+  });
+
+  it('init() should return ok Result on success', async () => {
+    const fresh = new CacheService();
+    const result = await fresh.init();
+    expect(result.isOk()).toBe(true);
   });
 
   it('should set and get a value', async () => {
@@ -39,5 +46,23 @@ describe('CacheService', () => {
     const v2 = await cacheService.get('k2');
     expect(v1._unsafeUnwrap()).toBeNull();
     expect(v2._unsafeUnwrap()).toBeNull();
+  });
+
+  it('get should return err when cache is not initialized', async () => {
+    const uninitService = new CacheService();
+    const result = await uninitService.get('key');
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe('shared.cache_not_initialized');
+    }
+  });
+
+  it('set should return err when cache is not initialized', async () => {
+    const uninitService = new CacheService();
+    const result = await uninitService.set('key', 'value');
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe('shared.cache_not_initialized');
+    }
   });
 });

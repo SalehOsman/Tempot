@@ -1,5 +1,16 @@
 import { Queue, QueueOptions } from 'bullmq';
-import { ShutdownManager } from '../shutdown/shutdown.manager';
+import { ok, err } from 'neverthrow';
+import type { Result } from '../result';
+import { AppError } from '../errors';
+import type { ShutdownManager } from '../shutdown/shutdown.manager';
+
+/**
+ * Options for queueFactory.
+ */
+export interface QueueFactoryOptions {
+  shutdownManager?: ShutdownManager;
+  queueOptions?: Partial<QueueOptions>;
+}
 
 /**
  * Tracks all active queue instances for shutdown orchestration.
@@ -9,31 +20,37 @@ export const activeQueues: Queue[] = [];
 /**
  * Standardized factory for BullMQ queues.
  * Ensures consistent retry logic and connection settings across the workspace.
- * Rule: XX (Queues via Queue Factory ONLY), ADR-019
+ * Rule: XX (Queues via Queue Factory ONLY), XXI (Result Pattern), ADR-019
  */
-export function queueFactory(name: string, options?: Partial<QueueOptions>) {
-  const queue = new Queue(name, {
-    connection: {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: Number(process.env.REDIS_PORT) || 6379,
-    },
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
+export function queueFactory(name: string, options?: QueueFactoryOptions): Result<Queue, AppError> {
+  const queueOptions = options?.queueOptions;
+
+  try {
+    const queue = new Queue(name, {
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
       },
-    },
-    ...options,
-  });
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
+      ...queueOptions,
+    });
 
-  activeQueues.push(queue);
+    activeQueues.push(queue);
 
-  // Register for graceful shutdown automatically
-  ShutdownManager.register(async () => {
-    console.log(`📡 Closing queue: ${name}`);
-    await queue.close();
-  });
+    if (options?.shutdownManager) {
+      options.shutdownManager.register(async () => {
+        await queue.close();
+      });
+    }
 
-  return queue;
+    return ok(queue);
+  } catch (e) {
+    return err(new AppError('shared.queue_factory_failed', e));
+  }
 }
