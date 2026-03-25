@@ -1,4 +1,2 @@
-export interface AppSubjects {
-  _init?: never;
-}
+export interface AppSubjects {}
 export type AppSubject = keyof AppSubjects | 'all';
