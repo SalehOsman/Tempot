@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **المرجع الوحيد** لحالة المشروع. يُحدّث بعد كل دمج. (Rule LX)
-> آخر تحديث: 2026-03-24 (ISSUE-008 resolved, database fully complete)
+> آخر تحديث: 2026-03-25 (shared ✅ complete, methodology updated to v2.1.0)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -22,7 +22,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 | #   | Package         | spec | clarify | plan | analyze | tasks | design | worktree | exec-plan | execute | review | merge | Status                                  |
 | --- | --------------- | ---- | ------- | ---- | ------- | ----- | ------ | -------- | --------- | ------- | ------ | ----- | --------------------------------------- |
-| 1   | shared          | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
+| 1   | shared          | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 2   | logger          | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
 | 3   | database        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ✅\*    | ✅     | ✅    | ✅ Complete (PENDING-DOCKER int. tests) |
 | 4   | event-bus       | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
@@ -56,7 +56,9 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 ### Next Action
 
-**Next Package** — regional-engine (database review complete, merged to main).
+**In progress:** auth-core retroactive review (branch: fix/auth-core-review)
+**Pending:** event-bus review → logger review
+**After all reviews complete:** regional-engine (first package built with full methodology)
 
 ## Phase 2 — Bot Server Reconstruction
 

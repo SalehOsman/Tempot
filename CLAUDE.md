@@ -89,6 +89,8 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 8. **No Zombie Code** — delete unused code, don't comment it
 9. **Clean Diff** — only touch files related to current task
 10. **No `any` types** — no eslint-disable, no @ts-ignore
+11. **Package Checklist** — every new package passes `docs/developer/package-creation-checklist.md` before any code
+12. **No console.*** — use `process.stderr.write(JSON.stringify(...))` if logger unavailable; `outDir` must always be `dist/`
 
 ## Git Workflow
 NEVER develop on `main`. Use `using-git-worktrees` for isolated branches.
@@ -96,7 +98,20 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 Phase 0 complete. 6 packages built (shared, logger, database, event-bus, auth-core, session-manager stub).
-Phase 1 in progress. Next: session-manager rebuild, then i18n-core.
+Phase 1 in progress.
+
+**Retroactive compliance reviews (Rule LIX):**
+| Package | Status |
+|---------|--------|
+| database | ✅ Complete |
+| session-manager | ✅ Complete |
+| i18n-core | ✅ Complete |
+| shared | ✅ Complete |
+| auth-core | 🔄 In progress |
+| event-bus | ⏳ Pending |
+| logger | ⏳ Pending |
+
+**Next new package:** regional-engine (after all reviews complete)
 
 ## Key Documents
 - Constitution: `.specify/memory/constitution.md`
