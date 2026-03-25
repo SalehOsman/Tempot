@@ -131,11 +131,11 @@ Phase 1 in progress.
 | session-manager | ✅ Complete |
 | i18n-core | ✅ Complete |
 | shared | ✅ Complete |
-| auth-core | 🔄 In progress |
-| event-bus | ⏳ Pending |
-| logger | ⏳ Pending |
+| auth-core | ✅ Complete |
+| event-bus | ✅ Complete |
+| logger | ✅ Complete |
 
-**Next new package:** regional-engine (after all reviews complete)
+**All retroactive reviews complete. Next new package: regional-engine.**
 
 ## Key Documents
 

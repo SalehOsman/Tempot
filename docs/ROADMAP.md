@@ -56,9 +56,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 ### Next Action
 
-**In progress:** auth-core retroactive review (branch: fix/auth-core-review)
-**Pending:** event-bus review → logger review
-**After all reviews complete:** regional-engine (first package built with full methodology)
+**All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
+**Next:** regional-engine — first package built with full methodology from scratch
 
 ## Phase 2 — Bot Server Reconstruction
 
