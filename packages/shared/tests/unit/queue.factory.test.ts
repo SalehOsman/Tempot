@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { queueFactory, activeQueues } from '../../src/queue/queue.factory';
 import { Queue } from 'bullmq';
 import { ShutdownManager } from '../../src/shutdown/shutdown.manager';
+import { AppError } from '../../src/errors';
 
 // Mock BullMQ
 vi.mock('bullmq', () => {
@@ -88,5 +89,19 @@ describe('QueueFactory', () => {
   it('should not throw when shutdownManager is not provided', () => {
     const result = queueFactory('queue-no-shutdown');
     expect(result.isOk()).toBe(true);
+  });
+
+  it('should return err(AppError) when Queue constructor throws', () => {
+    vi.mocked(Queue).mockImplementationOnce(function () {
+      throw new Error('Redis connection refused');
+    } as unknown as typeof Queue);
+
+    const result = queueFactory('failing-queue');
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(AppError);
+      expect(result.error.code).toBe('shared.queue_factory_failed');
+    }
   });
 });

@@ -107,10 +107,10 @@ describe('ShutdownManager', () => {
     expect(logger.error).toHaveBeenCalled();
   });
 
-  it('clearHooks should remove all registered hooks', async () => {
+  it('fresh instance should have no registered hooks', async () => {
     const hook = vi.fn().mockResolvedValue(undefined);
     manager.register(hook);
-    manager.clearHooks();
+    manager = new ShutdownManager(logger);
 
     const result = await manager.execute();
 

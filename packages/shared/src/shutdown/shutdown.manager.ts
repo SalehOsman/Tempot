@@ -81,11 +81,4 @@ export class ShutdownManager {
     this.logger.info('All shutdown hooks completed.');
     return ok(undefined);
   }
-
-  /**
-   * Clear all hooks (for testing)
-   */
-  clearHooks(): void {
-    this.hooks = [];
-  }
 }

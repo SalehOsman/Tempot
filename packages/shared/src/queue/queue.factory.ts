@@ -1,5 +1,5 @@
 import { Queue, QueueOptions } from 'bullmq';
-import { ok } from 'neverthrow';
+import { ok, err } from 'neverthrow';
 import type { Result } from '../result';
 import { AppError } from '../errors';
 import type { ShutdownManager } from '../shutdown/shutdown.manager';
@@ -25,28 +25,32 @@ export const activeQueues: Queue[] = [];
 export function queueFactory(name: string, options?: QueueFactoryOptions): Result<Queue, AppError> {
   const queueOptions = options?.queueOptions;
 
-  const queue = new Queue(name, {
-    connection: {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: Number(process.env.REDIS_PORT) || 6379,
-    },
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
+  try {
+    const queue = new Queue(name, {
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
       },
-    },
-    ...queueOptions,
-  });
-
-  activeQueues.push(queue);
-
-  if (options?.shutdownManager) {
-    options.shutdownManager.register(async () => {
-      await queue.close();
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
+      ...queueOptions,
     });
-  }
 
-  return ok(queue);
+    activeQueues.push(queue);
+
+    if (options?.shutdownManager) {
+      options.shutdownManager.register(async () => {
+        await queue.close();
+      });
+    }
+
+    return ok(queue);
+  } catch (e) {
+    return err(new AppError('shared.queue_factory_failed', e));
+  }
 }
