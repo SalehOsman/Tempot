@@ -5,15 +5,27 @@ import { defineAbility } from '@casl/ability';
 import { RoleEnum } from '../../src/contracts/roles';
 
 describe('AbilityFactory', () => {
-  it('should build abilities from provided definitions', () => {
+  it('should return ok with built ability from provided definitions', () => {
     const user: SessionUser = { id: 1, role: RoleEnum.USER };
     const definition = (u: SessionUser) =>
       defineAbility((can) => {
         if (u.role === RoleEnum.USER) can('read', 'all');
       });
 
-    const ability = AbilityFactory.build(user, [definition]);
-    expect(ability.can('read', 'all')).toBe(true);
-    expect(ability.can('manage', 'all')).toBe(false);
+    const result = AbilityFactory.build(user, [definition]);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.can('read', 'all')).toBe(true);
+      expect(result.value.can('manage', 'all')).toBe(false);
+    }
+  });
+
+  it('should return ok with empty ability when no definitions provided', () => {
+    const user: SessionUser = { id: 1, role: RoleEnum.GUEST };
+    const result = AbilityFactory.build(user, []);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.can('read', 'all')).toBe(false);
+    }
   });
 });
