@@ -6,6 +6,10 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 export interface ContextSession {
   userId?: string;
   userRole?: string;
+  timezone?: string; // e.g., 'Africa/Cairo'
+  locale?: string; // e.g., 'ar-EG'
+  currencyCode?: string; // e.g., 'EGP'
+  countryCode?: string; // e.g., 'EG'
   [key: string]: unknown;
 }
 
