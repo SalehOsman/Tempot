@@ -3,7 +3,7 @@
 # دليل المنهجية — SpecKit + Superpowers
 
 > **المرجع الدستوري:** المواد L–LX من `constitution.md`
-> **آخر تحديث:** 2026-03-23
+> **آخر تحديث:** 2026-03-25
 > **هذا هو الدليل العملي الوحيد. لا يوجد دليل آخر.**
 
 ---
@@ -21,6 +21,53 @@ SpecKit يُنتج:                    Superpowers يستهلك:
                                     requesting-code-review يراجع
                                     finishing-a-development-branch يدمج
 ```
+
+---
+
+## الخطوة 0 — بروتوكول إنشاء الحزمة (إلزامي قبل أي شيء)
+
+> **المرجع الدستوري:** المواد LXXI–LXXVIII
+> **قائمة التحقق:** `docs/developer/package-creation-checklist.md`
+
+قبل البدء بأي مواصفات أو كود لحزمة جديدة، يجب أن تمر الحزمة بـ **10 نقاط إلزامية**.
+هذا البروتوكول يمنع تكرار مشاكل البنية الجوهرية (مثل حادثة 172 artifact في 2026-03-24).
+
+### هيكل الحزمة الإلزامي
+
+كل حزمة جديدة يجب أن تحتوي على هذه الملفات قبل أي كود:
+
+```
+packages/{name}/
+├── src/
+│   └── index.ts
+├── tests/
+│   └── unit/
+├── .gitignore          ← يتضمن dist/, src/**/*.js, src/**/*.d.ts
+├── package.json        ← main/types→dist/, exports, build script, exact versions
+├── tsconfig.json       ← outDir: "dist", rootDir: "src" (أو "." إذا وُجد tests/)
+└── vitest.config.ts    ← vitest 4.1.0 exact
+```
+
+### قائمة التحقق السريعة (10 نقاط)
+
+افتح `docs/developer/package-creation-checklist.md` وتحقق من كل نقطة قبل كتابة
+أول سطر كود.
+
+### منهجية التنفيذ الإلزامية (Superpowers Sequence)
+
+كل حزمة جديدة تُنفَّذ **حصراً** عبر هذا التسلسل — لا اختصارات:
+
+| # | الأداة | الهدف | المخرج |
+|---|--------|-------|--------|
+| 1 | `brainstorming` | تعميق التصميم التقني | `docs/superpowers/specs/{date}-{name}.md` |
+| 2 | `using-git-worktrees` | بيئة عمل معزولة | branch + worktree |
+| 3 | `writing-plans` | مهام 2-5 دقائق | `docs/superpowers/plans/{date}-{name}.md` |
+| 4 | `subagent-driven-development` | تنفيذ TDD | كود + اختبارات |
+| 5 | `requesting-code-review` | مراجعة ضد spec + constitution | تقرير المراجعة |
+| 6 | `verification-before-completion` | التحقق النهائي | تقرير التحقق |
+| 7 | `finishing-a-development-branch` | الدمج | merge إلى main |
+
+**تخطي أي خطوة = رفض الحزمة عند المراجعة.**
 
 ---
 

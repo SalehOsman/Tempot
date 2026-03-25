@@ -87,7 +87,7 @@ No direct BullMQ setup. All queues created via factory function in `packages/sha
 ## Error Handling
 
 ### XXI. Result Pattern
-All services return `Result<T, AppError>` via `neverthrow 8.2.0`. No thrown exceptions in business logic. Only infrastructure code (DB connections, Redis) may throw.
+All services return `Result<T, AppError>` via `neverthrow 8.2.0`. This applies to ALL public API methods without exception — services, repositories, event bus subscribe(), guards, factories, and any exported function that can fail. No thrown exceptions in public APIs. Only internal infrastructure boot code (initial DB connection, Redis startup) may throw, and only before the application enters its run loop.
 
 ### XXII. Hierarchical Error Codes
 Error code format: `module.error_name` (e.g. `user.not_found`, `invoice.payment.failed`). Every error has a unique, traceable code.
@@ -341,6 +341,78 @@ Four standardized status patterns:
 2. ALWAYS fix the root cause DIRECTLY inside the problematic original code.
 3. STRICTLY PROHIBITED: Using @ts-ignore, @ts-expect-error, or eslint-disable to bypass type or lint errors.
 
+## Package Quality
+
+### LXXI. Package Creation Checklist Required
+
+Before writing any code for a new package, the 10-point Package Readiness Checklist
+at `docs/developer/package-creation-checklist.md` MUST be completed and all 10 checks
+must pass. No package enters the codebase without passing the checklist.
+
+### LXXII. Package Build Setup
+
+Every package MUST have:
+- `tsconfig.json` with `"outDir": "dist"` — NEVER `src/` or `.`
+- `package.json`: `"main": "dist/index.js"`
+- `package.json`: `"types": "dist/index.d.ts"`
+- `package.json`: `"exports": { ".": "./dist/index.js" }`
+- `package.json`: `"build"` script (e.g., `"tsc"`)
+
+PROHIBITED: `outDir` pointing to `src/` causes build artifacts to overwrite source
+files and silently breaks module resolution (root cause of 172-artifact incident,
+2026-03-24).
+
+### LXXIII. Package Test Setup
+
+Every package MUST have:
+- `vitest.config.ts` at the package root
+- `vitest: "4.1.0"` — exact version, no caret, no range
+
+### LXXIV. No console.* in Production Code
+
+FORBIDDEN in `src/`: `console.log`, `console.warn`, `console.error`, `console.info`,
+`console.debug`.
+
+When a logger is not available (e.g., foundational packages with circular dep risk):
+```typescript
+process.stderr.write(JSON.stringify({ level: 'error', msg: '...', ...context }) + '\n');
+```
+
+### LXXV. No Test Scaffolding in Production Code
+
+FORBIDDEN in `src/`: parameters named `simulateFailure`, `testMode`, `forceError`,
+`__test__`, `isTest`, or any parameter whose sole purpose is to alter behavior for tests.
+
+Tests MUST use `vi.spyOn()` or `vi.mock()` to simulate failure conditions.
+
+### LXXVI. Exact Version Pinning for Critical Dependencies
+
+These MUST be exact — no `^` or `~`:
+- `neverthrow`: `"8.2.0"`
+- `vitest`: `"4.1.0"`
+- `typescript`: `"5.9.3"`
+
+### LXXVII. No Phantom Dependencies
+
+Every dependency declared in `package.json` MUST have at least one import from it in
+`src/`. Before finalizing `package.json`, verify:
+```bash
+grep -r "from 'package-name'" src/
+```
+Phantom dependencies are a CRITICAL finding at code review and block merge.
+
+### LXXVIII. Clean Workspace Gate
+
+Before running tests or building any package:
+1. Verify no `*.js` or `*.d.ts` files exist inside `src/`
+2. Run: `find src/ \( -name "*.js" -o -name "*.d.ts" \)` — MUST return empty
+3. `tsconfig.json` `outDir` MUST be `"dist/"` — any config writing to `src/` is a
+   CRITICAL violation that blocks all test runs
+
+Root cause of this rule: 172 stale build artifacts across 7 packages caused silent
+test failures where Vitest loaded stale `.js` files instead of `.ts` source
+(incident date: 2026-03-24).
+
 ## Development Methodology — SpecKit + Superpowers
 
 > **Authority:** This section is the SOLE reference for the development workflow.
@@ -460,5 +532,5 @@ Packages built before this methodology was ratified (database, shared, logger, e
 
 ---
 
-**Version**: 2.0.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-23
-**Amendment**: Replaced Workflow section (XLIV-LI) with unified Development Methodology (L-LX)
+**Version**: 2.1.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-25
+**Amendment 2.1.0**: Added Package Quality section (Rules LXXI–LXXVIII). Strengthened Rule XXI to cover all public APIs. Root cause: retroactive compliance review of pre-methodology packages revealed systematic build setup and code quality gaps.
