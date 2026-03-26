@@ -101,7 +101,7 @@ $env:SPECIFY_FEATURE = "007-i18n-core-package"
 ### 3. الخطة التقنية
 
 ```
-/speckit.plan سنستخدم i18next 23.x مع TypeScript strict mode،
+/speckit.plan سنستخدم i18next 25.x مع TypeScript strict mode،
 الترجمات تُخزّن كـ JSON في packages/i18n-core/locales/،
 Arabic primary + English secondary
 ```

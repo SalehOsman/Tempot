@@ -85,7 +85,7 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 | -------------- | ----------------------------------- | ------------- |
 | Runtime        | Node.js                             | 20+           |
 | Language       | TypeScript Strict Mode              | 5.9.3         |
-| Bot Engine     | grammY                              | 1.41.1        |
+| Bot Engine     | grammY                              | ^1.41.1       |
 | Web Server     | Hono                                | 4.x           |
 | Database       | PostgreSQL + pgvector               | 16            |
 | Primary ORM    | Prisma                              | 7.x           |
@@ -96,7 +96,7 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 | Auth           | CASL (@casl/ability + @casl/prisma) | 6.x           |
 | Error Handling | neverthrow                          | 8.2.0         |
 | Testing        | Vitest + Testcontainers             | 4.1.0 / 8.0.1 |
-| i18n           | i18next                             | 23.x          |
+| i18n           | i18next                             | 25.x          |
 | Logging        | Pino                                | 9.x           |
 
 ## Critical Rules (Quick Reference)

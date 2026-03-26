@@ -13,11 +13,12 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@tempot/shared": "workspace:*",
-    "ioredis": "^5.4.1",
+    "ioredis": "5.10.1",
     "neverthrow": "8.2.0"
   },
   "devDependencies": {

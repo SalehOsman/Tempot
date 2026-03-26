@@ -177,7 +177,7 @@ importers:
         specifier: workspace:*
         version: link:../shared
       ioredis:
-        specifier: ^5.4.1
+        specifier: 5.10.1
         version: 5.10.1
       neverthrow:
         specifier: 8.2.0
@@ -354,16 +354,16 @@ importers:
   packages/storage-engine:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: 3.x
+        specifier: ^3.0.0
         version: 3.1017.0
       '@aws-sdk/lib-storage':
-        specifier: 3.x
+        specifier: ^3.0.0
         version: 3.1017.0(@aws-sdk/client-s3@3.1017.0)
       '@aws-sdk/s3-request-presigner':
-        specifier: 3.x
+        specifier: ^3.0.0
         version: 3.1017.0
       '@googleapis/drive':
-        specifier: 8.x
+        specifier: ^8.0.0
         version: 8.16.0
       '@tempot/database':
         specifier: workspace:*
@@ -381,17 +381,17 @@ importers:
         specifier: workspace:*
         version: link:../shared
       file-type:
-        specifier: 19.x
+        specifier: ^19.0.0
         version: 19.6.0
       neverthrow:
         specifier: 8.2.0
         version: 8.2.0
       uuid:
-        specifier: 11.x
+        specifier: ^11.0.0
         version: 11.1.0
     devDependencies:
       '@types/uuid':
-        specifier: 10.x
+        specifier: ^10.0.0
         version: 10.0.0
       typescript:
         specifier: 5.9.3
@@ -412,7 +412,7 @@ importers:
         specifier: workspace:*
         version: link:../shared
       grammy:
-        specifier: ^1.0.0
+        specifier: ^1.41.1
         version: 1.41.1
       neverthrow:
         specifier: 8.2.0

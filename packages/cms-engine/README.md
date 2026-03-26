@@ -21,14 +21,14 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `i18next` 23.x | Backend plugin interface |
-| `@tempot/shared` | cache-manager (Redis → DB cache) |
-| `@tempot/database` | Translation override storage |
-| `@tempot/event-bus` | Cache invalidation on update |
-| `@tempot/logger` | Missing key warnings |
-| `@tempot/i18n-core` | Base i18n configuration |
+| Package             | Purpose                          |
+| ------------------- | -------------------------------- |
+| `i18next` 25.x      | Backend plugin interface         |
+| `@tempot/shared`    | cache-manager (Redis → DB cache) |
+| `@tempot/database`  | Translation override storage     |
+| `@tempot/event-bus` | Cache invalidation on update     |
+| `@tempot/logger`    | Missing key warnings             |
+| `@tempot/i18n-core` | Base i18n configuration          |
 
 ## Resolution Fallback Chain
 

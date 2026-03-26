@@ -9,7 +9,7 @@ describe('RedisEventBus Integration', () => {
   beforeAll(async () => {
     redisContainer = await new RedisContainer('redis:latest').start();
     redisUrl = `redis://${redisContainer.getHost()}:${redisContainer.getMappedPort(6379)}`;
-  }, 30000);
+  }, 120_000);
 
   afterAll(async () => {
     if (redisContainer) {
