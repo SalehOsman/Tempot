@@ -1,7 +1,7 @@
 /**
  * [PROTOTYPE - WILL NOT ENTER PRODUCTION]
  *
- * ⚠️ WARNING: This file currently violates several constitutional rules:
+ * WARNING: This file currently violates several constitutional rules:
  * - Rule XXXIX (i18n-Only): Contains hardcoded English strings.
  * - Rule XXV (Security by Default): Lacks CASL, Ratelimiter, and Zod layers.
  *
@@ -17,7 +17,7 @@ import { Bot } from 'grammy';
 const token = process.env.BOT_TOKEN;
 
 if (!token) {
-  console.error('❌ BOT_TOKEN is missing — add it to your .env file');
+  process.stderr.write('BOT_TOKEN is missing — add it to your .env file\n');
   process.exit(1);
 }
 
@@ -25,14 +25,14 @@ const bot = new Bot(token);
 
 bot.command('start', (ctx) => {
   return ctx.reply(
-    '✅ Tempot is connected!\n\n' +
+    'Tempot is connected!\n\n' +
       'Bot is running in minimal mode.\n' +
       'No database or Redis required at this stage.',
   );
 });
 
 bot.command('ping', (ctx) => {
-  return ctx.reply('🏓 Pong!');
+  return ctx.reply('Pong!');
 });
 
 bot.on('message', (ctx) => {
@@ -40,23 +40,30 @@ bot.on('message', (ctx) => {
 });
 
 bot.catch((err) => {
-  console.error('❌ Bot error:', err.message);
+  process.stderr.write(
+    JSON.stringify({
+      level: 'error',
+      module: 'bot-server',
+      message: 'Bot error',
+      error: err.message,
+    }) + '\n',
+  );
 });
 
-console.log('🚀 Starting Tempot bot in minimal mode...');
+process.stderr.write('Starting Tempot bot in minimal mode...\n');
 
 bot.start({
   onStart: (info) => {
-    console.log(`✅ Bot connected: @${info.username}`);
-    console.log('📡 Listening for messages... (Ctrl+C to stop)');
+    process.stderr.write(`Bot connected: @${info.username}\n`);
+    process.stderr.write('Listening for messages... (Ctrl+C to stop)\n');
   },
 });
 
 // Basic graceful shutdown (Partial compliance with Rule XVII)
 const stopRunner = () => {
-  console.log('\n🛑 Stopping bot gracefully...');
+  process.stderr.write('Stopping bot gracefully...\n');
   bot.stop().then(() => {
-    console.log('✅ Bot stopped.');
+    process.stderr.write('Bot stopped.\n');
     process.exit(0);
   });
 };

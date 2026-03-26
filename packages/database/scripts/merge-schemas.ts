@@ -19,10 +19,10 @@ async function mergeSchemas() {
   }
 
   await fs.writeFile(outputSchemaPath, finalSchema);
-  console.log(`Schemas merged successfully to ${outputSchemaPath}`);
+  process.stderr.write(`Schemas merged successfully to ${outputSchemaPath}\n`);
 }
 
 mergeSchemas().catch((err) => {
-  console.error('Failed to merge schemas:', err);
+  process.stderr.write(`Failed to merge schemas: ${String(err)}\n`);
   process.exit(1);
 });
