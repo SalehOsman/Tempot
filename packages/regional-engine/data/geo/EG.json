@@ -1,0 +1,1203 @@
+{
+  "countryCode": "EG",
+  "states": [
+    {
+      "id": "1",
+      "code": "ALX",
+      "name": "Alexandria",
+      "name_ar": "الإسكندرية",
+      "i18nKey": "geo.EG.states.ALX",
+      "countryCode": "EG"
+    },
+    {
+      "id": "2",
+      "code": "ASN",
+      "name": "Aswan",
+      "name_ar": "أسوان",
+      "i18nKey": "geo.EG.states.ASN",
+      "countryCode": "EG"
+    },
+    {
+      "id": "3",
+      "code": "AST",
+      "name": "Asyut",
+      "name_ar": "أسيوط",
+      "i18nKey": "geo.EG.states.AST",
+      "countryCode": "EG"
+    },
+    {
+      "id": "4",
+      "code": "BH",
+      "name": "Beheira",
+      "name_ar": "البحيرة",
+      "i18nKey": "geo.EG.states.BH",
+      "countryCode": "EG"
+    },
+    {
+      "id": "5",
+      "code": "BNS",
+      "name": "Beni Suef",
+      "name_ar": "بني سويف",
+      "i18nKey": "geo.EG.states.BNS",
+      "countryCode": "EG"
+    },
+    {
+      "id": "6",
+      "code": "C",
+      "name": "Cairo",
+      "name_ar": "القاهرة",
+      "i18nKey": "geo.EG.states.C",
+      "countryCode": "EG"
+    },
+    {
+      "id": "7",
+      "code": "DK",
+      "name": "Dakahlia",
+      "name_ar": "الدقهلية",
+      "i18nKey": "geo.EG.states.DK",
+      "countryCode": "EG"
+    },
+    {
+      "id": "8",
+      "code": "DT",
+      "name": "Damietta",
+      "name_ar": "دمياط",
+      "i18nKey": "geo.EG.states.DT",
+      "countryCode": "EG"
+    },
+    {
+      "id": "9",
+      "code": "FYM",
+      "name": "Faiyum",
+      "name_ar": "الفيوم",
+      "i18nKey": "geo.EG.states.FYM",
+      "countryCode": "EG"
+    },
+    {
+      "id": "10",
+      "code": "GH",
+      "name": "Gharbia",
+      "name_ar": "الغربية",
+      "i18nKey": "geo.EG.states.GH",
+      "countryCode": "EG"
+    },
+    {
+      "id": "11",
+      "code": "GZ",
+      "name": "Giza",
+      "name_ar": "الجيزة",
+      "i18nKey": "geo.EG.states.GZ",
+      "countryCode": "EG"
+    },
+    {
+      "id": "12",
+      "code": "IS",
+      "name": "Ismailia",
+      "name_ar": "الإسماعيلية",
+      "i18nKey": "geo.EG.states.IS",
+      "countryCode": "EG"
+    },
+    {
+      "id": "13",
+      "code": "KFS",
+      "name": "Kafr el-Sheikh",
+      "name_ar": "كفر الشيخ",
+      "i18nKey": "geo.EG.states.KFS",
+      "countryCode": "EG"
+    },
+    {
+      "id": "14",
+      "code": "LX",
+      "name": "Luxor",
+      "name_ar": "الأقصر",
+      "i18nKey": "geo.EG.states.LX",
+      "countryCode": "EG"
+    },
+    {
+      "id": "15",
+      "code": "MT",
+      "name": "Matrouh",
+      "name_ar": "مطروح",
+      "i18nKey": "geo.EG.states.MT",
+      "countryCode": "EG"
+    },
+    {
+      "id": "16",
+      "code": "MN",
+      "name": "Minya",
+      "name_ar": "المنيا",
+      "i18nKey": "geo.EG.states.MN",
+      "countryCode": "EG"
+    },
+    {
+      "id": "17",
+      "code": "MNF",
+      "name": "Monufia",
+      "name_ar": "المنوفية",
+      "i18nKey": "geo.EG.states.MNF",
+      "countryCode": "EG"
+    },
+    {
+      "id": "18",
+      "code": "WAD",
+      "name": "New Valley",
+      "name_ar": "الوادي الجديد",
+      "i18nKey": "geo.EG.states.WAD",
+      "countryCode": "EG"
+    },
+    {
+      "id": "19",
+      "code": "SIN",
+      "name": "North Sinai",
+      "name_ar": "شمال سيناء",
+      "i18nKey": "geo.EG.states.SIN",
+      "countryCode": "EG"
+    },
+    {
+      "id": "20",
+      "code": "PTS",
+      "name": "Port Said",
+      "name_ar": "بورسعيد",
+      "i18nKey": "geo.EG.states.PTS",
+      "countryCode": "EG"
+    },
+    {
+      "id": "21",
+      "code": "KB",
+      "name": "Qalyubia",
+      "name_ar": "القليوبية",
+      "i18nKey": "geo.EG.states.KB",
+      "countryCode": "EG"
+    },
+    {
+      "id": "22",
+      "code": "KN",
+      "name": "Qena",
+      "name_ar": "قنا",
+      "i18nKey": "geo.EG.states.KN",
+      "countryCode": "EG"
+    },
+    {
+      "id": "23",
+      "code": "BA",
+      "name": "Red Sea",
+      "name_ar": "البحر الأحمر",
+      "i18nKey": "geo.EG.states.BA",
+      "countryCode": "EG"
+    },
+    {
+      "id": "24",
+      "code": "SHR",
+      "name": "Sharqia",
+      "name_ar": "الشرقية",
+      "i18nKey": "geo.EG.states.SHR",
+      "countryCode": "EG"
+    },
+    {
+      "id": "25",
+      "code": "SHG",
+      "name": "Sohag",
+      "name_ar": "سوهاج",
+      "i18nKey": "geo.EG.states.SHG",
+      "countryCode": "EG"
+    },
+    {
+      "id": "26",
+      "code": "JS",
+      "name": "South Sinai",
+      "name_ar": "جنوب سيناء",
+      "i18nKey": "geo.EG.states.JS",
+      "countryCode": "EG"
+    },
+    {
+      "id": "27",
+      "code": "SUZ",
+      "name": "Suez",
+      "name_ar": "السويس",
+      "i18nKey": "geo.EG.states.SUZ",
+      "countryCode": "EG"
+    }
+  ],
+  "cities": [
+    {
+      "id": "1",
+      "stateId": "1",
+      "name": "Alexandria",
+      "name_ar": "Alexandria",
+      "i18nKey": "geo.EG.cities.ALX.alexandria"
+    },
+    {
+      "id": "2",
+      "stateId": "2",
+      "name": "Abu Simbel",
+      "name_ar": "Abu Simbel",
+      "i18nKey": "geo.EG.cities.ASN.abu_simbel"
+    },
+    {
+      "id": "3",
+      "stateId": "2",
+      "name": "Aswan",
+      "name_ar": "Aswan",
+      "i18nKey": "geo.EG.cities.ASN.aswan"
+    },
+    {
+      "id": "4",
+      "stateId": "2",
+      "name": "Idfū",
+      "name_ar": "Idfū",
+      "i18nKey": "geo.EG.cities.ASN.idf"
+    },
+    {
+      "id": "5",
+      "stateId": "2",
+      "name": "Kawm Umbū",
+      "name_ar": "Kawm Umbū",
+      "i18nKey": "geo.EG.cities.ASN.kawm_umb"
+    },
+    {
+      "id": "6",
+      "stateId": "3",
+      "name": "Abnūb",
+      "name_ar": "Abnūb",
+      "i18nKey": "geo.EG.cities.AST.abnb"
+    },
+    {
+      "id": "7",
+      "stateId": "3",
+      "name": "Abū Tīj",
+      "name_ar": "Abū Tīj",
+      "i18nKey": "geo.EG.cities.AST.ab_tj"
+    },
+    {
+      "id": "8",
+      "stateId": "3",
+      "name": "Al Badārī",
+      "name_ar": "Al Badārī",
+      "i18nKey": "geo.EG.cities.AST.al_badr"
+    },
+    {
+      "id": "9",
+      "stateId": "3",
+      "name": "Al Qūşīyah",
+      "name_ar": "Al Qūşīyah",
+      "i18nKey": "geo.EG.cities.AST.al_qyah"
+    },
+    {
+      "id": "10",
+      "stateId": "3",
+      "name": "Asyūţ",
+      "name_ar": "Asyūţ",
+      "i18nKey": "geo.EG.cities.AST.asy"
+    },
+    {
+      "id": "11",
+      "stateId": "3",
+      "name": "Dayrūţ",
+      "name_ar": "Dayrūţ",
+      "i18nKey": "geo.EG.cities.AST.dayr"
+    },
+    {
+      "id": "12",
+      "stateId": "3",
+      "name": "Manfalūţ",
+      "name_ar": "Manfalūţ",
+      "i18nKey": "geo.EG.cities.AST.manfal"
+    },
+    {
+      "id": "13",
+      "stateId": "4",
+      "name": "Abū al Maţāmīr",
+      "name_ar": "Abū al Maţāmīr",
+      "i18nKey": "geo.EG.cities.BH.ab_al_mamr"
+    },
+    {
+      "id": "14",
+      "stateId": "4",
+      "name": "Ad Dilinjāt",
+      "name_ar": "Ad Dilinjāt",
+      "i18nKey": "geo.EG.cities.BH.ad_dilinjt"
+    },
+    {
+      "id": "15",
+      "stateId": "4",
+      "name": "Damanhūr",
+      "name_ar": "Damanhūr",
+      "i18nKey": "geo.EG.cities.BH.damanhr"
+    },
+    {
+      "id": "16",
+      "stateId": "4",
+      "name": "Idkū",
+      "name_ar": "Idkū",
+      "i18nKey": "geo.EG.cities.BH.idk"
+    },
+    {
+      "id": "17",
+      "stateId": "4",
+      "name": "Kafr ad Dawwār",
+      "name_ar": "Kafr ad Dawwār",
+      "i18nKey": "geo.EG.cities.BH.kafr_ad_dawwr"
+    },
+    {
+      "id": "18",
+      "stateId": "4",
+      "name": "Kawm Ḩamādah",
+      "name_ar": "Kawm Ḩamādah",
+      "i18nKey": "geo.EG.cities.BH.kawm_amdah"
+    },
+    {
+      "id": "19",
+      "stateId": "4",
+      "name": "Rosetta",
+      "name_ar": "Rosetta",
+      "i18nKey": "geo.EG.cities.BH.rosetta"
+    },
+    {
+      "id": "20",
+      "stateId": "4",
+      "name": "Ḩawsh ‘Īsá",
+      "name_ar": "Ḩawsh ‘Īsá",
+      "i18nKey": "geo.EG.cities.BH.awsh_s"
+    },
+    {
+      "id": "21",
+      "stateId": "5",
+      "name": "Al Fashn",
+      "name_ar": "Al Fashn",
+      "i18nKey": "geo.EG.cities.BNS.al_fashn"
+    },
+    {
+      "id": "22",
+      "stateId": "5",
+      "name": "Banī Suwayf",
+      "name_ar": "Banī Suwayf",
+      "i18nKey": "geo.EG.cities.BNS.ban_suwayf"
+    },
+    {
+      "id": "23",
+      "stateId": "5",
+      "name": "Būsh",
+      "name_ar": "Būsh",
+      "i18nKey": "geo.EG.cities.BNS.bsh"
+    },
+    {
+      "id": "24",
+      "stateId": "5",
+      "name": "Sumusţā as Sulţānī",
+      "name_ar": "Sumusţā as Sulţānī",
+      "i18nKey": "geo.EG.cities.BNS.sumus_as_suln"
+    },
+    {
+      "id": "25",
+      "stateId": "6",
+      "name": "Cairo",
+      "name_ar": "Cairo",
+      "i18nKey": "geo.EG.cities.C.cairo"
+    },
+    {
+      "id": "26",
+      "stateId": "6",
+      "name": "New Cairo",
+      "name_ar": "New Cairo",
+      "i18nKey": "geo.EG.cities.C.new_cairo"
+    },
+    {
+      "id": "27",
+      "stateId": "6",
+      "name": "Ḩalwān",
+      "name_ar": "Ḩalwān",
+      "i18nKey": "geo.EG.cities.C.alwn"
+    },
+    {
+      "id": "28",
+      "stateId": "7",
+      "name": "Ajā",
+      "name_ar": "Ajā",
+      "i18nKey": "geo.EG.cities.DK.aj"
+    },
+    {
+      "id": "29",
+      "stateId": "7",
+      "name": "Al Jammālīyah",
+      "name_ar": "Al Jammālīyah",
+      "i18nKey": "geo.EG.cities.DK.al_jammlyah"
+    },
+    {
+      "id": "30",
+      "stateId": "7",
+      "name": "Al Manzalah",
+      "name_ar": "Al Manzalah",
+      "i18nKey": "geo.EG.cities.DK.al_manzalah"
+    },
+    {
+      "id": "31",
+      "stateId": "7",
+      "name": "Al Manşūrah",
+      "name_ar": "Al Manşūrah",
+      "i18nKey": "geo.EG.cities.DK.al_manrah"
+    },
+    {
+      "id": "32",
+      "stateId": "7",
+      "name": "Al Maţarīyah",
+      "name_ar": "Al Maţarīyah",
+      "i18nKey": "geo.EG.cities.DK.al_maaryah"
+    },
+    {
+      "id": "33",
+      "stateId": "7",
+      "name": "Bilqās",
+      "name_ar": "Bilqās",
+      "i18nKey": "geo.EG.cities.DK.bilqs"
+    },
+    {
+      "id": "34",
+      "stateId": "7",
+      "name": "Dikirnis",
+      "name_ar": "Dikirnis",
+      "i18nKey": "geo.EG.cities.DK.dikirnis"
+    },
+    {
+      "id": "35",
+      "stateId": "7",
+      "name": "Minyat an Naşr",
+      "name_ar": "Minyat an Naşr",
+      "i18nKey": "geo.EG.cities.DK.minyat_an_nar"
+    },
+    {
+      "id": "36",
+      "stateId": "7",
+      "name": "Shirbīn",
+      "name_ar": "Shirbīn",
+      "i18nKey": "geo.EG.cities.DK.shirbn"
+    },
+    {
+      "id": "37",
+      "stateId": "7",
+      "name": "Ţalkhā",
+      "name_ar": "Ţalkhā",
+      "i18nKey": "geo.EG.cities.DK.alkh"
+    },
+    {
+      "id": "38",
+      "stateId": "7",
+      "name": "‘Izbat al Burj",
+      "name_ar": "‘Izbat al Burj",
+      "i18nKey": "geo.EG.cities.DK.izbat_al_burj"
+    },
+    {
+      "id": "39",
+      "stateId": "8",
+      "name": "Az Zarqā",
+      "name_ar": "Az Zarqā",
+      "i18nKey": "geo.EG.cities.DT.az_zarq"
+    },
+    {
+      "id": "40",
+      "stateId": "8",
+      "name": "Damietta",
+      "name_ar": "Damietta",
+      "i18nKey": "geo.EG.cities.DT.damietta"
+    },
+    {
+      "id": "41",
+      "stateId": "8",
+      "name": "Fāraskūr",
+      "name_ar": "Fāraskūr",
+      "i18nKey": "geo.EG.cities.DT.fraskr"
+    },
+    {
+      "id": "42",
+      "stateId": "9",
+      "name": "Al Fayyūm",
+      "name_ar": "Al Fayyūm",
+      "i18nKey": "geo.EG.cities.FYM.al_fayym"
+    },
+    {
+      "id": "43",
+      "stateId": "9",
+      "name": "Al Wāsiţah",
+      "name_ar": "Al Wāsiţah",
+      "i18nKey": "geo.EG.cities.FYM.al_wsiah"
+    },
+    {
+      "id": "44",
+      "stateId": "9",
+      "name": "Ibshawāy",
+      "name_ar": "Ibshawāy",
+      "i18nKey": "geo.EG.cities.FYM.ibshawy"
+    },
+    {
+      "id": "45",
+      "stateId": "9",
+      "name": "Iţsā",
+      "name_ar": "Iţsā",
+      "i18nKey": "geo.EG.cities.FYM.is"
+    },
+    {
+      "id": "46",
+      "stateId": "9",
+      "name": "Ţāmiyah",
+      "name_ar": "Ţāmiyah",
+      "i18nKey": "geo.EG.cities.FYM.miyah"
+    },
+    {
+      "id": "47",
+      "stateId": "10",
+      "name": "Al Maḩallah al Kubrá",
+      "name_ar": "Al Maḩallah al Kubrá",
+      "i18nKey": "geo.EG.cities.GH.al_maallah_al_kubr"
+    },
+    {
+      "id": "48",
+      "stateId": "10",
+      "name": "Basyūn",
+      "name_ar": "Basyūn",
+      "i18nKey": "geo.EG.cities.GH.basyn"
+    },
+    {
+      "id": "49",
+      "stateId": "10",
+      "name": "Kafr az Zayyāt",
+      "name_ar": "Kafr az Zayyāt",
+      "i18nKey": "geo.EG.cities.GH.kafr_az_zayyt"
+    },
+    {
+      "id": "50",
+      "stateId": "10",
+      "name": "Quţūr",
+      "name_ar": "Quţūr",
+      "i18nKey": "geo.EG.cities.GH.qur"
+    },
+    {
+      "id": "51",
+      "stateId": "10",
+      "name": "Samannūd",
+      "name_ar": "Samannūd",
+      "i18nKey": "geo.EG.cities.GH.samannd"
+    },
+    {
+      "id": "52",
+      "stateId": "10",
+      "name": "Tanda",
+      "name_ar": "Tanda",
+      "i18nKey": "geo.EG.cities.GH.tanda"
+    },
+    {
+      "id": "53",
+      "stateId": "10",
+      "name": "Zefta",
+      "name_ar": "Zefta",
+      "i18nKey": "geo.EG.cities.GH.zefta"
+    },
+    {
+      "id": "54",
+      "stateId": "11",
+      "name": "Al Bawīţī",
+      "name_ar": "Al Bawīţī",
+      "i18nKey": "geo.EG.cities.GZ.al_baw"
+    },
+    {
+      "id": "55",
+      "stateId": "11",
+      "name": "Al Ḩawāmidīyah",
+      "name_ar": "Al Ḩawāmidīyah",
+      "i18nKey": "geo.EG.cities.GZ.al_awmidyah"
+    },
+    {
+      "id": "56",
+      "stateId": "11",
+      "name": "Al ‘Ayyāţ",
+      "name_ar": "Al ‘Ayyāţ",
+      "i18nKey": "geo.EG.cities.GZ.al_ayy"
+    },
+    {
+      "id": "57",
+      "stateId": "11",
+      "name": "Awsīm",
+      "name_ar": "Awsīm",
+      "i18nKey": "geo.EG.cities.GZ.awsm"
+    },
+    {
+      "id": "58",
+      "stateId": "11",
+      "name": "Aş Şaff",
+      "name_ar": "Aş Şaff",
+      "i18nKey": "geo.EG.cities.GZ.a_aff"
+    },
+    {
+      "id": "59",
+      "stateId": "11",
+      "name": "Giza",
+      "name_ar": "Giza",
+      "i18nKey": "geo.EG.cities.GZ.giza"
+    },
+    {
+      "id": "60",
+      "stateId": "11",
+      "name": "Madīnat Sittah Uktūbar",
+      "name_ar": "Madīnat Sittah Uktūbar",
+      "i18nKey": "geo.EG.cities.GZ.madnat_sittah_uktbar"
+    },
+    {
+      "id": "61",
+      "stateId": "12",
+      "name": "Ismailia",
+      "name_ar": "Ismailia",
+      "i18nKey": "geo.EG.cities.IS.ismailia"
+    },
+    {
+      "id": "62",
+      "stateId": "13",
+      "name": "Al Ḩāmūl",
+      "name_ar": "Al Ḩāmūl",
+      "i18nKey": "geo.EG.cities.KFS.al_ml"
+    },
+    {
+      "id": "63",
+      "stateId": "13",
+      "name": "Disūq",
+      "name_ar": "Disūq",
+      "i18nKey": "geo.EG.cities.KFS.disq"
+    },
+    {
+      "id": "64",
+      "stateId": "13",
+      "name": "Fuwwah",
+      "name_ar": "Fuwwah",
+      "i18nKey": "geo.EG.cities.KFS.fuwwah"
+    },
+    {
+      "id": "65",
+      "stateId": "13",
+      "name": "Kafr ash Shaykh",
+      "name_ar": "Kafr ash Shaykh",
+      "i18nKey": "geo.EG.cities.KFS.kafr_ash_shaykh"
+    },
+    {
+      "id": "66",
+      "stateId": "13",
+      "name": "Markaz Disūq",
+      "name_ar": "Markaz Disūq",
+      "i18nKey": "geo.EG.cities.KFS.markaz_disq"
+    },
+    {
+      "id": "67",
+      "stateId": "13",
+      "name": "Munshāt ‘Alī Āghā",
+      "name_ar": "Munshāt ‘Alī Āghā",
+      "i18nKey": "geo.EG.cities.KFS.munsht_al_gh"
+    },
+    {
+      "id": "68",
+      "stateId": "13",
+      "name": "Sīdī Sālim",
+      "name_ar": "Sīdī Sālim",
+      "i18nKey": "geo.EG.cities.KFS.sd_slim"
+    },
+    {
+      "id": "69",
+      "stateId": "14",
+      "name": "Luxor",
+      "name_ar": "Luxor",
+      "i18nKey": "geo.EG.cities.LX.luxor"
+    },
+    {
+      "id": "70",
+      "stateId": "14",
+      "name": "Markaz al Uqşur",
+      "name_ar": "Markaz al Uqşur",
+      "i18nKey": "geo.EG.cities.LX.markaz_al_uqur"
+    },
+    {
+      "id": "71",
+      "stateId": "15",
+      "name": "Al ‘Alamayn",
+      "name_ar": "Al ‘Alamayn",
+      "i18nKey": "geo.EG.cities.MT.al_alamayn"
+    },
+    {
+      "id": "72",
+      "stateId": "15",
+      "name": "Mersa Matruh",
+      "name_ar": "Mersa Matruh",
+      "i18nKey": "geo.EG.cities.MT.mersa_matruh"
+    },
+    {
+      "id": "73",
+      "stateId": "15",
+      "name": "Siwa Oasis",
+      "name_ar": "Siwa Oasis",
+      "i18nKey": "geo.EG.cities.MT.siwa_oasis"
+    },
+    {
+      "id": "74",
+      "stateId": "16",
+      "name": "Abū Qurqāş",
+      "name_ar": "Abū Qurqāş",
+      "i18nKey": "geo.EG.cities.MN.ab_qurq"
+    },
+    {
+      "id": "75",
+      "stateId": "16",
+      "name": "Al Minyā",
+      "name_ar": "Al Minyā",
+      "i18nKey": "geo.EG.cities.MN.al_miny"
+    },
+    {
+      "id": "76",
+      "stateId": "16",
+      "name": "Banī Mazār",
+      "name_ar": "Banī Mazār",
+      "i18nKey": "geo.EG.cities.MN.ban_mazr"
+    },
+    {
+      "id": "77",
+      "stateId": "16",
+      "name": "Dayr Mawās",
+      "name_ar": "Dayr Mawās",
+      "i18nKey": "geo.EG.cities.MN.dayr_maws"
+    },
+    {
+      "id": "78",
+      "stateId": "16",
+      "name": "Mallawī",
+      "name_ar": "Mallawī",
+      "i18nKey": "geo.EG.cities.MN.mallaw"
+    },
+    {
+      "id": "79",
+      "stateId": "16",
+      "name": "Maţāy",
+      "name_ar": "Maţāy",
+      "i18nKey": "geo.EG.cities.MN.may"
+    },
+    {
+      "id": "80",
+      "stateId": "16",
+      "name": "Samālūţ",
+      "name_ar": "Samālūţ",
+      "i18nKey": "geo.EG.cities.MN.saml"
+    },
+    {
+      "id": "81",
+      "stateId": "17",
+      "name": "Al Bājūr",
+      "name_ar": "Al Bājūr",
+      "i18nKey": "geo.EG.cities.MNF.al_bjr"
+    },
+    {
+      "id": "82",
+      "stateId": "17",
+      "name": "Ash Shuhadā’",
+      "name_ar": "Ash Shuhadā’",
+      "i18nKey": "geo.EG.cities.MNF.ash_shuhad"
+    },
+    {
+      "id": "83",
+      "stateId": "17",
+      "name": "Ashmūn",
+      "name_ar": "Ashmūn",
+      "i18nKey": "geo.EG.cities.MNF.ashmn"
+    },
+    {
+      "id": "84",
+      "stateId": "17",
+      "name": "Munūf",
+      "name_ar": "Munūf",
+      "i18nKey": "geo.EG.cities.MNF.munf"
+    },
+    {
+      "id": "85",
+      "stateId": "17",
+      "name": "Quwaysinā",
+      "name_ar": "Quwaysinā",
+      "i18nKey": "geo.EG.cities.MNF.quwaysin"
+    },
+    {
+      "id": "86",
+      "stateId": "17",
+      "name": "Shibīn al Kawm",
+      "name_ar": "Shibīn al Kawm",
+      "i18nKey": "geo.EG.cities.MNF.shibn_al_kawm"
+    },
+    {
+      "id": "87",
+      "stateId": "17",
+      "name": "Talā",
+      "name_ar": "Talā",
+      "i18nKey": "geo.EG.cities.MNF.tal"
+    },
+    {
+      "id": "88",
+      "stateId": "18",
+      "name": "Al Khārijah",
+      "name_ar": "Al Khārijah",
+      "i18nKey": "geo.EG.cities.WAD.al_khrijah"
+    },
+    {
+      "id": "89",
+      "stateId": "18",
+      "name": "Qaşr al Farāfirah",
+      "name_ar": "Qaşr al Farāfirah",
+      "i18nKey": "geo.EG.cities.WAD.qar_al_farfirah"
+    },
+    {
+      "id": "90",
+      "stateId": "19",
+      "name": "Arish",
+      "name_ar": "Arish",
+      "i18nKey": "geo.EG.cities.SIN.arish"
+    },
+    {
+      "id": "91",
+      "stateId": "20",
+      "name": "Port Said",
+      "name_ar": "Port Said",
+      "i18nKey": "geo.EG.cities.PTS.port_said"
+    },
+    {
+      "id": "92",
+      "stateId": "21",
+      "name": "Al Khānkah",
+      "name_ar": "Al Khānkah",
+      "i18nKey": "geo.EG.cities.KB.al_khnkah"
+    },
+    {
+      "id": "93",
+      "stateId": "21",
+      "name": "Al Qanāţir al Khayrīyah",
+      "name_ar": "Al Qanāţir al Khayrīyah",
+      "i18nKey": "geo.EG.cities.KB.al_qanir_al_khayryah"
+    },
+    {
+      "id": "94",
+      "stateId": "21",
+      "name": "Banhā",
+      "name_ar": "Banhā",
+      "i18nKey": "geo.EG.cities.KB.banh"
+    },
+    {
+      "id": "95",
+      "stateId": "21",
+      "name": "Qalyūb",
+      "name_ar": "Qalyūb",
+      "i18nKey": "geo.EG.cities.KB.qalyb"
+    },
+    {
+      "id": "96",
+      "stateId": "21",
+      "name": "Shibīn al Qanāṭir",
+      "name_ar": "Shibīn al Qanāṭir",
+      "i18nKey": "geo.EG.cities.KB.shibn_al_qanir"
+    },
+    {
+      "id": "97",
+      "stateId": "21",
+      "name": "Toukh",
+      "name_ar": "Toukh",
+      "i18nKey": "geo.EG.cities.KB.toukh"
+    },
+    {
+      "id": "98",
+      "stateId": "22",
+      "name": "Dishnā",
+      "name_ar": "Dishnā",
+      "i18nKey": "geo.EG.cities.KN.dishn"
+    },
+    {
+      "id": "99",
+      "stateId": "22",
+      "name": "Farshūţ",
+      "name_ar": "Farshūţ",
+      "i18nKey": "geo.EG.cities.KN.farsh"
+    },
+    {
+      "id": "100",
+      "stateId": "22",
+      "name": "Isnā",
+      "name_ar": "Isnā",
+      "i18nKey": "geo.EG.cities.KN.isn"
+    },
+    {
+      "id": "101",
+      "stateId": "22",
+      "name": "Kousa",
+      "name_ar": "Kousa",
+      "i18nKey": "geo.EG.cities.KN.kousa"
+    },
+    {
+      "id": "102",
+      "stateId": "22",
+      "name": "Naja' Ḥammādī",
+      "name_ar": "Naja' Ḥammādī",
+      "i18nKey": "geo.EG.cities.KN.naja_ammd"
+    },
+    {
+      "id": "103",
+      "stateId": "22",
+      "name": "Qinā",
+      "name_ar": "Qinā",
+      "i18nKey": "geo.EG.cities.KN.qin"
+    },
+    {
+      "id": "104",
+      "stateId": "23",
+      "name": "Al Quşayr",
+      "name_ar": "Al Quşayr",
+      "i18nKey": "geo.EG.cities.BA.al_quayr"
+    },
+    {
+      "id": "105",
+      "stateId": "23",
+      "name": "El Gouna",
+      "name_ar": "El Gouna",
+      "i18nKey": "geo.EG.cities.BA.el_gouna"
+    },
+    {
+      "id": "106",
+      "stateId": "23",
+      "name": "Hurghada",
+      "name_ar": "Hurghada",
+      "i18nKey": "geo.EG.cities.BA.hurghada"
+    },
+    {
+      "id": "107",
+      "stateId": "23",
+      "name": "Makadi Bay",
+      "name_ar": "Makadi Bay",
+      "i18nKey": "geo.EG.cities.BA.makadi_bay"
+    },
+    {
+      "id": "108",
+      "stateId": "23",
+      "name": "Marsa Alam",
+      "name_ar": "Marsa Alam",
+      "i18nKey": "geo.EG.cities.BA.marsa_alam"
+    },
+    {
+      "id": "109",
+      "stateId": "23",
+      "name": "Ras Gharib",
+      "name_ar": "Ras Gharib",
+      "i18nKey": "geo.EG.cities.BA.ras_gharib"
+    },
+    {
+      "id": "110",
+      "stateId": "23",
+      "name": "Safaga",
+      "name_ar": "Safaga",
+      "i18nKey": "geo.EG.cities.BA.safaga"
+    },
+    {
+      "id": "111",
+      "stateId": "24",
+      "name": "10th of Ramadan",
+      "name_ar": "10th of Ramadan",
+      "i18nKey": "geo.EG.cities.SHR.10th_of_ramadan"
+    },
+    {
+      "id": "112",
+      "stateId": "24",
+      "name": "Al Qurein",
+      "name_ar": "Al Qurein",
+      "i18nKey": "geo.EG.cities.SHR.al_qurein"
+    },
+    {
+      "id": "113",
+      "stateId": "24",
+      "name": "Awlad Saqr",
+      "name_ar": "Awlad Saqr",
+      "i18nKey": "geo.EG.cities.SHR.awlad_saqr"
+    },
+    {
+      "id": "114",
+      "stateId": "24",
+      "name": "Bilbeis",
+      "name_ar": "Bilbeis",
+      "i18nKey": "geo.EG.cities.SHR.bilbeis"
+    },
+    {
+      "id": "115",
+      "stateId": "24",
+      "name": "Diyarb Negm",
+      "name_ar": "Diyarb Negm",
+      "i18nKey": "geo.EG.cities.SHR.diyarb_negm"
+    },
+    {
+      "id": "116",
+      "stateId": "24",
+      "name": "El Husseiniya",
+      "name_ar": "El Husseiniya",
+      "i18nKey": "geo.EG.cities.SHR.el_husseiniya"
+    },
+    {
+      "id": "117",
+      "stateId": "24",
+      "name": "Faqous",
+      "name_ar": "Faqous",
+      "i18nKey": "geo.EG.cities.SHR.faqous"
+    },
+    {
+      "id": "118",
+      "stateId": "24",
+      "name": "Hihya",
+      "name_ar": "Hihya",
+      "i18nKey": "geo.EG.cities.SHR.hihya"
+    },
+    {
+      "id": "119",
+      "stateId": "24",
+      "name": "Kafr Saqr",
+      "name_ar": "Kafr Saqr",
+      "i18nKey": "geo.EG.cities.SHR.kafr_saqr"
+    },
+    {
+      "id": "120",
+      "stateId": "24",
+      "name": "Markaz Abū Ḩammād",
+      "name_ar": "Markaz Abū Ḩammād",
+      "i18nKey": "geo.EG.cities.SHR.markaz_ab_ammd"
+    },
+    {
+      "id": "121",
+      "stateId": "24",
+      "name": "Mashtoul El Souk",
+      "name_ar": "Mashtoul El Souk",
+      "i18nKey": "geo.EG.cities.SHR.mashtoul_el_souk"
+    },
+    {
+      "id": "122",
+      "stateId": "24",
+      "name": "Minya El Qamh",
+      "name_ar": "Minya El Qamh",
+      "i18nKey": "geo.EG.cities.SHR.minya_el_qamh"
+    },
+    {
+      "id": "123",
+      "stateId": "24",
+      "name": "New Salhia",
+      "name_ar": "New Salhia",
+      "i18nKey": "geo.EG.cities.SHR.new_salhia"
+    },
+    {
+      "id": "124",
+      "stateId": "24",
+      "name": "Zagazig",
+      "name_ar": "Zagazig",
+      "i18nKey": "geo.EG.cities.SHR.zagazig"
+    },
+    {
+      "id": "125",
+      "stateId": "25",
+      "name": "Akhmīm",
+      "name_ar": "Akhmīm",
+      "i18nKey": "geo.EG.cities.SHG.akhmm"
+    },
+    {
+      "id": "126",
+      "stateId": "25",
+      "name": "Al Balyanā",
+      "name_ar": "Al Balyanā",
+      "i18nKey": "geo.EG.cities.SHG.al_balyan"
+    },
+    {
+      "id": "127",
+      "stateId": "25",
+      "name": "Al Manshāh",
+      "name_ar": "Al Manshāh",
+      "i18nKey": "geo.EG.cities.SHG.al_manshh"
+    },
+    {
+      "id": "128",
+      "stateId": "25",
+      "name": "Jirjā",
+      "name_ar": "Jirjā",
+      "i18nKey": "geo.EG.cities.SHG.jirj"
+    },
+    {
+      "id": "129",
+      "stateId": "25",
+      "name": "Juhaynah",
+      "name_ar": "Juhaynah",
+      "i18nKey": "geo.EG.cities.SHG.juhaynah"
+    },
+    {
+      "id": "130",
+      "stateId": "25",
+      "name": "Markaz Jirjā",
+      "name_ar": "Markaz Jirjā",
+      "i18nKey": "geo.EG.cities.SHG.markaz_jirj"
+    },
+    {
+      "id": "131",
+      "stateId": "25",
+      "name": "Markaz Sūhāj",
+      "name_ar": "Markaz Sūhāj",
+      "i18nKey": "geo.EG.cities.SHG.markaz_shj"
+    },
+    {
+      "id": "132",
+      "stateId": "25",
+      "name": "Sohag",
+      "name_ar": "Sohag",
+      "i18nKey": "geo.EG.cities.SHG.sohag"
+    },
+    {
+      "id": "133",
+      "stateId": "25",
+      "name": "Ţahţā",
+      "name_ar": "Ţahţā",
+      "i18nKey": "geo.EG.cities.SHG.ah"
+    },
+    {
+      "id": "134",
+      "stateId": "26",
+      "name": "Dahab",
+      "name_ar": "Dahab",
+      "i18nKey": "geo.EG.cities.JS.dahab"
+    },
+    {
+      "id": "135",
+      "stateId": "26",
+      "name": "El-Tor",
+      "name_ar": "El-Tor",
+      "i18nKey": "geo.EG.cities.JS.eltor"
+    },
+    {
+      "id": "136",
+      "stateId": "26",
+      "name": "Nuwaybi‘a",
+      "name_ar": "Nuwaybi‘a",
+      "i18nKey": "geo.EG.cities.JS.nuwaybia"
+    },
+    {
+      "id": "137",
+      "stateId": "26",
+      "name": "Saint Catherine",
+      "name_ar": "Saint Catherine",
+      "i18nKey": "geo.EG.cities.JS.saint_catherine"
+    },
+    {
+      "id": "138",
+      "stateId": "26",
+      "name": "Sharm el-Sheikh",
+      "name_ar": "Sharm el-Sheikh",
+      "i18nKey": "geo.EG.cities.JS.sharm_elsheikh"
+    },
+    {
+      "id": "139",
+      "stateId": "27",
+      "name": "Ain Sukhna",
+      "name_ar": "Ain Sukhna",
+      "i18nKey": "geo.EG.cities.SUZ.ain_sukhna"
+    },
+    {
+      "id": "140",
+      "stateId": "27",
+      "name": "Suez",
+      "name_ar": "Suez",
+      "i18nKey": "geo.EG.cities.SUZ.suez"
+    }
+  ]
+}
