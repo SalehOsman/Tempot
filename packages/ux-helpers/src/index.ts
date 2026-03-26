@@ -112,3 +112,6 @@ export { answerCallback } from './helpers/answer-callback.js';
 
 // Typing Indicator
 export { showTyping } from './helpers/typing.indicator.js';
+
+// Status Sender
+export { sendLoading, sendSuccess, sendError, sendWarning } from './messages/status.sender.js';
