@@ -2,10 +2,10 @@
 
 **Feature Branch**: `007-i18n-core-package`  
 **Created**: 2026-03-19  
-**Status**: Draft  
+**Status**: Complete  
 **Input**: User description: "Establish the foundational i18n-core package providing multi-language support and enforcing the i18n-Only Rule as per Tempot v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Multi-language User Interface (Priority: P1)
 
@@ -59,7 +59,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - Q: Should the i18n-core package enforce a specific schema for the JSON locale files (e.g., using Zod) during the cms:check process? → A: Yes, enforce JSON schema validation
 - Q: Do language priorities (Arabic primary, English secondary) differ between Bot Messages and Mini Apps? → A: No, priorities are uniform across all interfaces.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -72,13 +72,12 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **FR-007**: System MUST provide a script (`pnpm cms:check`) that uses AST-based analysis and JSON schema validation (via Zod) to verify translation completeness, detect hardcoded strings, and ensure locale file integrity.
 - **FR-008**: System MUST provide a `getLocaleInfo()` helper returning the current language and its directionality (RTL/LTR).
 
-
 ### Key Entities
 
 - **TranslationKey**: A hierarchical string (e.g., `common.errors.not_found`) used to reference a translated string.
 - **LocaleFile**: A JSON file per language per module containing key-value pairs for translations.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
