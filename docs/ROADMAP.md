@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **المرجع الوحيد** لحالة المشروع. يُحدّث بعد كل دمج. (Rule LX)
-> آخر تحديث: 2026-03-26 (storage-engine ✅ complete)
+> آخر تحديث: 2026-03-26 (ux-helpers ✅ complete)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -33,7 +33,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 9   | cms-engine      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 10  | storage-engine  | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 11  | input-engine    | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
-| 12  | ux-helpers      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
+| 12  | ux-helpers      | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 13  | notifier        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 14  | search-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 15  | ai-core         | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
@@ -59,7 +59,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 **All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
 **regional-engine complete** — first package built with full SpecKit + Superpowers methodology
 **storage-engine complete** — 13 source files, 101 tests, 3 providers (Local/S3/Drive)
-**Next:** cms-engine or another package (choose next package to build)
+**ux-helpers complete** — 22 source files, 156 tests, 15 components across 6 categories
+**Next:** choose next package to build (7 remaining: cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine)
 
 ## Phase 2 — Bot Server Reconstruction
 

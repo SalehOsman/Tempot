@@ -16,7 +16,7 @@ Non-compliance is a critical violation.
 
 ## Constitution (Highest Authority)
 
-Read `.specify/memory/constitution.md` before any decision. It contains 60 rules governing every aspect of development.
+Read `.specify/memory/constitution.md` before any decision. It contains 78 rules governing every aspect of development.
 
 ## Architecture Spec
 
@@ -121,21 +121,13 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. 6 packages built (shared, logger, database, event-bus, auth-core, session-manager stub).
-Phase 1 in progress.
+Phase 0 complete. Phase 1 in progress — 10 packages on main.
 
-**Retroactive compliance reviews (Rule LIX):**
-| Package | Status |
-|---------|--------|
-| database | ✅ Complete |
-| session-manager | ✅ Complete |
-| i18n-core | ✅ Complete |
-| shared | ✅ Complete |
-| auth-core | ✅ Complete |
-| event-bus | ✅ Complete |
-| logger | ✅ Complete |
+**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers (7 packages)
+**Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
+**Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine (7 packages)
 
-**All retroactive reviews complete. Next new package: regional-engine.**
+module-registry exists as placeholder only (README + package.json, no implementation).
 
 ## Key Documents
 
