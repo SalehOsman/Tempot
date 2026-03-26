@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ValidationService } from '../../src/validation.service.js';
-import { DEFAULT_STORAGE_CONFIG, STORAGE_ERRORS } from '../../src/index.js';
+import { DEFAULT_STORAGE_CONFIG } from '../../src/types.js';
+import { STORAGE_ERRORS } from '../../src/errors.js';
 import type { UploadOptions } from '../../src/types.js';
 
 // Mock file-type

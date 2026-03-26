@@ -34,3 +34,22 @@ export { DriveProvider } from './providers/drive.provider.js';
 
 // Factory
 export { createStorageProvider, createDriveProvider } from './provider.factory.js';
+
+// Repository
+export { AttachmentRepository } from './attachment.repository.js';
+
+// Service
+export { StorageService } from './storage.service.js';
+export type { StorageServiceDeps } from './storage.service.js';
+
+// Service interfaces (for DI consumers)
+export type {
+  StorageLogger,
+  StorageEventBus,
+  StorageAttachmentRepo,
+  StorageValidation,
+} from './storage.interfaces.js';
+
+// Purge job
+export { processPurge } from './jobs/purge.job.js';
+export type { PurgeDeps } from './jobs/purge.job.js';
