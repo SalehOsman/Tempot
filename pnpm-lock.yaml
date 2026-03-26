@@ -201,6 +201,9 @@ importers:
       '@tempot/session-manager':
         specifier: workspace:*
         version: link:../session-manager
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../shared
       glob:
         specifier: ^11.1.0
         version: 11.1.0
