@@ -1,9 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { processPurge } from '../../src/jobs/purge.job.js';
+import { processPurge, createPurgeQueue } from '../../src/jobs/purge.job.js';
 import { STORAGE_ERRORS } from '../../src/errors.js';
 import type { Attachment } from '../../src/types.js';
+
+// Mock queueFactory from @tempot/shared
+vi.mock('@tempot/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tempot/shared')>();
+  return {
+    ...actual,
+    queueFactory: vi.fn().mockReturnValue(ok({ name: 'storage-purge' })),
+  };
+});
 
 const makeAttachment = (overrides: Partial<Attachment> = {}): Attachment => ({
   id: 'att-1',
@@ -134,5 +143,12 @@ describe('PurgeJob - processPurge', () => {
     const result = await processPurge(deps);
 
     expect(result.isErr()).toBe(true);
+  });
+});
+
+describe('createPurgeQueue', () => {
+  it('should create a queue via queueFactory', () => {
+    const result = createPurgeQueue();
+    expect(result.isOk()).toBe(true);
   });
 });

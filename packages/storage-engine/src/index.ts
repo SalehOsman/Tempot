@@ -51,5 +51,5 @@ export type {
 } from './storage.interfaces.js';
 
 // Purge job
-export { processPurge } from './jobs/purge.job.js';
+export { processPurge, createPurgeQueue } from './jobs/purge.job.js';
 export type { PurgeDeps } from './jobs/purge.job.js';
