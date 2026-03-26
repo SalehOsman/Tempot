@@ -5,6 +5,7 @@ export type {
   LocalProviderConfig,
   S3ProviderConfig,
   DriveProviderConfig,
+  TelegramProviderConfig,
   RetentionConfig,
   UploadOptions,
   ProviderUploadResult,
@@ -31,9 +32,10 @@ export type { ValidatedFile } from './validation.service.js';
 export { LocalProvider } from './providers/local.provider.js';
 export { S3Provider } from './providers/s3.provider.js';
 export { DriveProvider } from './providers/drive.provider.js';
+export { TelegramProvider } from './providers/telegram.provider.js';
 
 // Factory
-export { createStorageProvider, createDriveProvider } from './provider.factory.js';
+export { createStorageProvider, createDriveProvider, createTelegramProvider } from './provider.factory.js';
 
 // Repository
 export { AttachmentRepository } from './attachment.repository.js';

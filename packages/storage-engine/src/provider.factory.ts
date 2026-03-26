@@ -2,11 +2,13 @@ import { ok, err } from 'neverthrow';
 import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { drive_v3 } from '@googleapis/drive';
+import type { Api } from 'grammy';
 import type { StorageProvider } from './contracts.js';
-import type { StorageConfig, DriveProviderConfig } from './types.js';
+import type { StorageConfig, DriveProviderConfig, TelegramProviderConfig } from './types.js';
 import { LocalProvider } from './providers/local.provider.js';
 import { S3Provider } from './providers/s3.provider.js';
 import { DriveProvider } from './providers/drive.provider.js';
+import { TelegramProvider } from './providers/telegram.provider.js';
 import { STORAGE_ERRORS } from './errors.js';
 
 /** Create a StorageProvider based on config (D1: Provider Strategy Pattern) */
@@ -31,6 +33,13 @@ export function createStorageProvider(config: StorageConfig): Result<StorageProv
           'DriveProvider requires a pre-configured Drive client. Use createDriveProvider().',
         ),
       );
+    case 'telegram':
+      return err(
+        new AppError(
+          STORAGE_ERRORS.PROVIDER_UNKNOWN,
+          'TelegramProvider requires a grammY Api instance. Use createTelegramProvider().',
+        ),
+      );
     default:
       return err(
         new AppError(
@@ -47,4 +56,12 @@ export function createDriveProvider(
   config: DriveProviderConfig,
 ): Result<StorageProvider, AppError> {
   return ok(new DriveProvider(driveClient, config));
+}
+
+/** Create a TelegramProvider with a pre-configured grammY Api instance */
+export function createTelegramProvider(
+  api: Api,
+  config: TelegramProviderConfig,
+): Result<StorageProvider, AppError> {
+  return ok(new TelegramProvider(api, config));
 }
