@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **المرجع الوحيد** لحالة المشروع. يُحدّث بعد كل دمج. (Rule LX)
-> آخر تحديث: 2026-03-25 (shared ✅ complete, methodology updated to v2.1.0)
+> آخر تحديث: 2026-03-26 (regional-engine ✅ complete)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -29,7 +29,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 5   | auth-core       | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
 | 6   | session-manager | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 7   | i18n-core       | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
-| 8   | regional-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
+| 8   | regional-engine | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 9   | cms-engine      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 10  | storage-engine  | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 11  | input-engine    | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
@@ -57,7 +57,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 ### Next Action
 
 **All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
-**Next:** regional-engine — first package built with full methodology from scratch
+**regional-engine complete** — first package built with full SpecKit + Superpowers methodology
+**Next:** cms-engine or storage-engine (choose next package to build)
 
 ## Phase 2 — Bot Server Reconstruction
 
