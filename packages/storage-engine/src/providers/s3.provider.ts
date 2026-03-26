@@ -63,10 +63,22 @@ export class S3Provider implements StorageProvider {
       if (!response.Body) {
         return err(new AppError(STORAGE_ERRORS.NOT_FOUND));
       }
-      return ok(response.Body as Readable);
+      if (!this.isReadable(response.Body)) {
+        return err(
+          new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, 'Response body is not a readable stream'),
+        );
+      }
+      return ok(response.Body);
     } catch (error: unknown) {
       return err(new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, error));
     }
+  }
+
+  /** Runtime guard: check if a value is a Readable stream */
+  private isReadable(value: unknown): value is Readable {
+    return (
+      typeof value === 'object' && value !== null && typeof (value as Readable).pipe === 'function'
+    );
   }
 
   async delete(key: string): AsyncResult<void, AppError> {

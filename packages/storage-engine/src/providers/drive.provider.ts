@@ -50,10 +50,22 @@ export class DriveProvider implements StorageProvider {
         { fileId: key, alt: 'media' },
         { responseType: 'stream' },
       );
-      return ok(response.data as Readable);
+      if (!this.isReadable(response.data)) {
+        return err(
+          new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, 'Response is not a readable stream'),
+        );
+      }
+      return ok(response.data);
     } catch (error: unknown) {
       return err(new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, error));
     }
+  }
+
+  /** Runtime guard: check if a value is a Readable stream */
+  private isReadable(value: unknown): value is Readable {
+    return (
+      typeof value === 'object' && value !== null && typeof (value as Readable).pipe === 'function'
+    );
   }
 
   async delete(key: string): AsyncResult<void, AppError> {

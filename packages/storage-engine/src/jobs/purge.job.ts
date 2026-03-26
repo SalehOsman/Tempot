@@ -1,24 +1,15 @@
 import { ok, err } from 'neverthrow';
-import type { AsyncResult } from '@tempot/shared';
+import type { Result, AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { StorageFileDeletedPayload } from '../contracts.js';
 import type { Attachment } from '../types.js';
 import { STORAGE_ERRORS } from '../errors.js';
 
-/** Minimal interfaces for purge job dependencies (avoids CJS/ESM import issues) */
+/** Minimal interfaces for purge job dependencies */
 
 interface PurgeAttachmentRepo {
-  findExpiredDeleted(beforeDate: Date): Promise<{
-    isOk(): boolean;
-    isErr(): boolean;
-    value: Attachment[];
-    error: AppError;
-  }>;
-  hardDelete(ids: string[]): Promise<{
-    isOk(): boolean;
-    isErr(): boolean;
-    error: AppError;
-  }>;
+  findExpiredDeleted(beforeDate: Date): Promise<Result<Attachment[], AppError>>;
+  hardDelete(ids: string[]): Promise<Result<void, AppError>>;
 }
 
 interface PurgeProvider {
@@ -54,7 +45,7 @@ export interface PurgeDeps {
  * FR-005, D6: Deferred deletion with configurable retention.
  */
 export async function processPurge(deps: PurgeDeps): AsyncResult<void, AppError> {
-  const { attachmentRepo, retentionDays } = deps;
+  const { attachmentRepo, retentionDays, logger } = deps;
 
   const beforeDate = new Date();
   beforeDate.setDate(beforeDate.getDate() - retentionDays);
@@ -65,16 +56,28 @@ export async function processPurge(deps: PurgeDeps): AsyncResult<void, AppError>
   const expired = findResult.value;
   if (expired.length === 0) return ok(undefined);
 
+  let failureCount = 0;
   for (const record of expired) {
-    await purgeRecord(record, deps);
+    const success = await purgeRecord(record, deps);
+    if (!success) failureCount++;
+  }
+
+  if (failureCount > 0) {
+    logger.warn({
+      code: STORAGE_ERRORS.DELETE_FAILED,
+      message: `Purge completed with failures`,
+      total: expired.length,
+      failed: failureCount,
+      succeeded: expired.length - failureCount,
+    });
   }
 
   return ok(undefined);
 }
 
 /** Purge a single record: delete from provider, hard-delete DB, emit event */
-async function purgeRecord(record: Attachment, deps: PurgeDeps): Promise<void> {
-  const { provider, attachmentRepo, eventBus, logger } = deps;
+async function purgeRecord(record: Attachment, deps: PurgeDeps): Promise<boolean> {
+  const { provider, attachmentRepo, logger } = deps;
   // Delete file from provider
   const deleteResult = await provider.delete(record.providerKey);
   if (deleteResult.isErr()) {
@@ -84,7 +87,7 @@ async function purgeRecord(record: Attachment, deps: PurgeDeps): Promise<void> {
       providerKey: record.providerKey,
       error: deleteResult.error.code,
     });
-    return; // Skip this record, continue with others
+    return false;
   }
 
   // Hard-delete from DB
@@ -95,20 +98,26 @@ async function purgeRecord(record: Attachment, deps: PurgeDeps): Promise<void> {
       attachmentId: record.id,
       error: hardDeleteResult.error.code,
     });
-    return;
+    return false;
   }
 
   // Emit permanent deletion event (fire-and-log)
+  await emitPurgeEvent(record, deps);
+  return true;
+}
+
+/** Emit deletion event for a purged record (fire-and-log) */
+async function emitPurgeEvent(record: Attachment, deps: PurgeDeps): Promise<void> {
   const payload: StorageFileDeletedPayload = {
     attachmentId: record.id,
-    provider: provider.type,
+    provider: deps.provider.type,
     providerKey: record.providerKey,
     deletedBy: record.deletedBy ?? undefined,
     permanent: true,
   };
-  const publishResult = await eventBus.publish('storage.file.deleted', payload);
+  const publishResult = await deps.eventBus.publish('storage.file.deleted', payload);
   if (publishResult.isErr()) {
-    logger.warn({
+    deps.logger.warn({
       code: STORAGE_ERRORS.EVENT_PUBLISH_FAILED,
       event: 'storage.file.deleted',
       attachmentId: record.id,

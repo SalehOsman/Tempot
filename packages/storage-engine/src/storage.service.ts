@@ -120,10 +120,9 @@ export class StorageService {
     moduleId: string,
     entityId: string,
   ): AsyncResult<Attachment[], AppError> {
-    return this.attachmentRepo.findByModuleAndEntity(moduleId, entityId) as AsyncResult<
-      Attachment[],
-      AppError
-    >;
+    const result = await this.attachmentRepo.findByModuleAndEntity(moduleId, entityId);
+    if (result.isErr()) return err(result.error);
+    return ok(result.value);
   }
 
   private buildProviderKey(moduleId: string | undefined, fileName: string): string {
@@ -182,13 +181,16 @@ export class StorageService {
     };
   }
 
-  private async emitEvent(eventName: string, payload: unknown): Promise<void> {
+  private async emitEvent(
+    eventName: string,
+    payload: StorageFileUploadedPayload | StorageFileDeletedPayload,
+  ): Promise<void> {
     const publishResult = await this.eventBus.publish(eventName, payload);
     if (publishResult.isErr()) {
       this.logger.warn({
         code: STORAGE_ERRORS.EVENT_PUBLISH_FAILED,
         event: eventName,
-        attachmentId: (payload as Record<string, unknown>).attachmentId,
+        attachmentId: payload.attachmentId,
         error: publishResult.error.code,
       });
     }
