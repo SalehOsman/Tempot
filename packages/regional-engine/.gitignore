@@ -11,6 +11,10 @@ node_modules/
 # Generated
 *.tsbuildinfo
 
+# Geo data is bundled (override root .gitignore "data/" rule)
+!data/
+!data/**
+
 # Test artifacts
 tests/**/*.js
 tests/**/*.d.ts
