@@ -69,3 +69,6 @@ export {
   formatError,
   formatWarning,
 } from './messages/status.formatter.js';
+
+// Message Composer
+export { createComposer } from './messages/message.composer.js';
