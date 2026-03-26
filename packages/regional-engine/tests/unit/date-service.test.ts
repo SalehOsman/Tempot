@@ -44,6 +44,17 @@ describe('DateService', () => {
         expect(result.error.code).toBe('regional.invalid_timezone');
       }
     });
+
+    it('should return err with regional.invalid_locale for invalid locale', () => {
+      const date = new Date('2025-03-15T12:00:00Z');
+      // dayjs silently falls back to English for invalid locales, so the
+      // service must validate and reject invalid locale strings
+      const result = service.format(date, 'LL', { locale: 'xx-INVALID-99', tz: 'Africa/Cairo' });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe('regional.invalid_locale');
+      }
+    });
   });
 
   describe('toUTC()', () => {

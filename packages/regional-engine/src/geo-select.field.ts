@@ -1,5 +1,5 @@
 import { type Result } from 'neverthrow';
-import { AppError } from '@tempot/shared';
+import type { AppError } from '@tempot/shared';
 import type { GeoOption } from './types.js';
 import { GeoService } from './geo.service.js';
 

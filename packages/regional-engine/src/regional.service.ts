@@ -1,5 +1,5 @@
 import { ok, type Result } from 'neverthrow';
-import { AppError } from '@tempot/shared';
+import type { AppError } from '@tempot/shared';
 import { sessionContext } from '@tempot/session-manager';
 import { DateService } from './date.service.js';
 import { FormatService } from './format.service.js';
@@ -27,12 +27,10 @@ export class RegionalService {
     }
 
     const context: RegionalContext = {
-      timezone: (store.timezone as string | undefined) ?? DEFAULT_REGIONAL_CONTEXT.timezone,
-      locale: (store.locale as string | undefined) ?? DEFAULT_REGIONAL_CONTEXT.locale,
-      currencyCode:
-        (store.currencyCode as string | undefined) ?? DEFAULT_REGIONAL_CONTEXT.currencyCode,
-      countryCode:
-        (store.countryCode as string | undefined) ?? DEFAULT_REGIONAL_CONTEXT.countryCode,
+      timezone: store.timezone ?? DEFAULT_REGIONAL_CONTEXT.timezone,
+      locale: store.locale ?? DEFAULT_REGIONAL_CONTEXT.locale,
+      currencyCode: store.currencyCode ?? DEFAULT_REGIONAL_CONTEXT.currencyCode,
+      countryCode: store.countryCode ?? DEFAULT_REGIONAL_CONTEXT.countryCode,
     };
 
     return ok(context);

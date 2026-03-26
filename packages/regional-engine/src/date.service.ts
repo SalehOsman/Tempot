@@ -23,6 +23,20 @@ function isValidTimezone(tz: string): boolean {
   }
 }
 
+/**
+ * Validates a locale string using Intl.DateTimeFormat.
+ * dayjs silently falls back to English for invalid locales, so we must validate first.
+ */
+function isValidLocale(locale: string): boolean {
+  try {
+    // Intl.DateTimeFormat throws RangeError for structurally invalid locale tags
+    Intl.DateTimeFormat(locale);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export interface DateFormatOptions {
   locale?: string;
   tz?: string;
@@ -35,6 +49,10 @@ export class DateService {
     options: DateFormatOptions = {},
   ): Result<string, AppError> {
     const { locale = 'ar', tz = 'Africa/Cairo' } = options;
+
+    if (!isValidLocale(locale)) {
+      return err(new AppError('regional.invalid_locale', `Invalid locale: ${locale}`));
+    }
 
     if (!isValidTimezone(tz)) {
       return err(new AppError('regional.invalid_timezone', `Invalid timezone: ${tz}`));

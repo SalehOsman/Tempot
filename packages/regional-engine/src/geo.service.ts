@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ok, type Result } from 'neverthrow';
+import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { GeoState, GeoCity } from './types.js';
 
@@ -13,38 +13,64 @@ interface GeoDataFile {
   cities: GeoCity[];
 }
 
+/** Sentinel value indicating the file exists but is corrupt/malformed. */
+const CORRUPT_SENTINEL = Symbol('corrupt');
+
 /**
  * Loads a geo-data JSON file for a given country code.
  * Returns undefined if the file doesn't exist (unsupported country).
+ * Returns CORRUPT_SENTINEL if the file exists but is malformed.
  */
-function loadGeoData(countryCode: string): GeoDataFile | undefined {
-  try {
-    // In dist/: data files are at ../data/geo/ relative to dist/
-    // In src/ (tests): data files are at ../data/geo/ relative to src/
-    const filePath = join(__dirname, '..', 'data', 'geo', `${countryCode}.json`);
-    const raw = readFileSync(filePath, 'utf-8');
-    return JSON.parse(raw) as GeoDataFile;
-  } catch {
+function loadGeoData(countryCode: string): GeoDataFile | undefined | typeof CORRUPT_SENTINEL {
+  const filePath = join(__dirname, '..', 'data', 'geo', `${countryCode}.json`);
+
+  if (!existsSync(filePath)) {
     return undefined;
+  }
+
+  try {
+    const raw = readFileSync(filePath, 'utf-8');
+    const parsed: unknown = JSON.parse(raw);
+
+    // Validate basic structure
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      !Array.isArray((parsed as GeoDataFile).states) ||
+      !Array.isArray((parsed as GeoDataFile).cities)
+    ) {
+      return CORRUPT_SENTINEL;
+    }
+
+    return parsed as GeoDataFile;
+  } catch {
+    return CORRUPT_SENTINEL;
   }
 }
 
 // Static registry — loaded once at module initialization
-const GEO_REGISTRY: Record<string, GeoDataFile> = {};
+const GEO_REGISTRY: Record<string, GeoDataFile | typeof CORRUPT_SENTINEL> = {};
 
-function ensureLoaded(countryCode: string): GeoDataFile | undefined {
+function ensureLoaded(countryCode: string): GeoDataFile | undefined | typeof CORRUPT_SENTINEL {
   if (!(countryCode in GEO_REGISTRY)) {
     const data = loadGeoData(countryCode);
-    if (data) {
+    if (data !== undefined) {
       GEO_REGISTRY[countryCode] = data;
     }
   }
   return GEO_REGISTRY[countryCode];
 }
 
+function corruptError(countryCode: string): AppError {
+  return new AppError('regional.geo_data_corrupt', `Geo-data file for ${countryCode} is malformed`);
+}
+
 export class GeoService {
   getStates(countryCode: string): Result<GeoState[], AppError> {
     const data = ensureLoaded(countryCode);
+    if (data === CORRUPT_SENTINEL) {
+      return err(corruptError(countryCode));
+    }
     if (!data) {
       return ok([]);
     }
@@ -53,10 +79,11 @@ export class GeoService {
 
   getCities(stateId: string): Result<GeoCity[], AppError> {
     for (const countryCode of Object.keys(GEO_REGISTRY)) {
-      ensureLoaded(countryCode);
-    }
-    for (const data of Object.values(GEO_REGISTRY)) {
-      const cities = data.cities.filter((c) => c.stateId === stateId);
+      const entry = GEO_REGISTRY[countryCode];
+      if (entry === CORRUPT_SENTINEL) {
+        continue;
+      }
+      const cities = entry.cities.filter((c) => c.stateId === stateId);
       if (cities.length > 0) {
         return ok(cities);
       }
@@ -66,6 +93,9 @@ export class GeoService {
 
   getStateByCode(code: string, countryCode: string): Result<GeoState | undefined, AppError> {
     const data = ensureLoaded(countryCode);
+    if (data === CORRUPT_SENTINEL) {
+      return err(corruptError(countryCode));
+    }
     if (!data) {
       return ok(undefined);
     }
@@ -75,6 +105,9 @@ export class GeoService {
 
   searchGeo(query: string, countryCode: string): Result<Array<GeoState | GeoCity>, AppError> {
     const data = ensureLoaded(countryCode);
+    if (data === CORRUPT_SENTINEL) {
+      return err(corruptError(countryCode));
+    }
     if (!data) {
       return ok([]);
     }

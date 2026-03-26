@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { writeFileSync, unlinkSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { GeoService } from '../../src/geo.service.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const corruptFilePath = join(__dirname, '..', '..', 'data', 'geo', 'CORRUPT.json');
 
 describe('GeoService', () => {
   const service = new GeoService();
@@ -118,6 +124,31 @@ describe('GeoService', () => {
       const elapsed = performance.now() - start;
       expect(result.isOk()).toBe(true);
       expect(elapsed).toBeLessThan(50);
+    });
+  });
+
+  describe('corrupt geo-data', () => {
+    beforeAll(() => {
+      // Write a corrupt (invalid JSON) file for the test
+      writeFileSync(corruptFilePath, '{ invalid json !!!', 'utf-8');
+    });
+
+    afterAll(() => {
+      // Clean up the corrupt file
+      try {
+        unlinkSync(corruptFilePath);
+      } catch {
+        // Ignore if already deleted
+      }
+    });
+
+    it('should return err with regional.geo_data_corrupt for malformed JSON', () => {
+      const corruptService = new GeoService();
+      const result = corruptService.getStates('CORRUPT');
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe('regional.geo_data_corrupt');
+      }
     });
   });
 });
