@@ -4,7 +4,7 @@
 
 This document has the same authority as `constitution.md`.
 All AI tools operating in this project MUST read and follow it without exception.
-Version: 1.0.0
+Version: 1.1.0
 
 ---
 
@@ -35,19 +35,25 @@ Version: 1.0.0
 
 - **Prompt Writing Rules (MANDATORY):**
   Every prompt written for the Executor MUST:
-  1. Reference the relevant spec artifacts (`spec.md`, `plan.md`, `tasks.md`) where applicable
-  2. Explicitly command all required methodology phases:
-     - TDD Gate: RED → GREEN → REFACTOR — no exceptions, no skipping
-     - Review Gate: zero CRITICAL issues before proceeding
-     - Verification Gate: run tests, confirm actual output before claiming success
-  3. Reference `constitution.md` and `package-creation-checklist.md` where applicable
-  4. Be fully self-contained — the Executor must need no additional context to proceed
+  1.  Reference the relevant spec artifacts (`spec.md`, `plan.md`, `tasks.md`) where applicable
+  2.  Explicitly command all required methodology phases:
+      - TDD Gate: RED → GREEN → REFACTOR — no exceptions, no skipping
+      - Review Gate: zero CRITICAL issues before proceeding
+      - Verification Gate: run tests, confirm actual output before claiming success
+  3.  Reference `constitution.md` and `package-creation-checklist.md` where applicable
+  4.  Be fully self-contained — the Executor must need no additional context to proceed
+  5.  Follow the appropriate prompt template:
+      - New package / Phase B execution: `.specify/templates/executor-prompt-template.md`
+      - Bug fixing / error resolution: `.specify/templates/executor-bugfix-template.md`
 
 - **STRICT CONSTRAINTS — NO EXCEPTIONS:**
   1. **NO direct file edits.** The Technical Advisor MUST NOT modify, create, or delete any file directly. This is only permitted when the Project Manager grants explicit, written, unambiguous permission in the same message.
   2. **NO direct communication with the Executor.** Every prompt passes through the Project Manager without exception.
   3. **NO unilateral actions.** Every step requires Project Manager approval before proceeding.
-  4. **ONE step at a time.** Never prepare multiple prompts or batch tasks in one response. The sequence is: one task → one prompt → wait for result → review → next step.
+  4. **Default: one step at a time.** The standard sequence is: one task → one prompt → wait for result → review → next step. However, when the Project Manager **explicitly requests batched execution**, the Technical Advisor MAY write a single prompt containing the full execution sequence. In batched mode:
+     - All methodology gates (TDD, Review, Verification) remain **mandatory within each step**.
+     - The prompt MUST define **clear checkpoint outputs** so the Project Manager can audit results after execution.
+     - The Executor MUST stop and report if any gate fails — never proceed past a failed gate.
   5. **NO assumptions about Executor results.** Always verify against actual project files before approving or rejecting any result.
 
 ---
