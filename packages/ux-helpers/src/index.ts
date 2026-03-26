@@ -78,5 +78,9 @@ export {
   formatSessionExpired,
 } from './messages/error.formatter.js';
 
+// Inline Keyboard Builder
+export { createInlineKeyboard } from './keyboards/inline.builder.js';
+export type { TempotInlineKeyboard } from './keyboards/inline.builder.js';
+
 // Message Composer
 export { createComposer } from './messages/message.composer.js';
