@@ -2,7 +2,7 @@ import { Keyboard } from 'grammy';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { validateLabel, detectLanguage, getCharLimit } from './label.validator.js';
+import { validateLabel, isLongLabel } from './label.validator.js';
 import { ROW_LIMITS } from '../constants.js';
 
 export interface TempotReplyKeyboard {
@@ -14,32 +14,28 @@ export interface TempotReplyKeyboard {
   toGrammyKeyboard(): Keyboard;
 }
 
-function isAlphabetic(code: number): boolean {
-  return (
-    (code >= 0x0041 && code <= 0x005a) ||
-    (code >= 0x0061 && code <= 0x007a) ||
-    (code >= 0x0600 && code <= 0x06ff) ||
-    (code >= 0x0750 && code <= 0x077f) ||
-    (code >= 0x08a0 && code <= 0x08ff)
-  );
-}
+/** Insert a button with automatic row management */
+function addReplyButton(keyboard: Keyboard, label: string, currentRowLength: number): number {
+  const isLong = isLongLabel(label, 'reply');
 
-function stripLeadingEmoji(text: string): string {
-  let i = 0;
-  for (const char of text) {
-    const code = char.codePointAt(0);
-    if (code === undefined) break;
-    if (isAlphabetic(code)) break;
-    i += char.length;
+  if (isLong && currentRowLength > 0) {
+    keyboard.row();
+    currentRowLength = 0;
   }
-  return text.slice(i).trim();
-}
 
-function isLongLabel(label: string): boolean {
-  const language = detectLanguage(label);
-  const limit = getCharLimit('reply', language);
-  const stripped = stripLeadingEmoji(label);
-  return stripped.length > limit / 2;
+  if (currentRowLength >= ROW_LIMITS.reply) {
+    keyboard.row();
+    currentRowLength = 0;
+  }
+
+  keyboard.text(label);
+  currentRowLength++;
+
+  if (isLong) {
+    currentRowLength = ROW_LIMITS.reply;
+  }
+
+  return currentRowLength;
 }
 
 export function createReplyKeyboard(): TempotReplyKeyboard {
@@ -51,25 +47,7 @@ export function createReplyKeyboard(): TempotReplyKeyboard {
       const labelResult = validateLabel(label, 'reply');
       if (labelResult.isErr()) return err(labelResult.error);
 
-      const isLong = isLongLabel(label);
-
-      if (isLong && currentRowLength > 0) {
-        keyboard.row();
-        currentRowLength = 0;
-      }
-
-      if (currentRowLength >= ROW_LIMITS.reply) {
-        keyboard.row();
-        currentRowLength = 0;
-      }
-
-      keyboard.text(label);
-      currentRowLength++;
-
-      if (isLong) {
-        currentRowLength = ROW_LIMITS.reply;
-      }
-
+      currentRowLength = addReplyButton(keyboard, label, currentRowLength);
       return ok(wrapper);
     },
 

@@ -52,8 +52,16 @@ export function getRowLimit(type: KeyboardType): number {
   return ROW_LIMITS[type];
 }
 
+/** Check if a label is considered "long" for its keyboard type (over half the char limit) */
+export function isLongLabel(label: string, type: KeyboardType): boolean {
+  const language = detectLanguage(label);
+  const limit = getCharLimit(type, language);
+  const stripped = stripLeadingEmoji(label);
+  return stripped.length > limit / 2;
+}
+
 /** Strip leading emoji and whitespace, returning only alphabetic content */
-function stripLeadingEmoji(text: string): string {
+export function stripLeadingEmoji(text: string): string {
   let i = 0;
   for (const char of text) {
     const code = char.codePointAt(0);
