@@ -1,8 +1,8 @@
 import { AnyAbility } from '@casl/ability';
 import { err, ok } from 'neverthrow';
 import { AppError, Result } from '@tempot/shared';
-import { AppAction } from '../contracts/actions';
-import { AppSubject } from '../contracts/subjects';
+import { AppAction } from '../contracts/actions.js';
+import { AppSubject } from '../contracts/subjects.js';
 
 export class Guard {
   static enforce(
