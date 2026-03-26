@@ -1,309 +1,531 @@
-# UX Helpers Package Implementation Plan
+# @tempot/ux-helpers — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task.
 
-**Goal:** Establish the foundational ux-helpers package for standardized messages, buttons, and UI components as per Tempot v11 Blueprint.
+**Goal:** Build the centralized UX component library with dual API (pure + context-aware) enforcing Constitution Rules LXIV-LXIX and Architecture Spec Section 13.
 
-**Architecture:** A collection of utility classes and factory functions that wrap `grammY` types to enforce design consistency. It includes a `MessageFactory` for status-based responses (Success, Error, etc.), a `KeyboardBuilder` that automates row/column layout based on label length, and specialized helpers for pagination, confirmations, and title formatting.
+**Architecture:** Dual-layer design (Decision D1):
 
-**Tech Stack:** TypeScript, grammY, @tempot/i18n-core, @tempot/session-manager.
+- **Pure layer** — functions returning formatted strings/objects, synchronous, no side effects
+- **Context-aware layer** — wrappers taking grammY `ctx`, enforcing Golden Rule (edit existing messages)
+
+Both layers wrap grammY's native keyboard classes (InlineKeyboard, Keyboard) rather than rebuilding keyboard logic (Decision D6).
 
 ---
 
-### Task 1: Status Message Factory (FR-001, Rule LXV)
+## Tech Stack
 
-**Files:**
-- Create: `packages/ux-helpers/src/messages/status.factory.ts`
-- Test: `packages/ux-helpers/tests/unit/status-messages.test.ts`
+| Component        | Technology             | Version      |
+| ---------------- | ---------------------- | ------------ |
+| Runtime          | Node.js                | 20+          |
+| Language         | TypeScript Strict Mode | 5.9.3        |
+| Bot Framework    | grammY                 | ^1.0.0       |
+| Error Handling   | neverthrow             | 8.2.0        |
+| Shared Utilities | @tempot/shared         | workspace:\* |
+| i18n             | @tempot/i18n-core      | workspace:\* |
+| Logging          | @tempot/logger         | workspace:\* |
+| Testing          | Vitest                 | 4.1.0        |
 
-- [ ] **Step 1: Write the failing test**
+**NOT a dependency:** @tempot/session-manager (language detection happens internally via @tempot/i18n-core's `t()` function).
+
+---
+
+## Design Decisions
+
+| #   | Decision       | Choice                                        | Rationale                                              |
+| --- | -------------- | --------------------------------------------- | ------------------------------------------------------ |
+| D1  | API Layer      | Dual: Pure + Context-aware                    | Pure = testable, ctx-aware = Golden Rule enforcement   |
+| D2  | Keyboard Types | Inline + Reply with different limits          | Section 13.1 defines both                              |
+| D3  | Expiry         | Timestamp in callback data (stateless)        | Survives restart, no DB                                |
+| D4  | RTL Order      | Cancel first in code, Confirm second          | Telegram RTL renders right-to-left                     |
+| D5  | Char Counting  | First-char language detection                 | Arabic first-char = Arabic limits, else English limits |
+| D6  | grammY         | Full dependency, wrap InlineKeyboard/Keyboard | Reuse grammY's builder logic, add enforcement          |
+| D7  | @grammyjs/menu | NOT used (reserved for search-engine)         | YAGNI per ADR-025                                      |
+
+---
+
+## File Structure
+
+```
+packages/ux-helpers/
+├── .gitignore
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+├── README.md
+├── src/
+│   ├── index.ts                          # Barrel exports
+│   ├── types.ts                          # All interfaces/types
+│   ├── errors.ts                         # UX error codes
+│   ├── constants.ts                      # Button limits, emojis, expiry, message limits
+│   ├── messages/
+│   │   ├── status.formatter.ts           # Pure: 4 status types → string
+│   │   ├── status.sender.ts             # Ctx-aware: edits message via Golden Rule
+│   │   ├── error.formatter.ts           # Pure: 4 error types per Rule LXIX
+│   │   └── message.composer.ts          # Section 13.2 text rules
+│   ├── keyboards/
+│   │   ├── inline.builder.ts            # Wraps grammY InlineKeyboard
+│   │   ├── reply.builder.ts             # Wraps grammY Keyboard
+│   │   ├── confirmation.builder.ts      # 5-min expiry, RTL order
+│   │   └── label.validator.ts           # Char counting, language detection
+│   ├── lists/
+│   │   ├── list.formatter.ts            # Title+count, emoji numbers, empty state
+│   │   ├── pagination.builder.ts        # Prev/next buttons
+│   │   └── emoji-number.ts             # 1️⃣ 2️⃣ mapping utility
+│   ├── feedback/
+│   │   └── feedback.handler.ts          # Loading→action→result flow
+│   ├── callback-data/
+│   │   └── callback-data.encoder.ts     # Type-safe encode/decode, 64-byte limit
+│   ├── middleware/
+│   │   └── expiry.checker.ts            # Confirms confirmation expiry from callback data
+│   ├── helpers/
+│   │   ├── golden-rule.fallback.ts      # editMessageText fallback
+│   │   ├── answer-callback.ts           # Auto answerCallbackQuery
+│   │   └── typing.indicator.ts          # Chat action typing
+│   └── testing/
+│       └── mock.context.ts              # Mock grammY Context factory
+└── tests/unit/
+    ├── status.formatter.test.ts
+    ├── status.sender.test.ts
+    ├── error.formatter.test.ts
+    ├── message.composer.test.ts
+    ├── inline.builder.test.ts
+    ├── reply.builder.test.ts
+    ├── confirmation.builder.test.ts
+    ├── label.validator.test.ts
+    ├── list.formatter.test.ts
+    ├── pagination.builder.test.ts
+    ├── emoji-number.test.ts
+    ├── feedback.handler.test.ts
+    ├── callback-data.encoder.test.ts
+    ├── expiry.checker.test.ts
+    ├── golden-rule.fallback.test.ts
+    ├── answer-callback.test.ts
+    ├── typing.indicator.test.ts
+    └── mock.context.test.ts
+```
+
+---
+
+## Package Configuration
+
+### package.json
+
+```json
+{
+  "name": "@tempot/ux-helpers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./testing": "./dist/testing/mock.context.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "grammy": "^1.0.0",
+    "neverthrow": "8.2.0",
+    "@tempot/shared": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/logger": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
+```
+
+### tsconfig.json
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "tests"]
+}
+```
+
+### vitest.config.ts
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { StatusFactory } from '../src/messages/status.factory';
+import { defineConfig, defineProject } from 'vitest/config';
 
-describe('StatusFactory', () => {
-  it('should create a success message with the correct emoji', () => {
-    const msg = StatusFactory.success('common.success.saved');
-    expect(msg).toContain('✅');
-    expect(msg).toContain('common.success.saved'); // assuming mock i18n
-  });
+export default defineConfig({
+  test: {
+    projects: [
+      defineProject({
+        test: {
+          name: 'unit',
+          include: ['tests/unit/**/*.test.ts'],
+          environment: 'node',
+        },
+      }),
+    ],
+  },
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+---
 
-Run: `pnpm test packages/ux-helpers/tests/unit/status-messages.test.ts`
-Expected: FAIL (StatusFactory not defined)
+## Component API Specifications
 
-- [ ] **Step 3: Write minimal implementation**
+### 1. Status Formatter (Pure) — FR-001
 
 ```typescript
+// src/messages/status.formatter.ts
 import { t } from '@tempot/i18n-core';
 
-export class StatusFactory {
-  static success(key: string, params?: any): string {
-    return `✅ ${t(key, params)}`;
-  }
-
-  static error(key: string, params?: any): string {
-    return `❌ ${t(key, params)}`;
-  }
-
-  static loading(key: string = 'common.status.loading'): string {
-    return `⏳ ${t(key)}`;
-  }
-
-  static warning(key: string, params?: any): string {
-    return `⚠️ ${t(key, params)}`;
-  }
+interface StatusFormatOptions {
+  readonly key: string;
+  readonly interpolation?: Record<string, unknown>;
 }
+
+function formatLoading(options: StatusFormatOptions): string;
+function formatSuccess(options: StatusFormatOptions): string;
+function formatError(options: StatusFormatOptions): string;
+function formatWarning(options: StatusFormatOptions): string;
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+Returns: `string` — synchronous, no side effects.
 
-Run: `pnpm test packages/ux-helpers/tests/unit/status-messages.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/ux-helpers/src/messages/status.factory.ts
-git commit -m "feat(ux-helpers): implement StatusFactory for standardized messages (FR-001)"
-```
-
----
-
-### Task 2: Unified Keyboard Builder (FR-003, Rule LXVI)
-
-**Files:**
-- Create: `packages/ux-helpers/src/keyboards/keyboard.builder.ts`
-- Test: `packages/ux-helpers/tests/unit/keyboard-builder.test.ts`
-
-- [ ] **Step 1: Write the failing test**
+### 2. Status Sender (Context-Aware) — FR-004
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { KeyboardBuilder } from '../src/keyboards/keyboard.builder';
+// src/messages/status.sender.ts
+import type { Context } from 'grammy';
 
-describe('KeyboardBuilder', () => {
-  it('should wrap buttons to new rows if label is too long', () => {
-    const builder = new KeyboardBuilder();
-    builder.add('Very Long Label That Should Be Alone', 'data1');
-    builder.add('Short', 'data2');
-    builder.add('Short 2', 'data3');
-    
-    const markup = builder.build();
-    expect(markup.inline_keyboard.length).toBe(2); // Row 1: Long, Row 2: Short + Short 2
-  });
-});
+interface StatusSendOptions {
+  readonly key: string;
+  readonly interpolation?: Record<string, unknown>;
+  readonly keyboard?: InlineKeyboard;
+}
+
+function sendLoading(ctx: Context, options: StatusSendOptions): AsyncResult<void, AppError>;
+function sendSuccess(ctx: Context, options: StatusSendOptions): AsyncResult<void, AppError>;
+function sendError(ctx: Context, options: StatusSendOptions): AsyncResult<void, AppError>;
+function sendWarning(ctx: Context, options: StatusSendOptions): AsyncResult<void, AppError>;
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+Uses Golden Rule Fallback internally.
 
-Run: `pnpm test packages/ux-helpers/tests/unit/keyboard-builder.test.ts`
-Expected: FAIL (KeyboardBuilder not defined)
-
-- [ ] **Step 3: Write minimal implementation**
+### 3. Error Formatter (Pure) — FR-002
 
 ```typescript
+// src/messages/error.formatter.ts
+interface UserErrorOptions {
+  readonly problemKey: string;
+  readonly solutionKey: string;
+  readonly interpolation?: Record<string, unknown>;
+}
+
+interface SystemErrorOptions {
+  readonly referenceCode: string;
+}
+
+interface PermissionErrorOptions {
+  readonly reasonKey: string;
+}
+
+interface SessionExpiredOptions {
+  readonly restartCallbackData: string;
+}
+
+function formatUserError(options: UserErrorOptions): string;
+function formatSystemError(options: SystemErrorOptions): string;
+function formatPermissionError(options: PermissionErrorOptions): string;
+function formatSessionExpired(options: SessionExpiredOptions): SessionExpiredResult;
+```
+
+### 4. Message Composer — FR-003
+
+```typescript
+// src/messages/message.composer.ts
+interface ComposerBuilder {
+  paragraph(key: string, interpolation?: Record<string, unknown>): ComposerBuilder;
+  bulletList(items: readonly string[]): ComposerBuilder;
+  separator(): ComposerBuilder;
+  build(): Result<string, AppError>;
+}
+
+function createComposer(): ComposerBuilder;
+```
+
+Validates 4096-char limit on `build()`.
+
+### 5. Inline Keyboard Builder — FR-005
+
+```typescript
+// src/keyboards/inline.builder.ts
 import { InlineKeyboard } from 'grammy';
 
-export class KeyboardBuilder {
-  private buttons: { text: string; data: string }[] = [];
-
-  add(text: string, data: string): this {
-    this.buttons.push({ text, data });
-    return this;
-  }
-
-  build(): InlineKeyboard {
-    const keyboard = new InlineKeyboard();
-    let currentRow: { text: string; data: string }[] = [];
-
-    for (const btn of this.buttons) {
-      const isLong = btn.text.length > 15;
-      
-      if (isLong || currentRow.length >= 3) {
-        if (currentRow.length > 0) {
-          this.addButtonsToRow(keyboard, currentRow);
-          keyboard.row();
-          currentRow = [];
-        }
-        this.addButtonsToRow(keyboard, [btn]);
-        keyboard.row();
-      } else {
-        currentRow.push(btn);
-      }
-    }
-
-    if (currentRow.length > 0) {
-      this.addButtonsToRow(keyboard, currentRow);
-    }
-
-    return keyboard;
-  }
-
-  private addButtonsToRow(keyboard: InlineKeyboard, buttons: any[]) {
-    for (const btn of buttons) {
-      keyboard.text(btn.text, btn.data);
-    }
-  }
+interface InlineButtonConfig {
+  readonly label: string;
+  readonly callbackData: string;
 }
+
+interface TempotInlineKeyboard {
+  button(config: InlineButtonConfig): Result<TempotInlineKeyboard, AppError>;
+  row(): TempotInlineKeyboard;
+  build(): Result<InlineKeyboard, AppError>;
+  toGrammyKeyboard(): InlineKeyboard;
+}
+
+function createInlineKeyboard(): TempotInlineKeyboard;
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+Wraps grammY InlineKeyboard. Validates labels via Label Validator. Auto-wraps rows.
 
-Run: `pnpm test packages/ux-helpers/tests/unit/keyboard-builder.test.ts`
-Expected: PASS
+### 6. Reply Keyboard Builder — FR-006
 
-- [ ] **Step 5: Commit**
+```typescript
+// src/keyboards/reply.builder.ts
+import { Keyboard } from 'grammy';
 
-```bash
-git add packages/ux-helpers/src/keyboards/keyboard.builder.ts
-git commit -m "feat(ux-helpers): implement KeyboardBuilder with layout enforcement (FR-003)"
+interface TempotReplyKeyboard {
+  button(label: string): Result<TempotReplyKeyboard, AppError>;
+  row(): TempotReplyKeyboard;
+  build(): Result<Keyboard, AppError>;
+  toGrammyKeyboard(): Keyboard;
+  oneTime(value?: boolean): TempotReplyKeyboard;
+  resized(value?: boolean): TempotReplyKeyboard;
+}
+
+function createReplyKeyboard(): TempotReplyKeyboard;
+```
+
+Different char limits from inline (15 Arabic / 18 English, max 2/row).
+
+### 7. Label Validator — FR-012
+
+```typescript
+// src/keyboards/label.validator.ts
+type KeyboardType = 'inline' | 'reply';
+
+function validateLabel(label: string, type: KeyboardType): Result<void, AppError>;
+function detectLanguage(text: string): 'ar' | 'en';
+function getCharLimit(type: KeyboardType, language: 'ar' | 'en'): number;
+function getRowLimit(type: KeyboardType): number;
+```
+
+First-character detection for language (Decision D5).
+
+### 8. Confirmation Builder — FR-007
+
+```typescript
+// src/keyboards/confirmation.builder.ts
+interface ConfirmationOptions {
+  readonly actionNameKey: string;
+  readonly cancelKey?: string;
+  readonly callbackPrefix: string;
+  readonly isIrreversible?: boolean;
+}
+
+interface ConfirmationResult {
+  readonly keyboard: InlineKeyboard;
+  readonly warningText?: string;
+}
+
+function createConfirmation(options: ConfirmationOptions): Result<ConfirmationResult, AppError>;
+```
+
+Encodes expiry timestamp in callback data. RTL-aware ordering (Decision D4).
+
+### 9. List Formatter — FR-008
+
+```typescript
+// src/lists/list.formatter.ts
+interface ListFormatOptions<T> {
+  readonly titleKey: string;
+  readonly items: readonly T[];
+  readonly renderItem: (item: T, index: number) => string;
+  readonly emptyStateKey?: string;
+  readonly emptyActionConfig?: InlineButtonConfig;
+}
+
+interface ListFormatResult {
+  readonly text: string;
+  readonly emptyActionButton?: InlineButtonConfig;
+}
+
+function formatList<T>(options: ListFormatOptions<T>): Result<ListFormatResult, AppError>;
+```
+
+### 10. Pagination Builder — FR-009
+
+```typescript
+// src/lists/pagination.builder.ts
+interface PaginationOptions {
+  readonly currentPage: number;
+  readonly totalPages: number;
+  readonly callbackPrefix: string;
+}
+
+function createPagination(options: PaginationOptions): Result<InlineKeyboard, AppError>;
+```
+
+### 11. Emoji Number Utility
+
+```typescript
+// src/lists/emoji-number.ts
+function toEmojiNumber(n: number): string;
+```
+
+Maps 1-10 to emoji numbers. 11+ returns string number with period.
+
+### 12. Feedback Handler — FR-010
+
+```typescript
+// src/feedback/feedback.handler.ts
+interface FeedbackOptions<T> {
+  readonly loadingKey: string;
+  readonly action: () => AsyncResult<T, AppError>;
+  readonly successKey: string;
+  readonly keyboard?: InlineKeyboard;
+}
+
+function executeFeedback<T>(ctx: Context, options: FeedbackOptions<T>): AsyncResult<T, AppError>;
+```
+
+### 13. Callback Data Encoder — FR-011
+
+```typescript
+// src/callback-data/callback-data.encoder.ts
+function encodeCallbackData(parts: readonly string[]): Result<string, AppError>;
+function decodeCallbackData(data: string): Result<readonly string[], AppError>;
+function encodeWithExpiry(
+  parts: readonly string[],
+  expiryMinutes: number,
+): Result<string, AppError>;
+function decodeWithExpiry(
+  data: string,
+): Result<{ parts: readonly string[]; expiresAt: number }, AppError>;
+```
+
+### 14. Expiry Checker — FR-011 (related)
+
+```typescript
+// src/middleware/expiry.checker.ts
+function isExpired(callbackData: string): Result<boolean, AppError>;
+function checkExpiry(callbackData: string): Result<void, AppError>;
+```
+
+### 15. Golden Rule Fallback — FR-013
+
+```typescript
+// src/helpers/golden-rule.fallback.ts
+interface EditOptions {
+  readonly text: string;
+  readonly parseMode?: 'HTML' | 'MarkdownV2';
+  readonly replyMarkup?: InlineKeyboard;
+}
+
+function editOrSend(ctx: Context, options: EditOptions): AsyncResult<void, AppError>;
+```
+
+### 16. Answer Callback Query — FR-014
+
+```typescript
+// src/helpers/answer-callback.ts
+interface AnswerOptions {
+  readonly text?: string;
+  readonly showAlert?: boolean;
+}
+
+function answerCallback(ctx: Context, options?: AnswerOptions): AsyncResult<void, AppError>;
+```
+
+### 17. Typing Indicator — FR-015
+
+```typescript
+// src/helpers/typing.indicator.ts
+function showTyping(ctx: Context): AsyncResult<void, AppError>;
+```
+
+### 18. Mock Context Factory — FR-016
+
+```typescript
+// src/testing/mock.context.ts
+interface MockContextOptions {
+  readonly chatId?: number;
+  readonly messageId?: number;
+  readonly callbackData?: string;
+  readonly userId?: number;
+}
+
+interface MockContext extends Partial<Context> {
+  editMessageText: ReturnType<typeof vi.fn>;
+  reply: ReturnType<typeof vi.fn>;
+  answerCallbackQuery: ReturnType<typeof vi.fn>;
+  replyWithChatAction: ReturnType<typeof vi.fn>;
+  readonly calls: {
+    editMessageText: unknown[][];
+    reply: unknown[][];
+    answerCallbackQuery: unknown[][];
+    replyWithChatAction: unknown[][];
+  };
+}
+
+function createMockContext(options?: MockContextOptions): MockContext;
 ```
 
 ---
 
-### Task 3: Confirmation Helper (FR-006)
+## Dependency Graph (Internal)
 
-**Files:**
-- Create: `packages/ux-helpers/src/keyboards/confirmation.helper.ts`
-- Test: `packages/ux-helpers/tests/unit/confirmation-helper.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { ConfirmationHelper } from '../src/keyboards/confirmation.helper';
-
-describe('ConfirmationHelper', () => {
-  it('should create side-by-side Confirm/Cancel buttons', () => {
-    const markup = ConfirmationHelper.create('confirm_action', 'cancel_action');
-    expect(markup.inline_keyboard[0].length).toBe(2);
-  });
-});
 ```
+label.validator ─────────┐
+                         ├──→ inline.builder
+callback-data.encoder ──┤    reply.builder
+                         ├──→ confirmation.builder
+                         └──→ expiry.checker
 
-- [ ] **Step 2: Run test to verify it fails**
+status.formatter ────────┐
+                          ├──→ status.sender
+golden-rule.fallback ────┘
 
-Run: `pnpm test packages/ux-helpers/tests/unit/confirmation-helper.test.ts`
-Expected: FAIL (ConfirmationHelper not defined)
+error.formatter ──────────── (standalone pure)
+message.composer ─────────── (standalone pure)
+emoji-number ────────────┐
+                          ├──→ list.formatter
+                          └──→ pagination.builder
 
-- [ ] **Step 3: Write minimal implementation**
+status.sender ───────────┐
+answer-callback ──────────├──→ feedback.handler
+typing.indicator ────────┘
 
-```typescript
-import { InlineKeyboard } from 'grammy';
-import { t } from '@tempot/i18n-core';
-
-export class ConfirmationHelper {
-  static create(confirmData: string, cancelData: string): InlineKeyboard {
-    return new InlineKeyboard()
-      .text(`✅ ${t('common.buttons.confirm')}`, confirmData)
-      .text(`❌ ${t('common.buttons.cancel')}`, cancelData);
-  }
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/ux-helpers/tests/unit/confirmation-helper.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/ux-helpers/src/keyboards/confirmation.helper.ts
-git commit -m "feat(ux-helpers): implement ConfirmationHelper for side-by-side buttons (FR-006)"
+mock.context ─────────────── (standalone, testing subpath)
 ```
 
 ---
 
-### Task 4: Pagination Helper (FR-004)
+## Implementation Order
 
-**Files:**
-- Create: `packages/ux-helpers/src/keyboards/pagination.helper.ts`
-- Test: `packages/ux-helpers/tests/unit/pagination-helper.test.ts`
+Tasks are ordered to satisfy the dependency graph:
 
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { PaginationHelper } from '../src/keyboards/pagination.helper';
-
-describe('PaginationHelper', () => {
-  it('should generate next/prev buttons based on total pages', () => {
-    const markup = PaginationHelper.create(2, 5, 'list_page_');
-    const buttons = markup.inline_keyboard[0];
-    expect(buttons.length).toBe(3); // Prev, Current (noop), Next
-  });
-});
-```
-
-- [ ] **Step 2: Run minimal implementation**
-
-```typescript
-import { InlineKeyboard } from 'grammy';
-
-export class PaginationHelper {
-  static create(currentPage: number, totalPages: number, actionPrefix: string): InlineKeyboard {
-    const keyboard = new InlineKeyboard();
-    if (currentPage > 1) {
-      keyboard.text('⬅️', `${actionPrefix}${currentPage - 1}`);
-    }
-    keyboard.text(`- ${currentPage} / ${totalPages} -`, 'noop');
-    if (currentPage < totalPages) {
-      keyboard.text('➡️', `${actionPrefix}${currentPage + 1}`);
-    }
-    return keyboard;
-  }
-}
-```
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add packages/ux-helpers/src/keyboards/pagination.helper.ts
-git commit -m "feat(ux-helpers): implement PaginationHelper (FR-004)"
-```
-
----
-
-### Task 5: Title Formatting Helper (FR-005)
-
-**Files:**
-- Create: `packages/ux-helpers/src/messages/title.helper.ts`
-- Test: `packages/ux-helpers/tests/unit/title-helper.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { TitleHelper } from '../src/messages/title.helper';
-
-describe('TitleHelper', () => {
-  it('should format a string as a bold HTML title with an emoji', () => {
-    const title = TitleHelper.format('Main Menu', '🏠');
-    expect(title).toBe('<b>🏠 Main Menu</b>\n\n');
-  });
-});
-```
-
-- [ ] **Step 2: Run minimal implementation**
-
-```typescript
-export class TitleHelper {
-  static format(title: string, emoji?: string): string {
-    const prefix = emoji ? `${emoji} ` : '';
-    return `<b>${prefix}${title}</b>\n\n`;
-  }
-}
-```
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add packages/ux-helpers/src/messages/title.helper.ts
-git commit -m "feat(ux-helpers): implement TitleHelper for standardized headers (FR-005)"
-```
+1. **Infrastructure** — package.json, tsconfig, vitest, .gitignore, types, errors, constants, index.ts
+2. **Label Validator + Callback Data Encoder** — foundational utilities
+3. **Status Formatter** — pure, no deps beyond i18n
+4. **Message Composer** — pure, no deps beyond i18n
+5. **Error Formatter** — pure, no deps beyond i18n + callback data encoder
+6. **Inline Keyboard Builder** — depends on label.validator
+7. **Reply Keyboard Builder** — depends on label.validator
+8. **Emoji Number + List Formatter** — depends on emoji-number
+9. **Pagination Builder** — depends on inline keyboard concepts
+10. **Confirmation Builder** — depends on label.validator + callback-data.encoder
+11. **Expiry Checker** — depends on callback-data.encoder
+12. **Golden Rule Fallback + Answer Callback + Typing Indicator** — ctx-aware helpers
+13. **Status Sender** — depends on status.formatter + golden-rule.fallback
+14. **Feedback Handler** — depends on status.sender + answer-callback + typing
+15. **Mock Context Factory** — testing subpath
+16. **Barrel exports + README update** — final integration
