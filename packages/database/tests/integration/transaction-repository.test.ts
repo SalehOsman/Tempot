@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { TestDB } from '../utils/test-db';
+import { TestDB } from '../../src/testing/test-db.js';
 import { BaseRepository, PrismaModelDelegate } from '../../src/base/base.repository';
 import { TransactionManager } from '../../src/manager/transaction.manager';
 import { AppError } from '@tempot/shared';

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../utils/test-db';
+import { TestDB } from '../../src/testing/test-db.js';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DrizzleVectorRepository } from '../../src/base/vector.repository';
 import { Pool } from 'pg';
@@ -26,7 +26,7 @@ describe('Vector Search', () => {
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db: NodePgDatabase = drizzle(pool);
     repo = new TestVectorRepository(db);
-  }, 60000);
+  }, 120_000);
 
   afterAll(async () => {
     if (pool) await pool.end();
