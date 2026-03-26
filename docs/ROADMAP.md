@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
-> **المرجع الوحيد** لحالة المشروع. يُحدّث بعد كل دمج. (Rule LXXXIX)
-> آخر تحديث: 2026-03-26 (ux-helpers ✅ complete)
+> **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
+> Last updated: 2026-03-26 (ux-helpers complete)
 
 ## Phase 0 — Workspace ✅ Done
 

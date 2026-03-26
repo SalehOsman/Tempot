@@ -37,7 +37,7 @@ export default tseslint.config(
       // Constitution Rule X — no empty catch blocks
       'no-empty': ['error', { allowEmptyCatch: false }],
 
-      // Constitution Rule XII — no console.* in production code
+      // Constitution Rule LXXIV — no console.* in production code
       'no-console': 'error',
 
       // Constitution Rule I — no @ts-ignore or @ts-expect-error bypasses

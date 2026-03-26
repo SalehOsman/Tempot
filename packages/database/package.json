@@ -26,24 +26,24 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@casl/prisma": "^1.x",
+    "@casl/prisma": "^1.6.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.0.0",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
-    "drizzle-orm": "^0.45.x",
-    "glob": "^11.x",
+    "drizzle-orm": "^0.45.1",
+    "glob": "^11.1.0",
     "neverthrow": "8.2.0",
-    "pg": "^8.x",
+    "pg": "^8.20.0",
     "pgvector": "^0.2.1"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^10.x",
-    "@types/node": "^20.x",
+    "@testcontainers/postgresql": "^10.28.0",
+    "@types/node": "^20.19.37",
     "@types/pg": "^8.20.0",
-    "drizzle-kit": "^0.x",
+    "drizzle-kit": "^0.31.10",
     "prisma": "^7.0.0",
-    "testcontainers": "^10.x",
+    "testcontainers": "^10.28.0",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

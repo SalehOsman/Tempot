@@ -134,6 +134,7 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 $RECYCLE.BIN/
+nul
 
 # -------------------------------------------------------------------
 # Next.js (Dashboard + Mini App)

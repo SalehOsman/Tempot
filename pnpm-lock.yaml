@@ -7,7 +7,19 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
+      '@changesets/cli':
+        specifier: ^2.30.0
+        version: 2.30.0(@types/node@20.19.37)
+      '@commitlint/cli':
+        specifier: ^20.5.0
+        version: 20.5.0(@types/node@20.19.37)(conventional-commits-parser@6.3.0)(typescript@5.9.3)
+      '@commitlint/config-conventional':
+        specifier: ^20.5.0
+        version: 20.5.0
+      '@eslint/js':
+        specifier: ^10.0.0
+        version: 10.0.1(eslint@10.0.3(jiti@2.6.1))
       '@tempot/database':
         specifier: workspace:*
         version: link:packages/database
@@ -23,25 +35,6 @@ importers:
       '@tempot/shared':
         specifier: workspace:*
         version: link:packages/shared
-      tslib:
-        specifier: ^2.8.1
-        version: 2.8.1
-    devDependencies:
-      '@changesets/cli':
-        specifier: ^2.30.0
-        version: 2.30.0(@types/node@20.19.37)
-      '@commitlint/cli':
-        specifier: ^20.5.0
-        version: 20.5.0(@types/node@20.19.37)(conventional-commits-parser@6.3.0)(typescript@5.9.3)
-      '@commitlint/config-conventional':
-        specifier: ^20.5.0
-        version: 20.5.0
-      '@eslint/js':
-        specifier: ^10.0.0
-        version: 10.0.1(eslint@10.0.3(jiti@2.6.1))
-      '@testcontainers/redis':
-        specifier: ^11.13.0
-        version: 11.13.0
       '@vitest/coverage-v8':
         specifier: ^4.0.0
         version: 4.1.0(vitest@4.1.0(@types/node@20.19.37)(vite@8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)))
@@ -69,15 +62,15 @@ importers:
       prisma:
         specifier: ^7.5.0
         version: 7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+      tslib:
+        specifier: ^2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       typescript-eslint:
         specifier: ^8.0.0
         version: 8.57.1(eslint@10.0.3(jiti@2.6.1))(typescript@5.9.3)
-      vite:
-        specifier: ^8.0.0
-        version: 8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
         specifier: 4.1.0
         version: 4.1.0(@types/node@20.19.37)(vite@8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -120,7 +113,7 @@ importers:
   packages/database:
     dependencies:
       '@casl/prisma':
-        specifier: ^1.x
+        specifier: ^1.6.1
         version: 1.6.1(@casl/ability@6.8.0)(@prisma/client@7.5.0(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))
       '@prisma/adapter-pg':
         specifier: ^7.5.0
@@ -135,38 +128,38 @@ importers:
         specifier: workspace:*
         version: link:../shared
       drizzle-orm:
-        specifier: ^0.45.x
+        specifier: ^0.45.1
         version: 0.45.1(@electric-sql/pglite@0.3.15)(@prisma/client@7.5.0(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.20.0)(mysql2@3.15.3)(pg@8.20.0)(postgres@3.4.7)(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))
       glob:
-        specifier: ^11.x
+        specifier: ^11.1.0
         version: 11.1.0
       neverthrow:
         specifier: 8.2.0
         version: 8.2.0
       pg:
-        specifier: ^8.x
+        specifier: ^8.20.0
         version: 8.20.0
       pgvector:
         specifier: ^0.2.1
         version: 0.2.1
     devDependencies:
       '@testcontainers/postgresql':
-        specifier: ^10.x
+        specifier: ^10.28.0
         version: 10.28.0
       '@types/node':
-        specifier: ^20.x
+        specifier: ^20.19.37
         version: 20.19.37
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
       drizzle-kit:
-        specifier: ^0.x
+        specifier: ^0.31.10
         version: 0.31.10
       prisma:
         specifier: ^7.0.0
         version: 7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
       testcontainers:
-        specifier: ^10.x
+        specifier: ^10.28.0
         version: 10.28.0
       tsx:
         specifier: ^4.21.0
@@ -311,7 +304,7 @@ importers:
         specifier: workspace:*
         version: link:../shared
       bullmq:
-        specifier: ^5.0.0
+        specifier: 5.71.0
         version: 5.71.0
       cache-manager:
         specifier: ^6.0.0
