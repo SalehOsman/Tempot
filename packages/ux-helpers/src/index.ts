@@ -103,3 +103,12 @@ export { createConfirmation } from './keyboards/confirmation.builder.js';
 
 // Expiry Checker
 export { isExpired, checkExpiry } from './middleware/expiry.checker.js';
+
+// Golden Rule Fallback
+export { editOrSend } from './helpers/golden-rule.fallback.js';
+
+// Answer Callback
+export { answerCallback } from './helpers/answer-callback.js';
+
+// Typing Indicator
+export { showTyping } from './helpers/typing.indicator.js';
