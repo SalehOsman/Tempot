@@ -24,6 +24,23 @@ export interface SessionWorkerOptions {
 
 const noopAuditLogger: AuditLogger = { log: async () => {} };
 
+/** Build a Prisma-compatible sync payload from session data */
+function buildSyncPayload(sessionData: Session) {
+  const id = `${sessionData.userId}:${sessionData.chatId}`;
+  return {
+    id,
+    userId: sessionData.userId,
+    chatId: sessionData.chatId,
+    role: sessionData.role,
+    status: sessionData.status,
+    language: sessionData.language,
+    activeConversation: sessionData.activeConversation,
+    metadata: sessionData.metadata ? JSON.parse(JSON.stringify(sessionData.metadata)) : null,
+    schemaVersion: sessionData.schemaVersion,
+    version: sessionData.version,
+  };
+}
+
 export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
   const auditLogger = options.auditLogger ?? noopAuditLogger;
   const logger = options.logger;
@@ -38,23 +55,8 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
     SESSION_SYNC_QUEUE,
     async (job: Job<{ userId: string; chatId: string; sessionData: Session }>) => {
       const { sessionData } = job.data;
-
-      const id = `${sessionData.userId}:${sessionData.chatId}`;
-
-      // Convert arbitrary objects/nulls to Prisma acceptable format (Prisma.InputJsonValue).
-      // JSON.parse(JSON.stringify) cleans out undefined values that Prisma JSONB rejects.
-      const payload = {
-        id,
-        userId: sessionData.userId,
-        chatId: sessionData.chatId,
-        role: sessionData.role,
-        status: sessionData.status,
-        language: sessionData.language,
-        activeConversation: sessionData.activeConversation,
-        metadata: sessionData.metadata ? JSON.parse(JSON.stringify(sessionData.metadata)) : null,
-        schemaVersion: sessionData.schemaVersion,
-        version: sessionData.version,
-      };
+      const payload = buildSyncPayload(sessionData);
+      const id = payload.id;
 
       try {
         const existing = await repository.findById(id);

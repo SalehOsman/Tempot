@@ -2,14 +2,20 @@
   "name": "@tempot/session-manager",
   "version": "0.1.0",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./context": "./src/context.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./context": {
+      "import": "./dist/context.js",
+      "types": "./dist/context.d.ts"
+    }
   },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "test": "vitest run"
   },
   "dependencies": {
