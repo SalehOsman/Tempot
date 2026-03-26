@@ -1,0 +1,26 @@
+{
+  "name": "@tempot/regional-engine",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "dayjs": "1.11.13",
+    "neverthrow": "8.2.0",
+    "@tempot/shared": "workspace:*",
+    "@tempot/session-manager": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "country-state-city": "3.2.1"
+  }
+}
