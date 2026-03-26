@@ -100,3 +100,6 @@ export { buildPagination } from './lists/pagination.builder.js';
 
 // Confirmation Builder
 export { createConfirmation } from './keyboards/confirmation.builder.js';
+
+// Expiry Checker
+export { isExpired, checkExpiry } from './middleware/expiry.checker.js';
