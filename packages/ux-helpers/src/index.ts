@@ -94,3 +94,6 @@ export { toEmojiNumber } from './lists/emoji-number.js';
 
 // List Formatter
 export { formatList } from './lists/list.formatter.js';
+
+// Pagination Builder
+export { buildPagination } from './lists/pagination.builder.js';
