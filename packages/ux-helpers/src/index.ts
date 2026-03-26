@@ -82,5 +82,9 @@ export {
 export { createInlineKeyboard } from './keyboards/inline.builder.js';
 export type { TempotInlineKeyboard } from './keyboards/inline.builder.js';
 
+// Reply Keyboard Builder
+export { createReplyKeyboard } from './keyboards/reply.builder.js';
+export type { TempotReplyKeyboard } from './keyboards/reply.builder.js';
+
 // Message Composer
 export { createComposer } from './messages/message.composer.js';
