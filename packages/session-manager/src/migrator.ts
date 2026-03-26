@@ -1,6 +1,6 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { Session } from './types';
+import { Session } from './types.js';
 
 /** The latest session schema version; bump this constant when introducing a breaking shape change. */
 export const CURRENT_SCHEMA_VERSION = 1;

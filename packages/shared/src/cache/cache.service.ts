@@ -1,7 +1,7 @@
 import { createCache, Cache } from 'cache-manager';
 import { ok, err } from 'neverthrow';
-import { AsyncResult } from '../result';
-import { AppError } from '../errors';
+import { AsyncResult } from '../result.js';
+import { AppError } from '../errors.js';
 
 export interface EventBus {
   publish(event: string, payload: unknown, type: 'LOCAL' | 'INTERNAL' | 'EXTERNAL'): Promise<void>;

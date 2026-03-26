@@ -1,8 +1,8 @@
 import { Queue, QueueOptions } from 'bullmq';
 import { ok, err } from 'neverthrow';
-import type { Result } from '../result';
-import { AppError } from '../errors';
-import type { ShutdownManager } from '../shutdown/shutdown.manager';
+import type { Result } from '../result.js';
+import { AppError } from '../errors.js';
+import type { ShutdownManager } from '../shutdown/shutdown.manager.js';
 
 /**
  * Options for queueFactory.
