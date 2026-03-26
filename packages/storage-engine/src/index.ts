@@ -22,3 +22,7 @@ export type {
 
 // Errors
 export { STORAGE_ERRORS } from './errors.js';
+
+// Validation
+export { ValidationService } from './validation.service.js';
+export type { ValidatedFile } from './validation.service.js';
