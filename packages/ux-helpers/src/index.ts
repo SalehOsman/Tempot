@@ -88,3 +88,9 @@ export type { TempotReplyKeyboard } from './keyboards/reply.builder.js';
 
 // Message Composer
 export { createComposer } from './messages/message.composer.js';
+
+// Emoji Number
+export { toEmojiNumber } from './lists/emoji-number.js';
+
+// List Formatter
+export { formatList } from './lists/list.formatter.js';
