@@ -6,7 +6,7 @@ import type { StorageProviderType, ProviderUploadResult } from './types.js';
 /**
  * Abstract storage provider interface (FR-001).
  *
- * Implementations: LocalProvider, S3Provider, DriveProvider.
+ * Implementations: LocalProvider, S3Provider, DriveProvider, TelegramProvider.
  * All methods return `AsyncResult<T, AppError>` — no thrown exceptions.
  */
 export interface StorageProvider {
@@ -34,6 +34,9 @@ export interface StorageProvider {
    *   and is ignored.
    * - **Local**: Returns the absolute filesystem path after verifying the file exists.
    *   The `expiresInSeconds` parameter is not applicable.
+   * - **Telegram**: Returns a temporary download URL from Telegram's getFile API.
+   *   Valid for at least 1 hour (server-controlled). The `expiresInSeconds` parameter
+   *   is not applicable and is ignored.
    */
   getSignedUrl(key: string, expiresInSeconds: number): AsyncResult<string, AppError>;
 
