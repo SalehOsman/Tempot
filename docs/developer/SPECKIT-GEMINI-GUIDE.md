@@ -1,13 +1,14 @@
 # SpecKit + Gemini CLI — Quick Reference
 
 > **الدليل الكامل:** `docs/developer/workflow-guide.md`
-> **المرجع الدستوري:** Rules L–LX in `constitution.md`
+> **المرجع الدستوري:** Rules LXXIX–LXXXIX in `constitution.md`
 
 ## حل مشكلة `Feature directory not found`
 
 SpecKit يبحث عن مجلد باسم الـ branch الحالي. المشروع يستخدم مجلدات مرقمة. الحلول:
 
 **الحل 1 — متغير البيئة (الأبسط):**
+
 ```powershell
 $env:SPECIFY_FEATURE = "007-i18n-core-package"
 /speckit.tasks
@@ -15,6 +16,7 @@ $env:SPECIFY_FEATURE = "007-i18n-core-package"
 ```
 
 **الحل 2 — تسمية الـ branch لتتطابق:**
+
 ```bash
 git checkout -b feat/007-i18n-core-package
 # SpecKit يجد specs/007-i18n-core-package/ تلقائياً

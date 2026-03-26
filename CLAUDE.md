@@ -16,13 +16,13 @@ Non-compliance is a critical violation.
 
 ## Constitution (Highest Authority)
 
-Read `.specify/memory/constitution.md` before any decision. It contains 78 rules governing every aspect of development.
+Read `.specify/memory/constitution.md` before any decision. It contains 87 rules governing every aspect of development.
 
 ## Architecture Spec
 
 Full specification: `docs/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
 
-## Development Methodology (Rules L–LX)
+## Development Methodology (Rules LXXIX–LXXXIX)
 
 This project uses **two complementary toolchains**:
 
