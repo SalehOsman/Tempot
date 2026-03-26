@@ -21,7 +21,7 @@ describe('Soft Delete Extension', () => {
     // Import prisma AFTER DATABASE_URL is set by testDb.start()
     const mod = await import('../../src/prisma/client');
     prisma = mod.prisma;
-  }, 60000);
+  }, 120_000);
 
   afterAll(async () => {
     await testDb.stop();

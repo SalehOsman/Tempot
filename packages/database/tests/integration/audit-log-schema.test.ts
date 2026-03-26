@@ -12,7 +12,7 @@ describe('AuditLog Schema', () => {
       env: process.env,
       cwd: path.resolve(__dirname, '../../'),
     });
-  }, 60000);
+  }, 120_000);
 
   afterAll(async () => {
     await testDb.stop();

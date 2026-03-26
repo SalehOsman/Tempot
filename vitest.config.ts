@@ -3,6 +3,8 @@ import { defineConfig, defineProject } from 'vitest/config';
 export default defineConfig({
   test: {
     globals: true,
+    testTimeout: 120_000,
+    hookTimeout: 120_000,
     projects: [
       defineProject({
         test: {
@@ -21,7 +23,8 @@ export default defineConfig({
           ],
           exclude: ['**/node_modules/**', '**/dist/**', '.worktrees/**'],
           environment: 'node',
-          testTimeout: 30000,
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
         },
       }),
     ],

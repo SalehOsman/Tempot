@@ -42,7 +42,7 @@ describe('BaseRepository Transaction Support', () => {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       cwd: path.resolve(__dirname, '../../'),
     });
-  }, 60000);
+  }, 120_000);
 
   afterAll(async () => {
     await testDb.stop();

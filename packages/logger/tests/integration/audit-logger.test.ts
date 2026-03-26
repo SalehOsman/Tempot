@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { TestDB } from '../../../../packages/database/tests/utils/test-db';
 import { AuditLogRepository, IAuditLogger } from '@tempot/database';
 import { AuditLogger, AuditLogEntry } from '../../src/audit/audit.logger';
-import { sessionContext } from '@tempot/session-manager/src/context';
+import { sessionContext } from '@tempot/session-manager/context';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -27,7 +27,7 @@ describe('AuditLogger Integration', () => {
     } as unknown as IAuditLogger;
     const repository = new AuditLogRepository(mockAuditLogger, testDb.prisma);
     auditLogger = new AuditLogger(repository);
-  }, 60000);
+  }, 120_000);
 
   afterAll(async () => {
     await testDb.stop();

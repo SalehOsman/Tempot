@@ -113,8 +113,11 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. 6 packages built (shared, logger, database, event-bus, auth-core, session-manager stub).
-Phase 1 in progress. Next: session-manager rebuild, then i18n-core.
+Phase 0 complete. Phase 1 in progress — 10 packages on main.
+
+**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers (7 packages)
+**Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
+**Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine (7 packages)
 
 ## Key Documents
 
