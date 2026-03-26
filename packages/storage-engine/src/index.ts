@@ -31,3 +31,6 @@ export type { ValidatedFile } from './validation.service.js';
 export { LocalProvider } from './providers/local.provider.js';
 export { S3Provider } from './providers/s3.provider.js';
 export { DriveProvider } from './providers/drive.provider.js';
+
+// Factory
+export { createStorageProvider, createDriveProvider } from './provider.factory.js';
