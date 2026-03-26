@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **المرجع الوحيد** لحالة المشروع. يُحدّث بعد كل دمج. (Rule LX)
-> آخر تحديث: 2026-03-26 (regional-engine ✅ complete)
+> آخر تحديث: 2026-03-26 (storage-engine ✅ complete)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -31,7 +31,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 7   | i18n-core       | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 8   | regional-engine | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 9   | cms-engine      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
-| 10  | storage-engine  | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
+| 10  | storage-engine  | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 11  | input-engine    | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 12  | ux-helpers      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 13  | notifier        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
@@ -58,7 +58,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 **All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
 **regional-engine complete** — first package built with full SpecKit + Superpowers methodology
-**Next:** cms-engine or storage-engine (choose next package to build)
+**storage-engine complete** — 13 source files, 101 tests, 3 providers (Local/S3/Drive)
+**Next:** cms-engine or another package (choose next package to build)
 
 ## Phase 2 — Bot Server Reconstruction
 
