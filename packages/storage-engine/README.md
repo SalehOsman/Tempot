@@ -1,6 +1,6 @@
 # @tempot/storage-engine
 
-> Unified file storage with Google Drive, AWS S3, and local backends. Includes attachment metadata tracking.
+> Unified file storage with Google Drive, AWS S3, Telegram, and local backends. Includes attachment metadata tracking.
 
 ## Purpose
 
@@ -23,6 +23,7 @@ Phase 4 — Advanced Engines
 | ------------------------ | ---------------------------- |
 | `@googleapis/drive` 8.x  | Google Drive provider        |
 | `@aws-sdk/client-s3` 3.x | S3 provider                  |
+| `grammy` 1.x             | Telegram provider            |
 | `@tempot/database`       | Attachment metadata tracking |
 | `@tempot/ai-core`        | Vector indexing (optional)   |
 | `@tempot/logger`         | Upload/delete logging        |
@@ -35,6 +36,7 @@ Phase 4 — Advanced Engines
 | `local`            | Local filesystem `./uploads/`           | None                 |
 | `google-drive`     | Google Drive API                        | OAuth2 refresh token |
 | `s3`               | AWS S3 or compatible (R2, DigitalOcean) | Access key + secret  |
+| `telegram`         | Telegram Bot API (private channel)      | Bot token            |
 
 ## API
 
