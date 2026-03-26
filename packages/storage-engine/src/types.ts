@@ -2,7 +2,7 @@ import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
 /** Storage provider identifier */
-export type StorageProviderType = 'local' | 's3' | 'drive';
+export type StorageProviderType = 'local' | 's3' | 'drive' | 'telegram';
 
 /** Configuration for storage engine */
 export interface StorageConfig {
@@ -12,6 +12,7 @@ export interface StorageConfig {
   local?: LocalProviderConfig;
   s3?: S3ProviderConfig;
   drive?: DriveProviderConfig;
+  telegram?: TelegramProviderConfig;
   retention?: RetentionConfig;
 }
 
@@ -28,6 +29,14 @@ export interface S3ProviderConfig {
 
 export interface DriveProviderConfig {
   folderId: string; // Root folder ID in Google Drive
+}
+
+export interface TelegramProviderConfig {
+  /**
+   * Chat ID of the private storage channel.
+   * Can be a number (-100xxx) or string ("-100xxx").
+   */
+  storageChatId: number | string;
 }
 
 export interface RetentionConfig {
