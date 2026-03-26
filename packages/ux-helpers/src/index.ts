@@ -115,3 +115,6 @@ export { showTyping } from './helpers/typing.indicator.js';
 
 // Status Sender
 export { sendLoading, sendSuccess, sendError, sendWarning } from './messages/status.sender.js';
+
+// Feedback Handler
+export { executeFeedback } from './feedback/feedback.handler.js';
