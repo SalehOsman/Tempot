@@ -13,6 +13,7 @@
 ### Task 1: Role Definitions & Hierarchy
 
 **Files:**
+
 - Create: `packages/auth-core/src/roles/role.definitions.ts`
 - Test: `packages/auth-core/tests/unit/role.test.ts`
 
@@ -67,6 +68,7 @@ git commit -m "feat(auth): define user roles and hierarchy"
 ### Task 2: CASL Ability Factory
 
 **Files:**
+
 - Create: `packages/auth-core/src/ability/ability.factory.ts`
 - Test: `packages/auth-core/tests/unit/ability.test.ts`
 
@@ -127,6 +129,7 @@ git commit -m "feat(auth): implement basic CASL ability factory"
 ### Task 3: Scoped Authorization Logic
 
 **Files:**
+
 - Modify: `packages/auth-core/src/ability/ability.factory.ts`
 - Test: `packages/auth-core/tests/unit/scoped-auth.test.ts`
 
@@ -162,7 +165,7 @@ export function createAbilityForUser(user: { id: string; role: UserRole; scopes?
   if (user.role === UserRole.SUPER_ADMIN) {
     can('manage', 'all');
   } else if (user.role === UserRole.ADMIN) {
-    user.scopes?.forEach(scope => {
+    user.scopes?.forEach((scope) => {
       can('manage', scope);
     });
   }
@@ -188,6 +191,7 @@ git commit -m "feat(auth): add scoped authorization logic for admins"
 ### Task 4: Audit Logging for Denied Access (FR-006)
 
 **Files:**
+
 - Create: `packages/auth-core/src/middleware/auth.guard.ts`
 - Test: `packages/auth-core/tests/unit/auth-guard.test.ts`
 
@@ -200,7 +204,7 @@ import { AuthGuard } from '../src/middleware/auth.guard';
 describe('AuthGuard', () => {
   it('should log to AuditLogger when access is denied', async () => {
     const auditLogger = { log: vi.fn() };
-    const guard = new AuthGuard(auditLogger as any);
+    const guard = new AuthGuard(auditLogger as unknown as AuditLogger);
     const result = await guard.check({ id: '1', role: 1 }, 'manage', 'all');
     expect(result.isErr()).toBe(true);
     expect(auditLogger.log).toHaveBeenCalledWith(expect.objectContaining({ status: 'FAILED' }));
@@ -221,9 +225,9 @@ import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
 export class AuthGuard {
-  constructor(private auditLogger: any) {}
+  constructor(private auditLogger: AuditLogger) {}
 
-  async check(user: any, action: string, subject: string): Promise<Result<void, AppError>> {
+  async check(user: AuthUser, action: string, subject: string): Promise<Result<void, AppError>> {
     const ability = createAbilityForUser(user);
     if (ability.can(action, subject)) {
       return ok(undefined);
@@ -238,7 +242,7 @@ export class AuthGuard {
       before: null,
       after: null,
       status: 'FAILED',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return err(new AppError('auth.permission_denied', `Access denied for ${action} on ${subject}`));

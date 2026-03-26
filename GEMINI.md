@@ -1,20 +1,25 @@
 ﻿# Tempot — Gemini CLI Context
 
 ## Project Identity
+
 **Tempot** (Template × Bot) — Enterprise Telegram bot framework built with TypeScript Strict Mode.
 
 ## Constitution (Highest Authority)
-Read `.specify/memory/constitution.md` before any decision. It contains 60 rules governing every aspect of development.
+
+Read `.specify/memory/constitution.md` before any decision. It contains 87 rules governing every aspect of development.
 
 ## Architecture Spec
+
 Full specification: `docs/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
 
-## Development Methodology (Rules L–LX)
+## Development Methodology (Rules LXXIX–LXXXIX)
 
 This project uses **two complementary toolchains**:
 
 ### SpecKit — Specification Toolchain
+
 Produces spec artifacts in `specs/{NNN}-{feature}/`. Commands:
+
 - `/speckit.specify` → `spec.md` (what & why, NO tech stack)
 - `/speckit.clarify` → updated `spec.md` (edge cases — NEVER skip)
 - `/speckit.plan` → `plan.md` + `data-model.md` + `research.md`
@@ -27,7 +32,9 @@ We do NOT use `/speckit.implement`. Superpowers handles execution.
 For numbered spec directories: `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"`
 
 ### Superpowers — Execution Toolchain
+
 Consumes SpecKit artifacts and produces working code. Skills:
+
 - `brainstorming` → reads `spec.md` + `plan.md`, deepens design via Socratic questions
 - `using-git-worktrees` → creates isolated feature branch
 - `writing-plans` → converts `tasks.md` to 2-5 min executable tasks
@@ -42,6 +49,7 @@ Consumes SpecKit artifacts and produces working code. Skills:
 Note: On Claude Code, `subagent-driven-development` is used instead of `executing-plans`.
 
 ### How They Connect
+
 ```
 SpecKit artifacts              Superpowers reads them
 ─────────────────              ──────────────────────
@@ -51,38 +59,42 @@ tasks.md ──────────────────→   writing-pla
 ```
 
 ### Handoff Gate (Before Superpowers starts)
+
 These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `/speckit.analyze` passed.
 
 ### Quality Gates
-| Gate | Criteria |
-|------|----------|
-| Spec Gate | Acceptance criteria + edge cases documented |
-| Plan Gate | `/speckit.analyze` passes |
-| Handoff Gate | spec.md + plan.md + tasks.md exist |
-| TDD Gate | Every code change has failing test first |
-| Review Gate | Zero CRITICAL issues |
-| Merge Gate | All tests pass, all acceptance criteria met |
+
+| Gate         | Criteria                                    |
+| ------------ | ------------------------------------------- |
+| Spec Gate    | Acceptance criteria + edge cases documented |
+| Plan Gate    | `/speckit.analyze` passes                   |
+| Handoff Gate | spec.md + plan.md + tasks.md exist          |
+| TDD Gate     | Every code change has failing test first    |
+| Review Gate  | Zero CRITICAL issues                        |
+| Merge Gate   | All tests pass, all acceptance criteria met |
 
 ## Tech Stack (Locked Versions)
-| Component | Technology | Version |
-|-----------|-----------|--------|
-| Runtime | Node.js | 20+ |
-| Language | TypeScript Strict Mode | 5.9.3 |
-| Bot Engine | grammY | 1.41.1 |
-| Web Server | Hono | 4.x |
-| Database | PostgreSQL + pgvector | 16 |
-| Primary ORM | Prisma | 7.x |
-| Secondary ORM | Drizzle (pgvector only) | 0.45.x |
-| Cache | cache-manager + Keyv adapters | 6.x |
-| Queue | BullMQ via queue factory | 5.x |
-| AI Abstraction | Vercel AI SDK | 4.x |
-| Auth | CASL (@casl/ability + @casl/prisma) | 6.x |
-| Error Handling | neverthrow | 8.2.0 |
-| Testing | Vitest + Testcontainers | 4.1.0 / 8.0.1 |
-| i18n | i18next | 23.x |
-| Logging | Pino | 9.x |
+
+| Component      | Technology                          | Version       |
+| -------------- | ----------------------------------- | ------------- |
+| Runtime        | Node.js                             | 20+           |
+| Language       | TypeScript Strict Mode              | 5.9.3         |
+| Bot Engine     | grammY                              | 1.41.1        |
+| Web Server     | Hono                                | 4.x           |
+| Database       | PostgreSQL + pgvector               | 16            |
+| Primary ORM    | Prisma                              | 7.x           |
+| Secondary ORM  | Drizzle (pgvector only)             | 0.45.x        |
+| Cache          | cache-manager + Keyv adapters       | 6.x           |
+| Queue          | BullMQ via queue factory            | 5.x           |
+| AI Abstraction | Vercel AI SDK                       | 4.x           |
+| Auth           | CASL (@casl/ability + @casl/prisma) | 6.x           |
+| Error Handling | neverthrow                          | 8.2.0         |
+| Testing        | Vitest + Testcontainers             | 4.1.0 / 8.0.1 |
+| i18n           | i18next                             | 23.x          |
+| Logging        | Pino                                | 9.x           |
 
 ## Critical Rules (Quick Reference)
+
 1. **TDD Mandatory** — RED → GREEN → REFACTOR. Code before tests = delete and redo
 2. **i18n-Only** — zero hardcoded user text. Arabic primary + English
 3. **All code in English** — variables, comments, docs, ADRs
@@ -95,14 +107,17 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 10. **No `any` types** — no eslint-disable, no @ts-ignore
 
 ## Git Workflow
+
 NEVER develop on `main`. Use `using-git-worktrees` for isolated branches.
 One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
+
 Phase 0 complete. 6 packages built (shared, logger, database, event-bus, auth-core, session-manager stub).
 Phase 1 in progress. Next: session-manager rebuild, then i18n-core.
 
 ## Key Documents
+
 - Constitution: `.specify/memory/constitution.md`
 - Architecture Spec: `docs/tempot_v11_final.md`
 - Workflow Guide: `docs/developer/workflow-guide.md`
@@ -110,5 +125,6 @@ Phase 1 in progress. Next: session-manager rebuild, then i18n-core.
 - SpecKit Gemini Guide: `docs/developer/SPECKIT-GEMINI-GUIDE.md`
 
 ## Toolchain References
+
 - SpecKit: https://github.com/github/spec-kit
 - Superpowers: https://github.com/obra/superpowers

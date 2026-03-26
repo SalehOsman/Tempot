@@ -1,5 +1,5 @@
 import { cosineDistance } from 'drizzle-orm';
-import { embeddings } from '../drizzle/schema';
+import { embeddings } from '../drizzle/schema.js';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';

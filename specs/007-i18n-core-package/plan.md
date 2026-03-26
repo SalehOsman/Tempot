@@ -13,6 +13,7 @@
 ### Task 1: Translation Engine Configuration (FR-001, FR-003)
 
 **Files:**
+
 - Create: `packages/i18n-core/src/i18n.config.ts`
 - Test: `packages/i18n-core/tests/unit/i18n-config.test.ts`
 
@@ -65,6 +66,7 @@ git commit -m "feat(i18n): configure i18next with Arabic as primary language (FR
 ### Task 2: Modular Locale Loader (FR-004, FR-006)
 
 **Files:**
+
 - Create: `packages/i18n-core/src/loader.ts`
 - Test: `packages/i18n-core/tests/unit/loader.test.ts`
 
@@ -93,7 +95,7 @@ import { glob } from 'glob';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function loadModuleLocales(i18n: any) {
+export async function loadModuleLocales(i18n: i18next.i18n) {
   const localeFiles = await glob('modules/*/locales/*.json');
   for (const file of localeFiles) {
     const [_, moduleName, __, langFile] = file.split(path.sep);
@@ -121,6 +123,7 @@ git commit -m "feat(i18n): implement modular locale loader (FR-004)"
 ### Task 3: Context-Aware t() Function (FR-005)
 
 **Files:**
+
 - Create: `packages/i18n-core/src/t.ts`
 - Test: `packages/i18n-core/tests/unit/t-context.test.ts`
 
@@ -152,7 +155,7 @@ Expected: FAIL (t() not defined or sessionContext ignored)
 import i18next from 'i18next';
 import { sessionContext } from '@tempot/session-manager';
 
-export function t(key: string, options?: any): string {
+export function t(key: string, options?: Record<string, unknown>): string {
   const context = sessionContext.getStore();
   const lang = context?.lang || 'ar';
   return i18next.t(key, { ...options, lng: lang });
@@ -176,4 +179,7 @@ git commit -m "feat(i18n): implement context-aware t() function via sessionConte
 ### Task 4: Hardcoded Text Detector (cms:check) (FR-002, FR-007)
 
 ...
+
+```
+
 ```

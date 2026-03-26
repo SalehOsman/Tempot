@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
-import { SessionRepository, AuditLogger } from './repository';
-import { Session } from './types';
+import { SessionRepository, AuditLogger } from './repository.js';
+import { Session } from './types.js';
 import { prisma } from '@tempot/database';
 
 export const SESSION_SYNC_QUEUE = 'session-sync';

@@ -16,13 +16,13 @@ Non-compliance is a critical violation.
 
 ## Constitution (Highest Authority)
 
-Read `.specify/memory/constitution.md` before any decision. It contains 78 rules governing every aspect of development.
+Read `.specify/memory/constitution.md` before any decision. It contains 87 rules governing every aspect of development.
 
 ## Architecture Spec
 
 Full specification: `docs/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
 
-## Development Methodology (Rules L–LX)
+## Development Methodology (Rules LXXIX–LXXXIX)
 
 This project uses **two complementary toolchains**:
 
@@ -127,7 +127,7 @@ Phase 0 complete. Phase 1 in progress — 10 packages on main.
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine (7 packages)
 
-module-registry exists as placeholder only (README + package.json, no implementation).
+module-registry exists as placeholder only (README only, no package.json or implementation).
 
 ## Key Documents
 

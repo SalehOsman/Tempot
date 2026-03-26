@@ -2,10 +2,10 @@
 
 **Feature Branch**: `003-auth-core-package`  
 **Created**: 2026-03-19  
-**Status**: Draft  
+**Status**: Complete  
 **Input**: User description: "Establish the foundational auth-core package using CASL for RBAC and Scoped Authorization as per Tempot v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Multi-role Access Control (Priority: P1)
 
@@ -50,7 +50,7 @@ As a super admin, I want to assign specific admins to specific modules so that I
 - **Integration Points**: Used by `bot-server`, `dashboard`, and `mini-app` to enforce permissions. Integrates with `database-package` via `@casl/prisma` for row-level security.
 - **Edge Cases**: Role changes mid-session must invalidate or re-sync the session. Scopes are additive for admins managing multiple modules. Unauthenticated `GUEST` has minimal access defined in the global `abilities.ts`.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -67,7 +67,7 @@ As a super admin, I want to assign specific admins to specific modules so that I
 - **Ability**: The CASL object representing a user's permissions for the current context.
 - **SessionUser**: The user data injected from the session manager.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

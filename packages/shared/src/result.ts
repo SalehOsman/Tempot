@@ -1,5 +1,5 @@
 import { Result as NTResult } from 'neverthrow';
-import { AppError } from './errors';
+import { AppError } from './errors.js';
 
 /**
  * Unified Result type for synchronous operations

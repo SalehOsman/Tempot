@@ -12,9 +12,11 @@
 ## كيف تستخدم هذا الملف
 
 ### على Claude Code (CLI):
+
 **لا تحتاج هذا الملف.** Claude Code يقرأ `CLAUDE.md` تلقائياً ولديه SpecKit + Superpowers مثبتين.
 
 ### على Claude Desktop أو claude.ai:
+
 **الصق النص التالي** في أول رسالة، أو ارفع ملف `CLAUDE.md` مباشرة:
 
 </div>
@@ -24,7 +26,7 @@
 ```
 أنا أعمل على مشروع Tempot — Enterprise Telegram bot framework بـ TypeScript Strict Mode.
 
-المرجع الأعلى: constitution.md في .specify/memory/ (60 قاعدة).
+المرجع الأعلى: constitution.md في .specify/memory/ (87 قاعدة).
 المواصفات المعمارية: docs/tempot_v11_final.md (v11.0).
 خارطة الطريق: docs/ROADMAP.md
 
@@ -43,24 +45,25 @@
 المراجع:
 - SpecKit: https://github.com/github/spec-kit
 - Superpowers: https://github.com/obra/superpowers
-- الدستور: constitution Rules L–LX تحكم المنهجية
+- الدستور: constitution Rules LXXIX–LXXXIX تحكم المنهجية
 ```
 
 <div dir="rtl">
 
 ### على Gemini CLI:
+
 **لا تحتاج هذا الملف.** Gemini CLI يقرأ `GEMINI.md` تلقائياً ولديه أوامر SpecKit في `.gemini/commands/`.
 
 ---
 
 ## متى تحتاج هذا الملف؟
 
-| السيناريو | تحتاج هذا الملف؟ |
-|-----------|-------------------|
-| تطوير عبر Claude Code على المشروع | ❌ لا — يقرأ CLAUDE.md تلقائياً |
-| تطوير عبر Gemini CLI على المشروع | ❌ لا — يقرأ GEMINI.md تلقائياً |
-| استشارة على Claude Desktop عن المشروع | ✅ نعم — الصق النص أعلاه |
-| استشارة على claude.ai عن المشروع | ✅ نعم — الصق النص أو ارفع CLAUDE.md |
-| مراجعة كود مع AI خارجي | ✅ نعم — الصق النص + ارفع الملفات المطلوبة |
+| السيناريو                             | تحتاج هذا الملف؟                           |
+| ------------------------------------- | ------------------------------------------ |
+| تطوير عبر Claude Code على المشروع     | ❌ لا — يقرأ CLAUDE.md تلقائياً            |
+| تطوير عبر Gemini CLI على المشروع      | ❌ لا — يقرأ GEMINI.md تلقائياً            |
+| استشارة على Claude Desktop عن المشروع | ✅ نعم — الصق النص أعلاه                   |
+| استشارة على claude.ai عن المشروع      | ✅ نعم — الصق النص أو ارفع CLAUDE.md       |
+| مراجعة كود مع AI خارجي                | ✅ نعم — الصق النص + ارفع الملفات المطلوبة |
 
 </div>

@@ -2,8 +2,8 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
+| Version             | Supported             |
+| ------------------- | --------------------- |
 | 0.x.x (pre-release) | ✅ Active development |
 
 ---
@@ -24,12 +24,12 @@ Include in your report:
 
 **Response timeline:**
 
-| Action | Timeline |
-|--------|----------|
-| Acknowledgement | Within 48 hours |
-| Initial assessment | Within 5 business days |
-| Fix or mitigation | Within 30 days for critical issues |
-| Public disclosure | After fix is released |
+| Action             | Timeline                           |
+| ------------------ | ---------------------------------- |
+| Acknowledgement    | Within 48 hours                    |
+| Initial assessment | Within 5 business days             |
+| Fix or mitigation  | Within 30 days for critical issues |
+| Public disclosure  | After fix is released              |
 
 ---
 
@@ -43,27 +43,27 @@ sanitize-html → @grammyjs/ratelimiter → CASL Auth Check → Zod Validation �
 
 ### Security Layers
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| Input sanitization | `sanitize-html` | XSS prevention (ADR-020) |
-| Rate limiting (bot) | `@grammyjs/ratelimiter` | Spam and abuse protection |
-| Rate limiting (API) | `rate-limiter-flexible` | Dashboard/Mini App protection |
-| Authorization | CASL + Sessions | RBAC with 4 role tiers |
-| Validation | Zod | Strict schema enforcement |
-| Encryption at rest | AES-256 | Sensitive DB fields |
-| Encryption in transit | HTTPS + WSS | All connections |
-| SQL injection | Prisma + Drizzle | Automatic ORM protection |
-| Secret detection | gitleaks | Every commit scanned |
-| Audit trail | Audit Log | All state changes logged |
+| Layer                 | Tool                    | Purpose                       |
+| --------------------- | ----------------------- | ----------------------------- |
+| Input sanitization    | `sanitize-html`         | XSS prevention (ADR-020)      |
+| Rate limiting (bot)   | `@grammyjs/ratelimiter` | Spam and abuse protection     |
+| Rate limiting (API)   | `rate-limiter-flexible` | Dashboard/Mini App protection |
+| Authorization         | CASL + Sessions         | RBAC with 4 role tiers        |
+| Validation            | Zod                     | Strict schema enforcement     |
+| Encryption at rest    | AES-256                 | Sensitive DB fields           |
+| Encryption in transit | HTTPS + WSS             | All connections               |
+| SQL injection         | Prisma + Drizzle        | Automatic ORM protection      |
+| Secret detection      | gitleaks (planned)      | Not yet configured            |
+| Audit trail           | Audit Log               | All state changes logged      |
 
 ### Role Hierarchy
 
-| Role | Level | Access |
-|------|-------|--------|
-| `SUPER_ADMIN` | 4 | God Mode — `can('manage', 'all')` |
-| `ADMIN` | 3 | Module management via scoping |
-| `USER` | 2 | Standard features |
-| `GUEST` | 1 | Minimal access |
+| Role          | Level | Access                            |
+| ------------- | ----- | --------------------------------- |
+| `SUPER_ADMIN` | 4     | God Mode — `can('manage', 'all')` |
+| `ADMIN`       | 3     | Module management via scoping     |
+| `USER`        | 2     | Standard features                 |
+| `GUEST`       | 1     | Minimal access                    |
 
 ### SUPER_ADMIN Bootstrap
 
@@ -83,7 +83,7 @@ When deploying Tempot:
 2. **Rotate secrets regularly** — BOT_TOKEN, API keys, webhook secrets
 3. **Use webhook mode in production** — not polling
 4. **Set `SUPER_ADMIN_IDS` explicitly** — never leave empty in production
-5. **Enable Sentry** — set `TEMPOT_SENTRY=true` and configure `SENTRY_DSN`
+5. **Enable Sentry** (when configured) — set `TEMPOT_SENTRY=true` and configure `SENTRY_DSN`
 6. **Use managed PostgreSQL and Redis** — with encryption at rest enabled
 7. **Run `pnpm audit` before every deployment**
 8. **Review gitleaks output** — secrets in git history are compromised
@@ -101,13 +101,18 @@ When deploying Tempot:
 
 ## Security Audit
 
-Automated security checks run on every commit and PR:
+Automated checks run via GitHub Actions CI (`.github/workflows/ci.yml`) on every push and PR:
+
+- **Lint** — ESLint with strict TypeScript rules
+- **Type Check** — Full `pnpm build` compilation
+- **Unit Tests** — All unit test suites
+- **Integration Tests** — With PostgreSQL + pgvector and Redis services
+- **Security Audit** — `pnpm audit` for dependency vulnerabilities
 
 ```bash
-pnpm audit          # Dependency vulnerability scan (every push)
-pnpm security:report # Full security report (monthly)
+pnpm audit          # Dependency vulnerability scan
+pnpm lint           # ESLint check
+pnpm test:unit      # Unit tests
 ```
 
-gitleaks scans every commit for accidentally committed secrets.
-
-See [docs/security/SECURITY-OPERATIONS.md](docs/security/SECURITY-OPERATIONS.md) for full operational security procedures.
+gitleaks is planned but not yet configured. See [docs/security/SECURITY-OPERATIONS.md](docs/security/SECURITY-OPERATIONS.md) for full operational security procedures.

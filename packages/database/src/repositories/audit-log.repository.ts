@@ -1,7 +1,7 @@
 import { AuditLog, Prisma } from '@prisma/client';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { BaseRepository } from '../base/base.repository';
+import { BaseRepository } from '../base/base.repository.js';
 
 /**
  * Repository for Audit Log entity

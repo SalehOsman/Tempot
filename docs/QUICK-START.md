@@ -85,13 +85,13 @@ The current `bot-server` is a **minimal connection test** — grammY only, no da
 
 Full bot functionality comes online in phases:
 
-| Phase | What gets built | Status |
-|-------|----------------|--------|
-| Phase 0 | Workspace + 6 core packages | ✅ Done |
-| Phase 1 | Remaining 11 core packages | ⏳ In Progress |
-| Phase 2 | Bot Server reconstruction | Planned |
-| Phase 3 | Business Modules | Planned |
-| Phase 4 | Dashboard + Mini App | Planned |
+| Phase   | What gets built                            | Status         |
+| ------- | ------------------------------------------ | -------------- |
+| Phase 0 | Workspace setup                            | ✅ Done        |
+| Phase 1 | 17 core packages (10 on main, 7 remaining) | ⏳ In Progress |
+| Phase 2 | Bot Server reconstruction                  | Planned        |
+| Phase 3 | Business Modules                           | Planned        |
+| Phase 4 | Dashboard + Mini App                       | Planned        |
 
 ---
 
