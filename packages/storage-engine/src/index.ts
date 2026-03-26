@@ -1,1 +1,24 @@
-// Barrel exports — populated in Task 12
+// Types
+export type {
+  StorageProviderType,
+  StorageConfig,
+  LocalProviderConfig,
+  S3ProviderConfig,
+  DriveProviderConfig,
+  RetentionConfig,
+  UploadOptions,
+  ProviderUploadResult,
+  Attachment,
+  VectorIndexer,
+} from './types.js';
+export { DEFAULT_STORAGE_CONFIG } from './types.js';
+
+// Contracts
+export type {
+  StorageProvider,
+  StorageFileUploadedPayload,
+  StorageFileDeletedPayload,
+} from './contracts.js';
+
+// Errors
+export { STORAGE_ERRORS } from './errors.js';
