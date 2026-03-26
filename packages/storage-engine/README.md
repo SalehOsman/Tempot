@@ -19,22 +19,22 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `@googleapis/drive` 8.x | Google Drive provider |
-| `@aws-sdk/client-s3` 3.x | S3 provider |
-| `@tempot/database` | Attachment metadata tracking |
-| `@tempot/ai-core` | Vector indexing (optional) |
-| `@tempot/logger` | Upload/delete logging |
-| `@tempot/shared` | AppError, Result |
+| Package                  | Purpose                      |
+| ------------------------ | ---------------------------- |
+| `@googleapis/drive` 8.x  | Google Drive provider        |
+| `@aws-sdk/client-s3` 3.x | S3 provider                  |
+| `@tempot/database`       | Attachment metadata tracking |
+| `@tempot/ai-core`        | Vector indexing (optional)   |
+| `@tempot/logger`         | Upload/delete logging        |
+| `@tempot/shared`         | AppError, Result             |
 
 ## Providers
 
-| `STORAGE_PROVIDER` | Backend | Auth |
-|-------------------|---------|------|
-| `local` | Local filesystem `./uploads/` | None |
-| `google-drive` | Google Drive API | OAuth2 refresh token |
-| `s3` | AWS S3 or compatible (R2, DigitalOcean) | Access key + secret |
+| `STORAGE_PROVIDER` | Backend                                 | Auth                 |
+| ------------------ | --------------------------------------- | -------------------- |
+| `local`            | Local filesystem `./uploads/`           | None                 |
+| `google-drive`     | Google Drive API                        | OAuth2 refresh token |
+| `s3`               | AWS S3 or compatible (R2, DigitalOcean) | Access key + secret  |
 
 ## API
 
@@ -48,7 +48,7 @@ const result = await storageEngine.upload({
   mimeType: 'application/pdf',
   uploadedBy: userId,
   moduleId: 'invoices',
-  indexForSearch: true,   // triggers ai-core embedding
+  indexForSearch: true, // triggers ai-core embedding
 });
 // result: Result<{ url: string; attachmentId: string }, AppError>
 
@@ -66,4 +66,4 @@ const url = await storageEngine.getUrl(attachmentId); // pre-signed if S3
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 4
+✅ **Implemented** — Phase 1

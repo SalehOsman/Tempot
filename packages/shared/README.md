@@ -17,14 +17,14 @@ Phase 1 — Core Bedrock (depends on logger only)
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package             | Purpose                    |
+| ------------------- | -------------------------- |
 | `cache-manager` 6.x | Multi-tier cache — ADR-023 |
-| `@keyv/redis` | Redis cache tier |
-| `@keyv/postgres` | PostgreSQL fallback tier |
-| `bullmq` 5.x | Queue worker management |
-| `ioredis` | Redis connection |
-| `neverthrow` 8.2.0 | Result pattern |
+| `@keyv/redis`       | Redis cache tier           |
+| `@keyv/postgres`    | PostgreSQL fallback tier   |
+| `bullmq` 5.x        | Queue worker management    |
+| `ioredis`           | Redis connection           |
+| `neverthrow` 8.2.0  | Result pattern             |
 
 ## API
 
@@ -68,4 +68,4 @@ function doSomething(): Result<string, AppError> {
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 1
+✅ **Implemented** — Phase 1

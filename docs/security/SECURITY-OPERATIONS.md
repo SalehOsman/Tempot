@@ -8,15 +8,15 @@
 
 ### What Counts as a Secret
 
-| Secret | Storage | Rotation |
-|--------|---------|----------|
-| `BOT_TOKEN` | `.env` only | On suspected compromise |
-| `DATABASE_URL` | `.env` only | Quarterly |
-| `REDIS_URL` | `.env` only | Quarterly |
-| `SUPER_ADMIN_IDS` | `.env` only | When team changes |
-| AI API keys | `.env` + encrypted in DB | On suspected compromise |
-| Webhook secret token | `.env` only | Quarterly |
-| Storage credentials | `.env` only | Quarterly |
+| Secret               | Storage                  | Rotation                |
+| -------------------- | ------------------------ | ----------------------- |
+| `BOT_TOKEN`          | `.env` only              | On suspected compromise |
+| `DATABASE_URL`       | `.env` only              | Quarterly               |
+| `REDIS_URL`          | `.env` only              | Quarterly               |
+| `SUPER_ADMIN_IDS`    | `.env` only              | When team changes       |
+| AI API keys          | `.env` + encrypted in DB | On suspected compromise |
+| Webhook secret token | `.env` only              | Quarterly               |
+| Storage credentials  | `.env` only              | Quarterly               |
 
 ### Secret Rotation Procedure
 
@@ -49,19 +49,19 @@ curl https://your-domain.com/health
 
 ## Key Rotation Schedule
 
-| Secret | Frequency | Trigger |
-|--------|-----------|---------|
-| Database password | Every 90 days | Calendar reminder |
-| Redis password | Every 90 days | Calendar reminder |
-| AI API keys | On suspected compromise | Sentry alert |
-| Storage credentials | Every 180 days | Calendar reminder |
-| Webhook secret | Every 90 days | Calendar reminder |
+| Secret              | Frequency               | Trigger                        |
+| ------------------- | ----------------------- | ------------------------------ |
+| Database password   | Every 90 days           | Calendar reminder              |
+| Redis password      | Every 90 days           | Calendar reminder              |
+| AI API keys         | On suspected compromise | Manual review (Sentry planned) |
+| Storage credentials | Every 180 days          | Calendar reminder              |
+| Webhook secret      | Every 90 days           | Calendar reminder              |
 
 ---
 
 ## gitleaks Configuration
 
-gitleaks scans every commit for accidentally committed secrets. Configuration at `.gitleaks.toml`:
+gitleaks is planned to scan every commit for accidentally committed secrets. It is **not yet configured** — no `.gitleaks.toml`, CI/CD pipeline, or pre-commit hook exists yet. The planned configuration at `.gitleaks.toml`:
 
 ```toml
 [extend]
@@ -80,7 +80,7 @@ regex = '''AIza[0-9A-Za-z_-]{35}'''
 tags = ["google", "ai"]
 ```
 
-If gitleaks finds a secret:
+When gitleaks is configured and finds a secret:
 
 ```bash
 # 1. Immediately revoke the exposed secret at the provider
@@ -111,7 +111,7 @@ Annual penetration test covering:
 - [ ] Backup taken before testing
 - [ ] Rate limiters configured as in production
 - [ ] gitleaks running
-- [ ] Sentry enabled and monitoring
+- [ ] Sentry enabled and monitoring (when configured)
 
 ### Common Attack Vectors to Test
 
@@ -142,12 +142,12 @@ curl https://your-domain.com/api/invoices?search="'; DROP TABLE invoices; --"
 
 ### Severity Levels
 
-| Level | Definition | Response Time |
-|-------|-----------|---------------|
-| P0 | Data breach or full system compromise | Immediate (< 15 min) |
-| P1 | Bot completely unavailable | < 1 hour |
-| P2 | Feature unavailable (AI, storage, etc.) | < 4 hours |
-| P3 | Minor degradation | < 24 hours |
+| Level | Definition                              | Response Time        |
+| ----- | --------------------------------------- | -------------------- |
+| P0    | Data breach or full system compromise   | Immediate (< 15 min) |
+| P1    | Bot completely unavailable              | < 1 hour             |
+| P2    | Feature unavailable (AI, storage, etc.) | < 4 hours            |
+| P3    | Minor degradation                       | < 24 hours           |
 
 ### P0 Response Checklist
 

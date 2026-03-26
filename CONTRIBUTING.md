@@ -31,24 +31,24 @@ Every contribution — no matter how small — must follow this lifecycle:
 
 ### Phase 1 — Specification (SpecKit, steps 1–5)
 
-| Step | Command | Output |
-|------|---------|--------|
-| 1 | `specify init` + `/speckit.constitution` | Constitution loaded |
-| 2 | `/speckit.specify` | `spec.md` — what & why |
-| 3 | `/speckit.clarify` | Edge cases resolved |
-| 4 | `/speckit.plan` | `plan.md` + data model |
-| 5 | `/speckit.validate` | Consistency verified |
+| Step | Command                                  | Output                 |
+| ---- | ---------------------------------------- | ---------------------- |
+| 1    | `specify init` + `/speckit.constitution` | Constitution loaded    |
+| 2    | `/speckit.specify`                       | `spec.md` — what & why |
+| 3    | `/speckit.clarify`                       | Edge cases resolved    |
+| 4    | `/speckit.plan`                          | `plan.md` + data model |
+| 5    | `/speckit.analyze`                       | Consistency verified   |
 
 ### Phase 2 — Execution (superpowers, steps 6–11)
 
-| Step | Skill | Output |
-|------|-------|--------|
-| 6 | `brainstorming` | Architectural design approved |
-| 7 | `using-git-worktrees` | Isolated feature branch |
-| 8 | `writing-plans` | Actionable task plan |
-| 9 | `executing-plans` + `test-driven-development` | Code + tests (RED → GREEN → REFACTOR) |
-| 10 | `requesting-code-review` | Review report resolved |
-| 11 | `finishing-a-development-branch` | PR or merge |
+| Step | Skill                                         | Output                                |
+| ---- | --------------------------------------------- | ------------------------------------- |
+| 6    | `brainstorming`                               | Architectural design approved         |
+| 7    | `using-git-worktrees`                         | Isolated feature branch               |
+| 8    | `writing-plans`                               | Actionable task plan                  |
+| 9    | `executing-plans` + `test-driven-development` | Code + tests (RED → GREEN → REFACTOR) |
+| 10   | `requesting-code-review`                      | Review report resolved                |
+| 11   | `finishing-a-development-branch`              | PR or merge                           |
 
 ### No Skip Rule
 

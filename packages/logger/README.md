@@ -16,9 +16,9 @@ Phase 1 — Core Bedrock **(first package to implement — no internal dependenc
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `pino` 9.x | Fastest Node.js JSON logger |
+| Package       | Purpose                              |
+| ------------- | ------------------------------------ |
+| `pino` 9.x    | Fastest Node.js JSON logger          |
 | `pino-pretty` | Human-readable output in development |
 
 > ⚠️ logger has **zero** `@tempot/*` dependencies — it is the foundation everything else builds on.
@@ -58,14 +58,14 @@ const refCode = auditLogger.generateRefCode(); // ERR-20260319-0042
 
 ## Log Levels
 
-| Level | When to use |
-|-------|------------|
-| `TRACE` | Deep diagnostics — DB query details, cache hits/misses |
-| `DEBUG` | Development debugging |
-| `INFO` | Normal operations — request received, job completed |
-| `WARN` | Recoverable issues — Redis fallback active, retry attempt |
-| `ERROR` | Operation failed — requires investigation |
-| `FATAL` | System cannot continue — triggers `process.exit(1)` |
+| Level   | When to use                                               |
+| ------- | --------------------------------------------------------- |
+| `TRACE` | Deep diagnostics — DB query details, cache hits/misses    |
+| `DEBUG` | Development debugging                                     |
+| `INFO`  | Normal operations — request received, job completed       |
+| `WARN`  | Recoverable issues — Redis fallback active, retry attempt |
+| `ERROR` | Operation failed — requires investigation                 |
+| `FATAL` | System cannot continue — triggers `process.exit(1)`       |
 
 ## PII Redaction
 
@@ -83,4 +83,4 @@ const logger = createLogger({
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 1 (Step 1.1 — first package)
+✅ **Implemented** — Phase 1

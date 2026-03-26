@@ -17,12 +17,12 @@ Phase 2 — The Nervous System
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `emittery` 1.x | Type-safe EventEmitter for Local + Internal |
-| `ioredis` | Redis Pub/Sub for External events |
-| `@tempot/shared` | AppError, Result |
-| `@tempot/logger` | Event failure logging |
+| Package          | Purpose                                     |
+| ---------------- | ------------------------------------------- |
+| `emittery` 1.x   | Type-safe EventEmitter for Local + Internal |
+| `ioredis`        | Redis Pub/Sub for External events           |
+| `@tempot/shared` | AppError, Result                            |
+| `@tempot/logger` | Event failure logging                       |
 
 ## Event Naming Convention
 
@@ -63,10 +63,10 @@ eventBus.on('invoices.*', async ({ eventName, payload }) => {
 
 ```typescript
 interface EventEnvelope {
-  eventId: string;           // unique per event
-  eventName: string;         // module.entity.action
+  eventId: string; // unique per event
+  eventName: string; // module.entity.action
   module: string;
-  userId: string | null;     // null for system events
+  userId: string | null; // null for system events
   payload: Record<string, unknown>;
   timestamp: Date;
   level: 'local' | 'internal' | 'external';
@@ -79,4 +79,4 @@ interface EventEnvelope {
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 2
+✅ **Implemented** — Phase 1

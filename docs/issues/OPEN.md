@@ -39,22 +39,4 @@ Create an `AuditLogRepository` in the `database` package inheriting from `BaseRe
 
 ---
 
-## ISSUE-004: `any` types and `eslint-disable` in event-bus
-
-**Severity:** ~~HIGH~~ → RESOLVED
-**Resolved:** 2026-03-23 by Claude Code (hotfix-phase0-compliance branch)
-**Fix:** Removed all `any` and `eslint-disable` in orchestrator.ts, local.bus.ts, and tests. 14/14 tests passing.
-
----
-
-## ISSUE-005: `any` types in database BaseRepository and TransactionManager
-
-**Severity:** ~~HIGH~~ → RESOLVED
-**Resolved:** 2026-03-23 by Claude Code (hotfix-phase0-compliance branch)
-**Fix:** Refactored to strict typing. Created AuditLogRepository. AuditLogger decoupled from PrismaClient.
-
-**Remaining:** One AuditLogger integration test has userId matching issue — to be fixed in next cycle.
-
----
-
-*New issues are appended below. Resolved issues are moved to `docs/issues/RESOLVED.md` with the resolution date.*
+_New issues are appended below. Resolved issues are moved to `docs/issues/RESOLVED.md` with the resolution date._

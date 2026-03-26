@@ -127,7 +127,7 @@ Phase 0 complete. Phase 1 in progress — 10 packages on main.
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine (7 packages)
 
-module-registry exists as placeholder only (README + package.json, no implementation).
+module-registry exists as placeholder only (README only, no package.json or implementation).
 
 ## Key Documents
 

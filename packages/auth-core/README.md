@@ -17,22 +17,22 @@ Phase 2 — The Nervous System
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package             | Purpose                      |
+| ------------------- | ---------------------------- |
 | `@casl/ability` 6.x | RBAC + ABAC engine — ADR-013 |
-| `@casl/prisma` | Prisma query integration |
-| `@tempot/database` | User role lookup |
-| `@tempot/logger` | Denied access logging |
-| `@tempot/shared` | AppError, Result pattern |
+| `@casl/prisma`      | Prisma query integration     |
+| `@tempot/database`  | User role lookup             |
+| `@tempot/logger`    | Denied access logging        |
+| `@tempot/shared`    | AppError, Result pattern     |
 
 ## Role Hierarchy
 
-| Role | Level | Capabilities |
-|------|-------|-------------|
-| `SUPER_ADMIN` | 4 | `can('manage', 'all')` — absolute power |
-| `ADMIN` | 3 | Module management, scoped access |
-| `USER` | 2 | Standard feature access |
-| `GUEST` | 1 | Minimal read access |
+| Role          | Level | Capabilities                            |
+| ------------- | ----- | --------------------------------------- |
+| `SUPER_ADMIN` | 4     | `can('manage', 'all')` — absolute power |
+| `ADMIN`       | 3     | Module management, scoped access        |
+| `USER`        | 2     | Standard feature access                 |
+| `GUEST`       | 1     | Minimal read access                     |
 
 ## API
 
@@ -42,7 +42,10 @@ import { defineAbility } from '@casl/ability';
 
 export const defineInvoiceAbilities = (user: SessionUser) => {
   return defineAbility((can) => {
-    if (user.role === 'SUPER_ADMIN') { can('manage', 'all'); return; }
+    if (user.role === 'SUPER_ADMIN') {
+      can('manage', 'all');
+      return;
+    }
     if (user.role === 'ADMIN') {
       can('read', 'Invoice');
       can('create', 'Invoice');
@@ -72,4 +75,4 @@ app.use('/api/*', authMiddleware({ minRole: 'ADMIN' }));
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 2
+✅ **Implemented** — Phase 1

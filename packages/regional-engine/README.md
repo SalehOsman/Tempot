@@ -18,21 +18,21 @@ Phase 3 — Presentation Layer
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `dayjs` 1.x | Date/time manipulation — ADR-010 |
-| `dayjs/plugin/timezone` | Timezone conversion |
-| `dayjs/plugin/utc` | UTC handling |
-| `countries-states-cities-database` | Geographic data — ADR-024 |
+| Package                            | Purpose                          |
+| ---------------------------------- | -------------------------------- |
+| `dayjs` 1.x                        | Date/time manipulation — ADR-010 |
+| `dayjs/plugin/timezone`            | Timezone conversion              |
+| `dayjs/plugin/utc`                 | UTC handling                     |
+| `countries-states-cities-database` | Geographic data — ADR-024        |
 
 ## Default Configuration
 
-| Setting | Value |
-|---------|-------|
-| `DEFAULT_COUNTRY` | `EG` (Egypt) |
-| Default locale | `ar-EG` |
-| Default timezone | `Africa/Cairo` (UTC+2) |
-| Default currency | `EGP` (ج.م) |
+| Setting           | Value                  |
+| ----------------- | ---------------------- |
+| `DEFAULT_COUNTRY` | `EG` (Egypt)           |
+| Default locale    | `ar-EG`                |
+| Default timezone  | `Africa/Cairo` (UTC+2) |
+| Default currency  | `EGP` (ج.م)            |
 
 ## API
 
@@ -40,19 +40,19 @@ Phase 3 — Presentation Layer
 import { RegionalEngine } from '@tempot/regional-engine';
 
 // Time
-const now = RegionalEngine.getNow(ctx);           // Cairo time
+const now = RegionalEngine.getNow(ctx); // Cairo time
 const local = RegionalEngine.toLocalTime(utc, ctx); // UTC → local display
 const formatted = RegionalEngine.formatDate(date, ctx); // "15 مارس 2026"
-const time = RegionalEngine.formatTime(date, ctx);     // "2:30 م"
+const time = RegionalEngine.formatTime(date, ctx); // "2:30 م"
 
 // Currency & numbers
 const amount = RegionalEngine.formatCurrency(1500, ctx); // "١٬٥٠٠٫٠٠ ج.م"
-const num = RegionalEngine.formatNumber(150000, ctx);    // "١٥٠٬٠٠٠"
+const num = RegionalEngine.formatNumber(150000, ctx); // "١٥٠٬٠٠٠"
 
 // Geography (for Input Engine GeoSelectField)
-const states = RegionalEngine.getStates(ctx);                  // 27 Egyptian governorates
-const cities = RegionalEngine.getCities('CAI', ctx);           // Cairo's cities
-const cairo = RegionalEngine.getStateByCode('CAI', ctx);       // { name: 'القاهرة', ... }
+const states = RegionalEngine.getStates(ctx); // 27 Egyptian governorates
+const cities = RegionalEngine.getCities('CAI', ctx); // Cairo's cities
+const cairo = RegionalEngine.getStateByCode('CAI', ctx); // { name: 'القاهرة', ... }
 ```
 
 ## Supported Countries
@@ -68,4 +68,4 @@ Add a new country: `pnpm geo:generate {ISO2_CODE}`
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 3
+✅ **Implemented** — Phase 1
