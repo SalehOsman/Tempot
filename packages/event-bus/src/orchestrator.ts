@@ -1,8 +1,8 @@
 import { okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, ShutdownManager } from '@tempot/shared';
-import { LocalEventBus } from './local/local.bus';
-import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus';
-import { ConnectionWatcher } from './distributed/connection.watcher';
+import { LocalEventBus } from './local/local.bus.js';
+import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
+import { ConnectionWatcher } from './distributed/connection.watcher.js';
 
 interface LoggerInterface {
   error: (data: Record<string, unknown>) => void;

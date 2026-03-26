@@ -1,7 +1,7 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, AppError } from '@tempot/shared';
-import { validateEventName } from '../contracts';
+import { validateEventName } from '../contracts.js';
 
 export interface RedisBusConfig {
   connectionString: string;
@@ -16,7 +16,7 @@ export class RedisEventBus {
     this.pub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
     this.sub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
 
-    this.sub.on('message', (channel, message) => {
+    this.sub.on('message', (channel: string, message: string) => {
       this.handleMessage(channel, message);
     });
   }
