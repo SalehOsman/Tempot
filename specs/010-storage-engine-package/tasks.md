@@ -54,11 +54,12 @@
 
 **Acceptance criteria:**
 
-- [ ] `StorageProviderType` type exported: `'local' | 's3' | 'drive'`
-- [ ] `StorageConfig` interface exported with `provider`, `maxFileSize`, `allowedMimeTypes`, `local?`, `s3?`, `drive?`, `retention?`
+- [ ] `StorageProviderType` type exported: `'local' | 's3' | 'drive' | 'telegram'`
+- [ ] `StorageConfig` interface exported with `provider`, `maxFileSize`, `allowedMimeTypes`, `local?`, `s3?`, `drive?`, `telegram?`, `retention?`
 - [ ] `LocalProviderConfig` interface exported: `{ basePath: string }`
 - [ ] `S3ProviderConfig` interface exported: `{ bucket, region, encryptionMode?, kmsKeyId? }`
 - [ ] `DriveProviderConfig` interface exported: `{ folderId: string }`
+- [ ] `TelegramProviderConfig` interface exported: `{ storageChatId: number | string }`
 - [ ] `RetentionConfig` interface exported: `{ days: number; cronSchedule: string }`
 - [ ] `UploadOptions` interface exported: `{ originalName, mimeType, size, moduleId?, entityId?, metadata? }`
 - [ ] `ProviderUploadResult` interface exported: `{ providerKey: string; url?: string }`
@@ -226,7 +227,7 @@
 - [ ] Returns error with `STORAGE_ERRORS.PROVIDER_UNKNOWN` for unknown provider type
 - [ ] `createDriveProvider(driveClient, config)` function exported, returns `Result<StorageProvider, AppError>`
 - [ ] No `any` types
-- [ ] All tests pass (minimum 6 tests: local success, local missing config, s3 success, s3 missing config, drive via createStorageProvider, drive via createDriveProvider, unknown provider)
+- [ ] All tests pass (minimum 8 tests: local success, local missing config, s3 success, s3 missing config, drive via createStorageProvider, drive via createDriveProvider, telegram via createStorageProvider, telegram via createTelegramProvider, unknown provider)
 
 ---
 
@@ -390,14 +391,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Exports all types: `StorageProviderType`, `StorageConfig`, `LocalProviderConfig`, `S3ProviderConfig`, `DriveProviderConfig`, `RetentionConfig`, `UploadOptions`, `ProviderUploadResult`, `Attachment`, `VectorIndexer`
+- [ ] Exports all types: `StorageProviderType`, `StorageConfig`, `LocalProviderConfig`, `S3ProviderConfig`, `DriveProviderConfig`, `TelegramProviderConfig`, `RetentionConfig`, `UploadOptions`, `ProviderUploadResult`, `Attachment`, `VectorIndexer`
 - [ ] Exports `DEFAULT_STORAGE_CONFIG` constant
 - [ ] Exports `StorageProvider` interface
 - [ ] Exports event payloads: `StorageFileUploadedPayload`, `StorageFileDeletedPayload`
 - [ ] Exports `STORAGE_ERRORS` constant
 - [ ] Exports `ValidationService` and `ValidatedFile`
-- [ ] Exports all providers: `LocalProvider`, `S3Provider`, `DriveProvider`
-- [ ] Exports factory functions: `createStorageProvider`, `createDriveProvider`
+- [ ] Exports all providers: `LocalProvider`, `S3Provider`, `DriveProvider`, `TelegramProvider`
+- [ ] Exports factory functions: `createStorageProvider`, `createDriveProvider`, `createTelegramProvider`
 - [ ] Exports `AttachmentRepository`
 - [ ] Exports `StorageService`
 - [ ] All relative imports use `.js` extensions (ESM/NodeNext compliance)
@@ -433,19 +434,19 @@ Task 0 (scaffolding)
 
 ## Summary
 
-| Task      | Name                    | Priority | Est. Time  | FR Coverage               |
-| --------- | ----------------------- | -------- | ---------- | ------------------------- |
-| 0         | Package Scaffolding     | P0       | 5 min      | Infrastructure            |
-| 1         | Types/Contracts/Errors  | P0       | 10 min     | FR-001, FR-004, FR-007    |
-| 2         | ValidationService       | P1       | 15 min     | FR-004, SC-004, MIME Edge |
-| 3         | LocalProvider           | P1       | 15 min     | FR-001, FR-006            |
-| 4         | S3Provider              | P1       | 15 min     | FR-001, FR-006, D5        |
-| 5         | DriveProvider           | P2       | 15 min     | FR-001, FR-006            |
-| 6         | ProviderFactory         | P1       | 5 min      | FR-001, D1, NFR-004       |
-| 7         | Attachment Prisma Model | P1       | 5 min      | FR-003                    |
-| 8         | AttachmentRepository    | P1       | 10 min     | FR-003, Rule XIV          |
-| 9         | StorageService          | P1       | 25 min     | FR-001–FR-007, D3, D5     |
-| 10        | Event Registration      | P1       | 5 min      | FR-007                    |
-| 11        | Purge Job               | P2       | 10 min     | FR-005, FR-007, D6        |
-| 12        | Barrel Exports          | P1       | 5 min      | All                       |
+| Task      | Name                    | Priority | Est. Time   | FR Coverage               |
+| --------- | ----------------------- | -------- | ----------- | ------------------------- |
+| 0         | Package Scaffolding     | P0       | 5 min       | Infrastructure            |
+| 1         | Types/Contracts/Errors  | P0       | 10 min      | FR-001, FR-004, FR-007    |
+| 2         | ValidationService       | P1       | 15 min      | FR-004, SC-004, MIME Edge |
+| 3         | LocalProvider           | P1       | 15 min      | FR-001, FR-006            |
+| 4         | S3Provider              | P1       | 15 min      | FR-001, FR-006, D5        |
+| 5         | DriveProvider           | P2       | 15 min      | FR-001, FR-006            |
+| 6         | ProviderFactory         | P1       | 5 min       | FR-001, D1, NFR-004       |
+| 7         | Attachment Prisma Model | P1       | 5 min       | FR-003                    |
+| 8         | AttachmentRepository    | P1       | 10 min      | FR-003, Rule XIV          |
+| 9         | StorageService          | P1       | 25 min      | FR-001–FR-007, D3, D5     |
+| 10        | Event Registration      | P1       | 5 min       | FR-007                    |
+| 11        | Purge Job               | P2       | 10 min      | FR-005, FR-007, D6        |
+| 12        | Barrel Exports          | P1       | 5 min       | All                       |
 | **Total** |                         |          | **140 min** |                           |

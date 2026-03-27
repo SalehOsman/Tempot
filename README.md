@@ -39,7 +39,7 @@ Tempot gives you everything you need to build complex, production-ready Telegram
 - **Multi-Tier Caching** — Memory → Redis → Database cascade via [cache-manager](https://github.com/jaredwray/cacheable). Configure once, use everywhere.
 - **Event-Driven Architecture** — Modules communicate exclusively through a 3-tier event bus: in-process (local), cross-module (internal), and durable jobs ([BullMQ](https://bullmq.io/) + Redis).
 - **Multi-Language & Regional** — Arabic-first with full English support via [i18next](https://www.i18next.com/). Built-in timezone, currency formatting, and RTL layout support.
-- **Multi-Provider Storage** — Google Drive, AWS S3, and local filesystem through a unified storage interface. Switch providers without touching business logic.
+- **Multi-Provider Storage** — Google Drive, AWS S3, Telegram, and local filesystem through a unified storage interface. Switch providers without touching business logic.
 - **Dynamic Input Engine** — [Zod](https://zod.dev/)-powered form generation with 22+ field types, automatic validation, retries, and timeout handling.
 - **Battle-Tested Security** — Input sanitization ([sanitize-html](https://github.com/apostrophecms/sanitize-html)), rate limiting ([@grammyjs/ratelimiter](https://grammy.dev/plugins/ratelimiter)), schema validation, encrypted storage, and audit logging — all enabled by default.
 
@@ -97,20 +97,20 @@ Tempot is a pnpm monorepo with modular, independently versioned packages.
 
 ### Services
 
-| Package                   | Description                                       | Status   |
-| ------------------------- | ------------------------------------------------- | -------- |
-| `@tempot/i18n-core`       | Multi-language support via i18next                | Stable   |
-| `@tempot/regional-engine` | Timezone, currency, geo data with dayjs           | Stable   |
-| `@tempot/storage-engine`  | Google Drive + S3 + Local filesystem abstraction  | Stable   |
-| `@tempot/ux-helpers`      | Message composer, keyboards, pagination, feedback | Building |
-| `@tempot/ai-core`         | AI provider abstraction via Vercel AI SDK         | Planned  |
-| `@tempot/cms-engine`      | Dynamic translation management                    | Planned  |
-| `@tempot/notifier`        | Multi-channel notifications via BullMQ            | Planned  |
-| `@tempot/document-engine` | PDF, Excel, Word generation                       | Planned  |
-| `@tempot/input-engine`    | Dynamic form generation with Zod validation       | Planned  |
-| `@tempot/search-engine`   | Full-text + semantic search with pgvector         | Planned  |
-| `@tempot/import-engine`   | CSV, Excel import — event-driven processing       | Planned  |
-| `@tempot/module-registry` | Module auto-discovery and validation              | Planned  |
+| Package                   | Description                                              | Status   |
+| ------------------------- | -------------------------------------------------------- | -------- |
+| `@tempot/i18n-core`       | Multi-language support via i18next                       | Stable   |
+| `@tempot/regional-engine` | Timezone, currency, geo data with dayjs                  | Stable   |
+| `@tempot/storage-engine`  | Google Drive + S3 + Telegram + Local storage abstraction | Stable   |
+| `@tempot/ux-helpers`      | Message composer, keyboards, pagination, feedback        | Building |
+| `@tempot/ai-core`         | AI provider abstraction via Vercel AI SDK                | Planned  |
+| `@tempot/cms-engine`      | Dynamic translation management                           | Planned  |
+| `@tempot/notifier`        | Multi-channel notifications via BullMQ                   | Planned  |
+| `@tempot/document-engine` | PDF, Excel, Word generation                              | Planned  |
+| `@tempot/input-engine`    | Dynamic form generation with Zod validation              | Planned  |
+| `@tempot/search-engine`   | Full-text + semantic search with pgvector                | Planned  |
+| `@tempot/import-engine`   | CSV, Excel import — event-driven processing              | Planned  |
+| `@tempot/module-registry` | Module auto-discovery and validation                     | Planned  |
 
 ### Applications
 

@@ -1,4 +1,4 @@
-# Feature Specification: Storage Engine (Unified S3/Drive/Local)
+# Feature Specification: Storage Engine (Unified S3/Drive/Telegram/Local)
 
 **Feature Branch**: `010-storage-engine-package`
 **Created**: 2026-03-19
@@ -10,7 +10,7 @@
 
 ### User Story 1 - Multi-provider File Upload (Priority: P1)
 
-As a developer, I want to upload files to any storage provider (S3, Google Drive, or Local) using a single interface so that I can change providers without updating my business logic.
+As a developer, I want to upload files to any storage provider (S3, Google Drive, Telegram, or Local) using a single interface so that I can change providers without updating my business logic.
 
 **Why this priority**: Fundamental architectural requirement (Rule XVIII) for resource abstraction.
 
@@ -57,7 +57,7 @@ As a developer, I want every uploaded file to be tracked in the database with me
 
 ### D1. Provider Strategy Pattern
 
-Runtime-switchable providers via `StorageProviderFactory`. The active provider is selected by the `STORAGE_PROVIDER` environment variable (`local` | `s3` | `drive`). Consumers call `StorageService`, never providers directly. This satisfies Rule XVIII (Abstraction Layer).
+Runtime-switchable providers via `StorageProviderFactory`. The active provider is selected by the `STORAGE_PROVIDER` environment variable (`local` | `s3` | `drive` | `telegram`). Consumers call `StorageService`, never providers directly. This satisfies Rule XVIII (Abstraction Layer).
 
 ### D2. UUID v7 File Naming
 
@@ -82,6 +82,7 @@ A `VectorIndexer` interface is defined in contracts but NOT implemented. The `ai
 - **Google Drive**: Files are encrypted by Google by default — no additional configuration needed.
 - **Local**: Stores `isEncrypted: false`. No encryption is applied.
 - An `EncryptionStrategy` interface is defined for future application-level encryption (deferred to when ai-core introduces sensitive data).
+- **Telegram**: Files are encrypted in transit (HTTPS) and at rest by Telegram servers. No additional configuration needed. Delete is a no-op (Telegram has no file deletion API).
 
 File name sanitization: `path.basename()` + strip special characters via regex `/[^a-zA-Z0-9._-]/g`.
 
@@ -108,7 +109,7 @@ The `Attachment` Prisma model is added to `packages/database/prisma/schema.prism
 - **FR-003**: System MUST automatically create an `Attachment` database record for every uploaded file, tracking `fileName`, `originalName`, `mimeType`, `size`, `provider`, `providerKey`, `url`, `metadata`, `moduleId`, `entityId`, and all BaseEntity audit fields.
 - **FR-004**: System MUST enforce file size and type limits per module via `StorageConfig`. Default max file size: 10MB. Default allowed MIME types: `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `text/plain`, `text/csv`. Modules override defaults via their own config.
 - **FR-005**: System MUST support soft delete for file metadata (`isDeleted=true`). Actual file deletion from the provider is a deferred background job via BullMQ (D6).
-- **FR-006**: System MUST support secure download links via `getSignedUrl()`. S3 returns pre-signed URLs. Google Drive returns shareable links. LocalProvider returns the local file path.
+- **FR-006**: System MUST support secure download links via `getSignedUrl()`. S3 returns pre-signed URLs. Google Drive returns shareable links. Telegram returns ephemeral download URLs (~1 hour, server-controlled). LocalProvider returns the local file path.
 - **FR-007**: System MUST emit `storage.file.uploaded` and `storage.file.deleted` events via event-bus with typed payloads.
 
 ### Key Entities
@@ -124,7 +125,7 @@ model Attachment {
   originalName String   // User's original filename (sanitized)
   mimeType     String
   size         Int
-  provider     String   // 'local' | 's3' | 'drive'
+  provider     String   // 'local' | 's3' | 'drive' | 'telegram'
   providerKey  String   @unique // Full path/key in provider
   url          String?  // Public URL (null for private files)
   metadata     Json?    // Extensible metadata (dimensions, duration, etc.)

@@ -59,7 +59,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 **All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
 **regional-engine complete** — first package built with full SpecKit + Superpowers methodology
-**storage-engine complete** — 13 source files, 101 tests, 3 providers (Local/S3/Drive)
+**storage-engine complete** — 14 source files, 117 tests, 4 providers (Local/S3/Drive/Telegram)
 **ux-helpers complete** — 22 source files, 156 tests, 15 components across 6 categories
 **Next:** choose next package to build (7 remaining: cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine)
 

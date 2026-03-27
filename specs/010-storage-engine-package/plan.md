@@ -19,12 +19,12 @@
 │  (BaseRepo<T>)   (creates driver)                   │
 ├──────────┴──────┬───────┴───────────┴───────────────┤
 │                 │                                    │
-│         StorageProvider (interface)                  │
-│    ┌────────────┼────────────┐                      │
-│    │            │            │                      │
-│  Local       S3Provider  DriveProvider              │
-│  Provider    (@aws-sdk)  (@googleapis)              │
-└─────────────────────────────────────────────────────┘
+│         StorageProvider (interface)                              │
+│    ┌────────────┼────────────┬──────────────┐                   │
+│    │            │            │              │                   │
+│  Local       S3Provider  DriveProvider  TelegramProvider        │
+│  Provider    (@aws-sdk)  (@googleapis)  (grammy)               │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -50,12 +50,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
   },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
   },
   "dependencies": {
     "neverthrow": "8.2.0",
@@ -69,13 +69,13 @@
     "@aws-sdk/lib-storage": "3.x",
     "@googleapis/drive": "8.x",
     "file-type": "19.x",
-    "uuid": "11.x"
+    "uuid": "11.x",
   },
   "devDependencies": {
     "typescript": "5.9.3",
     "vitest": "4.1.0",
-    "@types/uuid": "10.x"
-  }
+    "@types/uuid": "10.x",
+  },
 }
 ```
 
@@ -103,21 +103,22 @@ import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
 /** Storage provider identifier */
-export type StorageProviderType = 'local' | 's3' | 'drive';
+export type StorageProviderType = 'local' | 's3' | 'drive' | 'telegram';
 
 /** Configuration for storage engine */
 export interface StorageConfig {
   provider: StorageProviderType;
-  maxFileSize: number;          // bytes, default 10MB
+  maxFileSize: number; // bytes, default 10MB
   allowedMimeTypes: string[];
   local?: LocalProviderConfig;
   s3?: S3ProviderConfig;
   drive?: DriveProviderConfig;
+  telegram?: TelegramProviderConfig;
   retention?: RetentionConfig;
 }
 
 export interface LocalProviderConfig {
-  basePath: string;   // e.g., './uploads'
+  basePath: string; // e.g., './uploads'
 }
 
 export interface S3ProviderConfig {
@@ -128,11 +129,15 @@ export interface S3ProviderConfig {
 }
 
 export interface DriveProviderConfig {
-  folderId: string;   // Root folder ID in Google Drive
+  folderId: string; // Root folder ID in Google Drive
+}
+
+export interface TelegramProviderConfig {
+  storageChatId: number | string;
 }
 
 export interface RetentionConfig {
-  days: number;        // Default 30
+  days: number; // Default 30
   cronSchedule: string; // Default '0 3 * * *' (3 AM daily)
 }
 
@@ -213,7 +218,11 @@ import type { StorageProviderType, ProviderUploadResult } from './types.js';
 /** Abstract storage provider interface (FR-001) */
 export interface StorageProvider {
   readonly type: StorageProviderType;
-  upload(key: string, data: Buffer | Readable, contentType: string): AsyncResult<ProviderUploadResult, AppError>;
+  upload(
+    key: string,
+    data: Buffer | Readable,
+    contentType: string,
+  ): AsyncResult<ProviderUploadResult, AppError>;
   download(key: string): AsyncResult<Readable, AppError>;
   delete(key: string): AsyncResult<void, AppError>;
   getSignedUrl(key: string, expiresInSeconds: number): AsyncResult<string, AppError>;
@@ -322,18 +331,22 @@ export class ValidationService {
 
     // 2. Check file size
     if (options.size > this.config.maxFileSize) {
-      return err(new AppError(STORAGE_ERRORS.FILE_TOO_LARGE, {
-        size: options.size,
-        maxSize: this.config.maxFileSize,
-      }));
+      return err(
+        new AppError(STORAGE_ERRORS.FILE_TOO_LARGE, {
+          size: options.size,
+          maxSize: this.config.maxFileSize,
+        }),
+      );
     }
 
     // 3. Check MIME type against allowed list
     if (!this.config.allowedMimeTypes.includes(options.mimeType)) {
-      return err(new AppError(STORAGE_ERRORS.MIME_NOT_ALLOWED, {
-        mimeType: options.mimeType,
-        allowed: this.config.allowedMimeTypes,
-      }));
+      return err(
+        new AppError(STORAGE_ERRORS.MIME_NOT_ALLOWED, {
+          mimeType: options.mimeType,
+          allowed: this.config.allowedMimeTypes,
+        }),
+      );
     }
 
     // 4. Sanitize filename (D2: path.basename + strip special chars)
@@ -355,10 +368,12 @@ export class ValidationService {
       const detected = await fileTypeFromBuffer(data);
       // If file-type cannot detect (e.g., text/plain, text/csv), skip magic byte check
       if (detected && detected.mime !== declaredMime) {
-        return err(new AppError(STORAGE_ERRORS.MIME_MISMATCH, {
-          declared: declaredMime,
-          detected: detected.mime,
-        }));
+        return err(
+          new AppError(STORAGE_ERRORS.MIME_MISMATCH, {
+            declared: declaredMime,
+            detected: detected.mime,
+          }),
+        );
       }
       return ok(undefined);
     } catch {
@@ -741,10 +756,26 @@ export function createStorageProvider(config: StorageConfig): Result<StorageProv
       return ok(new S3Provider(config.s3));
     }
     case 'drive':
-      return err(new AppError(STORAGE_ERRORS.PROVIDER_UNKNOWN,
-        'DriveProvider requires a pre-configured Drive client. Use createDriveProvider().'));
+      return err(
+        new AppError(
+          STORAGE_ERRORS.PROVIDER_UNKNOWN,
+          'DriveProvider requires a pre-configured Drive client. Use createDriveProvider().',
+        ),
+      );
+    case 'telegram':
+      return err(
+        new AppError(
+          STORAGE_ERRORS.PROVIDER_UNKNOWN,
+          'TelegramProvider requires a pre-configured grammY Api instance. Use createTelegramProvider().',
+        ),
+      );
     default:
-      return err(new AppError(STORAGE_ERRORS.PROVIDER_UNKNOWN, `Unknown provider: ${String(config.provider)}`));
+      return err(
+        new AppError(
+          STORAGE_ERRORS.PROVIDER_UNKNOWN,
+          `Unknown provider: ${String(config.provider)}`,
+        ),
+      );
   }
 }
 
@@ -754,6 +785,14 @@ export function createDriveProvider(
   config: DriveProviderConfig,
 ): Result<StorageProvider, AppError> {
   return ok(new DriveProvider(driveClient, config));
+}
+
+/** Create a TelegramProvider with pre-configured grammY Api instance */
+export function createTelegramProvider(
+  api: Api,
+  config: TelegramProviderConfig,
+): Result<StorageProvider, AppError> {
+  return ok(new TelegramProvider(api, config));
 }
 ```
 
@@ -907,10 +946,7 @@ export class StorageService {
   }
 
   /** Upload a file: validate → MIME check → upload to provider → create DB record → emit event (D3) */
-  async upload(
-    data: Buffer | Readable,
-    options: UploadOptions,
-  ): AsyncResult<Attachment, AppError> {
+  async upload(data: Buffer | Readable, options: UploadOptions): AsyncResult<Attachment, AppError> {
     // 1. Validate (synchronous checks)
     const validationResult = this.validation.validateUpload(options);
     if (validationResult.isErr()) return err(validationResult.error);
@@ -1110,6 +1146,7 @@ The inline types must structurally match `StorageFileUploadedPayload` and `Stora
 ### File: `src/jobs/purge.job.ts`
 
 BullMQ worker that:
+
 1. Queries `AttachmentRepository.findExpiredDeleted(beforeDate)` where `beforeDate = now - retentionDays`
 2. For each expired record: deletes file from provider, then permanently removes DB record
 3. Emits `storage.file.deleted` with `permanent: true` for each permanently deleted file
@@ -1140,37 +1177,38 @@ All public types, interfaces, constants, services, providers, and the factory ar
 
 ### Unit Tests (vitest)
 
-| Test File | What It Tests | Key Assertions |
-|-----------|---------------|----------------|
-| `validation.service.test.ts` | File size limits, MIME validation, filename sanitization, empty files, UUID v7 generation | `isOk()`, `isErr()`, error codes match `STORAGE_ERRORS` |
-| `local.provider.test.ts` | Upload/download/delete/exists with real temp directories | File written to disk, stream readable, deleted file gone |
-| `s3.provider.test.ts` | S3 operations with mocked `@aws-sdk/client-s3` | Correct AWS commands sent, error wrapping, SSE params |
-| `drive.provider.test.ts` | Drive operations with mocked `@googleapis/drive` | Correct API calls, error wrapping, Drive-specific behavior |
-| `provider.factory.test.ts` | Factory creates correct provider, rejects unknown | `isOk()` with correct type, `isErr()` for invalid config |
-| `storage.service.test.ts` | Two-phase upload, rollback, download, delete, getSignedUrl | Provider + repo mocked, verify call order, rollback on DB failure |
+| Test File                    | What It Tests                                                                             | Key Assertions                                                    |
+| ---------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `validation.service.test.ts` | File size limits, MIME validation, filename sanitization, empty files, UUID v7 generation | `isOk()`, `isErr()`, error codes match `STORAGE_ERRORS`           |
+| `local.provider.test.ts`     | Upload/download/delete/exists with real temp directories                                  | File written to disk, stream readable, deleted file gone          |
+| `s3.provider.test.ts`        | S3 operations with mocked `@aws-sdk/client-s3`                                            | Correct AWS commands sent, error wrapping, SSE params             |
+| `drive.provider.test.ts`     | Drive operations with mocked `@googleapis/drive`                                          | Correct API calls, error wrapping, Drive-specific behavior        |
+| `provider.factory.test.ts`   | Factory creates correct provider, rejects unknown                                         | `isOk()` with correct type, `isErr()` for invalid config          |
+| `storage.service.test.ts`    | Two-phase upload, rollback, download, delete, getSignedUrl                                | Provider + repo mocked, verify call order, rollback on DB failure |
 
 ### Integration Tests (deferred)
 
-S3 and Google Drive integration tests require live credentials and are NOT in scope. LocalProvider tests use real filesystem (temp directories).
+S3, Google Drive, and Telegram integration tests require live credentials/bots and are NOT in scope. LocalProvider tests use real filesystem (temp directories).
 
 ---
 
 ## Dependencies Summary
 
-| Dependency | Version | Purpose | Runtime/Dev |
-|------------|---------|---------|-------------|
-| `neverthrow` | 8.2.0 | Result pattern | runtime |
-| `@tempot/shared` | workspace:* | AppError, Result/AsyncResult, QueueFactory | runtime |
-| `@tempot/database` | workspace:* | BaseRepository, Prisma client | runtime |
-| `@tempot/event-bus` | workspace:* | Event publishing | runtime |
-| `@tempot/session-manager` | workspace:* | Session context for audit fields | runtime |
-| `@tempot/logger` | workspace:* | Structured logging (Pino) | runtime |
-| `@aws-sdk/client-s3` | 3.x | S3 operations | runtime |
-| `@aws-sdk/s3-request-presigner` | 3.x | S3 pre-signed URLs | runtime |
-| `@aws-sdk/lib-storage` | 3.x | S3 streaming upload | runtime |
-| `@googleapis/drive` | 8.x | Google Drive API | runtime |
-| `file-type` | 19.x | MIME magic byte detection | runtime |
-| `uuid` | 11.x | UUID v7 generation | runtime |
-| `typescript` | 5.9.3 | Build | dev |
-| `vitest` | 4.1.0 | Testing | dev |
-| `@types/uuid` | 10.x | UUID type definitions | dev |
+| Dependency                      | Version      | Purpose                                    | Runtime/Dev |
+| ------------------------------- | ------------ | ------------------------------------------ | ----------- |
+| `neverthrow`                    | 8.2.0        | Result pattern                             | runtime     |
+| `@tempot/shared`                | workspace:\* | AppError, Result/AsyncResult, QueueFactory | runtime     |
+| `@tempot/database`              | workspace:\* | BaseRepository, Prisma client              | runtime     |
+| `@tempot/event-bus`             | workspace:\* | Event publishing                           | runtime     |
+| `@tempot/session-manager`       | workspace:\* | Session context for audit fields           | runtime     |
+| `@tempot/logger`                | workspace:\* | Structured logging (Pino)                  | runtime     |
+| `@aws-sdk/client-s3`            | 3.x          | S3 operations                              | runtime     |
+| `@aws-sdk/s3-request-presigner` | 3.x          | S3 pre-signed URLs                         | runtime     |
+| `@aws-sdk/lib-storage`          | 3.x          | S3 streaming upload                        | runtime     |
+| `@googleapis/drive`             | 8.x          | Google Drive API                           | runtime     |
+| `grammy`                        | 1.41.1       | Telegram Bot API (Api, InputFile)          | runtime     |
+| `file-type`                     | 19.x         | MIME magic byte detection                  | runtime     |
+| `uuid`                          | 11.x         | UUID v7 generation                         | runtime     |
+| `typescript`                    | 5.9.3        | Build                                      | dev         |
+| `vitest`                        | 4.1.0        | Testing                                    | dev         |
+| `@types/uuid`                   | 10.x         | UUID type definitions                      | dev         |
