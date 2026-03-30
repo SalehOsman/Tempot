@@ -10,6 +10,15 @@ export default defineConfig({
           environment: 'node',
         },
       }),
+      defineProject({
+        test: {
+          name: 'integration',
+          include: ['tests/integration/**/*.test.ts'],
+          environment: 'node',
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      }),
     ],
   },
 });
