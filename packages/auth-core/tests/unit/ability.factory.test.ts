@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { AbilityFactory } from '../../src/factory/ability.factory';
-import { SessionUser } from '../../src/contracts/session-user';
+import { AbilityFactory } from '../../src/factory/ability.factory.js';
+import { SessionUser } from '../../src/contracts/session-user.js';
 import { defineAbility } from '@casl/ability';
-import { RoleEnum } from '../../src/contracts/roles';
+import { RoleEnum } from '../../src/contracts/roles.js';
 
 describe('AbilityFactory', () => {
   it('should return ok with built ability from provided definitions', () => {

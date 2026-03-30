@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { appErrorSerializer } from '../../src/technical/serializer';
+import { appErrorSerializer } from '../../src/technical/serializer.js';
 import { AppError } from '@tempot/shared';
 
 describe('appErrorSerializer', () => {

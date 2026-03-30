@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import pino from 'pino';
-import { appErrorSerializer } from '../../src/technical/serializer';
-import { SENSITIVE_KEYS } from '../../src/config';
+import { appErrorSerializer } from '../../src/technical/serializer.js';
+import { SENSITIVE_KEYS } from '../../src/config.js';
 import { sessionContext } from '@tempot/session-manager';
 import { AppError } from '@tempot/shared';
 

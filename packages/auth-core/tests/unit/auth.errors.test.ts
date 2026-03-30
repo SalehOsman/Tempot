@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { UnauthorizedError, ForbiddenError } from '../../src/errors/auth.errors';
+import { UnauthorizedError, ForbiddenError } from '../../src/errors/auth.errors.js';
 
 describe('Auth Errors', () => {
   it('should create UnauthorizedError with correct code', () => {
