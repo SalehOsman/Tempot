@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-03-26 (ux-helpers complete)
+> Last updated: 2026-03-30 (comprehensive audit fix)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -45,15 +45,18 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 ### Critical Blockers
 
-| ID           | Issue                                                                               | Package                     | Status      |
-| ------------ | ----------------------------------------------------------------------------------- | --------------------------- | ----------- |
-| CRITICAL-001 | session-manager is a hollow stub                                                    | session-manager             | ✅ RESOLVED |
-| CRITICAL-002 | Silent failure in getPrismaClient                                                   | database                    | ✅ RESOLVED |
-| CRITICAL-003 | eslint-disable any in 7 files                                                       | database, event-bus, logger | ✅ RESOLVED |
-| ISSUE-004    | any types in event-bus                                                              | event-bus                   | ✅ RESOLVED |
-| ISSUE-005    | any types + Repository Pattern in database/logger                                   | database, logger            | ✅ RESOLVED |
-| ISSUE-006    | bot-server build broken (@types/node missing)                                       | bot-server                  | ✅ RESOLVED |
-| ISSUE-008    | session-manager needs subpath export ./context to eliminate deep import in database | session-manager             | ✅ RESOLVED |
+| ID           | Issue                                                                               | Package                                          | Status      |
+| ------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------ | ----------- |
+| CRITICAL-001 | session-manager is a hollow stub                                                    | session-manager                                  | ✅ RESOLVED |
+| CRITICAL-002 | Silent failure in getPrismaClient                                                   | database                                         | ✅ RESOLVED |
+| CRITICAL-003 | eslint-disable any in 7 files                                                       | database, event-bus, logger                      | ✅ RESOLVED |
+| ISSUE-004    | Strict type safety violations (any / eslint-disable)                                | database, event-bus, logger                      | ✅ RESOLVED |
+| ISSUE-005    | Repository Pattern violation in AuditLogger                                         | logger                                           | ✅ RESOLVED |
+| ISSUE-006    | bot-server build broken (@types/node missing)                                       | bot-server                                       | ✅ RESOLVED |
+| ISSUE-008    | session-manager needs subpath export ./context to eliminate deep import in database  | session-manager                                  | ✅ RESOLVED |
+| ISSUE-009    | Phantom dependencies across 4 packages                                              | logger, database, session-manager, storage-engine | ✅ RESOLVED |
+| ISSUE-010    | Vitest config inconsistency (3 packages)                                            | auth-core, session-manager, i18n-core, logger    | ✅ RESOLVED |
+| ISSUE-011    | i18n-core tsconfig missing exclude                                                  | i18n-core                                        | ✅ RESOLVED |
 
 ### Next Action
 
@@ -61,6 +64,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 **regional-engine complete** — first package built with full SpecKit + Superpowers methodology
 **storage-engine complete** — 14 source files, 117 tests, 4 providers (Local/S3/Drive/Telegram)
 **ux-helpers complete** — 22 source files, 156 tests, 15 components across 6 categories
+**Comprehensive audit fix complete** — 7 commits on branch `fix/audit-v2-2026-03-30` resolving 24 findings (ISSUE-009/010/011 + ISSUE-004 residuals + infra fixes)
 **Next:** choose next package to build (7 remaining: cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine)
 
 ## Phase 2 — Bot Server Reconstruction
