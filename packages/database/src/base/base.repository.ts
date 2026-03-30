@@ -17,20 +17,32 @@ export interface IAuditLogger {
 }
 
 /**
- * Minimal structural interface for a Prisma model delegate.
+ * Opaque type alias for a Prisma model delegate.
  *
  * Prisma 7 delegates use deeply-branded generics (Exact<A, Args<T, 'findUnique'>>)
  * that cannot be expressed as a simple TypeScript interface without `any`.
- * This interface captures the structural shape at the Prisma boundary layer.
- * All `any` usage is isolated to this single interface definition.
+ * We use `object` as the public constraint — subclasses return Prisma delegates,
+ * and BaseRepository accesses methods through the `delegate` accessor which
+ * performs a single type assertion at the call boundary.
  *
- * PRISMA-BOUNDARY: This is the ONLY place `any` appears in @tempot/database.
- * When Prisma provides a proper base delegate type, replace this interface.
+ * PRISMA-BOUNDARY: No `any` in @tempot/database. Type assertions at call boundary only.
+ * When Prisma provides a proper base delegate type, replace this alias.
  *
  * @see https://github.com/prisma/prisma/issues/20798
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma boundary: delegates use branded generics incompatible with strict interfaces
-export type PrismaModelDelegate = Record<string, any>;
+export type PrismaModelDelegate = object;
+
+/**
+ * Internal callable shape for Prisma delegate methods used by BaseRepository.
+ * Kept private to this module — consumers use PrismaModelDelegate (Record<string, unknown>).
+ */
+interface PrismaDelegateMethods {
+  findUnique: (args: Record<string, unknown>) => Promise<unknown>;
+  findMany: (args: Record<string, unknown>) => Promise<unknown[]>;
+  create: (args: Record<string, unknown>) => Promise<unknown>;
+  update: (args: Record<string, unknown>) => Promise<unknown>;
+  delete: (args: Record<string, unknown>) => Promise<unknown>;
+}
 
 /**
  * Abstract Base Repository with Result pattern and Audit Log triggers
@@ -53,6 +65,14 @@ export abstract class BaseRepository<T extends { id: string }> {
    * Must be implemented by subclasses to return the correct model from this.db.
    */
   protected abstract get model(): PrismaModelDelegate;
+
+  /**
+   * PRISMA-BOUNDARY: Type assertion at call boundary only.
+   * Casts the opaque PrismaModelDelegate to callable methods for internal use.
+   */
+  private get delegate(): PrismaDelegateMethods {
+    return this.model as unknown as PrismaDelegateMethods;
+  }
 
   /**
    * Create a new instance of this repository using a transaction client
@@ -78,7 +98,7 @@ export abstract class BaseRepository<T extends { id: string }> {
 
   async findById(id: string): Promise<Result<T, AppError>> {
     try {
-      const item = await this.model.findUnique({
+      const item = await this.delegate.findUnique({
         where: { id, isDeleted: false },
       });
       if (!item) {
@@ -92,7 +112,7 @@ export abstract class BaseRepository<T extends { id: string }> {
 
   async findMany(where?: Record<string, unknown>): Promise<Result<T[], AppError>> {
     try {
-      const items = await this.model.findMany({
+      const items = await this.delegate.findMany({
         where: { isDeleted: false, ...where },
       });
       return ok(items as T[]);
@@ -104,7 +124,7 @@ export abstract class BaseRepository<T extends { id: string }> {
   async create(data: Record<string, unknown>): Promise<Result<T, AppError>> {
     const { userId, userRole } = this.getContext();
     try {
-      const item = (await this.model.create({
+      const item = (await this.delegate.create({
         data: {
           ...data,
           createdBy: userId,
@@ -132,12 +152,12 @@ export abstract class BaseRepository<T extends { id: string }> {
     const { userId, userRole } = this.getContext();
     try {
       // Get before state for audit log
-      const before = await this.model.findUnique({ where: { id } });
+      const before = await this.delegate.findUnique({ where: { id } });
       if (!before) {
         return err(new AppError(`${this.moduleName}.not_found`));
       }
 
-      const item = (await this.model.update({
+      const item = (await this.delegate.update({
         where: { id },
         data: {
           ...data,
@@ -166,13 +186,13 @@ export abstract class BaseRepository<T extends { id: string }> {
   async delete(id: string): Promise<Result<void, AppError>> {
     const { userId, userRole } = this.getContext();
     try {
-      const before = await this.model.findUnique({ where: { id } });
+      const before = await this.delegate.findUnique({ where: { id } });
       if (!before) {
         return err(new AppError(`${this.moduleName}.not_found`));
       }
 
       // Pass deletedBy to the delete call (extension will pick it up)
-      await this.model.delete({
+      await this.delegate.delete({
         where: { id },
         data: {
           deletedBy: userId,
