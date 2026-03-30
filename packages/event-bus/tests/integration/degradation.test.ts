@@ -33,8 +33,9 @@ describe('EventBus Degradation (Rule XXXII)', () => {
 
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
-        code: 'SYSTEM_DEGRADATION',
-        payload: { target: 'SUPER_ADMIN' },
+        code: 'event_bus.redis_unavailable',
+        fallback: 'local',
+        target: 'SUPER_ADMIN',
       }),
     );
   });
