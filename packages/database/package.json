@@ -26,19 +26,17 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@casl/prisma": "^1.6.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.0.0",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
     "drizzle-orm": "^0.45.1",
-    "glob": "^11.1.0",
     "neverthrow": "8.2.0",
-    "pg": "^8.20.0",
-    "pgvector": "^0.2.1"
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.28.0",
+    "glob": "^11.1.0",
     "@types/node": "^20.19.37",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
