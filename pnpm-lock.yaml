@@ -78,7 +78,7 @@ importers:
   apps/bot-server:
     dependencies:
       grammy:
-        specifier: ^1.41.1
+        specifier: 1.41.1
         version: 1.41.1
     devDependencies:
       '@types/node':
@@ -360,7 +360,7 @@ importers:
         specifier: ^19.0.0
         version: 19.6.0
       grammy:
-        specifier: ^1.41.1
+        specifier: 1.41.1
         version: 1.41.1
       neverthrow:
         specifier: 8.2.0
@@ -391,7 +391,7 @@ importers:
         specifier: workspace:*
         version: link:../shared
       grammy:
-        specifier: ^1.41.1
+        specifier: 1.41.1
         version: 1.41.1
       neverthrow:
         specifier: 8.2.0
