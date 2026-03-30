@@ -66,7 +66,7 @@ jobs:
     needs: [lint, typecheck, test-unit]
     services:
       postgres:
-        image: ankane/pgvector:latest
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: tempot
           POSTGRES_PASSWORD: tempot_test
@@ -116,4 +116,4 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=high
-        continue-on-error: true
+        continue-on-error: false
