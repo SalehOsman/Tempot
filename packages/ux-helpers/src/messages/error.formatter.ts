@@ -1,12 +1,12 @@
 import { t } from '@tempot/i18n-core';
-import { STATUS_EMOJIS } from '../constants.js';
+import { STATUS_EMOJIS } from '../ux.constants.js';
 import type {
   UserErrorOptions,
   SystemErrorOptions,
   PermissionErrorOptions,
   SessionExpiredOptions,
   SessionExpiredResult,
-} from '../types.js';
+} from '../ux.types.js';
 
 export function formatUserError(options: UserErrorOptions): string {
   const problem = t(options.problemKey, options.interpolation);

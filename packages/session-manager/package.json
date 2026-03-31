@@ -11,8 +11,8 @@
       "types": "./dist/index.d.ts"
     },
     "./context": {
-      "import": "./dist/context.js",
-      "types": "./dist/context.d.ts"
+      "import": "./dist/session.context.js",
+      "types": "./dist/session.context.d.ts"
     }
   },
   "scripts": {

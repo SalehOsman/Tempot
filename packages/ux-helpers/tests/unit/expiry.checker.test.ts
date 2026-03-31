@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { isExpired, checkExpiry } from '../../src/middleware/expiry.checker.js';
-import { UX_ERRORS } from '../../src/errors.js';
+import { UX_ERRORS } from '../../src/ux.errors.js';
 
 describe('isExpired', () => {
   beforeEach(() => {

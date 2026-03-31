@@ -11,8 +11,8 @@
       "types": "./dist/index.d.ts"
     },
     "./testing": {
-      "import": "./dist/testing/test-db.js",
-      "types": "./dist/testing/test-db.d.ts"
+      "import": "./dist/testing/database.helper.js",
+      "types": "./dist/testing/database.helper.d.ts"
     }
   },
   "scripts": {

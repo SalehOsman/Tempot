@@ -1,6 +1,6 @@
 import { Result, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma, Prisma } from '../prisma/client.js';
+import { prisma, Prisma } from '../prisma/prisma.client.js';
 
 /**
  * Minimal interface for the $transaction method we need from the client.

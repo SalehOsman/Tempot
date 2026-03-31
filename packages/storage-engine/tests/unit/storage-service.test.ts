@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { StorageService } from '../../src/storage.service.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 import type { StorageServiceDeps } from '../../src/storage.service.js';
-import type { StorageProvider } from '../../src/contracts.js';
-import type { Attachment, UploadOptions } from '../../src/types.js';
+import type { StorageProvider } from '../../src/storage.contracts.js';
+import type { Attachment, UploadOptions } from '../../src/storage.types.js';
 
 // --- Mock factories ---
 

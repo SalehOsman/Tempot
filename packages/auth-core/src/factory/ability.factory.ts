@@ -1,7 +1,7 @@
 import { AnyAbility, createMongoAbility } from '@casl/ability';
 import { ok, Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { SessionUser } from '../contracts/session-user.js';
+import { SessionUser } from '../contracts/session.types.js';
 
 export type AbilityDefinition = (user: SessionUser) => AnyAbility;
 

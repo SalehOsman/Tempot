@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Readable } from 'node:stream';
 import type { Api } from 'grammy';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 import { TelegramProvider } from '../../src/providers/telegram.provider.js';
-import type { TelegramProviderConfig } from '../../src/types.js';
+import type { TelegramProviderConfig } from '../../src/storage.types.js';
 
 type SendDocumentResult = ReturnType<Api['sendDocument']> extends Promise<infer R> ? R : never;
 
@@ -16,11 +16,17 @@ function createMockApi(): Api {
 }
 
 function mockSendDocResult(fileId: string, uniqueId = 'u', size = 10): SendDocumentResult {
-  return { document: { file_id: fileId, file_unique_id: uniqueId, file_size: size } } as SendDocumentResult;
+  return {
+    document: { file_id: fileId, file_unique_id: uniqueId, file_size: size },
+  } as SendDocumentResult;
 }
 
 function mockGetFileResult(filePath?: string) {
-  return { file_id: 'tg-file-id', file_unique_id: 'unique', ...(filePath ? { file_path: filePath } : {}) };
+  return {
+    file_id: 'tg-file-id',
+    file_unique_id: 'unique',
+    ...(filePath ? { file_path: filePath } : {}),
+  };
 }
 
 describe('TelegramProvider', () => {
@@ -43,14 +49,22 @@ describe('TelegramProvider', () => {
 
   describe('upload', () => {
     it('should upload Buffer and return file_id as providerKey', async () => {
-      vi.mocked(mockApi.sendDocument).mockResolvedValue(mockSendDocResult('tg-file-id-123', 'unique-123', 100));
-      const result = await provider.upload('docs/invoice.pdf', Buffer.from('pdf-data'), 'application/pdf');
+      vi.mocked(mockApi.sendDocument).mockResolvedValue(
+        mockSendDocResult('tg-file-id-123', 'unique-123', 100),
+      );
+      const result = await provider.upload(
+        'docs/invoice.pdf',
+        Buffer.from('pdf-data'),
+        'application/pdf',
+      );
       expect(result.isOk()).toBe(true);
       if (result.isOk()) expect(result.value.providerKey).toBe('tg-file-id-123');
     });
 
     it('should upload Readable stream and return file_id', async () => {
-      vi.mocked(mockApi.sendDocument).mockResolvedValue(mockSendDocResult('tg-stream-id', 'unique-s', 50));
+      vi.mocked(mockApi.sendDocument).mockResolvedValue(
+        mockSendDocResult('tg-stream-id', 'unique-s', 50),
+      );
       const stream = Readable.from(Buffer.from('stream-data'));
       const result = await provider.upload('stream.txt', stream, 'text/plain');
       expect(result.isOk()).toBe(true);
@@ -60,11 +74,9 @@ describe('TelegramProvider', () => {
     it('should pass key as caption in sendDocument', async () => {
       vi.mocked(mockApi.sendDocument).mockResolvedValue(mockSendDocResult('file-id'));
       await provider.upload('my/key.pdf', Buffer.from('data'), 'application/pdf');
-      expect(mockApi.sendDocument).toHaveBeenCalledWith(
-        config.storageChatId,
-        expect.anything(),
-        { caption: 'my/key.pdf' },
-      );
+      expect(mockApi.sendDocument).toHaveBeenCalledWith(config.storageChatId, expect.anything(), {
+        caption: 'my/key.pdf',
+      });
     });
 
     it('should return UPLOAD_FAILED on API error', async () => {

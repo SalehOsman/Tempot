@@ -2,8 +2,8 @@ import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import { logger } from '@tempot/logger';
-import type { EditOrSendOptions } from '../types.js';
-import { UX_ERRORS } from '../errors.js';
+import type { EditOrSendOptions } from '../ux.types.js';
+import { UX_ERRORS } from '../ux.errors.js';
 
 interface EditableContext {
   readonly callbackQuery?: { readonly message?: unknown };

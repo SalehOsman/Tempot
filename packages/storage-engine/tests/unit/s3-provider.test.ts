@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Readable } from 'node:stream';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 
 // Use vi.hoisted to ensure mocks are available before vi.mock hoisting
 const { mockSend, mockUploadDone, mockGetSignedUrl, uploadConstructorArgs } = vi.hoisted(() => ({

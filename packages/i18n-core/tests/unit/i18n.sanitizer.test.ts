@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeValue } from '../../src/sanitizer.js';
+import { sanitizeValue } from '../../src/i18n.sanitizer.js';
 
 describe('sanitizeValue', () => {
   it('should strip script tags completely', () => {

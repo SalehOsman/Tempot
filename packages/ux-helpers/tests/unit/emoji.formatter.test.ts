@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toEmojiNumber } from '../../src/lists/emoji-number.js';
+import { toEmojiNumber } from '../../src/lists/emoji.formatter.js';
 
 describe('toEmojiNumber', () => {
   it('should return emoji for 1', () => {

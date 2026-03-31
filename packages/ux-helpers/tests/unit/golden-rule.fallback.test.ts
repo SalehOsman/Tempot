@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UX_ERRORS } from '../../src/errors.js';
+import { UX_ERRORS } from '../../src/ux.errors.js';
 
 vi.mock('@tempot/logger', () => ({
   logger: {

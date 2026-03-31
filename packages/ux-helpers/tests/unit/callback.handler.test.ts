@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UX_ERRORS } from '../../src/errors.js';
+import { UX_ERRORS } from '../../src/ux.errors.js';
 
 vi.mock('@tempot/logger', () => ({
   logger: {
@@ -10,7 +10,7 @@ vi.mock('@tempot/logger', () => ({
   },
 }));
 
-import { answerCallback } from '../../src/helpers/answer-callback.js';
+import { answerCallback } from '../../src/helpers/callback.handler.js';
 
 function createMockCtx(overrides?: { answerError?: Error }) {
   return {

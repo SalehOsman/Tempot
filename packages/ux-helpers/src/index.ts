@@ -27,10 +27,10 @@ export type {
   AnswerCallbackOptions,
   MockContextOptions,
   MockContextCalls,
-} from './types.js';
+} from './ux.types.js';
 
 // Errors
-export { UX_ERRORS } from './errors.js';
+export { UX_ERRORS } from './ux.errors.js';
 
 // Constants
 export {
@@ -44,7 +44,7 @@ export {
   PAGINATION_THRESHOLD,
   EMOJI_NUMBERS,
   EMOJI_BULLET,
-} from './constants.js';
+} from './ux.constants.js';
 
 // Label Validator
 export {
@@ -90,7 +90,7 @@ export type { TempotReplyKeyboard } from './keyboards/reply.builder.js';
 export { createComposer } from './messages/message.composer.js';
 
 // Emoji Number
-export { toEmojiNumber } from './lists/emoji-number.js';
+export { toEmojiNumber } from './lists/emoji.formatter.js';
 
 // List Formatter
 export { formatList } from './lists/list.formatter.js';
@@ -108,7 +108,7 @@ export { isExpired, checkExpiry } from './middleware/expiry.checker.js';
 export { editOrSend } from './helpers/golden-rule.fallback.js';
 
 // Answer Callback
-export { answerCallback } from './helpers/answer-callback.js';
+export { answerCallback } from './helpers/callback.handler.js';
 
 // Typing Indicator
 export { showTyping } from './helpers/typing.indicator.js';

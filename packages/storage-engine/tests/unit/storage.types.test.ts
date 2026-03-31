@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_STORAGE_CONFIG } from '../../src/types.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { DEFAULT_STORAGE_CONFIG } from '../../src/storage.types.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 
 describe('Types & Contracts', () => {
   describe('DEFAULT_STORAGE_CONFIG', () => {

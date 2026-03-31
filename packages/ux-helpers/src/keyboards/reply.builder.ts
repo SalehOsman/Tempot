@@ -3,7 +3,7 @@ import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { validateLabel, isLongLabel } from './label.validator.js';
-import { ROW_LIMITS } from '../constants.js';
+import { ROW_LIMITS } from '../ux.constants.js';
 
 export interface TempotReplyKeyboard {
   button(label: string): Result<TempotReplyKeyboard, AppError>;

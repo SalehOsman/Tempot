@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { ok, err } from 'neverthrow';
 import { AsyncResult, AppError, Result } from '@tempot/shared';
-import { validateEventName } from '../contracts.js';
+import { validateEventName } from '../event-bus.contracts.js';
 
 export class LocalEventBus {
   private emitter: EventEmitter;

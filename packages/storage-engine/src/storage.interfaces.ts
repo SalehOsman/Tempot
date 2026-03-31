@@ -1,6 +1,6 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { UploadOptions, Attachment } from './types.js';
+import type { UploadOptions, Attachment } from './storage.types.js';
 
 /**
  * Minimal logger interface to avoid circular dependency with @tempot/logger.

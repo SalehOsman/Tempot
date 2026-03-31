@@ -1,7 +1,7 @@
 import { ok, err } from 'neverthrow';
-import type { Result } from '../result.js';
-import type { AsyncResult } from '../result.js';
-import { AppError } from '../errors.js';
+import type { Result } from '../shared.result.js';
+import type { AsyncResult } from '../shared.result.js';
+import { AppError } from '../shared.errors.js';
 
 /**
  * Logger interface for ShutdownManager.

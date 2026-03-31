@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createStorageProvider, createDriveProvider } from '../../src/provider.factory.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
-import type { StorageConfig } from '../../src/types.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
+import type { StorageConfig } from '../../src/storage.types.js';
 import type { drive_v3 } from '@googleapis/drive';
 
 describe('StorageProviderFactory', () => {

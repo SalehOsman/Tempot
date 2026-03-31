@@ -1,7 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { sessionContext } from '@tempot/session-manager/context';
-import { prisma, Prisma, PrismaClient } from '../prisma/client.js';
+import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
 
 /**
  * Database client type that accepts base PrismaClient, TransactionClient,

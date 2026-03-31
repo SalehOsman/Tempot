@@ -5,7 +5,7 @@ import {
   type GeoState,
   type GeoCity,
   type GeoOption,
-} from '../../src/types.js';
+} from '../../src/regional.types.js';
 
 describe('Type Definitions', () => {
   it('should export DEFAULT_REGIONAL_CONTEXT with Egypt defaults', () => {

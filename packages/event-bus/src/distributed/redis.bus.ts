@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, AppError } from '@tempot/shared';
-import { validateEventName } from '../contracts.js';
+import { validateEventName } from '../event-bus.contracts.js';
 
 export interface RedisBusConfig {
   connectionString: string;

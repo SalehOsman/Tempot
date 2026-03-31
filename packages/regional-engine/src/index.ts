@@ -1,6 +1,6 @@
 // Types
-export type { RegionalContext, GeoState, GeoCity, GeoOption } from './types.js';
-export { DEFAULT_REGIONAL_CONTEXT } from './types.js';
+export type { RegionalContext, GeoState, GeoCity, GeoOption } from './regional.types.js';
+export { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
 
 // Services
 export { DateService } from './date.service.js';

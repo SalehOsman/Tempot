@@ -4,8 +4,8 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
 import { encodeWithExpiry } from '../callback-data/callback-data.encoder.js';
-import { CONFIRMATION_EXPIRY_MINUTES } from '../constants.js';
-import type { ConfirmationOptions, ConfirmationResult } from '../types.js';
+import { CONFIRMATION_EXPIRY_MINUTES } from '../ux.constants.js';
+import type { ConfirmationOptions, ConfirmationResult } from '../ux.types.js';
 
 export function createConfirmation(
   options: ConfirmationOptions,

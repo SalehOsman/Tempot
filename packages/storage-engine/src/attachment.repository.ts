@@ -2,8 +2,8 @@ import type { Result } from '@tempot/shared';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { BaseRepository, type PrismaModelDelegate } from '@tempot/database';
-import type { Attachment } from './types.js';
-import { STORAGE_ERRORS } from './errors.js';
+import type { Attachment } from './storage.types.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /**
  * Repository for Attachment entity (FR-003).

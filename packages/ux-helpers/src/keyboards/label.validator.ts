@@ -10,9 +10,9 @@ import {
   ARABIC_EXTENDED_A_END,
   CHAR_LIMITS,
   ROW_LIMITS,
-} from '../constants.js';
-import { UX_ERRORS } from '../errors.js';
-import type { KeyboardType, DetectedLanguage } from '../types.js';
+} from '../ux.constants.js';
+import { UX_ERRORS } from '../ux.errors.js';
+import type { KeyboardType, DetectedLanguage } from '../ux.types.js';
 
 function isArabicCodePoint(code: number): boolean {
   return (

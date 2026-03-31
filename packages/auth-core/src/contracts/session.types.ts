@@ -1,4 +1,4 @@
-import { RoleEnum } from './roles.js';
+import { RoleEnum } from './auth.roles.js';
 
 export interface SessionUser {
   id: string | number;

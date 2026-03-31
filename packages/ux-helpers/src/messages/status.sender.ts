@@ -1,6 +1,6 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { StatusSendOptions } from '../types.js';
+import type { StatusSendOptions } from '../ux.types.js';
 import { formatLoading, formatSuccess, formatError, formatWarning } from './status.formatter.js';
 import { editOrSend } from '../helpers/golden-rule.fallback.js';
 

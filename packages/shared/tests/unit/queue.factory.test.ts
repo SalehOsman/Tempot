@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { queueFactory, activeQueues } from '../../src/queue/queue.factory';
 import { Queue } from 'bullmq';
 import { ShutdownManager } from '../../src/shutdown/shutdown.manager';
-import { AppError } from '../../src/errors';
+import { AppError } from '../../src/shared.errors';
 
 // Mock BullMQ
 vi.mock('bullmq', () => {

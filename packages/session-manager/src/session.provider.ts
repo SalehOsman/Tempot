@@ -1,9 +1,9 @@
 import { Result, ok, err } from 'neverthrow';
-import { Session, ISessionProvider } from './types.js';
+import { Session, ISessionProvider } from './session.types.js';
 import { AppError } from '@tempot/shared';
-import { SessionRepository } from './repository.js';
-import { migrateSession } from './migrator.js';
-import { DEFAULT_SESSION_TTL } from './constants.js';
+import { SessionRepository } from './session.repository.js';
+import { migrateSession } from './session.migrator.js';
+import { DEFAULT_SESSION_TTL } from './session.constants.js';
 
 /** Cache adapter interface used by SessionProvider. */
 export interface CacheAdapter {

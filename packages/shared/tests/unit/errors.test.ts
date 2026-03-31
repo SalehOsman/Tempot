@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { AppError } from '../../src/errors';
-import { Result, AsyncResult } from '../../src/result';
+import { AppError } from '../../src/shared.errors';
+import { Result, AsyncResult } from '../../src/shared.result';
 import { ok, err } from 'neverthrow';
 
 describe('AppError', () => {

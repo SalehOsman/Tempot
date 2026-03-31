@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadModuleLocales } from '../../src/loader.js';
+import { loadModuleLocales } from '../../src/i18n.loader.js';
 import i18next from 'i18next';
 import { glob } from 'glob';
 import { AppError } from '@tempot/shared';

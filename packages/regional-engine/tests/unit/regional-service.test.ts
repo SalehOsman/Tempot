@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RegionalService } from '../../src/regional.service.js';
 import { DateService } from '../../src/date.service.js';
 import { FormatService } from '../../src/format.service.js';
-import { DEFAULT_REGIONAL_CONTEXT } from '../../src/types.js';
+import { DEFAULT_REGIONAL_CONTEXT } from '../../src/regional.types.js';
 
 // Mock session-manager
 vi.mock('@tempot/session-manager', () => ({

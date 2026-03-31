@@ -2,9 +2,9 @@ import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
-import { MAX_MESSAGE_LENGTH, EMOJI_BULLET } from '../constants.js';
-import { UX_ERRORS } from '../errors.js';
-import type { ComposerBuilder } from '../types.js';
+import { MAX_MESSAGE_LENGTH, EMOJI_BULLET } from '../ux.constants.js';
+import { UX_ERRORS } from '../ux.errors.js';
+import type { ComposerBuilder } from '../ux.types.js';
 
 const SEPARATOR_LINE = '───────────────';
 

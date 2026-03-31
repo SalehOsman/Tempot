@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../../src/testing/test-db.js';
+import { TestDB } from '../../src/testing/database.helper.js';
 
 describe('AuditLog Schema', () => {
   const testDb = new TestDB();

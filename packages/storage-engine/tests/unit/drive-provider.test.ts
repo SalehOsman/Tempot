@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Readable } from 'node:stream';
 import { DriveProvider } from '../../src/providers/drive.provider.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 import type { drive_v3 } from '@googleapis/drive';
 
 /** Create a mock Google Drive client */

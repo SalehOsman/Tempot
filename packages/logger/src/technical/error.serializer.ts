@@ -1,5 +1,5 @@
 import { AppError } from '@tempot/shared';
-import { SENSITIVE_KEYS } from '../config.js';
+import { SENSITIVE_KEYS } from '../logger.config.js';
 
 /**
  * Redacts sensitive information recursively from an object based on provided keys.

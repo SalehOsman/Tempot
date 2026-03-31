@@ -1,6 +1,6 @@
 import pino from 'pino';
-import { appErrorSerializer } from './serializer.js';
-import { SENSITIVE_KEYS } from '../config.js';
+import { appErrorSerializer } from './error.serializer.js';
+import { SENSITIVE_KEYS } from '../logger.config.js';
 import { sessionContext } from '@tempot/session-manager';
 
 /**

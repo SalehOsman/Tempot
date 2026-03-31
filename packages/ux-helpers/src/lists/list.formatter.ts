@@ -2,8 +2,8 @@ import { ok } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
-import type { ListFormatOptions, ListFormatResult } from '../types.js';
-import { toEmojiNumber } from './emoji-number.js';
+import type { ListFormatOptions, ListFormatResult } from '../ux.types.js';
+import { toEmojiNumber } from './emoji.formatter.js';
 
 export function formatList<T>(options: ListFormatOptions<T>): Result<ListFormatResult, AppError> {
   const { titleKey, items, renderItem, emptyStateKey, emptyActionConfig } = options;

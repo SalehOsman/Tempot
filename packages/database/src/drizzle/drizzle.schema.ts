@@ -1,5 +1,5 @@
 import { pgTable, uuid, vector, text, jsonb, index } from 'drizzle-orm/pg-core';
-import { DB_CONFIG } from '../config.js';
+import { DB_CONFIG } from '../database.config.js';
 
 export const embeddings = pgTable(
   'embeddings',

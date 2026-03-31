@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { migrateSession, CURRENT_SCHEMA_VERSION } from '../../src/migrator.js';
-import type { Session } from '../../src/types.js';
+import { migrateSession, CURRENT_SCHEMA_VERSION } from '../../src/session.migrator.js';
+import type { Session } from '../../src/session.types.js';
 
 const baseSession: Session = {
   userId: 'user-1',
