@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { Guard } from '../../src/guards/guard';
+import { Guard } from '../../src/guards/guard.js';
 import { createMongoAbility } from '@casl/ability';
-import { AppAction } from '../../src/contracts/actions';
-import { AppSubject } from '../../src/contracts/subjects';
+import { AppAction } from '../../src/contracts/actions.js';
+import { AppSubject } from '../../src/contracts/subjects.js';
 
 describe('Guard', () => {
   it('should return ok when action is permitted', () => {

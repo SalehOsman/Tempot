@@ -13,7 +13,7 @@ export class TestDB {
 
   async start() {
     // Start PostgreSQL with pgvector support
-    this.container = await new PostgreSqlContainer('ankane/pgvector:latest').start();
+    this.container = await new PostgreSqlContainer('pgvector/pgvector:0.8.2-pg16').start();
     const url = this.container.getConnectionUri();
 
     process.env.DATABASE_URL = url;

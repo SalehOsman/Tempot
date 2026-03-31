@@ -6,7 +6,7 @@ import { ConnectionWatcher } from './distributed/connection.watcher.js';
 
 interface LoggerInterface {
   error: (data: Record<string, unknown>) => void;
-  info: (message: string) => void;
+  info: (data: Record<string, unknown>) => void;
 }
 
 export interface OrchestratorConfig {
@@ -36,12 +36,12 @@ export class EventBusOrchestrator {
     this.watcher.onStatusChange((available) => {
       if (!available) {
         this.logger.error({
-          code: 'SYSTEM_DEGRADATION',
-          message: 'CRITICAL: Redis Event Bus unavailable. Falling back to Local Mode.',
-          payload: { target: 'SUPER_ADMIN' },
+          code: 'event_bus.redis_unavailable',
+          fallback: 'local',
+          target: 'SUPER_ADMIN',
         });
       } else {
-        this.logger.info('Redis Event Bus restored. Distributed messaging active.');
+        this.logger.info({ code: 'event_bus.redis_restored', mode: 'distributed' });
       }
     });
   }

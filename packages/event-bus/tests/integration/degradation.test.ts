@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator';
-import { ConnectionWatcher } from '../../src/distributed/connection.watcher';
+import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator.js';
+import { ConnectionWatcher } from '../../src/distributed/connection.watcher.js';
 
 interface MockLogger {
   error: ReturnType<typeof vi.fn>;
@@ -33,8 +33,9 @@ describe('EventBus Degradation (Rule XXXII)', () => {
 
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
-        code: 'SYSTEM_DEGRADATION',
-        payload: { target: 'SUPER_ADMIN' },
+        code: 'event_bus.redis_unavailable',
+        fallback: 'local',
+        target: 'SUPER_ADMIN',
       }),
     );
   });

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SessionProvider } from '../src/provider';
-import { Session } from '../src/types';
-import { SessionRepository } from '../src/repository';
-import { CURRENT_SCHEMA_VERSION } from '../src/migrator';
-import { DEFAULT_SESSION_TTL } from '../src/constants';
+import { SessionProvider } from '../../src/provider.js';
+import { Session } from '../../src/types.js';
+import { SessionRepository } from '../../src/repository.js';
+import { CURRENT_SCHEMA_VERSION } from '../../src/migrator.js';
+import { DEFAULT_SESSION_TTL } from '../../src/constants.js';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
-import { RedisEventBus } from '../../src/distributed/redis.bus';
+import { RedisEventBus } from '../../src/distributed/redis.bus.js';
 
 describe('RedisEventBus Integration', () => {
   let redisContainer: StartedRedisContainer;

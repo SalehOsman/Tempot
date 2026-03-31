@@ -23,10 +23,8 @@
   "dependencies": {
     "@prisma/client": "^7.5.0",
     "@tempot/database": "workspace:*",
-    "@tempot/event-bus": "workspace:*",
     "@tempot/shared": "workspace:*",
     "bullmq": "5.71.0",
-    "cache-manager": "^6.0.0",
     "neverthrow": "8.2.0"
   },
   "devDependencies": {

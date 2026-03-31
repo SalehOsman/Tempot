@@ -29,7 +29,7 @@
 
 services:
   postgres:
-    image: ankane/pgvector:latest
+    image: pgvector/pgvector:0.8.2-pg16
     container_name: tempot-postgres
     restart: unless-stopped
     ports:

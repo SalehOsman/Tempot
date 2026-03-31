@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AuditLogger } from '../../src/audit/audit.logger';
+import { AuditLogger } from '../../src/audit/audit.logger.js';
 import { AuditLogRepository } from '@tempot/database';
 import { sessionContext } from '@tempot/session-manager';
 

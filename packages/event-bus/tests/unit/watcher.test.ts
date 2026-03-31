@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Redis from 'ioredis';
-import { ConnectionWatcher } from '../../src/distributed/connection.watcher';
+import { ConnectionWatcher } from '../../src/distributed/connection.watcher.js';
 
 describe('ConnectionWatcher', () => {
   let watcher: ConnectionWatcher;
