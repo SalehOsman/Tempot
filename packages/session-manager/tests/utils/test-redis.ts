@@ -6,7 +6,7 @@ import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redis } from 'ioredis';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import type { CacheAdapter } from '../../src/provider';
+import type { CacheAdapter } from '../../src/provider.js';
 
 export type { CacheAdapter };
 

@@ -80,4 +80,28 @@ describe('FormatService', () => {
       }
     });
   });
+
+  describe('FormatService Performance (NFR-001)', () => {
+    it('should format currency in < 5ms on average', () => {
+      const iterations = 100;
+      const start = performance.now();
+      for (let i = 0; i < iterations; i++) {
+        service.formatCurrency(150.75, 'ar-EG', 'EGP');
+      }
+      const elapsed = performance.now() - start;
+      const avgMs = elapsed / iterations;
+      expect(avgMs).toBeLessThan(5);
+    });
+
+    it('should format number in < 5ms on average', () => {
+      const iterations = 100;
+      const start = performance.now();
+      for (let i = 0; i < iterations; i++) {
+        service.formatNumber(150000, 'ar-EG');
+      }
+      const elapsed = performance.now() - start;
+      const avgMs = elapsed / iterations;
+      expect(avgMs).toBeLessThan(5);
+    });
+  });
 });

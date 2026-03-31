@@ -29,6 +29,7 @@ export interface GeoCity {
 export interface GeoOption {
   label: string; // Display text (e.g., Arabic name)
   value: string; // Unique identifier (e.g., state code)
+  i18nKey?: string; // Translation key (e.g., 'geo.EG.states.CAI') — optional for backward compat
 }
 
 /** Default regional context — Egypt as primary market (Rule XLII) */

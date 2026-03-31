@@ -6,7 +6,7 @@
 
 **Architecture:** A wrapper around `i18next` that integrates with `@tempot/session-manager` (via `AsyncLocalStorage`) to automatically detect user language from the current session. It uses a modular loading strategy to fetch translations from `/modules/{module}/locales/{lang}.json`. Public APIs follow the **Result pattern** (Rule XXI) using `neverthrow`.
 
-**Tech Stack:** TypeScript, i18next, i18next-fs-backend, @tempot/session-manager, glob, zod (for locale validation), neverthrow (for error handling), sanitize-html (for dynamic variable safety).
+**Tech Stack:** TypeScript, i18next, @tempot/session-manager, glob, zod (for locale validation), neverthrow (for error handling), sanitize-html (for dynamic variable safety).
 
 ---
 
@@ -178,8 +178,51 @@ git commit -m "feat(i18n): implement context-aware t() function via sessionConte
 
 ### Task 4: Hardcoded Text Detector (cms:check) (FR-002, FR-007)
 
-...
+**Files:**
 
+- Create: `packages/i18n-core/scripts/cms-check.ts`
+- Create: `packages/i18n-core/src/schema.ts`
+- Test: `packages/i18n-core/tests/unit/cms-check.test.ts`
+- Test: `packages/i18n-core/tests/unit/schema.test.ts`
+
+- [ ] **Step 1: Write the failing test**
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { detectHardcodedStrings, validateLocaleFiles } from '../../scripts/cms-check';
+
+describe('cms:check - Hardcoded String Detection', () => {
+  it('should detect hardcoded Arabic strings', () => {
+    const source = `const msg = 'مرحبا بك';`;
+    const violations = detectHardcodedStrings(source, 'src/example.ts');
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
+  it('should skip locale JSON files', () => {
+    const source = `{ "greeting": "مرحبا" }`;
+    const violations = detectHardcodedStrings(source, 'modules/auth/locales/ar.json');
+    expect(violations).toEqual([]);
+  });
+});
 ```
 
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pnpm test packages/i18n-core/tests/unit/cms-check.test.ts`
+Expected: FAIL (detectHardcodedStrings not defined)
+
+- [ ] **Step 3: Write minimal implementation**
+
+Implement `detectHardcodedStrings()` for regex-based detection of hardcoded human-readable strings, and `validateLocaleFiles()` using `generateSchemaFromSource()` from `schema.ts` to enforce locale key parity between source (ar.json) and target (en.json) files.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `pnpm test packages/i18n-core/tests/unit/cms-check.test.ts`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add packages/i18n-core/scripts/cms-check.ts packages/i18n-core/src/schema.ts packages/i18n-core/tests/unit/cms-check.test.ts packages/i18n-core/tests/unit/schema.test.ts
+git commit -m "feat(i18n): implement cms:check hardcoded string detector and locale validation (FR-002, FR-007)"
 ```

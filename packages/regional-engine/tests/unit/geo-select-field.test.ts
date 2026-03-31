@@ -47,6 +47,21 @@ describe('GeoSelectField', () => {
         }
       }
     });
+
+    it('should include i18nKey in state options', () => {
+      const result = field.buildStateMenu('EG');
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const options = result.value;
+        expect(options.length).toBeGreaterThan(0);
+        // Every state option should carry the i18nKey from the GeoState
+        for (const option of options) {
+          expect(option.i18nKey).toBeDefined();
+          expect(typeof option.i18nKey).toBe('string');
+          expect(option.i18nKey!.startsWith('geo.EG.states.')).toBe(true);
+        }
+      }
+    });
   });
 
   describe('buildCityMenu()', () => {
@@ -63,6 +78,26 @@ describe('GeoSelectField', () => {
           expect(citiesResult.value[0]).toHaveProperty('value');
           expect(typeof citiesResult.value[0].label).toBe('string');
           expect(typeof citiesResult.value[0].value).toBe('string');
+        }
+      }
+    });
+
+    it('should include i18nKey in city options', () => {
+      const statesResult = field.buildStateMenu('EG');
+      expect(statesResult.isOk()).toBe(true);
+      if (statesResult.isOk()) {
+        const firstStateValue = statesResult.value[0].value;
+        const citiesResult = field.buildCityMenu(firstStateValue);
+        expect(citiesResult.isOk()).toBe(true);
+        if (citiesResult.isOk()) {
+          const options = citiesResult.value;
+          expect(options.length).toBeGreaterThan(0);
+          // Every city option should carry the i18nKey from the GeoCity
+          for (const option of options) {
+            expect(option.i18nKey).toBeDefined();
+            expect(typeof option.i18nKey).toBe('string');
+            expect(option.i18nKey!.startsWith('geo.EG.cities.')).toBe(true);
+          }
         }
       }
     });

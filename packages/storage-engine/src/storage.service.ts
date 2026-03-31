@@ -4,7 +4,7 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { StorageProvider } from './contracts.js';
 import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './contracts.js';
-import type { UploadOptions, Attachment, StorageConfig, ProviderUploadResult } from './types.js';
+import type { UploadOptions, Attachment, ProviderUploadResult } from './types.js';
 import type {
   StorageLogger,
   StorageEventBus,
@@ -20,7 +20,6 @@ export interface StorageServiceDeps {
   validation: StorageValidation;
   eventBus: StorageEventBus;
   logger: StorageLogger;
-  config: StorageConfig;
 }
 
 /** Params for creating an attachment record */
@@ -144,7 +143,10 @@ export class StorageService {
       metadata: options.metadata ?? null,
       moduleId: options.moduleId ?? null,
       entityId: options.entityId ?? null,
-      isEncrypted: this.provider.type === 's3' || this.provider.type === 'drive',
+      isEncrypted:
+        this.provider.type === 's3' ||
+        this.provider.type === 'drive' ||
+        this.provider.type === 'telegram',
     });
 
     if (createResult.isErr()) {

@@ -1,6 +1,7 @@
 import { ok, err } from 'neverthrow';
 import type { Result, AsyncResult } from '@tempot/shared';
 import { AppError, queueFactory } from '@tempot/shared';
+import type { ShutdownManager } from '@tempot/shared';
 import type { StorageFileDeletedPayload } from '../contracts.js';
 import type { Attachment } from '../types.js';
 import { STORAGE_ERRORS } from '../errors.js';
@@ -42,9 +43,12 @@ const PURGE_QUEUE_NAME = 'storage-purge';
 /**
  * Create a BullMQ queue for scheduling purge jobs.
  * Uses `queueFactory` from `@tempot/shared` per Rule XX.
+ * Accepts an optional ShutdownManager for graceful shutdown (Rule XVII).
  */
-export function createPurgeQueue(): Result<unknown, AppError> {
-  return queueFactory(PURGE_QUEUE_NAME);
+export function createPurgeQueue(
+  shutdownManager?: ShutdownManager,
+): ReturnType<typeof queueFactory> {
+  return queueFactory(PURGE_QUEUE_NAME, { shutdownManager });
 }
 
 /**

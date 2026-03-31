@@ -124,6 +124,18 @@ describe('status sender errors', () => {
       expect(result._unsafeUnwrapErr()).toBe(appError);
     });
 
+    it('should return err result when editOrSend fails for sendLoading', async () => {
+      const appError = new AppError('ux.message.send_failed');
+      mockFormatLoading.mockReturnValue('⏳ Processing...');
+      mockEditOrSend.mockResolvedValue(err(appError));
+
+      const ctx = {};
+      const result = await sendLoading(ctx, { key: 'common.loading', interpolation: { step: 1 } });
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe('ux.message.send_failed');
+    });
+
     it('should propagate error for sendSuccess', async () => {
       const appError = new AppError('UX_SEND_FAILED');
       mockFormatSuccess.mockReturnValue('✅ Done!');

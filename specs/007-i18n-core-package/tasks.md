@@ -33,7 +33,7 @@
 - [ ] T007 [P] [US1] Implement `loadModuleLocales` in `packages/i18n-core/src/loader.ts` using `glob` (returns `Result<void, AppError>`)
 - [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/t.ts` using `@tempot/session-manager` (returns `string`)
 - [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/helpers.ts` for RTL/LTR detection
-- [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/t-function.test.ts`
+- [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/t.test.ts`
 
 ---
 

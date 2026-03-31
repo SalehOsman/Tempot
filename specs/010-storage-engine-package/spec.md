@@ -82,13 +82,13 @@ A `VectorIndexer` interface is defined in contracts but NOT implemented. The `ai
 - **Google Drive**: Files are encrypted by Google by default — no additional configuration needed.
 - **Local**: Stores `isEncrypted: false`. No encryption is applied.
 - An `EncryptionStrategy` interface is defined for future application-level encryption (deferred to when ai-core introduces sensitive data).
-- **Telegram**: Files are encrypted in transit (HTTPS) and at rest by Telegram servers. No additional configuration needed. Delete is a no-op (Telegram has no file deletion API).
+- **Telegram**: Files are encrypted in transit (HTTPS) and at rest by Telegram servers. No additional configuration needed. Delete is a no-op (Telegram has no file deletion API). `isEncrypted` is set to `true` for Telegram provider uploads.
 
 File name sanitization: `path.basename()` + strip special characters via regex `/[^a-zA-Z0-9._-]/g`.
 
 ### D6. Soft Delete with Deferred Purge
 
-`StorageService.delete()` sets `isDeleted=true` on the Attachment record, emits `storage.file.deleted` (with `permanent: false`). A BullMQ scheduled job processes `isDeleted` records older than a configurable retention period (default 30 days) and permanently deletes the actual files from the provider, then removes the DB records, emitting `storage.file.deleted` (with `permanent: true`).
+`StorageService.delete()` sets `isDeleted=true` on the Attachment record, emits `storage.file.deleted` (with `permanent: false`). A BullMQ scheduled job processes `isDeleted` records older than a configurable retention period (default 30 days) and permanently deletes the actual files from the provider, then removes the DB records, emitting `storage.file.deleted` (with `permanent: true`). The purge queue is created via `queueFactory` and accepts an optional `ShutdownManager` for graceful shutdown (Rule XVII).
 
 ### Package Boundary with Hono (ADR-022)
 

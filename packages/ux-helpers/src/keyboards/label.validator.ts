@@ -72,6 +72,23 @@ export function stripLeadingEmoji(text: string): string {
   return text.slice(i).trim();
 }
 
+/** Check if the first character of the text is an emoji (non-alphabetic, non-whitespace, non-ASCII punctuation) */
+function startsWithEmoji(text: string): boolean {
+  for (const char of text) {
+    const code = char.codePointAt(0);
+    if (code === undefined) return false;
+    // Skip whitespace (space, tab, NBSP)
+    if (code === 0x20 || code === 0x09 || code === 0xa0) continue;
+    // If alphabetic, it's not an emoji start
+    if (isAlphabetic(code)) return false;
+    // If basic ASCII printable (punctuation, digits), not emoji
+    if (code >= 0x21 && code <= 0x7e) return false;
+    // Non-ASCII, non-alphabetic = likely emoji or symbol
+    return true;
+  }
+  return false;
+}
+
 /** Validate a button label against character limits per language and keyboard type */
 export function validateLabel(label: string, type: KeyboardType): Result<void, AppError> {
   if (label.length === 0) {
@@ -82,6 +99,11 @@ export function validateLabel(label: string, type: KeyboardType): Result<void, A
   if (stripped.length === 0) {
     // Emoji-only label is valid
     return ok(undefined);
+  }
+
+  // Inline keyboards require emoji at start of button text (Rule LXVI)
+  if (type === 'inline' && !startsWithEmoji(label)) {
+    return err(new AppError(UX_ERRORS.LABEL_NO_EMOJI, { label }));
   }
 
   const language = detectLanguage(label);

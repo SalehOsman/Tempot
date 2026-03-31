@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import { sessionContext } from '@tempot/session-manager';
+import { DEFAULT_LANGUAGE } from './i18n.config.js';
 
 /** Options passed to the `t()` translation function. */
 export interface TranslationOptions {
@@ -17,8 +18,9 @@ export interface TranslationOptions {
  * Context-aware translation function.
  *
  * Reads the current user's language from `sessionContext` (AsyncLocalStorage)
- * and delegates to i18next. Falls back to Arabic (`'ar'`) when no session
- * is available or the stored language is not a string.
+ * and delegates to i18next. Falls back to `DEFAULT_LANGUAGE` (from env var
+ * `TEMPOT_DEFAULT_LANGUAGE`, default `'ar'`) when no session is available or
+ * the stored language is not a string.
  *
  * @param key - Translation key or array of keys (first match wins)
  * @param options - Interpolation variables, pluralization count, etc.
@@ -36,7 +38,7 @@ export interface TranslationOptions {
 export function t(key: string | string[], options?: TranslationOptions): string {
   const store = sessionContext.getStore();
   const rawLang = store?.lang;
-  const lang: string = typeof rawLang === 'string' ? rawLang : 'ar';
+  const lang: string = typeof rawLang === 'string' ? rawLang : DEFAULT_LANGUAGE;
 
   return i18next.t(key, { ...options, lng: lang });
 }

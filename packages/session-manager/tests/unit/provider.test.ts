@@ -105,6 +105,7 @@ describe('SessionProvider', () => {
     it('should fallback to repository if cache fails', async () => {
       mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
       mockRepo.findById.mockResolvedValue(ok(mockSession));
+      mockCache.set.mockResolvedValue(ok(undefined));
 
       const result = await provider.getSession('user-1', 'chat-1');
 
@@ -134,6 +135,7 @@ describe('SessionProvider', () => {
 
     it('should handle version increments for OCC', async () => {
       mockCache.set.mockResolvedValue(ok(undefined));
+      mockBus.publish.mockResolvedValue(ok(undefined));
 
       const result = await provider.saveSession(mockSession);
       expect(result.isOk()).toBe(true);
@@ -204,6 +206,57 @@ describe('SessionProvider', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap().schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    });
+  });
+
+  // Fix 1.2: Verify unchecked Result values trigger alertDegradation
+  describe('unchecked Result handling (Rule X)', () => {
+    it('should call alertDegradation when cache.expire fails but still return the session', async () => {
+      mockCache.get.mockResolvedValue(ok(mockSession));
+      mockCache.expire.mockResolvedValue(err(new AppError('expire_failed')));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(mockSession);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'expire' }),
+        }),
+      );
+    });
+
+    it('should call alertDegradation when cache.set fails during fallback sync but still return the session', async () => {
+      mockCache.get.mockResolvedValue(ok(null)); // cache miss
+      mockRepo.findById.mockResolvedValue(ok(mockSession));
+      mockCache.set.mockResolvedValue(err(new AppError('set_failed')));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(mockSession);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'set' }),
+        }),
+      );
+    });
+
+    it('should call alertDegradation when eventBus.publish fails but still return ok from saveSession', async () => {
+      mockCache.set.mockResolvedValue(ok(undefined));
+      mockBus.publish.mockResolvedValue(err(new AppError('publish_failed')));
+
+      const result = await provider.saveSession(mockSession);
+
+      expect(result.isOk()).toBe(true);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'SYSTEM_DEGRADATION',
+          payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'publish' }),
+        }),
+      );
     });
   });
 });

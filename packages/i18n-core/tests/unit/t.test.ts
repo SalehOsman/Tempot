@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { t } from '../../src/t.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { sessionContext } from '@tempot/session-manager';
 import i18next from 'i18next';
 
@@ -20,7 +19,8 @@ describe('Context-Aware t()', () => {
     vi.clearAllMocks();
   });
 
-  it('should fallback to Arabic if no session context', () => {
+  it('should fallback to Arabic if no session context', async () => {
+    const { t } = await import('../../src/t.js');
     vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
 
     t('common.test');
@@ -28,7 +28,8 @@ describe('Context-Aware t()', () => {
     expect(i18next.t).toHaveBeenCalledWith('common.test', { lng: 'ar' });
   });
 
-  it('should use language from session context', () => {
+  it('should use language from session context', async () => {
+    const { t } = await import('../../src/t.js');
     vi.mocked(sessionContext.getStore).mockReturnValue({
       lang: 'en',
       userId: 'user-1',
@@ -39,7 +40,8 @@ describe('Context-Aware t()', () => {
     expect(i18next.t).toHaveBeenCalledWith('common.test', { lng: 'en' });
   });
 
-  it('should pass lng as a string even when store.lang is non-string', () => {
+  it('should pass lng as a string even when store.lang is non-string', async () => {
+    const { t } = await import('../../src/t.js');
     vi.mocked(sessionContext.getStore).mockReturnValue({
       lang: 123,
     });
@@ -51,7 +53,8 @@ describe('Context-Aware t()', () => {
     expect(typeof (call[1] as Record<string, unknown>).lng).toBe('string');
   });
 
-  it('should merge additional options with lng', () => {
+  it('should merge additional options with lng', async () => {
+    const { t } = await import('../../src/t.js');
     vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
 
     t('common.count', { count: 5 });
@@ -59,7 +62,8 @@ describe('Context-Aware t()', () => {
     expect(i18next.t).toHaveBeenCalledWith('common.count', { count: 5, lng: 'ar' });
   });
 
-  it('should return the key name when translation is not found (T010)', () => {
+  it('should return the key name when translation is not found (T010)', async () => {
+    const { t } = await import('../../src/t.js');
     // i18next default behavior: returns the key when no translation exists
     vi.mocked(i18next.t).mockReturnValue('missing.key' as never);
     vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
@@ -67,5 +71,35 @@ describe('Context-Aware t()', () => {
     const result = t('missing.key');
 
     expect(result).toBe('missing.key');
+  });
+});
+
+describe('t() env-var-driven default language', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('should use TEMPOT_DEFAULT_LANGUAGE as fallback when no session (default ar)', async () => {
+    vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+    const { t } = await import('../../src/t.js');
+
+    t('common.test');
+
+    expect(i18next.t).toHaveBeenCalledWith('common.test', { lng: 'ar' });
+  });
+
+  it('should use TEMPOT_DEFAULT_LANGUAGE env var as fallback when no session', async () => {
+    vi.stubEnv('TEMPOT_DEFAULT_LANGUAGE', 'fr');
+    vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+    const { t } = await import('../../src/t.js');
+
+    t('common.test');
+
+    expect(i18next.t).toHaveBeenCalledWith('common.test', { lng: 'fr' });
   });
 });

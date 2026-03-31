@@ -6,7 +6,6 @@ import { STORAGE_ERRORS } from '../../src/errors.js';
 import type { StorageServiceDeps } from '../../src/storage.service.js';
 import type { StorageProvider } from '../../src/contracts.js';
 import type { Attachment, UploadOptions } from '../../src/types.js';
-import { DEFAULT_STORAGE_CONFIG } from '../../src/types.js';
 
 // --- Mock factories ---
 
@@ -93,7 +92,6 @@ describe('StorageService', () => {
     validation: ReturnType<typeof createMockValidation>;
     eventBus: ReturnType<typeof createMockEventBus>;
     logger: ReturnType<typeof createMockLogger>;
-    config: typeof DEFAULT_STORAGE_CONFIG;
   };
 
   beforeEach(() => {
@@ -103,7 +101,6 @@ describe('StorageService', () => {
       validation: createMockValidation(),
       eventBus: createMockEventBus(),
       logger: createMockLogger(),
-      config: DEFAULT_STORAGE_CONFIG,
     };
     deps.attachmentRepo.create.mockResolvedValue(ok(mockAttachment));
     deps.attachmentRepo.findById.mockResolvedValue(ok(mockAttachment));
@@ -195,6 +192,21 @@ describe('StorageService', () => {
       const s3Service = new StorageService(s3Deps as unknown as StorageServiceDeps);
       await s3Service.upload(Buffer.from('data'), validOptions);
       expect(s3Deps.attachmentRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ isEncrypted: true }),
+      );
+    });
+
+    it('should set isEncrypted=true for Telegram provider', async () => {
+      const telegramProvider = {
+        ...createMockProvider('local'),
+        type: 'telegram' as const,
+      };
+      const telegramDeps = { ...deps, provider: telegramProvider };
+      telegramDeps.attachmentRepo = createMockAttachmentRepo();
+      telegramDeps.attachmentRepo.create.mockResolvedValue(ok(mockAttachment));
+      const telegramService = new StorageService(telegramDeps as unknown as StorageServiceDeps);
+      await telegramService.upload(Buffer.from('data'), validOptions);
+      expect(telegramDeps.attachmentRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({ isEncrypted: true }),
       );
     });

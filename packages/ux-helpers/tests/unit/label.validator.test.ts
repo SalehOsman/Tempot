@@ -58,6 +58,26 @@ describe('validateLabel', () => {
     const result = validateLabel('✅', 'inline');
     expect(result.isOk()).toBe(true);
   });
+
+  it('should return err for inline label without leading emoji', () => {
+    const result = validateLabel('Save Invoice', 'inline');
+    expect(result.isErr()).toBe(true);
+  });
+
+  it('should allow reply label without leading emoji', () => {
+    const result = validateLabel('Save Invoice', 'reply');
+    expect(result.isOk()).toBe(true);
+  });
+
+  it('should return err for inline label with tab before text (not an emoji)', () => {
+    const result = validateLabel('\tSave Invoice', 'inline');
+    expect(result.isErr()).toBe(true);
+  });
+
+  it('should return err for inline label with NBSP before text (not an emoji)', () => {
+    const result = validateLabel('\u00A0Save Invoice', 'inline');
+    expect(result.isErr()).toBe(true);
+  });
 });
 
 describe('getCharLimit', () => {

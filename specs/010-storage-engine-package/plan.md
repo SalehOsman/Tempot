@@ -925,7 +925,6 @@ export interface StorageServiceDeps {
   validation: ValidationService;
   eventBus: EventBusOrchestrator;
   logger: Logger;
-  config: StorageConfig;
 }
 
 export class StorageService {
@@ -934,7 +933,6 @@ export class StorageService {
   private readonly validation: ValidationService;
   private readonly eventBus: EventBusOrchestrator;
   private readonly logger: Logger;
-  private readonly config: StorageConfig;
 
   constructor(deps: StorageServiceDeps) {
     this.provider = deps.provider;
@@ -942,7 +940,6 @@ export class StorageService {
     this.validation = deps.validation;
     this.eventBus = deps.eventBus;
     this.logger = deps.logger;
-    this.config = deps.config;
   }
 
   /** Upload a file: validate → MIME check → upload to provider → create DB record → emit event (D3) */
@@ -1092,6 +1089,8 @@ export class StorageService {
         return true; // SSE-S3 or SSE-KMS always encrypts
       case 'drive':
         return true; // Google Drive encrypts by default
+      case 'telegram':
+        return true; // Telegram encrypts in transit and at rest
       case 'local':
         return false;
       default:
@@ -1150,16 +1149,19 @@ BullMQ worker that:
 1. Queries `AttachmentRepository.findExpiredDeleted(beforeDate)` where `beforeDate = now - retentionDays`
 2. For each expired record: deletes file from provider, then permanently removes DB record
 3. Emits `storage.file.deleted` with `permanent: true` for each permanently deleted file
-4. Uses `queueFactory()` from `@tempot/shared` to create the queue
+4. Uses `queueFactory()` from `@tempot/shared` to create the queue, accepting optional `ShutdownManager` for graceful shutdown (Rule XVII)
 5. Uses `@tempot/logger` for structured logging — NO `console.*`
 
 **Note**: The orphan cleanup job (files in provider without matching DB records, spec edge case) is a separate concern. It is NOT implemented in this task — it will be added as a follow-up task if orphan frequency justifies it.
 
 ```typescript
 import { queueFactory } from '@tempot/shared';
+import type { ShutdownManager } from '@tempot/shared';
 
-// Queue creation
-const queueResult = queueFactory('storage-purge');
+// Queue creation with optional shutdown manager
+function createPurgeQueue(shutdownManager?: ShutdownManager) {
+  return queueFactory('storage-purge', { shutdownManager });
+}
 // Worker processes jobs by calling provider.delete() + hard-delete from DB
 ```
 

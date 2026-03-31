@@ -52,7 +52,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 
 ### Session 2026-03-24
 
-- Q: Which language should be the hardcoded fallback if the .env value is missing or invalid? → A: Arabic (ar)
+- Q: Which language should be the hardcoded fallback if the .env value is missing or invalid? → A: Arabic (ar). Env vars: `TEMPOT_DEFAULT_LANGUAGE` (primary language, default `ar`), `TEMPOT_FALLBACK_LANGUAGE` (fallback language, default `en`).
 - Q: When a translation key is missing in both the user's language and the fallback language, what should the system return? → A: The translation key name (e.g., modules.auth.welcome)
 - Q: Should the i18n-core package provide utility functions or metadata (e.g., a getLocaleInfo() function) to indicate the current language's direction (RTL/LTR)? → A: Yes, provide locale metadata helpers
 - Q: What level of detection is required for the cms:check script to detect hardcoded strings? → A: AST-based analysis (e.g., ESLint/specialized tool)
@@ -68,7 +68,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **FR-003**: System MUST support `ar` (Arabic) as the primary and `en` (English) as the secondary default languages.
 - **FR-004**: System MUST organize translation files by module in `/modules/{module}/locales/{lang}.json`.
 - **FR-005**: System MUST provide a unified `t(key, options)` function that automatically detects the user's language from the current session context.
-- **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env`. If `.env` is missing, system MUST fallback to Arabic (`ar`).
+- **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env` via the `TEMPOT_DEFAULT_LANGUAGE` environment variable (default: `'ar'`). The fallback language is configured via `TEMPOT_FALLBACK_LANGUAGE` (default: `'en'`). If env vars are missing, system MUST fallback to Arabic (`ar`) primary and English (`en`) fallback.
 - **FR-007**: System MUST provide a script (`pnpm cms:check`) that uses AST-based analysis and JSON schema validation (via Zod) to verify translation completeness, detect hardcoded strings, and ensure locale file integrity.
 - **FR-008**: System MUST provide a `getLocaleInfo()` helper returning the current language and its directionality (RTL/LTR).
 

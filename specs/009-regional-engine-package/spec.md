@@ -93,6 +93,7 @@ input-engine → regional-engine (input-engine depends on regional-engine)
 interface GeoOption {
   label: string; // Display text (e.g., Arabic name of governorate)
   value: string; // Unique identifier (e.g., state code)
+  i18nKey?: string; // Translation key (e.g., 'geo.EG.states.CAI') — optional for backward compat
 }
 ```
 
@@ -114,6 +115,7 @@ interface GeoState {
   code: string;
   name: string;
   name_ar: string;
+  i18nKey: string; // e.g., 'geo.EG.states.CAI'
   countryCode: string;
 }
 
@@ -122,6 +124,7 @@ interface GeoCity {
   stateId: string;
   name: string;
   name_ar: string;
+  i18nKey: string; // e.g., 'geo.EG.cities.CAI.heliopolis'
 }
 
 interface RegionalContext {
@@ -186,9 +189,9 @@ The barrel export (`src/index.ts`) re-exports the `RegionalService` as `Regional
 ### Key Entities
 
 - **RegionalContext**: `{ timezone: string; locale: string; currencyCode: string; countryCode: string }` — resolved per-user in dynamic mode, global in static mode.
-- **GeoState**: `{ id: string; code: string; name: string; name_ar: string; countryCode: string }`
-- **GeoCity**: `{ id: string; stateId: string; name: string; name_ar: string }`
-- **GeoOption**: `{ label: string; value: string }` — plain data structure for UI rendering.
+- **GeoState**: `{ id: string; code: string; name: string; name_ar: string; i18nKey: string; countryCode: string }`
+- **GeoCity**: `{ id: string; stateId: string; name: string; name_ar: string; i18nKey: string }`
+- **GeoOption**: `{ label: string; value: string; i18nKey?: string }` — plain data structure for UI rendering, with optional i18n translation key.
 
 ## Success Criteria _(mandatory)_
 
