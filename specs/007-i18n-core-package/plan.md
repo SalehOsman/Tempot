@@ -67,7 +67,7 @@ git commit -m "feat(i18n): configure i18next with Arabic as primary language (FR
 
 **Files:**
 
-- Create: `packages/i18n-core/src/loader.ts`
+- Create: `packages/i18n-core/src/i18n.loader.ts`
 - Test: `packages/i18n-core/tests/unit/loader.test.ts`
 
 - [ ] **Step 1: Write the failing test**
@@ -94,8 +94,11 @@ Expected: FAIL (loadModuleLocales not defined)
 import { glob } from 'glob';
 import fs from 'fs/promises';
 import path from 'path';
+import { ok, err } from 'neverthrow';
+import type { AsyncResult } from '@tempot/shared';
+import { AppError } from '@tempot/shared';
 
-export async function loadModuleLocales(i18n: i18next.i18n) {
+export async function loadModuleLocales(i18n: i18next.i18n): AsyncResult<void, AppError> {
   const localeFiles = await glob('modules/*/locales/*.json');
   for (const file of localeFiles) {
     const [_, moduleName, __, langFile] = file.split(path.sep);
@@ -124,8 +127,8 @@ git commit -m "feat(i18n): implement modular locale loader (FR-004)"
 
 **Files:**
 
-- Create: `packages/i18n-core/src/t.ts`
-- Test: `packages/i18n-core/tests/unit/t-context.test.ts`
+- Create: `packages/i18n-core/src/i18n.translator.ts`
+- Test: `packages/i18n-core/tests/unit/i18n.translator.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -160,6 +163,7 @@ export function t(key: string, options?: Record<string, unknown>): string {
   const lang = context?.lang || 'ar';
   return i18next.t(key, { ...options, lng: lang });
 }
+// Note: t() returns string by design — it never fails (missing keys return key name). This is intentional per spec FR-005.
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -181,7 +185,7 @@ git commit -m "feat(i18n): implement context-aware t() function via sessionConte
 **Files:**
 
 - Create: `packages/i18n-core/scripts/cms-check.ts`
-- Create: `packages/i18n-core/src/schema.ts`
+- Create: `packages/i18n-core/src/i18n.schema.ts`
 - Test: `packages/i18n-core/tests/unit/cms-check.test.ts`
 - Test: `packages/i18n-core/tests/unit/schema.test.ts`
 
@@ -213,7 +217,7 @@ Expected: FAIL (detectHardcodedStrings not defined)
 
 - [ ] **Step 3: Write minimal implementation**
 
-Implement `detectHardcodedStrings()` for regex-based detection of hardcoded human-readable strings, and `validateLocaleFiles()` using `generateSchemaFromSource()` from `schema.ts` to enforce locale key parity between source (ar.json) and target (en.json) files.
+Implement `detectHardcodedStrings()` for AST-based detection of hardcoded human-readable strings, and `validateLocaleFiles()` using `generateSchemaFromSource()` from `schema.ts` to enforce locale key parity between source (ar.json) and target (en.json) files.
 
 - [ ] **Step 4: Run test to verify it passes**
 

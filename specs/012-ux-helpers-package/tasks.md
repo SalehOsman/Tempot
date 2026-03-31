@@ -15,9 +15,9 @@
 - `packages/ux-helpers/tsconfig.json`
 - `packages/ux-helpers/vitest.config.ts`
 - `packages/ux-helpers/src/index.ts` (empty barrel, populated incrementally)
-- `packages/ux-helpers/src/types.ts` (all interfaces from data-model.md)
-- `packages/ux-helpers/src/errors.ts` (UX_ERRORS constant)
-- `packages/ux-helpers/src/constants.ts` (all constants from data-model.md)
+- `packages/ux-helpers/src/ux.types.ts` (all interfaces from data-model.md)
+- `packages/ux-helpers/src/ux.errors.ts` (UX_ERRORS constant)
+- `packages/ux-helpers/src/ux.constants.ts` (all constants from data-model.md)
 
 **Acceptance:**
 
@@ -158,9 +158,9 @@
 **FRs:** FR-008
 **Files:**
 
-- `src/lists/emoji-number.ts`
+- `src/lists/emoji.formatter.ts`
 - `src/lists/list.formatter.ts`
-- `tests/unit/emoji-number.test.ts`
+- `tests/unit/emoji.formatter.test.ts`
 - `tests/unit/list.formatter.test.ts`
 
 **Acceptance:**
@@ -238,10 +238,10 @@
 **Files:**
 
 - `src/helpers/golden-rule.fallback.ts`
-- `src/helpers/answer-callback.ts`
+- `src/helpers/callback.handler.ts`
 - `src/helpers/typing.indicator.ts`
 - `tests/unit/golden-rule.fallback.test.ts`
-- `tests/unit/answer-callback.test.ts`
+- `tests/unit/callback.handler.test.ts`
 - `tests/unit/typing.indicator.test.ts`
 
 **Acceptance:**

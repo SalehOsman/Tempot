@@ -1,7 +1,7 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Session Manager
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `004-session-manager-package` | **Date**: 2026-03-19 | **Spec**: specs/004-session-manager-package/spec.md
+**Input**: Feature specification from `/specs/004-session-manager-package/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
@@ -23,7 +23,7 @@ Establish the foundational `session-manager` package for the Tempot bot framewor
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - **Rule I (TS Strict):** Passed - Package will strictly use TypeScript and no `any` types.
 - **Rule XIV (Repository Pattern):** Passed - Postgres access strictly relies on `BaseRepository` via `packages/database`.
@@ -53,13 +53,13 @@ specs/004-session-manager-package/
 packages/session-manager/
 ├── src/
 │   ├── index.ts
-│   ├── provider.ts
-│   ├── context.ts
-│   ├── types.ts
-│   ├── constants.ts
-│   ├── migrator.ts
-│   ├── repository.ts
-│   └── worker.ts
+│   ├── session.provider.ts
+│   ├── session.context.ts
+│   ├── session.types.ts
+│   ├── session.constants.ts
+│   ├── session.migrator.ts
+│   ├── session.repository.ts
+│   └── session.worker.ts
 └── tests/
     ├── unit/
     │   ├── provider.test.ts
@@ -79,5 +79,5 @@ packages/session-manager/
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | N/A | N/A |
+| --------- | ---------- | ------------------------------------ |
+| None      | N/A        | N/A                                  |

@@ -44,9 +44,9 @@
 
 **Files to create:**
 
-- `packages/regional-engine/src/types.ts`
+- `packages/regional-engine/src/regional.types.ts`
 
-**Test file:** `packages/regional-engine/tests/unit/types.test.ts`
+**Test file:** `packages/regional-engine/tests/unit/regional.types.test.ts`
 
 **Acceptance criteria:**
 

@@ -1,5 +1,5 @@
 ---
-description: "Task list template for feature implementation"
+description: 'Task list template for feature implementation'
 ---
 
 # Tasks: Session Manager (Dual-layer)
@@ -29,8 +29,8 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Initialize package structure in `packages/session-manager/` (package.json, tsconfig.json, vite/vitest configs)
-- [ ] T002 [P] Define `Session` interface and types in `packages/session-manager/src/types.ts` based on data-model.md
-- [ ] T003 [P] Define `ISessionProvider` interface in `packages/session-manager/src/types.ts` based on contracts
+- [ ] T002 [P] Define `Session` interface and types in `packages/session-manager/src/session.types.ts` based on data-model.md
+- [ ] T003 [P] Define `ISessionProvider` interface in `packages/session-manager/src/session.types.ts` based on contracts
 - [ ] T004 Create `packages/session-manager/src/index.ts` to export public interfaces and types
 
 ---
@@ -43,9 +43,9 @@ description: "Task list template for feature implementation"
 
 - [ ] T005 Update `packages/database/prisma/schema.prisma` to include the `Session` model (with `JSONB` metadata and version field)
 - [ ] T006 Generate Prisma client and run migrations in `packages/database`
-- [ ] T007 Create `SessionRepository` extending `BaseRepository` in `packages/session-manager/src/repository.ts`
+- [ ] T007 Create `SessionRepository` extending `BaseRepository` in `packages/session-manager/src/session.repository.ts`
 - [ ] T008 Define synchronization events (e.g., `session.updated`) in `packages/event-bus/src/events.ts`
-- [ ] T009 Create the BullMQ worker for async Postgres syncing in `packages/session-manager/src/worker.ts`
+- [ ] T009 Create the BullMQ worker for async Postgres syncing in `packages/session-manager/src/session.worker.ts`
 
 **Checkpoint**: Foundation ready - database schema, types, and async worker structure are in place.
 
@@ -68,7 +68,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `SessionProvider` in `packages/session-manager/src/provider.ts` using `neverthrow`
+- [ ] T012 [US1] Implement `SessionProvider` in `packages/session-manager/src/session.provider.ts` using `neverthrow`
 - [ ] T013 [US1] Implement Redis fetching/saving with sliding TTL in `SessionProvider` using `cache-manager`
 - [ ] T014 [US1] Implement Postgres fallback logic in `SessionProvider.getSession` for Redis failure/miss
 - [ ] T015 [US1] Implement Optimistic Concurrency Control (version checking) in `SessionProvider.saveSession`
@@ -91,7 +91,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `AsyncLocalStorage` context for global session access in `packages/session-manager/src/context.ts`
+- [ ] T019 [P] [US2] Implement `AsyncLocalStorage` context for global session access in `packages/session-manager/src/session.context.ts`
 - [ ] T020 [US2] Implement `migrateSession` logic in `SessionProvider` or dedicated service for Schema Versioning
 - [ ] T021 [US2] Export context and updated provider from `packages/session-manager/src/index.ts`
 - [ ] T022 [US2] Update BullMQ worker to handle complex metadata sync correctly without data loss
@@ -110,6 +110,10 @@ description: "Task list template for feature implementation"
 - [ ] T026 Add standard JSDoc/TSDoc to public interfaces
 - [ ] T027 [P] Verify package passes package-creation-checklist.md (10-point check)
 - [ ] T028 [P] Add ShutdownManager registration for BullMQ Worker (Rule XVII)
+- [ ] T029 [P] Create ADR for dual-layer session strategy (Redis + Postgres) at `docs/architecture/adr/`
+- [ ] T030 [P] Create ADR for Optimistic Concurrency Control (OCC) approach at `docs/architecture/adr/`
+- [ ] T031 Implement and test `deleteSession()` in SessionProvider — removes from both Redis and Postgres, returns `AsyncResult<void, AppError>`
+- [ ] T032 Unit test for `deleteSession()` verifying removal from both layers in `packages/session-manager/tests/unit/provider.test.ts`
 
 ---
 

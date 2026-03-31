@@ -46,11 +46,11 @@
 
 **Files to create:**
 
-- `packages/storage-engine/src/types.ts`
-- `packages/storage-engine/src/contracts.ts`
-- `packages/storage-engine/src/errors.ts`
+- `packages/storage-engine/src/storage.types.ts`
+- `packages/storage-engine/src/storage.contracts.ts`
+- `packages/storage-engine/src/storage.errors.ts`
 
-**Test file:** `packages/storage-engine/tests/unit/types.test.ts`
+**Test file:** `packages/storage-engine/tests/unit/storage.types.test.ts`
 
 **Acceptance criteria:**
 
@@ -226,6 +226,7 @@
 - [ ] Returns error with `STORAGE_ERRORS.PROVIDER_UNKNOWN` for missing provider config
 - [ ] Returns error with `STORAGE_ERRORS.PROVIDER_UNKNOWN` for unknown provider type
 - [ ] `createDriveProvider(driveClient, config)` function exported, returns `Result<StorageProvider, AppError>`
+- [ ] `createTelegramProvider(api, config)` function exported, returns `Result<StorageProvider, AppError>` — `api` is grammY `Api` instance
 - [ ] No `any` types
 - [ ] All tests pass (minimum 8 tests: local success, local missing config, s3 success, s3 missing config, drive via createStorageProvider, drive via createDriveProvider, telegram via createStorageProvider, telegram via createTelegramProvider, unknown provider)
 

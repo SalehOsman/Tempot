@@ -66,7 +66,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **FR-001**: System MUST use `i18next` as the primary translation engine for all components.
 - **FR-002**: System MUST strictly enforce the "i18n-Only Rule" (Rule XXXIX) for all source code.
 - **FR-003**: System MUST support `ar` (Arabic) as the primary and `en` (English) as the secondary default languages.
-- **FR-004**: System MUST organize translation files by module in `/modules/{module}/locales/{lang}.json`.
+- **FR-004**: System MUST organize translation files by module in `modules/{module}/locales/{lang}.json` (path relative to workspace root).
 - **FR-005**: System MUST provide a unified `t(key, options)` function that automatically detects the user's language from the current session context.
 - **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env` via the `TEMPOT_DEFAULT_LANGUAGE` environment variable (default: `'ar'`). The fallback language is configured via `TEMPOT_FALLBACK_LANGUAGE` (default: `'en'`). If env vars are missing, system MUST fallback to Arabic (`ar`) primary and English (`en`) fallback.
 - **FR-007**: System MUST provide a script (`pnpm cms:check`) that uses AST-based analysis and JSON schema validation (via Zod) to verify translation completeness, detect hardcoded strings, and ensure locale file integrity.

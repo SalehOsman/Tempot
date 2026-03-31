@@ -19,7 +19,7 @@ Both layers wrap grammY's native keyboard classes (InlineKeyboard, Keyboard) rat
 | ---------------- | ---------------------- | ------------ |
 | Runtime          | Node.js                | 20+          |
 | Language         | TypeScript Strict Mode | 5.9.3        |
-| Bot Framework    | grammY                 | ^1.0.0       |
+| Bot Framework    | grammY                 | 1.41.1       |
 | Error Handling   | neverthrow             | 8.2.0        |
 | Shared Utilities | @tempot/shared         | workspace:\* |
 | i18n             | @tempot/i18n-core      | workspace:\* |
@@ -55,9 +55,9 @@ packages/ux-helpers/
 ├── README.md
 ├── src/
 │   ├── index.ts                          # Barrel exports
-│   ├── types.ts                          # All interfaces/types
-│   ├── errors.ts                         # UX error codes
-│   ├── constants.ts                      # Button limits, emojis, expiry, message limits
+│   ├── ux.types.ts                       # All interfaces/types
+│   ├── ux.errors.ts                      # UX error codes
+│   ├── ux.constants.ts                   # Button limits, emojis, expiry, message limits
 │   ├── messages/
 │   │   ├── status.formatter.ts           # Pure: 4 status types → string
 │   │   ├── status.sender.ts             # Ctx-aware: edits message via Golden Rule
@@ -71,7 +71,7 @@ packages/ux-helpers/
 │   ├── lists/
 │   │   ├── list.formatter.ts            # Title+count, emoji numbers, empty state
 │   │   ├── pagination.builder.ts        # Prev/next buttons
-│   │   └── emoji-number.ts             # 1️⃣ 2️⃣ mapping utility
+│   │   └── emoji.formatter.ts           # 1️⃣ 2️⃣ mapping utility
 │   ├── feedback/
 │   │   └── feedback.handler.ts          # Loading→action→result flow
 │   ├── callback-data/
@@ -80,7 +80,7 @@ packages/ux-helpers/
 │   │   └── expiry.checker.ts            # Confirms confirmation expiry from callback data
 │   ├── helpers/
 │   │   ├── golden-rule.fallback.ts      # editMessageText fallback
-│   │   ├── answer-callback.ts           # Auto answerCallbackQuery
+│   │   ├── callback.handler.ts          # Auto answerCallbackQuery
 │   │   └── typing.indicator.ts          # Chat action typing
 │   └── testing/
 │       └── mock.context.ts              # Mock grammY Context factory
@@ -95,12 +95,12 @@ packages/ux-helpers/
     ├── label.validator.test.ts
     ├── list.formatter.test.ts
     ├── pagination.builder.test.ts
-    ├── emoji-number.test.ts
+    ├── emoji.formatter.test.ts
     ├── feedback.handler.test.ts
     ├── callback-data.encoder.test.ts
     ├── expiry.checker.test.ts
     ├── golden-rule.fallback.test.ts
-    ├── answer-callback.test.ts
+    ├── callback.handler.test.ts
     ├── typing.indicator.test.ts
     └── mock.context.test.ts
 ```
@@ -129,7 +129,7 @@ packages/ux-helpers/
     "test:watch": "vitest"
   },
   "dependencies": {
-    "grammy": "^1.0.0",
+    "grammy": "1.41.1",
     "neverthrow": "8.2.0",
     "@tempot/shared": "workspace:*",
     "@tempot/i18n-core": "workspace:*",
@@ -377,7 +377,7 @@ function createPagination(options: PaginationOptions): Result<InlineKeyboard, Ap
 ### 11. Emoji Number Utility
 
 ```typescript
-// src/lists/emoji-number.ts
+// src/lists/emoji.formatter.ts
 function toEmojiNumber(n: number): string;
 ```
 
@@ -436,7 +436,7 @@ function editOrSend(ctx: Context, options: EditOptions): AsyncResult<void, AppEr
 ### 16. Answer Callback Query — FR-014
 
 ```typescript
-// src/helpers/answer-callback.ts
+// src/helpers/callback.handler.ts
 interface AnswerOptions {
   readonly text?: string;
   readonly showAlert?: boolean;

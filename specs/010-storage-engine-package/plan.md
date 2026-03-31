@@ -91,11 +91,11 @@ All items from `docs/developer/package-creation-checklist.md` must pass before f
 
 ### Files
 
-- `src/types.ts` — Core type definitions
-- `src/contracts.ts` — Provider interface and event payloads
-- `src/errors.ts` — Error code constants
+- `src/storage.types.ts` — Core type definitions
+- `src/storage.contracts.ts` — Provider interface and event payloads
+- `src/storage.errors.ts` — Error code constants
 
-### Types (`src/types.ts`)
+### Types (`src/storage.types.ts`)
 
 ```typescript
 import type { Readable } from 'node:stream';
@@ -207,13 +207,13 @@ export interface VectorIndexer {
 }
 ```
 
-### Contracts (`src/contracts.ts`)
+### Contracts (`src/storage.contracts.ts`)
 
 ```typescript
 import type { Readable } from 'node:stream';
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { StorageProviderType, ProviderUploadResult } from './types.js';
+import type { StorageProviderType, ProviderUploadResult } from './storage.types.js';
 
 /** Abstract storage provider interface (FR-001) */
 export interface StorageProvider {
@@ -252,7 +252,7 @@ export interface StorageFileDeletedPayload {
 }
 ```
 
-### Error Codes (`src/errors.ts`)
+### Error Codes (`src/storage.errors.ts`)
 
 ```typescript
 /** Hierarchical error codes for storage module (Rule XXII) */
@@ -310,8 +310,8 @@ import { AppError } from '@tempot/shared';
 import { basename } from 'node:path';
 import { v7 as uuidv7 } from 'uuid';
 import { fileTypeFromBuffer } from 'file-type';
-import type { StorageConfig, UploadOptions } from './types.js';
-import { STORAGE_ERRORS } from './errors.js';
+import type { StorageConfig, UploadOptions } from './storage.types.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Sanitized file info after validation */
 export interface ValidatedFile {
@@ -416,9 +416,9 @@ import { pipeline } from 'node:stream/promises';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { LocalProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { LocalProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class LocalProvider implements StorageProvider {
   readonly type = 'local' as const;
@@ -513,9 +513,9 @@ import { getSignedUrl as awsGetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { S3ProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { S3ProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class S3Provider implements StorageProvider {
   readonly type = 's3' as const;
@@ -629,9 +629,9 @@ import type { drive_v3 } from '@googleapis/drive';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { DriveProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { DriveProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class DriveProvider implements StorageProvider {
   readonly type = 'drive' as const;
@@ -732,13 +732,13 @@ Returns `Result<StorageProvider, AppError>`. Validates config before creating pr
 import { ok, err } from 'neverthrow';
 import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from './contracts.js';
-import type { StorageConfig, DriveProviderConfig } from './types.js';
+import type { StorageProvider } from './storage.contracts.js';
+import type { StorageConfig, DriveProviderConfig } from './storage.types.js';
 import type { drive_v3 } from '@googleapis/drive';
 import { LocalProvider } from './providers/local.provider.js';
 import { S3Provider } from './providers/s3.provider.js';
 import { DriveProvider } from './providers/drive.provider.js';
-import { STORAGE_ERRORS } from './errors.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Create a StorageProvider based on config (D1: Provider Strategy Pattern) */
 export function createStorageProvider(config: StorageConfig): Result<StorageProvider, AppError> {
@@ -788,6 +788,9 @@ export function createDriveProvider(
 }
 
 /** Create a TelegramProvider with pre-configured grammY Api instance */
+// Requires: import { Api } from 'grammy';
+// Requires: import { TelegramProvider } from './providers/telegram.provider.js';
+// Requires: import type { TelegramProviderConfig } from './storage.types.js';
 export function createTelegramProvider(
   api: Api,
   config: TelegramProviderConfig,
@@ -853,8 +856,8 @@ import type { Result } from '@tempot/shared';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { BaseRepository, type IAuditLogger, type PrismaModelDelegate } from '@tempot/database';
-import type { Attachment } from './types.js';
-import { STORAGE_ERRORS } from './errors.js';
+import type { Attachment } from './storage.types.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 export class AttachmentRepository extends BaseRepository<Attachment> {
   protected moduleName = 'storage';
@@ -911,12 +914,12 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { Logger } from '@tempot/logger';
-import type { StorageProvider } from './contracts.js';
-import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './contracts.js';
+import type { StorageProvider } from './storage.contracts.js';
+import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './storage.contracts.js';
 import type { AttachmentRepository } from './attachment.repository.js';
 import type { ValidationService } from './validation.service.js';
-import type { UploadOptions, Attachment, StorageConfig } from './types.js';
-import { STORAGE_ERRORS } from './errors.js';
+import type { UploadOptions, Attachment, StorageConfig } from './storage.types.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Dependencies for StorageService (grouped to stay under Rule II param limit) */
 export interface StorageServiceDeps {

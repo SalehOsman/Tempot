@@ -244,7 +244,7 @@ As a user, I want to see "typing..." before long operations for a professional f
   - Max 20 Arabic / 24 English characters per button (Section 13.1)
   - Max 3 buttons per row
   - Emoji at start of button text (Rule LXVI)
-  - Long labels automatically placed on their own row
+  - Long labels (exceeding half the character limit for the detected language) automatically placed on their own row
   - Language detection via first character (Decision D5)
   - Returns `Result<InlineKeyboard, AppError>`
 

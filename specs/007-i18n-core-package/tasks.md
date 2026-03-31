@@ -11,16 +11,17 @@
 ## Phase 1: Setup (Shared Infrastructure)
 
 - [ ] T001 Initialize package structure in `packages/i18n-core/` (package.json, tsconfig.json, vitest.config.ts)
-- [ ] T002 Install core dependencies (`i18next`, `glob`, `zod`, `i18next-parser`, `neverthrow`, `sanitize-html`)
+- [ ] T002 Install core dependencies (`i18next`, `glob`, `zod`, `i18next-parser`, `neverthrow: "8.2.0"`, `sanitize-html`)
 - [ ] T003 Create `packages/i18n-core/src/index.ts` to export public interfaces and helpers
+- [ ] T001a Verify all 10 points of `docs/developer/package-creation-checklist.md` pass
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 - [ ] T004 [P] Implement `i18nConfig` in `packages/i18n-core/src/i18n.config.ts` with Arabic primary and English fallback (FR-003, FR-006)
-- [ ] T005 [P] Implement `LocaleSchema` using Zod in `packages/i18n-core/src/schema.ts` for locale file validation
-- [ ] T006 [P] Implement dynamic variable sanitization helper using `sanitize-html` in `packages/i18n-core/src/sanitizer.ts`
+- [ ] T005 [P] Implement `LocaleSchema` using Zod in `packages/i18n-core/src/i18n.schema.ts` for locale file validation
+- [ ] T006 [P] Implement dynamic variable sanitization helper using `sanitize-html` in `packages/i18n-core/src/i18n.sanitizer.ts`
 
 ---
 
@@ -30,10 +31,10 @@
 
 **Independent Test**: Storing 'en' in session context and verifying `t('common.test')` returns the English translation.
 
-- [ ] T007 [P] [US1] Implement `loadModuleLocales` in `packages/i18n-core/src/loader.ts` using `glob` (returns `Result<void, AppError>`)
-- [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/t.ts` using `@tempot/session-manager` (returns `string`)
-- [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/helpers.ts` for RTL/LTR detection
-- [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/t.test.ts`
+- [ ] T007 [P] [US1] Implement `loadModuleLocales` in `packages/i18n-core/src/i18n.loader.ts` using `glob` (returns `Result<void, AppError>`)
+- [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/i18n.translator.ts` using `@tempot/session-manager` (returns `string`)
+- [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/i18n.locale-info.ts` for RTL/LTR detection
+- [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/i18n.translator.test.ts`
 
 ---
 
@@ -61,11 +62,13 @@
 ## Implementation Strategy
 
 ### MVP First (User Story 1 Only)
+
 1. Complete Phase 1 & 2.
 2. Complete Phase 3 (Multi-language UI).
 3. **VALIDATE**: Run unit and integration tests for translation retrieval and sanitization.
 
 ### Incremental Delivery
+
 1. Add Phase 4 (Zero-Hardcoding Enforcement).
 2. **VALIDATE**: Ensure `cms:check` fails on hardcoded strings.
 3. Polish and document.

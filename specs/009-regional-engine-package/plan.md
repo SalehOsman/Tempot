@@ -20,7 +20,7 @@
 
 ### Shared Type Definitions
 
-These interfaces are used across all tasks and must be defined in `src/types.ts`:
+These interfaces are used across all tasks and must be defined in `src/regional.types.ts`:
 
 ```typescript
 /** Per-user or global regional settings */
@@ -209,8 +209,8 @@ git commit -m "chore(regional): scaffold package — 10-point checklist passed"
 
 **Files:**
 
-- Create: `packages/regional-engine/src/types.ts`
-- Test: `packages/regional-engine/tests/unit/types.test.ts`
+- Create: `packages/regional-engine/src/regional.types.ts`
+- Test: `packages/regional-engine/tests/unit/regional.types.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -222,7 +222,7 @@ import {
   type GeoState,
   type GeoCity,
   type GeoOption,
-} from '../../src/types';
+} from '../../src/regional.types';
 
 describe('Type Definitions', () => {
   it('should export DEFAULT_REGIONAL_CONTEXT with Egypt defaults', () => {
@@ -260,7 +260,7 @@ Expected: FAIL (types.ts not found)
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create `src/types.ts` with the interfaces from the Shared Type Definitions section above.
+Create `src/regional.types.ts` with the interfaces from the Shared Type Definitions section above.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -270,7 +270,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/regional-engine/src/types.ts packages/regional-engine/tests/unit/types.test.ts
+git add packages/regional-engine/src/regional.types.ts packages/regional-engine/tests/unit/regional.types.test.ts
 git commit -m "feat(regional): define shared type interfaces — RegionalContext, GeoState, GeoCity, GeoOption"
 ```
 
@@ -628,7 +628,7 @@ Generate `data/geo/EG.json` from the `countries-states-cities-database` with the
 ```typescript
 import { ok, Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import type { GeoState, GeoCity } from './types';
+import type { GeoState, GeoCity } from './regional.types';
 import egGeoData from '../data/geo/EG.json';
 
 interface GeoDataFile {
@@ -768,7 +768,7 @@ Expected: FAIL (GeoSelectField not defined)
 ```typescript
 import { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import type { GeoOption } from './types';
+import type { GeoOption } from './regional.types';
 import { GeoService } from './geo.service';
 
 /**
@@ -822,12 +822,12 @@ git commit -m "feat(regional): implement GeoSelectField — plain GeoOption[] da
 
 **Session Field Mappings:** In dynamic mode, `RegionalService.getContext()` resolves `RegionalContext` from session-manager fields as follows:
 
-| Session Field     | RegionalContext Field | Fallback                              |
-| ----------------- | --------------------- | ------------------------------------- |
-| `store.timezone`  | `timezone`            | `DEFAULT_REGIONAL_CONTEXT.timezone`   |
-| `store.lang`      | `locale` (via map)    | `DEFAULT_REGIONAL_CONTEXT.locale`     |
-| `store.currency`  | `currencyCode`        | `DEFAULT_REGIONAL_CONTEXT.currencyCode` |
-| `store.country`   | `countryCode`         | `DEFAULT_REGIONAL_CONTEXT.countryCode`  |
+| Session Field    | RegionalContext Field | Fallback                                |
+| ---------------- | --------------------- | --------------------------------------- |
+| `store.timezone` | `timezone`            | `DEFAULT_REGIONAL_CONTEXT.timezone`     |
+| `store.lang`     | `locale` (via map)    | `DEFAULT_REGIONAL_CONTEXT.locale`       |
+| `store.currency` | `currencyCode`        | `DEFAULT_REGIONAL_CONTEXT.currencyCode` |
+| `store.country`  | `countryCode`         | `DEFAULT_REGIONAL_CONTEXT.countryCode`  |
 
 The `lang` → `locale` mapping converts short language codes (e.g., `'ar'` → `'ar-EG'`, `'en'` → `'en-US'`). Unknown codes pass through unchanged.
 
@@ -843,7 +843,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { RegionalService } from '../../src/regional.service';
 import { DateService } from '../../src/date.service';
 import { FormatService } from '../../src/format.service';
-import { DEFAULT_REGIONAL_CONTEXT } from '../../src/types';
+import { DEFAULT_REGIONAL_CONTEXT } from '../../src/regional.types';
 
 // Mock session-manager
 vi.mock('@tempot/session-manager', () => ({
@@ -925,8 +925,8 @@ import { AppError } from '@tempot/shared';
 import { sessionContext } from '@tempot/session-manager';
 import { DateService } from './date.service';
 import { FormatService } from './format.service';
-import type { RegionalContext } from './types';
-import { DEFAULT_REGIONAL_CONTEXT } from './types';
+import type { RegionalContext } from './regional.types';
+import { DEFAULT_REGIONAL_CONTEXT } from './regional.types';
 
 type RegionalMode = 'static' | 'dynamic';
 
@@ -995,8 +995,8 @@ git commit -m "feat(regional): implement RegionalService — static/dynamic mode
 
 ```typescript
 // Types
-export type { RegionalContext, GeoState, GeoCity, GeoOption } from './types';
-export { DEFAULT_REGIONAL_CONTEXT } from './types';
+export type { RegionalContext, GeoState, GeoCity, GeoOption } from './regional.types';
+export { DEFAULT_REGIONAL_CONTEXT } from './regional.types';
 
 // Services
 export { DateService } from './date.service';
