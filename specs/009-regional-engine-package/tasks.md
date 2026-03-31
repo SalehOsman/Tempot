@@ -64,7 +64,7 @@
 
 **Priority:** P1  
 **Estimated time:** 10 min  
-**FR:** FR-001, FR-004  
+**FR:** FR-001, FR-002, FR-004  
 **Dependencies:** Task 0, Task 1
 
 **Files to create:**
@@ -76,12 +76,13 @@
 **Acceptance criteria:**
 
 - [ ] `format()` method converts UTC dates to localized strings using `dayjs` with timezone plugin
+- [ ] Package handles display conversion only — local dates are never stored (FR-002)
 - [ ] `toUTC()` method converts local time to UTC `Date` objects
 - [ ] Default timezone is `'Africa/Cairo'`, default locale is `'ar'` (FR-004)
 - [ ] Works with non-Egypt timezones (e.g., `'Asia/Riyadh'`)
 - [ ] All methods return `Result<T, AppError>` — no thrown exceptions
 - [ ] Returns `Result.err` with code `'regional.invalid_timezone'` for invalid timezone input
-- [ ] All timezone operations complete in < 5ms per call (NFR-001, SC-001)
+- [ ] All timezone operations complete in < 5ms per call — benchmark test required (NFR-001, SC-001)
 - [ ] No `any` types
 - [ ] All tests pass
 
@@ -192,6 +193,7 @@
 - [ ] **Static mode**: returns global defaults for all users regardless of session data
 - [ ] **Dynamic mode**: resolves per-user context from `@tempot/session-manager`'s `sessionContext.getStore()`
 - [ ] **Dynamic mode fallback**: returns global defaults when session has no regional data
+- [ ] Dynamic mode correctly resolves per-user context from session; static mode returns global defaults for all users (SC-008)
 - [ ] Defaults are Egypt/Cairo/ar-EG/EGP — NOT hardcoded as the only option (FR-004, Design Decision D1)
 - [ ] Composes `DateService` and `FormatService` as public readonly properties
 - [ ] No `any` types
@@ -220,8 +222,10 @@
 - [ ] Exports `RegionalService` aliased as `RegionalEngine` (Section 11.3 compatibility)
 - [ ] All existing tests still pass after barrel update
 - [ ] 10-point package-creation-checklist passes final verification
-- [ ] No `any` types in any file across the package
+- [ ] No `any` types in any file across the package (SC-006)
 - [ ] No `grammy` imports in any file across the package
+- [ ] All public methods across all services return `Result<T, AppError>` — zero thrown exceptions (SC-005)
+- [ ] 100% of user-facing dates are localized via `RegionalEngine` / `RegionalService` (SC-003)
 
 ---
 
@@ -238,14 +242,14 @@ Task 0 (scaffolding)
 
 ## Summary
 
-| Task      | Name                | Priority | Est. Time  | FR Coverage     |
-| --------- | ------------------- | -------- | ---------- | --------------- |
-| 0         | Package Scaffolding | P0       | 5 min      | Infrastructure  |
-| 1         | Type Definitions    | P0       | 5 min      | FR-008, FR-009  |
-| 2         | DateService         | P1       | 10 min     | FR-001, FR-004  |
-| 3         | FormatService       | P1       | 10 min     | FR-003          |
-| 4         | GeoService          | P2       | 15 min     | FR-005, ADR-024 |
-| 5         | GeoSelectField      | P2       | 10 min     | FR-006          |
-| 6         | RegionalService     | P1       | 15 min     | FR-007          |
-| 7         | Barrel Exports      | P1       | 5 min      | All             |
-| **Total** |                     |          | **75 min** |                 |
+| Task      | Name                | Priority | Est. Time  | FR Coverage            |
+| --------- | ------------------- | -------- | ---------- | ---------------------- |
+| 0         | Package Scaffolding | P0       | 5 min      | Infrastructure         |
+| 1         | Type Definitions    | P0       | 5 min      | FR-008, FR-009         |
+| 2         | DateService         | P1       | 10 min     | FR-001, FR-002, FR-004 |
+| 3         | FormatService       | P1       | 10 min     | FR-003                 |
+| 4         | GeoService          | P2       | 15 min     | FR-005, ADR-024        |
+| 5         | GeoSelectField      | P2       | 10 min     | FR-006                 |
+| 6         | RegionalService     | P1       | 15 min     | FR-007                 |
+| 7         | Barrel Exports      | P1       | 5 min      | All                    |
+| **Total** |                     |          | **75 min** |                        |

@@ -348,7 +348,8 @@
 - [ ] `getSignedUrl(attachmentId, expiresInSeconds?)` returns `AsyncResult<string, AppError>` — default 3600 seconds
 - [ ] `findByModuleAndEntity(moduleId, entityId)` returns `AsyncResult<Attachment[], AppError>`
 - [ ] All public methods return `AsyncResult<T, AppError>` — no thrown exceptions
-- [ ] Single file upload completes in < 500ms (NFR-001)
+- [ ] 100% of uploaded files have corresponding metadata in the DB (SC-003)
+- [ ] Single file upload completes in < 500ms — benchmark test required (NFR-001)
 - [ ] System handles 10 concurrent uploads without failure (NFR-002, SC-002)
 - [ ] No `any` types
 - [ ] All tests pass (mocked provider + repo + validation + eventBus + logger, minimum 15 tests: upload success with event, upload validation failure, upload MIME mismatch failure, upload provider failure, upload DB failure with rollback logged, upload rollback success not logged, upload event publish failure logged, upload isEncrypted for S3, download success, download not found, delete with event, delete event failure logged, getSignedUrl, findByModuleAndEntity, path generation)
@@ -364,7 +365,7 @@
 
 **Files to modify:**
 
-- `packages/event-bus/src/events.ts`
+- `packages/event-bus/src/event-bus.events.ts`
 
 **Test file:** N/A (type-level change — validated by TypeScript compilation)
 
@@ -372,7 +373,7 @@
 
 - [ ] `TempotEvents` interface updated with `'storage.file.uploaded'` event and inline payload type
 - [ ] `TempotEvents` interface updated with `'storage.file.deleted'` event and inline payload type
-- [ ] Payload types defined **inline** in events.ts — do NOT import from `@tempot/storage-engine` (avoids circular dependency)
+- [ ] Payload types defined **inline** in event-bus.events.ts — do NOT import from `@tempot/storage-engine` (avoids circular dependency)
 - [ ] Inline payload structures must match `StorageFileUploadedPayload` and `StorageFileDeletedPayload` from `contracts.ts`
 - [ ] Event names follow naming convention: `{module}.{entity}.{action}` pattern validated by regex
 - [ ] No other files in `packages/event-bus/` are modified

@@ -96,7 +96,7 @@ storage-engine is a **library** — it does NOT handle HTTP or multipart. Hono's
 
 ### Cross-Package Modification
 
-The `Attachment` Prisma model is added to `packages/database/prisma/schema.prisma`. This is acceptable — the `database` package owns the schema, `storage-engine` owns the repository and service logic. Storage events are registered in `packages/event-bus/src/events.ts` in the `TempotEvents` interface.
+The `Attachment` Prisma model is added to `packages/database/prisma/schema.prisma`. This is acceptable — the `database` package owns the schema, `storage-engine` owns the repository and service logic. Storage events are registered in `packages/event-bus/src/event-bus.events.ts` in the `TempotEvents` interface.
 
 ---
 
@@ -151,7 +151,7 @@ model Attachment {
 ### Event Payloads
 
 ```typescript
-// Registered in packages/event-bus/src/events.ts TempotEvents interface
+// Registered in packages/event-bus/src/event-bus.events.ts TempotEvents interface
 
 // storage.file.uploaded
 interface StorageFileUploadedPayload {

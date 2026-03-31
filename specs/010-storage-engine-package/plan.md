@@ -1244,7 +1244,7 @@ export class StorageService {
 
 ### FR Covered: FR-007
 
-### File Modified: `packages/event-bus/src/events.ts`
+### File Modified: `packages/event-bus/src/event-bus.events.ts`
 
 Add storage events to the `TempotEvents` interface with typed payloads defined **inline** (to avoid circular dependency — event-bus must NOT import from storage-engine):
 
