@@ -70,7 +70,7 @@ description: 'Task list template for feature implementation'
 
 - [ ] T012 [US1] Implement `SessionProvider` in `packages/session-manager/src/session.provider.ts` using `neverthrow`
 - [ ] T013 [US1] Implement Redis fetching/saving with sliding TTL in `SessionProvider` using `cache-manager`
-- [ ] T014 [US1] Implement Postgres fallback logic in `SessionProvider.getSession` for Redis failure/miss
+- [ ] T014 [US1] Implement in-memory fallback logic (Rule XXXII) in `SessionProvider.getSession` for Redis failure/miss
 - [ ] T015 [US1] Implement Optimistic Concurrency Control (version checking) in `SessionProvider.saveSession`
 - [ ] T016 [US1] Implement event dispatching to `event-bus` on `saveSession` for async Postgres sync
 

@@ -35,6 +35,7 @@
 - [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/i18n.translator.ts` using `@tempot/session-manager` (returns `string`)
 - [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/i18n.locale-info.ts` for RTL/LTR detection
 - [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/i18n.translator.test.ts`
+- [ ] T010a [US1] Performance benchmark: verify translation retrieval completes in < 1ms per call (SC-002) in `packages/i18n-core/tests/unit/i18n.performance.test.ts`
 
 ---
 

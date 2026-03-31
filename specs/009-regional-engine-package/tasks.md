@@ -81,6 +81,7 @@
 - [ ] Works with non-Egypt timezones (e.g., `'Asia/Riyadh'`)
 - [ ] All methods return `Result<T, AppError>` — no thrown exceptions
 - [ ] Returns `Result.err` with code `'regional.invalid_timezone'` for invalid timezone input
+- [ ] All timezone operations complete in < 5ms per call (NFR-001, SC-001)
 - [ ] No `any` types
 - [ ] All tests pass
 

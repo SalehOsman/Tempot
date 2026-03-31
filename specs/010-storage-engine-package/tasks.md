@@ -348,6 +348,8 @@
 - [ ] `getSignedUrl(attachmentId, expiresInSeconds?)` returns `AsyncResult<string, AppError>` — default 3600 seconds
 - [ ] `findByModuleAndEntity(moduleId, entityId)` returns `AsyncResult<Attachment[], AppError>`
 - [ ] All public methods return `AsyncResult<T, AppError>` — no thrown exceptions
+- [ ] Single file upload completes in < 500ms (NFR-001)
+- [ ] System handles 10 concurrent uploads without failure (NFR-002, SC-002)
 - [ ] No `any` types
 - [ ] All tests pass (mocked provider + repo + validation + eventBus + logger, minimum 15 tests: upload success with event, upload validation failure, upload MIME mismatch failure, upload provider failure, upload DB failure with rollback logged, upload rollback success not logged, upload event publish failure logged, upload isEncrypted for S3, download success, download not found, delete with event, delete event failure logged, getSignedUrl, findByModuleAndEntity, path generation)
 

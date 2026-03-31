@@ -67,7 +67,7 @@ As a developer, I want to store the state of the current conversation (e.g., act
 - **FR-004**: System MUST support hierarchical session metadata stored as a JSON object.
 - **FR-005**: System MUST implement `Session Schema Versioning` for handling breaking changes to session data.
 - **FR-006**: System MUST provide a `SessionProvider` that hides Redis/Postgres complexity from the `bot-server`.
-- **FR-007**: System MUST support automatic sliding session expiration (TTL) in Redis that resets on each user interaction (e.g., 24 hours).
+- **FR-007**: System MUST support automatic sliding session expiration (TTL) in Redis that resets on each user interaction. TTL is configured via the `TEMPOT_SESSION_TTL_HOURS` environment variable (default: `24`).
 
 ### Key Entities
 
@@ -79,5 +79,5 @@ As a developer, I want to store the state of the current conversation (e.g., act
 
 - **SC-001**: Session retrieval from Redis must take < 2ms on average.
 - **SC-002**: 100% of session changes must be persisted to Postgres eventually with no data loss.
-- **SC-003**: System successfully handles Redis failure by falling back to Postgres without crashing or losing user context.
+- **SC-003**: System successfully handles Redis failure by falling back to in-memory temporary storage (Rule XXXII) without crashing or losing user context.
 - **SC-004**: Session structure migrations are handled without interrupting active conversations for users.

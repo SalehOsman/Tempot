@@ -72,6 +72,7 @@
 - [ ] `formatWarning()` returns string prefixed with ⚠️
 - [ ] All functions use `t()` from @tempot/i18n-core for text
 - [ ] All functions are synchronous (no async)
+- [ ] All pure functions complete in < 1ms per call (NFR-001)
 - [ ] All tests pass
 
 ---
