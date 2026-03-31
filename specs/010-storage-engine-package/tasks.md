@@ -204,6 +204,36 @@
 
 ---
 
+## Task 5b: TelegramProvider
+
+**Priority:** P2  
+**Estimated time:** 15 min  
+**FR:** FR-001, FR-006  
+**Dependencies:** Task 0, Task 1
+
+**Files to create:**
+
+- `packages/storage-engine/src/providers/telegram.provider.ts`
+
+**Test file:** `packages/storage-engine/tests/unit/telegram-provider.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `TelegramProvider` class implements `StorageProvider` interface
+- [ ] `type` property is `'telegram'` (readonly)
+- [ ] Constructor takes grammY `Api` instance AND `TelegramProviderConfig`
+- [ ] `upload()` sends document to `storageChatId` via `api.sendDocument()`, returns `providerKey` as file_id
+- [ ] `download()` uses `api.getFile()` to get file path, then fetches file content
+- [ ] `delete()` returns `ok(undefined)` — Telegram does not support file deletion
+- [ ] `getSignedUrl()` uses `api.getFile()` to construct temporary download URL
+- [ ] `exists()` uses `api.getFile()` to check if file_id is still valid
+- [ ] All methods return `AsyncResult<T, AppError>` — no thrown exceptions
+- [ ] Error codes match `STORAGE_ERRORS` constants
+- [ ] No `any` types
+- [ ] All tests pass (mocked grammY Api, minimum 6 tests: upload, download, delete noop, getSignedUrl, exists true/false)
+
+---
+
 ## Task 6: StorageProviderFactory
 
 **Priority:** P1  

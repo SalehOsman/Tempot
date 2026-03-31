@@ -68,6 +68,7 @@
     "@aws-sdk/s3-request-presigner": "3.x",
     "@aws-sdk/lib-storage": "3.x",
     "@googleapis/drive": "8.x",
+    "grammy": "^1.41.1",
     "file-type": "19.x",
     "uuid": "11.x",
   },
@@ -376,7 +377,7 @@ export class ValidationService {
         );
       }
       return ok(undefined);
-    } catch {
+    } catch (_error: unknown) {
       // If detection fails, allow — file-type may not support all formats
       return ok(undefined);
     }
@@ -483,7 +484,7 @@ export class LocalProvider implements StorageProvider {
       const filePath = join(this.config.basePath, key);
       await stat(filePath);
       return ok(true);
-    } catch {
+    } catch (_error: unknown) {
       return ok(false);
     }
   }
@@ -606,7 +607,7 @@ export class S3Provider implements StorageProvider {
       });
       await this.client.send(command);
       return ok(true);
-    } catch {
+    } catch (_error: unknown) {
       return ok(false);
     }
   }
@@ -711,7 +712,7 @@ export class DriveProvider implements StorageProvider {
     try {
       await this.driveClient.files.get({ fileId: key, fields: 'id' });
       return ok(true);
-    } catch {
+    } catch (_error: unknown) {
       return ok(false);
     }
   }

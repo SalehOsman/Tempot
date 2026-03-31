@@ -1,6 +1,6 @@
 # @tempot/ux-helpers — Data Model
 
-> All types and interfaces used across the package. Defined in `src/types.ts`.
+> All types and interfaces used across the package. Defined in `src/ux.types.ts`.
 
 ---
 

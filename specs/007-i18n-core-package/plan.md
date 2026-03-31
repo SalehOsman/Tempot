@@ -99,12 +99,18 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 
 export async function loadModuleLocales(i18n: i18next.i18n): AsyncResult<void, AppError> {
-  const localeFiles = await glob('modules/*/locales/*.json');
-  for (const file of localeFiles) {
-    const [_, moduleName, __, langFile] = file.split(path.sep);
-    const lang = path.basename(langFile, '.json');
-    const content = JSON.parse(await fs.readFile(file, 'utf-8'));
-    i18n.addResourceBundle(lang, moduleName, content, true, true);
+  try {
+    const localeFiles = await glob('modules/*/locales/*.json');
+    for (const file of localeFiles) {
+      const [_, moduleName, __, langFile] = file.split(path.sep);
+      const lang = path.basename(langFile, '.json');
+      const raw = await fs.readFile(file, 'utf-8');
+      const content = JSON.parse(raw) as Record<string, unknown>;
+      i18n.addResourceBundle(lang, moduleName, content, true, true);
+    }
+    return ok(undefined);
+  } catch (error: unknown) {
+    return err(new AppError('i18n.locale_load_failed', error));
   }
 }
 ```

@@ -51,9 +51,9 @@
 **Acceptance criteria:**
 
 - [ ] `RegionalContext` interface exported: `{ timezone: string; locale: string; currencyCode: string; countryCode: string }`
-- [ ] `GeoState` interface exported: `{ id: string; code: string; name: string; name_ar: string; countryCode: string }`
-- [ ] `GeoCity` interface exported: `{ id: string; stateId: string; name: string; name_ar: string }`
-- [ ] `GeoOption` interface exported: `{ label: string; value: string }`
+- [ ] `GeoState` interface exported: `{ id: string; code: string; name: string; name_ar: string; countryCode: string; i18nKey: string }`
+- [ ] `GeoCity` interface exported: `{ id: string; stateId: string; name: string; name_ar: string; i18nKey: string }`
+- [ ] `GeoOption` interface exported: `{ label: string; value: string; i18nKey?: string }`
 - [ ] `DEFAULT_REGIONAL_CONTEXT` constant exported with Egypt defaults (Rule XLII)
 - [ ] No `any` types
 - [ ] All tests pass

@@ -68,7 +68,7 @@ packages/session-manager/
     │   └── session.worker.test.ts
     ├── integration/
     │   └── session-integration.test.ts
-    └── utils/
+    └── support/
         └── test-redis.ts
 ```
 

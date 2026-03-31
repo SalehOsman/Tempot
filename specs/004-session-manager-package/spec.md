@@ -18,7 +18,7 @@ As a user, I want my session to be fast and persistent so that my conversation f
 **Acceptance Scenarios**:
 
 1. **Given** an active session, **When** I send a message, **Then** the system retrieves the session from Redis in < 2ms to process the request quickly.
-2. **Given** a Redis failure, **When** the user sends a message, **Then** the system falls back to PostgreSQL to retrieve the session without interrupting the user experience (Rule XXXII).
+2. **Given** a Redis failure, **When** the user sends a message, **Then** the system falls back to in-memory temporary storage to retrieve the session without interrupting the user experience (Rule XXXII). PostgreSQL remains the async persistence target, not a synchronous fallback.
 
 ---
 

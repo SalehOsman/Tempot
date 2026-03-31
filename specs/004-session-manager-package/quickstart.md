@@ -15,7 +15,7 @@ const provider = new SessionProvider();
 const sessionResult = await provider.getSession('user-123', 'chat-456');
 
 if (sessionResult.isErr()) {
-  console.error("Failed to load session:", sessionResult.error);
+  // Handle error via @tempot/logger — console.* is banned (Rule LXXIV)
   return;
 }
 
@@ -25,10 +25,10 @@ const session = sessionResult.value;
 sessionContext.run(session, async () => {
   // Inside this block, any service can access the current session
   const currentSession = sessionContext.getStore();
-  
+
   // 4. Update the session
   currentSession.language = 'en-US';
-  
+
   // 5. Save the session
   // This updates Redis (fast read) and triggers an event to sync to Postgres (persistent)
   await provider.saveSession(currentSession);
@@ -38,10 +38,12 @@ sessionContext.run(session, async () => {
 ## Setup & Dependencies
 
 Make sure your `.env` contains the required connections:
+
 - `REDIS_URL`
 - `DATABASE_URL` (Postgres)
 
 This package relies heavily on:
+
 - `@tempot/shared` for caching and queues
 - `@tempot/event-bus` for syncing data without blocking
 - `@tempot/database` for the Postgres persistence layer
