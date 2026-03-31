@@ -2,7 +2,7 @@
 
 **Spec**: `specs/010-storage-engine-package/spec.md` (Clarified)
 **Created**: 2026-03-26
-**Dependencies**: `@tempot/shared`, `@tempot/database`, `@tempot/event-bus`, `@tempot/session-manager`, `@tempot/logger`
+**Dependencies**: `@tempot/shared`, `@tempot/database`, `@tempot/event-bus`, `@tempot/logger`
 
 ---
 
@@ -62,7 +62,6 @@
     "@tempot/shared": "workspace:*",
     "@tempot/database": "workspace:*",
     "@tempot/event-bus": "workspace:*",
-    "@tempot/session-manager": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@aws-sdk/client-s3": "3.x",
     "@aws-sdk/s3-request-presigner": "3.x",
@@ -721,6 +720,103 @@ export class DriveProvider implements StorageProvider {
 
 ---
 
+## Task 5b — TelegramProvider
+
+### FR Covered: FR-001, FR-006
+
+### File: `src/providers/telegram.provider.ts`
+
+Uses grammY `Api` class to store files via `sendDocument` to a private channel. Receives a pre-configured `Api` instance — does NOT manage bot tokens directly. All methods return `AsyncResult<T, AppError>`.
+
+```typescript
+import type { Readable } from 'node:stream';
+import type { Api } from 'grammy';
+import { InputFile } from 'grammy';
+import { ok, err } from 'neverthrow';
+import type { AsyncResult } from '@tempot/shared';
+import { AppError } from '@tempot/shared';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { TelegramProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
+
+export class TelegramProvider implements StorageProvider {
+  readonly type = 'telegram' as const;
+
+  constructor(
+    private readonly api: Api,
+    private readonly config: TelegramProviderConfig,
+  ) {}
+
+  async upload(
+    key: string,
+    data: Buffer | Readable,
+    _contentType: string,
+  ): AsyncResult<ProviderUploadResult, AppError> {
+    try {
+      const inputFile = new InputFile(data, key);
+      const result = await this.api.sendDocument(this.config.storageChatId, inputFile);
+      const fileId = result.document?.file_id;
+      if (!fileId) {
+        return err(new AppError(STORAGE_ERRORS.UPLOAD_FAILED, 'No file_id returned'));
+      }
+      return ok({ providerKey: fileId });
+    } catch (error: unknown) {
+      return err(new AppError(STORAGE_ERRORS.UPLOAD_FAILED, error));
+    }
+  }
+
+  async download(key: string): AsyncResult<Readable, AppError> {
+    try {
+      const file = await this.api.getFile(key);
+      if (!file.file_path) {
+        return err(new AppError(STORAGE_ERRORS.NOT_FOUND, 'No file_path returned'));
+      }
+      const url = `https://api.telegram.org/file/bot${this.api.token}/${file.file_path}`;
+      const response = await fetch(url);
+      if (!response.ok || !response.body) {
+        return err(new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, 'Failed to fetch file'));
+      }
+      return ok(Readable.fromWeb(response.body));
+    } catch (error: unknown) {
+      return err(new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, error));
+    }
+  }
+
+  async delete(_key: string): AsyncResult<void, AppError> {
+    // Telegram does not support file deletion — return success as no-op
+    return ok(undefined);
+  }
+
+  async getSignedUrl(key: string, _expiresInSeconds: number): AsyncResult<string, AppError> {
+    try {
+      const file = await this.api.getFile(key);
+      if (!file.file_path) {
+        return err(new AppError(STORAGE_ERRORS.SIGNED_URL_FAILED, 'No file_path returned'));
+      }
+      const url = `https://api.telegram.org/file/bot${this.api.token}/${file.file_path}`;
+      return ok(url);
+    } catch (error: unknown) {
+      return err(new AppError(STORAGE_ERRORS.SIGNED_URL_FAILED, error));
+    }
+  }
+
+  async exists(key: string): AsyncResult<boolean, AppError> {
+    try {
+      await this.api.getFile(key);
+      return ok(true);
+    } catch (_error: unknown) {
+      return ok(false);
+    }
+  }
+}
+```
+
+### Test: `tests/unit/telegram-provider.test.ts`
+
+Mocked grammY `Api` instance. Minimum 6 tests: upload success, upload no file_id, download success, delete no-op, getSignedUrl, exists true/false.
+
+---
+
 ## Task 6 — StorageProviderFactory
 
 ### FR Covered: FR-001, D1, NFR-004
@@ -919,7 +1015,12 @@ import type { StorageProvider } from './storage.contracts.js';
 import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './storage.contracts.js';
 import type { AttachmentRepository } from './attachment.repository.js';
 import type { ValidationService } from './validation.service.js';
-import type { UploadOptions, Attachment, StorageConfig } from './storage.types.js';
+import type {
+  UploadOptions,
+  Attachment,
+  StorageConfig,
+  ProviderUploadResult,
+} from './storage.types.js';
 import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Dependencies for StorageService (grouped to stay under Rule II param limit) */
@@ -948,40 +1049,73 @@ export class StorageService {
 
   /** Upload a file: validate → MIME check → upload to provider → create DB record → emit event (D3) */
   async upload(data: Buffer | Readable, options: UploadOptions): AsyncResult<Attachment, AppError> {
-    // 1. Validate (synchronous checks)
+    // 1. Validate and prepare (synchronous + MIME magic byte check)
+    const prepareResult = await this.validateAndPrepare(data, options);
+    if (prepareResult.isErr()) return err(prepareResult.error);
+    const { sanitizedName, generatedFileName, providerKey } = prepareResult.value;
+
+    // 2. Upload to provider (Phase 1 of D3)
+    const uploadResult = await this.provider.upload(providerKey, data, options.mimeType);
+    if (uploadResult.isErr()) return err(uploadResult.error);
+
+    // 3. Create DB record with rollback on failure (Phase 2 of D3)
+    const createResult = await this.persistAttachment(
+      { sanitizedName, generatedFileName, providerKey },
+      uploadResult.value,
+      options,
+    );
+    if (createResult.isErr()) return err(createResult.error);
+
+    // 4. Emit event (fire-and-log pattern)
+    const attachment = createResult.value;
+    await this.emitUploadEvent(attachment, options);
+
+    return ok(attachment);
+  }
+
+  /** Validate upload options, MIME magic bytes, and generate provider key */
+  private async validateAndPrepare(
+    data: Buffer | Readable,
+    options: UploadOptions,
+  ): AsyncResult<
+    { sanitizedName: string; generatedFileName: string; providerKey: string },
+    AppError
+  > {
     const validationResult = this.validation.validateUpload(options);
     if (validationResult.isErr()) return err(validationResult.error);
     const { sanitizedName, generatedFileName } = validationResult.value;
 
-    // 2. MIME magic byte validation (if data is a Buffer)
-    // Streams skip magic byte check — buffering would violate NFR-005
+    // MIME magic byte validation (Buffers only — streams skip per NFR-005)
     if (Buffer.isBuffer(data)) {
       const mimeResult = await this.validation.validateMimeType(data, options.mimeType);
       if (mimeResult.isErr()) return err(mimeResult.error);
     }
 
-    // 3. Generate provider key (D2: UUID v7 path)
+    // Generate provider key (D2: UUID v7 path)
     const now = new Date();
     const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const modulePrefix = options.moduleId ?? 'general';
     const providerKey = `${modulePrefix}/${yearMonth}/${generatedFileName}`;
 
-    // 4. Upload to provider (Phase 1 of D3)
-    const uploadResult = await this.provider.upload(providerKey, data, options.mimeType);
-    if (uploadResult.isErr()) return err(uploadResult.error);
+    return ok({ sanitizedName, generatedFileName, providerKey });
+  }
 
-    // 5. Determine isEncrypted based on provider config (D5)
+  /** Create DB record; rollback provider upload on failure (D3) */
+  private async persistAttachment(
+    prepared: { sanitizedName: string; generatedFileName: string; providerKey: string },
+    providerResult: ProviderUploadResult,
+    options: UploadOptions,
+  ): AsyncResult<Attachment, AppError> {
     const isEncrypted = this.resolveEncryptionStatus();
 
-    // 6. Create Attachment record (Phase 2 of D3)
     const createResult = await this.attachmentRepo.create({
-      fileName: generatedFileName,
-      originalName: sanitizedName,
+      fileName: prepared.generatedFileName,
+      originalName: prepared.sanitizedName,
       mimeType: options.mimeType,
       size: options.size,
       provider: this.provider.type,
-      providerKey: uploadResult.value.providerKey,
-      url: uploadResult.value.url ?? null,
+      providerKey: providerResult.providerKey,
+      url: providerResult.url ?? null,
       metadata: options.metadata ?? null,
       moduleId: options.moduleId ?? null,
       entityId: options.entityId ?? null,
@@ -989,12 +1123,11 @@ export class StorageService {
     });
 
     if (createResult.isErr()) {
-      // D3: Best-effort rollback — check result and log on failure
-      const rollbackResult = await this.provider.delete(providerKey);
+      const rollbackResult = await this.provider.delete(prepared.providerKey);
       if (rollbackResult.isErr()) {
         this.logger.warn({
           code: STORAGE_ERRORS.ROLLBACK_FAILED,
-          providerKey,
+          providerKey: prepared.providerKey,
           provider: this.provider.type,
           originalError: createResult.error.code,
           rollbackError: rollbackResult.error.code,
@@ -1003,9 +1136,12 @@ export class StorageService {
       return err(createResult.error);
     }
 
-    // 7. Emit storage.file.uploaded event (FR-007) — fire-and-log pattern
-    const attachment = createResult.value;
-    const uploadedPayload: StorageFileUploadedPayload = {
+    return ok(createResult.value);
+  }
+
+  /** Emit storage.file.uploaded event via fire-and-log pattern (FR-007) */
+  private async emitUploadEvent(attachment: Attachment, options: UploadOptions): Promise<void> {
+    const payload: StorageFileUploadedPayload = {
       attachmentId: attachment.id,
       fileName: attachment.fileName,
       originalName: attachment.originalName,
@@ -1016,7 +1152,7 @@ export class StorageService {
       entityId: options.entityId,
       uploadedBy: attachment.createdBy ?? undefined,
     };
-    const publishResult = await this.eventBus.publish('storage.file.uploaded', uploadedPayload);
+    const publishResult = await this.eventBus.publish('storage.file.uploaded', payload);
     if (publishResult.isErr()) {
       this.logger.warn({
         code: STORAGE_ERRORS.EVENT_PUBLISH_FAILED,
@@ -1025,8 +1161,6 @@ export class StorageService {
         error: publishResult.error.code,
       });
     }
-
-    return ok(attachment);
   }
 
   /** Download a file by attachment ID */
@@ -1206,7 +1340,6 @@ S3, Google Drive, and Telegram integration tests require live credentials/bots a
 | `@tempot/shared`                | workspace:\* | AppError, Result/AsyncResult, QueueFactory | runtime     |
 | `@tempot/database`              | workspace:\* | BaseRepository, Prisma client              | runtime     |
 | `@tempot/event-bus`             | workspace:\* | Event publishing                           | runtime     |
-| `@tempot/session-manager`       | workspace:\* | Session context for audit fields           | runtime     |
 | `@tempot/logger`                | workspace:\* | Structured logging (Pino)                  | runtime     |
 | `@aws-sdk/client-s3`            | 3.x          | S3 operations                              | runtime     |
 | `@aws-sdk/s3-request-presigner` | 3.x          | S3 pre-signed URLs                         | runtime     |

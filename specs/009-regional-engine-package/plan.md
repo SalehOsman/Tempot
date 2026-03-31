@@ -148,7 +148,7 @@ tests/**/*.d.ts
   "devDependencies": {
     "typescript": "5.9.3",
     "vitest": "4.1.0",
-    "countries-states-cities-database": "latest"
+    "countries-states-cities-database": "3.1.0"
   }
 }
 ```
@@ -375,6 +375,17 @@ export class DateService {
       const message = error instanceof Error ? error.message : String(error);
       return err(new AppError('regional.utc_conversion_failed', message));
     }
+  }
+
+  getNow(tz: string): Result<string, AppError> {
+    return this.format(new Date(), 'YYYY-MM-DD HH:mm:ss', { tz });
+  }
+
+  getTimezone(tz: string): Result<string, AppError> {
+    if (!tz) {
+      return err(new AppError('regional.invalid_timezone', 'Timezone is required'));
+    }
+    return ok(tz);
   }
 }
 ```
@@ -785,7 +796,7 @@ export class GeoSelectField {
     }
     const options: GeoOption[] = statesResult.value.map((state) => ({
       label: state.name_ar,
-      value: state.id,
+      value: state.state_code,
     }));
     return statesResult.map(() => options);
   }
@@ -797,7 +808,7 @@ export class GeoSelectField {
     }
     const options: GeoOption[] = citiesResult.value.map((city) => ({
       label: city.name_ar,
-      value: city.id,
+      value: city.name,
     }));
     return citiesResult.map(() => options);
   }
@@ -956,6 +967,23 @@ export class RegionalService {
     };
 
     return ok(context);
+  }
+
+  getCurrencyCode(): Result<string, AppError> {
+    const ctxResult = this.getContext();
+    if (ctxResult.isErr()) return ctxResult.map(() => '');
+    return ok(ctxResult.value.currencyCode);
+  }
+
+  getCurrencySymbol(): Result<string, AppError> {
+    const symbolMap: Record<string, string> = {
+      IQD: 'ع.د',
+      EGP: 'ج.م',
+      USD: '$',
+    };
+    const codeResult = this.getCurrencyCode();
+    if (codeResult.isErr()) return codeResult;
+    return ok(symbolMap[codeResult.value] ?? codeResult.value);
   }
 
   private resolveLocale(lang: string | undefined): string {

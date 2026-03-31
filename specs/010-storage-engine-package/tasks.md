@@ -31,7 +31,7 @@
 - [ ] `package.json` has `"type": "module"`, `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports": { ".": "./dist/index.js" }`
 - [ ] `package.json` has exact versions: `vitest: "4.1.0"`, `typescript: "5.9.3"`, `neverthrow: "8.2.0"`
 - [ ] Dependencies match plan.md: `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `@aws-sdk/lib-storage`, `@googleapis/drive`, `file-type`, `uuid`
-- [ ] Workspace dependencies: `@tempot/shared`, `@tempot/database`, `@tempot/event-bus`, `@tempot/session-manager`, `@tempot/logger`
+- [ ] Workspace dependencies: `@tempot/shared`, `@tempot/database`, `@tempot/event-bus`, `@tempot/logger`
 - [ ] `vitest.config.ts` matches existing package patterns
 - [ ] `src/index.ts` exists as empty barrel file
 - [ ] No compiled artifacts in `src/`
@@ -451,7 +451,8 @@ Task 0 (scaffolding)
   │     ├─→ Task 2 (ValidationService)         ─┐
   │     ├─→ Task 3 (LocalProvider)              ─┤
   │     ├─→ Task 4 (S3Provider)                 ─┤─→ Task 6 (factory)  ─┐
-  │     ├─→ Task 5 (DriveProvider)              ─┘                      │
+  │     ├─→ Task 5 (DriveProvider)              ─┤                      │
+  │     ├─→ Task 5b (TelegramProvider)          ─┘                      │
   │     └─→ Task 10 (event registration)                                │
   │                                                                     │
   ├─→ Task 7 (Prisma model)                                            │
@@ -476,6 +477,7 @@ Task 0 (scaffolding)
 | 3         | LocalProvider           | P1       | 15 min      | FR-001, FR-006            |
 | 4         | S3Provider              | P1       | 15 min      | FR-001, FR-006, D5        |
 | 5         | DriveProvider           | P2       | 15 min      | FR-001, FR-006            |
+| 5b        | TelegramProvider        | P2       | 15 min      | FR-001, FR-006            |
 | 6         | ProviderFactory         | P1       | 5 min       | FR-001, D1, NFR-004       |
 | 7         | Attachment Prisma Model | P1       | 5 min       | FR-003                    |
 | 8         | AttachmentRepository    | P1       | 10 min      | FR-003, Rule XIV          |
@@ -483,4 +485,4 @@ Task 0 (scaffolding)
 | 10        | Event Registration      | P1       | 5 min       | FR-007                    |
 | 11        | Purge Job               | P2       | 10 min      | FR-005, FR-007, D6        |
 | 12        | Barrel Exports          | P1       | 5 min       | All                       |
-| **Total** |                         |          | **140 min** |                           |
+| **Total** |                         |          | **155 min** |                           |

@@ -62,6 +62,7 @@ description: 'Task list template for feature implementation'
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [US1] Unit test for `SessionProvider.getSession` and `saveSession` in `packages/session-manager/tests/provider.test.ts`
+- [ ] T010b [US1] Unit test verifying hierarchical (nested) JSON metadata in Session type is stored and retrieved correctly through Redis and Postgres sync cycle, covering FR-004, in `packages/session-manager/tests/provider.test.ts`
 - [ ] T011 [US1] Integration test verifying Redis fast access and Postgres persistence in `packages/session-manager/tests/integration.test.ts`
 - [ ] T011a [US1] Integration test asserting Redis fast access takes < 2ms (SC-001) in `packages/session-manager/tests/integration.test.ts`
 - [ ] T011b [US1] Unit test verifying sliding TTL logic correctly resets TTL on interaction in `packages/session-manager/tests/provider.test.ts`

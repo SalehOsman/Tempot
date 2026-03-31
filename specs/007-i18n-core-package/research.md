@@ -34,9 +34,9 @@
 
 ### 6. Hardcoded String Detection
 
-- **Decision:** Implement heuristic-based detection in `cms:check` script using regex pattern matching to identify human-readable strings in source code (FR-002, FR-007).
-- **Rationale:** Detects Arabic text (Unicode range), English sentences/phrases (multi-word capitalized strings), while excluding technical patterns (URLs, identifiers, dotted keys, regex, numbers). Runs as `pnpm cms:check` in CI/CD pipeline.
-- **Alternatives considered:** Full AST parsing via `ts-morph` (rejected — heavyweight for string detection), ESLint plugin (rejected — adds runtime dependency for a build-time check).
+- **Decision:** Use AST-based analysis (e.g., `i18next-parser` or `ts-morph`) in the `cms:check` script to detect hardcoded human-readable strings in source code (FR-002, FR-007).
+- **Rationale:** AST-based analysis reliably identifies string literals, template literals, and JSX text nodes by parsing the actual syntax tree, avoiding false positives/negatives inherent in regex patterns. Detects Arabic text (Unicode range) and English sentences/phrases while excluding technical patterns (imports, type annotations, object keys). Runs as `pnpm cms:check` in CI/CD pipeline.
+- **Alternatives considered:** Regex/heuristic-based detection (rejected — too fragile for complex source patterns such as template literals, multi-line strings, and nested expressions), ESLint plugin (rejected — adds runtime dependency for a build-time check).
 
 ### 7. Translation Value Security
 

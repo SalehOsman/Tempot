@@ -77,7 +77,7 @@ As a developer, I want to store the state of the current conversation (e.g., act
 
 ### Measurable Outcomes
 
-- **SC-001**: Session retrieval from Redis must take < 2ms on average.
+- **SC-001**: Session retrieval from Redis must take < 2ms (measured as p95 on localhost Redis in CI environment).
 - **SC-002**: 100% of session changes must be persisted to Postgres eventually with no data loss.
 - **SC-003**: System successfully handles Redis failure by falling back to in-memory temporary storage (Rule XXXII) without crashing or losing user context.
 - **SC-004**: Session structure migrations are handled without interrupting active conversations for users.

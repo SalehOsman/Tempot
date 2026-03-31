@@ -12,7 +12,8 @@ export interface ISessionProvider {
   /**
    * Retrieves a session by the composite key (userId + chatId).
    * 1. Attempts to fetch from Redis.
-   * 2. If missing or Redis fails, falls back to Postgres.
+   * 2. If missing or Redis fails, falls back to in-memory temporary storage (Rule XXXII).
+   *    PostgreSQL is the async persistence target, not a synchronous fallback.
    * 3. Extends the sliding TTL in Redis if retrieved successfully.
    */
   getSession(userId: string, chatId: string): Promise<Result<Session, AppError>>;
@@ -40,7 +41,7 @@ export interface ISessionProvider {
 
 ## Global Access
 
-A global access mechanism using `AsyncLocalStorage` must also be provided, exposing the *current* request's session without passing it explicitly through every function signature.
+A global access mechanism using `AsyncLocalStorage` must also be provided, exposing the _current_ request's session without passing it explicitly through every function signature.
 
 ```typescript
 export const sessionContext: AsyncLocalStorage<Session>;
