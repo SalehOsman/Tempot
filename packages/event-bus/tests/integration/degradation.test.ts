@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator';
-import { ConnectionWatcher } from '../../src/distributed/connection.watcher';
+import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator.js';
+import { ConnectionWatcher } from '../../src/distributed/connection.watcher.js';
 
 interface MockLogger {
   error: ReturnType<typeof vi.fn>;

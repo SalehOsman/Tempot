@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { LocalEventBus } from '../../src/local/local.bus';
+import { LocalEventBus } from '../../src/local/local.bus.js';
 import { AppError } from '@tempot/shared';
 
 describe('LocalEventBus', () => {

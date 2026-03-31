@@ -34,7 +34,7 @@ export type PrismaModelDelegate = object;
 
 /**
  * Internal callable shape for Prisma delegate methods used by BaseRepository.
- * Kept private to this module — consumers use PrismaModelDelegate (Record<string, unknown>).
+ * Kept private to this module — consumers use PrismaModelDelegate (object).
  */
 interface PrismaDelegateMethods {
   findUnique: (args: Record<string, unknown>) => Promise<unknown>;
