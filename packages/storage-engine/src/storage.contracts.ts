@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { StorageProviderType, ProviderUploadResult } from './types.js';
+import type { StorageProviderType, ProviderUploadResult } from './storage.types.js';
 
 /**
  * Abstract storage provider interface (FR-001).

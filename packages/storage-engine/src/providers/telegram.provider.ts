@@ -4,9 +4,9 @@ import { Readable } from 'node:stream';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { ProviderUploadResult, TelegramProviderConfig } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { ProviderUploadResult, TelegramProviderConfig } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class TelegramProvider implements StorageProvider {
   readonly type = 'telegram' as const;
@@ -23,11 +23,9 @@ export class TelegramProvider implements StorageProvider {
   ): AsyncResult<ProviderUploadResult, AppError> {
     try {
       const inputFile = new InputFile(data);
-      const message = await this.api.sendDocument(
-        this.config.storageChatId,
-        inputFile,
-        { caption: key },
-      );
+      const message = await this.api.sendDocument(this.config.storageChatId, inputFile, {
+        caption: key,
+      });
 
       const fileId = message.document?.file_id;
       if (!fileId) {
@@ -51,9 +49,7 @@ export class TelegramProvider implements StorageProvider {
       const response = await fetch(url);
 
       if (!response.ok || !response.body) {
-        return err(
-          new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, `HTTP ${response.status}`),
-        );
+        return err(new AppError(STORAGE_ERRORS.DOWNLOAD_FAILED, `HTTP ${response.status}`));
       }
 
       const nodeStream = Readable.fromWeb(

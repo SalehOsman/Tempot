@@ -11,18 +11,18 @@ export type {
   ProviderUploadResult,
   Attachment,
   VectorIndexer,
-} from './types.js';
-export { DEFAULT_STORAGE_CONFIG } from './types.js';
+} from './storage.types.js';
+export { DEFAULT_STORAGE_CONFIG } from './storage.types.js';
 
 // Contracts
 export type {
   StorageProvider,
   StorageFileUploadedPayload,
   StorageFileDeletedPayload,
-} from './contracts.js';
+} from './storage.contracts.js';
 
 // Errors
-export { STORAGE_ERRORS } from './errors.js';
+export { STORAGE_ERRORS } from './storage.errors.js';
 
 // Validation
 export { ValidationService } from './validation.service.js';
@@ -35,7 +35,11 @@ export { DriveProvider } from './providers/drive.provider.js';
 export { TelegramProvider } from './providers/telegram.provider.js';
 
 // Factory
-export { createStorageProvider, createDriveProvider, createTelegramProvider } from './provider.factory.js';
+export {
+  createStorageProvider,
+  createDriveProvider,
+  createTelegramProvider,
+} from './provider.factory.js';
 
 // Repository
 export { AttachmentRepository } from './attachment.repository.js';

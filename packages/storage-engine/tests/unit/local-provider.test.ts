@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { LocalProvider } from '../../src/providers/local.provider.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
 
 describe('LocalProvider', () => {
   let provider: LocalProvider;

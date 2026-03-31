@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../../src/testing/test-db.js';
+import { TestDB } from '../../src/testing/database.helper.js';
 import { PrismaClient } from '@prisma/client';
 
 describe('Soft Delete Extension', () => {
@@ -19,7 +19,7 @@ describe('Soft Delete Extension', () => {
     });
 
     // Import prisma AFTER DATABASE_URL is set by testDb.start()
-    const mod = await import('../../src/prisma/client');
+    const mod = await import('../../src/prisma/prisma.client.js');
     prisma = mod.prisma;
   }, 120_000);
 

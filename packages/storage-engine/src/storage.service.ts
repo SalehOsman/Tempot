@@ -2,16 +2,16 @@ import type { Readable } from 'node:stream';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from './contracts.js';
-import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './contracts.js';
-import type { UploadOptions, Attachment, ProviderUploadResult } from './types.js';
+import type { StorageProvider } from './storage.contracts.js';
+import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './storage.contracts.js';
+import type { UploadOptions, Attachment, ProviderUploadResult } from './storage.types.js';
 import type {
   StorageLogger,
   StorageEventBus,
   StorageAttachmentRepo,
   StorageValidation,
 } from './storage.interfaces.js';
-import { STORAGE_ERRORS } from './errors.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Dependencies for StorageService (grouped to stay under Rule II param limit) */
 export interface StorageServiceDeps {

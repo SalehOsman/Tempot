@@ -1,6 +1,6 @@
 import { t } from '@tempot/i18n-core';
-import { STATUS_EMOJIS } from '../constants.js';
-import type { StatusFormatOptions } from '../types.js';
+import { STATUS_EMOJIS } from '../ux.constants.js';
+import type { StatusFormatOptions } from '../ux.types.js';
 
 export function formatLoading(options: StatusFormatOptions): string {
   return `${STATUS_EMOJIS.loading} ${t(options.key, options.interpolation)}`;

@@ -6,9 +6,9 @@ import { pipeline } from 'node:stream/promises';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { LocalProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { LocalProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class LocalProvider implements StorageProvider {
   readonly type = 'local' as const;

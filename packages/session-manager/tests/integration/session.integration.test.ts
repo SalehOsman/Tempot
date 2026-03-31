@@ -13,11 +13,11 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { Session } from '../../src/types.js';
-import { SessionProvider } from '../../src/provider.js';
-import { SessionRepository } from '../../src/repository.js';
+import { Session } from '../../src/session.types.js';
+import { SessionProvider } from '../../src/session.provider.js';
+import { SessionRepository } from '../../src/session.repository.js';
 import { TestRedis } from '../utils/test-redis.js';
-import { DEFAULT_SESSION_TTL } from '../../src/constants.js';
+import { DEFAULT_SESSION_TTL } from '../../src/session.constants.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures

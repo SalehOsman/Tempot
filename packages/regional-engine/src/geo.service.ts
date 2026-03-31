@@ -3,7 +3,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import type { GeoState, GeoCity } from './types.js';
+import type { GeoState, GeoCity } from './regional.types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

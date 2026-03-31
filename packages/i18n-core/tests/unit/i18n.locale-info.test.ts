@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getLocaleInfo } from '../../src/locale-info';
-import { sanitizeValue } from '../../src/sanitizer';
+import { getLocaleInfo } from '../../src/i18n.locale-info.js';
+import { sanitizeValue } from '../../src/i18n.sanitizer.js';
 
 describe('Helpers & Sanitizer', () => {
   describe('getLocaleInfo', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sessionContext } from '../../src/context.js';
+import { sessionContext } from '../../src/session.context.js';
 
 describe('sessionContext', () => {
   it('should store and retrieve session in async context', () => {

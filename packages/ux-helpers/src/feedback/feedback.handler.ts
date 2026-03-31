@@ -1,6 +1,6 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { FeedbackOptions } from '../types.js';
+import type { FeedbackOptions } from '../ux.types.js';
 import { sendLoading, sendSuccess, sendError } from '../messages/status.sender.js';
 
 type EditableContext = Parameters<typeof sendLoading>[0];

@@ -1,7 +1,7 @@
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { UX_ERRORS } from '../errors.js';
+import { UX_ERRORS } from '../ux.errors.js';
 import { decodeWithExpiry } from '../callback-data/callback-data.encoder.js';
 
 /** Check whether callback data with an expiry timestamp has expired */

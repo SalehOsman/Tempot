@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { EventBusOrchestrator, OrchestratorConfig } from '../../src/orchestrator.js';
+import { EventBusOrchestrator, OrchestratorConfig } from '../../src/event-bus.orchestrator.js';
 import { ConnectionWatcher } from '../../src/distributed/connection.watcher.js';
 
 interface MockLogger {

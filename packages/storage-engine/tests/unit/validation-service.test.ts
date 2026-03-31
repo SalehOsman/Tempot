@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ValidationService } from '../../src/validation.service.js';
-import { DEFAULT_STORAGE_CONFIG } from '../../src/types.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
-import type { UploadOptions } from '../../src/types.js';
+import { DEFAULT_STORAGE_CONFIG } from '../../src/storage.types.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
+import type { UploadOptions } from '../../src/storage.types.js';
 
 // Mock file-type
 vi.mock('file-type', () => ({

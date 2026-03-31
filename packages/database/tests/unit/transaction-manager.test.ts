@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, Mock } from 'vitest';
 import { TransactionManager } from '../../src/manager/transaction.manager';
-import { prisma, Prisma } from '../../src/prisma/client';
+import { prisma, Prisma } from '../../src/prisma/prisma.client.js';
 import { ok, err, Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
-vi.mock('../../src/prisma/client', () => ({
+vi.mock('../../src/prisma/prisma.client', () => ({
   prisma: {
     $transaction: vi.fn(),
   },

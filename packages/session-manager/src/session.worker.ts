@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
-import { SessionRepository, AuditLogger } from './repository.js';
-import { Session } from './types.js';
+import { SessionRepository, AuditLogger } from './session.repository.js';
+import { Session } from './session.types.js';
 import { prisma } from '@tempot/database';
 import type { ShutdownManager } from '@tempot/shared';
 

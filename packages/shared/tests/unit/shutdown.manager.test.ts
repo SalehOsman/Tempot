@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ShutdownManager } from '../../src/shutdown/shutdown.manager';
-import { AppError } from '../../src/errors';
+import { AppError } from '../../src/shared.errors';
 
 /**
  * Logger interface matching what ShutdownManager expects

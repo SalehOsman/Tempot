@@ -1,6 +1,6 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { generateSchemaFromSource } from '../src/schema.js';
+import { generateSchemaFromSource } from '../src/i18n.schema.js';
 
 /**
  * Represents a violation found by the cms:check script.

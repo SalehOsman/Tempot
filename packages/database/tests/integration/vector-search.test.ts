@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../../src/testing/test-db.js';
+import { TestDB } from '../../src/testing/database.helper.js';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DrizzleVectorRepository } from '../../src/base/vector.repository';
 import { Pool } from 'pg';

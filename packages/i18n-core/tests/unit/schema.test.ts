@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { LocaleSchema, validateLocaleFile, generateSchemaFromSource } from '../../src/schema.js';
+import {
+  LocaleSchema,
+  validateLocaleFile,
+  generateSchemaFromSource,
+} from '../../src/i18n.schema.js';
 
 describe('LocaleSchema', () => {
   describe('LocaleSchema base validation', () => {

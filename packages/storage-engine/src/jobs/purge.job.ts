@@ -2,9 +2,9 @@ import { ok, err } from 'neverthrow';
 import type { Result, AsyncResult } from '@tempot/shared';
 import { AppError, queueFactory } from '@tempot/shared';
 import type { ShutdownManager } from '@tempot/shared';
-import type { StorageFileDeletedPayload } from '../contracts.js';
-import type { Attachment } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageFileDeletedPayload } from '../storage.contracts.js';
+import type { Attachment } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 /** Minimal interfaces for purge job dependencies */
 

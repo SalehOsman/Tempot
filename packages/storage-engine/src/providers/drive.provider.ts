@@ -3,9 +3,9 @@ import type { drive_v3 } from '@googleapis/drive';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { DriveProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { DriveProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class DriveProvider implements StorageProvider {
   readonly type = 'drive' as const;

@@ -34,12 +34,12 @@ vi.mock('@tempot/database', () => {
 });
 
 describe('createSessionWorker', () => {
-  let createSessionWorker: typeof import('../../src/worker.js').createSessionWorker;
+  let createSessionWorker: typeof import('../../src/session.worker.js').createSessionWorker;
   let mockClose: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    const workerModule = await import('../../src/worker.js');
+    const workerModule = await import('../../src/session.worker.js');
     createSessionWorker = workerModule.createSessionWorker;
     const bullmq = await import('bullmq');
     mockClose = (bullmq as unknown as { __mockClose: ReturnType<typeof vi.fn> }).__mockClose;

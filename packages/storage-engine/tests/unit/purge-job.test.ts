@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError, queueFactory } from '@tempot/shared';
 import { processPurge, createPurgeQueue } from '../../src/jobs/purge.job.js';
-import { STORAGE_ERRORS } from '../../src/errors.js';
-import type { Attachment } from '../../src/types.js';
+import { STORAGE_ERRORS } from '../../src/storage.errors.js';
+import type { Attachment } from '../../src/storage.types.js';
 
 // Mock queueFactory from @tempot/shared
 vi.mock('@tempot/shared', async (importOriginal) => {

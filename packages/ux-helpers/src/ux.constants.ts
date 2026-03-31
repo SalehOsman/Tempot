@@ -1,4 +1,4 @@
-import type { StatusType, CharacterLimits, RowLimits, CallbackSeparator } from './types.js';
+import type { StatusType, CharacterLimits, RowLimits, CallbackSeparator } from './ux.types.js';
 
 /** Status emoji mapping per Rule LXV */
 export const STATUS_EMOJIS: Record<StatusType, string> = {

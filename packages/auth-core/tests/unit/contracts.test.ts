@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { RoleEnum } from '../../src/contracts/roles.js';
-import { AppAction } from '../../src/contracts/actions.js';
+import { RoleEnum } from '../../src/contracts/auth.roles.js';
+import { AppAction } from '../../src/contracts/auth.actions.js';
 
 describe('Contracts', () => {
   it('should define correct roles', () => {

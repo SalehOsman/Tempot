@@ -1,9 +1,9 @@
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { UX_ERRORS } from '../errors.js';
-import { CALLBACK_SEPARATOR, MAX_CALLBACK_BYTES } from '../constants.js';
-import type { DecodedCallbackWithExpiry } from '../types.js';
+import { UX_ERRORS } from '../ux.errors.js';
+import { CALLBACK_SEPARATOR, MAX_CALLBACK_BYTES } from '../ux.constants.js';
+import type { DecodedCallbackWithExpiry } from '../ux.types.js';
 
 function getByteLength(str: string): number {
   return new TextEncoder().encode(str).length;

@@ -4,8 +4,8 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { validateLabel, isLongLabel } from './label.validator.js';
 import { encodeCallbackData } from '../callback-data/callback-data.encoder.js';
-import { ROW_LIMITS } from '../constants.js';
-import type { InlineButtonConfig } from '../types.js';
+import { ROW_LIMITS } from '../ux.constants.js';
+import type { InlineButtonConfig } from '../ux.types.js';
 
 export interface TempotInlineKeyboard {
   button(config: InlineButtonConfig): Result<TempotInlineKeyboard, AppError>;

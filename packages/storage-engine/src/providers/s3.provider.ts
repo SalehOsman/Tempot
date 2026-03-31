@@ -10,9 +10,9 @@ import { getSignedUrl as awsGetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { StorageProvider } from '../contracts.js';
-import type { S3ProviderConfig, ProviderUploadResult } from '../types.js';
-import { STORAGE_ERRORS } from '../errors.js';
+import type { StorageProvider } from '../storage.contracts.js';
+import type { S3ProviderConfig, ProviderUploadResult } from '../storage.types.js';
+import { STORAGE_ERRORS } from '../storage.errors.js';
 
 export class S3Provider implements StorageProvider {
   readonly type = 's3' as const;

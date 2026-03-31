@@ -1,4 +1,4 @@
-import type { MockContextOptions, MockContextCalls } from '../types.js';
+import type { MockContextOptions, MockContextCalls } from '../ux.types.js';
 
 interface TrackedFn {
   (...args: unknown[]): Promise<unknown>;

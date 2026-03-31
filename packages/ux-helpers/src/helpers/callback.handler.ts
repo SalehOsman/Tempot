@@ -1,8 +1,8 @@
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { AnswerCallbackOptions } from '../types.js';
-import { UX_ERRORS } from '../errors.js';
+import type { AnswerCallbackOptions } from '../ux.types.js';
+import { UX_ERRORS } from '../ux.errors.js';
 
 interface CallbackContext {
   answerCallbackQuery(options: {

@@ -4,8 +4,8 @@ import { AppError } from '@tempot/shared';
 import { basename } from 'node:path';
 import { v7 as uuidv7 } from 'uuid';
 import { fileTypeFromBuffer } from 'file-type';
-import type { StorageConfig, UploadOptions } from './types.js';
-import { STORAGE_ERRORS } from './errors.js';
+import type { StorageConfig, UploadOptions } from './storage.types.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Sanitized file info after validation */
 export interface ValidatedFile {

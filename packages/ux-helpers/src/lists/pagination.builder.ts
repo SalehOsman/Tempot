@@ -3,7 +3,7 @@ import { ok } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
-import type { PaginationOptions } from '../types.js';
+import type { PaginationOptions } from '../ux.types.js';
 
 export function buildPagination(options: PaginationOptions): Result<InlineKeyboard, AppError> {
   const { currentPage, totalPages, callbackPrefix } = options;

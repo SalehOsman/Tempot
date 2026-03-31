@@ -3,13 +3,17 @@ import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { drive_v3 } from '@googleapis/drive';
 import type { Api } from 'grammy';
-import type { StorageProvider } from './contracts.js';
-import type { StorageConfig, DriveProviderConfig, TelegramProviderConfig } from './types.js';
+import type { StorageProvider } from './storage.contracts.js';
+import type {
+  StorageConfig,
+  DriveProviderConfig,
+  TelegramProviderConfig,
+} from './storage.types.js';
 import { LocalProvider } from './providers/local.provider.js';
 import { S3Provider } from './providers/s3.provider.js';
 import { DriveProvider } from './providers/drive.provider.js';
 import { TelegramProvider } from './providers/telegram.provider.js';
-import { STORAGE_ERRORS } from './errors.js';
+import { STORAGE_ERRORS } from './storage.errors.js';
 
 /** Create a StorageProvider based on config (D1: Provider Strategy Pattern) */
 export function createStorageProvider(config: StorageConfig): Result<StorageProvider, AppError> {
