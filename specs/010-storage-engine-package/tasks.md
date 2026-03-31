@@ -303,14 +303,14 @@
 **Acceptance criteria:**
 
 - [ ] `StorageService` class exported
-- [ ] `StorageServiceDeps` interface exported (groups 6 dependencies: provider, attachmentRepo, validation, eventBus, logger, config — Rule II compliance)
+- [ ] `StorageServiceDeps` interface exported (groups 5 dependencies: provider, attachmentRepo, validation, eventBus, logger — Rule II compliance)
 - [ ] Constructor takes `StorageServiceDeps` object
 - [ ] `upload(data, options)` returns `AsyncResult<Attachment, AppError>`
 - [ ] Upload flow: validate → MIME magic byte check (if Buffer) → generate provider key → upload to provider → create DB record → emit event → return attachment
 - [ ] Upload generates correct path structure: `{moduleId ?? 'general'}/{YYYY-MM}/{uuidv7}.{ext}`
 - [ ] Upload calls `validation.validateMimeType()` for Buffer data before uploading (Edge Case: MIME spoofing)
 - [ ] Upload emits `storage.file.uploaded` via fire-and-log pattern: checks `eventBus.publish()` result, logs warning on failure, still returns success
-- [ ] Upload sets `isEncrypted` based on provider type: `true` for S3/Drive, `false` for Local (D5)
+- [ ] Upload sets `isEncrypted` based on provider type: `true` for S3/Drive/Telegram, `false` for Local (D5)
 - [ ] Two-phase rollback (D3): if DB insert fails, checks rollback result and logs `STORAGE_ERRORS.ROLLBACK_FAILED` on cleanup failure
 - [ ] `download(attachmentId)` returns `AsyncResult<Readable, AppError>` — looks up attachment then calls provider
 - [ ] `delete(attachmentId)` returns `AsyncResult<void, AppError>` — looks up attachment, soft-deletes, then emits `storage.file.deleted` with `permanent: false` via fire-and-log pattern
@@ -363,6 +363,7 @@
 **Acceptance criteria:**
 
 - [ ] Uses `queueFactory('storage-purge')` from `@tempot/shared` to create BullMQ queue
+- [ ] `createPurgeQueue` accepts optional `ShutdownManager` parameter for graceful shutdown (Rule XVII)
 - [ ] Worker processes jobs by: querying `AttachmentRepository.findExpiredDeleted(beforeDate)` where `beforeDate = now - retentionDays`
 - [ ] For each expired record: calls `provider.delete(providerKey)` then permanently removes DB record
 - [ ] Emits `storage.file.deleted` with `permanent: true` for each permanently deleted record (FR-007, D6)

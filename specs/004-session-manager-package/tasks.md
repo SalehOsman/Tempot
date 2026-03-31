@@ -108,6 +108,8 @@ description: "Task list template for feature implementation"
 - [ ] T024 [P] Ensure all internal errors are mapped correctly using Result pattern
 - [ ] T025 [P] Create `README.md` for the package
 - [ ] T026 Add standard JSDoc/TSDoc to public interfaces
+- [ ] T027 [P] Verify package passes package-creation-checklist.md (10-point check)
+- [ ] T028 [P] Add ShutdownManager registration for BullMQ Worker (Rule XVII)
 
 ---
 

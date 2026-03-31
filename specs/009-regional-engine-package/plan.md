@@ -54,6 +54,7 @@ export interface GeoCity {
 export interface GeoOption {
   label: string; // Display text (e.g., Arabic name)
   value: string; // Unique identifier (e.g., state code)
+  i18nKey?: string; // Translation key (e.g., 'geo.EG.states.CAI') — optional for backward compat
 }
 
 /** Default regional context — Egypt as primary market (Rule XLII) */
@@ -293,7 +294,7 @@ describe('DateService', () => {
 
   it('should format UTC date to Cairo local time in Arabic', () => {
     const date = new Date('2025-03-15T12:00:00Z');
-    const result = service.format(date, 'LL', 'ar', 'Africa/Cairo');
+    const result = service.format(date, 'LL', { locale: 'ar', tz: 'Africa/Cairo' });
     expect(result.isOk()).toBe(true);
     expect(result.value).toContain('مارس');
     expect(result.value).toContain('٢٠٢٥');
@@ -301,7 +302,7 @@ describe('DateService', () => {
 
   it('should format date for Riyadh timezone', () => {
     const date = new Date('2025-03-15T12:00:00Z');
-    const result = service.format(date, 'LL', 'ar', 'Asia/Riyadh');
+    const result = service.format(date, 'LL', { locale: 'ar', tz: 'Asia/Riyadh' });
     expect(result.isOk()).toBe(true);
     expect(result.value).toContain('٢٠٢٥');
   });
@@ -314,7 +315,7 @@ describe('DateService', () => {
 
   it('should return err for invalid timezone', () => {
     const date = new Date('2025-03-15T12:00:00Z');
-    const result = service.format(date, 'LL', 'ar', 'Invalid/Timezone');
+    const result = service.format(date, 'LL', { locale: 'ar', tz: 'Invalid/Timezone' });
     expect(result.isErr()).toBe(true);
     expect(result.error.code).toBe('regional.invalid_timezone');
   });
@@ -341,13 +342,19 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(localizedFormat);
 
+export interface DateFormatOptions {
+  locale?: string;
+  tz?: string;
+}
+
 export class DateService {
   format(
     date: Date | string | number,
     formatStr: string,
-    locale: string = 'ar',
-    tz: string = 'Africa/Cairo',
+    options: DateFormatOptions = {},
   ): Result<string, AppError> {
+    const { locale = 'ar', tz = 'Africa/Cairo' } = options;
+
     try {
       const result = dayjs(date).tz(tz).locale(locale).format(formatStr);
       if (!result || result === 'Invalid Date') {
@@ -812,6 +819,17 @@ git commit -m "feat(regional): implement GeoSelectField — plain GeoOption[] da
 ---
 
 ### Task 6: Unified Regional Service (FR-007)
+
+**Session Field Mappings:** In dynamic mode, `RegionalService.getContext()` resolves `RegionalContext` from session-manager fields as follows:
+
+| Session Field     | RegionalContext Field | Fallback                              |
+| ----------------- | --------------------- | ------------------------------------- |
+| `store.timezone`  | `timezone`            | `DEFAULT_REGIONAL_CONTEXT.timezone`   |
+| `store.lang`      | `locale` (via map)    | `DEFAULT_REGIONAL_CONTEXT.locale`     |
+| `store.currency`  | `currencyCode`        | `DEFAULT_REGIONAL_CONTEXT.currencyCode` |
+| `store.country`   | `countryCode`         | `DEFAULT_REGIONAL_CONTEXT.countryCode`  |
+
+The `lang` → `locale` mapping converts short language codes (e.g., `'ar'` → `'ar-EG'`, `'en'` → `'en-US'`). Unknown codes pass through unchanged.
 
 **Files:**
 

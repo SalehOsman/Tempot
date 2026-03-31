@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
-import { AppError } from '@tempot/shared';
+import { AppError, queueFactory } from '@tempot/shared';
 import { processPurge, createPurgeQueue } from '../../src/jobs/purge.job.js';
 import { STORAGE_ERRORS } from '../../src/errors.js';
 import type { Attachment } from '../../src/types.js';
@@ -150,5 +150,56 @@ describe('createPurgeQueue', () => {
   it('should create a queue via queueFactory', () => {
     const result = createPurgeQueue();
     expect(result.isOk()).toBe(true);
+  });
+
+  it('should pass shutdownManager to queueFactory when provided', () => {
+    const mockShutdownManager = { register: vi.fn() };
+    const mockedQueueFactory = vi.mocked(queueFactory);
+    mockedQueueFactory.mockClear();
+
+    createPurgeQueue(mockShutdownManager as never);
+
+    expect(mockedQueueFactory).toHaveBeenCalledWith('storage-purge', {
+      shutdownManager: mockShutdownManager,
+    });
+  });
+
+  it('should return Result<Queue, AppError> (not Result<unknown, AppError>)', () => {
+    const result = createPurgeQueue();
+    if (result.isOk()) {
+      // The value should have the shape returned by queueFactory (a Queue)
+      // We verify it's not typed as unknown by accessing .name
+      const queue = result.value;
+      expect(queue).toHaveProperty('name', 'storage-purge');
+    }
+  });
+});
+
+describe('PurgeJob - eventBus.publish failure (fire-and-log)', () => {
+  let deps: ReturnType<typeof createMockDeps>;
+
+  beforeEach(() => {
+    deps = createMockDeps();
+  });
+
+  it('should log warning when eventBus.publish fails during purge but still succeed', async () => {
+    const expired = [makeAttachment({ id: 'att-1' })];
+    deps.attachmentRepo.findExpiredDeleted.mockResolvedValue(ok(expired));
+    deps.eventBus.publish.mockResolvedValue(err(new AppError('event_bus.publish_failed')));
+
+    const result = await processPurge(deps);
+
+    // Purge should still succeed even though event publishing failed
+    expect(result.isOk()).toBe(true);
+    // The record should still be hard-deleted
+    expect(deps.attachmentRepo.hardDelete).toHaveBeenCalledWith(['att-1']);
+    // Logger should have warned about the event publish failure
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: STORAGE_ERRORS.EVENT_PUBLISH_FAILED,
+        event: 'storage.file.deleted',
+        attachmentId: 'att-1',
+      }),
+    );
   });
 });

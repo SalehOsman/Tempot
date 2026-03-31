@@ -23,6 +23,13 @@ describe('encodeCallbackData', () => {
     const result = encodeCallbackData(longParts);
     expect(result.isErr()).toBe(true);
   });
+
+  it('should encode parts containing colon as-is (no escaping)', () => {
+    const result = encodeCallbackData(['a:b', 'c']);
+    expect(result.isOk()).toBe(true);
+    // Parts with colons are joined directly; decode will split differently
+    expect(result._unsafeUnwrap()).toBe('a:b:c');
+  });
 });
 
 describe('decodeCallbackData', () => {

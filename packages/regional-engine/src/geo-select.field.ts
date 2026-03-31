@@ -15,6 +15,7 @@ export class GeoSelectField {
       states.map((state) => ({
         label: state.name_ar,
         value: state.id,
+        i18nKey: state.i18nKey,
       })),
     );
   }
@@ -24,6 +25,7 @@ export class GeoSelectField {
       cities.map((city) => ({
         label: city.name_ar,
         value: city.id,
+        i18nKey: city.i18nKey,
       })),
     );
   }

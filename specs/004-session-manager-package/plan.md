@@ -55,10 +55,21 @@ packages/session-manager/
 │   ├── index.ts
 │   ├── provider.ts
 │   ├── context.ts
-│   └── types.ts
+│   ├── types.ts
+│   ├── constants.ts
+│   ├── migrator.ts
+│   ├── repository.ts
+│   └── worker.ts
 └── tests/
-    ├── provider.test.ts
-    └── integration.test.ts
+    ├── unit/
+    │   ├── provider.test.ts
+    │   ├── context.test.ts
+    │   ├── migration.test.ts
+    │   └── session.worker.test.ts
+    ├── integration/
+    │   └── session-integration.test.ts
+    └── utils/
+        └── test-redis.ts
 ```
 
 **Structure Decision**: A single-package layout under `packages/session-manager` aligns with the Tempot V11 architecture.

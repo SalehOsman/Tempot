@@ -64,7 +64,10 @@ export class SessionProvider implements ISessionProvider {
     } else if (cachedResult.value) {
       const session = cachedResult.value;
       // Sliding TTL: Extend expiration using EXPIRE to avoid redundant round-trip
-      await this.deps.cache.expire(key, DEFAULT_SESSION_TTL);
+      const expireResult = await this.deps.cache.expire(key, DEFAULT_SESSION_TTL);
+      if (expireResult.isErr()) {
+        this.alertDegradation('expire', expireResult.error);
+      }
       return ok(session);
     }
 
@@ -79,7 +82,10 @@ export class SessionProvider implements ISessionProvider {
       }
       const session = migrationResult.value;
       // Sync migrated session back to cache
-      await this.deps.cache.set(key, session, DEFAULT_SESSION_TTL);
+      const syncResult = await this.deps.cache.set(key, session, DEFAULT_SESSION_TTL);
+      if (syncResult.isErr()) {
+        this.alertDegradation('set', syncResult.error);
+      }
       return ok(session);
     }
 
@@ -111,11 +117,14 @@ export class SessionProvider implements ISessionProvider {
     }
 
     // 2. Publish Event for async sync to Postgres
-    await this.deps.eventBus.publish('session-manager.session.updated', {
+    const publishResult = await this.deps.eventBus.publish('session-manager.session.updated', {
       userId: session.userId,
       chatId: session.chatId,
       sessionData: updatedSession,
     });
+    if (publishResult.isErr()) {
+      this.alertDegradation('publish', publishResult.error);
+    }
 
     return ok(undefined);
   }

@@ -80,4 +80,18 @@ describe('DateService', () => {
       }
     });
   });
+
+  describe('DateService Performance (NFR-001)', () => {
+    it('should format date in < 5ms on average', () => {
+      const date = new Date('2026-01-15T10:30:00Z');
+      const iterations = 100;
+      const start = performance.now();
+      for (let i = 0; i < iterations; i++) {
+        service.format(date, 'YYYY-MM-DD HH:mm', { locale: 'ar', tz: 'Africa/Cairo' });
+      }
+      const elapsed = performance.now() - start;
+      const avgMs = elapsed / iterations;
+      expect(avgMs).toBeLessThan(5);
+    });
+  });
 });

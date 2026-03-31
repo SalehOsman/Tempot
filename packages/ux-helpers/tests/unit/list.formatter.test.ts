@@ -78,4 +78,22 @@ describe('formatList', () => {
     const formatted = result._unsafeUnwrap();
     expect(formatted.emptyActionButton).toBeUndefined();
   });
+
+  it('should format a list with more than 10 items using text numbers for overflow', () => {
+    const items = Array.from({ length: 15 }, (_, i) => `Item ${i + 1}`);
+    const result = formatList({
+      titleKey: 'items.title',
+      items,
+      renderItem: (item) => item,
+    });
+    expect(result.isOk()).toBe(true);
+    const formatted = result._unsafeUnwrap();
+    // First 10 items use emoji numbers
+    expect(formatted.text).toContain('1\uFE0F\u20E3 Item 1');
+    expect(formatted.text).toContain('\uD83D\uDD1F Item 10');
+    // Items 11+ use text numbers with dot
+    expect(formatted.text).toContain('11. Item 11');
+    expect(formatted.text).toContain('15. Item 15');
+    expect(formatted.text).toContain('"count":15');
+  });
 });

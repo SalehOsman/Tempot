@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { SessionRepository, AuditLogger } from './repository.js';
 import { Session } from './types.js';
 import { prisma } from '@tempot/database';
+import type { ShutdownManager } from '@tempot/shared';
 
 export const SESSION_SYNC_QUEUE = 'session-sync';
 
@@ -20,6 +21,8 @@ export interface SessionWorkerOptions {
     port: number;
     password?: string;
   };
+  /** When provided, worker.close() is registered for graceful shutdown (Rule XVII). */
+  shutdownManager?: ShutdownManager;
 }
 
 const noopAuditLogger: AuditLogger = { log: async () => {} };
@@ -51,7 +54,7 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
     port: Number(process.env.REDIS_PORT) || 6379,
   };
 
-  return new Worker(
+  const worker = new Worker(
     SESSION_SYNC_QUEUE,
     async (job: Job<{ userId: string; chatId: string; sessionData: Session }>) => {
       const { sessionData } = job.data;
@@ -79,4 +82,12 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
     },
     { connection },
   );
+
+  if (options.shutdownManager) {
+    options.shutdownManager.register(async () => {
+      await worker.close();
+    });
+  }
+
+  return worker;
 };
