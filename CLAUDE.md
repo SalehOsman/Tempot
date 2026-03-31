@@ -66,18 +66,19 @@ tasks.md ──────────────────→   writing-pla
 
 ### Handoff Gate (Before Superpowers starts)
 
-These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `/speckit.analyze` passed.
+These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `data-model.md`, `research.md`, `/speckit.analyze` passed, `pnpm spec:validate` passed (0 CRITICAL).
 
 ### Quality Gates
 
-| Gate         | Criteria                                    |
-| ------------ | ------------------------------------------- |
-| Spec Gate    | Acceptance criteria + edge cases documented |
-| Plan Gate    | `/speckit.analyze` passes                   |
-| Handoff Gate | spec.md + plan.md + tasks.md exist          |
-| TDD Gate     | Every code change has failing test first    |
-| Review Gate  | Zero CRITICAL issues                        |
-| Merge Gate   | All tests pass, all acceptance criteria met |
+| Gate                | Criteria                                                         |
+| ------------------- | ---------------------------------------------------------------- |
+| Spec Gate           | Acceptance criteria + edge cases documented                      |
+| Plan Gate           | `/speckit.analyze` passes                                        |
+| Handoff Gate        | spec.md + plan.md + tasks.md + data-model.md + research.md exist |
+| TDD Gate            | Every code change has failing test first                         |
+| Review Gate         | Zero CRITICAL issues                                             |
+| Reconciliation Gate | `pnpm spec:validate` passes (0 CRITICAL)                         |
+| Merge Gate          | All tests pass, all acceptance criteria met                      |
 
 ## Tech Stack (Locked Versions)
 

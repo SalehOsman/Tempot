@@ -549,7 +549,10 @@ Before Superpowers begins, these MUST exist:
 - `spec.md` with clarifications resolved (no `[NEEDS CLARIFICATION]` markers)
 - `plan.md` with tech stack decisions
 - `tasks.md` with ordered task breakdown
+- `data-model.md` with entity definitions
+- `research.md` with technical research findings
 - `/speckit.analyze` passed with zero critical issues
+- `pnpm spec:validate` passed with zero CRITICAL issues
 
 ### LXXXIII. Superpowers — Execution Toolchain
 
@@ -601,14 +604,15 @@ Multiple packages may be in specification simultaneously.
 
 ### LXXXVI. Quality Gates
 
-| Gate         | When                 | Criteria                                                     |
-| ------------ | -------------------- | ------------------------------------------------------------ |
-| Spec Gate    | After clarify        | User stories have acceptance criteria, edge cases documented |
-| Plan Gate    | After analyze        | `/speckit.analyze` passes, no critical issues                |
-| Handoff Gate | Before brainstorming | spec.md + plan.md + tasks.md exist                           |
-| TDD Gate     | During execution     | Every code change has a failing test first                   |
-| Review Gate  | After code review    | Zero CRITICAL issues                                         |
-| Merge Gate   | Before finish        | All tests pass, all acceptance criteria met                  |
+| Gate                | When                 | Criteria                                                         |
+| ------------------- | -------------------- | ---------------------------------------------------------------- |
+| Spec Gate           | After clarify        | User stories have acceptance criteria, edge cases documented     |
+| Plan Gate           | After analyze        | `/speckit.analyze` passes, no critical issues                    |
+| Handoff Gate        | Before brainstorming | spec.md + plan.md + tasks.md + data-model.md + research.md exist |
+| TDD Gate            | During execution     | Every code change has a failing test first                       |
+| Review Gate         | After code review    | Zero CRITICAL issues                                             |
+| Reconciliation Gate | Before merge         | `pnpm spec:validate` passes with zero CRITICAL issues            |
+| Merge Gate          | Before finish        | All tests pass, all acceptance criteria met                      |
 
 ### LXXXVII. Hotfix Track
 
