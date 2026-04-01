@@ -44,6 +44,7 @@ A standalone package `packages/sentry/` (`@tempot/sentry`) that:
 - `@tempot/sentry` depends on `@tempot/shared` (AppError, Result, createToggleGuard)
 - `@tempot/sentry` does NOT depend on `@tempot/logger` (separation of concerns)
 - Consumers (application layer, grammY error handler) import from `@tempot/sentry`
+- Internal diagnostics use `process.stderr.write(JSON.stringify(...))` (Rule LXXIV — no `console.*`, no logger dependency)
 
 ### File Structure
 
@@ -77,7 +78,9 @@ export interface SentryConfig {
   dsn: string;
   environment: string;
   release?: string;
+  /** Defaults to SENTRY_DEFAULT_SAMPLE_RATE (1.0) */
   sampleRate?: number;
+  /** Defaults to 0 (tracing disabled) */
   tracesSampleRate?: number;
 }
 
@@ -98,6 +101,7 @@ export function initSentry(config?: Partial<SentryConfig>): Result<void, AppErro
 /**
  * Flush pending events and close the Sentry SDK.
  * Rule XVII: Graceful Shutdown.
+ * AsyncResult<void> = Promise<Result<void, AppError>> (from @tempot/shared)
  */
 export function closeSentry(timeoutMs?: number): AsyncResult<void>;
 ```
@@ -108,13 +112,15 @@ export function closeSentry(timeoutMs?: number): AsyncResult<void>;
 export class SentryReporter {
   /**
    * Report an error to Sentry with its reference code as a tag.
-   * Returns the Sentry event ID on success.
-   * No-op if toggle is disabled.
+   * Returns the Sentry event ID on success, null if toggle is disabled (silent no-op).
+   * Design rationale: Sentry is optional — callers should not be forced to handle
+   * "disabled" errors. ok(null) means "nothing to report" without error handling.
    */
   report(error: AppError): Result<string | null, AppError>;
 
   /**
    * Report with an explicit reference code override.
+   * Returns null if toggle is disabled.
    */
   reportWithReference(error: AppError, referenceCode: string): Result<string | null, AppError>;
 }
@@ -122,21 +128,31 @@ export class SentryReporter {
 
 ## Toggle Behavior (Rule XVI)
 
+The standard `createToggleGuard()` defaults to **enabled** (treats absence of env var as enabled).
+Sentry defaults to **disabled** per Section 30. To handle this, `sentry.toggle.ts` uses a
+**custom toggle guard** that inverts the default: enabled only when `TEMPOT_SENTRY=true` explicitly.
+
 | `TEMPOT_SENTRY`   | `initSentry()`                       | `report()`                                 |
 | ----------------- | ------------------------------------ | ------------------------------------------ |
-| `false` (default) | Returns `ok()` silently, no SDK init | Returns `err(sentry.disabled)`             |
+| unset (default)   | Returns `ok()` silently, no SDK init | Returns `ok(null)` (silent no-op)          |
+| `false`           | Returns `ok()` silently, no SDK init | Returns `ok(null)` (silent no-op)          |
 | `true`            | Initializes `@sentry/node` SDK       | Forwards to Sentry with reference code tag |
 | `true` but no DSN | Returns `err(sentry.dsn_missing)`    | Returns `err(sentry.not_initialized)`      |
 
+**Design rationale**: Sentry is a fully optional observability tool. When disabled, callers
+receive `ok(null)` (not `err`) so they don't need error handling for a non-error condition.
+Only actual failures (missing DSN, SDK crash) produce `err`.
+
 ## Error Codes (Rule XXII)
 
-| Code                     | Meaning                                    |
-| ------------------------ | ------------------------------------------ |
-| `sentry.disabled`        | Package disabled via `TEMPOT_SENTRY=false` |
-| `sentry.dsn_missing`     | `SENTRY_DSN` env var not set when enabled  |
-| `sentry.init_failed`     | `Sentry.init()` threw an exception         |
-| `sentry.not_initialized` | `report()` called before `initSentry()`    |
-| `sentry.report_failed`   | `Sentry.captureException()` failed         |
+| Code                     | Meaning                                   |
+| ------------------------ | ----------------------------------------- |
+| `sentry.dsn_missing`     | `SENTRY_DSN` env var not set when enabled |
+| `sentry.init_failed`     | `Sentry.init()` threw an exception        |
+| `sentry.not_initialized` | `report()` called before `initSentry()`   |
+| `sentry.report_failed`   | `Sentry.captureException()` failed        |
+
+Note: `sentry.disabled` was removed — when disabled, methods return `ok(null)` not `err`.
 
 ## Reference Code Tagging (Rule XXIV)
 
@@ -177,10 +193,13 @@ export const SENTRY_DSN_ENV_VAR = 'SENTRY_DSN';
 
 ## Dependencies
 
-| Dependency       | Version   | Purpose                                                     |
-| ---------------- | --------- | ----------------------------------------------------------- |
-| `@sentry/node`   | `8.x`     | Error tracking SDK (Section 35.5)                           |
-| `@tempot/shared` | workspace | AppError, Result, createToggleGuard, generateErrorReference |
+| Dependency       | Version     | Purpose                                                     |
+| ---------------- | ----------- | ----------------------------------------------------------- |
+| `@sentry/node`   | `8.x`       | Error tracking SDK (Section 35.5)                           |
+| `@tempot/shared` | `workspace` | AppError, Result, createToggleGuard, generateErrorReference |
+| `neverthrow`     | `8.2.0`     | Result pattern (exact version, Rule LXXVI)                  |
+| `vitest`         | `4.1.0`     | Test framework (exact version, Rule LXXVI, devDep)          |
+| `typescript`     | `5.9.3`     | Compiler (exact version, devDep)                            |
 
 No dependency on `@tempot/logger` — the Sentry package operates independently.
 
@@ -188,11 +207,11 @@ No dependency on `@tempot/logger` — the Sentry package operates independently.
 
 All unit tests use **mocked `@sentry/node`** — no real DSN needed.
 
-| Test File                 | Coverage                                                                                                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sentry.client.test.ts`   | init with valid config, init when disabled (no-op), missing DSN error, close flushes, close when not initialized                                                              |
-| `sentry.reporter.test.ts` | report sets reference code tag, report generates reference if missing, report when disabled returns err, reportWithReference uses explicit code, error code tag set correctly |
-| `sentry.toggle.test.ts`   | default disabled, enabled when true, responds to runtime changes                                                                                                              |
+| Test File                 | Coverage                                                                                                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sentry.client.test.ts`   | init with valid config, init when disabled (no-op), missing DSN error, close flushes, close when not initialized                                                                   |
+| `sentry.reporter.test.ts` | report sets reference code tag, report generates reference if missing, report when disabled returns ok(null), reportWithReference uses explicit code, error code tag set correctly |
+| `sentry.toggle.test.ts`   | default disabled (inverted from standard guard), enabled when TEMPOT_SENTRY=true, responds to runtime changes                                                                      |
 
 ## Out of Scope
 
