@@ -14,14 +14,14 @@
 
 **Files:**
 
-- Create: `packages/event-bus/src/types/event.types.ts`
-- Test: `packages/event-bus/tests/unit/event-naming.test.ts`
+- Create: `packages/event-bus/src/event-bus.contracts.ts`
+- Test: `packages/event-bus/tests/unit/local-bus.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { validateEventName } from '../src/types/event.types';
+import { validateEventName } from '../src/event-bus.contracts';
 
 describe('Event Naming Convention', () => {
   it('should validate name in format {module}.{entity}.{action}', () => {
@@ -34,7 +34,7 @@ describe('Event Naming Convention', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/unit/event-naming.test.ts`
+Run: `pnpm test packages/event-bus/tests/unit/local-bus.test.ts`
 Expected: FAIL (validateEventName not defined)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -63,13 +63,13 @@ export function validateEventName(name: string): boolean {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/unit/event-naming.test.ts`
+Run: `pnpm test packages/event-bus/tests/unit/local-bus.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/types/event.types.ts packages/event-bus/tests/unit/event-naming.test.ts
+git add packages/event-bus/src/event-bus.contracts.ts packages/event-bus/tests/unit/local-bus.test.ts
 git commit -m "feat(event-bus): define event types and naming validation (FR-002)"
 ```
 
@@ -79,14 +79,14 @@ git commit -m "feat(event-bus): define event types and naming validation (FR-002
 
 **Files:**
 
-- Create: `packages/event-bus/src/drivers/local.driver.ts`
-- Test: `packages/event-bus/tests/unit/local-driver.test.ts`
+- Create: `packages/event-bus/src/local/local.bus.ts`
+- Test: `packages/event-bus/tests/unit/local-bus.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
-import { LocalDriver } from '../src/drivers/local.driver';
+import { LocalEventBus } from '../src/local/local.bus';
 
 describe('LocalDriver', () => {
   it('should emit and receive events locally', async () => {
@@ -101,14 +101,14 @@ describe('LocalDriver', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/unit/local-driver.test.ts`
+Run: `pnpm test packages/event-bus/tests/unit/local-bus.test.ts`
 Expected: FAIL (LocalDriver not defined)
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```typescript
 import { EventEmitter } from 'events';
-import { Event } from '../types/event.types';
+import { Event } from '../event-bus.contracts';
 
 export class LocalDriver {
   private emitter = new EventEmitter();
@@ -125,13 +125,13 @@ export class LocalDriver {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/unit/local-driver.test.ts`
+Run: `pnpm test packages/event-bus/tests/unit/local-bus.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/drivers/local.driver.ts packages/event-bus/tests/unit/local-driver.test.ts
+git add packages/event-bus/src/local/local.bus.ts packages/event-bus/tests/unit/local-bus.test.ts
 git commit -m "feat(event-bus): implement LocalDriver using EventEmitter (FR-001)"
 ```
 
@@ -141,14 +141,14 @@ git commit -m "feat(event-bus): implement LocalDriver using EventEmitter (FR-001
 
 **Files:**
 
-- Create: `packages/event-bus/src/drivers/external.driver.ts`
-- Test: `packages/event-bus/tests/integration/external-driver.test.ts`
+- Create: `packages/event-bus/src/distributed/redis.bus.ts`
+- Test: `packages/event-bus/tests/integration/redis-bus.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
-import { ExternalDriver } from '../src/drivers/external.driver';
+import { RedisEventBus } from '../src/distributed/redis.bus';
 import Redis from 'ioredis';
 
 describe('ExternalDriver (Redis)', () => {
@@ -169,13 +169,13 @@ describe('ExternalDriver (Redis)', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/integration/external-driver.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/redis-bus.test.ts`
 Expected: FAIL (ExternalDriver not defined)
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```typescript
-import { Event } from '../types/event.types';
+import { Event } from '../event-bus.contracts';
 import Redis from 'ioredis';
 
 export class ExternalDriver {
@@ -189,13 +189,13 @@ export class ExternalDriver {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/integration/external-driver.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/redis-bus.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/drivers/external.driver.ts packages/event-bus/tests/integration/external-driver.test.ts
+git add packages/event-bus/src/distributed/redis.bus.ts packages/event-bus/tests/integration/redis-bus.test.ts
 git commit -m "feat(event-bus): implement ExternalDriver using Redis Pub/Sub (FR-004)"
 ```
 
@@ -205,14 +205,14 @@ git commit -m "feat(event-bus): implement ExternalDriver using Redis Pub/Sub (FR
 
 **Files:**
 
-- Create: `packages/event-bus/src/event-bus.service.ts`
-- Test: `packages/event-bus/tests/unit/event-bus.service.test.ts`
+- Create: `packages/event-bus/src/event-bus.orchestrator.ts`
+- Test: `packages/event-bus/tests/integration/degradation.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
-import { EventBusService } from '../src/event-bus.service';
+import { EventBusOrchestrator } from '../src/event-bus.orchestrator';
 
 describe('EventBusService', () => {
   it('should support wildcards in event listeners', async () => {
@@ -231,13 +231,13 @@ describe('EventBusService', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/unit/event-bus.service.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: FAIL (EventBusService or wildcard logic missing)
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```typescript
-import { Event, EventLevel, validateEventName } from './types/event.types';
+import { Event, EventLevel, validateEventName } from './event-bus.contracts';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
@@ -285,13 +285,13 @@ export class EventBusService {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/unit/event-bus.service.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/event-bus.service.ts packages/event-bus/tests/unit/event-bus.service.test.ts
+git add packages/event-bus/src/event-bus.orchestrator.ts packages/event-bus/tests/integration/degradation.test.ts
 git commit -m "feat(event-bus): implement unified EventBusService with wildcards (FR-007)"
 ```
 
@@ -301,9 +301,9 @@ git commit -m "feat(event-bus): implement unified EventBusService with wildcards
 
 **Files:**
 
-- Create: `packages/event-bus/src/workers/event.worker.ts`
-- Modify: `packages/event-bus/src/event-bus.service.ts`
-- Test: `packages/event-bus/tests/integration/event-retry.test.ts`
+- Create: `packages/event-bus/src/distributed/connection.watcher.ts`
+- Modify: `packages/event-bus/src/event-bus.orchestrator.ts`
+- Test: `packages/event-bus/tests/integration/degradation.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -321,7 +321,7 @@ describe('Event Retry Strategy', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/integration/event-retry.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: FAIL (No retry logic)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -346,13 +346,13 @@ new Worker('events', async (job) => {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/integration/event-retry.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/workers/event.worker.ts packages/event-bus/src/event-bus.service.ts
+git add packages/event-bus/src/distributed/connection.watcher.ts packages/event-bus/src/event-bus.orchestrator.ts
 git commit -m "feat(event-bus): implement event retry strategy via BullMQ (FR-005)"
 ```
 
@@ -362,14 +362,14 @@ git commit -m "feat(event-bus): implement event retry strategy via BullMQ (FR-00
 
 **Files:**
 
-- Modify: `packages/event-bus/src/event-bus.service.ts`
-- Test: `packages/event-bus/tests/integration/event-audit.test.ts`
+- Modify: `packages/event-bus/src/event-bus.orchestrator.ts`
+- Test: `packages/event-bus/tests/integration/degradation.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
-import { EventBusService } from '../src/event-bus.service';
+import { EventBusOrchestrator } from '../src/event-bus.orchestrator';
 
 describe('Event Audit Logging', () => {
   it('should log every published event to the audit log', async () => {
@@ -383,7 +383,7 @@ describe('Event Audit Logging', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/event-bus/tests/integration/event-audit.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: FAIL (No logging)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -403,12 +403,12 @@ async publish(eventName: string, payload: unknown, level: EventLevel = 'INTERNAL
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/event-bus/tests/integration/event-audit.test.ts`
+Run: `pnpm test packages/event-bus/tests/integration/degradation.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/event-bus/src/event-bus.service.ts
+git add packages/event-bus/src/event-bus.orchestrator.ts
 git commit -m "feat(event-bus): integrate audit logging for events (FR-006)"
 ```

@@ -146,7 +146,7 @@ git commit -m "feat(logger): implement unified AuditLogger service"
 **Files:**
 
 - Modify: `packages/logger/src/technical/pino.logger.ts`
-- Test: `packages/logger/tests/unit/redaction.test.ts`
+- Test: `packages/logger/tests/unit/pino-logger.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -164,7 +164,7 @@ describe('Log Redaction', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/logger/tests/unit/redaction.test.ts`
+Run: `pnpm test packages/logger/tests/unit/pino-logger.test.ts`
 Expected: FAIL (Fields not redacted)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -179,7 +179,7 @@ export const logger = pino({
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/logger/tests/unit/redaction.test.ts`
+Run: `pnpm test packages/logger/tests/unit/pino-logger.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**

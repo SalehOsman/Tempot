@@ -14,14 +14,14 @@
 
 **Files:**
 
-- Create: `packages/auth-core/src/roles/role.definitions.ts`
-- Test: `packages/auth-core/tests/unit/role.test.ts`
+- Create: `packages/auth-core/src/contracts/auth.roles.ts`
+- Test: `packages/auth-core/tests/unit/contracts.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { UserRole, isAtLeastRole } from '../src/roles/role.definitions';
+import { UserRole, isAtLeastRole } from '../src/contracts/auth.roles';
 
 describe('Role Hierarchy', () => {
   it('should correctly identify role levels', () => {
@@ -33,7 +33,7 @@ describe('Role Hierarchy', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/auth-core/tests/unit/role.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/contracts.test.ts`
 Expected: FAIL (isAtLeastRole not defined)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -53,13 +53,13 @@ export function isAtLeastRole(current: UserRole, target: UserRole): boolean {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/auth-core/tests/unit/role.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/contracts.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/auth-core/src/roles/role.definitions.ts
+git add packages/auth-core/src/contracts/auth.roles.ts
 git commit -m "feat(auth): define user roles and hierarchy"
 ```
 
@@ -69,15 +69,15 @@ git commit -m "feat(auth): define user roles and hierarchy"
 
 **Files:**
 
-- Create: `packages/auth-core/src/ability/ability.factory.ts`
-- Test: `packages/auth-core/tests/unit/ability.test.ts`
+- Create: `packages/auth-core/src/factory/ability.factory.ts`
+- Test: `packages/auth-core/tests/unit/ability.factory.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { createAbilityForUser } from '../src/ability/ability.factory';
-import { UserRole } from '../src/roles/role.definitions';
+import { createAbilityForUser } from '../src/factory/ability.factory';
+import { UserRole } from '../src/contracts/auth.roles';
 
 describe('Ability Factory', () => {
   it('should grant manage all to SUPER_ADMIN', () => {
@@ -89,14 +89,14 @@ describe('Ability Factory', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/auth-core/tests/unit/ability.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/ability.factory.test.ts`
 Expected: FAIL (createAbilityForUser not defined)
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```typescript
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
-import { UserRole } from '../roles/role.definitions';
+import { UserRole } from '../contracts/auth.roles';
 
 export function createAbilityForUser(user: { id: string; role: UserRole }) {
   const { can, build } = new AbilityBuilder(createMongoAbility);
@@ -114,13 +114,13 @@ export function createAbilityForUser(user: { id: string; role: UserRole }) {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/auth-core/tests/unit/ability.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/ability.factory.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/auth-core/src/ability/ability.factory.ts
+git add packages/auth-core/src/factory/ability.factory.ts
 git commit -m "feat(auth): implement basic CASL ability factory"
 ```
 
@@ -130,15 +130,15 @@ git commit -m "feat(auth): implement basic CASL ability factory"
 
 **Files:**
 
-- Modify: `packages/auth-core/src/ability/ability.factory.ts`
-- Test: `packages/auth-core/tests/unit/scoped-auth.test.ts`
+- Modify: `packages/auth-core/src/factory/ability.factory.ts`
+- Test: `packages/auth-core/tests/unit/ability.factory.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { createAbilityForUser } from '../src/ability/ability.factory';
-import { UserRole } from '../src/roles/role.definitions';
+import { createAbilityForUser } from '../src/factory/ability.factory';
+import { UserRole } from '../src/contracts/auth.roles';
 
 describe('Scoped Authorization', () => {
   it('should allow admin to update only their scoped entities', () => {
@@ -152,7 +152,7 @@ describe('Scoped Authorization', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/auth-core/tests/unit/scoped-auth.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/ability.factory.test.ts`
 Expected: FAIL (No scoping logic)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -176,13 +176,13 @@ export function createAbilityForUser(user: { id: string; role: UserRole; scopes?
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/auth-core/tests/unit/scoped-auth.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/ability.factory.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/auth-core/src/ability/ability.factory.ts
+git add packages/auth-core/src/factory/ability.factory.ts
 git commit -m "feat(auth): add scoped authorization logic for admins"
 ```
 
@@ -192,14 +192,14 @@ git commit -m "feat(auth): add scoped authorization logic for admins"
 
 **Files:**
 
-- Create: `packages/auth-core/src/middleware/auth.guard.ts`
-- Test: `packages/auth-core/tests/unit/auth-guard.test.ts`
+- Create: `packages/auth-core/src/guards/auth.guard.ts`
+- Test: `packages/auth-core/tests/unit/auth.guard.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
-import { AuthGuard } from '../src/middleware/auth.guard';
+import { AuthGuard } from '../src/guards/auth.guard';
 
 describe('AuthGuard', () => {
   it('should log to AuditLogger when access is denied', async () => {
@@ -214,13 +214,13 @@ describe('AuthGuard', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/auth-core/tests/unit/auth-guard.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/auth.guard.test.ts`
 Expected: FAIL (AuthGuard not defined)
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```typescript
-import { createAbilityForUser } from '../ability/ability.factory';
+import { createAbilityForUser } from '../factory/ability.factory';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
@@ -252,12 +252,12 @@ export class AuthGuard {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/auth-core/tests/unit/auth-guard.test.ts`
+Run: `pnpm test packages/auth-core/tests/unit/auth.guard.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/auth-core/src/middleware/auth.guard.ts
+git add packages/auth-core/src/guards/auth.guard.ts
 git commit -m "feat(auth): implement AuthGuard with AuditLog integration for denied access (FR-006)"
 ```

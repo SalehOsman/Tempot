@@ -69,7 +69,7 @@ git commit -m "feat(database): add BaseEntity with mandatory audit fields"
 
 **Files:**
 
-- Create: `packages/database/tests/utils/test-db.ts`
+- Create: `packages/database/src/testing/database.helper.ts`
 
 - [ ] **Step 1: Implement the TestDB utility**
 
@@ -103,7 +103,7 @@ export class TestDB {
 - [ ] **Step 2: Commit infrastructure setup**
 
 ```bash
-git add packages/database/tests/utils/test-db.ts
+git add packages/database/src/testing/database.helper.ts
 git commit -m "test(database): setup Testcontainers utility for integration tests"
 ```
 
@@ -113,15 +113,15 @@ git commit -m "test(database): setup Testcontainers utility for integration test
 
 **Files:**
 
-- Create: `packages/database/src/prisma/client.ts`
+- Create: `packages/database/src/prisma/prisma.client.ts`
 - Test: `packages/database/tests/integration/soft-delete.test.ts`
 
 - [ ] **Step 1: Write the failing test using TestDB**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../utils/test-db';
-import { prisma } from '../src/prisma/client';
+import { TestDB } from '../../src/testing/database.helper';
+import { prisma } from '../../src/prisma/prisma.client';
 
 describe('Soft Delete Extension', () => {
   const testDb = new TestDB();
@@ -178,7 +178,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/database/src/prisma/client.ts packages/database/tests/integration/soft-delete.test.ts
+git add packages/database/src/prisma/prisma.client.ts packages/database/tests/integration/soft-delete.test.ts
 git commit -m "feat(database): implement global soft delete via Prisma extension"
 ```
 
@@ -288,7 +288,7 @@ git commit -m "feat(database): implement BaseRepository with AuditLog triggers (
 **Files:**
 
 - Create: `packages/database/drizzle.config.ts`
-- Create: `packages/database/src/drizzle/schema.ts`
+- Create: `packages/database/src/drizzle/drizzle.schema.ts`
 - Create: `packages/database/src/base/vector.repository.ts`
 - Test: `packages/database/tests/integration/vector-search.test.ts`
 
@@ -310,8 +310,8 @@ export const embeddings = pgTable('embeddings', {
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../utils/test-db';
-import { DrizzleVectorRepository } from '../src/base/vector.repository';
+import { TestDB } from '../../src/testing/database.helper';
+import { DrizzleVectorRepository } from '../../src/base/vector.repository';
 
 describe('Vector Search', () => {
   const testDb = new TestDB();
@@ -351,7 +351,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/database/drizzle.config.ts packages/database/src/drizzle/schema.ts packages/database/src/base/vector.repository.ts
+git add packages/database/drizzle.config.ts packages/database/src/drizzle/drizzle.schema.ts packages/database/src/base/vector.repository.ts
 git commit -m "feat(database): setup Drizzle ORM with pgvector and base vector repository"
 ```
 
@@ -387,7 +387,7 @@ Expected: FAIL
 ```typescript
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma } from '../prisma/client';
+import { prisma } from '../prisma/prisma.client';
 
 export class TransactionManager {
   static async run<T>(
@@ -452,7 +452,7 @@ model AuditLog {
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { TestDB } from '../utils/test-db';
+import { TestDB } from '../../src/testing/database.helper';
 
 describe('AuditLog Schema', () => {
   const testDb = new TestDB();
