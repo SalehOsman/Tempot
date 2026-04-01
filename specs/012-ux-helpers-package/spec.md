@@ -174,6 +174,7 @@ As a user, I want to see "typing..." before long operations for a professional f
 - **Empty button label**: Return `Result.err()`.
 - **Button label with only emoji (no text)**: Valid — emoji-only buttons are allowed.
 - **Inline button label without leading emoji**: Return `Result.err()` with `LABEL_NO_EMOJI`. Reply keyboard labels do not require emoji.
+  > **Clarification**: Per Constitution Rule LXVI, emoji at the start of button text is required for inline keyboard buttons only. Reply keyboard labels do not require a leading emoji. This distinction is enforced by label.validator.ts based on the keyboard type.
 
 ### Message Edge Cases
 
@@ -237,6 +238,7 @@ As a user, I want to see "typing..." before long operations for a professional f
 #### Messages (Context-Aware Layer)
 
 - **FR-004**: System MUST provide a Status Sender that wraps Status Formatter + `ctx.editMessageText()` to enforce the Golden Rule (Rule LXIV, Section 13.3). Shows loading immediately, edits same message with result.
+  > **Edge Case**: When no prior message exists (e.g., no callback query), the Status Sender falls back to ctx.reply() via the Golden Rule Fallback mechanism (FR-013). This behavior is inherited, not re-implemented in Status Sender.
 
 #### Keyboards
 
@@ -247,6 +249,7 @@ As a user, I want to see "typing..." before long operations for a professional f
   - Long labels (exceeding half the character limit for the detected language) automatically placed on their own row
   - Language detection via first character (Decision D5)
   - Returns `Result<InlineKeyboard, AppError>`
+    > **Design Note**: The button() method returns Result<TempotInlineKeyboard, AppError> for immediate validation feedback. This means fluent chaining (builder.button(a).button(b)) is not possible — each button() call must be unwrapped. This is an intentional trade-off: validation safety over API ergonomics.
 
 - **FR-006**: System MUST provide a Reply Keyboard Builder that wraps grammY's `Keyboard` class with different limits:
   - Max 15 Arabic / 18 English characters per button (Section 13.1)

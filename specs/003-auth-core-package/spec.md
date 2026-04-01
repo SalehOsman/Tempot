@@ -45,21 +45,25 @@ As a super admin, I want to assign specific admins to specific modules so that I
 
 ## Clarifications
 
-- **Technical Constraints**: Uses `@casl/ability` and `@casl/prisma` for authorization.
+- **Technical Constraints**: Uses `@casl/ability` for authorization.
+  > **Note**: @casl/prisma was evaluated during research and excluded — Prisma query filtering is handled at the repository layer instead. See research.md for rationale.
 - **Constitution Rules**: Rule XXVI (CASL-Based RBAC) with 4 levels: GUEST, USER, ADMIN, SUPER_ADMIN. Rule XXVIII (Secure Bootstrap) for `SUPER_ADMIN_IDS`.
-- **Integration Points**: Used by `bot-server`, `dashboard`, and `mini-app` to enforce permissions. Integrates with `database-package` via `@casl/prisma` for row-level security.
+- **Integration Points**: Used by `bot-server`, `dashboard`, and `mini-app` to enforce permissions. Integrates with `database-package` via the repository layer for row-level security.
+  > **Note**: @casl/prisma was originally planned for row-level security but was excluded — Prisma query filtering is handled at the repository layer instead. See research.md for rationale.
 - **Edge Cases**: Role changes mid-session must invalidate or re-sync the session. Scopes are additive for admins managing multiple modules. Unauthenticated `GUEST` has minimal access defined in the global `abilities.ts`.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: System MUST use CASL (`@casl/ability` and `@casl/prisma`) for all authorization logic.
+- **FR-001**: System MUST use CASL (`@casl/ability`) for permission management.
+  > **Note**: @casl/prisma was evaluated during research and excluded — Prisma query filtering is handled at the repository layer instead. See research.md for rationale.
 - **FR-002**: System MUST support exactly four roles: `GUEST`, `USER`, `ADMIN`, `SUPER_ADMIN`.
 - **FR-003**: System MUST provide a `defineAbility` function per module in `abilities.ts` for decentralized permission management.
 - **FR-004**: System MUST implement `SUPER_ADMIN` God Mode via `can('manage', 'all')`.
 - **FR-005**: System MUST support Scoped Authorization via CASL conditions (e.g., `createdBy: userId`).
 - **FR-006**: System MUST automatically capture and log all denied access attempts in the Audit Log.
+  > **[DEFERRED]**: Audit logging of access denials is deferred to event-bus integration. The Guard returns structured AppError with action/subject details that consuming packages can emit as events.
 - **FR-007**: System MUST provide a `canAccessModule(ctx, moduleName)` helper for bot handlers.
 
 ### Key Entities

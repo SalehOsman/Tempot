@@ -253,3 +253,36 @@ Task 0 (scaffolding)
 | 6         | RegionalService     | P1       | 15 min     | FR-007                 |
 | 7         | Barrel Exports      | P1       | 5 min      | All                    |
 | **Total** |                     |          | **75 min** |                        |
+
+---
+
+### Task: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_REGIONAL_ENGINE=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_REGIONAL_ENGINE` environment variable
+- [ ] When disabled, RegionalService returns DEFAULT_REGIONAL_CONTEXT values for all queries
+- [ ] Geo-data loading is skipped when disabled
+- [ ] Document the disable behavior
+
+> **Note**: The existing `REGIONAL_MODE=static/dynamic` env var controls the operational mode but does not provide a full on/off toggle per Rule XVI.
+
+---
+
+### Task: DST Transition Verification
+
+**Phase**: 3 (Edge Cases)
+**Estimated Duration**: 20 minutes
+
+Verify that dayjs with timezone plugin correctly handles Daylight Saving Time transitions for all supported timezones.
+
+#### Acceptance Criteria
+
+- [ ] Test formatting a date during DST transition (spring forward / fall back)
+- [ ] Verify UTC conversion accuracy across DST boundaries
+- [ ] Confirm no off-by-one-hour errors for Cairo timezone (Egypt abolished DST in 2014 but test coverage ensures robustness)

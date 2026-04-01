@@ -289,3 +289,32 @@ Task 0 (scaffolding)
 | 7         | AuditLog Schema + Repository | P1       | 15 min     | FR-003, FR-006 |
 | 8         | Barrel Exports               | P1       | 5 min      | All            |
 | **Total** |                              |          | **95 min** |                |
+
+---
+
+### Task 8: Blast Radius Assessment (Rule LIV)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 30 minutes
+
+The database package is shared infrastructure used by every downstream package. Changes to BaseEntity, BaseRepository, or PrismaClient extensions have wide-reaching effects.
+
+#### Acceptance Criteria
+
+- [ ] Document downstream packages that depend on database package exports
+- [ ] Identify high-risk interfaces (BaseEntity fields, BaseRepository methods, PrismaClient extensions)
+- [ ] Note which changes require coordinated updates across packages
+- [ ] Add impact notes to any task that modifies shared interfaces
+
+---
+
+### Task 9: Package Readiness Checklist (Rule LXXI)
+
+**Phase**: 0 (Pre-implementation)
+**Estimated Duration**: 15 minutes
+
+Verify all 10 points of the Package Readiness Checklist per `docs/developer/package-creation-checklist.md`.
+
+#### Acceptance Criteria
+
+- [ ] All 10 checklist items verified and documented

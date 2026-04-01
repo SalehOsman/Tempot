@@ -59,7 +59,9 @@ As a system administrator, I want to track all state-changing operations so that
 - **FR-003**: System MUST support hierarchical log levels: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`.
 - **FR-004**: System MUST automatically capture user identity and request context from `AsyncLocalStorage` for all logs.
 - **FR-005**: System MUST implement log retention and rotation (e.g., archive after 30 days, delete after 90 days as per Section 10.4).
+  > **[DEFERRED]**: Log retention and rotation is an infrastructure-level concern handled by the deployment environment, not the logger package.
 - **FR-006**: System MUST provide an `AuditLog` viewer in the dashboard (via search-engine).
+  > **[DEFERRED]**: AuditLog dashboard viewing is the responsibility of the search-engine package, not the logger package.
 - **FR-007**: System MUST support redaction of sensitive fields (e.g., `password`, `token`) in both technical and audit logs.
 
 ### Key Entities

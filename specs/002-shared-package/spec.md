@@ -34,6 +34,7 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 
 1. **Given** a queue name, **When** I use the `QueueFactory`, **Then** a BullMQ queue is created with standardized Redis connection and retry settings from `.env`.
 2. **Given** a failed background job, **When** the job reaches its maximum retries, **Then** it is automatically moved to the dead-letter queue and an audit event is triggered.
+   > **[DEFERRED]**: DLQ handling is native to BullMQ. Audit events for failed jobs are the responsibility of consuming packages (notifier, import-engine), not the shared package.
 
 ---
 
@@ -45,7 +46,7 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 
 ## Clarifications
 
-- **Technical Constraints**: Uses `cache-manager` 5.x+ with Keyv adapters for multi-tier caching. `BullMQ` for queues.
+- **Technical Constraints**: Uses `cache-manager` 6.x with Keyv adapters for multi-tier caching. `BullMQ` for queues.
 - **Constitution Rules**: Rule XIX (Cache via cache-manager ONLY) and Rule XX (Queues via Queue Factory ONLY) are foundational. Rule XXXII (Redis Degradation Strategy) must be implemented here.
 - **Integration Points**: `CacheService` and `QueueFactory` are used by almost all other packages (e.g., `notifier`, `cms-engine`, `session-manager`).
 - **Edge Cases**: Redis connection loss triggers immediate fallback to in-memory/DB and alerts `SUPER_ADMIN`. Job overlap is prevented by BullMQ's native locking.
@@ -54,7 +55,7 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a `CacheService` wrapper around `cache-manager` 5.x+.
+- **FR-001**: System MUST provide a `CacheService` wrapper around `cache-manager` 6.x.
 - **FR-002**: System MUST support multi-tier caching (Memory → Redis) using Keyv adapters.
 - **FR-003**: System MUST provide a `queueFactory` function in `packages/shared/queue.factory.ts` (~30 lines).
 - **FR-004**: System MUST automatically inject `Redis` connection parameters from `.env` into all cache and queue instances.
@@ -65,7 +66,7 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 ### Key Entities
 
 - **CacheService**: Singleton or factory for interacting with `cache-manager`.
-- **QueueFactory**: Pure function returning BullMQ `Queue` and `Worker` instances.
+- **QueueFactory**: Pure function returning BullMQ Queue instance wrapped in Result. Workers are created by consuming packages with their own processor logic.
 
 ## Success Criteria _(mandatory)_
 

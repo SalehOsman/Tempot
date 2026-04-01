@@ -176,6 +176,24 @@
 
 ---
 
+### Task 6: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires every package to be enable/disable-able via `TEMPOT_{NAME}=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_AUTH_CORE` environment variable in package config
+- [ ] Guard.enforce() returns ok() (allowing all access) when auth-core is disabled
+- [ ] AbilityFactory.build() returns a permissive ability when disabled
+- [ ] Document the disable behavior in package README
+
+> **Note**: Disabling auth-core in production is a security risk and should only be used for development/testing.
+
+---
+
 ## Task Dependency Graph
 
 ```

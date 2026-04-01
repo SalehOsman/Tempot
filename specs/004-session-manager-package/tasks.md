@@ -112,9 +112,27 @@ description: 'Task list template for feature implementation'
 - [ ] T027 [P] Verify package passes package-creation-checklist.md (10-point check)
 - [ ] T028 [P] Add ShutdownManager registration for BullMQ Worker (Rule XVII)
 - [ ] T029 [P] Create ADR for dual-layer session strategy (Redis + Postgres) at `docs/architecture/adr/`
+  > **Rule LXIII Compliance Note**: This ADR should ideally be created before implementation begins, not in the Polish phase. For retroactive compliance, the ADR documents the decisions that were already made during implementation.
 - [ ] T030 [P] Create ADR for Optimistic Concurrency Control (OCC) approach at `docs/architecture/adr/`
+  > **Rule LXIII Compliance Note**: This ADR should ideally be created before implementation begins, not in the Polish phase. For retroactive compliance, the ADR documents the decisions that were already made during implementation.
 - [ ] T031 Implement and test `deleteSession()` in SessionProvider — removes from both Redis and Postgres, returns `AsyncResult<void, AppError>`
 - [ ] T032 Unit test for `deleteSession()` verifying removal from both layers in `packages/session-manager/tests/unit/session.provider.test.ts`
+
+---
+
+### Task: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_SESSION_MANAGER=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_SESSION_MANAGER` environment variable
+- [ ] SessionProvider returns a no-op session context when disabled
+- [ ] SessionWorker does not start cleanup when disabled
+- [ ] Document the disable behavior
 
 ---
 

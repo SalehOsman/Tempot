@@ -444,6 +444,23 @@
 
 ---
 
+### Task: Implement createdBy/updatedBy Population
+
+**Phase**: 3 (Integration)
+**Estimated Duration**: 30 minutes
+
+The createdBy and updatedBy fields in the Attachment model are defined but never populated. This task adds userId flow through the upload pipeline.
+
+#### Acceptance Criteria
+
+- [ ] Add `userId?: string` to UploadOptions interface
+- [ ] Set `createdBy` from userId in `persistAttachment()`
+- [ ] Set `updatedBy` from userId in attachment update operations
+- [ ] Update tests to verify field population
+- [ ] Handle undefined userId gracefully (nullable fields remain null)
+
+---
+
 ## Task Dependency Graph
 
 ```

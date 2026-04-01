@@ -57,10 +57,14 @@ As a system administrator, I want to distribute events across multiple server in
 - **FR-001**: System MUST support three distinct event levels: `Local` (EventEmitter), `Internal` (Module-to-Module), `External` (Redis Pub/Sub).
 - **FR-002**: System MUST enforce the naming convention: `{module}.{entity}.{action}` (e.g., `users.user.role_changed`).
 - **FR-003**: System MUST provide a unified `EventBus` service accessible to all packages and modules.
-- **FR-004**: System MUST guarantee no event loss for `External` events via Redis persistence.
+- **FR-004**: System SHOULD minimize event loss for External events. Redis Pub/Sub provides at-most-once delivery; guaranteed delivery requires BullMQ queue integration (deferred).
+  > **Implementation Note**: Current implementation uses Redis Pub/Sub which is fire-and-forget. Events published when no subscriber is connected are lost. For guaranteed delivery, a future BullMQ-based transport is planned.
 - **FR-005**: System MUST implement automatic retries (up to 3 times) for failed event processing tasks.
+  > **[DEFERRED]**: Retry logic with BullMQ workers is not implemented in the initial release. Events that fail are logged but not retried.
 - **FR-006**: System MUST automatically log event history and failures to the Audit Log (Section 10.2).
+  > **[DEFERRED]**: Audit logging integration depends on the logger package's AuditLogger. Not implemented in the initial release.
 - **FR-007**: System MUST support wildcards in event listeners (e.g., `invoices.*.completed`).
+  > **[DEFERRED]**: Wildcard pattern matching for event subscriptions is not implemented. All subscriptions use exact string matching.
 
 ### Key Entities
 

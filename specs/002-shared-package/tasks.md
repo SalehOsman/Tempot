@@ -223,3 +223,18 @@ Task 0 (scaffolding)
 | SC-002      | Task 3    | QueueFactory is ~30 lines, < 50 lines setup       |
 | SC-003      | Task 2    | `cache.service.test.ts` -- Testcontainers capable |
 | SC-004      | Task 2    | `cache-degradation.test.ts` -- fallback verified  |
+
+---
+
+### Task 8: Blast Radius Assessment (Rule LIV)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 30 minutes
+
+The shared package provides CacheService, QueueFactory, ShutdownManager, and error types used by every other package. Changes have system-wide impact.
+
+#### Acceptance Criteria
+
+- [ ] Document all downstream package dependencies on shared exports
+- [ ] Identify high-risk interfaces (CacheService API, QueueFactory signature, AppError type)
+- [ ] Note which interface changes require coordinated package updates

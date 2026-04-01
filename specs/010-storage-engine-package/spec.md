@@ -44,6 +44,7 @@ As a developer, I want every uploaded file to be tracked in the database with me
 - **Provider Downtime**: If S3/Google Drive is unreachable during upload, the provider method returns `err(AppError('storage.provider.unavailable'))`. The caller decides whether to retry or fallback. storage-engine does NOT implement automatic provider fallback — this is a deployment decision.
 - **Large File Handling**: All upload/download operations use streams. `hono/body-limit` is enforced by the API/bot layer (ADR-022), not by storage-engine. storage-engine validates file size against configured limits before uploading.
 - **Orphaned Files**: Files in storage without a DB record. Caused by D3 two-phase upload where DB insert fails and cleanup also fails. A scheduled BullMQ job (`storage.orphan.cleanup`) scans for files without matching DB records. Exposed via `pnpm storage:cleanup` for manual runs.
+  > **[DEFERRED]**: Orphan cleanup job is deferred to a follow-up task. The soft-delete purge cycle (processPurge) is implemented; orphan detection requires additional cross-referencing logic.
 - **Concurrent Upload of Same Filename**: UUID v7 naming (D2) prevents collisions entirely. Two users uploading `photo.jpg` at the same time produce different `providerKey` values.
 - **MIME Type Spoofing**: Validate MIME type via magic bytes (file signature) using the `file-type` package, not just the file extension. If the detected MIME does not match the declared MIME, reject with `AppError('storage.validation.mime_mismatch')`.
 - **Upload Succeeds but DB Insert Fails**: D3 two-phase rollback. Best-effort file deletion from provider. If cleanup fails, file is orphaned and cleaned by the scheduled job.
@@ -107,7 +108,7 @@ The `Attachment` Prisma model is added to `packages/database/prisma/schema.prism
 - **FR-001**: System MUST provide an abstract `StorageProvider` interface with methods: `upload(key, data, options)`, `download(key)`, `delete(key)`, `getSignedUrl(key, expiresIn)`. Each returns `AsyncResult<T, AppError>`.
 - **FR-002**: storage-engine receives parsed file data as `Buffer | Readable` from the API/bot layer. It does NOT handle HTTP multipart directly. The API/bot layer MUST use Hono's built-in `parseBody()` and `hono/body-limit` (ADR-022).
 - **FR-003**: System MUST automatically create an `Attachment` database record for every uploaded file, tracking `fileName`, `originalName`, `mimeType`, `size`, `provider`, `providerKey`, `url`, `metadata`, `moduleId`, `entityId`, and all BaseEntity audit fields.
-- **FR-004**: System MUST enforce file size and type limits per module via `StorageConfig`. Default max file size: 10MB. Default allowed MIME types: `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `text/plain`, `text/csv`. Modules override defaults via their own config.
+- **FR-004**: System MUST enforce file size and type limits per module via `StorageConfig`. Default max file size: 10MB. Default allowed MIME types: `image/jpeg`, `image/png`, `image/webp`, `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `text/plain`, `text/csv`, `application/json`. Modules override defaults via their own config.
 - **FR-005**: System MUST support soft delete for file metadata (`isDeleted=true`). Actual file deletion from the provider is a deferred background job via BullMQ (D6).
 - **FR-006**: System MUST support secure download links via `getSignedUrl()`. S3 returns pre-signed URLs. Google Drive returns shareable links. Telegram returns ephemeral download URLs (~1 hour, server-controlled). LocalProvider returns the local file path.
 - **FR-007**: System MUST emit `storage.file.uploaded` and `storage.file.deleted` events via event-bus with typed payloads.
@@ -138,6 +139,7 @@ model Attachment {
   updatedAt DateTime @updatedAt
   createdBy String?
   updatedBy String?
+> **Implementation Note**: The createdBy/updatedBy population mechanism depends on the session context integration. The fields are defined in the data model but their population requires the caller to provide userId through UploadOptions (not yet implemented).
   isDeleted Boolean  @default(false)
   deletedAt DateTime?
   deletedBy String?

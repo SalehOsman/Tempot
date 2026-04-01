@@ -15,6 +15,8 @@
 - [ ] T003 Create `packages/i18n-core/src/index.ts` to export public interfaces and helpers
 - [ ] T001a Verify all 10 points of `docs/developer/package-creation-checklist.md` pass
 
+> **Rule LXXI Note**: The Package Readiness Checklist must be completed before any code is written. This task was added retroactively to document compliance.
+
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)

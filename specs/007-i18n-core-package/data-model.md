@@ -61,9 +61,9 @@ Generates a strict Zod schema from a source locale (e.g., `ar.json`). The return
 
 | Code                            | Module        | Trigger                                             |
 | ------------------------------- | ------------- | --------------------------------------------------- |
-| `I18N_LOCALE_LOAD_FAILED`       | `i18n.loader` | File read or JSON parse error during locale loading |
-| `I18N_SCHEMA_VALIDATION_FAILED` | `i18n.schema` | Locale file fails Zod schema validation             |
-| `I18N_LOCALE_PARITY_FAILED`     | `cms-check`   | Target locale has missing or extra keys vs source   |
+| `i18n.locale_load_failed`       | `i18n.loader` | File read or JSON parse error during locale loading |
+| `i18n.schema_validation_failed` | `i18n.schema` | Locale file fails Zod schema validation             |
+| `i18n.locale_parity_failed`     | `cms-check`   | Target locale has missing or extra keys vs source   |
 
 ## Constants
 

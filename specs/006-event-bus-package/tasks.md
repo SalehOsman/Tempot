@@ -277,3 +277,21 @@ The following spec requirements were documented but not implemented in the curre
 ### Benchmark Note
 
 Local event delivery performance must be validated via a benchmark test to confirm < 1ms overhead (SC-001). The `LocalEventBus` uses Node.js `EventEmitter` synchronous dispatch, which inherently operates in sub-microsecond range for the dispatch mechanism itself. A performance test measuring publish-to-handler latency should confirm this target is met.
+
+---
+
+### Task 8: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_EVENT_BUS=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_EVENT_BUS` environment variable
+- [ ] When disabled, EventBusOrchestrator silently drops all publish() calls (returns ok())
+- [ ] subscribe() still works (handlers registered but never triggered)
+- [ ] Document the disable behavior
+
+> **Note**: The event bus already has graceful degradation via ConnectionWatcher (falls back to local when Redis is unavailable). The toggle would fully disable even local event delivery.

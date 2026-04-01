@@ -240,3 +240,19 @@ Task 0 (scaffolding)
 | SC-004      | Critical event alerts          | --        | Deferred (notifier package responsibility)                           |
 
 **Note on deferred requirements:** FR-005 (retention), FR-006 (dashboard viewer), SC-003 (search performance), and SC-004 (critical alerts) are cross-cutting concerns that depend on packages not yet implemented (search-engine, notifier, infrastructure). The logger package provides the foundational audit logging capability that these features will build upon.
+
+---
+
+### Task 8: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_LOGGER=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_LOGGER` environment variable
+- [ ] When disabled, PinoLogger writes to /dev/null (no-op sink)
+- [ ] AuditLogger skips persistence when disabled
+- [ ] Document the disable behavior
