@@ -238,3 +238,20 @@ The shared package provides CacheService, QueueFactory, ShutdownManager, and err
 - [ ] Document all downstream package dependencies on shared exports
 - [ ] Identify high-risk interfaces (CacheService API, QueueFactory signature, AppError type)
 - [ ] Note which interface changes require coordinated package updates
+
+---
+
+### Task 9: Pluggable Architecture Toggle (Rule XVI) (FR-008)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_SHARED=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_SHARED` environment variable
+- [ ] When disabled, CacheService operates in memory-only mode
+- [ ] When disabled, QueueFactory returns err(AppError) for all calls
+- [ ] ShutdownManager continues to operate (critical infrastructure)
+- [ ] Document the disable behavior

@@ -76,6 +76,8 @@ As an AI-driven bot, I want to store and search vector embeddings using pgvector
 - **FR-005**: System MUST enforce soft delete globally via Prisma Client extensions (not middleware).
 - **FR-006**: System MUST support independent Prisma schemas and migrations per module located in `/modules/{module}/database/`.
 - **FR-007**: System MUST provide a `TransactionManager` that supports atomic operations across multiple repositories.
+- **FR-008**: System MUST support `TEMPOT_DATABASE=true/false` environment variable (default: `true`) per Rule XVI. When disabled, PrismaClient returns connection errors for all operations and migrations are skipped.
+  > **Note**: Disabling the database package effectively disables the entire system. This toggle exists for constitutional compliance and testing scenarios only.
 
 ### Key Entities
 

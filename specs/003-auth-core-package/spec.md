@@ -65,6 +65,9 @@ As a super admin, I want to assign specific admins to specific modules so that I
 - **FR-006**: System MUST automatically capture and log all denied access attempts in the Audit Log.
   > **[DEFERRED]**: Audit logging of access denials is deferred to event-bus integration. The Guard returns structured AppError with action/subject details that consuming packages can emit as events.
 - **FR-007**: System MUST provide a `canAccessModule(ctx, moduleName)` helper for bot handlers.
+  > **[DEFERRED]**: canAccessModule helper is deferred to bot-server integration. The Guard.enforce() method provides the core authorization check; canAccessModule is a convenience wrapper that will be added when bot handlers are implemented.
+- **FR-008**: System MUST support `TEMPOT_AUTH_CORE=true/false` environment variable (default: `true`) per Rule XVI. When disabled, Guard.enforce() returns ok() (allowing all access) and AbilityFactory.build() returns a permissive ability.
+  > **Note**: Disabling auth-core in production is a security risk and should only be used for development/testing.
 
 ### Key Entities
 

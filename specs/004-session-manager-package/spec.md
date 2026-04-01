@@ -69,6 +69,7 @@ As a developer, I want to store the state of the current conversation (e.g., act
 - **FR-006**: System MUST provide a `SessionProvider` that hides Redis/Postgres complexity from the `bot-server`.
 - **FR-007**: System MUST support automatic sliding session expiration (TTL) in Redis that resets on each user interaction. TTL is configured via the `TEMPOT_SESSION_TTL_HOURS` environment variable (default: `24`).
 - **FR-008**: System MUST provide a `deleteSession(userId, chatId)` method that removes session data from both Redis and PostgreSQL, returning `Result<void, AppError>`.
+- **FR-009**: System MUST support `TEMPOT_SESSION_MANAGER=true/false` environment variable (default: `true`) per Rule XVI. When disabled, SessionProvider returns a no-op session context and SessionWorker does not start cleanup.
 
 ### Key Entities
 

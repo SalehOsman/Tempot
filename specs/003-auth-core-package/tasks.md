@@ -176,7 +176,7 @@
 
 ---
 
-### Task 6: Pluggable Architecture Toggle (Rule XVI)
+### Task 6: Pluggable Architecture Toggle (Rule XVI) (FR-008)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes

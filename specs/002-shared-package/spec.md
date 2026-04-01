@@ -62,6 +62,8 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 - **FR-005**: System MUST implement standardized error handling for Redis connection loss.
 - **FR-006**: System MUST support hierarchical cache keys (e.g., `user:123:profile`).
 - **FR-007**: System MUST provide a `ShutdownManager` hook for all cache and queue instances.
+- **FR-008**: System MUST support `TEMPOT_SHARED=true/false` environment variable (default: `true`) per Rule XVI. When disabled, CacheService uses in-memory-only mode and QueueFactory returns err(AppError) for all queue creation.
+  > **Note**: Disabling the shared package degrades all dependent packages. This toggle exists for constitutional compliance and testing scenarios only.
 
 ### Key Entities
 

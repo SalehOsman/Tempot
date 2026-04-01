@@ -65,6 +65,8 @@ As a system administrator, I want to distribute events across multiple server in
   > **[DEFERRED]**: Audit logging integration depends on the logger package's AuditLogger. Not implemented in the initial release.
 - **FR-007**: System SHOULD support wildcards in event listeners (e.g., `invoices.*.completed`).
   > **[DEFERRED]**: Wildcard pattern matching for event subscriptions is not implemented. All subscriptions use exact string matching.
+- **FR-008**: System MUST support `TEMPOT_EVENT_BUS=true/false` environment variable (default: `true`) per Rule XVI. When disabled, EventBusOrchestrator silently drops all publish() calls (returns ok()) and subscribe() registers handlers that are never triggered.
+  > **Note**: The event bus already has graceful degradation via ConnectionWatcher (falls back to local when Redis is unavailable). The toggle fully disables even local event delivery.
 
 ### Key Entities
 

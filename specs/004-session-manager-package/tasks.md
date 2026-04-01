@@ -120,7 +120,7 @@ description: 'Task list template for feature implementation'
 
 ---
 
-### Task: Pluggable Architecture Toggle (Rule XVI)
+### Task: Pluggable Architecture Toggle (Rule XVI) (FR-009)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes

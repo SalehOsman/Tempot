@@ -63,6 +63,7 @@ As a system administrator, I want to track all state-changing operations so that
 - **FR-006**: System MUST provide an `AuditLog` viewer in the dashboard (via search-engine).
   > **[DEFERRED]**: AuditLog dashboard viewing is the responsibility of the search-engine package, not the logger package.
 - **FR-007**: System MUST support redaction of sensitive fields (e.g., `password`, `token`) in both technical and audit logs.
+- **FR-008**: System MUST support `TEMPOT_LOGGER=true/false` environment variable (default: `true`) per Rule XVI. When disabled, PinoLogger writes to a no-op sink and AuditLogger skips persistence.
 
 ### Key Entities
 

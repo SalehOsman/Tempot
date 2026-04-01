@@ -54,7 +54,7 @@ As a developer, I want a keyboard builder that automatically enforces button sta
 
 1. **Given** buttons with mixed label lengths, **When** I build the keyboard, **Then** short buttons are grouped (max 3/row) and long buttons get their own row.
 2. **Given** an Arabic label exceeding 20 characters, **When** I add it to the builder, **Then** the builder returns an error result.
-3. **Given** an inline button label without a leading emoji, **When** I add it via `button()`, **Then** the builder returns an error result with `LABEL_NO_EMOJI`.
+3. **Given** an inline button label without a leading emoji, **When** I add it via `button()`, **Then** the builder returns an error result with `ux.label.no_emoji`.
 4. **Given** I need the underlying grammY InlineKeyboard, **When** I call build(), **Then** I get access to the native grammY keyboard instance.
 
 ### User Story 4 — Reply Keyboard Builder (Priority: P1)
@@ -173,7 +173,7 @@ As a user, I want to see "typing..." before long operations for a professional f
 - **Mixed RTL/LTR text in button labels**: Use first-character detection (Decision D5) to determine Arabic vs English limit.
 - **Empty button label**: Return `Result.err()`.
 - **Button label with only emoji (no text)**: Valid — emoji-only buttons are allowed.
-- **Inline button label without leading emoji**: Return `Result.err()` with `LABEL_NO_EMOJI`. Reply keyboard labels do not require emoji.
+- **Inline button label without leading emoji**: Return `Result.err()` with `ux.label.no_emoji`. Reply keyboard labels do not require emoji.
   > **Clarification**: Per Constitution Rule LXVI, emoji at the start of button text is required for inline keyboard buttons only. Reply keyboard labels do not require a leading emoji. This distinction is enforced by label.validator.ts based on the keyboard type.
 
 ### Message Edge Cases

@@ -308,6 +308,22 @@ The database package is shared infrastructure used by every downstream package. 
 
 ---
 
+### Task 10: Pluggable Architecture Toggle (Rule XVI) (FR-008)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 15 minutes
+
+Constitution Rule XVI requires `TEMPOT_DATABASE=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_DATABASE` environment variable in database config
+- [ ] When disabled, PrismaClient initialization returns err(AppError)
+- [ ] Document that disabling database disables all dependent packages
+- [ ] Add env var to .env.example
+
+---
+
 ### Task 9: Package Readiness Checklist (Rule LXXI)
 
 **Phase**: 0 (Pre-implementation)
