@@ -18,10 +18,13 @@ const localeValueSchema: ZodType<LocaleValue> = z.lazy(() =>
   z.union([z.string(), z.record(z.string(), localeValueSchema)]),
 );
 
+/** Error code for empty locale files (Rule XXII dot-notation). */
+const EMPTY_LOCALE_ERROR = 'i18n.locale_empty';
+
 export const LocaleSchema = z
   .record(z.string(), localeValueSchema)
   .refine((obj) => Object.keys(obj).length > 0, {
-    message: 'Locale file must contain at least one key',
+    message: EMPTY_LOCALE_ERROR,
   });
 
 /** Inferred TypeScript type from `LocaleSchema`. */

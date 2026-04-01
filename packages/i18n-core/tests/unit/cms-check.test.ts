@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectHardcodedStrings, validateLocaleFiles } from '../../scripts/cms-check.js';
+import { detectHardcodedStrings, validateLocaleFiles } from '../../src/i18n.cms-validators.js';
 
 describe('cms-check', () => {
   describe('detectHardcodedStrings', () => {

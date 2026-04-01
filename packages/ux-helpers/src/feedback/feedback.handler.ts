@@ -1,5 +1,6 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
+import { err as errResult } from 'neverthrow';
 import type { FeedbackOptions } from '../ux.types.js';
 import { sendLoading, sendSuccess, sendError } from '../messages/status.sender.js';
 
@@ -10,7 +11,8 @@ export async function executeFeedback<T>(
   ctx: EditableContext,
   options: FeedbackOptions<T>,
 ): AsyncResult<T, AppError> {
-  await sendLoading(ctx, { key: options.loadingKey });
+  const loadingResult = await sendLoading(ctx, { key: options.loadingKey });
+  if (loadingResult.isErr()) return errResult(loadingResult.error);
 
   const result = await options.action();
 

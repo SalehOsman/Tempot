@@ -1,7 +1,13 @@
-> **⚠ Superseded Document**: This plan reflects the initial design intent before implementation.
+> **Superseded Document**: This plan reflects the initial design intent before implementation.
 > Subsequent design decisions are documented in `research.md` and the final task breakdown
 > is in `tasks.md`. Where this plan diverges from `tasks.md` or `research.md`, the latter
 > documents take precedence.
+>
+> **Notable class name changes during implementation:**
+>
+> - `EventBusService` → `EventBusOrchestrator`
+> - `LocalDriver` → `LocalEventBus`
+> - `ExternalDriver` → `RedisEventBus`
 
 # Event Bus Package Implementation Plan
 

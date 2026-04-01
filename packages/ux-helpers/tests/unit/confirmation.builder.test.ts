@@ -2,8 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@tempot/i18n-core', () => ({
   t: (key: string, options?: Record<string, unknown>) => {
-    if (options) return `${key}:${JSON.stringify(options)}`;
-    return key;
+    // Real translations include emoji prefix for inline keyboard labels (Rule LXVI)
+    if (options) return `\u{1F4CB} ${key}:${JSON.stringify(options)}`;
+    return `\u{1F4CB} ${key}`;
   },
 }));
 
@@ -41,10 +42,10 @@ describe('createConfirmation', () => {
     ).inline_keyboard;
     const buttons = rows[0]!;
     // First button = cancel
-    expect(buttons[0]!.text).toBe('common.buttons.cancel');
+    expect(buttons[0]!.text).toBe('\u{1F4CB} common.buttons.cancel');
     expect(buttons[0]!.callback_data).toBe('inv.del:cancel');
     // Second button = confirm with action name
-    expect(buttons[1]!.text).toBe('invoice.delete_action');
+    expect(buttons[1]!.text).toBe('\u{1F4CB} invoice.delete_action');
     expect(buttons[1]!.callback_data).toContain('inv.del:confirm:');
   });
 
@@ -81,7 +82,7 @@ describe('createConfirmation', () => {
         inline_keyboard: { text: string; callback_data: string }[][];
       }
     ).inline_keyboard;
-    expect(rows[0]![0]!.text).toBe('custom.cancel');
+    expect(rows[0]![0]!.text).toBe('\u{1F4CB} custom.cancel');
   });
 
   it('should include warningText when isIrreversible is true', () => {
@@ -92,7 +93,7 @@ describe('createConfirmation', () => {
     });
     expect(result.isOk()).toBe(true);
     const { warningText } = result._unsafeUnwrap();
-    expect(warningText).toBe('common.confirmation.irreversible_warning');
+    expect(warningText).toBe('\u{1F4CB} common.confirmation.irreversible_warning');
   });
 
   it('should not include warningText when isIrreversible is false or undefined', () => {

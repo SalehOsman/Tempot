@@ -6,3 +6,5 @@ export { getLocaleInfo } from './i18n.locale-info.js';
 export { sanitizeValue } from './i18n.sanitizer.js';
 export { LocaleSchema, validateLocaleFile, generateSchemaFromSource } from './i18n.schema.js';
 export type { LocaleFile } from './i18n.schema.js';
+export { detectHardcodedStrings, validateLocaleFiles } from './i18n.cms-validators.js';
+export type { CmsCheckViolation, CmsCheckResult } from './i18n.cms-validators.js';

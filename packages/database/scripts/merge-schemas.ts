@@ -19,10 +19,18 @@ async function mergeSchemas() {
   }
 
   await fs.writeFile(outputSchemaPath, finalSchema);
-  process.stderr.write(`Schemas merged successfully to ${outputSchemaPath}\n`);
+  process.stderr.write(
+    JSON.stringify({
+      level: 'info',
+      msg: 'Schemas merged successfully',
+      output: outputSchemaPath,
+    }) + '\n',
+  );
 }
 
-mergeSchemas().catch((err) => {
-  process.stderr.write(`Failed to merge schemas: ${String(err)}\n`);
+mergeSchemas().catch((error) => {
+  process.stderr.write(
+    JSON.stringify({ level: 'error', msg: 'Failed to merge schemas', error: String(error) }) + '\n',
+  );
   process.exit(1);
 });

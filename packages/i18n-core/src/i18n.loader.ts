@@ -48,7 +48,7 @@ export async function loadModuleLocales(): Promise<Result<void, AppError>> {
 
     return ok(undefined);
   } catch (error) {
-    const details = error instanceof Error ? error.message : 'Unknown error';
+    const details = error instanceof Error ? error.message : String(error);
     return err(new AppError('i18n.locale_load_failed', details));
   }
 }

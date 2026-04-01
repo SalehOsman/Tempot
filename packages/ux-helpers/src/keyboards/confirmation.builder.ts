@@ -5,6 +5,7 @@ import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
 import { encodeWithExpiry } from '../callback-data/callback-data.encoder.js';
 import { CONFIRMATION_EXPIRY_MINUTES } from '../ux.constants.js';
+import { validateLabel } from './label.validator.js';
 import type { ConfirmationOptions, ConfirmationResult } from '../ux.types.js';
 
 export function createConfirmation(
@@ -22,6 +23,12 @@ export function createConfirmation(
   const cancelData = `${callbackPrefix}:cancel`;
   const cancelText = t(cancelKey ?? 'common.buttons.cancel');
   const actionText = t(actionNameKey);
+
+  // Validate labels against character limits (Rule LXVI)
+  const cancelValid = validateLabel(cancelText, 'inline');
+  if (cancelValid.isErr()) return err(cancelValid.error);
+  const actionValid = validateLabel(actionText, 'inline');
+  if (actionValid.isErr()) return err(actionValid.error);
 
   const keyboard = new InlineKeyboard();
   // RTL ordering: Cancel FIRST (left), Confirm SECOND (right)

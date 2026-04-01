@@ -57,7 +57,10 @@ describe('Cache Degradation', () => {
     });
 
     const cacheService = new CacheService(mockEventBus);
-    const result = await cacheService.init();
+    // Pass stores to exercise primary→fallback path
+    const result = await cacheService.init({
+      stores: [{} as never],
+    });
 
     // init() returns ok because fallback to memory works
     expect(result.isOk()).toBe(true);
@@ -98,7 +101,8 @@ describe('Cache Degradation', () => {
     });
 
     const cacheService = new CacheService(mockEventBus);
-    await cacheService.init();
+    // Pass stores to exercise primary→fallback path
+    await cacheService.init({ stores: [{} as never] });
 
     const setResult = await cacheService.set('fallback-key', 'works');
     expect(setResult.isOk()).toBe(true);

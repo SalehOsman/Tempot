@@ -1,4 +1,4 @@
-import { createCache, Cache } from 'cache-manager';
+import { createCache, type Cache, type CreateCacheOptions } from 'cache-manager';
 import { ok, err } from 'neverthrow';
 import { AsyncResult } from '../shared.result.js';
 import { AppError } from '../shared.errors.js';
@@ -16,8 +16,19 @@ export interface CacheLogger {
 }
 
 /**
- * Unified Cache Service wrapper around cache-manager
- * Rule: XIX (Cache via cache-manager ONLY), XXI (Result Pattern)
+ * Configuration for CacheService initialization.
+ * Extends cache-manager's CreateCacheOptions so consumers can pass
+ * Keyv store instances (e.g. Redis) for the primary cache layer.
+ */
+export type CacheServiceConfig = CreateCacheOptions;
+
+/**
+ * Unified Cache Service wrapper around cache-manager.
+ * Rule: XIX (Cache via cache-manager ONLY), XXI (Result Pattern).
+ *
+ * Init strategy: if `stores` are provided, attempts to create cache
+ * with them first (e.g. Redis). On failure, falls back to in-memory
+ * cache (no stores) and publishes a SUPER_ADMIN degradation alert.
  */
 export class CacheService {
   private cache?: Cache;
@@ -29,38 +40,53 @@ export class CacheService {
 
   /**
    * Initialize the cache store.
-   * Returns AsyncResult — no thrown exceptions, no console output.
-   * On failure, falls back to memory cache and publishes alert.
+   * When `config.stores` is provided, tries the external store first.
+   * On failure, falls back to memory-only cache and publishes alert.
    */
-  async init(): AsyncResult<void> {
+  async init(config?: CacheServiceConfig): AsyncResult<void> {
+    // Primary: try with configured stores (Redis, etc.)
+    if (config?.stores?.length) {
+      try {
+        this.cache = createCache(config);
+        return ok(undefined);
+      } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return this.fallbackToMemory(errorMessage, config.ttl);
+      }
+    }
+
+    // No external store configured — use in-memory directly
     try {
-      this.cache = createCache();
+      this.cache = createCache({ ttl: config?.ttl });
       return ok(undefined);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
+      return err(new AppError('shared.cache_init_failed', { originalError: errorMessage }));
+    }
+  }
 
-      if (this.logger) {
-        this.logger.warn(`Cache initialization failed, falling back to memory: ${errorMessage}`);
-      }
+  /** Fall back to memory-only cache after external store failure. */
+  private async fallbackToMemory(errorMessage: string, ttl?: number): AsyncResult<void> {
+    if (this.logger) {
+      this.logger.warn(`Cache initialization failed, falling back to memory: ${errorMessage}`);
+    }
 
-      if (this.eventBus) {
-        await this.eventBus.publish(
-          'system.alert.critical',
-          {
-            message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
-            error: errorMessage,
-          },
-          'LOCAL',
-        );
-      }
+    if (this.eventBus) {
+      await this.eventBus.publish(
+        'system.alert.critical',
+        {
+          message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
+          error: errorMessage,
+        },
+        'LOCAL',
+      );
+    }
 
-      // Fallback to memory cache (createCache with no args = memory)
-      try {
-        this.cache = createCache();
-        return ok(undefined);
-      } catch {
-        return err(new AppError('shared.cache_init_failed', { originalError: errorMessage }));
-      }
+    try {
+      this.cache = createCache({ ttl });
+      return ok(undefined);
+    } catch {
+      return err(new AppError('shared.cache_init_failed', { originalError: errorMessage }));
     }
   }
 
