@@ -319,7 +319,7 @@ const ARABIC_CHAR_RANGE_START = 0x0600;
 const ARABIC_CHAR_RANGE_END = 0x06ff;
 
 /** Emoji bullet for list items per Section 13.2 */
-const EMOJI_BULLET = '\u2022'; // Will use emoji-style bullets in formatting
+const EMOJI_BULLET = '\u25CF'; // ● Black Circle — used as bullet in list formatting
 ```
 
 ---

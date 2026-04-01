@@ -111,9 +111,9 @@
 - [x] `Guard` class exported with static `enforce()` method (FR-007)
 - [x] `enforce()` accepts `AnyAbility`, `AppAction`, and `AppSubject` parameters
 - [x] Returns `Result<void, AppError>` — `ok(undefined)` when permitted, `err(AppError)` when denied
-- [x] Denied access returns `AppError` with code `'FORBIDDEN'` and includes `{ action, subject }` details (FR-006)
+- [x] Denied access returns `AppError` with code `'auth.forbidden'` and includes `{ action, subject }` details (FR-006)
 - [x] Tests verify permitted access returns `ok`
-- [x] Tests verify denied access returns `err` with `FORBIDDEN` code
+- [x] Tests verify denied access returns `err` with `auth.forbidden` code
 - [x] SC-001: Guard enforcement completes in < 5ms — benchmark validates overhead
 - [x] SC-004: Denied access error includes clear action/subject context for user-facing messages via i18n
 - [x] No `any` types
@@ -136,13 +136,13 @@
 
 **Acceptance criteria:**
 
-- [x] `UnauthorizedError` class exported, extends `AppError` with code `'UNAUTHORIZED'`
-- [x] `ForbiddenError` class exported, extends `AppError` with code `'FORBIDDEN'`
+- [x] `UnauthorizedError` class exported, extends `AppError` with code `'auth.unauthorized'`
+- [x] `ForbiddenError` class exported, extends `AppError` with code `'auth.forbidden'`
 - [x] Both classes accept optional `details` parameter
 - [x] Both classes correctly set prototype chain via `Object.setPrototypeOf`
-- [x] `UnauthorizedError` produces i18nKey `'errors.UNAUTHORIZED'`
+- [x] `UnauthorizedError` produces i18nKey `'errors.auth.unauthorized'`
 - [x] `ForbiddenError` preserves details object in `error.details`
-- [x] SC-003: Error codes map to audit log entries — `UNAUTHORIZED` and `FORBIDDEN` codes are standardized for downstream audit logging
+- [x] SC-003: Error codes map to audit log entries — `auth.unauthorized` and `auth.forbidden` codes are standardized for downstream audit logging
 - [x] SC-004: Error codes produce clear user-facing messages via i18n key convention
 - [x] No `any` types
 - [x] All tests pass

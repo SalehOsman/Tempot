@@ -28,7 +28,7 @@ export interface GeoCity {
 /** Plain data structure for UI rendering — consumed by input-engine */
 export interface GeoOption {
   label: string; // Display text (e.g., Arabic name)
-  value: string; // Unique identifier (e.g., state code)
+  value: string; // Entity ID (e.g., state.id or city.id)
   i18nKey?: string; // Translation key (e.g., 'geo.EG.states.CAI') — optional for backward compat
 }
 

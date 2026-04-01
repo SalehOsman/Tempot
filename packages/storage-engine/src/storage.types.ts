@@ -90,13 +90,13 @@ export const DEFAULT_STORAGE_CONFIG: StorageConfig = {
   allowedMimeTypes: [
     'image/jpeg',
     'image/png',
-    'image/gif',
     'image/webp',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain',
     'text/csv',
+    'application/json',
   ],
   retention: {
     days: 30,

@@ -46,7 +46,11 @@ export class LocalEventBus {
     return ok(undefined);
   }
 
-  unsubscribe(eventName: string, handler: (payload: unknown) => void): void {
+  unsubscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
+    if (!validateEventName(eventName)) {
+      return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
+    }
     this.emitter.off(eventName, handler);
+    return ok(undefined);
   }
 }

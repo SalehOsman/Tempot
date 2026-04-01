@@ -92,7 +92,7 @@ input-engine → regional-engine (input-engine depends on regional-engine)
 ```typescript
 interface GeoOption {
   label: string; // Display text (e.g., Arabic name of governorate)
-  value: string; // Unique identifier (e.g., state code)
+  value: string; // Entity ID (e.g., state.id or city.id)
   i18nKey?: string; // Translation key (e.g., 'geo.EG.states.CAI') — optional for backward compat
 }
 ```

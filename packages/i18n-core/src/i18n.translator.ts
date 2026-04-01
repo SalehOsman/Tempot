@@ -37,7 +37,7 @@ export interface TranslationOptions {
  */
 export function t(key: string | string[], options?: TranslationOptions): string {
   const store = sessionContext.getStore();
-  const rawLang = store?.lang;
+  const rawLang = store?.locale;
   const lang: string = typeof rawLang === 'string' ? rawLang : DEFAULT_LANGUAGE;
 
   return i18next.t(key, { ...options, lng: lang });

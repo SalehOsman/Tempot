@@ -31,7 +31,7 @@ describe('Context-Aware t()', () => {
   it('should use language from session context', async () => {
     const { t } = await import('../../src/i18n.translator.js');
     vi.mocked(sessionContext.getStore).mockReturnValue({
-      lang: 'en',
+      locale: 'en',
       userId: 'user-1',
     });
 
@@ -43,7 +43,7 @@ describe('Context-Aware t()', () => {
   it('should pass lng as a string even when store.lang is non-string', async () => {
     const { t } = await import('../../src/i18n.translator.js');
     vi.mocked(sessionContext.getStore).mockReturnValue({
-      lang: 123,
+      locale: 123 as unknown as string,
     });
 
     t('common.test');

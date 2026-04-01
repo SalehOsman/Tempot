@@ -1,49 +1,88 @@
 # @tempot/logger
 
-> Pino 9.x structured logging + AuditLogger. First package to implement — zero internal dependencies.
+Pino 9.x structured logging and audit logging for the Tempot framework.
 
 ## Purpose
 
-- `AppLogger` — Pino-based structured JSON logger with 6 levels (TRACE → FATAL)
-- `AuditLogger` — records all state-changing operations to the `audit_logs` table
-- PII redaction via Pino `redact` option
-- `loggedAt` flag on `AppError` prevents duplicate logging (ADR-034)
-- Error Reference System — generates `ERR-YYYYMMDD-XXXX` codes linking user messages to Audit Log entries
+- **Technical logger** -- pre-configured Pino singleton with PII redaction, session-aware context injection, and `AppError` serialization.
+- **Audit logger** -- persists state-changing operations to the database via `AuditLogRepository`.
 
-## Phase
+## Exports
 
-Phase 1 — Core Bedrock **(first package to implement — no internal dependencies)**
+```typescript
+// logger.config.ts
+export const SENSITIVE_KEYS: string[];
+
+// technical/error.serializer.ts
+export const appErrorSerializer: (err: unknown) => unknown;
+
+// technical/pino.logger.ts
+export const logger: pino.Logger;
+
+// audit/audit.logger.ts
+export interface AuditLogEntry { ... }
+export class AuditLogger { ... }
+```
 
 ## Dependencies
 
-| Package       | Purpose                              |
-| ------------- | ------------------------------------ |
-| `pino` 9.x    | Fastest Node.js JSON logger          |
-| `pino-pretty` | Human-readable output in development |
+| Package                   | Purpose                                    |
+| ------------------------- | ------------------------------------------ |
+| `pino` ^9.0.0             | Structured JSON logger                     |
+| `neverthrow` 8.2.0        | Result pattern for error handling          |
+| `@tempot/shared`          | `AppError`, `AsyncResult` types            |
+| `@tempot/database`        | `AuditLogRepository` for audit persistence |
+| `@tempot/session-manager` | `sessionContext` for user identity         |
 
-> ⚠️ logger has **zero** `@tempot/*` dependencies — it is the foundation everything else builds on.
+## Technical Logger
 
-## API
+The package exports a pre-configured Pino `logger` singleton. It reads `LOG_LEVEL` from the environment (defaults to `"info"`).
 
 ```typescript
-import { createLogger, AuditLogger } from '@tempot/logger';
+import { logger } from '@tempot/logger';
 
-// Application logger
-const logger = createLogger({ level: process.env.LOG_LEVEL ?? 'info' });
+logger.trace('Deep diagnostics');
+logger.debug('Debug details');
+logger.info({ orderId: 'abc-123' }, 'Order processed');
+logger.warn('Retry attempt');
+logger.error({ err: appError }, 'Operation failed');
+logger.fatal('Unrecoverable failure');
+```
 
-logger.trace('Deep debug info');
-logger.debug('Debug info');
-logger.info('Normal operation');
-logger.warn('Non-fatal warning');
-logger.error(appError, 'Error context');
-logger.fatal('System crash — shutting down');
+### Session Context Mixin
 
-// Audit logger
-const auditLogger = new AuditLogger(prisma);
+The logger automatically injects `userId` from `sessionContext` into every log entry when a session store is active. No manual configuration needed.
 
-await auditLogger.log({
-  userId: 'user-123',
-  userRole: 'ADMIN',
+### AppError Serializer
+
+The custom `appErrorSerializer` handles `AppError` instances:
+
+- **No double logging** -- if `err.loggedAt` is already set, emits a minimal `{ message, code, __redundant }` object instead of the full error.
+- **Sets `loggedAt`** -- marks the error as logged to prevent downstream duplicates.
+- **Redacts PII** -- recursively replaces values of sensitive keys in `err.details`.
+- **Strips stack in production** -- `err.stack` is only included when `NODE_ENV !== 'production'`.
+
+### PII Redaction
+
+Sensitive fields are defined in `SENSITIVE_KEYS`:
+
+```typescript
+import { SENSITIVE_KEYS } from '@tempot/logger';
+// ['password', 'token', 'secret', 'apiKey', 'creditCard']
+```
+
+Pino's built-in `redact` option uses these keys at the top level. The `appErrorSerializer` applies recursive redaction within `AppError.details`.
+
+## Audit Logger
+
+`AuditLogger` persists state-changing operations to the database. It accepts an `AuditLogRepository` (not a raw Prisma client).
+
+```typescript
+import { AuditLogger } from '@tempot/logger';
+
+const auditLogger = new AuditLogger(auditLogRepository);
+
+const result = await auditLogger.log({
   action: 'invoices.invoice.created',
   module: 'invoices',
   targetId: 'invoice-456',
@@ -52,35 +91,39 @@ await auditLogger.log({
   status: 'SUCCESS',
 });
 
-// Error reference system
-const refCode = auditLogger.generateRefCode(); // ERR-20260319-0042
+if (result.isErr()) {
+  // result.error is AppError with code 'logger.audit_log_failed'
+}
 ```
+
+### AuditLogEntry Interface
+
+```typescript
+interface AuditLogEntry {
+  action: string;
+  module: string;
+  targetId?: string;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  status?: string; // defaults to 'SUCCESS'
+  userId?: string; // falls back to sessionContext
+  userRole?: string; // falls back to sessionContext
+}
+```
+
+`userId` and `userRole` are automatically resolved from `sessionContext` when not provided explicitly.
 
 ## Log Levels
 
-| Level   | When to use                                               |
-| ------- | --------------------------------------------------------- |
-| `TRACE` | Deep diagnostics — DB query details, cache hits/misses    |
-| `DEBUG` | Development debugging                                     |
-| `INFO`  | Normal operations — request received, job completed       |
-| `WARN`  | Recoverable issues — Redis fallback active, retry attempt |
-| `ERROR` | Operation failed — requires investigation                 |
-| `FATAL` | System cannot continue — triggers `process.exit(1)`       |
-
-## PII Redaction
-
-Configured to redact sensitive fields before logging:
-
-```typescript
-const logger = createLogger({
-  redact: ['password', 'token', 'secret', 'authorization', 'cookie'],
-});
-```
-
-## ADRs
-
-- ADR-034 — No double logging via `loggedAt` flag
+| Level   | When to use                                             |
+| ------- | ------------------------------------------------------- |
+| `trace` | Deep diagnostics -- DB query details, cache hits/misses |
+| `debug` | Development debugging                                   |
+| `info`  | Normal operations -- request received, job completed    |
+| `warn`  | Recoverable issues -- retry attempts, fallback active   |
+| `error` | Operation failed -- requires investigation              |
+| `fatal` | System cannot continue                                  |
 
 ## Status
 
-✅ **Implemented** — Phase 1
+Phase 1 -- implemented.

@@ -1,5 +1,5 @@
 import { okAsync, errAsync } from 'neverthrow';
-import { AsyncResult, ShutdownManager } from '@tempot/shared';
+import { AsyncResult, ShutdownManager, AppError } from '@tempot/shared';
 import { LocalEventBus } from './local/local.bus.js';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
 import { ConnectionWatcher } from './distributed/connection.watcher.js';
@@ -7,7 +7,7 @@ import { ConnectionWatcher } from './distributed/connection.watcher.js';
 const DEFAULT_HEALTH_CHECK_INTERVAL_MS = 2000;
 const DEFAULT_STABILIZATION_THRESHOLD = 5;
 
-interface LoggerInterface {
+export interface LoggerInterface {
   error: (data: Record<string, unknown>) => void;
   info: (data: Record<string, unknown>) => void;
 }
@@ -80,8 +80,13 @@ export class EventBusOrchestrator {
     return this.redisBus.subscribe(eventName, handler);
   }
 
-  async dispose(): Promise<void> {
+  async dispose(): AsyncResult<void> {
     this.watcher.stop();
-    await this.redisBus.dispose();
+    try {
+      await this.redisBus.dispose();
+      return okAsync(undefined);
+    } catch (error) {
+      return errAsync(new AppError('event_bus.dispose_failed', error));
+    }
   }
 }

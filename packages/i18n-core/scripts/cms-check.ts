@@ -87,6 +87,53 @@ function isHardcodedHumanString(value: string): boolean {
 }
 
 /**
+ * Returns true if the file should be skipped by hardcoded string detection.
+ */
+function shouldSkipFile(filePath: string): boolean {
+  if (/locales\/[a-z]{2}\.json$/i.test(filePath)) return true;
+  if (!/\.(ts|tsx|js|jsx)$/.test(filePath)) return true;
+  return false;
+}
+
+/**
+ * Returns true if the line should be skipped (imports, comments).
+ */
+function isNonCodeLine(line: string): boolean {
+  return /^\s*(import\s|.*require\s*\()/.test(line) || /^\s*(\/\/|\/\*|\*)/.test(line);
+}
+
+/**
+ * Checks a single line for hardcoded string violations.
+ */
+function checkLineForHardcodedStrings(
+  line: string,
+  lineNumber: number,
+  filePath: string,
+): CmsCheckViolation[] {
+  const stringLiterals = line.match(/(?<!=\s*t\s*\()(['"])(?:(?!\1).)+\1/g);
+  if (!stringLiterals) return [];
+
+  const violations: CmsCheckViolation[] = [];
+  for (const literal of stringLiterals) {
+    const value = literal.slice(1, -1);
+    const tCallPattern = new RegExp(
+      `t\\s*\\(\\s*${literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+    );
+    if (tCallPattern.test(line)) continue;
+
+    if (isHardcodedHumanString(value)) {
+      violations.push({
+        file: filePath,
+        line: lineNumber,
+        type: 'hardcoded-string',
+        message: `Hardcoded string detected: "${value.substring(0, 50)}${value.length > 50 ? '...' : ''}"`,
+      });
+    }
+  }
+  return violations;
+}
+
+/**
  * Scans source code text for hardcoded human-readable strings.
  *
  * This performs a simplified AST-like analysis by extracting string literals
@@ -97,60 +144,15 @@ function isHardcodedHumanString(value: string): boolean {
  * @returns Array of violations found
  */
 export function detectHardcodedStrings(source: string, filePath: string): CmsCheckViolation[] {
-  // Skip locale JSON files — they're supposed to contain translated strings
-  if (/locales\/[a-z]{2}\.json$/i.test(filePath)) {
-    return [];
-  }
-
-  // Skip non-source files
-  if (!/\.(ts|tsx|js|jsx)$/.test(filePath)) {
-    return [];
-  }
+  if (shouldSkipFile(filePath)) return [];
 
   const violations: CmsCheckViolation[] = [];
   const lines = source.split('\n');
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const lineNumber = i + 1;
-
-    // Skip import/require lines
-    if (/^\s*(import\s|.*require\s*\()/.test(line)) {
-      continue;
-    }
-
-    // Skip lines that are comments
-    if (/^\s*(\/\/|\/\*|\*)/.test(line)) {
-      continue;
-    }
-
-    // Extract string literals (both single and double quoted)
-    const stringLiterals = line.match(/(?<!=\s*t\s*\()(['"])(?:(?!\1).)+\1/g);
-    if (!stringLiterals) {
-      continue;
-    }
-
-    for (const literal of stringLiterals) {
-      // Remove quotes
-      const value = literal.slice(1, -1);
-
-      // Check if it's inside a t() call on the same line
-      const tCallPattern = new RegExp(
-        `t\\s*\\(\\s*${literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
-      );
-      if (tCallPattern.test(line)) {
-        continue;
-      }
-
-      if (isHardcodedHumanString(value)) {
-        violations.push({
-          file: filePath,
-          line: lineNumber,
-          type: 'hardcoded-string',
-          message: `Hardcoded string detected: "${value.substring(0, 50)}${value.length > 50 ? '...' : ''}"`,
-        });
-      }
-    }
+    if (isNonCodeLine(line)) continue;
+    violations.push(...checkLineForHardcodedStrings(line, i + 1, filePath));
   }
 
   return violations;
