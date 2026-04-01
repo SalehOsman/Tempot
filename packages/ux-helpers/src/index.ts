@@ -1,3 +1,6 @@
+// Toggle Guard
+export { uxToggle } from './ux.toggle.js';
+
 // Types
 export type {
   StatusType,

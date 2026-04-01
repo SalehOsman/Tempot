@@ -1,6 +1,7 @@
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
+import { regionalToggle } from './regional.toggle.js';
 
 export class FormatService {
   formatCurrency(
@@ -8,6 +9,9 @@ export class FormatService {
     locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
     currency: string = DEFAULT_REGIONAL_CONTEXT.currencyCode,
   ): Result<string, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     try {
       const formatted = new Intl.NumberFormat(locale, {
         style: 'currency',
@@ -25,6 +29,9 @@ export class FormatService {
     value: number,
     locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
   ): Result<string, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     try {
       return ok(new Intl.NumberFormat(locale).format(value));
     } catch (error: unknown) {
@@ -37,6 +44,9 @@ export class FormatService {
     value: number,
     locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
   ): Result<string, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     try {
       return ok(new Intl.NumberFormat(locale, { style: 'percent' }).format(value));
     } catch (error: unknown) {

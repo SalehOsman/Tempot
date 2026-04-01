@@ -7,10 +7,14 @@ import { encodeWithExpiry } from '../callback-data/callback-data.encoder.js';
 import { CONFIRMATION_EXPIRY_MINUTES } from '../ux.constants.js';
 import { validateLabel } from './label.validator.js';
 import type { ConfirmationOptions, ConfirmationResult } from '../ux.types.js';
+import { uxToggle } from '../ux.toggle.js';
 
 export function createConfirmation(
   options: ConfirmationOptions,
 ): Result<ConfirmationResult, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const { actionNameKey, cancelKey, callbackPrefix, isIrreversible } = options;
 
   // Encode confirm callback with expiry

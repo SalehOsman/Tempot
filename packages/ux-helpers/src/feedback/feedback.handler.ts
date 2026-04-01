@@ -3,6 +3,7 @@ import type { AppError } from '@tempot/shared';
 import { err as errResult } from 'neverthrow';
 import type { FeedbackOptions } from '../ux.types.js';
 import { sendLoading, sendSuccess, sendError } from '../messages/status.sender.js';
+import { uxToggle } from '../ux.toggle.js';
 
 type EditableContext = Parameters<typeof sendLoading>[0];
 
@@ -11,6 +12,8 @@ export async function executeFeedback<T>(
   ctx: EditableContext,
   options: FeedbackOptions<T>,
 ): AsyncResult<T, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
   const loadingResult = await sendLoading(ctx, { key: options.loadingKey });
   if (loadingResult.isErr()) return errResult(loadingResult.error);
 

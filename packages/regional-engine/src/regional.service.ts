@@ -5,6 +5,7 @@ import { DateService } from './date.service.js';
 import { FormatService } from './format.service.js';
 import type { RegionalContext } from './regional.types.js';
 import { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
+import { regionalToggle } from './regional.toggle.js';
 
 type RegionalMode = 'static' | 'dynamic';
 
@@ -16,6 +17,9 @@ export class RegionalService {
   ) {}
 
   getContext(): Result<RegionalContext, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     if (this.mode === 'static') {
       return ok({ ...DEFAULT_REGIONAL_CONTEXT });
     }

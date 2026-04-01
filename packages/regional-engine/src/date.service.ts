@@ -6,6 +6,7 @@ import 'dayjs/locale/ar.js';
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
+import { regionalToggle } from './regional.toggle.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,6 +53,9 @@ export class DateService {
     formatStr: string,
     options: DateFormatOptions = {},
   ): Result<string, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     const { locale = DEFAULT_DAYJS_LOCALE, tz = DEFAULT_REGIONAL_CONTEXT.timezone } = options;
 
     if (!isValidLocale(locale)) {
@@ -75,6 +79,9 @@ export class DateService {
   }
 
   toUTC(date: Date | string | number, tz: string): Result<Date, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     if (!isValidTimezone(tz)) {
       return err(new AppError('regional.invalid_timezone', `Invalid timezone: ${tz}`));
     }

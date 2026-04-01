@@ -5,6 +5,7 @@ import type { ShutdownManager } from '@tempot/shared';
 import type { StorageFileDeletedPayload } from '../storage.contracts.js';
 import type { Attachment } from '../storage.types.js';
 import { STORAGE_ERRORS } from '../storage.errors.js';
+import { storageToggle } from '../storage.toggle.js';
 
 /** Minimal interfaces for purge job dependencies */
 
@@ -59,6 +60,9 @@ export function createPurgeQueue(
  * FR-005, D6: Deferred deletion with configurable retention.
  */
 export async function processPurge(deps: PurgeDeps): AsyncResult<void, AppError> {
+  const disabled = storageToggle.check();
+  if (disabled) return disabled;
+
   const { attachmentRepo, retentionDays, logger } = deps;
 
   const beforeDate = new Date();

@@ -4,6 +4,7 @@ import { AppError } from '@tempot/shared';
 import { logger } from '@tempot/logger';
 import type { EditOrSendOptions } from '../ux.types.js';
 import { UX_ERRORS } from '../ux.errors.js';
+import { uxToggle } from '../ux.toggle.js';
 
 interface EditableContext {
   readonly callbackQuery?: { readonly message?: unknown };
@@ -53,6 +54,9 @@ export async function editOrSend(
   ctx: EditableContext,
   options: EditOrSendOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   if (!ctx.callbackQuery?.message) {
     return sendReply(ctx, options);
   }

@@ -1,3 +1,6 @@
+// Toggle guard (Rule XVI)
+export { storageToggle } from './storage.toggle.js';
+
 // Types
 export type {
   StorageProviderType,

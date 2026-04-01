@@ -3,6 +3,7 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { AnswerCallbackOptions } from '../ux.types.js';
 import { UX_ERRORS } from '../ux.errors.js';
+import { uxToggle } from '../ux.toggle.js';
 
 interface CallbackContext {
   answerCallbackQuery(options: {
@@ -21,6 +22,9 @@ export async function answerCallback(
   ctx: CallbackContext,
   options?: AnswerCallbackOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   try {
     await ctx.answerCallbackQuery({
       text: options?.text,

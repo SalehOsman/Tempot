@@ -14,9 +14,13 @@ import { S3Provider } from './providers/s3.provider.js';
 import { DriveProvider } from './providers/drive.provider.js';
 import { TelegramProvider } from './providers/telegram.provider.js';
 import { STORAGE_ERRORS } from './storage.errors.js';
+import { storageToggle } from './storage.toggle.js';
 
 /** Create a StorageProvider based on config (D1: Provider Strategy Pattern) */
 export function createStorageProvider(config: StorageConfig): Result<StorageProvider, AppError> {
+  const disabled = storageToggle.check();
+  if (disabled) return disabled;
+
   switch (config.provider) {
     case 'local': {
       if (!config.local) {
@@ -59,6 +63,9 @@ export function createDriveProvider(
   driveClient: drive_v3.Drive,
   config: DriveProviderConfig,
 ): Result<StorageProvider, AppError> {
+  const disabled = storageToggle.check();
+  if (disabled) return disabled;
+
   return ok(new DriveProvider(driveClient, config));
 }
 
@@ -67,5 +74,8 @@ export function createTelegramProvider(
   api: Api,
   config: TelegramProviderConfig,
 ): Result<StorageProvider, AppError> {
+  const disabled = storageToggle.check();
+  if (disabled) return disabled;
+
   return ok(new TelegramProvider(api, config));
 }

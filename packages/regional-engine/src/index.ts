@@ -12,3 +12,6 @@ export { RegionalService } from './regional.service.js';
 
 // Arch spec compatibility: Section 11.3 uses "RegionalEngine" as the facade name
 export { RegionalService as RegionalEngine } from './regional.service.js';
+
+// Toggle guard (Rule XVI — Pluggable Architecture)
+export { regionalToggle } from './regional.toggle.js';

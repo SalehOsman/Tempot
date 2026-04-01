@@ -3,6 +3,7 @@ import type { AppError } from '@tempot/shared';
 import type { StatusSendOptions } from '../ux.types.js';
 import { formatLoading, formatSuccess, formatError, formatWarning } from './status.formatter.js';
 import { editOrSend } from '../helpers/golden-rule.fallback.js';
+import { uxToggle } from '../ux.toggle.js';
 
 type EditableContext = Parameters<typeof editOrSend>[0];
 
@@ -11,6 +12,9 @@ export async function sendLoading(
   ctx: EditableContext,
   options: StatusSendOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const text = formatLoading({
     key: options.key,
     interpolation: options.interpolation,
@@ -23,6 +27,9 @@ export async function sendSuccess(
   ctx: EditableContext,
   options: StatusSendOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const text = formatSuccess({
     key: options.key,
     interpolation: options.interpolation,
@@ -35,6 +42,9 @@ export async function sendError(
   ctx: EditableContext,
   options: StatusSendOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const text = formatError({
     key: options.key,
     interpolation: options.interpolation,
@@ -47,6 +57,9 @@ export async function sendWarning(
   ctx: EditableContext,
   options: StatusSendOptions,
 ): AsyncResult<void, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const text = formatWarning({
     key: options.key,
     interpolation: options.interpolation,

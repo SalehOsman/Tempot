@@ -3,6 +3,7 @@ import { AsyncResult, ShutdownManager, AppError } from '@tempot/shared';
 import { LocalEventBus } from './local/local.bus.js';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
 import { ConnectionWatcher } from './distributed/connection.watcher.js';
+import { eventBusToggle } from './event-bus.toggle.js';
 
 const DEFAULT_HEALTH_CHECK_INTERVAL_MS = 2000;
 const DEFAULT_STABILIZATION_THRESHOLD = 5;
@@ -50,6 +51,9 @@ export class EventBusOrchestrator {
   }
 
   async init(): AsyncResult<void> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     this.watcher.start();
 
     if (this.shutdownManager) {
@@ -65,6 +69,9 @@ export class EventBusOrchestrator {
   }
 
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     if (this.watcher.isRedisAvailable()) {
       return this.redisBus.publish(eventName, payload);
     }
@@ -72,6 +79,9 @@ export class EventBusOrchestrator {
   }
 
   async subscribe(eventName: string, handler: (payload: unknown) => void): AsyncResult<void> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     const localResult = this.localBus.subscribe(eventName, handler);
     if (localResult.isErr()) {
       return errAsync(localResult.error);
@@ -81,6 +91,9 @@ export class EventBusOrchestrator {
   }
 
   async dispose(): AsyncResult<void> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     this.watcher.stop();
     try {
       await this.redisBus.dispose();

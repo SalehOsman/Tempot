@@ -4,8 +4,12 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
 import type { PaginationOptions } from '../ux.types.js';
+import { uxToggle } from '../ux.toggle.js';
 
 export function buildPagination(options: PaginationOptions): Result<InlineKeyboard, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const { currentPage, totalPages, callbackPrefix } = options;
   const keyboard = new InlineKeyboard();
 

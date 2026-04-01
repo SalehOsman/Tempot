@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import { sessionContext } from '@tempot/session-manager';
 import { DEFAULT_LANGUAGE } from './i18n.config.js';
+import { i18nToggle } from './i18n.toggle.js';
 
 /** Options passed to the `t()` translation function. */
 export interface TranslationOptions {
@@ -36,6 +37,10 @@ export interface TranslationOptions {
  * ```
  */
 export function t(key: string | string[], options?: TranslationOptions): string {
+  if (!i18nToggle.isEnabled()) {
+    return Array.isArray(key) ? key[0] : key;
+  }
+
   const store = sessionContext.getStore();
   const rawLang = store?.locale;
   const lang: string = typeof rawLang === 'string' ? rawLang : DEFAULT_LANGUAGE;

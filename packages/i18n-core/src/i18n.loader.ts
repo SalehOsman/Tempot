@@ -4,6 +4,7 @@ import path from 'node:path';
 import i18next from 'i18next';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+import { i18nToggle } from './i18n.toggle.js';
 
 /**
  * Scans module locale files (pattern: modules/&lt;name&gt;/locales/&lt;lang&gt;.json)
@@ -25,6 +26,9 @@ import { AppError } from '@tempot/shared';
  * ```
  */
 export async function loadModuleLocales(): Promise<Result<void, AppError>> {
+  const disabled = i18nToggle.check();
+  if (disabled) return disabled;
+
   try {
     const localeFiles = await glob('modules/*/locales/*.json');
 

@@ -4,6 +4,7 @@ import { AppError } from '@tempot/shared';
 import { SessionRepository } from './session.repository.js';
 import { migrateSession } from './session.migrator.js';
 import { DEFAULT_SESSION_TTL } from './session.constants.js';
+import { sessionToggle } from './session.toggle.js';
 
 /** Cache adapter interface used by SessionProvider. */
 export interface CacheAdapter {
@@ -53,6 +54,9 @@ export class SessionProvider implements ISessionProvider {
    * Each successful cache hit resets the sliding TTL via EXPIRE.
    */
   async getSession(userId: string, chatId: string): Promise<Result<Session, AppError>> {
+    const disabled = sessionToggle.check();
+    if (disabled) return disabled;
+
     const key = this.getSessionKey(userId, chatId);
 
     // 1. Try Cache
@@ -98,6 +102,9 @@ export class SessionProvider implements ISessionProvider {
    * a `session-manager.session.updated` event for async PostgreSQL sync via BullMQ.
    */
   async saveSession(session: Session): Promise<Result<void, AppError>> {
+    const disabled = sessionToggle.check();
+    if (disabled) return disabled;
+
     const key = this.getSessionKey(session.userId, session.chatId);
 
     // Increment version for OCC
@@ -131,11 +138,17 @@ export class SessionProvider implements ISessionProvider {
 
   /** Delegates to the standalone migrateSession utility (satisfies ISessionProvider contract). */
   migrateSession(session: Session) {
+    const disabled = sessionToggle.check();
+    if (disabled) return disabled;
+
     return migrateSession(session);
   }
 
   /** Removes the session from both Redis and PostgreSQL. */
   async deleteSession(userId: string, chatId: string): Promise<Result<void, AppError>> {
+    const disabled = sessionToggle.check();
+    if (disabled) return disabled;
+
     const key = this.getSessionKey(userId, chatId);
     const id = `${userId}:${chatId}`;
 

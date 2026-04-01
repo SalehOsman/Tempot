@@ -4,8 +4,12 @@ import { AppError } from '@tempot/shared';
 import { t } from '@tempot/i18n-core';
 import type { ListFormatOptions, ListFormatResult } from '../ux.types.js';
 import { toEmojiNumber } from './emoji.formatter.js';
+import { uxToggle } from '../ux.toggle.js';
 
 export function formatList<T>(options: ListFormatOptions<T>): Result<ListFormatResult, AppError> {
+  const disabled = uxToggle.check();
+  if (disabled) return disabled;
+
   const { titleKey, items, renderItem, emptyStateKey, emptyActionConfig } = options;
 
   if (items.length === 0) {

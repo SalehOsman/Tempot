@@ -12,6 +12,7 @@ import type {
   StorageValidation,
 } from './storage.interfaces.js';
 import { STORAGE_ERRORS } from './storage.errors.js';
+import { storageToggle } from './storage.toggle.js';
 
 const DEFAULT_SIGNED_URL_EXPIRY_SECONDS = 3600;
 
@@ -50,6 +51,9 @@ export class StorageService {
 
   /** Upload a file: validate -> MIME check -> upload to provider -> create DB record -> emit event */
   async upload(data: Buffer | Readable, options: UploadOptions): AsyncResult<Attachment, AppError> {
+    const disabled = storageToggle.check();
+    if (disabled) return disabled;
+
     const validationResult = this.validation.validateUpload(options);
     if (validationResult.isErr()) return err(validationResult.error);
     const { sanitizedName, generatedFileName } = validationResult.value;
@@ -81,6 +85,9 @@ export class StorageService {
 
   /** Download a file by attachment ID */
   async download(attachmentId: string): AsyncResult<Readable, AppError> {
+    const disabled = storageToggle.check();
+    if (disabled) return disabled;
+
     const findResult = await this.attachmentRepo.findById(attachmentId);
     if (findResult.isErr()) return err(findResult.error);
     return this.provider.download(findResult.value.providerKey);
@@ -88,6 +95,9 @@ export class StorageService {
 
   /** Soft delete an attachment (D6: deferred purge) */
   async delete(attachmentId: string): AsyncResult<void, AppError> {
+    const disabled = storageToggle.check();
+    if (disabled) return disabled;
+
     const findResult = await this.attachmentRepo.findById(attachmentId);
     if (findResult.isErr()) return err(findResult.error);
     const attachment = findResult.value;
@@ -111,6 +121,9 @@ export class StorageService {
     attachmentId: string,
     expiresInSeconds: number = DEFAULT_SIGNED_URL_EXPIRY_SECONDS,
   ): AsyncResult<string, AppError> {
+    const disabled = storageToggle.check();
+    if (disabled) return disabled;
+
     const findResult = await this.attachmentRepo.findById(attachmentId);
     if (findResult.isErr()) return err(findResult.error);
     return this.provider.getSignedUrl(findResult.value.providerKey, expiresInSeconds);
@@ -121,6 +134,9 @@ export class StorageService {
     moduleId: string,
     entityId: string,
   ): AsyncResult<Attachment[], AppError> {
+    const disabled = storageToggle.check();
+    if (disabled) return disabled;
+
     const result = await this.attachmentRepo.findByModuleAndEntity(moduleId, entityId);
     if (result.isErr()) return err(result.error);
     return ok(result.value);

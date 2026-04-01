@@ -1,6 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { Session } from './session.types.js';
+import { sessionToggle } from './session.toggle.js';
 
 /** The latest session schema version; bump this constant when introducing a breaking shape change. */
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -10,6 +11,9 @@ export const CURRENT_SCHEMA_VERSION = 1;
  * Returns the unchanged session if already current, or an `AppError` for unknown future versions.
  */
 export function migrateSession(session: Session): Result<Session, AppError> {
+  const disabled = sessionToggle.check();
+  if (disabled) return disabled;
+
   if (session.schemaVersion === CURRENT_SCHEMA_VERSION) {
     return ok(session);
   }

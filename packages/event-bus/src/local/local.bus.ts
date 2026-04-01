@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import { ok, err } from 'neverthrow';
 import { AsyncResult, AppError, Result } from '@tempot/shared';
 import { validateEventName } from '../event-bus.contracts.js';
+import { eventBusToggle } from '../event-bus.toggle.js';
 
 const MAX_EVENT_LISTENERS = 100;
 
@@ -14,6 +15,9 @@ export class LocalEventBus {
   }
 
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
@@ -39,6 +43,9 @@ export class LocalEventBus {
   }
 
   subscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
@@ -47,6 +54,9 @@ export class LocalEventBus {
   }
 
   unsubscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
+    const disabled = eventBusToggle.check();
+    if (disabled) return disabled;
+
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }

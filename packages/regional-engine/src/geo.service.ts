@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { GeoState, GeoCity } from './regional.types.js';
+import { regionalToggle } from './regional.toggle.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -67,6 +68,9 @@ function corruptError(countryCode: string): AppError {
 
 export class GeoService {
   getStates(countryCode: string): Result<GeoState[], AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     const data = ensureLoaded(countryCode);
     if (data === CORRUPT_SENTINEL) {
       return err(corruptError(countryCode));
@@ -78,6 +82,9 @@ export class GeoService {
   }
 
   getCities(stateId: string): Result<GeoCity[], AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     for (const countryCode of Object.keys(GEO_REGISTRY)) {
       const entry = GEO_REGISTRY[countryCode];
       if (entry === CORRUPT_SENTINEL) {
@@ -92,6 +99,9 @@ export class GeoService {
   }
 
   getStateByCode(code: string, countryCode: string): Result<GeoState | undefined, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     const data = ensureLoaded(countryCode);
     if (data === CORRUPT_SENTINEL) {
       return err(corruptError(countryCode));
@@ -104,6 +114,9 @@ export class GeoService {
   }
 
   searchGeo(query: string, countryCode: string): Result<Array<GeoState | GeoCity>, AppError> {
+    const disabled = regionalToggle.check();
+    if (disabled) return disabled;
+
     const data = ensureLoaded(countryCode);
     if (data === CORRUPT_SENTINEL) {
       return err(corruptError(countryCode));

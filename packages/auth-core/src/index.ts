@@ -5,3 +5,4 @@ export * from './contracts/session.types.js';
 export * from './errors/auth.errors.js';
 export * from './factory/ability.factory.js';
 export * from './guards/auth.guard.js';
+export { authToggle } from './auth.toggle.js';
