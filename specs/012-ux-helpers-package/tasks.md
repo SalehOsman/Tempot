@@ -362,3 +362,20 @@
 | 14    | Feedback Handler     | Loading→action→result flow                       | status.sender, answer-callback, typing |
 | 15    | Mock Context         | Testing subpath                                  | grammY types                           |
 | 16    | Integration          | Barrel exports, README                           | All components                         |
+
+---
+
+### Task 17: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Infrastructure)
+**Estimated Duration**: 10 minutes
+**FR Coverage**: FR-017
+
+Constitution Rule XVI requires `TEMPOT_UX_HELPERS=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_UX_HELPERS` environment variable in config (default: `true`)
+- [ ] When disabled, all builder/formatter functions return `err(AppError)` with code `ux.disabled`
+- [ ] Document the disable behavior in README
+- [ ] Unit test verifies disabled mode behavior

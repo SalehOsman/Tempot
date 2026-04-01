@@ -69,7 +69,7 @@ As a super admin, I want to assign specific admins to specific modules so that I
 ### Key Entities
 
 - **Ability**: The CASL object representing a user's permissions for the current context.
-- **SessionUser**: The user data injected from the session manager.
+- **SessionUser**: The user data injected from the session manager. `id` is typed as `string | number` because Telegram user IDs are numeric natively. Downstream packages (e.g., session-manager) that use string-based keys MUST convert numeric IDs to strings at the middleware/integration layer.
 
 ## Success Criteria _(mandatory)_
 
@@ -77,5 +77,5 @@ As a super admin, I want to assign specific admins to specific modules so that I
 
 - **SC-001**: Authorization check overhead must be < 5ms per request.
 - **SC-002**: 100% of modules must define their own permissions in `abilities.ts`.
-- **SC-003**: Access denied events must be correctly logged in the Audit Log with 100% reliability.
+- **SC-003**: Access denied events must be correctly logged in the Audit Log with 100% reliability. **[DEFERRED: Audit Log integration depends on logger package's AuditLogger, not implemented in initial release]**
 - **SC-004**: System successfully denies unauthorized access attempts with a clear user-facing message via `i18n`.

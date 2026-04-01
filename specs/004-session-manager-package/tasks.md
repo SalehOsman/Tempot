@@ -180,3 +180,34 @@ Constitution Rule XVI requires `TEMPOT_SESSION_MANAGER=true/false` environment v
 2. Add User Story 1 → Test independently
 3. Add User Story 2 → Test independently
 4. Polish and document.
+
+---
+
+### Task 34: Blast Radius Assessment (Rule LIV)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 10 minutes
+
+Session-manager modifies the database Prisma schema (adds Session model) — this is a cross-package change requiring blast radius analysis.
+
+#### Acceptance Criteria
+
+- [ ] Document which packages are affected by Session model addition
+- [ ] Verify no breaking changes to existing database migrations
+- [ ] Confirm event-bus event types are registered without conflicts
+- [ ] Review shared package dependencies for version compatibility
+
+---
+
+### Task 35: Delete Session Support (FR-008)
+
+**Phase**: 2 (Core Implementation)
+**Estimated Duration**: 5 minutes
+
+Traceability task for the `deleteSession(userId, chatId)` method already implemented in the session-manager codebase.
+
+#### Acceptance Criteria
+
+- [ ] T035 Verify `deleteSession` method exists in session repository and service layers
+- [ ] T035 Confirm unit tests cover `deleteSession` (success + not-found cases)
+- [ ] T035 Validate method returns `Result<void, AppError>` per Rule XXI

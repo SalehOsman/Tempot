@@ -59,11 +59,11 @@ As a system administrator, I want to distribute events across multiple server in
 - **FR-003**: System MUST provide a unified `EventBus` service accessible to all packages and modules.
 - **FR-004**: System SHOULD minimize event loss for External events. Redis Pub/Sub provides at-most-once delivery; guaranteed delivery requires BullMQ queue integration (deferred).
   > **Implementation Note**: Current implementation uses Redis Pub/Sub which is fire-and-forget. Events published when no subscriber is connected are lost. For guaranteed delivery, a future BullMQ-based transport is planned.
-- **FR-005**: System MUST implement automatic retries (up to 3 times) for failed event processing tasks.
+- **FR-005**: System SHOULD implement automatic retries (up to 3 times) for failed event processing tasks.
   > **[DEFERRED]**: Retry logic with BullMQ workers is not implemented in the initial release. Events that fail are logged but not retried.
-- **FR-006**: System MUST automatically log event history and failures to the Audit Log (Section 10.2).
+- **FR-006**: System SHOULD automatically log event history and failures to the Audit Log (Section 10.2).
   > **[DEFERRED]**: Audit logging integration depends on the logger package's AuditLogger. Not implemented in the initial release.
-- **FR-007**: System MUST support wildcards in event listeners (e.g., `invoices.*.completed`).
+- **FR-007**: System SHOULD support wildcards in event listeners (e.g., `invoices.*.completed`).
   > **[DEFERRED]**: Wildcard pattern matching for event subscriptions is not implemented. All subscriptions use exact string matching.
 
 ### Key Entities
@@ -76,5 +76,5 @@ As a system administrator, I want to distribute events across multiple server in
 
 - **SC-001**: Local event delivery overhead must be < 1ms to ensure high performance.
 - **SC-002**: 100% of inter-module communication must use the Event Bus as per Rule XV.
-- **SC-003**: External events must be successfully delivered across multiple server instances with 100% reliability.
-- **SC-004**: System correctly handles and retries 100% of temporary listener failures.
+- **SC-003**: External events must be successfully delivered across multiple server instances with 100% reliability. **[DEFERRED: depends on BullMQ transport for guaranteed delivery; Redis Pub/Sub provides at-most-once]**
+- **SC-004**: System correctly handles and retries 100% of temporary listener failures. **[DEFERRED: retry logic depends on FR-005 BullMQ integration]**

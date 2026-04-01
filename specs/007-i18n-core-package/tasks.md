@@ -48,9 +48,40 @@
 **Independent Test**: Running `pnpm cms:check` on a file with hardcoded human-readable strings and verifying it fails.
 
 - [ ] T011 [US2] Configure `i18next-parser` for AST-based extraction in `packages/i18n-core/config/parser.config.js`
+
+### T011 Acceptance Criteria
+
+- [ ] Parser config targets all TypeScript source files across workspace packages
+- [ ] Extracts `t()` call keys using AST (not regex)
+- [ ] Output format compatible with i18next JSON structure
+
 - [ ] T012 [US2] Implement `cms:check` script in `packages/i18n-core/scripts/cms-check.ts` using AST analysis and Zod validation (FR-002, FR-007, SC-001, SC-003, SC-004)
+
+### T012 Acceptance Criteria
+
+- [ ] Detects hardcoded Arabic/English strings in `.ts` files (excluding locale files, tests, and config)
+- [ ] Validates all locale JSON files against Zod schema (LocaleSchema)
+- [ ] Verifies key parity between `ar.json` and `en.json` for every module
+- [ ] Exit code 0 on success, non-zero on failure
+- [ ] Outputs clear error messages with file path and line number for each violation
+
 - [ ] T013 [US2] Add `cms:check` to root `package.json` scripts and husky pre-commit hooks
+
+### T013 Acceptance Criteria
+
+- [ ] `pnpm cms:check` runs from monorepo root
+- [ ] Pre-commit hook runs `cms:check` and blocks commit on failure
+- [ ] CI pipeline includes `cms:check` step
+
 - [ ] T014 [US2] Unit test for hardcoded string detection in `packages/i18n-core/tests/unit/cms-check.test.ts`
+
+### T014 Acceptance Criteria
+
+- [ ] Test verifies hardcoded Arabic string is flagged
+- [ ] Test verifies hardcoded English string is flagged
+- [ ] Test verifies `t()` calls are NOT flagged
+- [ ] Test verifies locale files pass schema validation
+- [ ] Test verifies key parity check catches missing keys
 
 ---
 
@@ -59,6 +90,19 @@
 - [ ] T015 Ensure all internal errors are mapped correctly using Result pattern (`neverthrow`)
 - [ ] T016 Create `README.md` for the package with usage examples
 - [ ] T017 Add standard JSDoc/TSDoc to public interfaces (`t`, `getLocaleInfo`, `loadModuleLocales`)
+
+---
+
+## Phase 6: Pluggable Architecture Toggle (Rule XVI)
+
+- [ ] T018 [P] Implement `TEMPOT_I18N_CORE` environment variable toggle in `packages/i18n-core/src/i18n.config.ts` (FR-009)
+
+### Acceptance Criteria
+
+- [ ] `TEMPOT_I18N_CORE=false` causes `t(key)` to return the key name unchanged
+- [ ] `TEMPOT_I18N_CORE=false` causes `loadModuleLocales()` to return `ok(undefined)` without loading any files
+- [ ] `TEMPOT_I18N_CORE=true` (default) preserves all existing behavior
+- [ ] Unit test verifies disabled behavior
 
 ---
 

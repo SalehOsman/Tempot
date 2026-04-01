@@ -43,12 +43,12 @@ As an AI-driven bot, I want to store and search vector embeddings using pgvector
 
 **Why this priority**: Essential for the "Smart Bot" core capability and AI integration (ADR-017).
 
-**Independent Test**: Storing a 1536-dimension vector and performing a cosine similarity search via Drizzle ORM.
+**Independent Test**: Storing a 768-dimension vector (Gemini default, configurable via `VECTOR_DIMENSIONS` env var) and performing a cosine similarity search via Drizzle ORM.
 
 **Acceptance Scenarios**:
 
 1. **Given** an embedding vector from the AI core, **When** I save it via Drizzle, **Then** it is stored in the pgvector column with full type safety.
-2. **Given** a search query vector, **When** I perform a similarity search, **Then** the system returns the most relevant records ordered by distance within the defined performance thresholds.
+2. **Given** a search query vector, **When** I perform a similarity search, **Then** the system returns the most relevant records ordered by cosine distance in < 100ms for datasets up to 100K vectors.
 
 ---
 

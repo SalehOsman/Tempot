@@ -56,12 +56,12 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 ### Functional Requirements
 
 - **FR-001**: System MUST provide a `CacheService` wrapper around `cache-manager` 6.x.
-- **FR-002**: System MUST support multi-tier caching (Memory → Redis) using Keyv adapters.
+- **FR-002**: System SHOULD support multi-tier caching (Memory → Redis) using Keyv adapters. Current implementation provides memory tier only; Redis tier is planned.
 - **FR-003**: System MUST provide a `queueFactory` function in `packages/shared/queue.factory.ts` (~30 lines).
 - **FR-004**: System MUST automatically inject `Redis` connection parameters from `.env` into all cache and queue instances.
 - **FR-005**: System MUST implement standardized error handling for Redis connection loss.
 - **FR-006**: System MUST support hierarchical cache keys (e.g., `user:123:profile`).
-- **FR-007**: System MUST provide a `GracefulShutdown` hook for all cache and queue instances.
+- **FR-007**: System MUST provide a `ShutdownManager` hook for all cache and queue instances.
 
 ### Key Entities
 
@@ -75,4 +75,4 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 - **SC-001**: Cache retrieval from Redis tier must take < 10ms on average.
 - **SC-002**: Background job processing with BullMQ must be operational with < 50 lines of setup code per module.
 - **SC-003**: System must pass 100% of integration tests using Testcontainers (Redis).
-- **SC-004**: System successfully falls back to in-memory cache during Redis simulated failure.
+- **SC-004**: System successfully falls back to in-memory cache during Redis simulated failure. Decision criteria: automatic fallback when Redis connection is lost (detected via error events), automatic reconnection when Redis becomes available.

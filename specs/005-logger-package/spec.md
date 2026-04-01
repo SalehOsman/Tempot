@@ -74,5 +74,5 @@ As a system administrator, I want to track all state-changing operations so that
 
 - **SC-001**: 100% of state-changing operations are captured in the Audit Log with accurate before/after diffs.
 - **SC-002**: Logging overhead must be < 1ms per log entry to minimize performance impact.
-- **SC-003**: Audit logs are indexed and searchable in the dashboard in < 500ms for datasets up to 1 million entries.
-- **SC-004**: System successfully triggers immediate alerts to super admins for 100% of defined critical audit events.
+- **SC-003**: Audit logs are indexed and searchable in the dashboard in < 500ms for datasets up to 1 million entries. **[DEFERRED: depends on search-engine package]**
+- **SC-004**: System successfully triggers immediate alerts to super admins for 100% of defined critical audit events. **[DEFERRED: depends on notifier package]**

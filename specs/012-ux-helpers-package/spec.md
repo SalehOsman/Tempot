@@ -322,6 +322,7 @@ As a user, I want to see "typing..." before long operations for a professional f
   - Supports: editMessageText, reply, answerCallbackQuery, replyWithChatAction, api.raw.editMessageText
   - Factory function with options for pre-configuring context state
   - Used by all downstream packages testing UX interactions
+- **FR-017**: System MUST support a `TEMPOT_UX_HELPERS` environment variable (`true`/`false`, default `true`) to enable/disable the ux-helpers package per Constitution Rule XVI (Pluggable Architecture). When disabled, all builder/formatter functions return `err(AppError)` with error code `ux.disabled`.
 
 ### Non-Functional Requirements
 

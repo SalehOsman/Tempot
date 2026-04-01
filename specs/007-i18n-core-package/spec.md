@@ -72,6 +72,7 @@ As a developer, I want the system to prevent me from hardcoding any text directl
 - **FR-006**: System MUST implement an automatic fallback mechanism to the `DEFAULT_LANGUAGE` defined in `.env` via the `TEMPOT_DEFAULT_LANGUAGE` environment variable (default: `'ar'`). The fallback language is configured via `TEMPOT_FALLBACK_LANGUAGE` (default: `'en'`). If env vars are missing, system MUST fallback to Arabic (`ar`) primary and English (`en`) fallback.
 - **FR-007**: System MUST provide a script (`pnpm cms:check`) that uses AST-based analysis and JSON schema validation (via Zod) to verify translation completeness, detect hardcoded strings, and ensure locale file integrity.
 - **FR-008**: System MUST provide a `getLocaleInfo()` helper returning the current language and its directionality (RTL/LTR).
+- **FR-009**: System MUST support a `TEMPOT_I18N_CORE` environment variable (`true`/`false`, default `true`) to enable/disable the i18n-core package per Constitution Rule XVI (Pluggable Architecture). When disabled, `t(key)` returns the key name unchanged, and `loadModuleLocales()` is a no-op returning `ok(undefined)`.
 
 ### Key Entities
 

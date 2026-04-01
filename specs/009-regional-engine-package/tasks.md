@@ -233,6 +233,7 @@
 
 ```
 Task 0 (scaffolding)
+  ├─→ Task 8 (pluggable toggle)
   └─→ Task 1 (types)
         ├─→ Task 2 (DateService)    ─┐
         ├─→ Task 3 (FormatService)  ─┤─→ Task 6 (RegionalService)  ─┐
@@ -252,23 +253,26 @@ Task 0 (scaffolding)
 | 5         | GeoSelectField      | P2       | 10 min     | FR-006                 |
 | 6         | RegionalService     | P1       | 15 min     | FR-007                 |
 | 7         | Barrel Exports      | P1       | 5 min      | All                    |
-| **Total** |                     |          | **75 min** |                        |
+| 8         | Pluggable Toggle    | P0       | 15 min     | FR-010                 |
+| **Total** |                     |          | **90 min** |                        |
 
 ---
 
-### Task: Pluggable Architecture Toggle (Rule XVI)
+### Task 8: Pluggable Architecture Toggle (Rule XVI)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes
+**FR Coverage**: FR-010
 
 Constitution Rule XVI requires `TEMPOT_REGIONAL_ENGINE=true/false` environment variable.
 
 #### Acceptance Criteria
 
-- [ ] Define `TEMPOT_REGIONAL_ENGINE` environment variable
-- [ ] When disabled, RegionalService returns DEFAULT_REGIONAL_CONTEXT values for all queries
+- [ ] Define `TEMPOT_REGIONAL_ENGINE` environment variable in config (default: `true`)
+- [ ] When disabled, RegionalService returns `DEFAULT_REGIONAL_CONTEXT` values for all queries
 - [ ] Geo-data loading is skipped when disabled
-- [ ] Document the disable behavior
+- [ ] Document the disable behavior in README
+- [ ] Unit test verifies disabled mode returns defaults without loading geo data
 
 > **Note**: The existing `REGIONAL_MODE=static/dynamic` env var controls the operational mode but does not provide a full on/off toggle per Rule XVI.
 

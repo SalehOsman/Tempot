@@ -68,6 +68,7 @@ As a developer, I want to store the state of the current conversation (e.g., act
 - **FR-005**: System MUST implement `Session Schema Versioning` for handling breaking changes to session data.
 - **FR-006**: System MUST provide a `SessionProvider` that hides Redis/Postgres complexity from the `bot-server`.
 - **FR-007**: System MUST support automatic sliding session expiration (TTL) in Redis that resets on each user interaction. TTL is configured via the `TEMPOT_SESSION_TTL_HOURS` environment variable (default: `24`).
+- **FR-008**: System MUST provide a `deleteSession(userId, chatId)` method that removes session data from both Redis and PostgreSQL, returning `Result<void, AppError>`.
 
 ### Key Entities
 
@@ -77,7 +78,7 @@ As a developer, I want to store the state of the current conversation (e.g., act
 
 ### Measurable Outcomes
 
-- **SC-001**: Session retrieval from Redis must take < 2ms (measured as p95 on localhost Redis in CI environment).
+- **SC-001**: Session retrieval from Redis must take < 2ms (measured as p95 on localhost Redis via Testcontainers in CI).
 - **SC-002**: 100% of session changes must be persisted to Postgres eventually with no data loss.
 - **SC-003**: System successfully handles Redis failure by falling back to in-memory temporary storage (Rule XXXII) without crashing or losing user context.
 - **SC-004**: Session structure migrations are handled without interrupting active conversations for users.

@@ -84,6 +84,7 @@ A `VectorIndexer` interface is defined in contracts but NOT implemented. The `ai
 - **Local**: Stores `isEncrypted: false`. No encryption is applied.
 - An `EncryptionStrategy` interface is defined for future application-level encryption (deferred to when ai-core introduces sensitive data).
 - **Telegram**: Files are encrypted in transit (HTTPS) and at rest by Telegram servers. No additional configuration needed. Delete is a no-op (Telegram has no file deletion API). `isEncrypted` is set to `true` for Telegram provider uploads.
+  > **Security Note**: Telegram Bot API requires the bot token in file download URLs (`api.telegram.org/file/bot{token}/{path}`). The `getSignedUrl()` method returns these token-bearing URLs. Callers MUST NOT log, persist, or expose these URLs to end users. The `buildDownloadUrl` method is private to enforce this boundary.
 
 File name sanitization: `path.basename()` + strip special characters via regex `/[^a-zA-Z0-9._-]/g`.
 
@@ -112,6 +113,7 @@ The `Attachment` Prisma model is added to `packages/database/prisma/schema.prism
 - **FR-005**: System MUST support soft delete for file metadata (`isDeleted=true`). Actual file deletion from the provider is a deferred background job via BullMQ (D6).
 - **FR-006**: System MUST support secure download links via `getSignedUrl()`. S3 returns pre-signed URLs. Google Drive returns shareable links. Telegram returns ephemeral download URLs (~1 hour, server-controlled). LocalProvider returns the local file path.
 - **FR-007**: System MUST emit `storage.file.uploaded` and `storage.file.deleted` events via event-bus with typed payloads.
+- **FR-008**: System MUST support a `TEMPOT_STORAGE_ENGINE` environment variable (`true`/`false`, default `true`) to enable/disable the storage-engine package per Constitution Rule XVI (Pluggable Architecture). When disabled, all `StorageService` methods return `err(AppError)` with error code `storage.disabled`, and no provider is initialized.
 
 ### Key Entities
 

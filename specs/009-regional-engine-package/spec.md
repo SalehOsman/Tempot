@@ -179,12 +179,14 @@ The barrel export (`src/index.ts`) re-exports the `RegionalService` as `Regional
   - **Dynamic** (`REGIONAL_MODE=dynamic`): Each user's `RegionalContext` is resolved from their session via `@tempot/session-manager`. If the session has no regional data, the global default is used as fallback.
 - **FR-008**: All public service methods MUST return `Result<T, AppError>` via neverthrow 8.2.0 (Rule XXI). No thrown exceptions.
 - **FR-009**: No `any` types anywhere in the package (Rule I). All data structures have explicit TypeScript interfaces.
+- **FR-010**: System MUST support a `TEMPOT_REGIONAL_ENGINE` environment variable (`true`/`false`, default `true`) to enable/disable the regional-engine package per Constitution Rule XVI (Pluggable Architecture). When disabled, `RegionalService` returns `DEFAULT_REGIONAL_CONTEXT` values for all queries, and geo-data loading is skipped.
 
 ### Non-Functional Requirements
 
 - **NFR-001**: Timezone conversion and formatting must complete in < 5ms per call.
 - **NFR-002**: Geo-data retrieval for states/cities must complete in < 50ms from bundled JSON.
 - **NFR-003**: The package must have zero runtime dependencies on grammY, `@tempot/database`, or any Telegram-specific library.
+- **NFR-004**: Rule XVII (Graceful Shutdown) exemption: regional-engine holds no connections, timers, or open handles. Geo-data is read synchronously from bundled JSON at startup. No shutdown hook is required.
 
 ### Key Entities
 

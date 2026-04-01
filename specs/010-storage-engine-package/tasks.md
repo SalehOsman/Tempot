@@ -504,3 +504,21 @@ Task 0 (scaffolding)
 | 11        | Purge Job               | P2       | 10 min      | FR-005, FR-007, D6        |
 | 12        | Barrel Exports          | P1       | 5 min       | All                       |
 | **Total** |                         |          | **155 min** |                           |
+
+---
+
+### Task 13: Pluggable Architecture Toggle (Rule XVI)
+
+**Phase**: 1 (Setup)
+**Estimated Duration**: 10 minutes
+**FR Coverage**: FR-008
+
+Constitution Rule XVI requires `TEMPOT_STORAGE_ENGINE=true/false` environment variable.
+
+#### Acceptance Criteria
+
+- [ ] Define `TEMPOT_STORAGE_ENGINE` environment variable in config (default: `true`)
+- [ ] When disabled, `StorageService` methods return `err(AppError)` with code `storage.disabled`
+- [ ] No provider is initialized when disabled
+- [ ] Document the disable behavior in README
+- [ ] Unit test verifies disabled mode behavior
