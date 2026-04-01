@@ -39,7 +39,7 @@ describe('cms-check', () => {
         const API_URL = "https://api.example.com";
         const key = "userId";
         const pattern = "^[a-z]+$";
-        const code = "I18N_LOCALE_LOAD_FAILED";
+        const code = "i18n.locale_load_failed";
         const env = "NODE_ENV";
       `;
 
@@ -82,7 +82,7 @@ describe('cms-check', () => {
       const result = validateLocaleFiles(source, target, 'en.json');
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
-        expect(result.error.code).toBe('I18N_LOCALE_PARITY_FAILED');
+        expect(result.error.code).toBe('i18n.locale_parity_failed');
       }
     });
 

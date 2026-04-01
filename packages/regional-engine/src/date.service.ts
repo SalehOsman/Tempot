@@ -5,6 +5,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat.js';
 import 'dayjs/locale/ar.js';
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+import { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -48,7 +49,7 @@ export class DateService {
     formatStr: string,
     options: DateFormatOptions = {},
   ): Result<string, AppError> {
-    const { locale = 'ar', tz = 'Africa/Cairo' } = options;
+    const { locale = 'ar', tz = DEFAULT_REGIONAL_CONTEXT.timezone } = options;
 
     if (!isValidLocale(locale)) {
       return err(new AppError('regional.invalid_locale', `Invalid locale: ${locale}`));

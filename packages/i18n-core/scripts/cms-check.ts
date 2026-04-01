@@ -32,7 +32,7 @@ const TECHNICAL_PATTERNS: RegExp[] = [
   /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
   /^[A-Z][A-Z0-9_]+$/,
   /^[a-z]+(-[a-z]+)+$/,
-  // Dotted identifiers (e.g. 'common.greeting', 'I18N_LOCALE_LOAD_FAILED')
+  // Dotted identifiers (e.g. 'common.greeting', 'i18n.locale_load_failed')
   /^[a-zA-Z_][a-zA-Z0-9_.]*$/,
   // Regex-like patterns
   /^\^.*\$$/,
@@ -184,7 +184,7 @@ export function validateLocaleFiles(
 
   return err(
     new AppError(
-      'I18N_LOCALE_PARITY_FAILED',
+      'i18n.locale_parity_failed',
       `Locale parity check failed for ${targetPath}: ${issues}`,
     ),
   );

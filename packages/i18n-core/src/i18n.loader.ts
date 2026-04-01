@@ -14,7 +14,7 @@ import { AppError } from '@tempot/shared';
  * - `lang` (filename without `.json`) becomes the language code
  *
  * @returns `Result<void, AppError>` — `Ok` on success, `Err` with
- *   `I18N_LOCALE_LOAD_FAILED` if any file operation fails
+ *   `i18n.locale_load_failed` if any file operation fails
  *
  * @example
  * ```typescript
@@ -49,6 +49,6 @@ export async function loadModuleLocales(): Promise<Result<void, AppError>> {
     return ok(undefined);
   } catch (error) {
     const details = error instanceof Error ? error.message : 'Unknown error';
-    return err(new AppError('I18N_LOCALE_LOAD_FAILED', details));
+    return err(new AppError('i18n.locale_load_failed', details));
   }
 }

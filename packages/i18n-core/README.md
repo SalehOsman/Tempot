@@ -4,18 +4,18 @@ Core i18n package for Tempot. Configures i18next with Arabic as the primary lang
 
 ## Exports
 
-| Export | Module | Description |
-|--------|--------|-------------|
-| `i18nConfig` | `i18n.config.ts` | i18next init options (`lng: 'ar'`, `fallbackLng: 'en'`) |
-| `t(key, options?)` | `t.ts` | Context-aware translation via `sessionContext` |
-| `TranslationOptions` | `t.ts` | Options type for `t()` (count, defaultValue, context, interpolation) |
-| `loadModuleLocales()` | `loader.ts` | Glob-loads `modules/*/locales/*.json` into i18next |
-| `getLocaleInfo(lang)` | `locale-info.ts` | Returns `{ lang, dir }` — `'rtl'` for Arabic, `'ltr'` otherwise |
-| `sanitizeValue(value)` | `sanitizer.ts` | Strips unsafe HTML, allows `<b>`, `<i>`, `<em>`, `<strong>`, `<a>`, `<p>`, `<br>` |
-| `LocaleSchema` | `schema.ts` | Zod schema validating locale JSON (recursive string records) |
-| `LocaleFile` | `schema.ts` | TypeScript type inferred from `LocaleSchema` |
-| `validateLocaleFile(data)` | `schema.ts` | Validates unknown data against `LocaleSchema` — returns `Result<LocaleFile, AppError>` |
-| `generateSchemaFromSource(source)` | `schema.ts` | Builds a strict Zod schema from a source locale for parity checks |
+| Export                             | Module           | Description                                                                            |
+| ---------------------------------- | ---------------- | -------------------------------------------------------------------------------------- |
+| `i18nConfig`                       | `i18n.config.ts` | i18next init options (`lng: 'ar'`, `fallbackLng: 'en'`)                                |
+| `t(key, options?)`                 | `t.ts`           | Context-aware translation via `sessionContext`                                         |
+| `TranslationOptions`               | `t.ts`           | Options type for `t()` (count, defaultValue, context, interpolation)                   |
+| `loadModuleLocales()`              | `loader.ts`      | Glob-loads `modules/*/locales/*.json` into i18next                                     |
+| `getLocaleInfo(lang)`              | `locale-info.ts` | Returns `{ lang, dir }` — `'rtl'` for Arabic, `'ltr'` otherwise                        |
+| `sanitizeValue(value)`             | `sanitizer.ts`   | Strips unsafe HTML, allows `<b>`, `<i>`, `<em>`, `<strong>`, `<a>`, `<p>`, `<br>`      |
+| `LocaleSchema`                     | `schema.ts`      | Zod schema validating locale JSON (recursive string records)                           |
+| `LocaleFile`                       | `schema.ts`      | TypeScript type inferred from `LocaleSchema`                                           |
+| `validateLocaleFile(data)`         | `schema.ts`      | Validates unknown data against `LocaleSchema` — returns `Result<LocaleFile, AppError>` |
+| `generateSchemaFromSource(source)` | `schema.ts`      | Builds a strict Zod schema from a source locale for parity checks                      |
 
 ## Usage
 
@@ -29,7 +29,7 @@ await i18next.init(i18nConfig);
 
 const result = await loadModuleLocales();
 if (result.isErr()) {
-  console.error(result.error); // AppError with code I18N_LOCALE_LOAD_FAILED
+  console.error(result.error); // AppError with code i18n.locale_load_failed
 }
 ```
 
@@ -57,7 +57,7 @@ import { validateLocaleFile, generateSchemaFromSource } from '@tempot/i18n-core'
 // Validate structure
 const result = validateLocaleFile(jsonData);
 if (result.isErr()) {
-  console.error(result.error); // AppError with code I18N_SCHEMA_VALIDATION_FAILED
+  console.error(result.error); // AppError with code i18n.schema_validation_failed
 }
 
 // Parity check: ensure en.json has the same keys as ar.json
@@ -77,24 +77,24 @@ modules/{moduleName}/locales/
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm build` | Compiles TypeScript to `dist/` |
-| `pnpm test` | Runs Vitest test suite |
+| Script           | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| `pnpm build`     | Compiles TypeScript to `dist/`                        |
+| `pnpm test`      | Runs Vitest test suite                                |
 | `pnpm cms:check` | Detects hardcoded strings and validates locale parity |
 
 `cms:check` is also wired into the Husky pre-commit hook via the root `package.json`.
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `i18next` | Internationalisation framework |
-| `neverthrow` | Result type for error handling |
-| `zod` | Locale file schema validation |
-| `sanitize-html` | HTML sanitisation for translation values |
-| `glob` | File pattern matching for locale loader |
-| `@tempot/session-manager` | User language from session context |
+| Package                   | Purpose                                  |
+| ------------------------- | ---------------------------------------- |
+| `i18next`                 | Internationalisation framework           |
+| `neverthrow`              | Result type for error handling           |
+| `zod`                     | Locale file schema validation            |
+| `sanitize-html`           | HTML sanitisation for translation values |
+| `glob`                    | File pattern matching for locale loader  |
+| `@tempot/session-manager` | User language from session context       |
 
 ## Rules
 

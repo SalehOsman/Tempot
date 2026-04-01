@@ -1,11 +1,12 @@
 import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+import { DEFAULT_REGIONAL_CONTEXT } from './regional.types.js';
 
 export class FormatService {
   formatCurrency(
     amount: number,
-    locale: string = 'ar-EG',
-    currency: string = 'EGP',
+    locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
+    currency: string = DEFAULT_REGIONAL_CONTEXT.currencyCode,
   ): Result<string, AppError> {
     try {
       const formatted = new Intl.NumberFormat(locale, {
@@ -20,7 +21,10 @@ export class FormatService {
     }
   }
 
-  formatNumber(value: number, locale: string = 'ar-EG'): Result<string, AppError> {
+  formatNumber(
+    value: number,
+    locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
+  ): Result<string, AppError> {
     try {
       return ok(new Intl.NumberFormat(locale).format(value));
     } catch (error: unknown) {
@@ -29,7 +33,10 @@ export class FormatService {
     }
   }
 
-  formatPercent(value: number, locale: string = 'ar-EG'): Result<string, AppError> {
+  formatPercent(
+    value: number,
+    locale: string = DEFAULT_REGIONAL_CONTEXT.locale,
+  ): Result<string, AppError> {
     try {
       return ok(new Intl.NumberFormat(locale, { style: 'percent' }).format(value));
     } catch (error: unknown) {

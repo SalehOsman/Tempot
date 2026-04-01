@@ -38,7 +38,7 @@ export function validateLocaleFile(data: unknown): Result<LocaleFile, AppError> 
   }
   return err(
     new AppError(
-      'I18N_SCHEMA_VALIDATION_FAILED',
+      'i18n.schema_validation_failed',
       `Locale file validation failed: ${parsed.error.issues.map((i) => i.message).join(', ')}`,
     ),
   );

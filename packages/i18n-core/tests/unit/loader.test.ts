@@ -61,7 +61,7 @@ describe('Modular Locale Loader', () => {
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(AppError);
-      expect(result.error.code).toBe('I18N_LOCALE_LOAD_FAILED');
+      expect(result.error.code).toBe('i18n.locale_load_failed');
     }
   });
 

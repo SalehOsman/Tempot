@@ -72,7 +72,7 @@ describe('LocaleSchema', () => {
       const result = validateLocaleFile(data);
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
-        expect(result.error.code).toBe('I18N_SCHEMA_VALIDATION_FAILED');
+        expect(result.error.code).toBe('i18n.schema_validation_failed');
       }
     });
   });

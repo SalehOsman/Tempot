@@ -5,6 +5,7 @@ import {
   DeleteObjectCommand,
   HeadObjectCommand,
 } from '@aws-sdk/client-s3';
+import type { PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl as awsGetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ok, err } from 'neverthrow';
@@ -28,20 +29,16 @@ export class S3Provider implements StorageProvider {
     contentType: string,
   ): AsyncResult<ProviderUploadResult, AppError> {
     try {
-      const params: Record<string, unknown> = {
+      const params: PutObjectCommandInput = {
         Bucket: this.config.bucket,
         Key: key,
         Body: data,
         ContentType: contentType,
+        // D5: Provider-level encryption
+        ...(this.config.encryptionMode === 'SSE-KMS' && this.config.kmsKeyId
+          ? { ServerSideEncryption: 'aws:kms', SSEKMSKeyId: this.config.kmsKeyId }
+          : { ServerSideEncryption: 'AES256' }), // SSE-S3 default
       };
-
-      // D5: Provider-level encryption
-      if (this.config.encryptionMode === 'SSE-KMS' && this.config.kmsKeyId) {
-        params.ServerSideEncryption = 'aws:kms';
-        params.SSEKMSKeyId = this.config.kmsKeyId;
-      } else {
-        params.ServerSideEncryption = 'AES256'; // SSE-S3 default
-      }
 
       // NFR-005: Use @aws-sdk/lib-storage Upload for streaming
       const upload = new Upload({ client: this.client, params });
