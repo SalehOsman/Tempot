@@ -1,3 +1,8 @@
+> **⚠ Superseded Document**: This plan reflects the initial design intent before implementation.
+> Subsequent design decisions are documented in `research.md` and the final task breakdown
+> is in `tasks.md`. Where this plan diverges from `tasks.md` or `research.md`, the latter
+> documents take precedence.
+
 # Auth Core Package Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -6,7 +11,7 @@
 
 **Architecture:** A centralized authority that defines user abilities based on roles (GUEST, USER, ADMIN, SUPER_ADMIN). Supports scoped permissions where admins can be limited to specific modules or entities. Integrates with AuditLogger to track all denied access attempts.
 
-**Tech Stack:** TypeScript, @casl/ability, @casl/prisma, neverthrow.
+**Tech Stack:** TypeScript, @casl/ability, neverthrow.
 
 ---
 

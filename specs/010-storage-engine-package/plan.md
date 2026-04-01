@@ -1,3 +1,8 @@
+> **⚠ Superseded Document**: This plan reflects the initial design intent before implementation.
+> Subsequent design decisions are documented in `research.md` and the final task breakdown
+> is in `tasks.md`. Where this plan diverges from `tasks.md` or `research.md`, the latter
+> documents take precedence.
+
 # Implementation Plan: Storage Engine (010)
 
 **Spec**: `specs/010-storage-engine-package/spec.md` (Clarified)

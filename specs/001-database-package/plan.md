@@ -1,3 +1,8 @@
+> **⚠ Superseded Document**: This plan reflects the initial design intent before implementation.
+> Subsequent design decisions are documented in `research.md` and the final task breakdown
+> is in `tasks.md`. Where this plan diverges from `tasks.md` or `research.md`, the latter
+> documents take precedence.
+
 # Database Package Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
