@@ -3,11 +3,12 @@ import type { Result, AsyncResult } from '@tempot/shared';
 import { AppError, queueFactory } from '@tempot/shared';
 import type { ShutdownManager } from '@tempot/shared';
 import type { StorageFileDeletedPayload } from '../storage.contracts.js';
+import type { StorageEventBus, StorageLogger } from '../storage.interfaces.js';
 import type { Attachment } from '../storage.types.js';
 import { STORAGE_ERRORS } from '../storage.errors.js';
 import { storageToggle } from '../storage.toggle.js';
 
-/** Minimal interfaces for purge job dependencies */
+/** Purge-specific interfaces for repository and provider */
 
 interface PurgeAttachmentRepo {
   findExpiredDeleted(beforeDate: Date): Promise<Result<Attachment[], AppError>>;
@@ -19,23 +20,12 @@ interface PurgeProvider {
   delete(key: string): AsyncResult<void, AppError>;
 }
 
-interface PurgeEventBus {
-  publish(eventName: string, payload: unknown): AsyncResult<void, AppError>;
-}
-
-interface PurgeLogger {
-  info: (data: unknown) => void;
-  warn: (data: unknown) => void;
-  error: (data: unknown) => void;
-  debug: (data: unknown) => void;
-}
-
 /** Dependencies for the purge processing function */
 export interface PurgeDeps {
   attachmentRepo: PurgeAttachmentRepo;
   provider: PurgeProvider;
-  eventBus: PurgeEventBus;
-  logger: PurgeLogger;
+  eventBus: StorageEventBus;
+  logger: StorageLogger;
   retentionDays: number;
 }
 

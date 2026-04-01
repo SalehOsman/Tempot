@@ -46,6 +46,19 @@ export class SessionProvider implements ISessionProvider {
       code: 'session.system_degradation',
       payload: { target: 'SUPER_ADMIN', operation, error: error.message },
     });
+
+    // Rule XV + XXXII: publish degradation event for SUPER_ADMIN alerting.
+    // Best-effort — if eventBus also fails, we already logged above.
+    void this.deps.eventBus
+      .publish('session.redis.degraded', {
+        operation,
+        errorCode: error.code,
+        errorMessage: error.message,
+        timestamp: new Date().toISOString(),
+      })
+      .catch(() => {
+        /* best-effort: eventBus may also be unavailable */
+      });
   }
 
   private getSessionKey(userId: string, chatId: string): string {

@@ -50,7 +50,7 @@ describe('SessionProvider', () => {
       expire: vi.fn(),
     };
     mockBus = {
-      publish: vi.fn(),
+      publish: vi.fn().mockResolvedValue(ok(undefined)),
     };
     mockRepo = {
       findById: vi.fn(),

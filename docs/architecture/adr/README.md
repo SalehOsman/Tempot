@@ -37,3 +37,4 @@
 | 031 | [Vercel AI SDK Advanced Features](ADR-031-vercel-ai-sdk-advanced-features.md)       | Accepted |
 | 032 | [i18n t() Returns string](ADR-032-i18n-t-returns-string.md)                         | Accepted |
 | 033 | [i18n-core Infrastructure Exemption](ADR-033-i18n-core-infrastructure-exemption.md) | Accepted |
+| 034 | [Structural Interface Decoupling](ADR-034-structural-interface-decoupling.md)       | Accepted |
