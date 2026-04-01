@@ -1,7 +1,6 @@
 import { z, type ZodType } from 'zod';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { i18nToggle } from './i18n.toggle.js';
 
 /**
  * Recursive type representing a locale file structure.
@@ -36,9 +35,6 @@ export type LocaleFile = z.infer<typeof LocaleSchema>;
  * Returns `Result<LocaleFile, AppError>` per the project Result pattern.
  */
 export function validateLocaleFile(data: unknown): Result<LocaleFile, AppError> {
-  const disabled = i18nToggle.check();
-  if (disabled) return disabled;
-
   const parsed = LocaleSchema.safeParse(data);
   if (parsed.success) {
     return ok(parsed.data);

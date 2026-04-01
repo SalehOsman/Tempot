@@ -28,7 +28,6 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.0.0",
-    "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "neverthrow": "8.2.0",

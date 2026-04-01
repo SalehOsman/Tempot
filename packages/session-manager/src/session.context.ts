@@ -1,17 +1,6 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
-
-// We define a minimal Session interface for the context if the main one isn't fully ready,
-// or we can import it. The database package expects userId and userRole.
-/** Minimal session data propagated through AsyncLocalStorage for cross-cutting concerns. */
-export interface ContextSession {
-  userId?: string;
-  userRole?: string;
-  timezone?: string; // e.g., 'Africa/Cairo'
-  locale?: string; // e.g., 'ar-EG'
-  currencyCode?: string; // e.g., 'EGP'
-  countryCode?: string; // e.g., 'EG'
-  [key: string]: unknown;
-}
-
-/** AsyncLocalStorage store that makes `userId` and `userRole` available anywhere in the call stack. */
-export const sessionContext = new AsyncLocalStorage<ContextSession>();
+/**
+ * Re-export sessionContext from @tempot/shared for backward compatibility.
+ * The canonical location is now @tempot/shared/context.
+ * This breaks the circular dependency: database <-> session-manager.
+ */
+export { sessionContext, type ContextSession } from '@tempot/shared';

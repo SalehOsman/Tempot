@@ -9,6 +9,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./context": {
+      "import": "./dist/context/session.context.js",
+      "types": "./dist/context/session.context.d.ts"
     }
   },
   "scripts": {

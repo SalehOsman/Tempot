@@ -56,6 +56,11 @@ export const appErrorSerializer = (err: unknown): unknown => {
     i18nKey: err.i18nKey,
   };
 
+  // Rule XXIV: Include error reference code when present
+  if (err.referenceCode) {
+    serialized.referenceCode = err.referenceCode;
+  }
+
   // Only include stack in non-production environments
   if (process.env.NODE_ENV !== 'production') {
     serialized.stack = err.stack;

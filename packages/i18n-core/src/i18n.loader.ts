@@ -4,31 +4,17 @@ import path from 'node:path';
 import i18next from 'i18next';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { i18nToggle } from './i18n.toggle.js';
 
 /**
  * Scans module locale files (pattern: modules/&lt;name&gt;/locales/&lt;lang&gt;.json)
  * and registers each file as an i18next resource bundle.
  *
- * File path convention: `modules/{moduleName}/locales/{lang}.json`
- * - `moduleName` becomes the i18next namespace
- * - `lang` (filename without `.json`) becomes the language code
+ * i18n-core is core infrastructure exempt from Rule XVI (ADR-033).
  *
  * @returns `Result<void, AppError>` — `Ok` on success, `Err` with
  *   `i18n.locale_load_failed` if any file operation fails
- *
- * @example
- * ```typescript
- * const result = await loadModuleLocales();
- * if (result.isErr()) {
- *   logger.error(result.error);
- * }
- * ```
  */
 export async function loadModuleLocales(): Promise<Result<void, AppError>> {
-  const disabled = i18nToggle.check();
-  if (disabled) return disabled;
-
   try {
     const localeFiles = await glob('modules/*/locales/*.json');
 

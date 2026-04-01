@@ -65,4 +65,22 @@ describe('appErrorSerializer', () => {
 
     expect(result.stack).toBeDefined();
   });
+
+  it('includes referenceCode in serialized output when present on AppError', () => {
+    const error = new AppError('shared.ref_error');
+    Object.defineProperty(error, 'referenceCode', {
+      value: 'ERR-20260401-AB12',
+      writable: false,
+    });
+    const result = appErrorSerializer(error) as Record<string, unknown>;
+
+    expect(result.referenceCode).toBe('ERR-20260401-AB12');
+  });
+
+  it('omits referenceCode from serialized output when not present', () => {
+    const error = new AppError('shared.no_ref_error');
+    const result = appErrorSerializer(error) as Record<string, unknown>;
+
+    expect(result.referenceCode).toBeUndefined();
+  });
 });

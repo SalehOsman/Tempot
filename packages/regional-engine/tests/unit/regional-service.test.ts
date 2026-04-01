@@ -4,14 +4,18 @@ import { DateService } from '../../src/date.service.js';
 import { FormatService } from '../../src/format.service.js';
 import { DEFAULT_REGIONAL_CONTEXT } from '../../src/regional.types.js';
 
-// Mock session-manager
-vi.mock('@tempot/session-manager', () => ({
-  sessionContext: {
-    getStore: vi.fn(),
-  },
-}));
+// Mock shared (sessionContext)
+vi.mock('@tempot/shared', async () => {
+  const actual = await vi.importActual<typeof import('@tempot/shared')>('@tempot/shared');
+  return {
+    ...actual,
+    sessionContext: {
+      getStore: vi.fn(),
+    },
+  };
+});
 
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 
 describe('RegionalService', () => {
   const dateService = new DateService();

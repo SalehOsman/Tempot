@@ -1,6 +1,5 @@
-import { AsyncResult, AppError } from '@tempot/shared';
+import { AsyncResult, AppError, sessionContext, generateErrorReference } from '@tempot/shared';
 import { AuditLogRepository } from '@tempot/database';
-import { sessionContext } from '@tempot/session-manager';
 import { ok, err } from 'neverthrow';
 
 /**
@@ -15,6 +14,7 @@ export interface AuditLogEntry {
   status?: string;
   userId?: string;
   userRole?: string;
+  referenceCode?: string;
 }
 
 /**
@@ -26,9 +26,12 @@ export class AuditLogger {
 
   /**
    * Log a state change. Automatically merges user identity from session context.
+   * Rule XXIV: Auto-generates referenceCode for non-SUCCESS entries.
    */
   async log(entry: AuditLogEntry): AsyncResult<void> {
     const store = sessionContext.getStore();
+    const status = entry.status ?? 'SUCCESS';
+    const referenceCode = this.resolveReferenceCode(entry, status);
 
     const result = await this.repository.create({
       action: entry.action,
@@ -36,9 +39,10 @@ export class AuditLogger {
       targetId: entry.targetId,
       before: entry.before,
       after: entry.after,
-      status: entry.status ?? 'SUCCESS',
+      status,
       userId: entry.userId ?? store?.userId,
       userRole: entry.userRole ?? store?.userRole,
+      referenceCode,
     });
 
     if (result.isErr()) {
@@ -46,5 +50,19 @@ export class AuditLogger {
     }
 
     return ok(undefined);
+  }
+
+  /**
+   * Resolves the reference code: uses provided value, auto-generates
+   * for non-SUCCESS entries, or returns undefined for SUCCESS.
+   */
+  private resolveReferenceCode(entry: AuditLogEntry, status: string): string | undefined {
+    if (entry.referenceCode) {
+      return entry.referenceCode;
+    }
+    if (status !== 'SUCCESS') {
+      return generateErrorReference();
+    }
+    return undefined;
   }
 }

@@ -2,15 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import pino from 'pino';
 import { appErrorSerializer } from '../../src/technical/error.serializer.js';
 import { SENSITIVE_KEYS } from '../../src/logger.config.js';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 
 // Mock sessionContext
-vi.mock('@tempot/session-manager', () => ({
-  sessionContext: {
-    getStore: vi.fn(),
-  },
-}));
+vi.mock('@tempot/shared', async () => {
+  const actual = await vi.importActual<typeof import('@tempot/shared')>('@tempot/shared');
+  return {
+    ...actual,
+    sessionContext: {
+      getStore: vi.fn(),
+    },
+  };
+});
 
 describe('Pino Logger', () => {
   beforeEach(() => {

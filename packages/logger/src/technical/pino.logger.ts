@@ -1,7 +1,7 @@
 import pino from 'pino';
 import { appErrorSerializer } from './error.serializer.js';
 import { SENSITIVE_KEYS } from '../logger.config.js';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 
 const DEFAULT_LOG_LEVEL = 'info';
 

@@ -18,7 +18,6 @@
     "cms:check": "npx tsx scripts/cms-check.ts"
   },
   "dependencies": {
-    "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
     "glob": "^11.1.0",
     "i18next": "^25.10.3",

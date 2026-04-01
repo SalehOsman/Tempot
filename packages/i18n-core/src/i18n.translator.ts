@@ -1,7 +1,6 @@
 import i18next from 'i18next';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 import { DEFAULT_LANGUAGE } from './i18n.config.js';
-import { i18nToggle } from './i18n.toggle.js';
 
 /** Options passed to the `t()` translation function. */
 export interface TranslationOptions {
@@ -23,24 +22,14 @@ export interface TranslationOptions {
  * `TEMPOT_DEFAULT_LANGUAGE`, default `'ar'`) when no session is available or
  * the stored language is not a string.
  *
+ * i18n-core is core infrastructure exempt from Rule XVI (ADR-033).
+ * This function is always available.
+ *
  * @param key - Translation key or array of keys (first match wins)
  * @param options - Interpolation variables, pluralization count, etc.
  * @returns The translated string, or the key name if no translation exists
- *
- * @example
- * ```typescript
- * // Inside a session context with lang = 'ar'
- * t('common.greeting', { name: 'Ahmed' }); // "مرحبا Ahmed"
- *
- * // Without session context — falls back to Arabic
- * t('common.greeting'); // Arabic translation
- * ```
  */
 export function t(key: string | string[], options?: TranslationOptions): string {
-  if (!i18nToggle.isEnabled()) {
-    return Array.isArray(key) ? key[0] : key;
-  }
-
   const store = sessionContext.getStore();
   const rawLang = store?.locale;
   const lang: string = typeof rawLang === 'string' ? rawLang : DEFAULT_LANGUAGE;

@@ -8,4 +8,3 @@ export { LocaleSchema, validateLocaleFile, generateSchemaFromSource } from './i1
 export type { LocaleFile } from './i18n.schema.js';
 export { detectHardcodedStrings, validateLocaleFiles } from './i18n.cms-validators.js';
 export type { CmsCheckViolation, CmsCheckResult } from './i18n.cms-validators.js';
-export { i18nToggle } from './i18n.toggle.js';

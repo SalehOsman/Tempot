@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-vi.mock('@tempot/session-manager', () => ({
-  sessionContext: {
-    getStore: vi.fn(),
-  },
-}));
+vi.mock('@tempot/shared', async () => {
+  const actual = await vi.importActual<typeof import('@tempot/shared')>('@tempot/shared');
+  return {
+    ...actual,
+    sessionContext: {
+      getStore: vi.fn(),
+    },
+  };
+});
 
 describe('regionalToggle', () => {
   const ENV_VAR = 'TEMPOT_REGIONAL_ENGINE';

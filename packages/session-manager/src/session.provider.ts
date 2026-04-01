@@ -2,6 +2,7 @@ import { Result, ok, err } from 'neverthrow';
 import { Session, ISessionProvider } from './session.types.js';
 import { AppError } from '@tempot/shared';
 import { SessionRepository } from './session.repository.js';
+import { SessionMemoryStore } from './session.memory-store.js';
 import { migrateSession } from './session.migrator.js';
 import { DEFAULT_SESSION_TTL } from './session.constants.js';
 import { sessionToggle } from './session.toggle.js';
@@ -30,12 +31,14 @@ export interface SessionProviderDeps {
 }
 
 /**
- * Dual-layer session provider: Redis primary with PostgreSQL fallback.
+ * Dual-layer session provider: Redis primary with in-memory fallback (Rule XXXII).
  *
- * Implements Rule XXXII — any Redis failure triggers a SUPER_ADMIN degradation alert
- * before transparently falling back to the repository.
+ * On Redis failure, sessions are temporarily stored in-memory.
+ * PostgreSQL remains the async persistence target via event bus.
  */
 export class SessionProvider implements ISessionProvider {
+  private readonly memoryStore = new SessionMemoryStore();
+
   constructor(private deps: SessionProviderDeps) {}
 
   private alertDegradation(operation: string, error: AppError): void {
@@ -50,7 +53,7 @@ export class SessionProvider implements ISessionProvider {
   }
 
   /**
-   * Reads the session from Redis; on cache miss or failure falls back to PostgreSQL.
+   * Reads the session from Redis; on cache failure falls back to in-memory store (Rule XXXII).
    * Each successful cache hit resets the sliding TTL via EXPIRE.
    */
   async getSession(userId: string, chatId: string): Promise<Result<Session, AppError>> {
@@ -59,15 +62,16 @@ export class SessionProvider implements ISessionProvider {
 
     const key = this.getSessionKey(userId, chatId);
 
-    // 1. Try Cache
+    // 1. Try Cache (Redis)
     const cachedResult = await this.deps.cache.get<Session>(key);
 
     if (cachedResult.isErr()) {
-      // Rule XXXII: Redis failure → alert SUPER_ADMIN, fall back to repository
+      // Rule XXXII: Redis failure → alert SUPER_ADMIN, fall back to in-memory
       this.alertDegradation('getSession', cachedResult.error);
+      const memSession = this.memoryStore.get(key);
+      if (memSession) return ok(memSession);
     } else if (cachedResult.value) {
       const session = cachedResult.value;
-      // Sliding TTL: Extend expiration using EXPIRE to avoid redundant round-trip
       const expireResult = await this.deps.cache.expire(key, DEFAULT_SESSION_TTL);
       if (expireResult.isErr()) {
         this.alertDegradation('expire', expireResult.error);
@@ -75,7 +79,7 @@ export class SessionProvider implements ISessionProvider {
       return ok(session);
     }
 
-    // 2. Try Repository (Fallback)
+    // 2. Try Repository (PostgreSQL — async persistence source)
     const id = `${userId}:${chatId}`;
     const repoResult = await this.deps.repository.findById(id);
 
@@ -89,17 +93,19 @@ export class SessionProvider implements ISessionProvider {
       const syncResult = await this.deps.cache.set(key, session, DEFAULT_SESSION_TTL);
       if (syncResult.isErr()) {
         this.alertDegradation('set', syncResult.error);
+        // Rule XXXII: Also store in memory as fallback
+        this.memoryStore.set(key, session);
       }
       return ok(session);
     }
 
-    // If both fail or not found — narrow to Result<Session, AppError>
     return err(repoResult.error);
   }
 
   /**
    * Writes the session to Redis (incrementing `version` for OCC) then publishes
    * a `session-manager.session.updated` event for async PostgreSQL sync via BullMQ.
+   * On Redis failure, stores in memory (Rule XXXII).
    */
   async saveSession(session: Session): Promise<Result<void, AppError>> {
     const disabled = sessionToggle.check();
@@ -115,12 +121,11 @@ export class SessionProvider implements ISessionProvider {
     };
 
     // 1. Save to Cache
-    // NOTE: In production, the cache adapter should implement an atomic CAS (e.g. LUA script)
-    // to ensure the session version matches what we expect before overwriting.
     const cacheResult = await this.deps.cache.set(key, updatedSession, DEFAULT_SESSION_TTL);
     if (cacheResult.isErr()) {
-      // Rule XXXII: Redis failure → alert SUPER_ADMIN, continue to ensure persistence via event bus
+      // Rule XXXII: Redis failure → alert + in-memory fallback
       this.alertDegradation('saveSession', cacheResult.error);
+      this.memoryStore.set(key, updatedSession);
     }
 
     // 2. Publish Event for async sync to Postgres
@@ -144,13 +149,16 @@ export class SessionProvider implements ISessionProvider {
     return migrateSession(session);
   }
 
-  /** Removes the session from both Redis and PostgreSQL. */
+  /** Removes the session from Redis, in-memory store, and PostgreSQL. */
   async deleteSession(userId: string, chatId: string): Promise<Result<void, AppError>> {
     const disabled = sessionToggle.check();
     if (disabled) return disabled;
 
     const key = this.getSessionKey(userId, chatId);
     const id = `${userId}:${chatId}`;
+
+    // Clean up in-memory fallback store
+    this.memoryStore.del(key);
 
     const delResult = await this.deps.cache.del(key);
     if (delResult.isErr()) {

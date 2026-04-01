@@ -1,13 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuditLogger } from '../../src/audit/audit.logger.js';
 import { AuditLogRepository } from '@tempot/database';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext, isValidErrorReference } from '@tempot/shared';
 
-vi.mock('@tempot/session-manager', () => ({
-  sessionContext: {
-    getStore: vi.fn(),
-  },
-}));
+vi.mock('@tempot/shared', async () => {
+  const actual = await vi.importActual<typeof import('@tempot/shared')>('@tempot/shared');
+  return {
+    ...actual,
+    sessionContext: {
+      getStore: vi.fn(),
+    },
+  };
+});
 
 describe('AuditLogger', () => {
   let mockRepository: AuditLogRepository;
@@ -76,5 +80,72 @@ describe('AuditLogger', () => {
     if (result.isErr()) {
       expect(result.error.code).toBe('logger.audit_log_failed');
     }
+  });
+
+  describe('Rule XXIV: Error Reference Codes', () => {
+    it('should auto-generate referenceCode for non-SUCCESS entries', async () => {
+      vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+
+      await auditLogger.log({
+        action: 'error.action',
+        module: 'test.module',
+        status: 'FAILURE',
+      });
+
+      const createArg = vi.mocked(mockRepository.create).mock.calls[0]?.[0] as Record<
+        string,
+        unknown
+      >;
+      expect(createArg.referenceCode).toBeDefined();
+      expect(isValidErrorReference(createArg.referenceCode as string)).toBe(true);
+    });
+
+    it('should not generate referenceCode for SUCCESS entries', async () => {
+      vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+
+      await auditLogger.log({
+        action: 'success.action',
+        module: 'test.module',
+        status: 'SUCCESS',
+      });
+
+      const createArg = vi.mocked(mockRepository.create).mock.calls[0]?.[0] as Record<
+        string,
+        unknown
+      >;
+      expect(createArg.referenceCode).toBeUndefined();
+    });
+
+    it('should not generate referenceCode for default status (SUCCESS)', async () => {
+      vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+
+      await auditLogger.log({
+        action: 'default.action',
+        module: 'test.module',
+      });
+
+      const createArg = vi.mocked(mockRepository.create).mock.calls[0]?.[0] as Record<
+        string,
+        unknown
+      >;
+      expect(createArg.referenceCode).toBeUndefined();
+    });
+
+    it('should preserve explicitly provided referenceCode', async () => {
+      vi.mocked(sessionContext.getStore).mockReturnValue(undefined);
+
+      await auditLogger.log({
+        action: 'error.action',
+        module: 'test.module',
+        status: 'FAILURE',
+        referenceCode: 'ERR-20260401-XYZW',
+      });
+
+      const createArg = vi.mocked(mockRepository.create).mock.calls[0]?.[0] as Record<
+        string,
+        unknown
+      >;
+      expect(createArg.referenceCode).toBe('ERR-20260401-XYZW');
+    });
   });
 });

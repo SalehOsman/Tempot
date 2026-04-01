@@ -6,6 +6,7 @@ export class AppError extends Error {
   public readonly code: string;
   public readonly details?: unknown;
   public readonly i18nKey: string;
+  public readonly referenceCode?: string;
   public loggedAt?: Date;
 
   constructor(code: string, details?: unknown) {

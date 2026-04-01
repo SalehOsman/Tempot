@@ -1,6 +1,6 @@
 import { ok, type Result } from 'neverthrow';
 import type { AppError } from '@tempot/shared';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 import { DateService } from './date.service.js';
 import { FormatService } from './format.service.js';
 import type { RegionalContext } from './regional.types.js';

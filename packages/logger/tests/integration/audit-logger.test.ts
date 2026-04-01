@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { TestDB } from '@tempot/database/testing';
 import { AuditLogRepository, IAuditLogger } from '@tempot/database';
 import { AuditLogger, AuditLogEntry } from '../../src/audit/audit.logger.js';
-import { sessionContext } from '@tempot/session-manager/context';
+import { sessionContext } from '@tempot/shared';
 import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';

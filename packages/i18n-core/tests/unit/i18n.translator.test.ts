@@ -1,12 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { sessionContext } from '@tempot/session-manager';
+import { sessionContext } from '@tempot/shared';
 import i18next from 'i18next';
 
-vi.mock('@tempot/session-manager', () => ({
-  sessionContext: {
-    getStore: vi.fn(),
-  },
-}));
+vi.mock('@tempot/shared', async () => {
+  const actual = await vi.importActual<typeof import('@tempot/shared')>('@tempot/shared');
+  return {
+    ...actual,
+    sessionContext: {
+      getStore: vi.fn(),
+    },
+  };
+});
 
 vi.mock('i18next', () => ({
   default: {
