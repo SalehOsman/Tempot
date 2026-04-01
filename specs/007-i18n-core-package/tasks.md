@@ -19,7 +19,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T004 [P] Implement `i18nConfig` in `packages/i18n-core/src/i18n.config.ts` with Arabic primary and English fallback (FR-003, FR-006)
+- [ ] T004 [P] Implement `i18nConfig` in `packages/i18n-core/src/i18n.config.ts` with Arabic primary and English fallback (FR-001, FR-003, FR-006)
 - [ ] T005 [P] Implement `LocaleSchema` using Zod in `packages/i18n-core/src/i18n.schema.ts` for locale file validation
 - [ ] T006 [P] Implement dynamic variable sanitization helper using `sanitize-html` in `packages/i18n-core/src/i18n.sanitizer.ts`
 
@@ -31,9 +31,9 @@
 
 **Independent Test**: Storing 'en' in session context and verifying `t('common.test')` returns the English translation.
 
-- [ ] T007 [P] [US1] Implement `loadModuleLocales` in `packages/i18n-core/src/i18n.loader.ts` using `glob` (returns `Result<void, AppError>`)
-- [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/i18n.translator.ts` using `@tempot/session-manager` (returns `string`)
-- [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/i18n.locale-info.ts` for RTL/LTR detection
+- [ ] T007 [P] [US1] Implement `loadModuleLocales` in `packages/i18n-core/src/i18n.loader.ts` using `glob` (returns `Result<void, AppError>`) (FR-004)
+- [ ] T008 [US1] Implement context-aware `t(key, options)` in `packages/i18n-core/src/i18n.translator.ts` using `@tempot/session-manager` (returns `string`) (FR-005)
+- [ ] T009 [P] [US1] Implement `getLocaleInfo()` helper in `packages/i18n-core/src/i18n.locale-info.ts` for RTL/LTR detection (FR-008)
 - [ ] T010 [US1] Unit test for language fallback, sanitization, and missing key behavior in `packages/i18n-core/tests/unit/i18n.translator.test.ts`
 - [ ] T010a [US1] Performance benchmark: verify translation retrieval completes in < 1ms per call (SC-002) in `packages/i18n-core/tests/unit/i18n.performance.test.ts`
 
@@ -46,7 +46,7 @@
 **Independent Test**: Running `pnpm cms:check` on a file with hardcoded human-readable strings and verifying it fails.
 
 - [ ] T011 [US2] Configure `i18next-parser` for AST-based extraction in `packages/i18n-core/config/parser.config.js`
-- [ ] T012 [US2] Implement `cms:check` script in `packages/i18n-core/scripts/cms-check.ts` using AST analysis and Zod validation
+- [ ] T012 [US2] Implement `cms:check` script in `packages/i18n-core/scripts/cms-check.ts` using AST analysis and Zod validation (FR-002, FR-007, SC-001, SC-003, SC-004)
 - [ ] T013 [US2] Add `cms:check` to root `package.json` scripts and husky pre-commit hooks
 - [ ] T014 [US2] Unit test for hardcoded string detection in `packages/i18n-core/tests/unit/cms-check.test.ts`
 

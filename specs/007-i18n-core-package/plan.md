@@ -123,7 +123,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/i18n-core/src/loader.ts packages/i18n-core/tests/unit/loader.test.ts
+git add packages/i18n-core/src/i18n.loader.ts packages/i18n-core/tests/unit/loader.test.ts
 git commit -m "feat(i18n): implement modular locale loader (FR-004)"
 ```
 
@@ -155,7 +155,7 @@ describe('Context-Aware t()', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm test packages/i18n-core/tests/unit/t-context.test.ts`
+Run: `pnpm test packages/i18n-core/tests/unit/i18n.translator.test.ts`
 Expected: FAIL (t() not defined or sessionContext ignored)
 
 - [ ] **Step 3: Write minimal implementation**
@@ -174,13 +174,13 @@ export function t(key: string, options?: Record<string, unknown>): string {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm test packages/i18n-core/tests/unit/t-context.test.ts`
+Run: `pnpm test packages/i18n-core/tests/unit/i18n.translator.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/i18n-core/src/t.ts packages/i18n-core/tests/unit/t-context.test.ts
+git add packages/i18n-core/src/i18n.translator.ts packages/i18n-core/tests/unit/i18n.translator.test.ts
 git commit -m "feat(i18n): implement context-aware t() function via sessionContext (FR-005)"
 ```
 
@@ -233,6 +233,6 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/i18n-core/scripts/cms-check.ts packages/i18n-core/src/schema.ts packages/i18n-core/tests/unit/cms-check.test.ts packages/i18n-core/tests/unit/schema.test.ts
+git add packages/i18n-core/scripts/cms-check.ts packages/i18n-core/src/i18n.schema.ts packages/i18n-core/tests/unit/cms-check.test.ts packages/i18n-core/tests/unit/schema.test.ts
 git commit -m "feat(i18n): implement cms:check hardcoded string detector and locale validation (FR-002, FR-007)"
 ```

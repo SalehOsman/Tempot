@@ -47,8 +47,8 @@
 
 - [ ] `validateLabel()` returns `Result.err()` for labels exceeding Arabic (20) or English (24) char limits for inline
 - [ ] `validateLabel()` returns `Result.err()` for labels exceeding Arabic (15) or English (18) char limits for reply
-- [ ] `detectLanguage()` correctly identifies Arabic vs English from first character
-- [ ] `encodeCallbackData()` returns `Result.err()` when encoded data exceeds 64 bytes
+- [ ] `detectLanguage()` correctly identifies Arabic vs English from first character (SC-014)
+- [ ] `encodeCallbackData()` returns `Result.err()` when encoded data exceeds 64 bytes (SC-005)
 - [ ] `decodeCallbackData()` returns `Result.err()` for malformed/empty data
 - [ ] `encodeWithExpiry()` embeds Unix timestamp in callback data
 - [ ] `decodeWithExpiry()` extracts parts and expiry timestamp
@@ -70,9 +70,9 @@
 - [ ] `formatSuccess()` returns string prefixed with ✅
 - [ ] `formatError()` returns string prefixed with ❌
 - [ ] `formatWarning()` returns string prefixed with ⚠️
-- [ ] All functions use `t()` from @tempot/i18n-core for text
+- [ ] All functions use `t()` from @tempot/i18n-core for text (SC-002)
 - [ ] All functions are synchronous (no async)
-- [ ] All pure functions complete in < 1ms per call (NFR-001)
+- [ ] All pure functions complete in < 1ms per call — benchmark test required (NFR-001)
 - [ ] All tests pass
 
 ---
@@ -90,7 +90,7 @@
 - [ ] `createComposer().paragraph().build()` formats with proper spacing
 - [ ] `bulletList()` uses emoji bullets (not dashes)
 - [ ] `separator()` adds visual separator
-- [ ] `build()` returns `Result.err()` when text exceeds 4096 characters
+- [ ] `build()` returns `Result.err()` when text exceeds 4096 characters (SC-013)
 - [ ] Builder is chainable (fluent API)
 - [ ] All tests pass
 
@@ -130,7 +130,7 @@
 - [ ] `.button()` validates label via label.validator (returns `Result.err()` if invalid)
 - [ ] Auto-wraps rows at max 3 buttons per row
 - [ ] Long labels (exceeding half the char limit) get their own row
-- [ ] `.build()` returns `Result<InlineKeyboard, AppError>`
+- [ ] `.build()` returns `Result<InlineKeyboard, AppError>` (SC-003)
 - [ ] `.toGrammyKeyboard()` returns the underlying grammY InlineKeyboard
 - [ ] All tests pass
 
@@ -170,7 +170,7 @@
 - [ ] `toEmojiNumber(11)` returns "11." (text fallback)
 - [ ] `formatList()` includes count in title: "Title (N)"
 - [ ] Items are prefixed with emoji numbers
-- [ ] Empty list returns empty state message with next-step button config
+- [ ] Empty list returns empty state message with next-step button config (SC-012)
 - [ ] `formatList()` returns `Result<ListFormatResult, AppError>`
 - [ ] All tests pass
 
@@ -206,7 +206,7 @@
 **Acceptance:**
 
 - [ ] Confirm button shows action name via i18n (not "Yes")
-- [ ] RTL ordering: Cancel first in array, Confirm second (Decision D4)
+- [ ] RTL ordering: Cancel first in array, Confirm second (Decision D4) (SC-004, SC-011)
 - [ ] Expiry timestamp encoded in callback data via callback-data.encoder
 - [ ] `isIrreversible: true` produces warning text
 - [ ] Returns `Result<ConfirmationResult, AppError>`
@@ -249,7 +249,7 @@
 
 - [ ] `editOrSend()` tries editMessageText first
 - [ ] On "message is not modified" error: returns `ok()` (no-op)
-- [ ] On "message to edit not found" / "message can't be edited": sends new message + logs warning
+- [ ] On "message to edit not found" / "message can't be edited": sends new message + logs warning (SC-007)
 - [ ] `answerCallback()` calls `ctx.answerCallbackQuery()` with optional text
 - [ ] `answerCallback()` catches timeout errors (>30s) gracefully
 - [ ] `showTyping()` calls `ctx.replyWithChatAction('typing')`
@@ -293,7 +293,7 @@
 - [ ] Executes the provided action
 - [ ] On success: shows success status with optional keyboard
 - [ ] On failure: shows error status
-- [ ] Returns the action's result `AsyncResult<T, AppError>`
+- [ ] Returns the action's result `AsyncResult<T, AppError>` (SC-006)
 - [ ] All tests pass
 
 ---
@@ -310,7 +310,7 @@
 
 - [ ] `createMockContext()` returns a mock with tracked method calls
 - [ ] Supports: editMessageText, reply, answerCallbackQuery, replyWithChatAction
-- [ ] `calls` property tracks all invocations with arguments
+- [ ] `calls` property tracks all invocations with arguments (SC-008)
 - [ ] Configurable: chatId, messageId, callbackData, userId
 - [ ] Exported from `@tempot/ux-helpers/testing` subpath
 - [ ] All tests pass
@@ -333,6 +333,9 @@
 - [ ] README.md updated with actual API, examples, and dependency list
 - [ ] No phantom dependencies (checklist item 9)
 - [ ] No `console.*` in `src/` (checklist item 8)
+- [ ] Zero `any` types, zero `console.*`, zero hardcoded text in source (SC-009)
+- [ ] All 18 components implemented with full test coverage (SC-001)
+- [ ] All tests pass, build succeeds, package-creation-checklist 10/10 (SC-010)
 - [ ] Clean workspace — no `.js` or `.d.ts` in `src/` (checklist item 10)
 - [ ] Full build succeeds: `pnpm build --filter @tempot/ux-helpers`
 - [ ] Full tests pass: `pnpm test --filter @tempot/ux-helpers`
