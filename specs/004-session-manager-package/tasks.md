@@ -41,11 +41,11 @@ description: 'Task list template for feature implementation'
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Update `packages/database/prisma/schema.prisma` to include the `Session` model (with `JSONB` metadata and version field)
+- [ ] T005 Update `packages/database/prisma/schema.prisma` to include the `Session` model (with `JSONB` metadata and version field) — FR-001
 - [ ] T006 Generate Prisma client and run migrations in `packages/database`
 - [ ] T007 Create `SessionRepository` extending `BaseRepository` in `packages/session-manager/src/session.repository.ts`
-- [ ] T008 Define synchronization events (e.g., `session.updated`) in `packages/event-bus/src/events.ts`
-- [ ] T009 Create the BullMQ worker for async Postgres syncing in `packages/session-manager/src/session.worker.ts`
+- [ ] T008 Define synchronization events (e.g., `session.updated`) in `packages/event-bus/src/event-bus.events.ts` — FR-003
+- [ ] T009 Create the BullMQ worker for async Postgres syncing in `packages/session-manager/src/session.worker.ts` — FR-003
 
 **Checkpoint**: Foundation ready - database schema, types, and async worker structure are in place.
 
@@ -61,19 +61,19 @@ description: 'Task list template for feature implementation'
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [US1] Unit test for `SessionProvider.getSession` and `saveSession` in `packages/session-manager/tests/provider.test.ts`
-- [ ] T010b [US1] Unit test verifying hierarchical (nested) JSON metadata in Session type is stored and retrieved correctly through Redis and Postgres sync cycle, covering FR-004, in `packages/session-manager/tests/provider.test.ts`
-- [ ] T011 [US1] Integration test verifying Redis fast access and Postgres persistence in `packages/session-manager/tests/integration.test.ts`
-- [ ] T011a [US1] Integration test asserting Redis fast access takes < 2ms (SC-001) in `packages/session-manager/tests/integration.test.ts`
-- [ ] T011b [US1] Unit test verifying sliding TTL logic correctly resets TTL on interaction in `packages/session-manager/tests/provider.test.ts`
+- [ ] T010 [US1] Unit test for `SessionProvider.getSession` and `saveSession` in `packages/session-manager/tests/unit/session.provider.test.ts` — FR-001, FR-006
+- [ ] T010b [US1] Unit test verifying hierarchical (nested) JSON metadata in Session type is stored and retrieved correctly through Redis and Postgres sync cycle, covering FR-004, in `packages/session-manager/tests/unit/session.provider.test.ts`
+- [ ] T011 [US1] Integration test verifying Redis fast access and Postgres persistence in `packages/session-manager/tests/integration/session.integration.test.ts` — SC-002
+- [ ] T011a [US1] Integration test asserting Redis fast access takes < 2ms (SC-001) in `packages/session-manager/tests/integration/session.integration.test.ts`
+- [ ] T011b [US1] Unit test verifying sliding TTL logic correctly resets TTL on interaction in `packages/session-manager/tests/unit/session.provider.test.ts` — FR-007
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `SessionProvider` in `packages/session-manager/src/session.provider.ts` using `neverthrow`
-- [ ] T013 [US1] Implement Redis fetching/saving with sliding TTL in `SessionProvider` using `cache-manager`
-- [ ] T014 [US1] Implement in-memory fallback logic (Rule XXXII) in `SessionProvider.getSession` for Redis failure/miss
+- [ ] T012 [US1] Implement `SessionProvider` in `packages/session-manager/src/session.provider.ts` using `neverthrow` — FR-006
+- [ ] T013 [US1] Implement Redis fetching/saving with sliding TTL in `SessionProvider` using `cache-manager` — FR-001, FR-007
+- [ ] T014 [US1] Implement in-memory fallback logic (Rule XXXII) in `SessionProvider.getSession` for Redis failure/miss — SC-003
 - [ ] T015 [US1] Implement Optimistic Concurrency Control (version checking) in `SessionProvider.saveSession`
-- [ ] T016 [US1] Implement event dispatching to `event-bus` on `saveSession` for async Postgres sync
+- [ ] T016 [US1] Implement event dispatching to `event-bus` on `saveSession` for async Postgres sync — FR-003, SC-002
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,13 +87,13 @@ description: 'Task list template for feature implementation'
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T017 [US2] Unit test for `AsyncLocalStorage` context creation and retrieval in `packages/session-manager/tests/context.test.ts`
-- [ ] T018 [US2] Unit test for Session Schema Versioning and migration logic in `packages/session-manager/tests/migration.test.ts`
+- [ ] T017 [US2] Unit test for `AsyncLocalStorage` context creation and retrieval in `packages/session-manager/tests/unit/session.context.test.ts` — FR-002
+- [ ] T018 [US2] Unit test for Session Schema Versioning and migration logic in `packages/session-manager/tests/unit/session.migrator.test.ts` — FR-005, SC-004
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `AsyncLocalStorage` context for global session access in `packages/session-manager/src/session.context.ts`
-- [ ] T020 [US2] Implement `migrateSession` logic in `SessionProvider` or dedicated service for Schema Versioning
+- [ ] T019 [P] [US2] Implement `AsyncLocalStorage` context for global session access in `packages/session-manager/src/session.context.ts` — FR-002
+- [ ] T020 [US2] Implement `migrateSession` logic in `SessionProvider` or dedicated service for Schema Versioning — FR-005
 - [ ] T021 [US2] Export context and updated provider from `packages/session-manager/src/index.ts`
 - [ ] T022 [US2] Update BullMQ worker to handle complex metadata sync correctly without data loss
 
@@ -114,7 +114,7 @@ description: 'Task list template for feature implementation'
 - [ ] T029 [P] Create ADR for dual-layer session strategy (Redis + Postgres) at `docs/architecture/adr/`
 - [ ] T030 [P] Create ADR for Optimistic Concurrency Control (OCC) approach at `docs/architecture/adr/`
 - [ ] T031 Implement and test `deleteSession()` in SessionProvider — removes from both Redis and Postgres, returns `AsyncResult<void, AppError>`
-- [ ] T032 Unit test for `deleteSession()` verifying removal from both layers in `packages/session-manager/tests/unit/provider.test.ts`
+- [ ] T032 Unit test for `deleteSession()` verifying removal from both layers in `packages/session-manager/tests/unit/session.provider.test.ts`
 
 ---
 

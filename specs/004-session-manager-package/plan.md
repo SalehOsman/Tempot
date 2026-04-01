@@ -62,13 +62,13 @@ packages/session-manager/
 │   └── session.worker.ts
 └── tests/
     ├── unit/
-    │   ├── provider.test.ts
-    │   ├── context.test.ts
-    │   ├── migration.test.ts
+    │   ├── session.provider.test.ts
+    │   ├── session.context.test.ts
+    │   ├── session.migrator.test.ts
     │   └── session.worker.test.ts
     ├── integration/
-    │   └── session-integration.test.ts
-    └── support/
+    │   └── session.integration.test.ts
+    └── utils/
         └── test-redis.ts
 ```
 
