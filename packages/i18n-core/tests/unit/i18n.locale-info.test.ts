@@ -11,6 +11,15 @@ describe('Helpers & Sanitizer', () => {
     it('should return ltr for English', () => {
       expect(getLocaleInfo('en')).toEqual({ lang: 'en', dir: 'ltr' });
     });
+
+    it('should return rtl for other RTL languages', () => {
+      expect(getLocaleInfo('he')).toEqual({ lang: 'he', dir: 'rtl' });
+      expect(getLocaleInfo('fa')).toEqual({ lang: 'fa', dir: 'rtl' });
+    });
+
+    it('should return ltr for unknown languages', () => {
+      expect(getLocaleInfo('fr')).toEqual({ lang: 'fr', dir: 'ltr' });
+    });
   });
 
   describe('sanitizeValue', () => {
