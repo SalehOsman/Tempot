@@ -4,11 +4,65 @@
  */
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redis } from 'ioredis';
-import { ok, err } from 'neverthrow';
+import { ok, err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { CacheAdapter } from '../../src/session.provider.js';
 
 export type { CacheAdapter };
+
+function wrapCacheError(e: unknown): AppError {
+  return new AppError('session.cache_error', e instanceof Error ? e.message : String(e));
+}
+
+function createCacheGet(client: Redis) {
+  return async <T>(key: string): Promise<Result<T | null, AppError>> => {
+    try {
+      const raw = await client.get(key);
+      if (raw === null) return ok(null);
+      return ok(JSON.parse(raw) as T);
+    } catch (e) {
+      return err(wrapCacheError(e));
+    }
+  };
+}
+
+function createCacheSet(client: Redis) {
+  return async <T>(key: string, value: T, ttl?: number): Promise<Result<void, AppError>> => {
+    try {
+      const serialized = JSON.stringify(value);
+      if (ttl !== undefined) {
+        await client.set(key, serialized, 'EX', ttl);
+      } else {
+        await client.set(key, serialized);
+      }
+      return ok(undefined);
+    } catch (e) {
+      return err(wrapCacheError(e));
+    }
+  };
+}
+
+function createCacheDel(client: Redis) {
+  return async (key: string): Promise<Result<void, AppError>> => {
+    try {
+      await client.del(key);
+      return ok(undefined);
+    } catch (e) {
+      return err(wrapCacheError(e));
+    }
+  };
+}
+
+function createCacheExpire(client: Redis) {
+  return async (key: string, ttl: number): Promise<Result<void, AppError>> => {
+    try {
+      await client.expire(key, ttl);
+      return ok(undefined);
+    } catch (e) {
+      return err(wrapCacheError(e));
+    }
+  };
+}
 
 /**
  * TestRedis manages a Redis testcontainer lifecycle and exposes a cache adapter
@@ -54,50 +108,10 @@ export class TestRedis {
     }
 
     return {
-      get: async <T>(key: string): Promise<Result<T | null, AppError>> => {
-        try {
-          const raw = await client.get(key);
-          if (raw === null) {
-            return ok(null);
-          }
-          const parsed = JSON.parse(raw) as T;
-          return ok(parsed);
-        } catch (e) {
-          return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
-        }
-      },
-
-      set: async <T>(key: string, value: T, ttl?: number): Promise<Result<void, AppError>> => {
-        try {
-          const serialized = JSON.stringify(value);
-          if (ttl !== undefined) {
-            await client.set(key, serialized, 'EX', ttl);
-          } else {
-            await client.set(key, serialized);
-          }
-          return ok(undefined);
-        } catch (e) {
-          return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
-        }
-      },
-
-      del: async (key: string): Promise<Result<void, AppError>> => {
-        try {
-          await client.del(key);
-          return ok(undefined);
-        } catch (e) {
-          return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
-        }
-      },
-
-      expire: async (key: string, ttl: number): Promise<Result<void, AppError>> => {
-        try {
-          await client.expire(key, ttl);
-          return ok(undefined);
-        } catch (e) {
-          return err(new AppError('cache_error', e instanceof Error ? e.message : String(e)));
-        }
-      },
+      get: createCacheGet(client),
+      set: createCacheSet(client),
+      del: createCacheDel(client),
+      expire: createCacheExpire(client),
     };
   }
 }

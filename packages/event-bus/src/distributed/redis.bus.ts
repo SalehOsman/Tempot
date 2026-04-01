@@ -3,6 +3,8 @@ import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, AppError } from '@tempot/shared';
 import { validateEventName } from '../event-bus.contracts.js';
 
+const REDIS_MAX_RETRIES_PER_REQUEST = null;
+
 export interface RedisBusConfig {
   connectionString: string;
 }
@@ -13,8 +15,12 @@ export class RedisEventBus {
   private handlers: Map<string, Array<(payload: unknown) => void>> = new Map();
 
   constructor(config: RedisBusConfig) {
-    this.pub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
-    this.sub = new Redis(config.connectionString, { maxRetriesPerRequest: null });
+    this.pub = new Redis(config.connectionString, {
+      maxRetriesPerRequest: REDIS_MAX_RETRIES_PER_REQUEST,
+    });
+    this.sub = new Redis(config.connectionString, {
+      maxRetriesPerRequest: REDIS_MAX_RETRIES_PER_REQUEST,
+    });
 
     this.sub.on('message', (channel: string, message: string) => {
       this.handleMessage(channel, message);
@@ -71,7 +77,7 @@ export class RedisEventBus {
           process.stderr.write(
             JSON.stringify({
               level: 'error',
-              code: 'EVENT_BUS_HANDLER_ERROR',
+              code: 'event_bus.handler_error',
               channel,
               error: String(error),
             }) + '\n',
@@ -82,7 +88,7 @@ export class RedisEventBus {
       process.stderr.write(
         JSON.stringify({
           level: 'error',
-          code: 'EVENT_BUS_PARSE_ERROR',
+          code: 'event_bus.parse_error',
           channel,
           error: String(error),
         }) + '\n',

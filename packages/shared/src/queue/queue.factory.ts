@@ -4,6 +4,11 @@ import type { Result } from '../shared.result.js';
 import { AppError } from '../shared.errors.js';
 import type { ShutdownManager } from '../shutdown/shutdown.manager.js';
 
+const DEFAULT_REDIS_HOST = 'localhost';
+const DEFAULT_REDIS_PORT = 6379;
+const DEFAULT_RETRY_ATTEMPTS = 3;
+const DEFAULT_RETRY_DELAY_MS = 1000;
+
 /**
  * Options for queueFactory.
  */
@@ -28,14 +33,14 @@ export function queueFactory(name: string, options?: QueueFactoryOptions): Resul
   try {
     const queue = new Queue(name, {
       connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number(process.env.REDIS_PORT) || 6379,
+        host: process.env.REDIS_HOST || DEFAULT_REDIS_HOST,
+        port: Number(process.env.REDIS_PORT) || DEFAULT_REDIS_PORT,
       },
       defaultJobOptions: {
-        attempts: 3,
+        attempts: DEFAULT_RETRY_ATTEMPTS,
         backoff: {
           type: 'exponential',
-          delay: 1000,
+          delay: DEFAULT_RETRY_DELAY_MS,
         },
       },
       ...queueOptions,

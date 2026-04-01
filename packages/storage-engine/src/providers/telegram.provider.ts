@@ -8,6 +8,8 @@ import type { StorageProvider } from '../storage.contracts.js';
 import type { ProviderUploadResult, TelegramProviderConfig } from '../storage.types.js';
 import { STORAGE_ERRORS } from '../storage.errors.js';
 
+const TELEGRAM_FILE_API_BASE = 'https://api.telegram.org/file/bot';
+
 export class TelegramProvider implements StorageProvider {
   readonly type = 'telegram' as const;
 
@@ -101,6 +103,6 @@ export class TelegramProvider implements StorageProvider {
 
   /** Build the Bot API file download URL */
   private buildDownloadUrl(filePath: string): string {
-    return `https://api.telegram.org/file/bot${this.api.token}/${filePath}`;
+    return `${TELEGRAM_FILE_API_BASE}${this.api.token}/${filePath}`;
   }
 }

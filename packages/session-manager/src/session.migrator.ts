@@ -16,7 +16,7 @@ export function migrateSession(session: Session): Result<Session, AppError> {
 
   if (session.schemaVersion > CURRENT_SCHEMA_VERSION) {
     return err(
-      new AppError('SESSION_UNKNOWN_SCHEMA_VERSION', {
+      new AppError('session.unknown_schema_version', {
         schemaVersion: session.schemaVersion,
         currentVersion: CURRENT_SCHEMA_VERSION,
       }),

@@ -11,12 +11,12 @@ describe('Guard', () => {
     expect(result.isOk()).toBe(true);
   });
 
-  it('should return err FORBIDDEN when action is denied', () => {
+  it('should return err auth.forbidden when action is denied', () => {
     const ability = createMongoAbility([{ action: 'read', subject: 'all' }]);
     const result = Guard.enforce(ability, 'manage' as AppAction, 'all' as AppSubject);
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
-      expect(result.error.code).toBe('FORBIDDEN');
+      expect(result.error.code).toBe('auth.forbidden');
     }
   });
 });

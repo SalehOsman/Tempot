@@ -182,7 +182,7 @@ describe('SessionProvider integration (Redis testcontainer)', () => {
   // -------------------------------------------------------------------------
   it('should return err when both cache and repository fail', async () => {
     // Cache miss + repository error
-    mockRepo.findById.mockResolvedValue(err(new AppError('not_found')));
+    mockRepo.findById.mockResolvedValue(err(new AppError('session.not_found')));
 
     const result = await provider.getSession('u-fail', 'c-fail');
 

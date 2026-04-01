@@ -5,20 +5,20 @@ import { ok, err } from 'neverthrow';
 
 describe('AppError', () => {
   it('should create an instance with code and details', () => {
-    const error = new AppError('AUTH_UNAUTHORIZED', { userId: '123' });
-    expect(error.code).toBe('AUTH_UNAUTHORIZED');
+    const error = new AppError('auth.unauthorized', { userId: '123' });
+    expect(error.code).toBe('auth.unauthorized');
     expect(error.details).toEqual({ userId: '123' });
-    expect(error.message).toBe('AUTH_UNAUTHORIZED');
+    expect(error.message).toBe('auth.unauthorized');
   });
 
   it('should generate i18nKey from code', () => {
-    const error = new AppError('AUTH_UNAUTHORIZED');
+    const error = new AppError('auth.unauthorized');
     // Assuming format errors.{code}
-    expect(error.i18nKey).toBe('errors.AUTH_UNAUTHORIZED');
+    expect(error.i18nKey).toBe('errors.auth.unauthorized');
   });
 
   it('should allow optional loggedAt', () => {
-    const error = new AppError('ERROR');
+    const error = new AppError('shared.error');
     expect(error.loggedAt).toBeUndefined();
 
     const now = new Date();
@@ -37,12 +37,12 @@ describe('Result types', () => {
   });
 
   it('should be compatible with neverthrow err and AppError', () => {
-    const appError = new AppError('FAILED');
+    const appError = new AppError('shared.failed');
     const res: Result<string> = err(appError);
     expect(res.isErr()).toBe(true);
     if (res.isErr()) {
       expect(res.error).toBeInstanceOf(AppError);
-      expect(res.error.code).toBe('FAILED');
+      expect(res.error.code).toBe('shared.failed');
     }
   });
 

@@ -11,6 +11,9 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(localizedFormat);
 
+/** Default dayjs locale code — distinct from Intl locale (e.g., 'ar-EG') */
+const DEFAULT_DAYJS_LOCALE = 'ar';
+
 /**
  * Validates a timezone string by checking if Intl.DateTimeFormat accepts it.
  * dayjs silently falls back to UTC for invalid timezones, so we must validate first.
@@ -49,7 +52,7 @@ export class DateService {
     formatStr: string,
     options: DateFormatOptions = {},
   ): Result<string, AppError> {
-    const { locale = 'ar', tz = DEFAULT_REGIONAL_CONTEXT.timezone } = options;
+    const { locale = DEFAULT_DAYJS_LOCALE, tz = DEFAULT_REGIONAL_CONTEXT.timezone } = options;
 
     if (!isValidLocale(locale)) {
       return err(new AppError('regional.invalid_locale', `Invalid locale: ${locale}`));

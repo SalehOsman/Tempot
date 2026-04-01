@@ -86,12 +86,12 @@ describe('Pino Logger', () => {
       dest,
     );
 
-    const error = new AppError('TEST_CODE', { password: 'inner-secret' });
+    const error = new AppError('logger.test_code', { password: 'inner-secret' });
     testLogger.error({ err: error }, 'error occurred');
 
     const parsedLog = JSON.parse(logOutput);
-    expect(parsedLog.err).toHaveProperty('code', 'TEST_CODE');
-    expect(parsedLog.err).toHaveProperty('i18nKey', 'errors.TEST_CODE');
+    expect(parsedLog.err).toHaveProperty('code', 'logger.test_code');
+    expect(parsedLog.err).toHaveProperty('i18nKey', 'errors.logger.test_code');
     expect(parsedLog.err.details.password).toBe('[REDACTED]');
   });
 });

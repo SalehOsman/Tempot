@@ -6,6 +6,9 @@ import type { ShutdownManager } from '@tempot/shared';
 
 export const SESSION_SYNC_QUEUE = 'session-sync';
 
+const DEFAULT_REDIS_HOST = 'localhost';
+const DEFAULT_REDIS_PORT = 6379;
+
 /** Logger interface accepted by createSessionWorker. */
 export interface WorkerLogger {
   error: (data: object) => void;
@@ -50,8 +53,8 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
   const repository = new SessionRepository(auditLogger, prisma);
 
   const connection = options.connection ?? {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: Number(process.env.REDIS_PORT) || 6379,
+    host: process.env.REDIS_HOST || DEFAULT_REDIS_HOST,
+    port: Number(process.env.REDIS_PORT) || DEFAULT_REDIS_PORT,
   };
 
   const worker = new Worker(
@@ -74,7 +77,7 @@ export const createSessionWorker = (options: SessionWorkerOptions = {}) => {
         }
       } catch (syncError) {
         logger?.error({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: { target: 'SUPER_ADMIN', operation: 'session-sync', error: String(syncError) },
         });
         throw syncError; // BullMQ handles retries

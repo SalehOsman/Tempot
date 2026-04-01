@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
+const PGVECTOR_TEST_IMAGE = 'pgvector/pgvector:0.8.2-pg16';
+
 /**
  * Utility for integration tests to provide a clean PostgreSQL + pgvector environment
  */
@@ -13,7 +15,7 @@ export class TestDB {
 
   async start() {
     // Start PostgreSQL with pgvector support
-    this.container = await new PostgreSqlContainer('pgvector/pgvector:0.8.2-pg16').start();
+    this.container = await new PostgreSqlContainer(PGVECTOR_TEST_IMAGE).start();
     const url = this.container.getConnectionUri();
 
     process.env.DATABASE_URL = url;

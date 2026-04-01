@@ -113,7 +113,7 @@ describe('status sender errors', () => {
 
   describe('error propagation', () => {
     it('should propagate error from editOrSend', async () => {
-      const appError = new AppError('UX_SEND_FAILED');
+      const appError = new AppError('ux.message.send_failed');
       mockFormatLoading.mockReturnValue('⏳ Loading...');
       mockEditOrSend.mockResolvedValue(err(appError));
 
@@ -137,7 +137,7 @@ describe('status sender errors', () => {
     });
 
     it('should propagate error for sendSuccess', async () => {
-      const appError = new AppError('UX_SEND_FAILED');
+      const appError = new AppError('ux.message.send_failed');
       mockFormatSuccess.mockReturnValue('✅ Done!');
       mockEditOrSend.mockResolvedValue(err(appError));
 
@@ -149,7 +149,7 @@ describe('status sender errors', () => {
     });
 
     it('should propagate error for sendError', async () => {
-      const appError = new AppError('UX_SEND_FAILED');
+      const appError = new AppError('ux.message.send_failed');
       mockFormatError.mockReturnValue('❌ Failed!');
       mockEditOrSend.mockResolvedValue(err(appError));
 
@@ -161,7 +161,7 @@ describe('status sender errors', () => {
     });
 
     it('should propagate error for sendWarning', async () => {
-      const appError = new AppError('UX_SEND_FAILED');
+      const appError = new AppError('ux.message.send_failed');
       mockFormatWarning.mockReturnValue('⚠️ Warning!');
       mockEditOrSend.mockResolvedValue(err(appError));
 

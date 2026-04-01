@@ -14,7 +14,7 @@ describe('appErrorSerializer', () => {
   });
 
   it('redacts sensitive keys in details recursively', () => {
-    const error = new AppError('AUTH_FAILED', {
+    const error = new AppError('auth.failed', {
       password: 'mypassword',
       nested: {
         token: 'secret-token',
@@ -30,15 +30,15 @@ describe('appErrorSerializer', () => {
   });
 
   it('formats code and i18nKey correctly', () => {
-    const error = new AppError('USER_NOT_FOUND');
+    const error = new AppError('auth.user_not_found');
     const result = appErrorSerializer(error);
 
-    expect(result.code).toBe('USER_NOT_FOUND');
-    expect(result.i18nKey).toBe('errors.USER_NOT_FOUND');
+    expect(result.code).toBe('auth.user_not_found');
+    expect(result.i18nKey).toBe('errors.auth.user_not_found');
   });
 
   it('respects Rule XXIII: does not re-serialize if already loggedAt', () => {
-    const error = new AppError('ALREADY_LOGGED');
+    const error = new AppError('logger.already_logged');
     error.loggedAt = new Date();
 
     const result = appErrorSerializer(error);
@@ -52,7 +52,7 @@ describe('appErrorSerializer', () => {
 
   it('suppresses stack traces when NODE_ENV is production', () => {
     process.env.NODE_ENV = 'production';
-    const error = new AppError('PROD_ERROR');
+    const error = new AppError('shared.prod_error');
     const result = appErrorSerializer(error);
 
     expect(result.stack).toBeUndefined();
@@ -60,7 +60,7 @@ describe('appErrorSerializer', () => {
 
   it('includes stack traces when NODE_ENV is development', () => {
     process.env.NODE_ENV = 'development';
-    const error = new AppError('DEV_ERROR');
+    const error = new AppError('shared.dev_error');
     const result = appErrorSerializer(error);
 
     expect(result.stack).toBeDefined();

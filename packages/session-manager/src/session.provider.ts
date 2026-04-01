@@ -39,7 +39,7 @@ export class SessionProvider implements ISessionProvider {
 
   private alertDegradation(operation: string, error: AppError): void {
     this.deps.logger?.error({
-      code: 'SYSTEM_DEGRADATION',
+      code: 'session.system_degradation',
       payload: { target: 'SUPER_ADMIN', operation, error: error.message },
     });
   }

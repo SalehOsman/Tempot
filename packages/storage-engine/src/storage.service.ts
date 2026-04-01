@@ -13,6 +13,8 @@ import type {
 } from './storage.interfaces.js';
 import { STORAGE_ERRORS } from './storage.errors.js';
 
+const DEFAULT_SIGNED_URL_EXPIRY_SECONDS = 3600;
+
 /** Dependencies for StorageService (grouped to stay under Rule II param limit) */
 export interface StorageServiceDeps {
   provider: StorageProvider;
@@ -107,7 +109,7 @@ export class StorageService {
   /** Get a signed/shareable URL for an attachment */
   async getSignedUrl(
     attachmentId: string,
-    expiresInSeconds: number = 3600,
+    expiresInSeconds: number = DEFAULT_SIGNED_URL_EXPIRY_SECONDS,
   ): AsyncResult<string, AppError> {
     const findResult = await this.attachmentRepo.findById(attachmentId);
     if (findResult.isErr()) return err(findResult.error);

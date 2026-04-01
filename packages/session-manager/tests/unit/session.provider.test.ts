@@ -103,7 +103,7 @@ describe('SessionProvider', () => {
     });
 
     it('should fallback to repository if cache fails', async () => {
-      mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
+      mockCache.get.mockResolvedValue(err(new AppError('session.redis_error')));
       mockRepo.findById.mockResolvedValue(ok(mockSession));
       mockCache.set.mockResolvedValue(ok(undefined));
 
@@ -146,7 +146,7 @@ describe('SessionProvider', () => {
 
     // Rule XXXII
     it('should alert SUPER_ADMIN via logger when cache.set fails', async () => {
-      mockCache.set.mockResolvedValue(err(new AppError('redis_error')));
+      mockCache.set.mockResolvedValue(err(new AppError('session.redis_error')));
       mockBus.publish.mockResolvedValue(ok(undefined));
 
       const result = await provider.saveSession(mockSession);
@@ -154,7 +154,7 @@ describe('SessionProvider', () => {
       expect(result.isOk()).toBe(true); // still succeeds (falls through to event bus)
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
         }),
       );
@@ -164,7 +164,7 @@ describe('SessionProvider', () => {
   // Validates Redis degradation strategy (Constitution Rule XXXII)
   describe('SessionProvider cache failure fallback', () => {
     it('should alert SUPER_ADMIN via logger when cache.get fails', async () => {
-      mockCache.get.mockResolvedValue(err(new AppError('redis_error')));
+      mockCache.get.mockResolvedValue(err(new AppError('session.redis_error')));
       mockRepo.findById.mockResolvedValue(ok(mockSession));
       mockCache.set.mockResolvedValue(ok(undefined));
 
@@ -173,21 +173,21 @@ describe('SessionProvider', () => {
       expect(result.isOk()).toBe(true); // fallback succeeded
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
         }),
       );
     });
 
     it('should alert SUPER_ADMIN via logger when cache.del fails in deleteSession', async () => {
-      mockCache.del.mockResolvedValue(err(new AppError('redis_error')));
+      mockCache.del.mockResolvedValue(err(new AppError('session.redis_error')));
       mockRepo.delete.mockResolvedValue(ok(undefined));
 
       await provider.deleteSession('user-1', 'chat-1');
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN' }),
         }),
       );
@@ -213,7 +213,7 @@ describe('SessionProvider', () => {
   describe('unchecked Result handling (Rule X)', () => {
     it('should call alertDegradation when cache.expire fails but still return the session', async () => {
       mockCache.get.mockResolvedValue(ok(mockSession));
-      mockCache.expire.mockResolvedValue(err(new AppError('expire_failed')));
+      mockCache.expire.mockResolvedValue(err(new AppError('session.expire_failed')));
 
       const result = await provider.getSession('user-1', 'chat-1');
 
@@ -221,7 +221,7 @@ describe('SessionProvider', () => {
       expect(result._unsafeUnwrap()).toEqual(mockSession);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'expire' }),
         }),
       );
@@ -230,7 +230,7 @@ describe('SessionProvider', () => {
     it('should call alertDegradation when cache.set fails during fallback sync but still return the session', async () => {
       mockCache.get.mockResolvedValue(ok(null)); // cache miss
       mockRepo.findById.mockResolvedValue(ok(mockSession));
-      mockCache.set.mockResolvedValue(err(new AppError('set_failed')));
+      mockCache.set.mockResolvedValue(err(new AppError('session.set_failed')));
 
       const result = await provider.getSession('user-1', 'chat-1');
 
@@ -238,7 +238,7 @@ describe('SessionProvider', () => {
       expect(result._unsafeUnwrap()).toEqual(mockSession);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'set' }),
         }),
       );
@@ -246,14 +246,14 @@ describe('SessionProvider', () => {
 
     it('should call alertDegradation when eventBus.publish fails but still return ok from saveSession', async () => {
       mockCache.set.mockResolvedValue(ok(undefined));
-      mockBus.publish.mockResolvedValue(err(new AppError('publish_failed')));
+      mockBus.publish.mockResolvedValue(err(new AppError('session.publish_failed')));
 
       const result = await provider.saveSession(mockSession);
 
       expect(result.isOk()).toBe(true);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          code: 'SYSTEM_DEGRADATION',
+          code: 'session.system_degradation',
           payload: expect.objectContaining({ target: 'SUPER_ADMIN', operation: 'publish' }),
         }),
       );

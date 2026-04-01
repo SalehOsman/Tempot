@@ -4,6 +4,9 @@ import { LocalEventBus } from './local/local.bus.js';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
 import { ConnectionWatcher } from './distributed/connection.watcher.js';
 
+const DEFAULT_HEALTH_CHECK_INTERVAL_MS = 2000;
+const DEFAULT_STABILIZATION_THRESHOLD = 5;
+
 interface LoggerInterface {
   error: (data: Record<string, unknown>) => void;
   info: (data: Record<string, unknown>) => void;
@@ -29,8 +32,8 @@ export class EventBusOrchestrator {
     this.shutdownManager = config.shutdownManager;
 
     this.watcher = new ConnectionWatcher(this.redisBus.pubClient, {
-      intervalMs: 2000,
-      stabilizationThreshold: 5,
+      intervalMs: DEFAULT_HEALTH_CHECK_INTERVAL_MS,
+      stabilizationThreshold: DEFAULT_STABILIZATION_THRESHOLD,
     });
 
     this.watcher.onStatusChange((available) => {

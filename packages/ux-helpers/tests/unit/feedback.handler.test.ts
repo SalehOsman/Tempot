@@ -67,7 +67,7 @@ describe('feedback handler', () => {
 
   describe('failed action', () => {
     it('should show loading, execute action, and show error on failure', async () => {
-      const appError = new AppError('TASK_NOT_FOUND');
+      const appError = new AppError('task.not_found');
       const action = vi.fn().mockResolvedValue(err(appError));
 
       const result = await executeFeedback(ctx, {
@@ -81,7 +81,7 @@ describe('feedback handler', () => {
       });
       expect(action).toHaveBeenCalledOnce();
       expect(mockSendError).toHaveBeenCalledWith(ctx, {
-        key: 'errors.TASK_NOT_FOUND',
+        key: 'errors.task.not_found',
       });
       expect(mockSendSuccess).not.toHaveBeenCalled();
       expect(result.isErr()).toBe(true);
@@ -89,7 +89,7 @@ describe('feedback handler', () => {
     });
 
     it('should format error key as errors.{code}', async () => {
-      const appError = new AppError('AUTH_UNAUTHORIZED');
+      const appError = new AppError('auth.unauthorized');
       const action = vi.fn().mockResolvedValue(err(appError));
 
       await executeFeedback(ctx, {
@@ -99,7 +99,7 @@ describe('feedback handler', () => {
       });
 
       expect(mockSendError).toHaveBeenCalledWith(ctx, {
-        key: 'errors.AUTH_UNAUTHORIZED',
+        key: 'errors.auth.unauthorized',
       });
     });
   });
@@ -124,7 +124,7 @@ describe('feedback handler', () => {
 
     it('should not pass keyboard to sendError on failure', async () => {
       const keyboard = { inline_keyboard: [[]] };
-      const appError = new AppError('SAVE_FAILED');
+      const appError = new AppError('shared.save_failed');
       const action = vi.fn().mockResolvedValue(err(appError));
 
       await executeFeedback(ctx, {
@@ -135,7 +135,7 @@ describe('feedback handler', () => {
       });
 
       expect(mockSendError).toHaveBeenCalledWith(ctx, {
-        key: 'errors.SAVE_FAILED',
+        key: 'errors.shared.save_failed',
       });
     });
   });

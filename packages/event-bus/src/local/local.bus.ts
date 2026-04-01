@@ -3,12 +3,14 @@ import { ok, err } from 'neverthrow';
 import { AsyncResult, AppError, Result } from '@tempot/shared';
 import { validateEventName } from '../event-bus.contracts.js';
 
+const MAX_EVENT_LISTENERS = 100;
+
 export class LocalEventBus {
   private emitter: EventEmitter;
 
   constructor() {
     this.emitter = new EventEmitter();
-    this.emitter.setMaxListeners(100);
+    this.emitter.setMaxListeners(MAX_EVENT_LISTENERS);
   }
 
   async publish(eventName: string, payload: unknown): AsyncResult<void> {
@@ -25,7 +27,7 @@ export class LocalEventBus {
         process.stderr.write(
           JSON.stringify({
             level: 'error',
-            code: 'EVENT_BUS_LISTENER_ERROR',
+            code: 'event_bus.listener_error',
             eventName,
             error: String(error),
           }) + '\n',

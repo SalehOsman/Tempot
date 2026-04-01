@@ -14,6 +14,6 @@ export class Guard {
       return ok(undefined);
     }
 
-    return err(new AppError('FORBIDDEN', { action, subject }));
+    return err(new AppError('auth.forbidden', { action, subject }));
   }
 }
