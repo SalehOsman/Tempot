@@ -244,6 +244,7 @@ Task 0 (scaffolding)
   |      +--> Task 4 (RedisEventBus)       --+--> Task 6 (Orchestrator) --+
   +--> Task 2 (event types)                   |                            +--> Task 7 (barrel)
          +--> Task 5 (ConnectionWatcher) -----+
+  +--> Task 8 (Pluggable Toggle)
 ```
 
 ---
@@ -262,17 +263,18 @@ The following spec requirements were documented but not implemented in the curre
 
 ## Summary
 
-| Task      | Name                    | Priority | Est. Time  | FR Coverage            |
-| --------- | ----------------------- | -------- | ---------- | ---------------------- |
-| 0         | Package Scaffolding     | P0       | 5 min      | Infrastructure         |
-| 1         | Event Contracts         | P0       | 5 min      | FR-001, FR-002         |
-| 2         | Typed Event Definitions | P1       | 5 min      | FR-003                 |
-| 3         | Local Event Bus         | P1       | 10 min     | FR-001, SC-001         |
-| 4         | Redis Event Bus         | P1       | 15 min     | FR-001, FR-004, SC-003 |
-| 5         | Connection Watcher      | P1       | 10 min     | FR-001, SC-004         |
-| 6         | Event Bus Orchestrator  | P1       | 15 min     | FR-003, FR-001, SC-002 |
-| 7         | Barrel Exports          | P1       | 5 min      | All                    |
-| **Total** |                         |          | **70 min** |                        |
+| Task      | Name                        | Priority | Est. Time  | FR Coverage            |
+| --------- | --------------------------- | -------- | ---------- | ---------------------- |
+| 0         | Package Scaffolding         | P0       | 5 min      | Infrastructure         |
+| 1         | Event Contracts             | P0       | 5 min      | FR-001, FR-002         |
+| 2         | Typed Event Definitions     | P1       | 5 min      | FR-003                 |
+| 3         | Local Event Bus             | P1       | 10 min     | FR-001, SC-001         |
+| 4         | Redis Event Bus             | P1       | 15 min     | FR-001, FR-004, SC-003 |
+| 5         | Connection Watcher          | P1       | 10 min     | FR-001, SC-004         |
+| 6         | Event Bus Orchestrator      | P1       | 15 min     | FR-003, FR-001, SC-002 |
+| 7         | Barrel Exports              | P1       | 5 min      | All                    |
+| 8         | Pluggable Toggle (Rule XVI) | P0       | 15 min     | FR-008                 |
+| **Total** |                             |          | **85 min** |                        |
 
 ### Benchmark Note
 

@@ -5,9 +5,7 @@
 
 # Shared Package Implementation Plan (Updated)
 
-> **The full implementation plan for this package is maintained in the superpowers plans directory.**
->
-> 📄 **Plan file:** [`docs/superpowers/plans/2026-03-19-002-shared-package.md`](../../docs/superpowers/plans/2026-03-19-002-shared-package.md)
+> **Note:** The detailed implementation plan was consumed during development and is no longer maintained as a separate artifact. Implementation details are captured in `tasks.md` and `research.md` for this package.
 
 | Feature                            | Status         | Priority |
 | ---------------------------------- | -------------- | -------- |

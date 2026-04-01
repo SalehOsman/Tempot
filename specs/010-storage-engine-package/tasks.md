@@ -444,7 +444,7 @@
 
 ---
 
-### Task: Implement createdBy/updatedBy Population
+### Task 13: Implement createdBy/updatedBy Population
 
 **Phase**: 3 (Integration)
 **Estimated Duration**: 30 minutes
@@ -483,31 +483,36 @@ Task 0 (scaffolding)
   │                                               └─→ Task 11 (purge job)
   │                                                                     │
   └───────────────────────────────── All tasks ─→ Task 12 (barrel exports)
+
+  Task 9 (StorageService) ──→ Task 13 (createdBy/updatedBy Population)
+  Task 14 (Pluggable Toggle)
 ```
 
 ## Summary
 
-| Task      | Name                    | Priority | Est. Time   | FR Coverage               |
-| --------- | ----------------------- | -------- | ----------- | ------------------------- |
-| 0         | Package Scaffolding     | P0       | 5 min       | Infrastructure            |
-| 1         | Types/Contracts/Errors  | P0       | 10 min      | FR-001, FR-004, FR-007    |
-| 2         | ValidationService       | P1       | 15 min      | FR-004, SC-004, MIME Edge |
-| 3         | LocalProvider           | P1       | 15 min      | FR-001, FR-006            |
-| 4         | S3Provider              | P1       | 15 min      | FR-001, FR-006, D5        |
-| 5         | DriveProvider           | P2       | 15 min      | FR-001, FR-006            |
-| 5b        | TelegramProvider        | P2       | 15 min      | FR-001, FR-006            |
-| 6         | ProviderFactory         | P1       | 5 min       | FR-001, D1, NFR-004       |
-| 7         | Attachment Prisma Model | P1       | 5 min       | FR-003                    |
-| 8         | AttachmentRepository    | P1       | 10 min      | FR-003, Rule XIV          |
-| 9         | StorageService          | P1       | 25 min      | FR-001–FR-007, D3, D5     |
-| 10        | Event Registration      | P1       | 5 min       | FR-007                    |
-| 11        | Purge Job               | P2       | 10 min      | FR-005, FR-007, D6        |
-| 12        | Barrel Exports          | P1       | 5 min       | All                       |
-| **Total** |                         |          | **155 min** |                           |
+| Task      | Name                           | Priority | Est. Time   | FR Coverage               |
+| --------- | ------------------------------ | -------- | ----------- | ------------------------- |
+| 0         | Package Scaffolding            | P0       | 5 min       | Infrastructure            |
+| 1         | Types/Contracts/Errors         | P0       | 10 min      | FR-001, FR-004, FR-007    |
+| 2         | ValidationService              | P1       | 15 min      | FR-004, SC-004, MIME Edge |
+| 3         | LocalProvider                  | P1       | 15 min      | FR-001, FR-006            |
+| 4         | S3Provider                     | P1       | 15 min      | FR-001, FR-006, D5        |
+| 5         | DriveProvider                  | P2       | 15 min      | FR-001, FR-006            |
+| 5b        | TelegramProvider               | P2       | 15 min      | FR-001, FR-006            |
+| 6         | ProviderFactory                | P1       | 5 min       | FR-001, D1, NFR-004       |
+| 7         | Attachment Prisma Model        | P1       | 5 min       | FR-003                    |
+| 8         | AttachmentRepository           | P1       | 10 min      | FR-003, Rule XIV          |
+| 9         | StorageService                 | P1       | 25 min      | FR-001–FR-007, D3, D5     |
+| 10        | Event Registration             | P1       | 5 min       | FR-007                    |
+| 11        | Purge Job                      | P2       | 10 min      | FR-005, FR-007, D6        |
+| 12        | Barrel Exports                 | P1       | 5 min       | All                       |
+| 13        | createdBy/updatedBy Population | P1       | 15 min      | —                         |
+| 14        | Pluggable Toggle (Rule XVI)    | P0       | 15 min      | FR-008                    |
+| **Total** |                                |          | **185 min** |                           |
 
 ---
 
-### Task 13: Pluggable Architecture Toggle (Rule XVI)
+### Task 14: Pluggable Architecture Toggle (Rule XVI)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 10 minutes

@@ -9,7 +9,7 @@
 
 **Goal:** Establish the foundational event-bus package providing three levels of event-driven communication (Local, Internal, External) as per Tempot v11 Blueprint.
 
-**Architecture:** A unified `EventBus` facade that delegates to specialized drivers: `LocalDriver` (internal Node.js EventEmitter), `InternalDriver` (cross-module communication via memory), and `ExternalDriver` (cross-instance via Redis Pub/Sub). It implements a Result pattern for all operations and ensures 100% reliability via Redis-backed persistence and exponential backoff retries.
+**Architecture:** A unified `EventBus` facade that delegates to specialized drivers: `LocalDriver` (internal Node.js EventEmitter), `InternalDriver` (cross-module communication via memory), and `ExternalDriver` (cross-instance via Redis Pub/Sub). It implements a Result pattern for all operations. Note: Redis Pub/Sub provides at-most-once delivery; guaranteed delivery requires BullMQ transport (deferred to FR-005).
 
 **Tech Stack:** TypeScript, Node.js EventEmitter, Redis (ioredis), BullMQ (Queue Factory), neverthrow, vitest.
 

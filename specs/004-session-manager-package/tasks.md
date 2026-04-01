@@ -115,12 +115,10 @@ description: 'Task list template for feature implementation'
   > **Rule LXIII Compliance Note**: This ADR should ideally be created before implementation begins, not in the Polish phase. For retroactive compliance, the ADR documents the decisions that were already made during implementation.
 - [ ] T030 [P] Create ADR for Optimistic Concurrency Control (OCC) approach at `docs/architecture/adr/`
   > **Rule LXIII Compliance Note**: This ADR should ideally be created before implementation begins, not in the Polish phase. For retroactive compliance, the ADR documents the decisions that were already made during implementation.
-- [ ] T031 Implement and test `deleteSession()` in SessionProvider — removes from both Redis and Postgres, returns `AsyncResult<void, AppError>`
-- [ ] T032 Unit test for `deleteSession()` verifying removal from both layers in `packages/session-manager/tests/unit/session.provider.test.ts`
 
 ---
 
-### Task: Pluggable Architecture Toggle (Rule XVI) (FR-009)
+### Task 36: Pluggable Architecture Toggle (Rule XVI) (FR-009)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes
@@ -141,7 +139,9 @@ Constitution Rule XVI requires `TEMPOT_SESSION_MANAGER=true/false` environment v
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
+  - Includes Task 34 (Blast Radius Assessment) and Task 36 (Pluggable Architecture Toggle)
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+  - Includes Task 35 (Delete Session Support)
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed sequentially in priority order (US1 → US2)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -169,14 +169,14 @@ Constitution Rule XVI requires `TEMPOT_SESSION_MANAGER=true/false` environment v
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+1. Complete Phase 1: Setup (includes Task 34: Blast Radius Assessment, Task 36: Pluggable Architecture Toggle)
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories; includes Task 35: Delete Session Support)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
+1. Complete Setup + Foundational (Task 34, Task 35, Task 36) → Foundation ready
 2. Add User Story 1 → Test independently
 3. Add User Story 2 → Test independently
 4. Polish and document.
@@ -204,7 +204,7 @@ Session-manager modifies the database Prisma schema (adds Session model) — thi
 **Phase**: 2 (Core Implementation)
 **Estimated Duration**: 5 minutes
 
-Traceability task for the `deleteSession(userId, chatId)` method already implemented in the session-manager codebase.
+Implement and verify `deleteSession(userId, chatId)` method — removes from both Redis and Postgres, returns `AsyncResult<void, AppError>`.
 
 #### Acceptance Criteria
 

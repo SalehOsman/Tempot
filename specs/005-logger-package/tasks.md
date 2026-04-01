@@ -202,6 +202,7 @@
 
 ```
 Task 0 (scaffolding)
+  ├──> Task 8 (pluggable toggle)
   └──> Task 1 (config)
          ├──> Task 2 (Pino logger)     ─┐
          └──> Task 3 (error serializer) ─┤──> Task 6 (barrel exports)
@@ -212,16 +213,17 @@ Task 0 (scaffolding)
 
 ## Summary
 
-| Task      | Name                | Priority | Est. Time  | FR Coverage            |
-| --------- | ------------------- | -------- | ---------- | ---------------------- |
-| 0         | Package Scaffolding | P0       | 5 min      | Infrastructure         |
-| 1         | Logger Config       | P0       | 3 min      | FR-007                 |
-| 2         | Pino Logger         | P1       | 10 min     | FR-001, FR-003, FR-004 |
-| 3         | Error Serializer    | P1       | 10 min     | FR-007                 |
-| 4         | Audit Logger        | P1       | 15 min     | FR-002, FR-004         |
-| 5         | Integration Test    | P2       | 15 min     | FR-002                 |
-| 6         | Barrel Exports      | P1       | 3 min      | All                    |
-| **Total** |                     |          | **61 min** |                        |
+| Task      | Name                        | Priority | Est. Time  | FR Coverage            |
+| --------- | --------------------------- | -------- | ---------- | ---------------------- |
+| 0         | Package Scaffolding         | P0       | 5 min      | Infrastructure         |
+| 1         | Logger Config               | P0       | 3 min      | FR-007                 |
+| 2         | Pino Logger                 | P1       | 10 min     | FR-001, FR-003, FR-004 |
+| 3         | Error Serializer            | P1       | 10 min     | FR-007                 |
+| 4         | Audit Logger                | P1       | 15 min     | FR-002, FR-004         |
+| 5         | Integration Test            | P2       | 15 min     | FR-002                 |
+| 6         | Barrel Exports              | P1       | 3 min      | All                    |
+| 8         | Pluggable Toggle (Rule XVI) | P0       | 15 min     | FR-008                 |
+| **Total** |                             |          | **76 min** |                        |
 
 ## FR/SC Traceability Matrix
 

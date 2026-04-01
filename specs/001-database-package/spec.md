@@ -89,6 +89,8 @@ As an AI-driven bot, I want to store and search vector embeddings using pgvector
 ### Measurable Outcomes
 
 - **SC-001**: 100% of standard CRUD operations must be type-safe at compile time.
-- **SC-002**: Soft delete logic must have zero (0ms) overhead on developer productivity (automatic).
+- **SC-002**: Soft delete logic must require zero manual intervention from developers — `deletedAt` filtering and `isDeleted` checks are applied automatically by the repository layer.
 - **SC-003**: Vector similarity search must return results in < 150ms for a dataset of 100,000 vectors (evaluated on production-equivalent CI runners).
 - **SC-004**: System must successfully pass 100% of integration tests using Testcontainers (PostgreSQL).
+
+> **Note (Rule XVII):** Database connections (Prisma and Drizzle pools) MUST register with `@tempot/shared` ShutdownManager for graceful disconnect on process exit. This is handled automatically by the database initialization code and does not require a separate FR — it is an infrastructure concern covered by the shared package's FR-007 (ShutdownManager). [COVERED BY @tempot/shared FR-007]

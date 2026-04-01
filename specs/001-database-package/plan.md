@@ -306,7 +306,7 @@ export const embeddings = pgTable('embeddings', {
   id: uuid('id').primaryKey().defaultRandom(),
   contentId: text('content_id').notNull(),
   contentType: text('content_type').notNull(),
-  vector: vector('vector', { dimensions: 1536 }).notNull(),
+  vector: vector('vector', { dimensions: 768 }).notNull(),
   metadata: jsonb('metadata'),
 });
 ```
@@ -522,7 +522,9 @@ async function mergeSchemas() {
   }
 
   await fs.writeFile('packages/database/prisma/schema.prisma', finalSchema);
-  console.log('Schemas merged successfully.');
+  process.stderr.write(
+    JSON.stringify({ level: 'info', msg: 'Schemas merged successfully' }) + '\n',
+  );
 }
 
 mergeSchemas();

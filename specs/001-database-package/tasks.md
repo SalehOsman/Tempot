@@ -272,27 +272,33 @@ Task 0 (scaffolding)
   │                             │                                           ├─→ Task 6 (TransactionManager) ─┤
   │                             └─→ Task 5 (Drizzle + pgvector)            │                               ├─→ Task 8 (barrel)
   │                                                                         └─→ Task 7 (AuditLog)          ─┘
+  ├─→ Task 9 (Blast Radius Assessment)
+  ├─→ Task 10 (Package Readiness Checklist)
+  ├─→ Task 11 (Pluggable Toggle)
   └─→ (all tasks depend on scaffolding)
 ```
 
 ## Summary
 
-| Task      | Name                         | Priority | Est. Time  | FR Coverage    |
-| --------- | ---------------------------- | -------- | ---------- | -------------- |
-| 0         | Package Scaffolding          | P0       | 5 min      | Infrastructure |
-| 1         | Base Entity Definition       | P0       | 5 min      | FR-004         |
-| 2         | Test Infrastructure          | P0       | 10 min     | SC-004         |
-| 3         | Prisma Client + Soft Delete  | P1       | 15 min     | FR-001, FR-005 |
-| 4         | Base Repository              | P1       | 15 min     | FR-003, FR-004 |
-| 5         | Drizzle + pgvector           | P2       | 15 min     | FR-002         |
-| 6         | Transaction Manager          | P1       | 10 min     | FR-007         |
-| 7         | AuditLog Schema + Repository | P1       | 15 min     | FR-003, FR-006 |
-| 8         | Barrel Exports               | P1       | 5 min      | All            |
-| **Total** |                              |          | **95 min** |                |
+| Task      | Name                                    | Priority | Est. Time   | FR Coverage    |
+| --------- | --------------------------------------- | -------- | ----------- | -------------- |
+| 0         | Package Scaffolding                     | P0       | 5 min       | Infrastructure |
+| 1         | Base Entity Definition                  | P0       | 5 min       | FR-004         |
+| 2         | Test Infrastructure                     | P0       | 10 min      | SC-004         |
+| 3         | Prisma Client + Soft Delete             | P1       | 15 min      | FR-001, FR-005 |
+| 4         | Base Repository                         | P1       | 15 min      | FR-003, FR-004 |
+| 5         | Drizzle + pgvector                      | P2       | 15 min      | FR-002         |
+| 6         | Transaction Manager                     | P1       | 10 min      | FR-007         |
+| 7         | AuditLog Schema + Repository            | P1       | 15 min      | FR-003, FR-006 |
+| 8         | Barrel Exports                          | P1       | 5 min       | All            |
+| 9         | Blast Radius Assessment (Rule LIV)      | P0       | 30 min      | —              |
+| 10        | Package Readiness Checklist (Rule LXXI) | P0       | 15 min      | —              |
+| 11        | Pluggable Toggle (Rule XVI)             | P0       | 15 min      | FR-008         |
+| **Total** |                                         |          | **155 min** |                |
 
 ---
 
-### Task 8: Blast Radius Assessment (Rule LIV)
+### Task 9: Blast Radius Assessment (Rule LIV)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 30 minutes
@@ -308,7 +314,7 @@ The database package is shared infrastructure used by every downstream package. 
 
 ---
 
-### Task 10: Pluggable Architecture Toggle (Rule XVI) (FR-008)
+### Task 11: Pluggable Architecture Toggle (Rule XVI) (FR-008)
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes
@@ -324,7 +330,7 @@ Constitution Rule XVI requires `TEMPOT_DATABASE=true/false` environment variable
 
 ---
 
-### Task 9: Package Readiness Checklist (Rule LXXI)
+### Task 10: Package Readiness Checklist (Rule LXXI)
 
 **Phase**: 0 (Pre-implementation)
 **Estimated Duration**: 15 minutes

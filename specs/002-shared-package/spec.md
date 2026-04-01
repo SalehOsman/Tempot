@@ -41,6 +41,7 @@ As a developer, I want a factory function for BullMQ so that all background jobs
 ## Edge Cases
 
 - **Redis Connection Loss**: What happens when Redis goes down? (Answer: Graceful fallback and immediate alert to SUPER_ADMIN as per Rule XXXII).
+  > **Clarification:** SUPER_ADMIN alerting is handled via the Event Bus (`system.alert.critical` event) as documented in research.md. This is not a standalone FR for the shared package — it depends on the Event Bus and Notifier packages being available. When they are unavailable, the alert is logged via the Logger package as a fallback.
 - **Cache Invalidation**: How to handle cache invalidation for updated database records? (Answer: Centralized `CacheService.delete(key)` must be used).
 - **Job Overlap**: Preventing multiple workers from picking up the same job (Answer: Standard BullMQ locking is used).
 

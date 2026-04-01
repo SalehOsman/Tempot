@@ -194,19 +194,24 @@ Task 0 (scaffolding)
          ├--> Task 2 (CacheService)    --┐
          ├--> Task 4 (ShutdownManager) --┤--> Task 3 (QueueFactory) --┐
          └------------------------------->-----------------------------┤--> Task 5 (barrel exports)
+
+  Task 8 (Blast Radius Assessment)
+  Task 9 (Pluggable Toggle)
 ```
 
 ## Summary
 
-| Task      | Name                    | Priority | Est. Time  | FR Coverage                            |
-| --------- | ----------------------- | -------- | ---------- | -------------------------------------- |
-| 0         | Package Scaffolding     | P0       | 5 min      | Infrastructure                         |
-| 1         | AppError + Result Types | P0       | 5 min      | FR-005                                 |
-| 2         | CacheService            | P1       | 15 min     | FR-001, FR-002, FR-004, FR-005, FR-006 |
-| 3         | QueueFactory            | P1       | 10 min     | FR-003, FR-004, FR-007                 |
-| 4         | ShutdownManager         | P1       | 10 min     | FR-007                                 |
-| 5         | Barrel Exports          | P1       | 5 min      | All                                    |
-| **Total** |                         |          | **50 min** |                                        |
+| Task      | Name                               | Priority | Est. Time  | FR Coverage                            |
+| --------- | ---------------------------------- | -------- | ---------- | -------------------------------------- |
+| 0         | Package Scaffolding                | P0       | 5 min      | Infrastructure                         |
+| 1         | AppError + Result Types            | P0       | 5 min      | FR-005                                 |
+| 2         | CacheService                       | P1       | 15 min     | FR-001, FR-002, FR-004, FR-005, FR-006 |
+| 3         | QueueFactory                       | P1       | 10 min     | FR-003, FR-004, FR-007                 |
+| 4         | ShutdownManager                    | P1       | 10 min     | FR-007                                 |
+| 5         | Barrel Exports                     | P1       | 5 min      | All                                    |
+| 8         | Blast Radius Assessment (Rule LIV) | P0       | 30 min     | —                                      |
+| 9         | Pluggable Toggle (Rule XVI)        | P0       | 15 min     | FR-008                                 |
+| **Total** |                                    |          | **95 min** |                                        |
 
 ## FR/SC Traceability Matrix
 
@@ -223,6 +228,7 @@ Task 0 (scaffolding)
 | SC-002      | Task 3    | QueueFactory is ~30 lines, < 50 lines setup       |
 | SC-003      | Task 2    | `cache.service.test.ts` -- Testcontainers capable |
 | SC-004      | Task 2    | `cache-degradation.test.ts` -- fallback verified  |
+| FR-008      | Task 9    | Pluggable toggle via `TEMPOT_SHARED` env var      |
 
 ---
 

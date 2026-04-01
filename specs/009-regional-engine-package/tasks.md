@@ -236,6 +236,7 @@ Task 0 (scaffolding)
   ├─→ Task 8 (pluggable toggle)
   └─→ Task 1 (types)
         ├─→ Task 2 (DateService)    ─┐
+        │     └─→ Task 9 (DST Transition Verification)
         ├─→ Task 3 (FormatService)  ─┤─→ Task 6 (RegionalService)  ─┐
         └─→ Task 4 (GeoService)     ─┤                               ├─→ Task 7 (barrel exports)
                                       └─→ Task 5 (GeoSelectField)   ─┘
@@ -243,18 +244,19 @@ Task 0 (scaffolding)
 
 ## Summary
 
-| Task      | Name                | Priority | Est. Time  | FR Coverage            |
-| --------- | ------------------- | -------- | ---------- | ---------------------- |
-| 0         | Package Scaffolding | P0       | 5 min      | Infrastructure         |
-| 1         | Type Definitions    | P0       | 5 min      | FR-008, FR-009         |
-| 2         | DateService         | P1       | 10 min     | FR-001, FR-002, FR-004 |
-| 3         | FormatService       | P1       | 10 min     | FR-003                 |
-| 4         | GeoService          | P2       | 15 min     | FR-005, ADR-024        |
-| 5         | GeoSelectField      | P2       | 10 min     | FR-006                 |
-| 6         | RegionalService     | P1       | 15 min     | FR-007                 |
-| 7         | Barrel Exports      | P1       | 5 min      | All                    |
-| 8         | Pluggable Toggle    | P0       | 15 min     | FR-010                 |
-| **Total** |                     |          | **90 min** |                        |
+| Task      | Name                        | Priority | Est. Time   | FR Coverage            |
+| --------- | --------------------------- | -------- | ----------- | ---------------------- |
+| 0         | Package Scaffolding         | P0       | 5 min       | Infrastructure         |
+| 1         | Type Definitions            | P0       | 5 min       | FR-008, FR-009         |
+| 2         | DateService                 | P1       | 10 min      | FR-001, FR-002, FR-004 |
+| 3         | FormatService               | P1       | 10 min      | FR-003                 |
+| 4         | GeoService                  | P2       | 15 min      | FR-005, ADR-024        |
+| 5         | GeoSelectField              | P2       | 10 min      | FR-006                 |
+| 6         | RegionalService             | P1       | 15 min      | FR-007                 |
+| 7         | Barrel Exports              | P1       | 5 min       | All                    |
+| 8         | Pluggable Toggle            | P0       | 15 min      | FR-010                 |
+| 9         | DST Transition Verification | P2       | 15 min      | —                      |
+| **Total** |                             |          | **105 min** |                        |
 
 ---
 
@@ -278,7 +280,7 @@ Constitution Rule XVI requires `TEMPOT_REGIONAL_ENGINE=true/false` environment v
 
 ---
 
-### Task: DST Transition Verification
+### Task 9: DST Transition Verification
 
 **Phase**: 3 (Edge Cases)
 **Estimated Duration**: 20 minutes
