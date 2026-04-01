@@ -151,6 +151,7 @@ Only actual failures (missing DSN, SDK crash) produce `err`.
 | `sentry.init_failed`     | `Sentry.init()` threw an exception        |
 | `sentry.not_initialized` | `report()` called before `initSentry()`   |
 | `sentry.report_failed`   | `Sentry.captureException()` failed        |
+| `sentry.close_failed`    | `Sentry.close()` failed during shutdown   |
 
 Note: `sentry.disabled` was removed — when disabled, methods return `ok(null)` not `err`.
 
