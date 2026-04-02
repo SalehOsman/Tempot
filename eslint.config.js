@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
 import checkFilePlugin from 'eslint-plugin-check-file';
+import boundaries from 'eslint-plugin-boundaries';
 
 export default tseslint.config(
   js.configs.recommended,
@@ -10,6 +11,46 @@ export default tseslint.config(
   {
     plugins: {
       'check-file': checkFilePlugin,
+      boundaries,
+    },
+    settings: {
+      // ADR-035: Package boundary classification (four tiers)
+      // Patterns match packages/** (not just src/) because resolved imports
+      // go through dist/ (via eslint-import-resolver-typescript).
+      'boundaries/elements': [
+        // Tier 1: Foundation — imports nothing
+        { type: 'foundation', pattern: ['packages/shared/**'], capture: ['path'] },
+        // Tier 2: Infrastructure — imports Tier 1 + other Tier 2
+        {
+          type: 'infrastructure',
+          pattern: ['packages/{database,event-bus,logger,sentry}/**'],
+          capture: ['path'],
+        },
+        // Tier 3: Cross-cutting — imports Tier 1 + Tier 2
+        {
+          type: 'cross-cutting',
+          pattern: ['packages/{i18n-core,auth-core}/**'],
+          capture: ['path'],
+        },
+        // Tier 4: Domain — imports Tier 1 + Tier 2 + Tier 3 (NOT other Tier 4)
+        {
+          type: 'domain',
+          pattern: ['packages/*/**'],
+          capture: ['path'],
+        },
+      ],
+      // Import resolver: resolves @tempot/* workspace packages to real file paths
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
+      'boundaries/ignore': [
+        // Test files are not subject to boundary rules
+        '**/*.test.ts',
+        '**/*.spec.ts',
+      ],
     },
     rules: {
       // Constitution Rule III — BANNED filenames
@@ -48,6 +89,46 @@ export default tseslint.config(
 
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+
+      // ADR-035: Package import boundary enforcement
+      'boundaries/dependencies': [
+        'error',
+        {
+          default: 'disallow',
+          rules: [
+            // Foundation (Tier 1): cannot import any @tempot package
+            // (no rules = default disallow)
+
+            // Infrastructure (Tier 2): can import Foundation + other Infrastructure
+            {
+              from: { type: 'infrastructure' },
+              allow: [
+                { to: { type: 'foundation' } },
+                { to: { type: 'infrastructure' } },
+              ],
+            },
+
+            // Cross-cutting (Tier 3): can import Foundation + Infrastructure
+            {
+              from: { type: 'cross-cutting' },
+              allow: [
+                { to: { type: 'foundation' } },
+                { to: { type: 'infrastructure' } },
+              ],
+            },
+
+            // Domain (Tier 4): can import Foundation + Infrastructure + Cross-cutting
+            {
+              from: { type: 'domain' },
+              allow: [
+                { to: { type: 'foundation' } },
+                { to: { type: 'infrastructure' } },
+                { to: { type: 'cross-cutting' } },
+              ],
+            },
+          ],
+        },
+      ],
     },
   },
   {
