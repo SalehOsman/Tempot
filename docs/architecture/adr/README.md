@@ -38,4 +38,5 @@
 | 032 | [i18n t() Returns string](ADR-032-i18n-t-returns-string.md)                         | Accepted |
 | 033 | [i18n-core Infrastructure Exemption](ADR-033-i18n-core-infrastructure-exemption.md) | Accepted |
 | 034 | [Structural Interface Decoupling](ADR-034-structural-interface-decoupling.md)       | Accepted |
-| 035 | [EventBus Typed Publish Contracts](ADR-035-eventbus-typed-publish-contracts.md)     | Accepted |
+| 035 | [Package Import Boundary Enforcement](ADR-035-package-boundary-enforcement.md)      | Accepted |
+| 036 | [EventBus Typed Publish Contracts](ADR-036-eventbus-typed-publish-contracts.md)     | Accepted |

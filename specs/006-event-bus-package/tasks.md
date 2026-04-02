@@ -83,7 +83,7 @@
 - [x] `EventBusOrchestrator.publish()` uses conditional generic: `K extends keyof TempotEvents ? TempotEvents[K] : unknown`
 - [x] `LocalEventBus.publish()` uses the same conditional generic pattern
 - [x] Consumer packages define structurally-compatible typed adapters (see data-model.md — Consumer Event Bus Adapters)
-- [x] ADR-035 documents the typed publish contract decision
+- [x] ADR-036 documents the typed publish contract decision
 - [x] No `any` types
 
 ---

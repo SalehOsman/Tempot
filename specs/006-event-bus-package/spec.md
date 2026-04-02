@@ -49,7 +49,7 @@ As a system administrator, I want to distribute events across multiple server in
 - **Constitution Rules**: Rule XV (Event-Driven Communication) is mandatory for inter-module calls. Naming convention `{module}.{entity}.{action}` is strictly enforced.
 - **Integration Points**: Used by `session-manager` (sync), `cms-engine` (invalidation), and `notifier`.
 - **Edge Cases**: Event ordering is maintained by Redis Pub/Sub per-channel ordering and synchronous local dispatch. Large payloads are replaced by IDs with DB lookups. Listener failures are caught and logged; automatic retries are deferred (see FR-005).
-- **Typed Publish Contracts**: All `publish()` methods use conditional generics from a centralized `TempotEvents` type registry (ADR-035). Consumer packages define structurally-compatible typed adapters with method overloads — see data-model.md for the adapter table.
+- **Typed Publish Contracts**: All `publish()` methods use conditional generics from a centralized `TempotEvents` type registry (ADR-036). Consumer packages define structurally-compatible typed adapters with method overloads — see data-model.md for the adapter table.
 
 ## Requirements _(mandatory)_
 

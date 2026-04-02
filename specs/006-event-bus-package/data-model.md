@@ -82,7 +82,7 @@ Configuration for establishing Redis connections in the distributed event bus.
 | ------------------ | -------- | ----------------------------------------------------- | ------------------------ |
 | `connectionString` | `string` | Redis connection URL (e.g., `redis://localhost:6379`) | Required                 |
 
-**Source:** `packages/event-bus/src/distributed/redis.bus.ts:6-8`
+**Source:** `packages/event-bus/src/distributed/redis.bus.ts:9-11`
 
 ---
 
@@ -113,7 +113,7 @@ Configuration for the unified event bus facade.
 | `logger`          | `LoggerInterface`  | Logger with `error()` and `info()` methods      | Required                 |
 | `shutdownManager` | `ShutdownManager?` | Optional shutdown manager from `@tempot/shared` | Optional                 |
 
-**Source:** `packages/event-bus/src/event-bus.orchestrator.ts:12-16`
+**Source:** `packages/event-bus/src/event-bus.orchestrator.ts:17-21`
 
 ---
 

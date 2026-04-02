@@ -56,7 +56,7 @@
 - **Rationale:** Ensures clean shutdown of Redis connections and interval timers. The `ShutdownManager` integration is optional (the orchestrator works without it) to support testing scenarios where a full shutdown lifecycle is not needed.
 - **Alternatives considered:** `process.on('SIGTERM')` handler in the bus directly (rejected -- lifecycle management belongs to the application layer, not individual packages).
 
-### 10. Typed Publish Contracts (ADR-035)
+### 10. Typed Publish Contracts (ADR-036)
 
 - **Decision:** Use TypeScript conditional generics on `publish()` methods with a centralized `TempotEvents` interface as the type registry. Consumer packages define structurally-compatible adapter interfaces with method overloads for their specific events.
 - **Rationale:** The original `publish(eventName: string, payload: unknown)` signature provided no compile-time safety — callers could pass any payload to any event name. The typed approach catches payload mismatches at compile time while maintaining backward compatibility via a catch-all overload. Consumer adapters use structural typing (not import-time dependency) to avoid coupling to `@tempot/event-bus` at runtime.
