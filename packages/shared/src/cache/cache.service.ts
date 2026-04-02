@@ -3,8 +3,18 @@ import { ok, err } from 'neverthrow';
 import { AsyncResult } from '../shared.result.js';
 import { AppError } from '../shared.errors.js';
 
+/** Payload for system.alert.critical events published during cache degradation. */
+export interface SystemAlertCriticalPayload {
+  message: string;
+  error: string;
+}
+
 export interface EventBus {
-  publish(event: string, payload: unknown): Promise<void>;
+  publish(
+    event: 'system.alert.critical',
+    payload: SystemAlertCriticalPayload,
+  ): AsyncResult<void, AppError>;
+  publish(event: string, payload: unknown): AsyncResult<void, AppError>;
 }
 
 /**

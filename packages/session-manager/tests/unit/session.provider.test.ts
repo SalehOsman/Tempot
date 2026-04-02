@@ -259,4 +259,45 @@ describe('SessionProvider', () => {
       );
     });
   });
+
+  describe('EventBusAdapter type safety', () => {
+    it('should accept correct payload for session-manager.session.updated', () => {
+      const bus: import('../../src/session.provider.js').EventBusAdapter = mockBus;
+      // Correct payload shape — must compile without error
+      void bus.publish('session-manager.session.updated', {
+        userId: 'u1',
+        chatId: 'c1',
+        sessionData: {},
+      });
+    });
+
+    it('should accept correct payload for session.redis.degraded', () => {
+      const bus: import('../../src/session.provider.js').EventBusAdapter = mockBus;
+      // Correct payload shape — must compile without error
+      void bus.publish('session.redis.degraded', {
+        operation: 'get',
+        errorCode: 'CONN',
+        errorMessage: 'fail',
+        timestamp: '2026-01-01T00:00:00Z',
+      });
+    });
+
+    it('should reject wrong payload for session-manager.session.updated', () => {
+      const bus: import('../../src/session.provider.js').EventBusAdapter = mockBus;
+      // @ts-expect-error — wrong shape: missing required fields
+      void bus.publish('session-manager.session.updated', { wrong: 'shape' });
+    });
+
+    it('should reject wrong payload for session.redis.degraded', () => {
+      const bus: import('../../src/session.provider.js').EventBusAdapter = mockBus;
+      // @ts-expect-error — wrong shape: missing required fields
+      void bus.publish('session.redis.degraded', { wrong: 'shape' });
+    });
+
+    it('should allow unknown events with unknown payload (forward compat)', () => {
+      const bus: import('../../src/session.provider.js').EventBusAdapter = mockBus;
+      // Unregistered event — should accept any payload via fallback overload
+      void bus.publish('some.future.event', { arbitrary: true });
+    });
+  });
 });

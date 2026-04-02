@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as cacheManager from 'cache-manager';
 import { CacheService, EventBus } from '../../src/cache/cache.service';
+import { ok } from 'neverthrow';
 
 vi.mock('cache-manager', async (importOriginal) => {
   const actual = await importOriginal<typeof import('cache-manager')>();
@@ -26,7 +27,7 @@ describe('Cache Degradation', () => {
 
   it('should notify via event bus when cache initialization fails and return ok (fallback)', async () => {
     const mockEventBus: EventBus = {
-      publish: vi.fn().mockResolvedValue(undefined),
+      publish: vi.fn().mockResolvedValue(ok(undefined)),
     };
 
     // First call throws (simulating Redis failure), second call succeeds (fallback to memory)
@@ -75,7 +76,7 @@ describe('Cache Degradation', () => {
 
   it('should fall back to functional memory cache on failure', async () => {
     const mockEventBus: EventBus = {
-      publish: vi.fn().mockResolvedValue(undefined),
+      publish: vi.fn().mockResolvedValue(ok(undefined)),
     };
 
     let callCount = 0;

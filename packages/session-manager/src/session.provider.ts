@@ -1,5 +1,6 @@
 import { Result, ok, err } from 'neverthrow';
 import { Session, ISessionProvider } from './session.types.js';
+import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import { SessionRepository } from './session.repository.js';
 import { SessionMemoryStore } from './session.memory-store.js';
@@ -17,8 +18,29 @@ export interface CacheAdapter {
 }
 
 /** Event bus adapter interface used by SessionProvider. */
+export interface SessionUpdatedPayload {
+  userId: string;
+  chatId: string;
+  sessionData: unknown;
+}
+
+export interface SessionRedisDegradedPayload {
+  operation: string;
+  errorCode: string;
+  errorMessage: string;
+  timestamp: string;
+}
+
 export interface EventBusAdapter {
-  publish: (eventName: string, payload: unknown) => Promise<Result<void, AppError>>;
+  publish(
+    eventName: 'session-manager.session.updated',
+    payload: SessionUpdatedPayload,
+  ): AsyncResult<void, AppError>;
+  publish(
+    eventName: 'session.redis.degraded',
+    payload: SessionRedisDegradedPayload,
+  ): AsyncResult<void, AppError>;
+  publish(eventName: string, payload: unknown): AsyncResult<void, AppError>;
 }
 
 /** Dependencies injected into SessionProvider. */

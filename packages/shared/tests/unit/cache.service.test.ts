@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CacheService } from '../../src/cache/cache.service';
+import { CacheService, EventBus } from '../../src/cache/cache.service';
+import { ok } from 'neverthrow';
 
 describe('CacheService', () => {
   let cacheService: CacheService;
@@ -64,5 +65,31 @@ describe('CacheService', () => {
     if (result.isErr()) {
       expect(result.error.code).toBe('shared.cache_not_initialized');
     }
+  });
+
+  describe('EventBus interface type safety', () => {
+    it('should accept typed system.alert.critical payload', () => {
+      const bus: EventBus = {
+        publish: (_event: string, _payload: unknown) => Promise.resolve(ok(undefined)),
+      } as EventBus;
+
+      // Typed overload: exact event name + correct payload shape
+      const result = bus.publish('system.alert.critical', {
+        message: 'test alert',
+        error: 'test error',
+      });
+
+      expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('should return AsyncResult<void> from publish', async () => {
+      const bus: EventBus = {
+        publish: (_event: string, _payload: unknown) => Promise.resolve(ok(undefined)),
+      } as EventBus;
+
+      const result = await bus.publish('some.event', {});
+      // AsyncResult<void> means Result<void, AppError> — should have isOk()
+      expect(result.isOk()).toBe(true);
+    });
   });
 });
