@@ -40,3 +40,4 @@
 | 034 | [Structural Interface Decoupling](ADR-034-structural-interface-decoupling.md)       | Accepted |
 | 035 | [Package Import Boundary Enforcement](ADR-035-package-boundary-enforcement.md)      | Accepted |
 | 036 | [EventBus Typed Publish Contracts](ADR-036-eventbus-typed-publish-contracts.md)     | Accepted |
+| 037 | [AI SDK v6 Upgrade](ADR-037-ai-sdk-v6-upgrade.md)                                   | Accepted |

@@ -24,3 +24,5 @@ Use **Vercel AI SDK v4.x** as the provider-agnostic abstraction layer. Gemini is
 **Direct @google/genai usage (v10 approach):** Hard vendor lock-in. Every AI call uses Gemini-specific types. Switching providers requires touching every module that uses AI.
 
 **LangChain:** Significantly more complex, opinionated about abstractions, heavy dependency footprint not justified for Tempot's use case.
+
+> **Note (2026-04-02):** Version updated to v6.x per ADR-037. The provider abstraction decision remains unchanged.

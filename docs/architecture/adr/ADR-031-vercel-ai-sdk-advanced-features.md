@@ -46,3 +46,5 @@ Evaluate upgrading from AI SDK v4.x to v5.x during ai-core spec phase. The API h
 **Per-service caching/circuit-breaker:** Duplicates `LanguageModelMiddleware` capabilities. Scatters cross-cutting concerns across every service instead of applying them once at the provider level.
 
 **Manual generateText() + parsing for classification:** Error-prone, requires custom output parsing per provider, ignores SDK's type-safe `Output.choice()` which handles all providers uniformly.
+
+> **Note (2026-04-02):** Version resolved to v6.x (not v5.x) per ADR-037. All recommendations in this ADR apply to v6 APIs.
