@@ -49,7 +49,6 @@ export { AttachmentRepository } from './attachment.repository.js';
 
 // Service
 export { StorageService } from './storage.service.js';
-export type { StorageServiceDeps } from './storage.service.js';
 
 // Service interfaces (for DI consumers)
 export type {
@@ -57,6 +56,7 @@ export type {
   StorageEventBus,
   StorageAttachmentRepo,
   StorageValidation,
+  StorageServiceDeps,
 } from './storage.interfaces.js';
 
 // Purge job

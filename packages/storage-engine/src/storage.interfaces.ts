@@ -1,6 +1,7 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
-import type { UploadOptions, Attachment } from './storage.types.js';
+import type { UploadOptions, Attachment, ProviderUploadResult } from './storage.types.js';
+import type { StorageProvider } from './storage.contracts.js';
 
 /**
  * Minimal logger interface to avoid circular dependency with @tempot/logger.
@@ -55,4 +56,22 @@ export interface StorageValidation {
     data: Buffer,
     declaredMime: string,
   ): Promise<{ isOk(): boolean; isErr(): boolean; error: AppError }>;
+}
+
+/** Dependencies for StorageService (grouped to stay under Rule II param limit) */
+export interface StorageServiceDeps {
+  provider: StorageProvider;
+  attachmentRepo: StorageAttachmentRepo;
+  validation: StorageValidation;
+  eventBus: StorageEventBus;
+  logger: StorageLogger;
+}
+
+/** Params for creating an attachment record */
+export interface PersistParams {
+  providerResult: ProviderUploadResult;
+  providerKey: string;
+  sanitizedName: string;
+  generatedFileName: string;
+  options: UploadOptions;
 }

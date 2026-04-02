@@ -3,7 +3,7 @@ import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { StorageService } from '../../src/storage.service.js';
 import { STORAGE_ERRORS } from '../../src/storage.errors.js';
-import type { StorageServiceDeps } from '../../src/storage.service.js';
+import type { StorageServiceDeps } from '../../src/storage.interfaces.js';
 import type { StorageProvider } from '../../src/storage.contracts.js';
 import type { Attachment, UploadOptions } from '../../src/storage.types.js';
 

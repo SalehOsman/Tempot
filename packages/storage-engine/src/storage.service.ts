@@ -1,38 +1,24 @@
 import type { Readable } from 'node:stream';
 import { ok, err } from 'neverthrow';
-import type { AsyncResult } from '@tempot/shared';
-import { AppError } from '@tempot/shared';
-import type { StorageProvider } from './storage.contracts.js';
-import type { StorageFileUploadedPayload, StorageFileDeletedPayload } from './storage.contracts.js';
-import type { UploadOptions, Attachment, ProviderUploadResult } from './storage.types.js';
+import { type AsyncResult, AppError } from '@tempot/shared';
+import type {
+  StorageProvider,
+  StorageFileUploadedPayload,
+  StorageFileDeletedPayload,
+} from './storage.contracts.js';
+import type { UploadOptions, Attachment } from './storage.types.js';
 import type {
   StorageLogger,
   StorageEventBus,
   StorageAttachmentRepo,
   StorageValidation,
+  StorageServiceDeps,
+  PersistParams,
 } from './storage.interfaces.js';
 import { STORAGE_ERRORS } from './storage.errors.js';
 import { storageToggle } from './storage.toggle.js';
 
 const DEFAULT_SIGNED_URL_EXPIRY_SECONDS = 3600;
-
-/** Dependencies for StorageService (grouped to stay under Rule II param limit) */
-export interface StorageServiceDeps {
-  provider: StorageProvider;
-  attachmentRepo: StorageAttachmentRepo;
-  validation: StorageValidation;
-  eventBus: StorageEventBus;
-  logger: StorageLogger;
-}
-
-/** Params for creating an attachment record */
-interface PersistParams {
-  providerResult: ProviderUploadResult;
-  providerKey: string;
-  sanitizedName: string;
-  generatedFileName: string;
-  options: UploadOptions;
-}
 
 export class StorageService {
   private readonly provider: StorageProvider;
