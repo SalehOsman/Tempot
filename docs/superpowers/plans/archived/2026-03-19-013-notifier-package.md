@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational notifier package for centralized, scheduled, and bulk notifications using BullMQ as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational notifier package for centralized, scheduled, and bulk notifications using BullMQ as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A unified `NotifierService` that acts as a producer, adding notification jobs to a BullMQ `notifications` queue. A specialized `NotificationWorker` consumes these jobs, enforces Telegram's rate limits (30 msg/sec), handles localized templates via `i18n-core`, and updates user statuses upon failure (e.g., if blocked).
 
@@ -13,6 +13,7 @@
 ### Task 1: Notification Types and Job Schema (FR-002)
 
 **Files:**
+
 - Create: `packages/notifier/src/types/notification.types.ts`
 - Test: `packages/notifier/tests/unit/job-schema.test.ts`
 
@@ -24,7 +25,13 @@ import { NotificationType } from '../src/types/notification.types';
 
 describe('Notification Types', () => {
   it('should support mandatory notification categories', () => {
-    const types: NotificationType[] = ['INDIVIDUAL', 'GROUP', 'ROLE_BASED', 'BROADCAST', 'SCHEDULED'];
+    const types: NotificationType[] = [
+      'INDIVIDUAL',
+      'GROUP',
+      'ROLE_BASED',
+      'BROADCAST',
+      'SCHEDULED',
+    ];
     expect(types).toContain('BROADCAST');
   });
 });
@@ -68,6 +75,7 @@ git commit -m "feat(notifier): define notification types and job data schema (FR
 ### Task 2: Notifier Service (Producer) (FR-001)
 
 **Files:**
+
 - Create: `packages/notifier/src/notifier.service.ts`
 - Test: `packages/notifier/tests/unit/notifier-service.test.ts`
 
@@ -82,11 +90,15 @@ describe('NotifierService', () => {
     const queue = { add: vi.fn() };
     const service = new NotifierService(queue as any);
     const futureDate = new Date(Date.now() + 60000);
-    
+
     await service.schedule('user1', 'reminders.appointment', {}, futureDate);
-    expect(queue.add).toHaveBeenCalledWith('notification', expect.any(Object), expect.objectContaining({
-      delay: expect.any(Number)
-    }));
+    expect(queue.add).toHaveBeenCalledWith(
+      'notification',
+      expect.any(Object),
+      expect.objectContaining({
+        delay: expect.any(Number),
+      }),
+    );
   });
 });
 ```
@@ -106,12 +118,21 @@ export class NotifierService {
   constructor(private queue: Queue) {}
 
   async sendIndividual(userId: string, templateKey: string, data?: any): Promise<void> {
-    await this.queue.add('notification', { userId, templateKey, templateData: data, type: 'INDIVIDUAL' });
+    await this.queue.add('notification', {
+      userId,
+      templateKey,
+      templateData: data,
+      type: 'INDIVIDUAL',
+    });
   }
 
   async schedule(userId: string, templateKey: string, data: any, at: Date): Promise<void> {
     const delay = at.getTime() - Date.now();
-    await this.queue.add('notification', { userId, templateKey, templateData: data, type: 'SCHEDULED' }, { delay });
+    await this.queue.add(
+      'notification',
+      { userId, templateKey, templateData: data, type: 'SCHEDULED' },
+      { delay },
+    );
   }
 }
 ```
@@ -133,6 +154,7 @@ git commit -m "feat(notifier): implement NotifierService as a job producer (FR-0
 ### Task 3: Notification Worker (Consumer) (FR-004, FR-006)
 
 **Files:**
+
 - Create: `packages/notifier/src/workers/notification.worker.ts`
 - Test: `packages/notifier/tests/integration/notification-worker.test.ts`
 
@@ -162,13 +184,16 @@ import { Bot } from 'grammy';
 import { t } from '@tempot/i18n-core';
 
 export class NotificationWorker {
-  constructor(private bot: Bot, private redisConnection: any) {
+  constructor(
+    private bot: Bot,
+    private redisConnection: any,
+  ) {
     new Worker('notifications', this.process.bind(this), { connection: this.redisConnection });
   }
 
   async process(job: Job) {
     const { userId, templateKey, templateData, isSilent } = job.data;
-    
+
     try {
       const message = t(templateKey, templateData); // Uses current session lang if available, or default
       await this.bot.api.sendMessage(userId, message, { disable_notification: isSilent });
@@ -204,6 +229,7 @@ git commit -m "feat(notifier): implement NotificationWorker with rate-limiting a
 ### Task 4: Bulk Broadcast Logic (FR-002, FR-004)
 
 **Files:**
+
 - Modify: `packages/notifier/src/notifier.service.ts`
 - Test: `packages/notifier/tests/unit/broadcast.test.ts`
 
@@ -237,7 +263,7 @@ async broadcast(templateKey: string, options: { users: string[] }) {
     name: 'notification',
     data: { userId, templateKey, type: 'BROADCAST' }
   }));
-  
+
   // BullMQ addBulk handles large lists efficiently
   await this.queue.addBulk(jobs);
 }

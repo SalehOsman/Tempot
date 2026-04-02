@@ -5,7 +5,7 @@
 ### 1. Logging Library
 
 - **Decision:** Use Pino as the primary structured logging library.
-- **Rationale:** Pino is the fastest Node.js JSON logger, with benchmark performance well under 1ms per log entry (SC-002). It provides native JSON output (FR-001), hierarchical log levels (FR-003), built-in redaction via path-based `redact` option, custom serializers, and a `mixin` function for injecting contextual data. Selected as specified in the Tempot v11 architecture spec.
+- **Rationale:** Pino is the fastest Node.js JSON logger, with benchmark performance well under 1ms per log entry (SC-002). It provides native JSON output (FR-001), hierarchical log levels (FR-003), built-in redaction via path-based `redact` option, custom serializers, and a `mixin` function for injecting contextual data. Selected as specified in the Architecture Spec v11.
 - **Alternatives considered:** Winston (rejected — slower due to transport-based architecture, heavier dependency tree). Bunyan (rejected — less actively maintained, no built-in redaction). Native `console.*` (rejected — forbidden by constitution Rule XII; no structured output, no redaction, no serialization).
 
 ### 2. PII Redaction Strategy

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational input-engine package for dynamic multi-step conversations and form handling using grammY Conversations and Zod as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational input-engine package for dynamic multi-step conversations and form handling using grammY Conversations and Zod as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A high-level `FormRunner` that interprets a `Zod`-based `FormSchema`. It leverages `grammY Conversations` to manage the interaction state machine, uses `i18n-core` for all prompts, and implements `Partial Save` to Redis after each step. It explicitly uses `@tempot/session-manager` to access user context.
 
@@ -13,9 +13,11 @@
 ### Task 1: Form Schema Definition and Field Types (FR-002, FR-003)
 
 ...
+
 ### Task 2: Core Form Runner with grammY Conversations (FR-001)
 
 **Files:**
+
 - Create: `packages/input-engine/src/runner/form.runner.ts`
 - Test: `packages/input-engine/tests/unit/form-runner.test.ts`
 
@@ -54,7 +56,7 @@ export class FormRunner {
       if (field.condition && !field.condition(result)) continue;
 
       await conversation.reply(t(field.label));
-      
+
       const { message } = await conversation.wait();
       const value = message?.text;
 
@@ -88,4 +90,7 @@ git commit -m "feat(input-engine): implement core FormRunner with sessionContext
 ### Task 3: Partial Save and Recovery (FR-005, Rule XXXII)
 
 ...
+
+```
+
 ```

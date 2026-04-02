@@ -13,7 +13,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational event-bus package providing three levels of event-driven communication (Local, Internal, External) as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational event-bus package providing three levels of event-driven communication (Local, Internal, External) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A unified `EventBus` facade that delegates to specialized drivers: `LocalDriver` (internal Node.js EventEmitter), `InternalDriver` (cross-module communication via memory), and `ExternalDriver` (cross-instance via Redis Pub/Sub). It implements a Result pattern for all operations. Note: Redis Pub/Sub provides at-most-once delivery; guaranteed delivery requires BullMQ transport (deferred to FR-005).
 

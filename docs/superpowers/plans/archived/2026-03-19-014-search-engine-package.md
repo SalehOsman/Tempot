@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational search-engine package for advanced filtering and semantic search as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational search-engine package for advanced filtering and semantic search as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A unified `SearchService` that abstracts relational search (via a dynamic Prisma `where` builder) and semantic search (via `ai-core` embeddings and `pgvector`). It manages search state (pagination, filters) in Redis via `cache-manager` and provides a reusable `SearchMenu` component using `@grammyjs/menu` and a `SearchableList` field for the Input Engine.
 
@@ -13,6 +13,7 @@
 ### Task 1: Search State and Filter Types (FR-003, FR-006)
 
 **Files:**
+
 - Create: `packages/search-engine/src/types/search.types.ts`
 - Test: `packages/search-engine/tests/unit/search-types.test.ts`
 
@@ -73,6 +74,7 @@ git commit -m "feat(search-engine): define search state and filter types (FR-006
 ### Task 2: Prisma Where Builder (FR-001)
 
 **Files:**
+
 - Create: `packages/search-engine/src/builders/prisma.builder.ts`
 - Test: `packages/search-engine/tests/unit/prisma-builder.test.ts`
 
@@ -118,7 +120,10 @@ export class PrismaBuilder {
           where[filter.field] = { gte: filter.value.min, lte: filter.value.max };
           break;
         case 'DateRange':
-          where[filter.field] = { gte: new Date(filter.value.from), lte: new Date(filter.value.to) };
+          where[filter.field] = {
+            gte: new Date(filter.value.from),
+            lte: new Date(filter.value.to),
+          };
           break;
       }
     }
@@ -145,6 +150,7 @@ git commit -m "feat(search-engine): implement relational filter to Prisma where 
 ### Task 3: Search Service with Cache State (FR-003, FR-005)
 
 **Files:**
+
 - Create: `packages/search-engine/src/search.service.ts`
 - Test: `packages/search-engine/tests/integration/search-service.test.ts`
 
@@ -157,10 +163,17 @@ import { SearchService } from '../src/search.service';
 describe('SearchService', () => {
   it('should fetch results and store state in Redis', async () => {
     const cache = { set: vi.fn(), get: vi.fn() };
-    const db = { model: { findMany: vi.fn().mockResolvedValue([]), count: vi.fn().mockResolvedValue(0) } };
+    const db = {
+      model: { findMany: vi.fn().mockResolvedValue([]), count: vi.fn().mockResolvedValue(0) },
+    };
     const service = new SearchService(cache as any, db as any);
-    
-    await service.search('user1', 'model', { currentPage: 1, pageSize: 10, activeFilters: [], searchMode: 'exact' });
+
+    await service.search('user1', 'model', {
+      currentPage: 1,
+      pageSize: 10,
+      activeFilters: [],
+      searchMode: 'exact',
+    });
     expect(cache.set).toHaveBeenCalled();
     expect(db.model.findMany).toHaveBeenCalled();
   });
@@ -179,7 +192,10 @@ import { SearchState } from './types/search.types';
 import { PrismaBuilder } from './builders/prisma.builder';
 
 export class SearchService {
-  constructor(private cache: any, private db: any) {}
+  constructor(
+    private cache: any,
+    private db: any,
+  ) {}
 
   async search(userId: string, model: string, state: SearchState) {
     const cacheKey = `search:${userId}:${model}`;
@@ -196,7 +212,7 @@ export class SearchService {
         skip: (state.currentPage - 1) * state.pageSize,
         take: state.pageSize,
       }),
-      (this.db[model] as any).count({ where })
+      (this.db[model] as any).count({ where }),
     ]);
 
     return { items, total, state };
@@ -221,6 +237,7 @@ git commit -m "feat(search-engine): implement SearchService with Redis state man
 ### Task 4: Semantic Search Integration (FR-004)
 
 **Files:**
+
 - Modify: `packages/search-engine/src/search.service.ts`
 - Test: `packages/search-engine/tests/integration/semantic-search.test.ts`
 
@@ -262,6 +279,7 @@ git commit -m "feat(search-engine): integrate semantic search via AI Core embedd
 ### Task 5: Interactive Search Menu (FR-002)
 
 **Files:**
+
 - Create: `packages/search-engine/src/ui/search.menu.ts`
 - Test: `packages/search-engine/tests/unit/search-menu.test.ts`
 
@@ -304,6 +322,7 @@ git commit -m "feat(search-engine): implement SearchMenu using @grammyjs/menu (F
 ### Task 6: SearchableList Field for Input Engine (FR-007)
 
 **Files:**
+
 - Create: `packages/search-engine/src/ui/searchable-list.field.ts`
 - Test: `packages/search-engine/tests/unit/searchable-list.test.ts`
 

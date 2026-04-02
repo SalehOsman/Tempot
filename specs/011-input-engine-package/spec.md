@@ -3,9 +3,9 @@
 **Feature Branch**: `011-input-engine-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional input-engine package for dynamic multi-step conversations and form handling as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional input-engine package for dynamic multi-step conversations and form handling as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Dynamic Form Interaction (Priority: P1)
 
@@ -50,7 +50,7 @@ As a user, I want the bot to skip irrelevant questions or extract data from my v
 - **Integration Points**: Heavily uses `ux-helpers`, `session-manager`, and `ai-core`.
 - **Edge Cases**: /cancel command and global timeouts are handled automatically. Bot restart recovery via `Partial Save`. AIExtractorField falls back to manual step-by-step input on AI failure.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -67,7 +67,7 @@ As a user, I want the bot to skip irrelevant questions or extract data from my v
 - **FormSchema**: A Zod-based configuration mapping fields to their types and i18n keys.
 - **FormResult**: A type-safe object containing the validated data or a cancellation reason.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

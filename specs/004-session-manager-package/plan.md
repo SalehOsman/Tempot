@@ -77,7 +77,7 @@ packages/session-manager/
         └── test-redis.ts
 ```
 
-**Structure Decision**: A single-package layout under `packages/session-manager` aligns with the Tempot V11 architecture.
+**Structure Decision**: A single-package layout under `packages/session-manager` aligns with the Architecture Spec v11.
 
 ## Complexity Tracking
 

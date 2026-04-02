@@ -3,9 +3,9 @@
 **Feature Branch**: `017-import-engine-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional import-engine package for bulk data processing and validation as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional import-engine package for bulk data processing and validation as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Bulk Excel Import (Priority: P1)
 
@@ -50,7 +50,7 @@ As a user, I want to know exactly which rows failed in my import so that I can f
 - **Integration Points**: Uses `document-engine` for error reports and `storage-engine` for file retrieval.
 - **Edge Cases**: Memory overflow prevented by chunked processing. Duplicates are handled by the destination module's upsert logic. Partial success allows resuming via BullMQ.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a user, I want to know exactly which rows failed in my import so that I can f
 
 - **ImportProcess**: processId, userId, moduleId, status, totalRows, processedRows, successCount, errorCount, errorFileUrl.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

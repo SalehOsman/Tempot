@@ -7,7 +7,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data as per Tempot v11 Blueprint Section 11.3.
+**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data as per Architecture Spec v11 Blueprint Section 11.3.
 
 **Architecture:** A unified `RegionalService` (exported also as `RegionalEngine` per Section 11.3) that provides utilities for date/time manipulation (via `dayjs`), currency/number formatting (via `Intl` API), and geographical data retrieval (from bundled JSON). It integrates with `session-manager` to resolve per-user regional settings in dynamic mode, and provides a `GeoSelectField` that returns plain `GeoOption[]` data for the Input Engine.
 

@@ -3,9 +3,9 @@
 **Feature Branch**: `008-cms-engine-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional cms-engine package for dynamic translation management and UI-driven content overrides as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional cms-engine package for dynamic translation management and UI-driven content overrides as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Dynamic Text Update (Priority: P1)
 
@@ -50,7 +50,7 @@ As a developer, I want to protect critical system messages (e.g., GDPR, Legal, S
 - **Integration Points**: Overrides `i18n-core` values dynamically. Integrates with `event-bus` for cache invalidation.
 - **Edge Cases**: Fallback chain (Redis → DB → Static JSON) ensures system stays functional if DB is down. Rollback feature reverts to previous versions or original JSON.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a developer, I want to protect critical system messages (e.g., GDPR, Legal, S
 
 - **TranslationOverride**: key, locale, value_new, value_old, updatedBy, updatedAt.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

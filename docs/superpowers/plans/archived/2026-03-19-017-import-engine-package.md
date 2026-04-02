@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational import-engine package for bulk data processing and validation (Excel/CSV) as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational import-engine package for bulk data processing and validation (Excel/CSV) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A decoupled service that listens for `import.file.received` events, adds a job to a BullMQ `imports` queue, and uses a `StreamingParser` (via `exceljs` or `csv-parse`) to process files in chunks. Each row is validated against a module-provided `Zod` schema. Valid rows are emitted as `import.batch.ready` events, while invalid rows are collected to generate an error report via `document-engine`.
 
@@ -13,6 +13,7 @@
 ### Task 1: Import Schema and Row Validation (FR-002)
 
 **Files:**
+
 - Create: `packages/import-engine/src/types/import.types.ts`
 - Test: `packages/import-engine/tests/unit/import-validation.test.ts`
 
@@ -54,8 +55,8 @@ export function validateRow(row: any, schema: z.ZodTypeAny): ImportRowResult {
   return {
     success: result.success,
     data: result.success ? result.data : undefined,
-    errors: !result.success ? result.error.errors.map(e => e.message) : undefined,
-    originalRow: row
+    errors: !result.success ? result.error.errors.map((e) => e.message) : undefined,
+    originalRow: row,
   };
 }
 ```
@@ -77,6 +78,7 @@ git commit -m "feat(import-engine): implement Zod-based row validation (FR-002)"
 ### Task 2: Streaming File Parser (Excel/CSV) (FR-007)
 
 **Files:**
+
 - Create: `packages/import-engine/src/parsers/streaming.parser.ts`
 - Test: `packages/import-engine/tests/unit/streaming-parser.test.ts`
 
@@ -124,7 +126,7 @@ export class StreamingParser {
     await workbook.xlsx.read(stream);
     const sheet = workbook.worksheets[0];
     const headers: string[] = [];
-    
+
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) {
         row.eachCell((cell) => headers.push(cell.value as string));
@@ -157,6 +159,7 @@ git commit -m "feat(import-engine): implement streaming parsers for CSV and XLSX
 ### Task 3: Import Worker with Batching (FR-001, FR-004)
 
 **Files:**
+
 - Create: `packages/import-engine/src/workers/import.worker.ts`
 - Test: `packages/import-engine/tests/integration/import-worker.test.ts`
 
@@ -181,7 +184,12 @@ describe('ImportWorker', () => {
 import { Worker } from 'bullmq';
 
 export class ImportWorker {
-  constructor(private eventBus: any, private parser: any, private storage: any, private redis: any) {
+  constructor(
+    private eventBus: any,
+    private parser: any,
+    private storage: any,
+    private redis: any,
+  ) {
     new Worker('imports', this.process.bind(this), { connection: this.redis });
   }
 
@@ -192,7 +200,7 @@ export class ImportWorker {
 
     // Stream from storage-engine and parse
     const stream = await this.storage.download(providerKey);
-    
+
     await this.parser.parseXLSX(stream, (row) => {
       const result = validateRow(row, schema);
       if (result.success) {
@@ -207,8 +215,10 @@ export class ImportWorker {
     });
 
     // Final batch and error report
-    if (validRows.length > 0) this.eventBus.publish('import.batch.ready', { moduleId, rows: validRows });
-    if (invalidRows.length > 0) this.eventBus.publish('document.export.requested', { format: 'XLSX', data: invalidRows });
+    if (validRows.length > 0)
+      this.eventBus.publish('import.batch.ready', { moduleId, rows: validRows });
+    if (invalidRows.length > 0)
+      this.eventBus.publish('document.export.requested', { format: 'XLSX', data: invalidRows });
   }
 }
 ```
@@ -225,6 +235,7 @@ git commit -m "feat(import-engine): implement async import worker with batching 
 ### Task 4: Import Request Listener (FR-003)
 
 **Files:**
+
 - Create: `packages/import-engine/src/index.ts`
 - Test: `packages/import-engine/tests/integration/import-request.test.ts`
 
@@ -239,11 +250,11 @@ describe('ImportEngine Request Listener', () => {
     const queue = { add: vi.fn() };
     const eventBus = { subscribe: vi.fn() };
     const engine = new ImportEngine(eventBus as any, queue as any);
-    
+
     // Simulate event-bus call
     const handler = eventBus.subscribe.mock.calls[0][1];
     await handler({ fileUrl: 'f.xlsx', moduleId: 'm1' });
-    
+
     expect(queue.add).toHaveBeenCalled();
   });
 });
@@ -253,7 +264,10 @@ describe('ImportEngine Request Listener', () => {
 
 ```typescript
 export class ImportEngine {
-  constructor(private eventBus: any, private queue: any) {
+  constructor(
+    private eventBus: any,
+    private queue: any,
+  ) {
     this.eventBus.subscribe('import.file.received', this.handleRequest.bind(this));
   }
 

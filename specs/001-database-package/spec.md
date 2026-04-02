@@ -3,7 +3,7 @@
 **Feature Branch**: `001-database-package`  
 **Created**: 2026-03-19  
 **Status**: Complete  
-**Input**: User description: "Establish the foundational database package using Prisma and Drizzle (pgvector) as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the foundational database package using Prisma and Drizzle (pgvector) as per Architecture Spec v11 Blueprint."
 
 ## User Scenarios & Testing _(mandatory)_
 

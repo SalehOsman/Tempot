@@ -3,7 +3,7 @@
 **Feature Branch**: `003-auth-core-package`  
 **Created**: 2026-03-19  
 **Status**: Complete  
-**Input**: User description: "Establish the foundational auth-core package using CASL for RBAC and Scoped Authorization as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the foundational auth-core package using CASL for RBAC and Scoped Authorization as per Architecture Spec v11 Blueprint."
 
 ## User Scenarios & Testing _(mandatory)_
 

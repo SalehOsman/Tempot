@@ -3,7 +3,7 @@
 **Feature Branch**: `007-i18n-core-package`  
 **Created**: 2026-03-19  
 **Status**: Complete  
-**Input**: User description: "Establish the foundational i18n-core package providing multi-language support and enforcing the i18n-Only Rule as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the foundational i18n-core package providing multi-language support and enforcing the i18n-Only Rule as per Architecture Spec v11 Blueprint."
 
 ## User Scenarios & Testing _(mandatory)_
 

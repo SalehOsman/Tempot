@@ -3,9 +3,9 @@
 **Feature Branch**: `013-notifier-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional notifier package for centralized, scheduled, and bulk notifications as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional notifier package for centralized, scheduled, and bulk notifications as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Multi-channel Bulk Notification (Priority: P1)
 
@@ -50,7 +50,7 @@ As a developer, I want to schedule a notification for a specific user at a futur
 - **Integration Points**: Relies on `shared` (Queue Factory) and `i18n-core`.
 - **Edge Cases**: Blocked bot updates user status to `SUSPENDED`. Unexpected 429 errors trigger exponential backoff. Scheduled notifications use `RegionalEngine` for correct timing.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a developer, I want to schedule a notification for a specific user at a futur
 
 - **NotificationJob**: userId, templateKey, data (JSON), scheduleAt, status, attempts.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

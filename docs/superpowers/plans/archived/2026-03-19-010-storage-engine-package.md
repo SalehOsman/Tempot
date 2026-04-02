@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the functional storage-engine package for unified file management and attachment tracking across multiple providers (S3, Drive, Local) as per Tempot v11 Blueprint.
+**Goal:** Establish the functional storage-engine package for unified file management and attachment tracking across multiple providers (S3, Drive, Local) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A provider-agnostic `StorageService` that delegates to specialized drivers (`LocalProvider`, `S3Provider`, `DriveProvider`) via a common `StorageProvider` interface. It automatically persists metadata to the `Attachment` table in PostgreSQL and integrates with `event-bus` for lifecycle events.
 
@@ -13,6 +13,7 @@
 ### Task 1: Storage Provider Interface (FR-001)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/storage.provider.ts`
 - Test: `packages/storage-engine/tests/unit/provider-interface.test.ts`
 
@@ -77,6 +78,7 @@ git commit -m "feat(storage): define abstract StorageProvider interface (FR-001)
 ### Task 2: Local Storage Provider (FR-001)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/local.provider.ts`
 - Test: `packages/storage-engine/tests/unit/local-provider.test.ts`
 
@@ -118,14 +120,17 @@ export class LocalProvider implements StorageProvider {
   async upload(stream: Readable, options: UploadOptions): Promise<StorageResponse> {
     const filePath = path.join(this.storageDir, options.fileName);
     const writeStream = fs.createWriteStream(filePath);
-    
+
     return new Promise((resolve, reject) => {
-      stream.pipe(writeStream)
-        .on('finish', () => resolve({
-          providerKey: options.fileName,
-          url: `file://${filePath}`,
-          size: fs.statSync(filePath).size
-        }))
+      stream
+        .pipe(writeStream)
+        .on('finish', () =>
+          resolve({
+            providerKey: options.fileName,
+            url: `file://${filePath}`,
+            size: fs.statSync(filePath).size,
+          }),
+        )
         .on('error', reject);
     });
   }
@@ -161,6 +166,7 @@ git commit -m "feat(storage): implement LocalProvider for file-based storage (FR
 ### Task 3: AWS S3 Provider (FR-001)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/s3.provider.ts`
 - Test: `packages/storage-engine/tests/integration/s3-provider.test.ts`
 
@@ -186,33 +192,42 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 
 export class S3Provider implements StorageProvider {
-  constructor(private client: S3Client, private bucket: string) {}
+  constructor(
+    private client: S3Client,
+    private bucket: string,
+  ) {}
 
   async upload(stream: Readable, options: UploadOptions): Promise<StorageResponse> {
     const key = `${options.moduleId || 'general'}/${Date.now()}_${options.fileName}`;
-    
+
     // In production, stream should be converted to buffer or use Upload from @aws-sdk/lib-storage
     const buffer = await this.streamToBuffer(stream);
 
-    await this.client.send(new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: options.mimeType,
-      ACL: options.isPublic ? 'public-read' : 'private'
-    }));
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: buffer,
+        ContentType: options.mimeType,
+        ACL: options.isPublic ? 'public-read' : 'private',
+      }),
+    );
 
     return {
       providerKey: key,
       url: `https://${this.bucket}.s3.amazonaws.com/${key}`,
-      size: buffer.length
+      size: buffer.length,
     };
   }
 
   // Add download, delete, getSignedUrl...
-  async download(key: string): Promise<Readable> { return Readable.from([]); }
+  async download(key: string): Promise<Readable> {
+    return Readable.from([]);
+  }
   async delete(key: string): Promise<void> {}
-  async getSignedUrl(key: string): Promise<string> { return ''; }
+  async getSignedUrl(key: string): Promise<string> {
+    return '';
+  }
 
   private async streamToBuffer(stream: Readable): Promise<Buffer> {
     const chunks = [];
@@ -234,6 +249,7 @@ git commit -m "feat(storage): implement S3Provider using AWS SDK (FR-001)"
 ### Task 4: Google Drive Provider (FR-001)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/drive.provider.ts`
 - Test: `packages/storage-engine/tests/integration/drive-provider.test.ts`
 
@@ -260,7 +276,10 @@ import { Readable } from 'stream';
 export class DriveProvider implements StorageProvider {
   private drive: drive_v3.Drive;
 
-  constructor(auth: any, private folderId: string) {
+  constructor(
+    auth: any,
+    private folderId: string,
+  ) {
     this.drive = google.drive({ version: 'v3', auth });
   }
 
@@ -268,26 +287,30 @@ export class DriveProvider implements StorageProvider {
     const response = await this.drive.files.create({
       requestBody: {
         name: options.fileName,
-        parents: [this.folderId]
+        parents: [this.folderId],
       },
       media: {
         mimeType: options.mimeType,
-        body: stream
+        body: stream,
       },
-      fields: 'id, webViewLink, size'
+      fields: 'id, webViewLink, size',
     });
 
     return {
       providerKey: response.data.id!,
       url: response.data.webViewLink!,
-      size: Number(response.data.size) || 0
+      size: Number(response.data.size) || 0,
     };
   }
 
   // Add download, delete, getSignedUrl...
-  async download(key: string): Promise<Readable> { return Readable.from([]); }
+  async download(key: string): Promise<Readable> {
+    return Readable.from([]);
+  }
   async delete(key: string): Promise<void> {}
-  async getSignedUrl(key: string): Promise<string> { return ''; }
+  async getSignedUrl(key: string): Promise<string> {
+    return '';
+  }
 }
 ```
 
@@ -303,6 +326,7 @@ git commit -m "feat(storage): implement DriveProvider using Google APIs (FR-001)
 ### Task 5: Attachment Metadata Tracking (FR-003)
 
 **Files:**
+
 - Modify: `packages/database/prisma/schema.prisma`
 - Create: `packages/storage-engine/src/storage.service.ts`
 - Test: `packages/storage-engine/tests/integration/attachment-tracking.test.ts`
@@ -343,7 +367,7 @@ describe('StorageService (Tracking)', () => {
     const db = { attachment: { create: vi.fn() } };
     const provider = { upload: () => ({ providerKey: 'k', url: 'u', size: 100 }) };
     const service = new StorageService(provider as any, db as any);
-    
+
     await service.upload(null as any, { fileName: 'f.txt', mimeType: 't' });
     expect(db.attachment.create).toHaveBeenCalled();
   });
@@ -359,11 +383,15 @@ Expected: FAIL (StorageService not defined)
 
 ```typescript
 export class StorageService {
-  constructor(private provider: StorageProvider, private db: any, private eventBus?: any) {}
+  constructor(
+    private provider: StorageProvider,
+    private db: any,
+    private eventBus?: any,
+  ) {}
 
   async upload(stream: Readable, options: UploadOptions) {
     const res = await this.provider.upload(stream, options);
-    
+
     const attachment = await this.db.attachment.create({
       data: {
         fileName: options.fileName,
@@ -373,12 +401,16 @@ export class StorageService {
         provider: 'local', // Or dynamic based on active provider
         providerKey: res.providerKey,
         url: res.url,
-        moduleId: options.moduleId
-      }
+        moduleId: options.moduleId,
+      },
     });
 
     if (this.eventBus) {
-      await this.eventBus.publish('storage.file.uploaded', { attachmentId: attachment.id }, 'INTERNAL');
+      await this.eventBus.publish(
+        'storage.file.uploaded',
+        { attachmentId: attachment.id },
+        'INTERNAL',
+      );
     }
 
     return attachment;

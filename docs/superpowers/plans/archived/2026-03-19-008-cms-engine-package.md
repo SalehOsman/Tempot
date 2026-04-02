@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational cms-engine package for dynamic translation management and UI-driven content overrides as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational cms-engine package for dynamic translation management and UI-driven content overrides as per Architecture Spec v11 Blueprint.
 
 **Architecture:** Extends `i18n-core` with a multi-tier fallback strategy (Redis -> Postgres -> Static JSON). It uses a custom `i18next` backend to intercept translation requests, checks for database overrides, caches results in Redis, and listens for `event-bus` invalidation events to ensure real-time updates across all nodes. Includes startup sync from JSON and rollback capabilities.
 
@@ -13,6 +13,7 @@
 ### Task 1: Database Schema for Overrides (FR-001)
 
 **Files:**
+
 - Modify: `packages/database/prisma/schema.prisma`
 - Create: `packages/cms-engine/src/entities/override.entity.ts`
 - Test: `packages/cms-engine/tests/integration/db-schema.test.ts`
@@ -47,9 +48,12 @@ import { prisma } from '@tempot/database';
 
 describe('TranslationOverride Model', () => {
   it('should enforce unique constraint on key and locale', async () => {
-    await prisma.translationOverride.create({ data: { key: 'test.key', locale: 'ar', value: 'v1' } });
-    await expect(prisma.translationOverride.create({ data: { key: 'test.key', locale: 'ar', value: 'v2' } }))
-      .rejects.toThrow();
+    await prisma.translationOverride.create({
+      data: { key: 'test.key', locale: 'ar', value: 'v1' },
+    });
+    await expect(
+      prisma.translationOverride.create({ data: { key: 'test.key', locale: 'ar', value: 'v2' } }),
+    ).rejects.toThrow();
   });
 });
 ```
@@ -71,6 +75,7 @@ git commit -m "feat(cms): add TranslationOverride schema and entity (FR-001)"
 ### Task 2: Multi-Tier Fallback Chain (FR-002)
 
 **Files:**
+
 - Create: `packages/cms-engine/src/backend/multi-tier.backend.ts`
 - Test: `packages/cms-engine/tests/unit/fallback-chain.test.ts`
 
@@ -85,7 +90,7 @@ describe('Multi-Tier Fallback', () => {
     const cache = { get: vi.fn().mockResolvedValue(null) };
     const db = { findUnique: vi.fn().mockResolvedValue(null) };
     const backend = new MultiTierBackend(cache as any, db as any);
-    
+
     const result = await backend.read('ar', 'module', 'key');
     expect(cache.get).toHaveBeenCalled();
     expect(db.findUnique).toHaveBeenCalled();
@@ -103,7 +108,10 @@ Expected: FAIL (MultiTierBackend not defined)
 
 ```typescript
 export class MultiTierBackend {
-  constructor(private cache: any, private db: any) {}
+  constructor(
+    private cache: any,
+    private db: any,
+  ) {}
 
   async read(lng: string, ns: string, key: string): Promise<string | null> {
     const cacheKey = `cms:${lng}:${ns}:${key}`;
@@ -111,7 +119,7 @@ export class MultiTierBackend {
     if (cached) return cached;
 
     const override = await this.db.translationOverride.findUnique({
-      where: { key_locale: { key, locale: lng } }
+      where: { key_locale: { key, locale: lng } },
     });
 
     if (override) {
@@ -141,6 +149,7 @@ git commit -m "feat(cms): implement Redis -> DB -> Static fallback chain (FR-002
 ### Task 3: Dynamic Cache Invalidation (FR-004)
 
 **Files:**
+
 - Create: `packages/cms-engine/src/services/cms.service.ts`
 - Modify: `packages/cms-engine/src/index.ts`
 - Test: `packages/cms-engine/tests/integration/cache-invalidation.test.ts`
@@ -173,23 +182,35 @@ import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 
 export class CMSService {
-  constructor(private eventBus: any, private db: any, private cache: any) {}
+  constructor(
+    private eventBus: any,
+    private db: any,
+    private cache: any,
+  ) {}
 
-  async updateTranslation(key: string, locale: string, value: string): Promise<Result<void, AppError>> {
-    const existing = await this.db.translationOverride.findUnique({ where: { key_locale: { key, locale } } });
+  async updateTranslation(
+    key: string,
+    locale: string,
+    value: string,
+  ): Promise<Result<void, AppError>> {
+    const existing = await this.db.translationOverride.findUnique({
+      where: { key_locale: { key, locale } },
+    });
     if (existing?.isProtected) {
-      return err(new AppError('cms.protected_key', `Key ${key} is protected and cannot be edited.`));
+      return err(
+        new AppError('cms.protected_key', `Key ${key} is protected and cannot be edited.`),
+      );
     }
 
     await this.db.translationOverride.upsert({
       where: { key_locale: { key, locale } },
       update: { value, oldValue: existing?.value },
-      create: { key, locale, value }
+      create: { key, locale, value },
     });
 
     // Clear local/redis cache
     await this.cache.del(`cms:${locale}:*:${key}`);
-    
+
     // Notify other nodes
     await this.eventBus.publish('cms.translation.updated', { key, locale, value }, 'EXTERNAL');
 
@@ -215,6 +236,7 @@ git commit -m "feat(cms): implement real-time cache invalidation via Event Bus (
 ### Task 4: Protected Keys Enforcement (FR-006)
 
 **Files:**
+
 - Modify: `packages/cms-engine/src/services/cms.service.ts`
 - Test: `packages/cms-engine/tests/unit/protected-keys.test.ts`
 
@@ -241,7 +263,7 @@ Run: `pnpm test packages/cms-engine/tests/unit/protected-keys.test.ts`
 Expected: FAIL (Protection logic missing)
 
 - [ ] **Step 3: Write minimal implementation**
-(Included in Task 3)
+      (Included in Task 3)
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -260,6 +282,7 @@ git commit -m "feat(cms): enforce protection for critical system keys (FR-006)"
 ### Task 5: Sanitization and Rollback (FR-007, Edge Case)
 
 **Files:**
+
 - Modify: `packages/cms-engine/src/services/cms.service.ts`
 - Test: `packages/cms-engine/tests/unit/sanitization.test.ts`
 
@@ -290,15 +313,17 @@ export class CMSService {
   async updateTranslation(key: string, locale: string, value: string) {
     const cleanValue = sanitizeHtml(value, {
       allowedTags: ['b', 'i', 'em', 'strong', 'a'],
-      allowedAttributes: { 'a': ['href'] }
+      allowedAttributes: { a: ['href'] },
     });
     // proceed with cleanValue
   }
 
   async rollbackTranslation(key: string, locale: string): Promise<Result<void, AppError>> {
-    const existing = await this.db.translationOverride.findUnique({ where: { key_locale: { key, locale } } });
+    const existing = await this.db.translationOverride.findUnique({
+      where: { key_locale: { key, locale } },
+    });
     if (!existing || !existing.oldValue) return err(new AppError('cms.no_rollback_available'));
-    
+
     return this.updateTranslation(key, locale, existing.oldValue);
   }
 }
@@ -316,6 +341,7 @@ git commit -m "feat(cms): add HTML sanitization and rollback capability (FR-007)
 ### Task 6: Static JSON to DB Auto-Sync (FR-003)
 
 **Files:**
+
 - Create: `packages/cms-engine/src/sync/json-sync.ts`
 - Test: `packages/cms-engine/tests/integration/json-sync.test.ts`
 

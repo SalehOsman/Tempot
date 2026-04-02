@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational ai-core package as an abstraction layer for various AI providers (Gemini, OpenAI) as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational ai-core package as an abstraction layer for various AI providers (Gemini, OpenAI) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A provider-agnostic `AIService` that delegates to specialized drivers via the `Vercel AI SDK`. It provides high-level services for classification, extraction, and summarization. It leverages the centralized `DrizzleVectorRepository` from `@tempot/database` for vector storage, implements a `CircuitBreaker` for resilience, and uses `cache-manager` to automatically cache identical AI responses.
 
@@ -13,6 +13,7 @@
 ### Task 1: AI Provider Interface and Factory (FR-001, FR-002)
 
 **Files:**
+
 - Create: `packages/ai-core/src/providers/ai.provider.ts`
 - Test: `packages/ai-core/tests/unit/provider-factory.test.ts`
 
@@ -66,6 +67,7 @@ git commit -m "feat(ai-core): implement AIProviderFactory with Vercel AI SDK (FR
 ### Task 2: Vector Search Integration (FR-004)
 
 **Files:**
+
 - Create: `packages/ai-core/src/services/embedding.service.ts`
 - Test: `packages/ai-core/tests/integration/embedding-search.test.ts`
 
@@ -125,6 +127,7 @@ git commit -m "feat(ai-core): implement EmbeddingService using centralized vecto
 ### Task 3: CircuitBreaker for AI Resiliency (FR-005)
 
 **Files:**
+
 - Create: `packages/ai-core/src/resiliency/circuit-breaker.ts`
 - Test: `packages/ai-core/tests/unit/circuit-breaker.test.ts`
 
@@ -156,7 +159,10 @@ export class CircuitBreaker {
   private state: 'CLOSED' | 'OPEN' = 'CLOSED';
   private lastFailureTime?: number;
 
-  constructor(private threshold: number, private resetTimeout: number) {}
+  constructor(
+    private threshold: number,
+    private resetTimeout: number,
+  ) {}
 
   isOpen(): boolean {
     if (this.state === 'OPEN' && Date.now() - (this.lastFailureTime || 0) > this.resetTimeout) {
@@ -198,6 +204,7 @@ git commit -m "feat(ai-core): implement CircuitBreaker for AI service resilience
 ### Task 4: High-Level AI Services with Caching (FR-003, FR-006)
 
 **Files:**
+
 - Create: `packages/ai-core/src/services/ai.service.ts`
 - Test: `packages/ai-core/tests/integration/ai-services.test.ts`
 
@@ -212,7 +219,7 @@ describe('AIService', () => {
   it('should extract, classify, and summarize data using the AI model', async () => {
     // Requires valid API key or mock
   });
-  
+
   it('should use cached response for identical prompts', async () => {
     // Requires cache mock
   });
@@ -227,7 +234,11 @@ import { z } from 'zod';
 import { createHash } from 'crypto';
 
 export class AIService {
-  constructor(private provider: any, private circuitBreaker: any, private cache: any) {}
+  constructor(
+    private provider: any,
+    private circuitBreaker: any,
+    private cache: any,
+  ) {}
 
   private async getCachedOrExecute<T>(prompt: string, execute: () => Promise<T>): Promise<T> {
     const hash = createHash('sha256').update(prompt).digest('hex');

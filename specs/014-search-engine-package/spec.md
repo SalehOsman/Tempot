@@ -3,9 +3,9 @@
 **Feature Branch**: `014-search-engine-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional search-engine package for advanced filtering and semantic search as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional search-engine package for advanced filtering and semantic search as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Advanced Filtering (Priority: P1)
 
@@ -50,7 +50,7 @@ As a user, I want to search for items using natural language (e.g., "show me hig
 - **Integration Points**: Integrates with `database-package` and `ai-core` (semantic search).
 - **Edge Cases**: State expires after 30 minutes in Redis. Semantic search uses cosine similarity with HNSW indexing. SQL injection is prevented by Prisma.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a user, I want to search for items using natural language (e.g., "show me hig
 
 - **SearchState**: currentPage, pageSize, activeFilters, searchQuery, searchMode.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

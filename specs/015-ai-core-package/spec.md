@@ -3,9 +3,9 @@
 **Feature Branch**: `015-ai-core-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional ai-core package as an abstraction layer for various AI providers as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional ai-core package as an abstraction layer for various AI providers as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - AI Provider Swapping (Priority: P1)
 
@@ -50,7 +50,7 @@ As a user, I want the bot to continue working even if the AI service is down so 
 - **Integration Points**: Provides semantic search for `search-engine` and data extraction for `input-engine`.
 - **Edge Cases**: Changing providers requires a "Dual Index" migration or full re-index. Provider refusals (safety filters) are translated to `AppError`. Circuit-breaker triggers after 5 consecutive failures.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a user, I want the bot to continue working even if the AI service is down so 
 
 - **Embedding**: vector (float[]), contentId, contentType, metadata (JSON).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -3,9 +3,9 @@
 **Feature Branch**: `016-document-engine-package`  
 **Created**: 2026-03-19  
 **Status**: Draft  
-**Input**: User description: "Establish the functional document-engine package for generating localized PDF and Excel documents as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional document-engine package for generating localized PDF and Excel documents as per Architecture Spec v11 Blueprint."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Localized PDF Invoice (Priority: P1)
 
@@ -50,7 +50,7 @@ As a system administrator, I want to export my user list or sales data to Excel 
 - **Integration Points**: Triggered via `event-bus`. Uploads results to `storage-engine`.
 - **Edge Cases**: Large documents (10k+ rows) are generated asynchronously. Fonts must support full Arabic character sets. Old generated files are cleaned by `storage-engine`.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -66,7 +66,7 @@ As a system administrator, I want to export my user list or sales data to Excel 
 
 - **ExportJob**: jobId, userId, format (PDF/Excel), status, fileUrl, errorReason.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

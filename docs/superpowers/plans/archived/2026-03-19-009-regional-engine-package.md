@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data (Arabic/Egypt primary) as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data (Arabic/Egypt primary) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A unified `RegionalService` that provides utilities for date/time manipulation (via `dayjs`), currency/number formatting (via `Intl` API), and geographical data retrieval (from bundled JSON or Redis). It integrates with `session-manager` to automatically determine user-specific regional settings, and provides a UI helper for geo-selection in the Input Engine.
 
@@ -13,6 +13,7 @@
 ### Task 1: Date and Time Formatting (FR-001, FR-004)
 
 **Files:**
+
 - Create: `packages/regional-engine/src/date.service.ts`
 - Test: `packages/regional-engine/tests/unit/date-formatting.test.ts`
 
@@ -51,7 +52,12 @@ dayjs.extend(timezone);
 dayjs.extend(localizedFormat);
 
 export class DateService {
-  format(date: Date | string | number, formatStr: string, locale: string = 'ar', tz: string = 'Africa/Cairo'): string {
+  format(
+    date: Date | string | number,
+    formatStr: string,
+    locale: string = 'ar',
+    tz: string = 'Africa/Cairo',
+  ): string {
     return dayjs(date).tz(tz).locale(locale).format(formatStr);
   }
 
@@ -78,6 +84,7 @@ git commit -m "feat(regional): implement localized date formatting with dayjs (F
 ### Task 2: Currency and Number Formatting (FR-003, Rule XLII)
 
 **Files:**
+
 - Create: `packages/regional-engine/src/format.service.ts`
 - Test: `packages/regional-engine/tests/unit/currency-formatting.test.ts`
 
@@ -110,7 +117,7 @@ export class FormatService {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency,
-      currencyDisplay: 'symbol'
+      currencyDisplay: 'symbol',
     }).format(amount);
   }
 
@@ -137,6 +144,7 @@ git commit -m "feat(regional): implement currency and number formatting via Intl
 ### Task 3: Geo-data Retrieval (Egypt Focus) (FR-005)
 
 **Files:**
+
 - Create: `packages/regional-engine/src/geo.service.ts`
 - Create: `packages/regional-engine/data/egypt-geo.json`
 - Test: `packages/regional-engine/tests/unit/geo-retrieval.test.ts`
@@ -174,7 +182,7 @@ export class GeoService {
   }
 
   async getCities(stateId: string): Promise<any[]> {
-    return egyptGeo.cities.filter(c => c.state_id === stateId);
+    return egyptGeo.cities.filter((c) => c.state_id === stateId);
   }
 }
 ```
@@ -196,6 +204,7 @@ git commit -m "feat(regional): implement geo-data retrieval for Egypt (FR-005)"
 ### Task 4: Unified Regional Context (FR-007)
 
 **Files:**
+
 - Create: `packages/regional-engine/src/regional.service.ts`
 - Test: `packages/regional-engine/tests/unit/regional-service.test.ts`
 
@@ -230,7 +239,7 @@ import { FormatService } from './format.service';
 export class RegionalService {
   constructor(
     public date: DateService,
-    public format: FormatService
+    public format: FormatService,
   ) {}
 
   getContext() {
@@ -239,7 +248,7 @@ export class RegionalService {
       timezone: session?.timezone || 'Africa/Cairo',
       locale: session?.lang === 'ar' ? 'ar-EG' : 'en-US',
       currency: session?.currency || 'EGP',
-      country: session?.country || 'EG'
+      country: session?.country || 'EG',
     };
   }
 }
@@ -262,6 +271,7 @@ git commit -m "feat(regional): implement unified RegionalService with session co
 ### Task 5: GeoSelectField UI Component (FR-006)
 
 **Files:**
+
 - Create: `packages/regional-engine/src/ui/geo-select.field.ts`
 - Test: `packages/regional-engine/tests/unit/geo-select.test.ts`
 
@@ -291,7 +301,7 @@ export class GeoSelectField {
     const states = await this.geoService.getStates(countryCode);
     const keyboard = new InlineKeyboard();
     // Build pagination or list...
-    states.forEach(state => {
+    states.forEach((state) => {
       keyboard.text(state.name_ar, `geo_state_${state.id}`).row();
     });
     return keyboard;

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational event-bus package providing three levels of event-driven communication (Local, Internal, External) as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational event-bus package providing three levels of event-driven communication (Local, Internal, External) as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A unified `EventBus` facade that delegates to specialized drivers: `LocalDriver` (internal Node.js EventEmitter), `InternalDriver` (cross-module communication via memory), and `ExternalDriver` (cross-instance via Redis Pub/Sub). It implements a Result pattern for all operations and ensures 100% reliability via Redis-backed persistence and exponential backoff retries.
 
@@ -13,6 +13,7 @@
 ### Task 1: Event Types and Naming Validation (FR-002)
 
 **Files:**
+
 - Create: `packages/event-bus/src/types/event.types.ts`
 - Test: `packages/event-bus/tests/unit/event-naming.test.ts`
 
@@ -77,6 +78,7 @@ git commit -m "feat(event-bus): define event types and naming validation (FR-002
 ### Task 2: Local Driver (EventEmitter) (FR-001)
 
 **Files:**
+
 - Create: `packages/event-bus/src/drivers/local.driver.ts`
 - Test: `packages/event-bus/tests/unit/local-driver.test.ts`
 
@@ -138,6 +140,7 @@ git commit -m "feat(event-bus): implement LocalDriver using EventEmitter (FR-001
 ### Task 3: External Driver (Redis Pub/Sub) (FR-001, FR-004)
 
 **Files:**
+
 - Create: `packages/event-bus/src/drivers/external.driver.ts`
 - Test: `packages/event-bus/tests/integration/external-driver.test.ts`
 
@@ -151,7 +154,7 @@ import Redis from 'ioredis';
 describe('ExternalDriver (Redis)', () => {
   it('should publish events to Redis Pub/Sub', async () => {
     // In a real scenario, we'd use a mock or a local redis instance
-    const redis = { publish: vi.fn() } as any; 
+    const redis = { publish: vi.fn() } as any;
     const driver = new ExternalDriver(redis);
     const event = { eventName: 'mod.ent.act', payload: { id: 1 }, level: 'EXTERNAL' } as any;
     await driver.emit(event);
@@ -197,6 +200,7 @@ git commit -m "feat(event-bus): implement ExternalDriver using Redis Pub/Sub (FR
 ### Task 4: Unified EventBus Service with Wildcards (FR-003, FR-007)
 
 **Files:**
+
 - Create: `packages/event-bus/src/event-bus.service.ts`
 - Test: `packages/event-bus/tests/unit/event-bus.service.test.ts`
 
@@ -211,10 +215,10 @@ describe('EventBusService', () => {
     const bus = new EventBusService();
     const handler = vi.fn();
     bus.subscribe('invoices.*.completed', handler);
-    
+
     await bus.publish('invoices.payment.completed', { id: 1 });
     expect(handler).toHaveBeenCalledWith({ id: 1 });
-    
+
     await bus.publish('invoices.order.completed', { id: 2 });
     expect(handler).toHaveBeenCalledWith({ id: 2 });
   });
@@ -240,7 +244,11 @@ export class EventBusService {
     this.listeners.push({ pattern, handler });
   }
 
-  async publish(eventName: string, payload: any, level: EventLevel = 'INTERNAL'): Promise<Result<void, AppError>> {
+  async publish(
+    eventName: string,
+    payload: any,
+    level: EventLevel = 'INTERNAL',
+  ): Promise<Result<void, AppError>> {
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
@@ -251,7 +259,7 @@ export class EventBusService {
       module: eventName.split('.')[0],
       eventName,
       payload,
-      level
+      level,
     };
 
     // Wildcard matching logic
@@ -288,6 +296,7 @@ git commit -m "feat(event-bus): implement unified EventBusService with wildcards
 ### Task 5: Retry Strategy with BullMQ (FR-005)
 
 **Files:**
+
 - Create: `packages/event-bus/src/workers/event.worker.ts`
 - Modify: `packages/event-bus/src/event-bus.service.ts`
 - Test: `packages/event-bus/tests/integration/event-retry.test.ts`
@@ -348,6 +357,7 @@ git commit -m "feat(event-bus): implement event retry strategy via BullMQ (FR-00
 ### Task 6: Audit Logging Integration (FR-006)
 
 **Files:**
+
 - Modify: `packages/event-bus/src/event-bus.service.ts`
 - Test: `packages/event-bus/tests/integration/event-audit.test.ts`
 

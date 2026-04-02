@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational ux-helpers package for standardized messages, buttons, and UI components as per Tempot v11 Blueprint.
+**Goal:** Establish the foundational ux-helpers package for standardized messages, buttons, and UI components as per Architecture Spec v11 Blueprint.
 
 **Architecture:** A collection of utility classes and factory functions that wrap `grammY` types to enforce design consistency. It includes a `MessageFactory` for status-based responses (Success, Error, etc.), a `KeyboardBuilder` that automates row/column layout based on label length, and specialized helpers for pagination, confirmations, and title formatting.
 
@@ -13,6 +13,7 @@
 ### Task 1: Status Message Factory (FR-001, Rule LXV)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/status.factory.ts`
 - Test: `packages/ux-helpers/tests/unit/status-messages.test.ts`
 
@@ -77,6 +78,7 @@ git commit -m "feat(ux-helpers): implement StatusFactory for standardized messag
 ### Task 2: Unified Keyboard Builder (FR-003, Rule LXVI)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/keyboard.builder.ts`
 - Test: `packages/ux-helpers/tests/unit/keyboard-builder.test.ts`
 
@@ -92,7 +94,7 @@ describe('KeyboardBuilder', () => {
     builder.add('Very Long Label That Should Be Alone', 'data1');
     builder.add('Short', 'data2');
     builder.add('Short 2', 'data3');
-    
+
     const markup = builder.build();
     expect(markup.inline_keyboard.length).toBe(2); // Row 1: Long, Row 2: Short + Short 2
   });
@@ -123,7 +125,7 @@ export class KeyboardBuilder {
 
     for (const btn of this.buttons) {
       const isLong = btn.text.length > 15;
-      
+
       if (isLong || currentRow.length >= 3) {
         if (currentRow.length > 0) {
           this.addButtonsToRow(keyboard, currentRow);
@@ -169,6 +171,7 @@ git commit -m "feat(ux-helpers): implement KeyboardBuilder with layout enforceme
 ### Task 3: Confirmation Helper (FR-006)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/confirmation.helper.ts`
 - Test: `packages/ux-helpers/tests/unit/confirmation-helper.test.ts`
 
@@ -223,6 +226,7 @@ git commit -m "feat(ux-helpers): implement ConfirmationHelper for side-by-side b
 ### Task 4: Pagination Helper (FR-004)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/pagination.helper.ts`
 - Test: `packages/ux-helpers/tests/unit/pagination-helper.test.ts`
 
@@ -273,6 +277,7 @@ git commit -m "feat(ux-helpers): implement PaginationHelper (FR-004)"
 ### Task 5: Title Formatting Helper (FR-005)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/title.helper.ts`
 - Test: `packages/ux-helpers/tests/unit/title-helper.test.ts`
 

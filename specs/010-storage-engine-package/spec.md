@@ -4,7 +4,7 @@
 **Created**: 2026-03-19
 **Clarified**: 2026-03-26
 **Status**: Complete
-**Input**: User description: "Establish the functional storage-engine package for unified file management and attachment tracking as per Tempot v11 Blueprint."
+**Input**: User description: "Establish the functional storage-engine package for unified file management and attachment tracking as per Architecture Spec v11 Blueprint."
 
 ## User Scenarios & Testing _(mandatory)_
 
