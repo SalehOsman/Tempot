@@ -8,9 +8,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ---
 
+## Phase 1 — Service Packages (2026-03-21 – 2026-04-02)
+
+### Added
+
+- **@tempot/shared** — Core utilities shared across all packages: cache wrapper, queue factory, AppError hierarchy, and Result pattern
+- **@tempot/logger** — Pino-based structured logging with PII redaction, session-aware context, and audit logging
+- **@tempot/database** — Prisma client wrapper, BaseRepository with Result pattern, soft delete extension, health check
+- **@tempot/event-bus** — Three-level event system (Local/Internal/External) with typed publish contracts (TempotEvents registry)
+- **@tempot/auth-core** — CASL-based RBAC (4 roles: Guest/User/Admin/SuperAdmin), ability factory, permission guards
+- **@tempot/session-manager** — grammY session adapter with Redis primary + PostgreSQL fallback, sliding TTL
+- **@tempot/i18n-core** — i18next integration, language detection, namespace management, Arabic primary + English
+- **@tempot/regional-engine** — Locale management, RTL support, date/number formatting (dayjs), geographic data
+- **@tempot/storage-engine** — Multi-provider storage (Google Drive, S3, Telegram, Local) with unified interface
+- **@tempot/ux-helpers** — Telegram message builder, keyboard utilities, pagination, status patterns
+- **@tempot/sentry** — Optional Sentry error monitoring with toggle guard and reference code tagging
+
+### Infrastructure
+
+- eslint-plugin-boundaries for package import boundary enforcement
+- Development methodology established: SpecKit + Superpowers toolchains
+- 36 Architecture Decision Records (ADR-001 through ADR-036)
+- Constitution v2.2.0 ratified (87 rules)
+- CI pipeline: lint, typecheck, unit tests, integration tests, security audit
+
+---
+
 ## [Unreleased]
 
 ### Added
+
 - Minimal `bot-server` for connection testing (grammY only, no DB required)
 - `docker-compose.yml` with PostgreSQL (pgvector) + Redis and health checks
 - `.env.example` with all v11 Spec variables across 7 sections
@@ -36,6 +63,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - README placeholder files for all 17 packages
 
 ### Changed
+
 - Upgraded ESLint 8 → 10 with Flat Config (`eslint.config.js`)
 - Upgraded Husky 8 → 9
 - Upgraded Vitest 1 → 4.1.0
@@ -45,6 +73,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - All `specs/*/plan.md` files now point to `docs/superpowers/plans/` as single source of truth
 
 ### Infrastructure
+
 - Phase 0 workspace setup complete
 - `main` branch established with clean commit history
 - GitHub repository initialized at `https://github.com/SalehOsman/Tempot`
