@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { CacheService, EventBus } from '../../src/cache/cache.service';
-import { ok } from 'neverthrow';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { CacheService, EventBus, CacheLogger } from '../../src/cache/cache.service';
+import { ok, err } from 'neverthrow';
+import { AppError } from '../../src/shared.errors';
 
 describe('CacheService', () => {
   let cacheService: CacheService;
@@ -90,6 +91,32 @@ describe('CacheService', () => {
       const result = await bus.publish('some.event', {});
       // AsyncResult<void> means Result<void, AppError> — should have isOk()
       expect(result.isOk()).toBe(true);
+    });
+  });
+
+  describe('fallback publish failure handling (Rule X)', () => {
+    it('should log warning when eventBus.publish fails during fallback', async () => {
+      const mockEventBus: EventBus = {
+        publish: vi.fn().mockResolvedValue(err(new AppError('event_bus.publish_failed'))),
+      } as unknown as EventBus;
+      const mockLogger: CacheLogger = { warn: vi.fn() };
+
+      // Subclass to expose the protected fallbackToMemory for direct testing.
+      // createCache never throws in cache-manager v6 (stores are lazy),
+      // so the fallback path cannot be triggered via init() in unit tests.
+      class TestableCacheService extends CacheService {
+        async testFallbackToMemory(errorMessage: string) {
+          return (
+            this as unknown as { fallbackToMemory: (msg: string) => Promise<unknown> }
+          ).fallbackToMemory(errorMessage);
+        }
+      }
+
+      const service = new TestableCacheService(mockEventBus, mockLogger);
+      await service.testFallbackToMemory('Redis connection refused');
+
+      // Assert: logger.warn was called about the publish failure
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('publish'));
     });
   });
 });
