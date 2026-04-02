@@ -1,4 +1,5 @@
 import { defineConfig, defineProject } from 'vitest/config';
+import { baseExclude } from './vitest.config.base';
 
 export default defineConfig({
   test: {
@@ -10,7 +11,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/tests/unit/**/*.test.ts', 'modules/*/tests/unit/**/*.test.ts'],
-          exclude: ['**/node_modules/**', '**/dist/**', '.worktrees/**'],
+          exclude: baseExclude,
           environment: 'node',
         },
       }),
@@ -21,7 +22,7 @@ export default defineConfig({
             'packages/*/tests/integration/**/*.test.ts',
             'modules/*/tests/integration/**/*.test.ts',
           ],
-          exclude: ['**/node_modules/**', '**/dist/**', '.worktrees/**'],
+          exclude: baseExclude,
           environment: 'node',
           testTimeout: 120_000,
           hookTimeout: 120_000,
