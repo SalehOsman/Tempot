@@ -76,16 +76,19 @@ export class CacheService {
   }
 
   /** Fall back to memory-only cache after external store failure. */
-  private async fallbackToMemory(errorMessage: string, ttl?: number): AsyncResult<void> {
+  protected async fallbackToMemory(errorMessage: string, ttl?: number): AsyncResult<void> {
     if (this.logger) {
       this.logger.warn(`Cache initialization failed, falling back to memory: ${errorMessage}`);
     }
 
     if (this.eventBus) {
-      await this.eventBus.publish('system.alert.critical', {
+      const publishResult = await this.eventBus.publish('system.alert.critical', {
         message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
         error: errorMessage,
       });
+      if (publishResult.isErr() && this.logger) {
+        this.logger.warn(`Failed to publish cache fallback alert: ${publishResult.error.code}`);
+      }
     }
 
     try {

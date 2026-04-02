@@ -19,7 +19,10 @@
     "docker:logs": "docker compose logs -f",
     "docker:reset": "docker compose down -v && docker compose up -d",
     "cms:check": "pnpm --filter @tempot/i18n-core cms:check",
-    "spec:validate": "npx tsx scripts/spec-validate/index.ts"
+    "spec:validate": "npx tsx scripts/spec-validate/index.ts",
+    "changeset": "changeset",
+    "changeset:status": "changeset status",
+    "changeset:version": "changeset version"
   },
   "type": "module",
   "pnpm": {

@@ -1,4 +1,5 @@
 import { defineConfig, defineProject } from 'vitest/config';
+import { serviceCoverageThresholds } from '../../vitest.config.base';
 
 export default defineConfig({
   test: {
@@ -13,12 +14,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      thresholds: {
-        statements: 80,
-        branches: 80,
-        functions: 80,
-        lines: 80,
-      },
+      thresholds: serviceCoverageThresholds,
     },
   },
 });
