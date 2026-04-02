@@ -115,7 +115,57 @@ follow its instructions exactly.
 
 6. **Activate `verification-before-completion`** — Run full test suite and build. Paste actual output as evidence. No claims without evidence.
 
-7. **Activate `finishing-a-development-branch`** — Merge to main. Update `docs/ROADMAP.md`.
+7. **Documentation Sync (MANDATORY — Constitution Rule L)**
+
+   Code and documentation MUST be in perfect alignment. After verification
+   passes but BEFORE merge, update ALL affected documentation:
+
+   **A. SpecKit Artifacts** — Update these in `specs/{NNN}-{FEATURE_NAME}/`
+   if the implementation changed anything they describe:
+   - `data-model.md`: new/changed entities, fields, events, interfaces, type registries
+   - `tasks.md`: acceptance criteria reflecting actual implementation (mark completed, add new)
+   - `research.md`: new technical decisions made during implementation (add as numbered Decision)
+   - `spec.md`: only if edge cases, requirements, or functional requirements changed
+
+   **B. Spec Consistency Gate** — Run `/speckit.analyze` to verify internal
+   consistency between updated SpecKit artifacts (spec ↔ plan ↔ tasks ↔ data-model):
+
+   ```
+   /speckit.analyze
+   ```
+
+   Fix any inconsistencies before proceeding.
+
+   **C. Reconciliation Gate** — Run `pnpm spec:validate` to verify spec→code alignment:
+
+   ```bash
+   pnpm spec:validate {NNN}-{FEATURE_NAME}
+   ```
+
+   - Exit 0: continue to next step
+   - Exit 1: fix HIGH/MEDIUM issues or document justification for deferral
+   - Exit 2: BLOCKED — fix all CRITICAL issues before proceeding
+
+   **C. Project Documentation** — Update ALL that apply:
+   - `docs/ROADMAP.md` — ALWAYS (Rule LXXXIX). Update "Last updated" date and "Next Action" section
+   - `docs/architecture/adr/README.md` — if any new ADR was created, add its row to the index table
+   - `CLAUDE.md` — if any new dependency was added to the project, update the tech stack table
+   - `docs/tempot_v11_final.md` — if architectural patterns, guarantees, or ADR listings changed
+   - `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
+   - `docs/developer/workflow-guide.md` — if workflow steps changed
+
+   **D. Changeset** — Create a changeset for the changes:
+
+   ```bash
+   pnpm changeset
+   ```
+
+   Select the affected package(s), change type (patch/minor/major), and write a summary.
+
+   **E. Re-validate** — Run `pnpm spec:validate` again after documentation updates to confirm
+   no new inconsistencies were introduced.
+
+8. **Activate `finishing-a-development-branch`** — Merge to main.
 
 ## Constraints
 
@@ -133,6 +183,9 @@ When all phases complete, report:
 - Tasks executed (count)
 - Test results with output evidence
 - Code review summary (issues by severity)
+- Documentation sync: list every documentation file updated and what changed
+- `pnpm spec:validate` output (paste actual result)
+- Changeset file path
 - Merge status
 
 ---

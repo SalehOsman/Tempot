@@ -45,6 +45,16 @@ Version: 1.1.0
   5.  Follow the appropriate prompt template:
       - New package / Phase B execution: `.specify/templates/executor-prompt-template.md`
       - Bug fixing / error resolution: `.specify/templates/executor-bugfix-template.md`
+  6.  Include a **Documentation Sync phase** (Constitution Rule L) that explicitly commands:
+      - Updating all affected SpecKit artifacts (`data-model.md`, `tasks.md`, `research.md`, `spec.md`) to reflect implementation changes
+      - Running `/speckit.analyze` (Spec Consistency Gate — internal artifact consistency)
+      - Running `pnpm spec:validate` (Reconciliation Gate — spec→code alignment, Rule LXXXVI)
+      - Updating `ROADMAP.md` (Rule LXXXIX)
+      - Creating changesets via `pnpm changeset` (Rule LXI)
+      - Updating ADR README index if a new ADR was created (Rule XLIV)
+      - Updating `CLAUDE.md` tech stack if a new dependency was added
+      - Updating architecture spec (`docs/tempot_v11_final.md`) if architectural patterns changed
+        No prompt is complete without this phase. Omitting it is a violation of Rule L.
 
 - **STRICT CONSTRAINTS — NO EXCEPTIONS:**
   1. **NO direct file edits.** The Technical Advisor MUST NOT modify, create, or delete any file directly. This is only permitted when the Project Manager grants explicit, written, unambiguous permission in the same message.

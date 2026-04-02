@@ -109,6 +109,50 @@ Continue with `systematic-debugging` hypothesis and testing phases.
 5. Run the full test suite of the affected package — confirm zero regressions.
 6. Commit: `fix({module}): {concise description}`
 
+### Phase 3.5: Documentation Sync (MANDATORY — Constitution Rule L)
+
+If the fix changed any behavior, interface, data model, or API documented in SpecKit artifacts or project documentation, update them now. Code and documentation MUST always match.
+
+**A. SpecKit Artifacts** — Check and update in `specs/{NNN}-{FEATURE_NAME}/` if affected:
+
+- `data-model.md`: if entities, fields, events, interfaces, or type registries changed
+- `tasks.md`: if acceptance criteria no longer match implementation
+- `research.md`: if a new technical decision was made as part of the fix (add as numbered Decision)
+- `spec.md`: only if the fix changed functional requirements or edge case behavior
+
+**B. Spec Consistency Gate** — If SpecKit artifacts were updated, run `/speckit.analyze`
+to verify internal consistency between updated artifacts (spec ↔ plan ↔ tasks ↔ data-model):
+
+```
+/speckit.analyze
+```
+
+Fix any inconsistencies before proceeding.
+
+**C. Reconciliation Gate** — Run `pnpm spec:validate` to verify spec→code alignment:
+
+```bash
+pnpm spec:validate {NNN}-{FEATURE_NAME}
+```
+
+Exit 0: continue. Exit 1: fix or justify. Exit 2: BLOCKED.
+
+**C. Project Documentation** — Update ALL that apply:
+
+- `docs/ROADMAP.md` — update "Last updated" date and "Next Action" section (Rule LXXXIX)
+- `docs/architecture/adr/README.md` — if a new ADR was created, add its row to the index
+- `CLAUDE.md` — if a new dependency was added, update the tech stack table
+- `docs/tempot_v11_final.md` — if the fix changed architectural patterns or documented guarantees
+- `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
+
+**D. Changeset** — Create a changeset:
+
+```bash
+pnpm changeset
+```
+
+Select affected package(s), type (patch for bugfix), and write a summary.
+
 ### Phase 4: Verification
 
 **Activate `verification-before-completion`** — no claims without evidence.

@@ -77,9 +77,13 @@
 
 - [x] `TempotEvents` interface exported with strongly-typed event definitions
 - [x] Event keys follow `{module}.{entity}.{action}` naming convention (FR-002)
-- [x] Events defined: `session-manager.session.updated`, `storage.file.uploaded`, `storage.file.deleted`
+- [x] Events defined: `session-manager.session.updated`, `session.redis.degraded`, `storage.file.uploaded`, `storage.file.deleted`, `system.alert.critical`
 - [x] Each event payload has explicit typed fields (no `any`)
 - [x] Serves as the central type registry for cross-module events (FR-003)
+- [x] `EventBusOrchestrator.publish()` uses conditional generic: `K extends keyof TempotEvents ? TempotEvents[K] : unknown`
+- [x] `LocalEventBus.publish()` uses the same conditional generic pattern
+- [x] Consumer packages define structurally-compatible typed adapters (see data-model.md — Consumer Event Bus Adapters)
+- [x] ADR-035 documents the typed publish contract decision
 - [x] No `any` types
 
 ---
@@ -258,6 +262,7 @@ The following spec requirements were documented but not implemented in the curre
 | FR-005      | Automatic retries (up to 3 times) for failed event processing      | Not implemented -- no BullMQ worker or retry logic exists. Listener errors are caught and logged but not retried. |
 | FR-006      | Audit log integration for event history and failures               | Not implemented -- no audit log system exists yet. Error logging goes to stderr only.                             |
 | FR-007      | Wildcard support in event listeners (e.g., `invoices.*.completed`) | Not implemented -- `validateEventName` and all subscribe methods use exact string matching only.                  |
+| FR-008      | Pluggable toggle (`TEMPOT_EVENT_BUS=true/false`) per Rule XVI      | Not implemented -- see Task 8. ConnectionWatcher provides graceful degradation but not full disable.              |
 
 ---
 
@@ -282,10 +287,11 @@ Local event delivery performance must be validated via a benchmark test to confi
 
 ---
 
-### Task 8: Pluggable Architecture Toggle (Rule XVI) (FR-008)
+### Task 8: Pluggable Architecture Toggle (Rule XVI) (FR-008) **[DEFERRED]**
 
 **Phase**: 1 (Setup)
 **Estimated Duration**: 15 minutes
+**Status**: Not implemented — deferred to future work.
 
 Constitution Rule XVI requires `TEMPOT_EVENT_BUS=true/false` environment variable.
 

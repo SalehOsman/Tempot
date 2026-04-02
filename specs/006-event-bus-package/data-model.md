@@ -48,13 +48,27 @@ A centralized TypeScript interface that maps event names to their strongly-typed
 
 **Storage:** Compile-time only. No runtime representation.
 
-| Event Key                         | Payload Fields                                                                                                                                                                              | Description                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| `session-manager.session.updated` | `userId: string`, `chatId: string`, `sessionData: unknown`                                                                                                                                  | Session data changed                  |
-| `storage.file.uploaded`           | `attachmentId: string`, `fileName: string`, `originalName: string`, `mimeType: string`, `size: number`, `provider: string`, `moduleId?: string`, `entityId?: string`, `uploadedBy?: string` | File successfully uploaded to storage |
-| `storage.file.deleted`            | `attachmentId: string`, `provider: string`, `providerKey: string`, `deletedBy?: string`, `permanent: boolean`                                                                               | File deleted from storage             |
+| Event Key                         | Payload Fields                                                                                                                                                                              | Description                                     |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `session-manager.session.updated` | `userId: string`, `chatId: string`, `sessionData: unknown`                                                                                                                                  | Session data changed                            |
+| `session.redis.degraded`          | `operation: string`, `errorCode: string`, `errorMessage: string`, `timestamp: string`                                                                                                       | Redis connection degraded in session layer      |
+| `storage.file.uploaded`           | `attachmentId: string`, `fileName: string`, `originalName: string`, `mimeType: string`, `size: number`, `provider: string`, `moduleId?: string`, `entityId?: string`, `uploadedBy?: string` | File successfully uploaded to storage           |
+| `storage.file.deleted`            | `attachmentId: string`, `provider: string`, `providerKey: string`, `deletedBy?: string`, `permanent: boolean`                                                                               | File deleted from storage                       |
+| `system.alert.critical`           | `message: string`, `error: string`                                                                                                                                                          | Critical system alert (e.g., cache degradation) |
 
-**Source:** `packages/event-bus/src/event-bus.events.ts:1-25`
+**Source:** `packages/event-bus/src/event-bus.events.ts:1-35`
+
+### Consumer Event Bus Adapters
+
+Downstream packages define structurally-compatible event bus interfaces with typed method overloads. These are NOT separate entities — they are structural subtypes of `EventBusOrchestrator` that enforce type safety at the consumer boundary without importing `@tempot/event-bus` directly.
+
+| Package                   | Interface         | Typed Events                                                | Source                                                    |
+| ------------------------- | ----------------- | ----------------------------------------------------------- | --------------------------------------------------------- |
+| `@tempot/session-manager` | `EventBusAdapter` | `session-manager.session.updated`, `session.redis.degraded` | `packages/session-manager/src/session.provider.ts:34-44`  |
+| `@tempot/shared` (cache)  | `EventBus`        | `system.alert.critical`                                     | `packages/shared/src/cache/cache.service.ts:12-18`        |
+| `@tempot/storage-engine`  | `StorageEventBus` | `storage.file.uploaded`, `storage.file.deleted`             | `packages/storage-engine/src/storage.interfaces.ts:25-35` |
+
+All adapters include a catch-all overload `publish(eventName: string, payload: unknown)` for forward compatibility. Payload types are structurally identical to `TempotEvents` definitions.
 
 ---
 

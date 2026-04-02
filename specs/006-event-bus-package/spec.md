@@ -18,7 +18,7 @@ As a developer, I want to communicate between modules via events so that my modu
 **Acceptance Scenarios**:
 
 1. **Given** a module-specific event (e.g., `invoices.payment.completed`), **When** it is emitted, **Then** all registered listeners across all modules receive the event and payload.
-2. **Given** a listener that fails, **When** an event occurs, **Then** the event is retried according to the system policy (up to 3 times) before being logged as an error.
+2. **Given** a listener that fails, **When** an event occurs, **Then** the failure is caught, isolated (does not block other listeners), and logged as an error. **[DEFERRED: automatic retries depend on FR-005 / BullMQ integration]**
 
 ---
 
@@ -39,22 +39,24 @@ As a system administrator, I want to distribute events across multiple server in
 
 ## Edge Cases
 
-- **Event Ordering**: Ensuring events are processed in the order they were emitted (Answer: Redis-backed events are processed sequentially within a queue).
+- **Event Ordering**: Ensuring events are processed in the order they were emitted (Answer: Redis Pub/Sub delivers messages in publish order per channel; local events are dispatched synchronously via EventEmitter).
 - **Large Payloads**: Handling events with large data payloads (Answer: Event payloads should be kept small; store large data in DB and pass the ID in the payload).
 - **Listener Failure**: Preventing a single failing listener from blocking the entire event bus (Answer: Each listener should run in its own try/catch or isolated process).
 
 ## Clarifications
 
-- **Technical Constraints**: Three levels: Local (EventEmitter), Internal (Module-to-Module), External (Redis Pub/Sub).
+- **Technical Constraints**: Two operational levels: Local (EventEmitter, handles both in-process and module-to-module events) and External (Redis Pub/Sub, handles cross-instance events). The spec originally described three levels (Local, Internal, External) but Internal was collapsed into Local during implementation since both use in-process EventEmitter dispatch.
 - **Constitution Rules**: Rule XV (Event-Driven Communication) is mandatory for inter-module calls. Naming convention `{module}.{entity}.{action}` is strictly enforced.
 - **Integration Points**: Used by `session-manager` (sync), `cms-engine` (invalidation), and `notifier`.
-- **Edge Cases**: Event ordering is guaranteed by sequential processing in Redis queues. Large payloads are replaced by IDs with DB lookups. Listener failures are retried 3 times before error logging.
+- **Edge Cases**: Event ordering is maintained by Redis Pub/Sub per-channel ordering and synchronous local dispatch. Large payloads are replaced by IDs with DB lookups. Listener failures are caught and logged; automatic retries are deferred (see FR-005).
+- **Typed Publish Contracts**: All `publish()` methods use conditional generics from a centralized `TempotEvents` type registry (ADR-035). Consumer packages define structurally-compatible typed adapters with method overloads — see data-model.md for the adapter table.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 - **FR-001**: System MUST support three distinct event levels: `Local` (EventEmitter), `Internal` (Module-to-Module), `External` (Redis Pub/Sub).
+  > **Implementation Note**: `Internal` was collapsed into `Local` during implementation — both use in-process EventEmitter dispatch. The `EventLevel` type retains all three values for forward compatibility, but `Local` and `Internal` behave identically at runtime.
 - **FR-002**: System MUST enforce the naming convention: `{module}.{entity}.{action}` (e.g., `users.user.role_changed`).
 - **FR-003**: System MUST provide a unified `EventBus` service accessible to all packages and modules.
 - **FR-004**: System SHOULD minimize event loss for External events. Redis Pub/Sub provides at-most-once delivery; guaranteed delivery requires BullMQ queue integration (deferred).
@@ -66,7 +68,7 @@ As a system administrator, I want to distribute events across multiple server in
 - **FR-007**: System SHOULD support wildcards in event listeners (e.g., `invoices.*.completed`).
   > **[DEFERRED]**: Wildcard pattern matching for event subscriptions is not implemented. All subscriptions use exact string matching.
 - **FR-008**: System MUST support `TEMPOT_EVENT_BUS=true/false` environment variable (default: `true`) per Rule XVI. When disabled, EventBusOrchestrator silently drops all publish() calls (returns ok()) and subscribe() registers handlers that are never triggered.
-  > **Note**: The event bus already has graceful degradation via ConnectionWatcher (falls back to local when Redis is unavailable). The toggle fully disables even local event delivery.
+  > **[DEFERRED]**: The pluggable toggle is not implemented in the initial release. The event bus has graceful degradation via ConnectionWatcher (falls back to local when Redis is unavailable), but the full disable toggle requires dedicated implementation — see Task 8 in tasks.md.
 
 ### Key Entities
 

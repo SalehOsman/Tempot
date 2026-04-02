@@ -293,9 +293,16 @@ Claude Code and Gemini CLI are both supported. `superpowers` plugin is MANDATORY
 
 ## Governance
 
-### L. Reserved
+### L. Code-Documentation Parity (Bidirectional)
 
-_Reserved for future use._
+Code MUST match documentation and documentation MUST match code. This is bidirectional — not one-way:
+
+1. **Code → Docs:** No code change enters `main` without updating ALL affected documentation artifacts. "Affected" includes: SpecKit artifacts (`spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`), `ROADMAP.md`, ADR README index, architecture spec (`docs/tempot_v11_final.md`), `CLAUDE.md` tech stack, and CHANGELOG via Changesets.
+2. **Docs → Code:** No documentation change enters `main` without verifying the code still matches the updated documentation.
+3. **Automated checks:** Two mandatory gates after any artifact update: (a) `/speckit.analyze` verifies internal consistency between SpecKit artifacts (spec ↔ plan ↔ tasks ↔ data-model), and (b) `pnpm spec:validate` verifies spec→code alignment. Both must pass. Manual verification is STILL REQUIRED for ADR index, ROADMAP, architecture spec, and CLAUDE.md alignment.
+4. **Scope:** This applies to ALL change types — new features, bugfixes, refactors, and dependency updates. No exceptions.
+
+Violation: Any merge with code-documentation drift is a CRITICAL finding that blocks integration.
 
 ### LI. Reserved
 
