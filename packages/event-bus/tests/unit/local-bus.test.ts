@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { LocalEventBus } from '../../src/local/local.bus.js';
+import type { TempotEvents } from '../../src/event-bus.events.js';
 import { AppError } from '@tempot/shared';
 
 describe('LocalEventBus', () => {
@@ -74,5 +75,42 @@ describe('LocalEventBus', () => {
     if (result.isErr()) {
       expect(result.error.code).toBe('event_bus.invalid_name');
     }
+  });
+
+  it('should enforce typed payloads for registered TempotEvents', async () => {
+    const bus = new LocalEventBus();
+    const handler = vi.fn<(payload: TempotEvents['storage.file.uploaded']) => void>();
+
+    const payload: TempotEvents['storage.file.uploaded'] = {
+      attachmentId: 'att-1',
+      fileName: 'generated.png',
+      originalName: 'photo.png',
+      mimeType: 'image/png',
+      size: 1024,
+      provider: 'local',
+      moduleId: 'mod-1',
+      entityId: 'ent-1',
+      uploadedBy: 'user-1',
+    };
+
+    bus.subscribe('storage.file.uploaded', handler);
+    const result = await bus.publish('storage.file.uploaded', payload);
+
+    expect(result.isOk()).toBe(true);
+    expect(handler).toHaveBeenCalledOnce();
+    expect(handler).toHaveBeenCalledWith(payload);
+    expect(handler.mock.calls[0]?.[0]?.attachmentId).toBe('att-1');
+  });
+
+  it('should allow unknown payload for unregistered event names', async () => {
+    const bus = new LocalEventBus();
+    const handler = vi.fn();
+    const payload = { custom: 'data' };
+
+    bus.subscribe('custom.entity.action', handler);
+    const result = await bus.publish('custom.entity.action', payload);
+
+    expect(result.isOk()).toBe(true);
+    expect(handler).toHaveBeenCalledWith(payload);
   });
 });

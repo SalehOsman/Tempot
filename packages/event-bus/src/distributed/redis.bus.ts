@@ -2,6 +2,7 @@ import { Redis } from 'ioredis';
 import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, AppError } from '@tempot/shared';
 import { validateEventName } from '../event-bus.contracts.js';
+import type { TempotEvents } from '../event-bus.events.js';
 
 const REDIS_MAX_RETRIES_PER_REQUEST = null;
 
@@ -31,7 +32,10 @@ export class RedisEventBus {
     return this.pub;
   }
 
-  async publish(eventName: string, payload: unknown): AsyncResult<void> {
+  async publish<K extends string>(
+    eventName: K,
+    payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown,
+  ): AsyncResult<void> {
     if (!validateEventName(eventName)) {
       return err(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
@@ -45,7 +49,10 @@ export class RedisEventBus {
     }
   }
 
-  async subscribe(eventName: string, handler: (payload: unknown) => void): AsyncResult<void> {
+  async subscribe<K extends string>(
+    eventName: K,
+    handler: (payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown) => void,
+  ): AsyncResult<void> {
     if (!validateEventName(eventName)) {
       return errAsync(new AppError('event_bus.invalid_name', `Invalid event name: ${eventName}`));
     }
@@ -59,7 +66,7 @@ export class RedisEventBus {
       }
     }
 
-    currentHandlers.push(handler);
+    currentHandlers.push(handler as (payload: unknown) => void);
     this.handlers.set(eventName, currentHandlers);
     return okAsync(undefined);
   }

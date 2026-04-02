@@ -4,6 +4,12 @@ export interface TempotEvents {
     chatId: string;
     sessionData: unknown;
   };
+  'session.redis.degraded': {
+    operation: string;
+    errorCode: string;
+    errorMessage: string;
+    timestamp: string;
+  };
   'storage.file.uploaded': {
     attachmentId: string;
     fileName: string;
@@ -21,5 +27,9 @@ export interface TempotEvents {
     providerKey: string;
     deletedBy?: string;
     permanent: boolean;
+  };
+  'system.alert.critical': {
+    message: string;
+    error: string;
   };
 }

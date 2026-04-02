@@ -70,7 +70,6 @@ describe('Cache Degradation', () => {
       expect.objectContaining({
         message: expect.stringContaining('CRITICAL'),
       }),
-      'LOCAL',
     );
   });
 

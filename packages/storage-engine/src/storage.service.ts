@@ -188,6 +188,14 @@ export class StorageService {
   }
 
   private async emitEvent(
+    eventName: 'storage.file.uploaded',
+    payload: StorageFileUploadedPayload,
+  ): Promise<void>;
+  private async emitEvent(
+    eventName: 'storage.file.deleted',
+    payload: StorageFileDeletedPayload,
+  ): Promise<void>;
+  private async emitEvent(
     eventName: string,
     payload: StorageFileUploadedPayload | StorageFileDeletedPayload,
   ): Promise<void> {

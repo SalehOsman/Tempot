@@ -1,7 +1,11 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 import type { UploadOptions, Attachment, ProviderUploadResult } from './storage.types.js';
-import type { StorageProvider } from './storage.contracts.js';
+import type {
+  StorageProvider,
+  StorageFileUploadedPayload,
+  StorageFileDeletedPayload,
+} from './storage.contracts.js';
 
 /**
  * Minimal logger interface to avoid circular dependency with @tempot/logger.
@@ -19,6 +23,14 @@ export interface StorageLogger {
  * Structurally compatible with EventBusOrchestrator.
  */
 export interface StorageEventBus {
+  publish(
+    eventName: 'storage.file.uploaded',
+    payload: StorageFileUploadedPayload,
+  ): AsyncResult<void, AppError>;
+  publish(
+    eventName: 'storage.file.deleted',
+    payload: StorageFileDeletedPayload,
+  ): AsyncResult<void, AppError>;
   publish(eventName: string, payload: unknown): AsyncResult<void, AppError>;
 }
 

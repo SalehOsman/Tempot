@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import { ok, err } from 'neverthrow';
 import { AsyncResult, AppError, Result } from '@tempot/shared';
 import { validateEventName } from '../event-bus.contracts.js';
+import type { TempotEvents } from '../event-bus.events.js';
 import { eventBusToggle } from '../event-bus.toggle.js';
 
 const MAX_EVENT_LISTENERS = 100;
@@ -14,7 +15,10 @@ export class LocalEventBus {
     this.emitter.setMaxListeners(MAX_EVENT_LISTENERS);
   }
 
-  async publish(eventName: string, payload: unknown): AsyncResult<void> {
+  async publish<K extends string>(
+    eventName: K,
+    payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown,
+  ): AsyncResult<void> {
     const disabled = eventBusToggle.check();
     if (disabled) return disabled;
 
@@ -42,7 +46,10 @@ export class LocalEventBus {
     return ok(undefined);
   }
 
-  subscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
+  subscribe<K extends string>(
+    eventName: K,
+    handler: (payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown) => void,
+  ): Result<void, AppError> {
     const disabled = eventBusToggle.check();
     if (disabled) return disabled;
 
@@ -53,7 +60,10 @@ export class LocalEventBus {
     return ok(undefined);
   }
 
-  unsubscribe(eventName: string, handler: (payload: unknown) => void): Result<void, AppError> {
+  unsubscribe<K extends string>(
+    eventName: K,
+    handler: (payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown) => void,
+  ): Result<void, AppError> {
     const disabled = eventBusToggle.check();
     if (disabled) return disabled;
 

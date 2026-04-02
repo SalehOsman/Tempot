@@ -4,7 +4,7 @@ import { AsyncResult } from '../shared.result.js';
 import { AppError } from '../shared.errors.js';
 
 export interface EventBus {
-  publish(event: string, payload: unknown, type: 'LOCAL' | 'INTERNAL' | 'EXTERNAL'): Promise<void>;
+  publish(event: string, payload: unknown): Promise<void>;
 }
 
 /**
@@ -72,14 +72,10 @@ export class CacheService {
     }
 
     if (this.eventBus) {
-      await this.eventBus.publish(
-        'system.alert.critical',
-        {
-          message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
-          error: errorMessage,
-        },
-        'LOCAL',
-      );
+      await this.eventBus.publish('system.alert.critical', {
+        message: 'CRITICAL: Cache failure detected. System fell back to in-memory cache.',
+        error: errorMessage,
+      });
     }
 
     try {

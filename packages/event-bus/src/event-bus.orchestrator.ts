@@ -4,6 +4,7 @@ import { LocalEventBus } from './local/local.bus.js';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
 import { ConnectionWatcher } from './distributed/connection.watcher.js';
 import { eventBusToggle } from './event-bus.toggle.js';
+import type { TempotEvents } from './event-bus.events.js';
 
 const DEFAULT_HEALTH_CHECK_INTERVAL_MS = 2000;
 const DEFAULT_STABILIZATION_THRESHOLD = 5;
@@ -68,7 +69,10 @@ export class EventBusOrchestrator {
     return okAsync(undefined);
   }
 
-  async publish(eventName: string, payload: unknown): AsyncResult<void> {
+  async publish<K extends string>(
+    eventName: K,
+    payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown,
+  ): AsyncResult<void> {
     const disabled = eventBusToggle.check();
     if (disabled) return disabled;
 
@@ -78,7 +82,10 @@ export class EventBusOrchestrator {
     return this.localBus.publish(eventName, payload);
   }
 
-  async subscribe(eventName: string, handler: (payload: unknown) => void): AsyncResult<void> {
+  async subscribe<K extends string>(
+    eventName: K,
+    handler: (payload: K extends keyof TempotEvents ? TempotEvents[K] : unknown) => void,
+  ): AsyncResult<void> {
     const disabled = eventBusToggle.check();
     if (disabled) return disabled;
 
