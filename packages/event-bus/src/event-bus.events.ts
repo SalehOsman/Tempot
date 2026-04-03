@@ -45,6 +45,11 @@ export interface TempotEvents {
     executionMs: number;
     tokenUsage: number;
   };
+  'ai-core.tool.version_changed': {
+    toolName: string;
+    oldVersion: string;
+    newVersion: string;
+  };
   'ai-core.conversation.ended': {
     userId: string;
     messageCount: number;

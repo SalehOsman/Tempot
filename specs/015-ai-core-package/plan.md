@@ -8,7 +8,7 @@
 **Spec**: `specs/015-ai-core-package/spec.md` (Complete)
 **Created**: 2026-04-02
 **Dependencies**: `@tempot/shared`, `@tempot/database`, `@tempot/event-bus`, `@tempot/logger`
-**New External Dependencies**: `ai` (v6.x), `@ai-sdk/google`, `@ai-sdk/openai`, `cockatiel`, `rate-limiter-flexible`, `langfuse`, `@langfuse/otel`, `js-tiktoken` (optional), `zod`
+**New External Dependencies**: `ai` (v6.x), `@ai-sdk/google`, `@ai-sdk/openai`, `cockatiel`, `rate-limiter-flexible`, `langfuse`, `js-tiktoken` (optional), `zod`
 
 ---
 
@@ -106,7 +106,6 @@
     "cockatiel": "^3.0.0",
     "rate-limiter-flexible": "^5.0.0",
     "langfuse": "^3.0.0",
-    "@langfuse/otel": "^1.0.0",
     "zod": "^3.0.0",
   },
   "devDependencies": {
@@ -1536,6 +1535,7 @@ export class ConfirmationEngine {
   /** Generate a 6-digit confirmation code */
   private generateCode(): string {
     return String(Math.floor(100000 + Math.random() * 900000));
+    // NOTE: Implementation uses crypto.randomInt(100000, 1000000) for cryptographic security
   }
 
   /** Clean expired confirmations */
@@ -2062,7 +2062,6 @@ AI API calls, Langfuse integration, and Redis-backed rate limiting require live 
 | `cockatiel`             | ^3.0.0       | Circuit breaker, retry, timeout, bulkhead | runtime     |
 | `rate-limiter-flexible` | ^5.0.0       | Per-user rate limiting with Redis         | runtime     |
 | `langfuse`              | ^3.0.0       | AI observability, cost tracking           | runtime     |
-| `@langfuse/otel`        | ^1.0.0       | OpenTelemetry bridge for Langfuse         | runtime     |
 | `zod`                   | ^3.0.0       | Schema validation for tool parameters     | runtime     |
 | `typescript`            | 5.9.3        | Build                                     | dev         |
 | `vitest`                | 4.1.0        | Testing                                   | dev         |

@@ -98,6 +98,12 @@
 - **Rationale:** pgvector's HNSW and IVFFlat indexes support a maximum of 2000 dimensions for the `vector` type. Our 3072-dimension requirement (gemini-embedding-2-preview) exceeds this limit. The `halfvec` type supports up to 4000 dimensions for HNSW indexes. Halfvec uses 2 bytes per dimension (vs 4 bytes for vector), producing smaller indexes with better cache utilization. Precision loss is negligible for cosine similarity ranking — the ranking order of results is effectively identical.
 - **Alternatives rejected:** Reducing dimensions to 2000 (loses model precision). Using flat sequential scan without index (O(n) scan, unacceptable at scale). Switching to a different vector database (unnecessary infrastructure complexity). IVFFlat with halfvec (HNSW is preferred for our workload pattern — mostly reads with incremental writes).
 
+### 17. Dead Code Removal (Post-Review)
+
+- **Decision:** Remove `PROVIDER_REFUSAL` error code and `AIDegradationMode` type during post-implementation review. Neither was referenced by any implementation code.
+- **Rationale:** `PROVIDER_REFUSAL` was defined in plan.md but never used in any service — no provider integration checks for content refusal. `AIDegradationMode` was a spec-level concept (`'graceful' | 'queue' | 'disable'`) that was superseded by cockatiel's built-in circuit breaker states and `ResilienceService` — modules don't need to declare a degradation mode because resilience is handled transparently. Removing dead code follows Rule XLIII (No Zombie Code).
+- **Alternatives rejected:** Keep as placeholders for future use (violates Rule XLIII). Add implementation to use them (scope creep — no current requirement).
+
 ## Deferred Features
 
 | Feature                     | Status         | Notes                                                           |

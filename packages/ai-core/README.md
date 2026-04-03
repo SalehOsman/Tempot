@@ -18,7 +18,7 @@ Provider-agnostic AI capabilities behind a unified interface:
 - `conversation-memory.service` — summarize and store session memories
 - `dev-assistant` — RAG-powered developer Q&A CLI tool
 - `module-reviewer` — RAG-powered module review CLI tool
-- Toggle guard — disabled by default, enable via `AIConfig.enabled`
+- Toggle guard — enabled by default (`AIConfig.enabled = true`), disable via `TEMPOT_AI=false`
 
 ## Phase
 
@@ -28,13 +28,13 @@ Phase 1 — Core Infrastructure
 
 | Package | Purpose |
 |---------|---------|
-| `ai` 4.x (Vercel AI SDK) | Provider-agnostic abstraction — ADR-016 |
+| `ai` 6.x (Vercel AI SDK) | Provider-agnostic abstraction — ADR-016, ADR-037 |
 | `@ai-sdk/google` | Gemini adapter (default provider) |
 | `@ai-sdk/openai` | OpenAI adapter (alternative provider) |
 | `drizzle-orm` | pgvector storage and similarity search |
 | `cockatiel` 3.x | Circuit breaker, retry, timeout, bulkhead |
 | `rate-limiter-flexible` 5.x | Per-role rate limiting with Redis backend |
-| `langfuse` + `@langfuse/otel` | AI observability (optional) |
+| `langfuse` | AI observability (optional) |
 | `@tempot/shared` | Result types, AppError, AsyncResult |
 | `@tempot/database` | DrizzleVectorRepository, embeddings table, DB_CONFIG |
 | `@tempot/event-bus` | AI event types (generation, embedding, failure, etc.) |
@@ -94,7 +94,8 @@ const searchResult = await embeddingService.searchSimilar({
 
 - ADR-016 — Vercel AI SDK for provider abstraction
 - ADR-017 — Drizzle ORM for pgvector
+- ADR-037 — Vercel AI SDK v6 upgrade
 
 ## Status
 
-✅ **Complete** — 20 source files, 171 tests, 65 named exports
+✅ **Complete** — 20 source files, 179 tests, 65 named exports

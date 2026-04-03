@@ -93,7 +93,7 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 | Secondary ORM    | Drizzle (pgvector only)             | 0.45.x        |
 | Cache            | cache-manager + Keyv adapters       | 6.x           |
 | Queue            | BullMQ via queue factory            | 5.x           |
-| AI Abstraction   | Vercel AI SDK                       | 4.x           |
+| AI Abstraction   | Vercel AI SDK                       | 6.x           |
 | Auth             | CASL (@casl/ability + @casl/prisma) | 6.x           |
 | Error Handling   | neverthrow                          | 8.2.0         |
 | Testing          | Vitest + Testcontainers             | 4.1.0 / 8.0.1 |

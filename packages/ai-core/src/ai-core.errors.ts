@@ -7,7 +7,6 @@ export const AI_ERRORS = {
   // Provider errors
   PROVIDER_UNAVAILABLE: 'ai-core.provider.unavailable',
   PROVIDER_AUTH_FAILED: 'ai-core.provider.auth_failed',
-  PROVIDER_REFUSAL: 'ai-core.provider.refusal',
   PROVIDER_TIMEOUT: 'ai-core.provider.timeout',
   PROVIDER_UNKNOWN: 'ai-core.provider.unknown',
 

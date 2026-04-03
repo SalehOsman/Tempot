@@ -273,10 +273,9 @@ export const embeddings = pgTable('embeddings', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// HNSW index for cosine similarity (existing)
+// HNSW index on halfvec expression for 3072-dim vectors (pgvector max 2000 for vector type)
 export const embeddingIndex = index('embedding_hnsw_idx')
-  .on(embeddings.vector)
-  .using('hnsw', { opClass: 'vector_cosine_ops' });
+  .using('hnsw', sql`(vector::halfvec(3072)) halfvec_cosine_ops`);
 ```
 
 > **Implementation Note**: The `contentType` field already exists. The `metadata` JSONB field stores content-type-specific metadata including `userId` (for `user-memory`), `chunkIndex`/`totalChunks` (for chunked documents), `title`, `source`, and `language`. No new Prisma models are needed — ai-core extends the existing `embeddings` table via Drizzle.

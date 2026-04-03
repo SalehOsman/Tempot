@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-02 (Gap cleanup sprint — sentry tracking, doc fixes)
+> Last updated: 2026-04-03 (ai-core post-review fixes — dead code removal, tool version events, module-reviewer rewrite, doc sync)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -67,7 +67,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 **ux-helpers complete** — 22 source files, 156 tests, 15 components across 6 categories
 **Comprehensive audit fix complete** — 10 commits on branch `fix/audit-v2-2026-03-30` resolving 24 findings (ISSUE-009/010/011 + ISSUE-004 residuals + infra fixes + code review fixes)
 **EventBus typing rework complete** — typed publish contracts (ADR-036) enforced across event-bus, session-manager, shared/cache-service, and storage-engine; ESLint import boundary enforcement added
-**ai-core complete** — 20 source files, 171 tests, 12 services (provider factory, resilience, rate limiter, embedding, RAG pipeline, intent router, confirmation engine, audit, content ingestion, conversation memory, dev assistant, module reviewer)
+**ai-core complete** — 20 source files, 179 tests, 12 services (provider factory, resilience, rate limiter, embedding, RAG pipeline, intent router, confirmation engine, audit, content ingestion, conversation memory, dev assistant, module reviewer) — post-review fixes applied (dead code removal, module-reviewer rewrite with 5 structured checks, tool version change events, phantom dependency removal)
 **Next:** choose next package to build (6 remaining: cms-engine, input-engine, notifier, search-engine, document-engine, import-engine)
 
 ## Phase 2 — Bot Server Reconstruction

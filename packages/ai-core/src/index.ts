@@ -8,7 +8,6 @@ export type {
   AIProviderType,
   AIContentType,
   ConfirmationLevel,
-  AIDegradationMode,
   AIConfig,
   ResilienceConfig,
   RateLimitConfig,
@@ -103,4 +102,4 @@ export type {
 export { DevAssistant } from './cli/dev-assistant.js';
 export type { DevAssistantDeps, DevAssistantResult } from './cli/dev-assistant.js';
 export { ModuleReviewer } from './cli/module-reviewer.js';
-export type { ModuleReviewerDeps, ReviewResult } from './cli/module-reviewer.js';
+export type { ModuleReviewerDeps, ReviewCheck, ReviewResult } from './cli/module-reviewer.js';

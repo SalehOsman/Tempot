@@ -25,6 +25,11 @@ export class ToolRegistry {
         oldVersion: existing.version,
         newVersion: tool.version,
       });
+      void this.eventBus.publish('ai-core.tool.version_changed', {
+        toolName: tool.name,
+        oldVersion: existing.version,
+        newVersion: tool.version,
+      });
     }
     this.tools.set(tool.name, tool);
   }

@@ -49,12 +49,11 @@ describe('ai-core.types', () => {
 });
 
 describe('ai-core.errors', () => {
-  it('exports AI_ERRORS with all 29 error codes', () => {
+  it('exports AI_ERRORS with all 28 error codes', () => {
     expect(AI_ERRORS.DISABLED).toBe('ai-core.disabled');
     expect(AI_ERRORS.ACCESS_DENIED).toBe('ai-core.access_denied');
     expect(AI_ERRORS.PROVIDER_UNAVAILABLE).toBe('ai-core.provider.unavailable');
     expect(AI_ERRORS.PROVIDER_AUTH_FAILED).toBe('ai-core.provider.auth_failed');
-    expect(AI_ERRORS.PROVIDER_REFUSAL).toBe('ai-core.provider.refusal');
     expect(AI_ERRORS.PROVIDER_TIMEOUT).toBe('ai-core.provider.timeout');
     expect(AI_ERRORS.PROVIDER_UNKNOWN).toBe('ai-core.provider.unknown');
     expect(AI_ERRORS.CIRCUIT_OPEN).toBe('ai-core.resilience.circuit_open');

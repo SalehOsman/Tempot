@@ -17,9 +17,6 @@ export type AIContentType =
 /** Write action confirmation level */
 export type ConfirmationLevel = 'none' | 'simple' | 'detailed' | 'escalated';
 
-/** AI degradation mode (from module.config.ts) */
-export type AIDegradationMode = 'graceful' | 'queue' | 'disable';
-
 /** Configuration for ai-core */
 export interface AIConfig {
   enabled: boolean;

@@ -117,6 +117,30 @@ describe('ToolRegistry', () => {
       // The stored tool should be the updated one
       expect(registry.get('versioned-tool')).toBe(toolV2);
     });
+
+    it('emits ai-core.tool.version_changed event when version changes', () => {
+      const toolV1 = createMockTool({ name: 'versioned-tool', version: '1.0.0' });
+      const toolV2 = createMockTool({ name: 'versioned-tool', version: '2.0.0' });
+
+      registry.register(toolV1);
+      registry.register(toolV2);
+
+      expect(eventBus.publish).toHaveBeenCalledWith('ai-core.tool.version_changed', {
+        toolName: 'versioned-tool',
+        oldVersion: '1.0.0',
+        newVersion: '2.0.0',
+      });
+    });
+
+    it('does not emit version_changed event when registering same version', () => {
+      const toolV1a = createMockTool({ name: 'stable-tool', version: '1.0.0' });
+      const toolV1b = createMockTool({ name: 'stable-tool', version: '1.0.0' });
+
+      registry.register(toolV1a);
+      registry.register(toolV1b);
+
+      expect(eventBus.publish).not.toHaveBeenCalled();
+    });
   });
 
   describe('event-driven registration', () => {
