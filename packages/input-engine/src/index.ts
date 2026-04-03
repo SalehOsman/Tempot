@@ -61,6 +61,10 @@ export { SearchableListFieldHandler } from './fields/choice/searchable-list.fiel
 export { ConditionalFieldHandler } from './fields/smart/conditional.field.js';
 export { AIExtractorFieldHandler } from './fields/smart/ai-extractor.field.js';
 
+// Geo Field Handlers
+export { GeoSelectFieldHandler } from './fields/geo/geo-select.field.js';
+export { GeoAddressFieldHandler } from './fields/geo/geo-address.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
