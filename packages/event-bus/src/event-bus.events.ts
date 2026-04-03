@@ -67,4 +67,40 @@ export interface TempotEvents {
     toolCount: number;
     toolNames: string[];
   };
+  // Input Engine events
+  'input-engine.form.started': {
+    formId: string;
+    userId: string;
+    chatId: number;
+    fieldCount: number;
+    timestamp: Date;
+  };
+  'input-engine.form.completed': {
+    formId: string;
+    userId: string;
+    fieldCount: number;
+    durationMs: number;
+    hadPartialSave: boolean;
+  };
+  'input-engine.form.cancelled': {
+    formId: string;
+    userId: string;
+    fieldsCompleted: number;
+    totalFields: number;
+    reason: 'user_cancel' | 'timeout' | 'max_retries';
+  };
+  'input-engine.form.resumed': {
+    formId: string;
+    userId: string;
+    resumedFromField: number;
+    totalFields: number;
+  };
+  'input-engine.field.validated': {
+    formId: string;
+    userId: string;
+    fieldType: string;
+    fieldName: string;
+    valid: boolean;
+    retryCount: number;
+  };
 }
