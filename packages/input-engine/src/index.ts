@@ -78,6 +78,14 @@ export { QRCodeFieldHandler } from './fields/interactive/qr-code.field.js';
 export { ToggleFieldHandler } from './fields/interactive/toggle.field.js';
 export { TagsFieldHandler } from './fields/interactive/tags.field.js';
 
+// Media Field Handlers
+export { PhotoFieldHandler } from './fields/media/photo.field.js';
+export { DocumentFieldHandler } from './fields/media/document.field.js';
+export { VideoFieldHandler } from './fields/media/video.field.js';
+export { AudioFieldHandler } from './fields/media/audio.field.js';
+export { FileGroupFieldHandler } from './fields/media/file-group.field.js';
+export { ContactFieldHandler } from './fields/media/contact.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
