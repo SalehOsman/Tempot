@@ -54,6 +54,8 @@ export { RegexValidatedFieldHandler } from './fields/text/regex-validated.field.
 // Choice Field Handlers
 export { SingleChoiceFieldHandler } from './fields/choice/single-choice.field.js';
 export { BooleanToggleFieldHandler } from './fields/choice/boolean-toggle.field.js';
+export { MultipleChoiceFieldHandler } from './fields/choice/multiple-choice.field.js';
+export { SearchableListFieldHandler } from './fields/choice/searchable-list.field.js';
 
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
@@ -66,3 +68,11 @@ export { CurrencyAmountFieldHandler } from './fields/numbers/currency-amount.fie
 export { SchemaValidator } from './runner/schema.validator.js';
 export type { FormRunnerDeps, FormRunnerInput } from './runner/form.runner.js';
 export { runForm } from './runner/form.runner.js';
+
+// Utils
+export type { FormCallbackData } from './utils/callback-data.helper.js';
+export {
+  encodeFormCallback,
+  decodeFormCallback,
+  generateFormId,
+} from './utils/callback-data.helper.js';
