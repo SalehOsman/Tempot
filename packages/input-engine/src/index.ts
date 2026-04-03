@@ -42,3 +42,6 @@ export { ConversationsStorageAdapter } from './storage/conversations-storage.ada
 // Fields
 export type { FieldHandler } from './fields/field.handler.js';
 export { FieldHandlerRegistry } from './fields/field.handler.js';
+
+// Runner
+export { SchemaValidator } from './runner/schema.validator.js';
