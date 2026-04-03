@@ -51,6 +51,10 @@ export { PhoneFieldHandler } from './fields/text/phone.field.js';
 export { UrlFieldHandler } from './fields/text/url.field.js';
 export { RegexValidatedFieldHandler } from './fields/text/regex-validated.field.js';
 
+// Choice Field Handlers
+export { SingleChoiceFieldHandler } from './fields/choice/single-choice.field.js';
+export { BooleanToggleFieldHandler } from './fields/choice/boolean-toggle.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
