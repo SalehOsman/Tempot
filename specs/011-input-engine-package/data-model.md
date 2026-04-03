@@ -9,7 +9,7 @@ Contract that every field type implements. The FormRunner delegates to the appro
 | Property        | Type                                                                                                             | Description                                                  |
 | --------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | `fieldType`     | `FieldType`                                                                                                      | The field type identifier (e.g., `'ShortText'`, `'Integer'`) |
-| `render`        | `(conversation, ctx, metadata: FieldMetadata, formData: Record<string, unknown>) => AsyncResult<void, AppError>` | Render the field prompt and UI (buttons, calendar, etc.)     |
+| `render`        | `(conversation, ctx, metadata: FieldMetadata, formData: Record<string, unknown>) => AsyncResult<unknown, AppError>` | Render the field prompt and UI (buttons, calendar, etc.)     |
 | `parseResponse` | `(message: Message, metadata: FieldMetadata) => Result<unknown, AppError>`                                       | Parse the user's response into a typed value                 |
 | `validate`      | `(value: unknown, schema: ZodType, metadata: FieldMetadata) => Result<unknown, AppError>`                        | Validate the parsed value against the Zod schema             |
 
@@ -244,9 +244,57 @@ Result returned by CurrencyAmount field.
 | Payload                 | Fields                                                              | Event Name                     |
 | ----------------------- | ------------------------------------------------------------------- | ------------------------------ |
 | `FormCompletedPayload`  | `formId`, `userId`, `fieldCount`, `durationMs`, `hadPartialSave`    | `input-engine.form.completed`  |
-| `FormCancelledPayload`  | `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason`      | `input-engine.form.cancelled`  |
+| `FormCancelledPayload`  | `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason: 'user_cancel' \| 'timeout' \| 'max_retries'` | `input-engine.form.cancelled`  |
 | `FormResumedPayload`    | `formId`, `userId`, `resumedFromField`, `totalFields`               | `input-engine.form.resumed`    |
 | `FieldValidatedPayload` | `formId`, `userId`, `fieldType`, `fieldName`, `valid`, `retryCount` | `input-engine.field.validated` |
+
+---
+
+### `RenderContext` (Runtime — passed to field handler render)
+
+Context object passed to field handlers during rendering, providing form-level positioning information.
+
+| Property     | Type     | Description                                      |
+| ------------ | -------- | ------------------------------------------------ |
+| `formId`     | `string` | Unique form instance identifier                  |
+| `fieldIndex` | `number` | Zero-based index of the current field in the form |
+
+---
+
+### `FormRunnerDeps` (Runtime — injected dependencies)
+
+Optional dependencies injected into the FormRunner to support partial save and custom rendering.
+
+| Property          | Type                                                    | Description                                                     |
+| ----------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
+| `storageAdapter?` | `ConversationsStorageAdapter`                           | Storage adapter for partial save (F2 — wires partial save)      |
+| `renderPrompt?`   | `(ctx: unknown, text: string) => Promise<unknown>`      | Custom render function for field prompts (F4 — render layer)    |
+
+---
+
+### `FormProgress` (Runtime — internal tracking)
+
+Internal state tracked by the FormRunner during form execution.
+
+| Property              | Type       | Description                                           |
+| --------------------- | ---------- | ----------------------------------------------------- |
+| `completedFieldNames` | `string[]` | Names of fields that have been completed              |
+| `partialSaveEnabled`  | `boolean`  | Whether partial save is active for this form instance |
+| `storageKey`          | `string`   | Redis key used for partial save storage               |
+| `startTime`           | `number`   | Timestamp (ms) when the form started                  |
+| `maxMilliseconds`     | `number`   | Maximum allowed form duration in milliseconds         |
+
+---
+
+### `PartialSaveData` (Runtime — serialized to Redis)
+
+Data structure serialized to Redis when partial save is enabled.
+
+| Property              | Type                      | Description                              |
+| --------------------- | ------------------------- | ---------------------------------------- |
+| `formData`            | `Record<string, unknown>` | Collected field values so far            |
+| `fieldsCompleted`     | `number`                  | Number of fields completed               |
+| `completedFieldNames` | `string[]`                | Names of fields that have been completed |
 
 ---
 

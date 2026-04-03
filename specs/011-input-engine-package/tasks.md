@@ -95,9 +95,9 @@
 **Acceptance criteria:**
 
 - [ ] `isInputEngineEnabled()` returns `boolean` — reads `TEMPOT_INPUT_ENGINE` env var, `'false'` = disabled, anything else = enabled (default `true`)
-- [ ] `guardEnabled<T>(fn)` function exported — when disabled returns `err(AppError(INPUT_ENGINE_ERRORS.DISABLED))` without calling `fn`; when enabled calls and returns `fn()` result
-- [ ] `guardEnabledAsync<T>(fn)` async variant exported — same logic for async operations
-- [ ] Zero side effects when disabled — no conversation created, no storage initialized (D6, SC-008)
+- [x] `guardEnabled<T>(fn)` function exported — when disabled returns `err(AppError(INPUT_ENGINE_ERRORS.DISABLED))` without calling `fn`; when enabled calls and returns `fn()` result (F5)
+- [x] `guardEnabledAsync<T>(fn)` async variant exported — same logic for async operations (F5)
+- [x] Zero side effects when disabled — no conversation created, no storage initialized (D6, SC-008) (F5)
 - [ ] No `any` types
 - [ ] All tests pass (minimum 4 tests: enabled calls fn, disabled returns err without calling fn, fn error propagated, async variant works)
 
@@ -145,7 +145,7 @@
 
 **Acceptance criteria:**
 
-- [ ] `FieldHandler` interface exported with: `readonly fieldType: FieldType`, `render(conversation, ctx, metadata, formData) → AsyncResult<void, AppError>`, `parseResponse(message, metadata) → Result<unknown, AppError>`, `validate(value, schema, metadata) → Result<unknown, AppError>`
+- [x] `FieldHandler` interface exported with: `readonly fieldType: FieldType`, `render(conversation, ctx, metadata, formData) → AsyncResult<unknown, AppError>`, `parseResponse(message, metadata) → Result<unknown, AppError>`, `validate(value, schema, metadata) → Result<unknown, AppError>` (F4 — render returns unknown)
 - [ ] `FieldHandlerRegistry` class exported with: `register(handler)`, `get(fieldType) → FieldHandler | undefined`, `has(fieldType) → boolean`, `getRegisteredTypes() → FieldType[]`
 - [ ] Registry stores handlers in `Map<FieldType, FieldHandler>`
 - [ ] Registering a handler for an already-registered field type replaces the previous handler
@@ -199,16 +199,16 @@
 - [ ] `runForm(conversation, ctx, schema, options?)` function exported — returns `AsyncResult<T, AppError>` where T is inferred from the Zod schema
 - [ ] First check: toggle guard — if disabled returns `err(AppError('input-engine.disabled'))` with zero side effects
 - [ ] Second check: schema validation via `validateSchema()` — returns err if invalid
-- [ ] Check for existing partial save — if found and `partialSave: true`, resume from checkpoint
+- [x] Check for existing partial save — if found and `partialSave: true`, resume from checkpoint (F2)
 - [ ] For each field: evaluate conditions → delegate to FieldHandler.render → wait for response → FieldHandler.parseResponse → FieldHandler.validate → save partial state
 - [ ] Handle `/cancel` at any point via `otherwise` callback — returns `err(AppError('input-engine.form.cancelled'))`
-- [ ] Handle timeout via `maxMilliseconds` (default 10 min) — returns `err(AppError('input-engine.form.timeout'))`
+- [x] Handle timeout via `maxMilliseconds` (default 10 min) — returns `err(AppError('input-engine.form.timeout'))` (F3)
 - [ ] Handle invalid input retry up to `maxRetries` (default 3) — on exceed: skip if optional, or return `err(AppError('input-engine.field.max_retries'))`
 - [ ] All user-facing text via i18n keys (Rule XXXIX) — zero hardcoded text
 - [ ] Use `encodeCallbackData` from `@tempot/ux-helpers` for all callback data (FR-041)
 - [ ] Set/clear `activeConversation` in session-manager (FR-042)
-- [ ] Emit lifecycle events via fire-and-log: `form.completed`, `form.cancelled`, `form.resumed`, `field.validated`
-- [ ] Clean up partial save on successful completion
+- [x] Emit lifecycle events via fire-and-log: `form.completed`, `form.cancelled`, `form.resumed`, `field.validated` (F1)
+- [x] Clean up partial save on successful completion (F2)
 - [ ] Auto-generate `formId` (UUID) if not provided in options
 - [ ] No `any` types
 - [ ] All tests pass (minimum 12 tests: simple form success, schema validation failure, toggle disabled, cancel handling, timeout handling, max retries skip optional, max retries cancel required, partial save write, partial save resume, conditional field skip, event emission, session tracking)
@@ -1072,8 +1072,8 @@
 **Acceptance criteria:**
 
 - [ ] `TempotEvents` interface updated with `'input-engine.form.completed'` event with inline payload: `formId`, `userId`, `fieldCount`, `durationMs`, `hadPartialSave`
-- [ ] `TempotEvents` interface updated with `'input-engine.form.cancelled'` event with inline payload: `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason` ('user_cancel'|'timeout'|'max_retries')
-- [ ] `TempotEvents` interface updated with `'input-engine.form.resumed'` event with inline payload: `formId`, `userId`, `resumedFromField`, `totalFields`
+- [x] `TempotEvents` interface updated with `'input-engine.form.cancelled'` event with inline payload: `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason` ('user_cancel'|'timeout'|'max_retries') (F3)
+- [x] `TempotEvents` interface updated with `'input-engine.form.resumed'` event with inline payload: `formId`, `userId`, `resumedFromField`, `totalFields` (F1)
 - [ ] `TempotEvents` interface updated with `'input-engine.field.validated'` event with inline payload: `formId`, `userId`, `fieldType`, `fieldName`, `valid`, `retryCount`
 - [ ] Payload types defined **inline** in event-bus.events.ts — do NOT import from `@tempot/input-engine` (avoids circular dependency)
 - [ ] No other files in `packages/event-bus/` are modified
