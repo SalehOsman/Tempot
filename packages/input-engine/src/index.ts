@@ -65,6 +65,12 @@ export { AIExtractorFieldHandler } from './fields/smart/ai-extractor.field.js';
 export { GeoSelectFieldHandler } from './fields/geo/geo-select.field.js';
 export { GeoAddressFieldHandler } from './fields/geo/geo-address.field.js';
 
+// Identity Field Handlers
+export { NationalIDFieldHandler } from './fields/identity/national-id.field.js';
+export { PassportFieldHandler } from './fields/identity/passport.field.js';
+export { IBANFieldHandler } from './fields/identity/iban.field.js';
+export { EgyptianMobileFieldHandler } from './fields/identity/egyptian-mobile.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
