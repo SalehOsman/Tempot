@@ -2,17 +2,19 @@ import type { Result, AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 import type { FieldType, FieldMetadata } from '../input-engine.types.js';
 
+/** Context passed to render method */
+export interface RenderContext {
+  conversation: unknown; // grammY Conversation
+  ctx: unknown; // grammY Context
+  formData: Record<string, unknown>;
+}
+
 /** Interface that every field type handler implements */
 export interface FieldHandler {
   readonly fieldType: FieldType;
 
   /** Render the field prompt and UI elements */
-  render(
-    conversation: unknown, // grammY Conversation
-    ctx: unknown, // grammY Context
-    metadata: FieldMetadata,
-    formData: Record<string, unknown>,
-  ): AsyncResult<void, AppError>;
+  render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<void, AppError>;
 
   /** Parse the user's raw response into a typed value */
   parseResponse(

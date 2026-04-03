@@ -40,8 +40,16 @@ export { guardEnabled } from './input-engine.guard.js';
 export { ConversationsStorageAdapter } from './storage/conversations-storage.adapter.js';
 
 // Fields
-export type { FieldHandler } from './fields/field.handler.js';
+export type { FieldHandler, RenderContext } from './fields/field.handler.js';
 export { FieldHandlerRegistry } from './fields/field.handler.js';
+
+// Text Field Handlers
+export { ShortTextFieldHandler } from './fields/text/short-text.field.js';
+export { LongTextFieldHandler } from './fields/text/long-text.field.js';
+export { EmailFieldHandler } from './fields/text/email.field.js';
+export { PhoneFieldHandler } from './fields/text/phone.field.js';
+export { UrlFieldHandler } from './fields/text/url.field.js';
+export { RegexValidatedFieldHandler } from './fields/text/regex-validated.field.js';
 
 // Runner
 export { SchemaValidator } from './runner/schema.validator.js';

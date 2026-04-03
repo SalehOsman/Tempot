@@ -5,7 +5,13 @@ import type { AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { SchemaValidator } from './schema.validator.js';
 import { shouldRenderField } from './condition.evaluator.js';
-import { emitEvent } from './event.emitter.js';
+import {
+  emitEvent,
+  emitFormStarted,
+  emitFormCompleted,
+  emitFormCancelled,
+} from './event.emitter.js';
+import type { EventEmitterDeps } from './event.emitter.js';
 import type { InputEngineLogger, InputEngineEventBus } from '../input-engine.contracts.js';
 import type { FieldMetadata, FormOptions } from '../input-engine.types.js';
 import { DEFAULT_FORM_OPTIONS } from '../input-engine.types.js';
@@ -31,14 +37,7 @@ export interface FormRunnerInput {
   options?: FormOptions;
 }
 
-/** Default max retries per field */
 const DEFAULT_MAX_RETRIES = 3;
-
-/** Bundled event deps to stay under max-params */
-interface EventDeps {
-  eventBus: InputEngineEventBus;
-  logger: InputEngineLogger;
-}
 
 /** Mutable progress tracker shared between functions */
 interface FormProgress {
@@ -48,28 +47,21 @@ interface FormProgress {
   formData: Record<string, unknown>;
 }
 
-/** Extract field metadata from zod global registry */
 function getFieldMetadata(schema: z.ZodType): FieldMetadata {
   const meta = z.globalRegistry.get(schema);
   return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
 }
 
-/** Run precondition checks: toggle, schema, active conversation */
 function checkPreconditions(
   schema: z.ZodObject<z.ZodRawShape>,
   deps: FormRunnerDeps,
 ): AppError | undefined {
-  if (!deps.isEnabled()) {
-    return new AppError(INPUT_ENGINE_ERRORS.DISABLED);
-  }
+  if (!deps.isEnabled()) return new AppError(INPUT_ENGINE_ERRORS.DISABLED);
   const result = new SchemaValidator(deps.registry).validate(schema);
   if (result.isErr()) return result.error;
-
   const active = deps.getActiveConversation();
   if (active !== undefined) {
-    return new AppError(INPUT_ENGINE_ERRORS.FORM_ALREADY_ACTIVE, {
-      existingFormId: active,
-    });
+    return new AppError(INPUT_ENGINE_ERRORS.FORM_ALREADY_ACTIVE, { existingFormId: active });
   }
   return undefined;
 }
@@ -94,7 +86,10 @@ async function processField(
   let retryCount = 0;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const rr = await handler.render(input.conversation, input.ctx, metadata, ctx.formData);
+    const rr = await handler.render(
+      { conversation: input.conversation, ctx: input.ctx, formData: ctx.formData },
+      metadata,
+    );
     if (rr.isErr()) return err(rr.error);
 
     const pr = handler.parseResponse(input.ctx, metadata);
@@ -129,10 +124,7 @@ async function iterateFields(
   progress: FormProgress,
 ): AsyncResult<void, AppError> {
   const fieldNames = Object.keys(input.schema.shape);
-  const evDeps: EventDeps = {
-    eventBus: deps.eventBus,
-    logger: deps.logger,
-  };
+  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
   progress.totalFields = fieldNames.length;
 
   for (const fieldName of fieldNames) {
@@ -140,11 +132,7 @@ async function iterateFields(
     const metadata = getFieldMetadata(fieldSchema);
 
     if (!shouldRenderField(metadata, progress.formData)) {
-      deps.logger.debug({
-        msg: 'Skipping conditional field',
-        formId: progress.formId,
-        fieldName,
-      });
+      deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
       continue;
     }
 
@@ -199,56 +187,38 @@ export async function runForm<T>(
   const preErr = checkPreconditions(input.schema, deps);
   if (preErr) return err(preErr);
 
-  const merged: Required<FormOptions> = {
-    ...DEFAULT_FORM_OPTIONS,
-    ...options,
-    ...input.options,
-  };
+  const merged: Required<FormOptions> = { ...DEFAULT_FORM_OPTIONS, ...options, ...input.options };
   const formId = merged.formId || crypto.randomUUID().slice(0, 8);
   deps.setActiveConversation(formId);
 
-  const evDeps: EventDeps = {
-    eventBus: deps.eventBus,
-    logger: deps.logger,
-  };
-  const progress: FormProgress = {
-    fieldsCompleted: 0,
-    totalFields: 0,
-    formId,
-    formData: {},
-  };
+  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
+  const progress: FormProgress = { fieldsCompleted: 0, totalFields: 0, formId, formData: {} };
   const startTime = Date.now();
+  const fieldCount = Object.keys(input.schema.shape).length;
 
-  await emitEvent(evDeps, 'input-engine.form.started', {
-    formId,
-    userId: deps.userId,
-    chatId: deps.chatId,
-    fieldCount: Object.keys(input.schema.shape).length,
-    timestamp: new Date(),
-  });
-
+  await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
   const loopResult = await iterateFields(input, deps, progress);
 
   if (loopResult.isErr()) {
     deps.setActiveConversation(undefined);
     if (loopResult.error.code === INPUT_ENGINE_ERRORS.FORM_CANCELLED) {
-      await emitEvent(evDeps, 'input-engine.form.cancelled', {
+      await emitFormCancelled(evDeps, {
         formId,
         userId: deps.userId,
         fieldsCompleted: progress.fieldsCompleted,
         totalFields: progress.totalFields,
-        reason: 'user_cancel',
       });
     }
     return err(loopResult.error);
   }
 
   deps.setActiveConversation(undefined);
-  await emitEvent(evDeps, 'input-engine.form.completed', {
+  const durationMs = Date.now() - startTime;
+  await emitFormCompleted(evDeps, {
     formId,
     userId: deps.userId,
-    fieldCount: progress.fieldsCompleted,
-    durationMs: Date.now() - startTime,
+    fieldsCompleted: progress.fieldsCompleted,
+    durationMs,
     hadPartialSave: merged.partialSave,
   });
 
