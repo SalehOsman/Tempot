@@ -93,6 +93,13 @@ export { CurrencyFieldHandler } from './fields/numbers/currency.field.js';
 export { PercentageFieldHandler } from './fields/numbers/percentage.field.js';
 export { CurrencyAmountFieldHandler } from './fields/numbers/currency-amount.field.js';
 
+// Time/Place Field Handlers
+export { DatePickerFieldHandler } from './fields/time-place/date-picker.field.js';
+export { TimePickerFieldHandler } from './fields/time-place/time-picker.field.js';
+export { LocationFieldHandler } from './fields/time-place/location.field.js';
+export { DateRangeFieldHandler } from './fields/time-place/date-range.field.js';
+export { SchedulePickerFieldHandler } from './fields/time-place/schedule-picker.field.js';
+
 // Runner
 export { SchemaValidator } from './runner/schema.validator.js';
 export type { FormRunnerDeps, FormRunnerInput } from './runner/form.runner.js';
