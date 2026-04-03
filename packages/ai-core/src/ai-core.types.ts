@@ -1,4 +1,4 @@
-import type { ZodSchema } from 'zod';
+import type { ZodType } from 'zod';
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
@@ -56,7 +56,7 @@ export interface ChunkingConfig {
 export interface AITool {
   name: string;
   description: string;
-  parameters: ZodSchema;
+  parameters: ZodType;
   requiredPermission: {
     action: string;
     subject: string;
