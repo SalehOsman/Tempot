@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SchedulePickerFieldHandler } from '../../src/fields/time-place/schedule-picker.field.js';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 import type { FieldMetadata, TimeSlot } from '../../src/input-engine.types.js';
@@ -30,13 +30,24 @@ describe('SchedulePickerFieldHandler', () => {
   });
 
   describe('render', () => {
-    it('returns ok(undefined)', async () => {
+    it('sends available slots as inline keyboard', async () => {
+      const mockResponse = { callback_query: { data: 'ie:f1:0:slot:slot-1' } };
+      const mockCtx = { reply: vi.fn().mockResolvedValue(undefined) };
+      const mockConv = { waitFor: vi.fn().mockResolvedValue(mockResponse) };
+
       const result = await handler.render(
-        { conversation: undefined, ctx: undefined, formData: {} },
+        { conversation: mockConv, ctx: mockCtx, formData: {}, formId: 'f1', fieldIndex: 0 },
         createMeta(),
       );
       expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toBeUndefined();
+      expect(result._unsafeUnwrap()).toBe(mockResponse);
+      expect(mockCtx.reply).toHaveBeenCalledWith(
+        'test.schedulePicker',
+        expect.objectContaining({
+          reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+        }),
+      );
+      expect(mockConv.waitFor).toHaveBeenCalledWith('callback_query:data');
     });
   });
 

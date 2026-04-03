@@ -18,7 +18,10 @@ const OPERATOR_MAP: Record<string, string> = {
 export class EgyptianMobileFieldHandler implements FieldHandler {
   readonly fieldType = 'EgyptianMobile' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

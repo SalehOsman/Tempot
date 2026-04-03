@@ -11,7 +11,10 @@ const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
 export class UrlFieldHandler implements FieldHandler {
   readonly fieldType = 'URL' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

@@ -12,7 +12,10 @@ const DEFAULT_MAX_PERCENTAGE = 100;
 export class PercentageFieldHandler implements FieldHandler {
   readonly fieldType = 'Percentage' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

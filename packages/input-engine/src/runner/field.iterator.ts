@@ -7,7 +7,7 @@ import { shouldRenderField } from './condition.evaluator.js';
 import { emitEvent } from './event.emitter.js';
 import type { EventEmitterDeps } from './event.emitter.js';
 import type { FieldMetadata } from '../input-engine.types.js';
-import type { FieldHandler } from '../fields/field.handler.js';
+import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import { saveFieldProgress } from './partial-save.helper.js';
 import type { FormRunnerDeps } from './form.runner.js';
 import type { FormRunnerInput, FormProgress } from './form.runner.js';
@@ -23,6 +23,8 @@ interface FieldContext {
   maxRetries: number;
   formData: Record<string, unknown>;
   retryCount: number;
+  formId: string;
+  fieldIndex: number;
 }
 
 /** Process a single field: render, parse, validate with retry */
@@ -34,13 +36,20 @@ async function processField(
   let retryCount = 0;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const rr = await handler.render(
-      { conversation: input.conversation, ctx: input.ctx, formData: ctx.formData },
-      metadata,
-    );
+    const renderCtx: RenderContext = {
+      conversation: input.conversation,
+      ctx: input.ctx,
+      formData: ctx.formData,
+      formId: ctx.formId,
+      fieldIndex: ctx.fieldIndex,
+    };
+
+    const rr = await handler.render(renderCtx, metadata);
     if (rr.isErr()) return err(rr.error);
 
-    const pr = handler.parseResponse(input.ctx, metadata);
+    const responseCtx = rr.value ?? input.ctx;
+
+    const pr = handler.parseResponse(responseCtx, metadata);
     if (pr.isErr()) {
       retryCount++;
       continue;
@@ -85,6 +94,7 @@ interface FieldBuildParams {
   fieldName: string;
   metadata: FieldMetadata;
   fieldSchema: z.ZodType;
+  fieldIndex: number;
 }
 
 /** Build FieldContext for a given field, or error if handler missing */
@@ -108,6 +118,8 @@ function buildFieldContext(
     maxRetries: params.metadata.maxRetries ?? DEFAULT_MAX_RETRIES,
     formData: progress.formData,
     retryCount: 0,
+    formId: progress.formId,
+    fieldIndex: params.fieldIndex,
   };
 }
 
@@ -126,7 +138,8 @@ export async function iterateFields(
   const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
   progress.totalFields = fieldNames.length;
 
-  for (const fieldName of fieldNames) {
+  for (let i = 0; i < fieldNames.length; i++) {
+    const fieldName = fieldNames[i]!;
     // Deadline check
     if (Date.now() - progress.startTime > progress.maxMilliseconds) {
       return err(
@@ -148,7 +161,12 @@ export async function iterateFields(
       continue;
     }
 
-    const ctxOrErr = buildFieldContext(deps, progress, { fieldName, metadata, fieldSchema });
+    const ctxOrErr = buildFieldContext(deps, progress, {
+      fieldName,
+      metadata,
+      fieldSchema,
+      fieldIndex: i,
+    });
     if (ctxOrErr instanceof AppError) return err(ctxOrErr);
 
     const result = await processField(input, ctxOrErr);

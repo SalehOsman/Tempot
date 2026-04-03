@@ -31,6 +31,7 @@ export interface FormRunnerDeps {
   userId: string;
   chatId: number;
   storageAdapter?: ConversationsStorageAdapter;
+  renderPrompt?: (ctx: unknown, text: string) => Promise<unknown>;
 }
 
 /** Bundled input for runForm: conversation context + schema */

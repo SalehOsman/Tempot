@@ -50,7 +50,10 @@ function formatTime(hours: number, minutes: number): string {
 export class TimePickerFieldHandler implements FieldHandler {
   readonly fieldType = 'TimePicker' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

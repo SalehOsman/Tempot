@@ -21,8 +21,32 @@ const DEFAULT_MAX = 5;
 export class StarRatingFieldHandler implements FieldHandler {
   readonly fieldType = 'StarRating' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
-    return ok(undefined);
+  async render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<unknown, AppError> {
+    try {
+      const ctx = renderCtx.ctx as {
+        reply: (text: string, other?: Record<string, unknown>) => Promise<unknown>;
+      };
+      const conv = renderCtx.conversation as { waitFor: (filter: string) => Promise<unknown> };
+
+      const max = metadata.max ?? DEFAULT_MAX;
+      const min = metadata.min ?? DEFAULT_MIN;
+      const buttons: Array<{ text: string; callback_data: string }> = [];
+      for (let i = min; i <= max; i++) {
+        buttons.push({
+          text: '\u2B50'.repeat(i),
+          callback_data: `ie:${renderCtx.formId}:${String(renderCtx.fieldIndex)}:${String(i)}`,
+        });
+      }
+
+      await ctx.reply(metadata.i18nKey, { reply_markup: { inline_keyboard: [buttons] } });
+
+      const response = await conv.waitFor('callback_query:data');
+      return ok(response);
+    } catch {
+      return err(
+        new AppError(INPUT_ENGINE_ERRORS.FIELD_RENDER_FAILED, { fieldType: this.fieldType }),
+      );
+    }
   }
 
   parseResponse(message: unknown, _metadata: FieldMetadata): Result<unknown, AppError> {

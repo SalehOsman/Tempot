@@ -14,7 +14,10 @@ import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 export class ConditionalFieldHandler implements FieldHandler {
   readonly fieldType = 'ConditionalField' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

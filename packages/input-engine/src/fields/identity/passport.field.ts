@@ -11,7 +11,10 @@ const PASSPORT_PATTERN = /^[A-Z0-9]{6,9}$/;
 export class PassportFieldHandler implements FieldHandler {
   readonly fieldType = 'PassportNumber' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

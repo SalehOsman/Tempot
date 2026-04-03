@@ -11,7 +11,10 @@ const PHONE_REGEX = /^\+?[1-9]\d{1,14}$/;
 export class PhoneFieldHandler implements FieldHandler {
   readonly fieldType = 'Phone' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

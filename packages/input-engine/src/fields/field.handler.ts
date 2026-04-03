@@ -7,6 +7,8 @@ export interface RenderContext {
   conversation: unknown; // grammY Conversation
   ctx: unknown; // grammY Context
   formData: Record<string, unknown>;
+  formId: string;
+  fieldIndex: number;
 }
 
 /** Interface that every field type handler implements */
@@ -14,7 +16,7 @@ export interface FieldHandler {
   readonly fieldType: FieldType;
 
   /** Render the field prompt and UI elements */
-  render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<void, AppError>;
+  render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<unknown, AppError>;
 
   /** Parse the user's raw response into a typed value */
   parseResponse(

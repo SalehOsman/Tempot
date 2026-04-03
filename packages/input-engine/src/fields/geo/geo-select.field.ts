@@ -19,8 +19,30 @@ const PREFIX_SEGMENT_COUNT = 3;
 export class GeoSelectFieldHandler implements FieldHandler {
   readonly fieldType = 'GeoSelectField' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
-    return ok(undefined);
+  async render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<unknown, AppError> {
+    try {
+      const ctx = renderCtx.ctx as {
+        reply: (text: string, other?: Record<string, unknown>) => Promise<unknown>;
+      };
+      const conv = renderCtx.conversation as { waitFor: (filter: string) => Promise<unknown> };
+      const options = metadata.options ?? [];
+
+      const buttons = options.map((opt) => [
+        {
+          text: opt.label,
+          callback_data: `ie:${renderCtx.formId}:${String(renderCtx.fieldIndex)}:${opt.value}`,
+        },
+      ]);
+
+      await ctx.reply(metadata.i18nKey, { reply_markup: { inline_keyboard: buttons } });
+
+      const response = await conv.waitFor('callback_query:data');
+      return ok(response);
+    } catch {
+      return err(
+        new AppError(INPUT_ENGINE_ERRORS.FIELD_RENDER_FAILED, { fieldType: this.fieldType }),
+      );
+    }
   }
 
   parseResponse(message: unknown, _metadata: FieldMetadata): Result<unknown, AppError> {

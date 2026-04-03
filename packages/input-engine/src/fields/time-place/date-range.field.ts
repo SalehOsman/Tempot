@@ -39,7 +39,10 @@ function splitDateRange(text: string): [string, string] | undefined {
 export class DateRangeFieldHandler implements FieldHandler {
   readonly fieldType = 'DateRange' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

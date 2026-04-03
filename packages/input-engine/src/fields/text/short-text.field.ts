@@ -12,7 +12,10 @@ const DEFAULT_MAX_LENGTH = 255;
 export class ShortTextFieldHandler implements FieldHandler {
   readonly fieldType = 'ShortText' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SingleChoiceFieldHandler } from '../../src/fields/choice/single-choice.field.js';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 import type { FieldMetadata, ChoiceOption } from '../../src/input-engine.types.js';
@@ -30,13 +30,27 @@ describe('SingleChoiceFieldHandler', () => {
   });
 
   describe('render', () => {
-    it('returns ok(undefined)', async () => {
+    it('sends inline keyboard and returns response context', async () => {
+      const mockResponse = { callback_query: { data: 'ie:f1:0:opt_0' } };
+      const mockCtx = { reply: vi.fn().mockResolvedValue(undefined) };
+      const mockConv = { waitFor: vi.fn().mockResolvedValue(mockResponse) };
+      const options = createOptions(2);
+      const meta = createMeta({ options });
+
       const result = await handler.render(
-        { conversation: undefined, ctx: undefined, formData: {} },
-        createMeta(),
+        { conversation: mockConv, ctx: mockCtx, formData: {}, formId: 'f1', fieldIndex: 0 },
+        meta,
       );
+
       expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toBeUndefined();
+      expect(result._unsafeUnwrap()).toBe(mockResponse);
+      expect(mockCtx.reply).toHaveBeenCalledWith(
+        meta.i18nKey,
+        expect.objectContaining({
+          reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+        }),
+      );
+      expect(mockConv.waitFor).toHaveBeenCalledWith('callback_query:data');
     });
   });
 

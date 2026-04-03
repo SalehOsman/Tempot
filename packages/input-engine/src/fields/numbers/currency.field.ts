@@ -20,7 +20,10 @@ function hasExcessDecimalPlaces(num: number, maxPlaces: number): boolean {
 export class CurrencyFieldHandler implements FieldHandler {
   readonly fieldType = 'Currency' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

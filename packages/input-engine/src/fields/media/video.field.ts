@@ -42,8 +42,22 @@ function checkDuration(
 export class VideoFieldHandler implements FieldHandler {
   readonly fieldType = 'Video' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
-    return ok(undefined);
+  async render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<unknown, AppError> {
+    try {
+      const ctx = renderCtx.ctx as {
+        reply: (text: string, other?: Record<string, unknown>) => Promise<unknown>;
+      };
+      const conv = renderCtx.conversation as { waitFor: (filter: string) => Promise<unknown> };
+
+      await ctx.reply(metadata.i18nKey);
+
+      const response = await conv.waitFor('message:video');
+      return ok(response);
+    } catch {
+      return err(
+        new AppError(INPUT_ENGINE_ERRORS.FIELD_RENDER_FAILED, { fieldType: this.fieldType }),
+      );
+    }
   }
 
   parseResponse(message: unknown, _metadata: FieldMetadata): Result<unknown, AppError> {

@@ -12,7 +12,10 @@ const DEFAULT_MAX_LENGTH = 4096;
 export class LongTextFieldHandler implements FieldHandler {
   readonly fieldType = 'LongText' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

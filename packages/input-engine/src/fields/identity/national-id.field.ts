@@ -13,7 +13,10 @@ const VALID_CENTURIES: Record<string, number> = { '2': 1900, '3': 2000 };
 export class NationalIDFieldHandler implements FieldHandler {
   readonly fieldType = 'NationalID' as const;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 

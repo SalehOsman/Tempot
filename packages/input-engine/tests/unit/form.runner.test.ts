@@ -750,4 +750,106 @@ describe('FormRunner (runForm)', () => {
       now.mockRestore();
     });
   });
+
+  describe('render layer', () => {
+    it('uses render return value as parseResponse context', async () => {
+      const renderResponse = { message: { text: 'from-render' } };
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(renderResponse)),
+        parseResponse: vi.fn().mockReturnValue(ok('parsed-value')),
+        validate: vi.fn().mockReturnValue(ok('validated-value')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      await runForm(createInput(schema), deps);
+
+      // parseResponse should receive the render return value, not input.ctx
+      expect(handler.parseResponse).toHaveBeenCalledWith(renderResponse, expect.anything());
+    });
+
+    it('falls back to input.ctx when render returns ok(undefined)', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('parsed-value')),
+        validate: vi.fn().mockReturnValue(ok('validated-value')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const input = createInput(schema);
+      await runForm(input, deps);
+
+      // parseResponse should receive input.ctx as fallback
+      expect(handler.parseResponse).toHaveBeenCalledWith(input.ctx, expect.anything());
+    });
+
+    it('passes formId and fieldIndex in RenderContext', async () => {
+      let capturedRenderCtx: Record<string, unknown> | undefined;
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      const nameHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('John')),
+        validate: vi.fn().mockReturnValue(ok('John')),
+      };
+
+      const emailHandler: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockImplementation((renderCtx: Record<string, unknown>) => {
+          capturedRenderCtx = renderCtx;
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('john@test.com')),
+        validate: vi.fn().mockReturnValue(ok('john@test.com')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { formId: 'render-test-form' },
+      };
+      await runForm(input, deps);
+
+      // Email is the second field (index 1)
+      expect(capturedRenderCtx).toBeDefined();
+      expect(capturedRenderCtx!['formId']).toBe('render-test-form');
+      expect(capturedRenderCtx!['fieldIndex']).toBe(1);
+
+      // Verify name handler got index 0
+      const nameRenderCall = (nameHandler.render as ReturnType<typeof vi.fn>).mock
+        .calls[0] as unknown[];
+      const nameRenderCtx = nameRenderCall[0] as Record<string, unknown>;
+      expect(nameRenderCtx['formId']).toBe('render-test-form');
+      expect(nameRenderCtx['fieldIndex']).toBe(0);
+    });
+  });
 });

@@ -60,7 +60,10 @@ function validateAmount(
 export class CurrencyAmountFieldHandler implements FieldHandler {
   readonly fieldType = FIELD_TYPE;
 
-  async render(_renderCtx: RenderContext, _metadata: FieldMetadata): AsyncResult<void, AppError> {
+  async render(
+    _renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
     return ok(undefined);
   }
 
