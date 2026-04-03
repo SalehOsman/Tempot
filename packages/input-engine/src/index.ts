@@ -45,3 +45,5 @@ export { FieldHandlerRegistry } from './fields/field.handler.js';
 
 // Runner
 export { SchemaValidator } from './runner/schema.validator.js';
+export type { FormRunnerDeps, FormRunnerInput } from './runner/form.runner.js';
+export { runForm } from './runner/form.runner.js';

@@ -1,0 +1,387 @@
+import { describe, it, expect, vi } from 'vitest';
+import { ok, err } from 'neverthrow';
+import { z } from 'zod';
+import { AppError } from '@tempot/shared';
+import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
+import { FieldHandlerRegistry } from '../../src/fields/field.handler.js';
+import type { FieldHandler } from '../../src/fields/field.handler.js';
+import type { FieldMetadata, FieldType } from '../../src/input-engine.types.js';
+import type { FormRunnerDeps, FormRunnerInput } from '../../src/runner/form.runner.js';
+import { runForm } from '../../src/runner/form.runner.js';
+
+/** Register field metadata on a Zod schema instance via z.globalRegistry */
+function registerField(schema: z.ZodType, metadata: FieldMetadata): z.ZodType {
+  z.globalRegistry.add(schema, { 'input-engine': metadata });
+  return schema;
+}
+
+/** Create a mock FieldHandler that returns ok values */
+function createMockHandler(
+  fieldType: FieldType,
+  returnValue: unknown = 'test-value',
+): FieldHandler {
+  return {
+    fieldType,
+    render: vi.fn().mockResolvedValue(ok(undefined)),
+    parseResponse: vi.fn().mockReturnValue(ok(returnValue)),
+    validate: vi.fn().mockReturnValue(ok(returnValue)),
+  };
+}
+
+/** Create mock FormRunnerDeps with optional overrides */
+function createMockDeps(overrides?: Partial<FormRunnerDeps>): FormRunnerDeps {
+  return {
+    registry: new FieldHandlerRegistry(),
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+    },
+    eventBus: {
+      publish: vi.fn().mockResolvedValue(ok(undefined)),
+    },
+    isEnabled: () => true,
+    getActiveConversation: () => undefined,
+    setActiveConversation: vi.fn(),
+    userId: 'test-user',
+    chatId: 12345,
+    ...overrides,
+  };
+}
+
+/** Create a FormRunnerInput for a given schema */
+function createInput(schema: z.ZodObject<z.ZodRawShape>): FormRunnerInput {
+  return {
+    conversation: {},
+    ctx: { message: { text: 'mock-input' } },
+    schema,
+  };
+}
+
+describe('FormRunner (runForm)', () => {
+  it('returns err(DISABLED) when toggle is off', async () => {
+    const deps = createMockDeps({ isEnabled: () => false });
+    const input = createInput(z.object({}));
+
+    const result = await runForm(input, deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.DISABLED);
+    }
+  });
+
+  it('returns err(SCHEMA_INVALID) for invalid schema', async () => {
+    const fieldSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: '',
+    } as FieldMetadata);
+    const schema = z.object({ name: fieldSchema });
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText'));
+
+    const result = await runForm(createInput(schema), deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.SCHEMA_INVALID);
+    }
+  });
+
+  it('returns err(FORM_ALREADY_ACTIVE) when session has activeConversation', async () => {
+    const fieldSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const schema = z.object({ name: fieldSchema });
+
+    const deps = createMockDeps({
+      getActiveConversation: () => 'existing-form-id',
+    });
+    deps.registry.register(createMockHandler('ShortText'));
+
+    const result = await runForm(createInput(schema), deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FORM_ALREADY_ACTIVE);
+    }
+  });
+
+  it('successfully runs a simple 2-field form', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const emailSchema = registerField(z.string(), {
+      fieldType: 'Email',
+      i18nKey: 'form.email',
+    } as FieldMetadata);
+    const schema = z.object({
+      name: nameSchema,
+      email: emailSchema,
+    });
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'John'));
+    deps.registry.register(createMockHandler('Email', 'john@example.com'));
+
+    const result = await runForm<{ name: string; email: string }>(createInput(schema), deps);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toEqual({
+        name: 'John',
+        email: 'john@example.com',
+      });
+    }
+
+    // Verify session lifecycle: set then clear
+    const setMock = deps.setActiveConversation as ReturnType<typeof vi.fn>;
+    expect(setMock).toHaveBeenCalledTimes(2);
+    expect(setMock.mock.calls[0]?.[0]).toBeTruthy();
+    expect(setMock.mock.calls[1]?.[0]).toBeUndefined();
+  });
+
+  it('skips conditional fields when condition is not met', async () => {
+    const catSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.category',
+    } as FieldMetadata);
+    const detailSchema = registerField(z.string(), {
+      fieldType: 'LongText',
+      i18nKey: 'form.detail',
+      conditions: [
+        {
+          dependsOn: 'category',
+          operator: 'equals' as const,
+          value: 'other',
+        },
+      ],
+    } as FieldMetadata);
+    const schema = z.object({
+      category: catSchema,
+      detail: detailSchema,
+    });
+
+    const detailHandler = createMockHandler('LongText', 'some-detail');
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'not-other'));
+    deps.registry.register(detailHandler);
+
+    const result = await runForm<{ category: string }>(createInput(schema), deps);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toEqual({ category: 'not-other' });
+    }
+    expect(detailHandler.render).not.toHaveBeenCalled();
+  });
+
+  it('emits form.started and form.completed events on success', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const schema = z.object({ name: nameSchema });
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'test'));
+
+    await runForm(createInput(schema), deps);
+
+    const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+    const events = pub.mock.calls.map((c: unknown[]) => c[0]) as string[];
+
+    expect(events).toContain('input-engine.form.started');
+    expect(events).toContain('input-engine.form.completed');
+
+    // Verify started payload
+    const started = pub.mock.calls.find(
+      (c: unknown[]) => c[0] === 'input-engine.form.started',
+    ) as unknown[];
+    const sp = started[1] as Record<string, unknown>;
+    expect(sp).toMatchObject({
+      userId: 'test-user',
+      chatId: 12345,
+      fieldCount: 1,
+    });
+    expect(sp['formId']).toBeTruthy();
+    expect(sp['timestamp']).toBeInstanceOf(Date);
+
+    // Verify completed payload
+    const completed = pub.mock.calls.find(
+      (c: unknown[]) => c[0] === 'input-engine.form.completed',
+    ) as unknown[];
+    const cp = completed[1] as Record<string, unknown>;
+    expect(cp).toMatchObject({
+      userId: 'test-user',
+      fieldCount: 1,
+      hadPartialSave: false,
+    });
+    expect(cp['formId']).toBeTruthy();
+    expect(cp['durationMs']).toBeGreaterThanOrEqual(0);
+  });
+
+  it('emits form.cancelled when user cancel is triggered', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const emailSchema = registerField(z.string(), {
+      fieldType: 'Email',
+      i18nKey: 'form.email',
+    } as FieldMetadata);
+    const schema = z.object({
+      name: nameSchema,
+      email: emailSchema,
+    });
+
+    const emailHandler: FieldHandler = {
+      fieldType: 'Email',
+      render: vi.fn().mockResolvedValue(err(new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED))),
+      parseResponse: vi.fn().mockReturnValue(ok('unused')),
+      validate: vi.fn().mockReturnValue(ok('unused')),
+    };
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'John'));
+    deps.registry.register(emailHandler);
+
+    const result = await runForm(createInput(schema), deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+    }
+
+    const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+    const events = pub.mock.calls.map((c: unknown[]) => c[0]) as string[];
+    expect(events).toContain('input-engine.form.cancelled');
+
+    // Verify cancelled payload
+    const cancelled = pub.mock.calls.find(
+      (c: unknown[]) => c[0] === 'input-engine.form.cancelled',
+    ) as unknown[];
+    const payload = cancelled[1] as Record<string, unknown>;
+    expect(payload).toMatchObject({
+      userId: 'test-user',
+      reason: 'user_cancel',
+    });
+
+    expect(deps.setActiveConversation).toHaveBeenLastCalledWith(undefined);
+  });
+
+  it('returns err(FIELD_MAX_RETRIES) after maxRetries exceeded', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+      maxRetries: 2,
+    } as FieldMetadata);
+    const schema = z.object({ name: nameSchema });
+
+    const handler: FieldHandler = {
+      fieldType: 'ShortText',
+      render: vi.fn().mockResolvedValue(ok(undefined)),
+      parseResponse: vi.fn().mockReturnValue(ok('bad-value')),
+      validate: vi
+        .fn()
+        .mockReturnValue(err(new AppError(INPUT_ENGINE_ERRORS.FIELD_VALIDATION_FAILED))),
+    };
+
+    const deps = createMockDeps();
+    deps.registry.register(handler);
+
+    const result = await runForm(createInput(schema), deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES);
+    }
+
+    // 2 attempts: render->parse->validate(fail) x2
+    expect(handler.render).toHaveBeenCalledTimes(2);
+    expect(handler.parseResponse).toHaveBeenCalledTimes(2);
+    expect(handler.validate).toHaveBeenCalledTimes(2);
+
+    expect(deps.setActiveConversation).toHaveBeenLastCalledWith(undefined);
+  });
+
+  it('emits field.validated event for each field', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const schema = z.object({ name: nameSchema });
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'test'));
+
+    await runForm(createInput(schema), deps);
+
+    const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+    const fvCall = pub.mock.calls.find(
+      (c: unknown[]) => c[0] === 'input-engine.field.validated',
+    ) as unknown[];
+
+    expect(fvCall).toBeTruthy();
+    const payload = fvCall[1] as Record<string, unknown>;
+    expect(payload).toMatchObject({
+      userId: 'test-user',
+      fieldType: 'ShortText',
+      fieldName: 'name',
+      valid: true,
+      retryCount: 0,
+    });
+  });
+
+  it('uses provided formId from options', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const schema = z.object({ name: nameSchema });
+
+    const deps = createMockDeps();
+    deps.registry.register(createMockHandler('ShortText', 'test'));
+
+    const input: FormRunnerInput = {
+      ...createInput(schema),
+      options: { formId: 'my-form-123' },
+    };
+    await runForm(input, deps);
+
+    expect(deps.setActiveConversation).toHaveBeenCalledWith('my-form-123');
+
+    const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+    const started = pub.mock.calls.find(
+      (c: unknown[]) => c[0] === 'input-engine.form.started',
+    ) as unknown[];
+    const sp = started[1] as Record<string, unknown>;
+    expect(sp['formId']).toBe('my-form-123');
+  });
+
+  it('event emission failures are logged but do not fail the form', async () => {
+    const nameSchema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+    } as FieldMetadata);
+    const schema = z.object({ name: nameSchema });
+
+    const deps = createMockDeps({
+      eventBus: {
+        publish: vi
+          .fn()
+          .mockResolvedValue(err(new AppError(INPUT_ENGINE_ERRORS.EVENT_PUBLISH_FAILED))),
+      },
+    });
+    deps.registry.register(createMockHandler('ShortText', 'test'));
+
+    const result = await runForm(createInput(schema), deps);
+
+    expect(result.isOk()).toBe(true);
+    expect(deps.logger.warn).toHaveBeenCalled();
+  });
+});
