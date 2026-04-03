@@ -1,9 +1,9 @@
 import { embed } from 'ai';
-import { cosineDistance, and, inArray, sql } from 'drizzle-orm';
+import { and, inArray, sql } from 'drizzle-orm';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import { DrizzleVectorRepository } from '@tempot/database';
+import { DrizzleVectorRepository, DB_CONFIG } from '@tempot/database';
 import { embeddings } from '@tempot/database';
 import type {
   AIConfig,
@@ -68,7 +68,10 @@ export class EmbeddingService extends DrizzleVectorRepository {
     return ok(createResult.value.id);
   }
 
-  /** Search embeddings with content-type filtering and confidence threshold */
+  /**
+   * Search embeddings with content-type filtering and confidence threshold.
+   * Uses halfvec casts for cosine distance to support >2000 dimensions via HNSW index.
+   */
   async searchSimilar(
     options: EmbeddingSearchOptions,
   ): AsyncResult<EmbeddingSearchResult[], AppError> {
@@ -92,9 +95,11 @@ export class EmbeddingService extends DrizzleVectorRepository {
       return err(new AppError(AI_ERRORS.RAG_SEARCH_FAILED, embeddingResult.error));
     }
 
-    // Query with contentType filter and cosine distance
+    // Query with contentType filter and halfvec cosine distance.
+    // Both column and query vector cast to halfvec for HNSW index utilization.
     try {
-      const similarity = sql<number>`1 - ${cosineDistance(embeddings.vector, embeddingResult.value)}`;
+      const dims = DB_CONFIG.VECTOR_DIMENSIONS;
+      const similarity = sql<number>`1 - (${embeddings.vector}::halfvec(${sql.raw(String(dims))}) <=> ${JSON.stringify(embeddingResult.value)}::halfvec(${sql.raw(String(dims))}))`;
       const results = await this.db
         .select({
           contentId: embeddings.contentId,

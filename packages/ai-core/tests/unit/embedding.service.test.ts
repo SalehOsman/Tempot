@@ -32,19 +32,25 @@ vi.mock('@tempot/database', () => {
   return {
     DrizzleVectorRepository: MockDrizzleVectorRepository,
     embeddings: mockEmbeddingsTable,
+    DB_CONFIG: { VECTOR_DIMENSIONS: 3072 },
   };
 });
 
 // --- Mock: drizzle-orm ---
-vi.mock('drizzle-orm', () => ({
-  cosineDistance: vi.fn(() => 'cosineDistanceExpr'),
-  and: vi.fn((...conditions: unknown[]) => ({ type: 'and', conditions })),
-  inArray: vi.fn((col: unknown, vals: unknown[]) => ({ type: 'inArray', col, vals })),
-  sql: vi.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({
+const mockSql = Object.assign(
+  vi.fn((strings: TemplateStringsArray, ...values: unknown[]) => ({
     type: 'sql',
     strings: Array.from(strings),
     values,
   })),
+  {
+    raw: vi.fn((value: string) => ({ type: 'sql.raw', value })),
+  },
+);
+vi.mock('drizzle-orm', () => ({
+  and: vi.fn((...conditions: unknown[]) => ({ type: 'and', conditions })),
+  inArray: vi.fn((col: unknown, vals: unknown[]) => ({ type: 'inArray', col, vals })),
+  sql: mockSql,
 }));
 
 // --- Test config ---

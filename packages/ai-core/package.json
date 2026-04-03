@@ -26,6 +26,7 @@
     "@ai-sdk/google": "^1.0.0",
     "@ai-sdk/openai": "^1.0.0",
     "cockatiel": "^3.0.0",
+    "drizzle-orm": "^0.45.1",
     "rate-limiter-flexible": "^5.0.0",
     "langfuse": "^3.0.0",
     "@langfuse/otel": "^5.0.0",

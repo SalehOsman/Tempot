@@ -21,7 +21,7 @@ The sole persistent entity for ai-core. Stores vector embeddings for all content
 
 **Indexes:**
 
-- `embeddings_vector_hnsw_idx` — HNSW index with `vector_cosine_ops` for cosine similarity search (existing)
+- `embeddings_vector_hnsw_idx` — HNSW index via **halfvec expression cast**: `CREATE INDEX ... USING hnsw ((vector::halfvec(3072)) halfvec_cosine_ops)`. pgvector HNSW/IVFFlat indexes support max 2000 dimensions for `vector` type, but `halfvec` supports up to 4000 dimensions. Storage remains full-precision `vector(3072)`; the index casts to `halfvec(3072)` at index time. Benefits: smaller index (2 bytes vs 4 bytes per dimension), negligible precision loss for cosine similarity ranking.
 
 **Metadata JSONB Structure** (varies by `contentType`):
 
