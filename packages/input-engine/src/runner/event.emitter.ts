@@ -47,6 +47,13 @@ interface FormCancelledPayload {
   totalFields: number;
 }
 
+interface FormResumedPayload {
+  formId: string;
+  userId: string;
+  resumedFromField: number;
+  totalFields: number;
+}
+
 export async function emitFormStarted(
   deps: EventEmitterDeps,
   payload: FormStartedPayload,
@@ -74,5 +81,15 @@ export async function emitFormCancelled(
   await emitEvent(deps, 'input-engine.form.cancelled', {
     ...payload,
     reason: 'user_cancel',
+  });
+}
+
+export async function emitFormResumed(
+  deps: EventEmitterDeps,
+  payload: FormResumedPayload,
+): Promise<void> {
+  await emitEvent(deps, 'input-engine.form.resumed', {
+    ...payload,
+    timestamp: new Date(),
   });
 }
