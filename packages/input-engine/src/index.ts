@@ -51,6 +51,13 @@ export { PhoneFieldHandler } from './fields/text/phone.field.js';
 export { UrlFieldHandler } from './fields/text/url.field.js';
 export { RegexValidatedFieldHandler } from './fields/text/regex-validated.field.js';
 
+// Number Field Handlers
+export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
+export { FloatFieldHandler } from './fields/numbers/float.field.js';
+export { CurrencyFieldHandler } from './fields/numbers/currency.field.js';
+export { PercentageFieldHandler } from './fields/numbers/percentage.field.js';
+export { CurrencyAmountFieldHandler } from './fields/numbers/currency-amount.field.js';
+
 // Runner
 export { SchemaValidator } from './runner/schema.validator.js';
 export type { FormRunnerDeps, FormRunnerInput } from './runner/form.runner.js';
