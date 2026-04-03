@@ -71,6 +71,13 @@ export { PassportFieldHandler } from './fields/identity/passport.field.js';
 export { IBANFieldHandler } from './fields/identity/iban.field.js';
 export { EgyptianMobileFieldHandler } from './fields/identity/egyptian-mobile.field.js';
 
+// Interactive Field Handlers
+export { StarRatingFieldHandler } from './fields/interactive/star-rating.field.js';
+export { MultiStepChoiceFieldHandler } from './fields/interactive/multi-step-choice.field.js';
+export { QRCodeFieldHandler } from './fields/interactive/qr-code.field.js';
+export { ToggleFieldHandler } from './fields/interactive/toggle.field.js';
+export { TagsFieldHandler } from './fields/interactive/tags.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
