@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { EmbeddingSearchResult } from '../../src/ai-core.types.js';
-import { ModuleReviewer } from '../../src/cli/module-reviewer.js';
-import type { ModuleReviewerDeps } from '../../src/cli/module-reviewer.js';
+import { ModuleReviewer } from '../../src/cli/module.reviewer.js';
+import type { ModuleReviewerDeps } from '../../src/cli/module.reviewer.js';
 import type { RAGContext } from '../../src/rag/rag-pipeline.service.js';
 
 // --- Mock: generateText from 'ai' ---

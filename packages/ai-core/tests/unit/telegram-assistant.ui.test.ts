@@ -4,17 +4,17 @@ import { AppError } from '@tempot/shared';
 import type { AILogger } from '../../src/ai-core.contracts.js';
 import type { AIConfig } from '../../src/ai-core.types.js';
 import { AI_ERRORS } from '../../src/ai-core.errors.js';
-import type { IntentResult } from '../../src/router/intent-router.js';
+import type { IntentResult } from '../../src/router/intent.router.js';
 import type { ConfirmationEngine } from '../../src/confirmation/confirmation.engine.js';
 import type { ConversationMemory } from '../../src/memory/conversation-memory.service.js';
 import type { RateLimiterService } from '../../src/rate-limiter/rate-limiter.service.js';
-import type { IntentRouter } from '../../src/router/intent-router.js';
+import type { IntentRouter } from '../../src/router/intent.router.js';
 import {
   TelegramAssistantUI,
   type TelegramAssistantDeps,
   type HandleMessageOptions,
   type EndSessionOptions,
-} from '../../src/ui/telegram-assistant-ui.js';
+} from '../../src/ui/telegram-assistant.ui.js';
 
 // --- Mock factories ---
 

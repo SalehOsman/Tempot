@@ -1251,23 +1251,23 @@ ai-core/
 ├── content/
 │   └── content-ingestion.service.ts  # تجزئة وتنظيف وفهرسة المحتوى
 ├── tools/
-│   ├── tool-registry.ts         # سجل الأدوات — اكتشاف عبر Event Bus
-│   └── casl-tool-filter.ts      # فلترة الأدوات حسب صلاحيات CASL
+│   ├── tool.registry.ts         # سجل الأدوات — اكتشاف عبر Event Bus
+│   └── casl-tool.filter.ts      # فلترة الأدوات حسب صلاحيات CASL
 ├── router/
-│   └── intent-router.ts         # توجيه النية عبر AI SDK v6 tool calling
+│   └── intent.router.ts         # توجيه النية عبر AI SDK v6 tool calling
 ├── confirmation/
 │   └── confirmation.engine.ts   # تأكيد العمليات — 3 مستويات + TTL 5 دقائق
 ├── conversation/
 │   └── conversation-memory.service.ts  # تلخيص وتخزين ذاكرة المحادثة
 ├── prompts/
-│   └── role-system-prompts.ts   # System prompts حسب الدور عبر i18n
+│   └── role-system.prompts.ts   # System prompts حسب الدور عبر i18n
 ├── audit/
 │   └── audit.service.ts         # Langfuse observability
 ├── cache/
 │   └── ai-cache.middleware.ts   # LanguageModelMiddleware للتخزين المؤقت
 ├── cli/
-│   ├── dev-assistant.ts         # pnpm ai:dev — مساعد المطور RAG
-│   └── module-reviewer.ts       # pnpm ai:review — مراجعة الموديولات (5 فحوصات)
+│   ├── dev.assistant.ts         # pnpm ai:dev — مساعد المطور RAG
+│   └── module.reviewer.ts       # pnpm ai:review — مراجعة الموديولات (5 فحوصات)
 ├── ai-core.types.ts             # أنواع البيانات والعقود
 ├── ai-core.contracts.ts         # واجهات هيكلية للحقن
 ├── ai-core.errors.ts            # رموز الأخطاء الهرمية

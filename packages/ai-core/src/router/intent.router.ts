@@ -4,7 +4,7 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { AITool } from '../ai-core.types.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
-import type { CASLToolFilter } from '../tools/casl-tool-filter.js';
+import type { CASLToolFilter } from '../tools/casl-tool.filter.js';
 import type {
   ConfirmationEngine,
   PendingConfirmation,

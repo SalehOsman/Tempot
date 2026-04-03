@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok } from 'neverthrow';
 import type { EmbeddingSearchResult } from '../../src/ai-core.types.js';
-import { DevAssistant } from '../../src/cli/dev-assistant.js';
-import type { DevAssistantDeps } from '../../src/cli/dev-assistant.js';
+import { DevAssistant } from '../../src/cli/dev.assistant.js';
+import type { DevAssistantDeps } from '../../src/cli/dev.assistant.js';
 import type { RAGContext } from '../../src/rag/rag-pipeline.service.js';
 
 // --- Mock: generateText from 'ai' ---

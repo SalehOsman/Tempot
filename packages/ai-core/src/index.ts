@@ -66,40 +66,40 @@ export { ContentIngestionService } from './content/content-ingestion.service.js'
 export type { ContentIngestionDeps, IngestOptions } from './content/content-ingestion.service.js';
 export { RAGPipeline } from './rag/rag-pipeline.service.js';
 export type { RAGContext, RetrieveOptions } from './rag/rag-pipeline.service.js';
-export { ToolRegistry } from './tools/tool-registry.js';
-export { CASLToolFilter } from './tools/casl-tool-filter.js';
+export { ToolRegistry } from './tools/tool.registry.js';
+export { CASLToolFilter } from './tools/casl-tool.filter.js';
 export { ConfirmationEngine } from './confirmation/confirmation.engine.js';
 export type {
   PendingConfirmation,
   CreateConfirmationOptions,
   ConfirmOptions,
 } from './confirmation/confirmation.engine.js';
-export { IntentRouter } from './router/intent-router.js';
-export type { IntentResult, IntentRouterDeps, RouteOptions } from './router/intent-router.js';
+export { IntentRouter } from './router/intent.router.js';
+export type { IntentResult, IntentRouterDeps, RouteOptions } from './router/intent.router.js';
 export { ConversationMemory } from './memory/conversation-memory.service.js';
 export type {
   ConversationMemoryDeps,
   SummarizeOptions,
   RetrieveContextOptions,
 } from './memory/conversation-memory.service.js';
-export { AlternativeSuggestions } from './suggestions/alternative-suggestions.js';
+export { AlternativeSuggestions } from './suggestions/alternative.suggestions.js';
 
 // Middleware
 export { createCacheMiddleware } from './cache/ai-cache.middleware.js';
 
 // Prompts
-export { getSystemPrompt } from './prompts/role-system-prompts.js';
+export { getSystemPrompt } from './prompts/role-system.prompts.js';
 
 // UI
-export { TelegramAssistantUI } from './ui/telegram-assistant-ui.js';
+export { TelegramAssistantUI } from './ui/telegram-assistant.ui.js';
 export type {
   TelegramAssistantDeps,
   HandleMessageOptions,
   EndSessionOptions,
-} from './ui/telegram-assistant-ui.js';
+} from './ui/telegram-assistant.ui.js';
 
 // CLI tools
-export { DevAssistant } from './cli/dev-assistant.js';
-export type { DevAssistantDeps, DevAssistantResult } from './cli/dev-assistant.js';
-export { ModuleReviewer } from './cli/module-reviewer.js';
-export type { ModuleReviewerDeps, ReviewCheck, ReviewResult } from './cli/module-reviewer.js';
+export { DevAssistant } from './cli/dev.assistant.js';
+export type { DevAssistantDeps, DevAssistantResult } from './cli/dev.assistant.js';
+export { ModuleReviewer } from './cli/module.reviewer.js';
+export type { ModuleReviewerDeps, ReviewCheck, ReviewResult } from './cli/module.reviewer.js';

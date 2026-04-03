@@ -10,7 +10,7 @@ import {
   IntentRouter,
   type IntentRouterDeps,
   type RouteOptions,
-} from '../../src/router/intent-router.js';
+} from '../../src/router/intent.router.js';
 
 // --- Module mock: `ai` ---
 const mockGenerateText = vi.fn();

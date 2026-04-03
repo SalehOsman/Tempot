@@ -3,7 +3,7 @@ import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 import type { AIConfig } from '../ai-core.types.js';
 import { guardEnabled } from '../ai-core.guard.js';
-import type { IntentRouter, IntentResult } from '../router/intent-router.js';
+import type { IntentRouter, IntentResult } from '../router/intent.router.js';
 import type { RateLimiterService, RateLimitRole } from '../rate-limiter/rate-limiter.service.js';
 import type { ConversationMemory } from '../memory/conversation-memory.service.js';
 import type { ConfirmationEngine } from '../confirmation/confirmation.engine.js';

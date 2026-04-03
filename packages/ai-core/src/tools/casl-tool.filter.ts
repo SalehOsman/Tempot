@@ -1,6 +1,6 @@
 import type { AITool } from '../ai-core.types.js';
 import type { AIAbilityChecker } from '../ai-core.contracts.js';
-import type { ToolRegistry } from './tool-registry.js';
+import type { ToolRegistry } from './tool.registry.js';
 
 export class CASLToolFilter {
   constructor(private readonly toolRegistry: Pick<ToolRegistry, 'getAll'>) {}

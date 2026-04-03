@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSystemPrompt } from '../../src/prompts/role-system-prompts.js';
+import { getSystemPrompt } from '../../src/prompts/role-system.prompts.js';
 
 describe('getSystemPrompt', () => {
   it('returns super_admin prompt key for super_admin role', () => {

@@ -225,7 +225,7 @@ When limit is reached: clear i18n message, no more AI until the next day. Super 
 ### Cross-Package Modifications
 
 - `packages/database/src/database.config.ts`: Update `VECTOR_DIMENSIONS` default from 768 to 3072
-- `packages/database/prisma/schema.prisma`: Ensure `embeddings` table vector column supports 3072 dimensions
+- `packages/database/src/drizzle/schema/embeddings.table.ts`: Ensure `embeddings` table vector column supports 3072 dimensions (Drizzle ORM — pgvector columns are managed via Drizzle, not Prisma; see ADR-017)
 - `packages/event-bus/src/event-bus.events.ts`: Register ai-core events in `TempotEvents` interface
 - `docs/architecture/adr/`: New ADR for AI SDK v4→v6 upgrade decision
 
@@ -239,7 +239,7 @@ When limit is reached: clear i18n message, no more AI until the next day. Super 
 - **FR-002**: System MUST provide an `EmbeddingService` that extends `DrizzleVectorRepository` for multimodal embeddings via `gemini-embedding-2-preview` (default, configurable). Supports text, image, video, audio, and PDF content. Uses task prefix formatting for queries vs. documents. Stores embeddings with `contentType` discriminator. Dimensions configurable (default 3072).
 - **FR-003**: System MUST provide a `ToolRegistry` where modules register AI tools via a standard `AITool` interface. Each tool declares: `name`, `description`, `parameters` (Zod schema), `requiredPermission` (CASL action + subject), `confirmationLevel`, and `version`. Tools are discovered automatically at runtime via event bus subscription.
 - **FR-004**: System MUST provide a `CASLToolFilter` that filters registered tools based on the current user's CASL abilities before every AI model call. Only permitted tools are passed to the model. The model never receives information about tools the user cannot access.
-- **FR-005**: System MUST provide a `RAGPipeline` for constrained retrieval-augmented generation. The pipeline chunks content, embeds it, stores it in pgvector, and retrieves relevant context based on cosine similarity with configurable confidence threshold (default 0.7). Content is filtered by `contentType` and user role before retrieval. When no relevant context is found, the system responds "لا أملك معلومات كافية للإجابة" via i18n.
+- **FR-005**: System MUST provide a `RAGPipeline` for constrained retrieval-augmented generation. The pipeline retrieves relevant context from pgvector based on cosine similarity with configurable confidence threshold (default 0.7). Content is filtered by `contentType` and user role before retrieval. When no relevant context is found, the system responds "لا أملك معلومات كافية للإجابة" via i18n. _(Note: Content ingestion — chunking, embedding, and storing — is the responsibility of `ContentIngestionService` (FR-013), not RAGPipeline.)_
 - **FR-006**: System MUST provide an `IntentRouter` using AI SDK v6 tool calling and multi-step agent loops. The router understands user intent from natural language, selects appropriate tools, and executes them. For write actions, it invokes the `ConfirmationEngine` before execution.
 - **FR-007**: System MUST provide a `ConfirmationEngine` with three configurable confirmation levels for write actions: `simple` (summary + confirm/cancel), `detailed` (full details + confirm/cancel), and `escalated` (extra confirmation code). Confirmation messages expire after 5 minutes (Rule LXVII).
 - **FR-008**: System MUST provide a `ResilienceService` using `cockatiel` library implementing circuit breaker (5 failures, 10-minute reset), retry (exponential backoff), timeout (configurable), and bulkhead (configurable concurrency limit). When circuit is open, AI features return degradation message and non-urgent requests are queued via BullMQ.
@@ -274,8 +274,10 @@ export const embeddings = pgTable('embeddings', {
 });
 
 // HNSW index on halfvec expression for 3072-dim vectors (pgvector max 2000 for vector type)
-export const embeddingIndex = index('embedding_hnsw_idx')
-  .using('hnsw', sql`(vector::halfvec(3072)) halfvec_cosine_ops`);
+export const embeddingIndex = index('embedding_hnsw_idx').using(
+  'hnsw',
+  sql`(vector::halfvec(3072)) halfvec_cosine_ops`,
+);
 ```
 
 > **Implementation Note**: The `contentType` field already exists. The `metadata` JSONB field stores content-type-specific metadata including `userId` (for `user-memory`), `chunkIndex`/`totalChunks` (for chunked documents), `title`, `source`, and `language`. No new Prisma models are needed — ai-core extends the existing `embeddings` table via Drizzle.

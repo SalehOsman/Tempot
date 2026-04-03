@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 import type { AITool } from '../../src/ai-core.types.js';
-import { AlternativeSuggestions } from '../../src/suggestions/alternative-suggestions.js';
+import { AlternativeSuggestions } from '../../src/suggestions/alternative.suggestions.js';
 
 // --- Helpers ---
 

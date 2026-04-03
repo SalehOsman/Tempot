@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 import type { AITool } from '../../src/ai-core.types.js';
 import type { AIAbilityChecker } from '../../src/ai-core.contracts.js';
-import { CASLToolFilter } from '../../src/tools/casl-tool-filter.js';
+import { CASLToolFilter } from '../../src/tools/casl-tool.filter.js';
 
 // --- Helpers ---
 

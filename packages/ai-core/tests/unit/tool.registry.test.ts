@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { z } from 'zod';
 import type { AITool } from '../../src/ai-core.types.js';
 import type { AILogger, AIEventBus } from '../../src/ai-core.contracts.js';
-import { ToolRegistry } from '../../src/tools/tool-registry.js';
+import { ToolRegistry } from '../../src/tools/tool.registry.js';
 
 // --- Helpers ---
 
