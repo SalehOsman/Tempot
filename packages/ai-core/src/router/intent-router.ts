@@ -93,7 +93,9 @@ export class IntentRouter {
     const generationResult = await this.executeGeneration(messages, sdkTools);
 
     // Check if a confirmation was triggered during tool execution
-    const confirmation = this.pendingConfirmation;
+    // Note: pendingConfirmation is set inside convertToSDKTools callbacks during generation,
+    // which TypeScript's CFA cannot track through async boundaries
+    const confirmation = this.pendingConfirmation as PendingConfirmation | null;
     if (confirmation) {
       this.pendingConfirmation = null;
       return ok({
