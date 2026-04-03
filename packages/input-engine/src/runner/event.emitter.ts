@@ -45,6 +45,7 @@ interface FormCancelledPayload {
   userId: string;
   fieldsCompleted: number;
   totalFields: number;
+  reason: 'user_cancel' | 'timeout' | 'max_retries';
 }
 
 interface FormResumedPayload {
@@ -80,7 +81,6 @@ export async function emitFormCancelled(
 ): Promise<void> {
   await emitEvent(deps, 'input-engine.form.cancelled', {
     ...payload,
-    reason: 'user_cancel',
   });
 }
 

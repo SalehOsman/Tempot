@@ -50,6 +50,8 @@ export interface FormProgress {
   completedFieldNames: string[];
   partialSaveEnabled: boolean;
   storageKey: string;
+  startTime: number;
+  maxMilliseconds: number;
 }
 
 function checkPreconditions(
@@ -97,7 +99,6 @@ interface RunContext {
   progress: FormProgress;
   evDeps: EventEmitterDeps;
   merged: Required<FormOptions>;
-  startTime: number;
 }
 
 /** Handle iterateFields result: cleanup and emit lifecycle events */
@@ -113,23 +114,34 @@ async function handleResult<T>(
 
   if (loopResult.isErr()) {
     deps.setActiveConversation(undefined);
-    if (loopResult.error.code === INPUT_ENGINE_ERRORS.FORM_CANCELLED) {
+    const code = loopResult.error.code;
+
+    if (code === INPUT_ENGINE_ERRORS.FORM_CANCELLED) {
       if (partialSaveEnabled && psDeps) await deletePartialSave(psDeps, storageKey);
       await emitFormCancelled(evDeps, {
         formId,
         userId: deps.userId,
         fieldsCompleted: progress.fieldsCompleted,
         totalFields: progress.totalFields,
+        reason: 'user_cancel',
+      });
+    } else if (code === INPUT_ENGINE_ERRORS.FORM_TIMEOUT) {
+      await emitFormCancelled(evDeps, {
+        formId,
+        userId: deps.userId,
+        fieldsCompleted: progress.fieldsCompleted,
+        totalFields: progress.totalFields,
+        reason: 'timeout',
       });
     }
-    // FIELD_MAX_RETRIES / FORM_TIMEOUT: preserve partial save for resume
+    // FIELD_MAX_RETRIES: preserve partial save, no cancelled event
     return err(loopResult.error);
   }
 
   deps.setActiveConversation(undefined);
   if (partialSaveEnabled && psDeps) await deletePartialSave(psDeps, storageKey);
 
-  const durationMs = Date.now() - ctx.startTime;
+  const durationMs = Date.now() - progress.startTime;
   await emitFormCompleted(evDeps, {
     formId,
     userId: deps.userId,
@@ -166,14 +178,15 @@ async function runFormInternal<T>(
     completedFieldNames: [],
     partialSaveEnabled: psEnabled,
     storageKey,
+    startTime: Date.now(),
+    maxMilliseconds: merged.maxMilliseconds,
   };
 
-  const startTime = Date.now();
   await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
   await tryRestore(deps, progress, evDeps);
   const loopResult = await iterateFields(input, deps, progress);
 
-  return handleResult<T>(loopResult, { deps, progress, evDeps, merged, startTime });
+  return handleResult<T>(loopResult, { deps, progress, evDeps, merged });
 }
 
 /** Public entry point — guards on the engine toggle before running */

@@ -619,4 +619,135 @@ describe('FormRunner (runForm)', () => {
       expect(mockAdapter.delete).not.toHaveBeenCalled();
     });
   });
+
+  describe('form timeout', () => {
+    it('returns FORM_TIMEOUT when deadline exceeded', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      // Call 1: startTime in progress, call 2: deadline check for 'name' (ok),
+      // call 3+: deadline check for 'email' (exceeds 600_000)
+      let callCount = 0;
+      const now = vi.spyOn(Date, 'now').mockImplementation(() => {
+        callCount++;
+        if (callCount <= 2) return 1000;
+        return 700_000;
+      });
+
+      const deps = createMockDeps();
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+      deps.registry.register(createMockHandler('Email', 'john@test.com'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { formId: 'timeout-form' },
+      };
+      const result = await runForm(input, deps);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FORM_TIMEOUT);
+      }
+
+      now.mockRestore();
+    });
+
+    it('emits cancelled event with reason timeout on FORM_TIMEOUT', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      let callCount = 0;
+      const now = vi.spyOn(Date, 'now').mockImplementation(() => {
+        callCount++;
+        if (callCount <= 2) return 1000;
+        return 700_000;
+      });
+
+      const deps = createMockDeps();
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+      deps.registry.register(createMockHandler('Email', 'john@test.com'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { formId: 'timeout-form' },
+      };
+      await runForm(input, deps);
+
+      const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+      const cancelled = pub.mock.calls.find(
+        (c: unknown[]) => c[0] === 'input-engine.form.cancelled',
+      ) as unknown[];
+
+      expect(cancelled).toBeTruthy();
+      const payload = cancelled[1] as Record<string, unknown>;
+      expect(payload).toMatchObject({
+        formId: 'timeout-form',
+        userId: 'test-user',
+        reason: 'timeout',
+      });
+
+      now.mockRestore();
+    });
+
+    it('preserves partial save on timeout', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      let callCount = 0;
+      const now = vi.spyOn(Date, 'now').mockImplementation(() => {
+        callCount++;
+        if (callCount <= 2) return 1000;
+        return 700_000;
+      });
+
+      const mockAdapter = {
+        read: vi.fn().mockResolvedValue(undefined),
+        write: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      };
+
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+      deps.registry.register(createMockHandler('Email', 'john@test.com'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'timeout-form' },
+      };
+      const result = await runForm(input, deps);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FORM_TIMEOUT);
+      }
+
+      // Should NOT have deleted partial save — preserves for resume
+      expect(mockAdapter.delete).not.toHaveBeenCalled();
+
+      now.mockRestore();
+    });
+  });
 });

@@ -127,6 +127,17 @@ export async function iterateFields(
   progress.totalFields = fieldNames.length;
 
   for (const fieldName of fieldNames) {
+    // Deadline check
+    if (Date.now() - progress.startTime > progress.maxMilliseconds) {
+      return err(
+        new AppError(INPUT_ENGINE_ERRORS.FORM_TIMEOUT, {
+          formId: progress.formId,
+          elapsedMs: Date.now() - progress.startTime,
+          maxMs: progress.maxMilliseconds,
+        }),
+      );
+    }
+
     if (progress.completedFieldNames.includes(fieldName)) continue;
 
     const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
