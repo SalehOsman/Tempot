@@ -576,7 +576,7 @@
 
 **Files to create:**
 
-- `packages/input-engine/src/utils/callback-data.utils.ts`
+- `packages/input-engine/src/utils/callback-data.helper.ts`
 
 **Test file:** (Tested inline with field handler tests)
 
@@ -1407,6 +1407,31 @@ Once Phase 2 is complete:
 1. Implement the handler (render, parseResponse, validate)
 2. Write tests
 3. Register in FieldHandlerRegistry (done in barrel exports)
+
+---
+
+## Success Criteria Traceability
+
+| SC     | Description                                                      | Verified By                                                                |
+| ------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| SC-001 | Zero conversation boilerplate — single Zod schema + metadata     | Task 6 (FormRunner Core), Task 5 (Schema Validator)                        |
+| SC-002 | Validation response time < 100ms for synchronous fields (NFR-001)| Task 6 (FormRunner), Tasks 7–18 (field handler validate methods)           |
+| SC-003 | 100% forms support `/cancel` when `allowCancel: true`            | Task 6 (FormRunner Core — cancel handling)                                 |
+| SC-004 | 100% partial session resume after restart within TTL             | Task 3 (Storage Adapter), Task 6 (FormRunner — partial save/restore)       |
+| SC-005 | All 39 field types pass unit tests (valid, invalid, edge cases)  | Tasks 7–18, 19–20, 22–38, 41–48 (each field handler has dedicated tests)  |
+| SC-006 | Zero hardcoded user-facing text — 100% i18n coverage             | All field handler tasks (i18n keys only, no literal strings)               |
+
+## NFR Performance Benchmark
+
+All measurable NFR targets (NFR-001 through NFR-007) are validated through unit-level performance test assertions in the respective field handler and runner test suites. Benchmark coverage:
+
+- **NFR-001** (< 100ms validation): Covered by synchronous field handler tests (Tasks 7–18, identity fields)
+- **NFR-002** (< 50ms partial save): Covered by storage adapter tests (Task 3)
+- **NFR-003** (< 200ms searchable list): Covered by SearchableList tests (Task 20)
+- **NFR-004** (< 150ms date picker): Covered by DatePicker tests (Task 35)
+- **NFR-005** (< 5s AI extraction): Covered by AIExtractor tests (Task 23)
+- **NFR-006** (< 10ms schema validation): Covered by schema validator tests (Task 5)
+- **NFR-007** (< 1MB memory): Architectural constraint verified by FormRunner design (Task 6)
 
 ---
 

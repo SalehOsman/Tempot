@@ -192,7 +192,7 @@ packages/input-engine/
 │   │       ├── toggle.field.ts
 │   │       └── tags.field.ts
 │   └── utils/
-│       └── callback-data.utils.ts         # Form-specific callback data helpers
+│       └── callback-data.helper.ts         # Form-specific callback data helpers
 └── tests/
     └── unit/
         ├── input-engine.types.test.ts
