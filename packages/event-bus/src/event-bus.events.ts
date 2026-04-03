@@ -32,4 +32,34 @@ export interface TempotEvents {
     message: string;
     error: string;
   };
+  'system.ai.degraded': {
+    reason: string;
+    failureCount: number;
+    disabledUntil: Date;
+    lastError: string;
+  };
+  'ai-core.tool.executed': {
+    userId: string;
+    toolName: string;
+    success: boolean;
+    executionMs: number;
+    tokenUsage: number;
+  };
+  'ai-core.conversation.ended': {
+    userId: string;
+    messageCount: number;
+    summarized: boolean;
+    durationMs: number;
+  };
+  'ai-core.content.indexed': {
+    contentId: string;
+    contentType: string;
+    chunkCount: number;
+    source: string;
+  };
+  'module.tools.registered': {
+    moduleName: string;
+    toolCount: number;
+    toolNames: string[];
+  };
 }

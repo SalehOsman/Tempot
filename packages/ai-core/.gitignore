@@ -1,0 +1,16 @@
+# Compiled output
+dist/
+src/**/*.js
+src/**/*.d.ts
+src/**/*.js.map
+src/**/*.d.ts.map
+
+# Dependencies
+node_modules/
+
+# Generated
+*.tsbuildinfo
+
+# Test artifacts
+tests/**/*.js
+tests/**/*.d.ts

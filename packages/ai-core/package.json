@@ -1,0 +1,39 @@
+{
+  "name": "@tempot/ai-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "neverthrow": "8.2.0",
+    "@tempot/shared": "workspace:*",
+    "@tempot/database": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
+    "@tempot/logger": "workspace:*",
+    "ai": "^6.0.0",
+    "@ai-sdk/google": "^1.0.0",
+    "@ai-sdk/openai": "^1.0.0",
+    "cockatiel": "^3.0.0",
+    "drizzle-orm": "^0.45.1",
+    "rate-limiter-flexible": "^5.0.0",
+    "langfuse": "^3.0.0",
+    "@langfuse/otel": "^5.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}

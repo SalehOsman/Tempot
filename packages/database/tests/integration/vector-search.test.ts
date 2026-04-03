@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TestDB } from '../../src/testing/database.helper.js';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DrizzleVectorRepository } from '../../src/base/vector.repository';
+import { DB_CONFIG } from '../../src/database.config';
 import { Pool } from 'pg';
 
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -23,6 +24,16 @@ describe('Vector Search', () => {
       cwd: path.resolve(__dirname, '../../'),
     });
 
+    // Create the halfvec expression index manually since drizzle-kit push
+    // may not handle expression indexes correctly
+    const setupPool = new Pool({ connectionString: process.env.DATABASE_URL });
+    await setupPool.query(`
+      DROP INDEX IF EXISTS embeddings_vector_hnsw_idx;
+      CREATE INDEX embeddings_vector_hnsw_idx ON embeddings
+        USING hnsw ((vector::halfvec(${DB_CONFIG.VECTOR_DIMENSIONS})) halfvec_cosine_ops);
+    `);
+    await setupPool.end();
+
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db: NodePgDatabase = drizzle(pool);
     repo = new TestVectorRepository(db);
@@ -34,15 +45,17 @@ describe('Vector Search', () => {
   });
 
   it('should return semantically similar results via Result object', async () => {
+    const dims = DB_CONFIG.VECTOR_DIMENSIONS;
+
     // Insert some mock embeddings
-    const vec1 = new Array(768).fill(0);
+    const vec1 = new Array(dims).fill(0);
     vec1[0] = 1;
 
-    const vec2 = new Array(768).fill(0);
+    const vec2 = new Array(dims).fill(0);
     vec2[0] = 0.9;
     vec2[1] = 0.1;
 
-    const vec3 = new Array(768).fill(0);
+    const vec3 = new Array(dims).fill(0);
     vec3[1] = 1;
 
     const createResult1 = await repo.create({

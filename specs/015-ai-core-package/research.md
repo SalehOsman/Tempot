@@ -92,6 +92,12 @@
 - **Rationale:** Embeddings are stored in plaintext in the database. Personal data in embeddings could be reconstructed via similarity search from other users' queries. Sanitization prevents this leakage.
 - **Alternatives rejected:** Encrypted embeddings (breaks similarity search — encrypted vectors cannot be compared). No sanitization (PII leakage risk). Per-user vector isolation (complex, prevents cross-user knowledge sharing for non-PII content).
 
+### 16. Halfvec Expression Indexing for >2000 Dimensions
+
+- **Decision:** Use halfvec expression indexing for the HNSW index on the `embeddings` table. Store vectors as full-precision `vector(3072)` but create the HNSW index via `(vector::halfvec(3072)) halfvec_cosine_ops`. Search queries cast both the stored vector and query vector to `halfvec(3072)` for index utilization.
+- **Rationale:** pgvector's HNSW and IVFFlat indexes support a maximum of 2000 dimensions for the `vector` type. Our 3072-dimension requirement (gemini-embedding-2-preview) exceeds this limit. The `halfvec` type supports up to 4000 dimensions for HNSW indexes. Halfvec uses 2 bytes per dimension (vs 4 bytes for vector), producing smaller indexes with better cache utilization. Precision loss is negligible for cosine similarity ranking — the ranking order of results is effectively identical.
+- **Alternatives rejected:** Reducing dimensions to 2000 (loses model precision). Using flat sequential scan without index (O(n) scan, unacceptable at scale). Switching to a different vector database (unnecessary infrastructure complexity). IVFFlat with halfvec (HNSW is preferred for our workload pattern — mostly reads with incremental writes).
+
 ## Deferred Features
 
 | Feature                     | Status         | Notes                                                           |
