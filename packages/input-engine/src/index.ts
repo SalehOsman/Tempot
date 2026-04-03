@@ -57,6 +57,10 @@ export { BooleanToggleFieldHandler } from './fields/choice/boolean-toggle.field.
 export { MultipleChoiceFieldHandler } from './fields/choice/multiple-choice.field.js';
 export { SearchableListFieldHandler } from './fields/choice/searchable-list.field.js';
 
+// Smart Field Handlers
+export { ConditionalFieldHandler } from './fields/smart/conditional.field.js';
+export { AIExtractorFieldHandler } from './fields/smart/ai-extractor.field.js';
+
 // Number Field Handlers
 export { IntegerFieldHandler } from './fields/numbers/integer.field.js';
 export { FloatFieldHandler } from './fields/numbers/float.field.js';
