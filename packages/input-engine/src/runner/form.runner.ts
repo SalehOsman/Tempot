@@ -1,7 +1,6 @@
 import { ok, err } from 'neverthrow';
 import { z } from 'zod';
-import { AppError } from '@tempot/shared';
-import type { AsyncResult } from '@tempot/shared';
+import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { guardEnabled } from '../input-engine.guard.js';
 import { SchemaValidator } from './schema.validator.js';
@@ -10,12 +9,15 @@ import {
   emitFormCompleted,
   emitFormCancelled,
   emitFormResumed,
+  type EventEmitterDeps,
 } from './event.emitter.js';
-import type { EventEmitterDeps } from './event.emitter.js';
 import type { InputEngineLogger, InputEngineEventBus } from '../input-engine.contracts.js';
-import type { FormOptions } from '../input-engine.types.js';
-import { DEFAULT_FORM_OPTIONS } from '../input-engine.types.js';
-import type { FieldHandlerRegistry } from '../fields/field.handler.js';
+import {
+  DEFAULT_FORM_OPTIONS,
+  type FieldMetadata,
+  type FormOptions,
+} from '../input-engine.types.js';
+import type { FieldHandlerRegistry, RenderContext } from '../fields/field.handler.js';
 import type { ConversationsStorageAdapter } from '../storage/conversations-storage.adapter.js';
 import { buildStorageKey, restorePartialSave, deletePartialSave } from './partial-save.helper.js';
 import { iterateFields } from './field.iterator.js';
@@ -31,7 +33,10 @@ export interface FormRunnerDeps {
   userId: string;
   chatId: number;
   storageAdapter?: ConversationsStorageAdapter;
-  renderPrompt?: (ctx: unknown, text: string) => Promise<unknown>;
+  renderPrompt?: (
+    renderCtx: RenderContext,
+    metadata: FieldMetadata,
+  ) => AsyncResult<unknown, AppError>;
 }
 
 /** Bundled input for runForm: conversation context + schema */

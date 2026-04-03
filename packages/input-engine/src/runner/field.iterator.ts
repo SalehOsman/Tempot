@@ -31,6 +31,7 @@ interface FieldContext {
 async function processField(
   input: FormRunnerInput,
   ctx: FieldContext,
+  deps: FormRunnerDeps,
 ): AsyncResult<unknown, AppError> {
   const { handler, metadata, fieldSchema, maxRetries } = ctx;
   let retryCount = 0;
@@ -47,7 +48,15 @@ async function processField(
     const rr = await handler.render(renderCtx, metadata);
     if (rr.isErr()) return err(rr.error);
 
-    const responseCtx = rr.value ?? input.ctx;
+    let responseCtx: unknown = rr.value;
+    if (responseCtx === undefined && deps.renderPrompt) {
+      const promptResult = await deps.renderPrompt(renderCtx, metadata);
+      if (promptResult.isErr()) return err(promptResult.error);
+      responseCtx = promptResult.value;
+    }
+    if (responseCtx === undefined) {
+      responseCtx = input.ctx;
+    }
 
     const pr = handler.parseResponse(responseCtx, metadata);
     if (pr.isErr()) {
@@ -169,7 +178,7 @@ export async function iterateFields(
     });
     if (ctxOrErr instanceof AppError) return err(ctxOrErr);
 
-    const result = await processField(input, ctxOrErr);
+    const result = await processField(input, ctxOrErr, deps);
     if (result.isErr()) return err(result.error);
 
     progress.formData[fieldName] = result.value;
