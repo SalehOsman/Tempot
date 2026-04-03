@@ -38,3 +38,7 @@ export { guardEnabled } from './input-engine.guard.js';
 
 // Storage
 export { ConversationsStorageAdapter } from './storage/conversations-storage.adapter.js';
+
+// Fields
+export type { FieldHandler } from './fields/field.handler.js';
+export { FieldHandlerRegistry } from './fields/field.handler.js';
