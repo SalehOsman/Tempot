@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AppError } from '@tempot/shared';
 import type { AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
+import { guardEnabled } from '../input-engine.guard.js';
 import { SchemaValidator } from './schema.validator.js';
 import { shouldRenderField } from './condition.evaluator.js';
 import {
@@ -56,7 +57,6 @@ function checkPreconditions(
   schema: z.ZodObject<z.ZodRawShape>,
   deps: FormRunnerDeps,
 ): AppError | undefined {
-  if (!deps.isEnabled()) return new AppError(INPUT_ENGINE_ERRORS.DISABLED);
   const result = new SchemaValidator(deps.registry).validate(schema);
   if (result.isErr()) return result.error;
   const active = deps.getActiveConversation();
@@ -179,7 +179,7 @@ async function iterateFields(
  * Run a form by iterating fields in a Zod schema, calling handlers
  * for each field, and collecting validated values.
  */
-export async function runForm<T>(
+async function runFormInternal<T>(
   input: FormRunnerInput,
   deps: FormRunnerDeps,
   options?: FormOptions,
@@ -223,4 +223,13 @@ export async function runForm<T>(
   });
 
   return ok(progress.formData as T);
+}
+
+/** Public entry point — guards on the engine toggle before running */
+export async function runForm<T>(
+  input: FormRunnerInput,
+  deps: FormRunnerDeps,
+  options?: FormOptions,
+): AsyncResult<T, AppError> {
+  return guardEnabled(deps.isEnabled(), () => runFormInternal<T>(input, deps, options));
 }
