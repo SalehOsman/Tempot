@@ -5,6 +5,7 @@ import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
+import { checkFileSize } from './file-size.helper.js';
 
 /** Telegram PhotoSize shape */
 interface TelegramPhotoSize {
@@ -19,24 +20,6 @@ interface TelegramPhotoSize {
 interface PhotoValue {
   fileId: string;
   fileSize?: number;
-}
-
-/** Check file size against maxSizeKB constraint */
-function checkFileSize(
-  fileSize: number | undefined,
-  maxSizeKB: number | undefined,
-  fieldType: string,
-): Result<void, AppError> {
-  if (maxSizeKB !== undefined && fileSize !== undefined && fileSize > maxSizeKB * 1024) {
-    return err(
-      new AppError(INPUT_ENGINE_ERRORS.MEDIA_SIZE_EXCEEDED, {
-        fieldType,
-        maxSizeKB,
-        actual: fileSize,
-      }),
-    );
-  }
-  return ok(undefined);
 }
 
 export class PhotoFieldHandler implements FieldHandler {

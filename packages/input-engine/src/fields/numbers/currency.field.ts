@@ -5,11 +5,7 @@ import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
-
-/** Normalize Arabic-Indic numerals (٠-٩) to Western Arabic (0-9) */
-function normalizeArabicNumerals(text: string): string {
-  return text.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
-}
+import { normalizeArabicNumerals } from './arabic-numerals.helper.js';
 
 /** Check if a number has more than the allowed decimal places */
 function hasExcessDecimalPlaces(num: number, maxPlaces: number): boolean {

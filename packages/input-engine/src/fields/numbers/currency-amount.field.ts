@@ -5,14 +5,10 @@ import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata, CurrencyAmountResult } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
+import { normalizeArabicNumerals } from './arabic-numerals.helper.js';
 
 const DEFAULT_DECIMAL_PLACES = 2;
 const FIELD_TYPE = 'CurrencyAmount' as const;
-
-/** Normalize Arabic-Indic numerals (٠-٩) to Western Arabic (0-9) */
-function normalizeArabicNumerals(text: string): string {
-  return text.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
-}
 
 /** Check if a number has more than the allowed decimal places */
 function hasExcessDecimalPlaces(num: number, maxPlaces: number): boolean {
