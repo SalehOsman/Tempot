@@ -1277,13 +1277,13 @@ ai-core/
 
 ### 17.1.1 إعدادات المزود
 
-| المتغير                   | القيمة الافتراضية            | الوصف                                          |
-| ------------------------- | ---------------------------- | ---------------------------------------------- |
-| `AI_PROVIDER`             | `gemini`                     | المزود النشط: `gemini` \| `openai`             |
-| `AI_EMBEDDING_MODEL`      | `gemini-embedding-2-preview` | نموذج الـ Embedding                            |
-| `AI_EMBEDDING_DIMENSIONS` | `3072`                       | حجم أبعاد المتجهات                             |
-| `GEMINI_API_KEY`          | —                            | مفتاح Gemini                                   |
-| `OPENAI_API_KEY`          | —                            | مفتاح OpenAI                                   |
+| المتغير                   | القيمة الافتراضية            | الوصف                              |
+| ------------------------- | ---------------------------- | ---------------------------------- |
+| `AI_PROVIDER`             | `gemini`                     | المزود النشط: `gemini` \| `openai` |
+| `AI_EMBEDDING_MODEL`      | `gemini-embedding-2-preview` | نموذج الـ Embedding                |
+| `AI_EMBEDDING_DIMENSIONS` | `3072`                       | حجم أبعاد المتجهات                 |
+| `GEMINI_API_KEY`          | —                            | مفتاح Gemini                       |
+| `OPENAI_API_KEY`          | —                            | مفتاح OpenAI                       |
 
 > ⚠️ **تحذير إلزامي:** نماذج Embedding من مزودين مختلفين غير متوافقة. تغيير المزود يستلزم إعادة فهرسة كاملة.
 
@@ -1324,14 +1324,14 @@ ai-core/
 
 ## 17.5 استراتيجية التخزين — pgvector عبر Drizzle ORM
 
-| القرار             | التفصيل                                            |
-| ------------------ | -------------------------------------------------- |
-| قاعدة Vector       | pgvector داخل PostgreSQL الموجود — لا قاعدة منفصلة |
-| 🔄 ORM لـ Vector   | Drizzle ORM — دعم pgvector أصلي مع type safety     |
-| ORM لباقي العمليات | Prisma — لا تغيير                                  |
-| حجم الأبعاد        | 3072 — دقة أعلى مع gemini-embedding-2-preview                |
+| القرار             | التفصيل                                                           |
+| ------------------ | ----------------------------------------------------------------- |
+| قاعدة Vector       | pgvector داخل PostgreSQL الموجود — لا قاعدة منفصلة                |
+| 🔄 ORM لـ Vector   | Drizzle ORM — دعم pgvector أصلي مع type safety                    |
+| ORM لباقي العمليات | Prisma — لا تغيير                                                 |
+| حجم الأبعاد        | 3072 — دقة أعلى مع gemini-embedding-2-preview                     |
 | نوع الفهرس         | HNSW Index عبر halfvec expression (pgvector max 2000 لنوع vector) |
-| مقياس التشابه      | Cosine Similarity                                  |
+| مقياس التشابه      | Cosine Similarity                                                 |
 
 > 📄 **للدليل العملي:** راجع ملف `docs/guides/DUAL-ORM-GUIDE.md` — يشمل Decision Tree، أنماط Prisma وDrizzle، Anti-Patterns، وتنسيق المعاملات.
 
@@ -2838,7 +2838,7 @@ countries-states-cities-database (مصدر بيانات)
 | ------------------------- | ---------------------------- | ------ |
 | `AI_PROVIDER`             | `gemini` \| `openai`         | 17.1.1 |
 | `AI_EMBEDDING_MODEL`      | `gemini-embedding-2-preview` | 17.1.1 |
-| `AI_EMBEDDING_DIMENSIONS` | `1536`                       | 17.1.1 |
+| `AI_EMBEDDING_DIMENSIONS` | `3072`                       | 17.1.1 |
 | `GEMINI_API_KEY`          | `AIza...`                    | 17.1.1 |
 | `OPENAI_API_KEY`          | `sk-...`                     | 17.1.1 |
 
