@@ -29,3 +29,9 @@ export type {
 
 // Errors
 export { INPUT_ENGINE_ERRORS } from './input-engine.errors.js';
+
+// Config
+export { isInputEngineEnabled } from './input-engine.config.js';
+
+// Guard
+export { guardEnabled } from './input-engine.guard.js';
