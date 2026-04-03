@@ -12,19 +12,20 @@ import type {
   EmbeddingSearchResult,
 } from '../ai-core.types.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
+import type { AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
 
 /** Dependencies for EmbeddingService (max-params = 3) */
 export interface EmbeddingServiceDeps {
   config: AIConfig;
   resilience: ResilienceService;
-  registry: unknown; // Provider registry from AIProviderFactory
+  registry: AIRegistry;
 }
 
 export class EmbeddingService extends DrizzleVectorRepository {
   private readonly config: AIConfig;
   private readonly resilience: ResilienceService;
-  private readonly registry: unknown;
+  private readonly registry: AIRegistry;
 
   constructor(
     db: ConstructorParameters<typeof DrizzleVectorRepository>[0],
@@ -44,9 +45,7 @@ export class EmbeddingService extends DrizzleVectorRepository {
     // Generate embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
       const { embedding } = await embed({
-        model: (
-          this.registry as Record<string, unknown> & { languageModel: (id: string) => unknown }
-        ).languageModel(`google:${this.config.embeddingModel}`),
+        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
         value: formattedContent,
       });
       return embedding;
@@ -83,9 +82,7 @@ export class EmbeddingService extends DrizzleVectorRepository {
     // Generate query embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
       const { embedding } = await embed({
-        model: (
-          this.registry as Record<string, unknown> & { languageModel: (id: string) => unknown }
-        ).languageModel(`google:${this.config.embeddingModel}`),
+        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
         value: formattedQuery,
       });
       return embedding;

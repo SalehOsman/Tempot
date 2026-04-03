@@ -1,16 +1,16 @@
 import { generateText } from 'ai';
-import type { LanguageModel } from 'ai';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { RAGPipeline } from '../rag/rag-pipeline.service.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
+import type { AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
 
 export interface DevAssistantDeps {
   ragPipeline: RAGPipeline;
   resilience: ResilienceService;
-  registry: unknown;
+  registry: AIRegistry;
   modelId: string;
 }
 
@@ -48,9 +48,7 @@ export class DevAssistant {
     // 2. Generate answer with RAG context
     const generationResult = await this.deps.resilience.executeGeneration(async () => {
       const { text } = await generateText({
-        model: (
-          this.deps.registry as { languageModel: (id: string) => LanguageModel }
-        ).languageModel(this.deps.modelId),
+        model: this.deps.registry.languageModel(this.deps.modelId),
         prompt: `Based on the following documentation context, answer the developer question.\n\nContext:\n${ragContext.context}\n\nQuestion: ${question}\n\nProvide a concise, technically accurate answer.`,
       });
       return text;

@@ -81,6 +81,7 @@ function createMockAbility(allowed = true): AIAbilityChecker {
 function createMockRegistry() {
   return {
     languageModel: vi.fn(() => 'mock-model-instance'),
+    textEmbeddingModel: vi.fn(() => 'mock-embedding-model'),
   };
 }
 
@@ -440,6 +441,68 @@ describe('IntentRouter', () => {
       const executeResult = await sdkTool.execute({ query: 'test' });
       expect(executeFn).toHaveBeenCalledWith({ query: 'test' });
       expect(executeResult).toEqual({ data: 'result' });
+    });
+  });
+
+  describe('confirmation flow (C4)', () => {
+    it('returns requiresConfirmation when tool has confirmationLevel !== none', async () => {
+      const tool = createMockTool({
+        name: 'delete-user',
+        description: 'Delete a user account',
+        confirmationLevel: 'simple',
+        execute: vi.fn(async () => ok('deleted')),
+      });
+      const caslFilter = createMockCASLFilter([tool]);
+      const confirmationEngine = {
+        createConfirmation: vi.fn(() =>
+          ok({
+            id: 'conf-123',
+            userId: 'user-1',
+            toolName: 'delete-user',
+            params: { userId: 'target' },
+            level: 'simple' as const,
+            summary: 'Delete a user account',
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 300_000),
+          }),
+        ),
+        confirm: vi.fn(),
+        cancel: vi.fn(),
+      };
+      const deps = createDefaultDeps({
+        caslFilter: caslFilter as never,
+        confirmationEngine: confirmationEngine as never,
+      });
+      const router = new IntentRouter(deps);
+      const options = createDefaultRouteOptions();
+
+      // The SDK tool's execute will be called by generateText during the agent loop.
+      // We simulate this by making generateText invoke the tool's execute callback.
+      mockGenerateText.mockImplementation(async (callOpts: Record<string, unknown>) => {
+        const tools = callOpts.tools as Record<
+          string,
+          { execute: (params: unknown) => Promise<unknown> }
+        >;
+        if (tools['delete-user']) {
+          await tools['delete-user'].execute({ userId: 'target' });
+        }
+        return {
+          text: 'I will delete the user.',
+          totalUsage: { inputTokens: 5, outputTokens: 3, totalTokens: 8 },
+          toolCalls: [{ toolName: 'delete-user' }],
+        };
+      });
+
+      const result = await router.route(options);
+
+      expect(result.isOk()).toBe(true);
+      const value = result._unsafeUnwrap();
+      expect(value.requiresConfirmation).toBeDefined();
+      expect(value.requiresConfirmation!.confirmationId).toBe('conf-123');
+      expect(value.requiresConfirmation!.level).toBe('simple');
+      expect(value.requiresConfirmation!.summary).toBe('Delete a user account');
+      // The tool's actual execute should NOT have been called
+      expect(tool.execute).not.toHaveBeenCalled();
     });
   });
 });

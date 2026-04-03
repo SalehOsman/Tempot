@@ -32,13 +32,14 @@ export class RateLimiterService {
     try {
       await this.limiter.consume(userId, 1, { customDuration: undefined });
       return ok(undefined);
-    } catch {
+    } catch (error: unknown) {
       return err(
         new AppError(AI_ERRORS.RATE_LIMITED, {
           userId,
           role,
           limit,
           windowMs: this.config.windowMs,
+          cause: error,
         }),
       );
     }

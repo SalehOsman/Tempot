@@ -1,18 +1,17 @@
 import { generateText } from 'ai';
-import type { LanguageModel } from 'ai';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { EmbeddingService } from '../embedding/embedding.service.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
-import type { AILogger, AIEventBus } from '../ai-core.contracts.js';
+import type { AILogger, AIEventBus, AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
 
 /** Dependencies for ConversationMemory (max-params = 3 compliance) */
 export interface ConversationMemoryDeps {
   embeddingService: EmbeddingService;
   resilience: ResilienceService;
-  registry: unknown;
+  registry: AIRegistry;
   modelId: string;
   logger: AILogger;
   eventBus: AIEventBus;
@@ -51,9 +50,7 @@ export class ConversationMemory {
         .map((m) => `${m.role}: ${m.content}`)
         .join('\n');
       const { text } = await generateText({
-        model: (
-          this.deps.registry as { languageModel: (id: string) => LanguageModel }
-        ).languageModel(this.deps.modelId),
+        model: this.deps.registry.languageModel(this.deps.modelId),
         prompt: `Summarize the following conversation concisely, focusing on key topics, decisions, and user preferences. Keep the summary under 200 words.\n\n${conversationText}`,
       });
       return text;

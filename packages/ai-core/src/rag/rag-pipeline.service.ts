@@ -76,11 +76,13 @@ export class RAGPipeline {
       return ok({ hasResults: false, context: '', sources: [] });
     }
 
-    // 4. Build context string from results
+    // 4. Build context string from results (include chunk text for LLM)
     const context = filtered
       .map((r) => {
-        const title = (r.metadata as Record<string, unknown> | null)?.title ?? r.contentId;
-        return `[${r.contentType}] ${String(title)}: (score: ${r.score.toFixed(2)})`;
+        const meta = r.metadata as Record<string, unknown> | null;
+        const title = meta?.title ?? r.contentId;
+        const text = (meta?.text as string) ?? '';
+        return `[${r.contentType}] ${String(title)} (score: ${r.score.toFixed(2)}):\n${text}`;
       })
       .join('\n\n');
 

@@ -74,6 +74,7 @@ export class ContentIngestionService {
         content: chunk.text,
         metadata: {
           ...chunk.metadata,
+          text: chunk.text,
           chunkIndex: chunk.chunkIndex,
           totalChunks: chunk.totalChunks,
         },

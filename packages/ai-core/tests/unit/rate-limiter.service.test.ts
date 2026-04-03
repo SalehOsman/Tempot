@@ -170,6 +170,7 @@ describe('RateLimiterService', () => {
         role: 'user',
         limit: 20,
         windowMs: 86_400_000,
+        cause: { remainingPoints: 0 },
       });
     });
   });

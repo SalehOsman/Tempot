@@ -28,7 +28,13 @@ export {
 } from './ai-core.types.js';
 
 // Contracts (structural DI interfaces)
-export type { AILogger, AIEventBus, AICache, AIAbilityChecker } from './ai-core.contracts.js';
+export type {
+  AILogger,
+  AIEventBus,
+  AICache,
+  AIAbilityChecker,
+  AIRegistry,
+} from './ai-core.contracts.js';
 
 // Errors
 export { AI_ERRORS } from './ai-core.errors.js';

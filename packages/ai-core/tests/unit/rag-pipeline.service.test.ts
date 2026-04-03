@@ -233,7 +233,7 @@ describe('RAGPipeline', () => {
   });
 
   describe('context formatting', () => {
-    it('context string formatted as [contentType] title: (score: X.XX)', async () => {
+    it('context string formatted as [contentType] title (score: X.XX):\\n{text}', async () => {
       const searchResults: EmbeddingSearchResult[] = [
         {
           contentId: 'doc-1',
@@ -258,11 +258,10 @@ describe('RAGPipeline', () => {
 
       expect(result.isOk()).toBe(true);
       const ctx = result._unsafeUnwrap();
-      expect(ctx.context).toContain('[ui-guide] Dashboard Guide: (score: 0.92)');
-      expect(ctx.context).toContain('[bot-functions] Bot Commands: (score: 0.88)');
-      // Lines separated by double newline
-      const lines = ctx.context.split('\n\n');
-      expect(lines).toHaveLength(2);
+      expect(ctx.context).toContain('[ui-guide] Dashboard Guide (score: 0.92):');
+      expect(ctx.context).toContain('[bot-functions] Bot Commands (score: 0.88):');
+      // Entries separated by double newline
+      expect(ctx.context).toContain('\n\n');
     });
   });
 
@@ -303,7 +302,7 @@ describe('RAGPipeline', () => {
 
       expect(result.isOk()).toBe(true);
       const ctx = result._unsafeUnwrap();
-      expect(ctx.context).toContain('[ui-guide] doc-no-title: (score: 0.75)');
+      expect(ctx.context).toContain('[ui-guide] doc-no-title (score: 0.75):');
     });
   });
 });

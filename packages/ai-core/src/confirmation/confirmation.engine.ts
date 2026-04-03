@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import { ok, err } from 'neverthrow';
 import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
@@ -100,9 +101,9 @@ export class ConfirmationEngine {
     return ok(undefined);
   }
 
-  /** Generate a 6-digit confirmation code */
+  /** Generate a 6-digit confirmation code (cryptographically secure) */
   private generateCode(): string {
-    return String(Math.floor(100000 + Math.random() * 900000));
+    return String(randomInt(100000, 1000000));
   }
 
   /** Clean expired confirmations (lazy cleanup) */

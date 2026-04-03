@@ -1,16 +1,16 @@
 import { generateText } from 'ai';
-import type { LanguageModel } from 'ai';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { RAGPipeline } from '../rag/rag-pipeline.service.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
+import type { AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
 
 export interface ModuleReviewerDeps {
   ragPipeline: RAGPipeline;
   resilience: ResilienceService;
-  registry: unknown;
+  registry: AIRegistry;
   modelId: string;
 }
 
@@ -49,9 +49,7 @@ export class ModuleReviewer {
     // 2. Generate review with context
     const reviewResult = await this.deps.resilience.executeGeneration(async () => {
       const { text } = await generateText({
-        model: (
-          this.deps.registry as { languageModel: (id: string) => LanguageModel }
-        ).languageModel(this.deps.modelId),
+        model: this.deps.registry.languageModel(this.deps.modelId),
         prompt: `Review the "${moduleName}" module based on the following documentation and architecture patterns.\n\nContext:\n${ragContext.context}\n\nList any potential issues, one per line prefixed with "- ". If no issues found, respond with "No issues found."`,
       });
       return text;

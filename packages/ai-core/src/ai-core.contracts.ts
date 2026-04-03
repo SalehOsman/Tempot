@@ -1,5 +1,12 @@
+import type { EmbeddingModel, LanguageModel } from 'ai';
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
+
+/** Structural interface for the AI provider registry */
+export interface AIRegistry {
+  languageModel: (id: string) => LanguageModel;
+  textEmbeddingModel: (id: string) => EmbeddingModel;
+}
 
 /** Structural interface for logger dependency */
 export interface AILogger {

@@ -5,10 +5,13 @@ import { AppError } from '@tempot/shared';
 import type { AITool } from '../ai-core.types.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
 import type { CASLToolFilter } from '../tools/casl-tool-filter.js';
-import type { ConfirmationEngine } from '../confirmation/confirmation.engine.js';
+import type {
+  ConfirmationEngine,
+  PendingConfirmation,
+} from '../confirmation/confirmation.engine.js';
 import type { RAGPipeline, RAGContext } from '../rag/rag-pipeline.service.js';
 import type { AuditService } from '../audit/audit.service.js';
-import type { AIAbilityChecker, AILogger } from '../ai-core.contracts.js';
+import type { AIAbilityChecker, AILogger, AIRegistry } from '../ai-core.contracts.js';
 
 /** Maximum number of agent loop steps */
 const MAX_AGENT_STEPS = 5;
@@ -36,7 +39,7 @@ export interface IntentResult {
 
 /** Dependencies for IntentRouter constructor (max-params=3 compliance) */
 export interface IntentRouterDeps {
-  registry: unknown;
+  registry: AIRegistry;
   modelId: string;
   resilience: ResilienceService;
   caslFilter: CASLToolFilter;
@@ -65,12 +68,17 @@ interface BuildMessagesOptions {
 }
 
 export class IntentRouter {
+  /** Holds a pending confirmation if a tool triggered one during generation */
+  private pendingConfirmation: PendingConfirmation | null = null;
   constructor(private readonly deps: IntentRouterDeps) {}
 
   /** Route a user message to appropriate tools or RAG */
   async route(options: RouteOptions): AsyncResult<IntentResult, AppError> {
     const { message, userId, abilityChecker, systemPrompt, conversationHistory } = options;
     const startTime = Date.now();
+
+    // Reset pending confirmation state
+    this.pendingConfirmation = null;
 
     const allowedTools = this.deps.caslFilter.filterForUser(abilityChecker);
     const ragContext = await this.retrieveRAGContext(options);
@@ -80,9 +88,28 @@ export class IntentRouter {
       history: conversationHistory,
       currentMessage: message,
     });
-    const sdkTools = this.convertToSDKTools(allowedTools);
+    const sdkTools = this.convertToSDKTools(allowedTools, userId);
 
     const generationResult = await this.executeGeneration(messages, sdkTools);
+
+    // Check if a confirmation was triggered during tool execution
+    const confirmation = this.pendingConfirmation;
+    if (confirmation) {
+      this.pendingConfirmation = null;
+      return ok({
+        response: `Action "${confirmation.toolName}" requires confirmation before execution.`,
+        toolsCalled: [],
+        tokenUsage: { input: 0, output: 0, total: 0 },
+        requiresConfirmation: {
+          confirmationId: confirmation.id,
+          level: confirmation.level,
+          summary: confirmation.summary,
+          details: confirmation.details,
+          code: confirmation.confirmationCode,
+        },
+      });
+    }
+
     if (generationResult.isErr()) {
       return err(generationResult.error);
     }
@@ -116,9 +143,9 @@ export class IntentRouter {
   ): AsyncResult<GenerationOutput, AppError> {
     const result = await this.deps.resilience.executeGeneration(async () => {
       return generateText({
-        model: (this.deps.registry as { languageModel: (id: string) => unknown }).languageModel(
-          this.deps.modelId,
-        ) as Parameters<typeof generateText>[0]['model'],
+        model: this.deps.registry.languageModel(this.deps.modelId) as Parameters<
+          typeof generateText
+        >[0]['model'],
         messages,
         tools: sdkTools as Parameters<typeof generateText>[0]['tools'],
         stopWhen: stepCountIs(MAX_AGENT_STEPS),
@@ -180,14 +207,29 @@ export class IntentRouter {
     return messages;
   }
 
-  /** Convert AITool to AI SDK tool format */
-  private convertToSDKTools(tools: AITool[]): Record<string, unknown> {
+  /** Convert AITool to AI SDK tool format, with confirmation gate for write actions */
+  private convertToSDKTools(tools: AITool[], userId: string): Record<string, unknown> {
     const sdkTools: Record<string, unknown> = {};
     for (const tool of tools) {
       sdkTools[tool.name] = {
         description: tool.description,
         parameters: tool.parameters,
         execute: async (params: unknown) => {
+          // Gate write actions through confirmation engine (FR-006)
+          if (tool.confirmationLevel !== 'none') {
+            const confirmResult = this.deps.confirmationEngine.createConfirmation({
+              userId,
+              toolName: tool.name,
+              params,
+              level: tool.confirmationLevel,
+              summary: tool.description,
+            });
+            if (confirmResult.isOk()) {
+              this.pendingConfirmation = confirmResult.value;
+              return `Action "${tool.name}" requires confirmation before execution. Confirmation ID: ${confirmResult.value.id}`;
+            }
+          }
+
           const result = await tool.execute(params);
           if (result.isErr()) {
             throw result.error;

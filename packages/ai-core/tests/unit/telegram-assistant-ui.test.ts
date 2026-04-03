@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { AILogger } from '../../src/ai-core.contracts.js';
+import type { AIConfig } from '../../src/ai-core.types.js';
 import { AI_ERRORS } from '../../src/ai-core.errors.js';
 import type { IntentResult } from '../../src/router/intent-router.js';
 import type { ConfirmationEngine } from '../../src/confirmation/confirmation.engine.js';
@@ -63,6 +64,7 @@ function createMockConfirmationEngine(): Pick<
 
 function createDefaultDeps(overrides: Partial<TelegramAssistantDeps> = {}): TelegramAssistantDeps {
   return {
+    config: { enabled: true } as AIConfig,
     intentRouter: createMockIntentRouter() as TelegramAssistantDeps['intentRouter'],
     rateLimiter: createMockRateLimiter() as TelegramAssistantDeps['rateLimiter'],
     conversationMemory:
@@ -244,6 +246,30 @@ describe('TelegramAssistantUI', () => {
 
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.SUMMARIZATION_FAILED);
+    });
+  });
+
+  describe('guardEnabled wiring', () => {
+    it('returns err(DISABLED) from handleMessage when config.enabled is false', async () => {
+      const deps = createDefaultDeps({ config: { enabled: false } as AIConfig });
+      const ui = new TelegramAssistantUI(deps);
+      const options = createDefaultHandleMessageOptions();
+
+      const result = await ui.handleMessage(options);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.DISABLED);
+    });
+
+    it('returns err(DISABLED) from endSession when config.enabled is false', async () => {
+      const deps = createDefaultDeps({ config: { enabled: false } as AIConfig });
+      const ui = new TelegramAssistantUI(deps);
+      const options = createDefaultEndSessionOptions();
+
+      const result = await ui.endSession(options);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.DISABLED);
     });
   });
 

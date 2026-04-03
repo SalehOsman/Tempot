@@ -44,6 +44,7 @@ function createMockLogger() {
 function createMockRegistry() {
   return {
     languageModel: vi.fn().mockReturnValue('mock-model'),
+    textEmbeddingModel: vi.fn().mockReturnValue('mock-embedding-model'),
   };
 }
 
