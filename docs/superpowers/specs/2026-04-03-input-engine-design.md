@@ -448,24 +448,28 @@ packages/input-engine/
    c. **Parse response** — Call `handler.parseResponse(message, metadata)`. Extract typed value from user message.
    d. **Validate** — Call `handler.validate(input, metadata)`. Return `Result<T, AppError>`. On error, show i18n message via `otherwise` callback, re-prompt (up to `maxRetries`).
 5. **Partial save** — After each field, save `formData` to conversations storage (automatic via grammY storage adapter).
-6. **Event emission** — `input-engine.form.field_completed` per field, `input-engine.form.completed` on finish.
+6. **Event emission** — `input-engine.field.validated` per field, `input-engine.form.completed` on finish, `input-engine.form.resumed` when resuming from partial save.
 7. **Session unlock** — Clear `activeConversation`.
 8. **Return** — `ok(formData)` as typed `Record<string, unknown>`.
 
 **Cancel/Timeout handling:**
 
-- Cancel: `/cancel` command detected via `conversation.waitForCommand('cancel')` check. Emits `input-engine.form.cancelled`.
-- Timeout: `maxMillisecondsToWait` per-conversation config. On timeout, partial data is preserved in storage. Emits `input-engine.form.timeout`.
+- Cancel: `/cancel` command detected via `conversation.waitForCommand('cancel')` check. Emits `input-engine.form.cancelled` with `reason: 'user_cancel'`.
+- Timeout: `maxMillisecondsToWait` per-conversation config. On timeout, partial data is preserved in storage. Emits `input-engine.form.cancelled` with `reason: 'timeout'`.
 
 ### Event Registration
 
-Four events registered in `packages/event-bus/src/event-bus.events.ts` with inline payload types:
+Five events registered in `packages/event-bus/src/event-bus.events.ts` with inline payload types:
 
 ```typescript
+// Addition (not in spec.md, approved during design review)
 'input-engine.form.started': { formId: string; userId: string; chatId: number; fieldCount: number; timestamp: Date };
-'input-engine.form.completed': { formId: string; userId: string; chatId: number; durationMs: number; fieldCount: number; timestamp: Date };
-'input-engine.form.cancelled': { formId: string; userId: string; chatId: number; lastFieldIndex: number; reason: 'user_cancel' | 'timeout'; timestamp: Date };
-'input-engine.form.field_completed': { formId: string; userId: string; fieldName: string; fieldType: string; attemptCount: number; timestamp: Date };
+
+// From spec.md (source of truth for payloads)
+'input-engine.form.completed': { formId: string; userId: string; fieldCount: number; durationMs: number; hadPartialSave: boolean };
+'input-engine.form.cancelled': { formId: string; userId: string; fieldsCompleted: number; totalFields: number; reason: 'user_cancel' | 'timeout' | 'max_retries' };
+'input-engine.form.resumed': { formId: string; userId: string; resumedFromField: number; totalFields: number };
+'input-engine.field.validated': { formId: string; userId: string; fieldType: string; fieldName: string; valid: boolean; retryCount: number };
 ```
 
 ## Testing Conventions
