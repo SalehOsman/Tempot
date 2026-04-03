@@ -8,6 +8,7 @@ import type { FieldHandler } from '../../src/fields/field.handler.js';
 import type { FieldMetadata, FieldType } from '../../src/input-engine.types.js';
 import type { FormRunnerDeps, FormRunnerInput } from '../../src/runner/form.runner.js';
 import { runForm } from '../../src/runner/form.runner.js';
+import type { ConversationsStorageAdapter } from '../../src/storage/conversations-storage.adapter.js';
 
 /** Register field metadata on a Zod schema instance via z.globalRegistry */
 function registerField(schema: z.ZodType, metadata: FieldMetadata): z.ZodType {
@@ -383,5 +384,239 @@ describe('FormRunner (runForm)', () => {
 
     expect(result.isOk()).toBe(true);
     expect(deps.logger.warn).toHaveBeenCalled();
+  });
+
+  describe('partial save', () => {
+    function createMockAdapter() {
+      return {
+        read: vi.fn().mockResolvedValue(undefined),
+        write: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      };
+    }
+
+    it('saves field progress after each field when partialSave is enabled', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      const mockAdapter = createMockAdapter();
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+      deps.registry.register(createMockHandler('Email', 'john@test.com'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      await runForm(input, deps);
+
+      // Should have written after each field (2 writes)
+      expect(mockAdapter.write).toHaveBeenCalledTimes(2);
+
+      // First write: after name field
+      const firstCall = mockAdapter.write.mock.calls[0] as unknown[];
+      expect(firstCall[0]).toBe('ie:form:12345:ps-form');
+      expect(firstCall[1]).toMatchObject({
+        formData: { name: 'John' },
+        fieldsCompleted: 1,
+        completedFieldNames: ['name'],
+      });
+
+      // Second write: after email field
+      const secondCall = mockAdapter.write.mock.calls[1] as unknown[];
+      expect(secondCall[1]).toMatchObject({
+        formData: { name: 'John', email: 'john@test.com' },
+        fieldsCompleted: 2,
+        completedFieldNames: ['name', 'email'],
+      });
+    });
+
+    it('restores partial save and skips completed fields on resume', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      const mockAdapter = createMockAdapter();
+      mockAdapter.read.mockResolvedValue({
+        formData: { name: 'John' },
+        fieldsCompleted: 1,
+        completedFieldNames: ['name'],
+      });
+
+      const nameHandler = createMockHandler('ShortText', 'John');
+      const emailHandler = createMockHandler('Email', 'john@test.com');
+
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      const result = await runForm<{ name: string; email: string }>(input, deps);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value).toEqual({ name: 'John', email: 'john@test.com' });
+      }
+
+      // Name handler should NOT have been called (skipped)
+      expect(nameHandler.render).not.toHaveBeenCalled();
+      // Email handler SHOULD have been called
+      expect(emailHandler.render).toHaveBeenCalled();
+    });
+
+    it('emits form.resumed when restoring from partial save', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      const mockAdapter = createMockAdapter();
+      mockAdapter.read.mockResolvedValue({
+        formData: { name: 'John' },
+        fieldsCompleted: 1,
+        completedFieldNames: ['name'],
+      });
+
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+      deps.registry.register(createMockHandler('Email', 'john@test.com'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      await runForm(input, deps);
+
+      const pub = deps.eventBus.publish as ReturnType<typeof vi.fn>;
+      const events = pub.mock.calls.map((c: unknown[]) => c[0]) as string[];
+      expect(events).toContain('input-engine.form.resumed');
+
+      const resumed = pub.mock.calls.find(
+        (c: unknown[]) => c[0] === 'input-engine.form.resumed',
+      ) as unknown[];
+      const payload = resumed[1] as Record<string, unknown>;
+      expect(payload).toMatchObject({
+        formId: 'ps-form',
+        userId: 'test-user',
+        resumedFromField: 1,
+        totalFields: 2,
+      });
+    });
+
+    it('deletes partial save on successful form completion', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const mockAdapter = createMockAdapter();
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      await runForm(input, deps);
+
+      expect(mockAdapter.delete).toHaveBeenCalledWith('ie:form:12345:ps-form');
+    });
+
+    it('deletes partial save on user cancel', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(err(new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED))),
+        parseResponse: vi.fn().mockReturnValue(ok('unused')),
+        validate: vi.fn().mockReturnValue(ok('unused')),
+      };
+
+      const mockAdapter = createMockAdapter();
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(handler);
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      await runForm(input, deps);
+
+      expect(mockAdapter.delete).toHaveBeenCalledWith('ie:form:12345:ps-form');
+    });
+
+    it('preserves partial save on max_retries error', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        maxRetries: 2,
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('bad-value')),
+        validate: vi
+          .fn()
+          .mockReturnValue(err(new AppError(INPUT_ENGINE_ERRORS.FIELD_VALIDATION_FAILED))),
+      };
+
+      const mockAdapter = createMockAdapter();
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as unknown as ConversationsStorageAdapter,
+      });
+      deps.registry.register(handler);
+
+      const input: FormRunnerInput = {
+        ...createInput(schema),
+        options: { partialSave: true, formId: 'ps-form' },
+      };
+      const result = await runForm(input, deps);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES);
+      }
+
+      // Should NOT have deleted partial save — preserves for resume
+      expect(mockAdapter.delete).not.toHaveBeenCalled();
+    });
   });
 });

@@ -5,18 +5,20 @@ import type { AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { guardEnabled } from '../input-engine.guard.js';
 import { SchemaValidator } from './schema.validator.js';
-import { shouldRenderField } from './condition.evaluator.js';
 import {
-  emitEvent,
   emitFormStarted,
   emitFormCompleted,
   emitFormCancelled,
+  emitFormResumed,
 } from './event.emitter.js';
 import type { EventEmitterDeps } from './event.emitter.js';
 import type { InputEngineLogger, InputEngineEventBus } from '../input-engine.contracts.js';
-import type { FieldMetadata, FormOptions } from '../input-engine.types.js';
+import type { FormOptions } from '../input-engine.types.js';
 import { DEFAULT_FORM_OPTIONS } from '../input-engine.types.js';
-import type { FieldHandlerRegistry, FieldHandler } from '../fields/field.handler.js';
+import type { FieldHandlerRegistry } from '../fields/field.handler.js';
+import type { ConversationsStorageAdapter } from '../storage/conversations-storage.adapter.js';
+import { buildStorageKey, restorePartialSave, deletePartialSave } from './partial-save.helper.js';
+import { iterateFields } from './field.iterator.js';
 
 /** Dependencies injected into the FormRunner */
 export interface FormRunnerDeps {
@@ -28,6 +30,7 @@ export interface FormRunnerDeps {
   setActiveConversation: (formId: string | undefined) => void;
   userId: string;
   chatId: number;
+  storageAdapter?: ConversationsStorageAdapter;
 }
 
 /** Bundled input for runForm: conversation context + schema */
@@ -38,19 +41,15 @@ export interface FormRunnerInput {
   options?: FormOptions;
 }
 
-const DEFAULT_MAX_RETRIES = 3;
-
 /** Mutable progress tracker shared between functions */
-interface FormProgress {
+export interface FormProgress {
   fieldsCompleted: number;
   totalFields: number;
   formId: string;
   formData: Record<string, unknown>;
-}
-
-function getFieldMetadata(schema: z.ZodType): FieldMetadata {
-  const meta = z.globalRegistry.get(schema);
-  return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
+  completedFieldNames: string[];
+  partialSaveEnabled: boolean;
+  storageKey: string;
 }
 
 function checkPreconditions(
@@ -66,119 +65,83 @@ function checkPreconditions(
   return undefined;
 }
 
-/** Internal context for processing a single field */
-interface FieldContext {
-  handler: FieldHandler;
-  metadata: FieldMetadata;
-  fieldSchema: z.ZodType;
-  fieldName: string;
-  maxRetries: number;
-  formData: Record<string, unknown>;
-  retryCount: number;
-}
-
-/** Process a single field: render, parse, validate with retry */
-async function processField(
-  input: FormRunnerInput,
-  ctx: FieldContext,
-): AsyncResult<unknown, AppError> {
-  const { handler, metadata, fieldSchema, maxRetries } = ctx;
-  let retryCount = 0;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const rr = await handler.render(
-      { conversation: input.conversation, ctx: input.ctx, formData: ctx.formData },
-      metadata,
-    );
-    if (rr.isErr()) return err(rr.error);
-
-    const pr = handler.parseResponse(input.ctx, metadata);
-    if (pr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    const vr = handler.validate(pr.value, fieldSchema, metadata);
-    if (vr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    ctx.retryCount = retryCount;
-    return ok(vr.value);
-  }
-
-  return err(
-    new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
-      fieldName: ctx.fieldName,
-      fieldType: metadata.fieldType,
-      maxRetries,
-    }),
-  );
-}
-
-/** Iterate all schema fields, processing each one */
-async function iterateFields(
-  input: FormRunnerInput,
+/** Try to restore partial save and populate progress */
+async function tryRestore(
   deps: FormRunnerDeps,
   progress: FormProgress,
-): AsyncResult<void, AppError> {
-  const fieldNames = Object.keys(input.schema.shape);
-  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
-  progress.totalFields = fieldNames.length;
+  evDeps: EventEmitterDeps,
+): Promise<void> {
+  if (!progress.partialSaveEnabled || !deps.storageAdapter) return;
 
-  for (const fieldName of fieldNames) {
-    const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
-    const metadata = getFieldMetadata(fieldSchema);
+  const saved = await restorePartialSave(
+    { storageAdapter: deps.storageAdapter, logger: deps.logger },
+    progress.storageKey,
+  );
+  if (!saved) return;
 
-    if (!shouldRenderField(metadata, progress.formData)) {
-      deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
-      continue;
-    }
+  Object.assign(progress.formData, saved.formData);
+  progress.fieldsCompleted = saved.fieldsCompleted;
+  progress.completedFieldNames = saved.completedFieldNames;
 
-    const handler = deps.registry.get(metadata.fieldType);
-    if (!handler) {
-      return err(
-        new AppError(INPUT_ENGINE_ERRORS.FIELD_TYPE_UNKNOWN, {
-          fieldName,
-          fieldType: metadata.fieldType,
-        }),
-      );
-    }
-
-    const ctx: FieldContext = {
-      handler,
-      metadata,
-      fieldSchema,
-      fieldName,
-      maxRetries: metadata.maxRetries ?? DEFAULT_MAX_RETRIES,
-      formData: progress.formData,
-      retryCount: 0,
-    };
-
-    const result = await processField(input, ctx);
-    if (result.isErr()) return err(result.error);
-
-    progress.formData[fieldName] = result.value;
-    progress.fieldsCompleted++;
-
-    await emitEvent(evDeps, 'input-engine.field.validated', {
-      formId: progress.formId,
-      userId: deps.userId,
-      fieldType: metadata.fieldType,
-      fieldName,
-      valid: true,
-      retryCount: ctx.retryCount,
-    });
-  }
-
-  return ok(undefined);
+  await emitFormResumed(evDeps, {
+    formId: progress.formId,
+    userId: deps.userId,
+    resumedFromField: saved.fieldsCompleted,
+    totalFields: progress.totalFields,
+  });
 }
 
-/**
- * Run a form by iterating fields in a Zod schema, calling handlers
- * for each field, and collecting validated values.
- */
+/** Context bundled for handleResult to stay within max-params */
+interface RunContext {
+  deps: FormRunnerDeps;
+  progress: FormProgress;
+  evDeps: EventEmitterDeps;
+  merged: Required<FormOptions>;
+  startTime: number;
+}
+
+/** Handle iterateFields result: cleanup and emit lifecycle events */
+async function handleResult<T>(
+  loopResult: Awaited<AsyncResult<void, AppError>>,
+  ctx: RunContext,
+): AsyncResult<T, AppError> {
+  const { deps, progress, evDeps, merged } = ctx;
+  const { formId, storageKey, partialSaveEnabled } = progress;
+  const psDeps = deps.storageAdapter
+    ? { storageAdapter: deps.storageAdapter, logger: deps.logger }
+    : undefined;
+
+  if (loopResult.isErr()) {
+    deps.setActiveConversation(undefined);
+    if (loopResult.error.code === INPUT_ENGINE_ERRORS.FORM_CANCELLED) {
+      if (partialSaveEnabled && psDeps) await deletePartialSave(psDeps, storageKey);
+      await emitFormCancelled(evDeps, {
+        formId,
+        userId: deps.userId,
+        fieldsCompleted: progress.fieldsCompleted,
+        totalFields: progress.totalFields,
+      });
+    }
+    // FIELD_MAX_RETRIES / FORM_TIMEOUT: preserve partial save for resume
+    return err(loopResult.error);
+  }
+
+  deps.setActiveConversation(undefined);
+  if (partialSaveEnabled && psDeps) await deletePartialSave(psDeps, storageKey);
+
+  const durationMs = Date.now() - ctx.startTime;
+  await emitFormCompleted(evDeps, {
+    formId,
+    userId: deps.userId,
+    fieldsCompleted: progress.fieldsCompleted,
+    durationMs,
+    hadPartialSave: merged.partialSave,
+  });
+
+  return ok(progress.formData as T);
+}
+
+/** Run a form: validate, iterate fields, emit lifecycle events */
 async function runFormInternal<T>(
   input: FormRunnerInput,
   deps: FormRunnerDeps,
@@ -191,38 +154,26 @@ async function runFormInternal<T>(
   const formId = merged.formId || crypto.randomUUID().slice(0, 8);
   deps.setActiveConversation(formId);
 
+  const psEnabled = merged.partialSave && deps.storageAdapter !== undefined;
+  const storageKey = buildStorageKey(deps.chatId, formId);
   const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
-  const progress: FormProgress = { fieldsCompleted: 0, totalFields: 0, formId, formData: {} };
-  const startTime = Date.now();
   const fieldCount = Object.keys(input.schema.shape).length;
+  const progress: FormProgress = {
+    fieldsCompleted: 0,
+    totalFields: fieldCount,
+    formId,
+    formData: {},
+    completedFieldNames: [],
+    partialSaveEnabled: psEnabled,
+    storageKey,
+  };
 
+  const startTime = Date.now();
   await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
+  await tryRestore(deps, progress, evDeps);
   const loopResult = await iterateFields(input, deps, progress);
 
-  if (loopResult.isErr()) {
-    deps.setActiveConversation(undefined);
-    if (loopResult.error.code === INPUT_ENGINE_ERRORS.FORM_CANCELLED) {
-      await emitFormCancelled(evDeps, {
-        formId,
-        userId: deps.userId,
-        fieldsCompleted: progress.fieldsCompleted,
-        totalFields: progress.totalFields,
-      });
-    }
-    return err(loopResult.error);
-  }
-
-  deps.setActiveConversation(undefined);
-  const durationMs = Date.now() - startTime;
-  await emitFormCompleted(evDeps, {
-    formId,
-    userId: deps.userId,
-    fieldsCompleted: progress.fieldsCompleted,
-    durationMs,
-    hadPartialSave: merged.partialSave,
-  });
-
-  return ok(progress.formData as T);
+  return handleResult<T>(loopResult, { deps, progress, evDeps, merged, startTime });
 }
 
 /** Public entry point — guards on the engine toggle before running */
