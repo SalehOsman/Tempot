@@ -124,12 +124,12 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. Phase 1 in progress — 11 packages on main.
+Phase 0 complete. Phase 1 in progress — 12 packages on main.
 
-**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers (7 packages)
+**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core (8 packages)
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Infrastructure (built before formal methodology):** sentry (1 package)
-**Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, ai-core, document-engine, import-engine (7 packages)
+**Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, document-engine, import-engine (6 packages)
 
 module-registry exists as placeholder only (README only, no package.json or implementation).
 
