@@ -276,6 +276,52 @@ importers:
         specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@20.19.37)(vite@8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
 
+  packages/input-engine:
+    dependencies:
+      '@grammyjs/conversations':
+        specifier: ^2.1.1
+        version: 2.1.1(grammy@1.41.1)
+      '@tempot/i18n-core':
+        specifier: workspace:*
+        version: link:../i18n-core
+      '@tempot/session-manager':
+        specifier: workspace:*
+        version: link:../session-manager
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../ux-helpers
+      jpeg-js:
+        specifier: ^0.4.4
+        version: 0.4.4
+      jsqr:
+        specifier: ^1.4.0
+        version: 1.4.0
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/pngjs':
+        specifier: ^6.0.5
+        version: 6.0.5
+      grammy:
+        specifier: ^1.41.1
+        version: 1.41.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@20.19.37)(vite@8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+
   packages/logger:
     dependencies:
       '@tempot/database':
@@ -1397,6 +1443,12 @@ packages:
     resolution: {integrity: sha512-Xi2mMrUTQ+gsfyouRGd0pfnL+jjg4n4sjKsJruM1y4DknuRfdSBTk5E//WrL0YJ/CqpcBgyd7L8DvaPRtxZD3Q==}
     engines: {node: '>=12.0.0'}
 
+  '@grammyjs/conversations@2.1.1':
+    resolution: {integrity: sha512-hoxqwSkaXDeU7mzXulpk3A4Cmd6UZO3HU4aPoITX5ekSHK7ZcUEmMl7RhKKkqw3z6zVbbAShQreJoVV5/dDSLA==}
+    engines: {node: ^12.20.0 || >=14.13.1}
+    peerDependencies:
+      grammy: ^1.20.1
+
   '@grammyjs/types@3.25.0':
     resolution: {integrity: sha512-iN9i5p+8ZOu9OMxWNcguojQfz4K/PDyMPOnL7PPCON+SoA/F8OKMH3uR7CVUkYfdNe0GCz8QOzAWrnqusQYFOg==}
 
@@ -2291,6 +2343,9 @@ packages:
 
   '@types/pg@8.6.1':
     resolution: {integrity: sha512-1Kc4oAGzAl7uqUStZCDvaLFqZrW9qWSjXOmBfdgyBP5La7Us6Mg4GBvRlSoaZMhQF/zSj1C8CtKMBkoiT8eL8w==}
+
+  '@types/pngjs@6.0.5':
+    resolution: {integrity: sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ==}
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
@@ -3894,6 +3949,9 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
+  jpeg-js@0.4.4:
+    resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
+
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
 
@@ -3934,6 +3992,9 @@ packages:
 
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
+
+  jsqr@1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
 
   jwa@2.0.1:
     resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
@@ -4510,6 +4571,10 @@ packages:
 
   pkg-types@2.3.0:
     resolution: {integrity: sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig==}
+
+  pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
 
   postcss@8.5.8:
     resolution: {integrity: sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg==}
@@ -6472,6 +6537,10 @@ snapshots:
       - encoding
       - supports-color
 
+  '@grammyjs/conversations@2.1.1(grammy@1.41.1)':
+    dependencies:
+      grammy: 1.41.1
+
   '@grammyjs/types@3.25.0': {}
 
   '@grpc/grpc-js@1.14.3':
@@ -7597,6 +7666,10 @@ snapshots:
       '@types/node': 20.19.37
       pg-protocol: 1.13.0
       pg-types: 2.2.0
+
+  '@types/pngjs@6.0.5':
+    dependencies:
+      '@types/node': 20.19.37
 
   '@types/react@19.2.14':
     dependencies:
@@ -9318,6 +9391,8 @@ snapshots:
 
   jiti@2.6.1: {}
 
+  jpeg-js@0.4.4: {}
+
   js-tokens@10.0.0: {}
 
   js-tokens@4.0.0: {}
@@ -9356,6 +9431,8 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  jsqr@1.4.0: {}
 
   jwa@2.0.1:
     dependencies:
@@ -9879,6 +9956,8 @@ snapshots:
       confbox: 0.2.4
       exsolve: 1.0.8
       pathe: 2.0.3
+
+  pngjs@7.0.0: {}
 
   postcss@8.5.8:
     dependencies:

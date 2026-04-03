@@ -1,0 +1,37 @@
+{
+  "name": "@tempot/input-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "neverthrow": "8.2.0",
+    "@grammyjs/conversations": "^2.1.1",
+    "zod": "^4.3.6",
+    "@tempot/shared": "workspace:*",
+    "@tempot/ux-helpers": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/session-manager": "workspace:*",
+    "jsqr": "^1.4.0",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "grammy": "^1.41.1",
+    "@types/pngjs": "^6.0.5"
+  }
+}
