@@ -14,6 +14,8 @@
 
 **Spec Artifacts:** `specs/011-input-engine-package/` (spec.md, plan.md, tasks.md, data-model.md, research.md)
 
+**TDD:** RED → GREEN → REFACTOR. Every task writes the failing test first, then implements to make it pass. Code before tests = delete and redo (Constitution Rule XXXIV).
+
 ---
 
 ## Common Patterns (Reference for All Tasks)
@@ -57,6 +59,8 @@ export class XxxFieldHandler implements FieldHandler {
 ```
 
 ### Test Pattern
+
+> **Design Decision D2:** Three-Layer Testing — 70% pure validate/parse tests, 20% conversation mock tests, 10% FormRunner integration tests. See design doc for full rationale.
 
 Every field handler test follows this structure:
 
@@ -263,7 +267,21 @@ Expected: Installs new deps including @grammyjs/conversations, jsqr, jpeg-js, pn
 Run: `pnpm --filter @tempot/input-engine build`
 Expected: Exit 0, dist/ created with index.js + index.d.ts
 
-- [ ] **Step 8: Commit scaffolding**
+- [ ] **Step 8: Verify no `console.*` in src/ (Checklist Point 8)**
+
+Run: `grep -rn "console\." packages/input-engine/src/`
+Expected: No output (zero matches)
+
+- [ ] **Step 9: Verify no phantom dependencies (Checklist Point 9)**
+
+For each dependency in package.json, verify it is imported in `src/`. At scaffolding time only `src/index.ts` exists (empty barrel), so this step confirms the file has no stale imports. Full phantom dependency check runs at merge gate after all tasks are complete.
+
+- [ ] **Step 10: Verify clean workspace (Checklist Point 10)**
+
+Run: `Get-ChildItem -Recurse packages/input-engine/src -Include *.js,*.d.ts`
+Expected: No output (no compiled artifacts in src/)
+
+- [ ] **Step 11: Commit scaffolding**
 
 ```
 git add packages/input-engine/
@@ -662,7 +680,7 @@ git commit -m "feat(input-engine): add toggle guard and config (Task 2)"
 
 ---
 
-### Task 3: Conversations Storage Adapter
+### Task 3: Conversations Storage Adapter (Design Decision D4)
 
 **Files:**
 
@@ -877,6 +895,9 @@ import { FieldHandlerRegistry } from '../../src/fields/field.handler.js';
 import type { FieldMetadata } from '../../src/input-engine.types.js';
 
 // Helper: register schema with metadata in Zod 4 global registry
+// Design Decision D3: Zod 4 global registry uses reference-based keys (like WeakMap).
+// Each test creates new schema instances → unique references → no cross-test pollution.
+// No afterEach cleanup needed for z.globalRegistry.
 function registerField(schema: z.ZodType, metadata: FieldMetadata): z.ZodType {
   z.globalRegistry.register(schema, { 'input-engine': metadata });
   return schema;
@@ -1067,7 +1088,7 @@ git commit -m "feat(input-engine): add text field handlers - ShortText, LongText
 
 ---
 
-## Phase 3 continued: Number Fields (Tasks 13-17, 41)
+## Phase 3 continued: Number Fields (Tasks 13-16, 41)
 
 ### Task 13: Integer Field Handler
 
