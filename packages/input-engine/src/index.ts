@@ -35,3 +35,6 @@ export { isInputEngineEnabled } from './input-engine.config.js';
 
 // Guard
 export { guardEnabled } from './input-engine.guard.js';
+
+// Storage
+export { ConversationsStorageAdapter } from './storage/conversations-storage.adapter.js';
