@@ -177,4 +177,33 @@ describe('SchemaValidator', () => {
       expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.SCHEMA_CIRCULAR_DEPENDENCY);
     }
   });
+
+  it('validates an empty schema (no fields)', () => {
+    const formSchema = z.object({});
+    const registry = createRegistry();
+    const validator = new SchemaValidator(registry);
+    const result = validator.validate(formSchema);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toHaveLength(0);
+    }
+  });
+
+  it('returns err for condition referencing non-existent field', () => {
+    const schema = registerField(z.string(), {
+      fieldType: 'ShortText',
+      i18nKey: 'form.name',
+      conditions: [{ dependsOn: 'nonExistentField', operator: 'equals', value: 'x' }],
+    } as FieldMetadata);
+    const formSchema = z.object({ name: schema });
+
+    const registry = createRegistry('ShortText');
+    const validator = new SchemaValidator(registry);
+    const result = validator.validate(formSchema);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(INPUT_ENGINE_ERRORS.SCHEMA_INVALID);
+    }
+  });
 });

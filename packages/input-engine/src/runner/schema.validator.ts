@@ -49,6 +49,23 @@ export class SchemaValidator {
       validatedFields.push({ fieldName, metadata: fieldResult.value });
     }
 
+    // Check for dangling dependsOn references
+    const fieldNameSet = new Set(validatedFields.map((f) => f.fieldName));
+    for (const { fieldName, metadata } of validatedFields) {
+      if (metadata.conditions) {
+        for (const condition of metadata.conditions) {
+          if (!fieldNameSet.has(condition.dependsOn)) {
+            return err(
+              new AppError(INPUT_ENGINE_ERRORS.SCHEMA_INVALID, {
+                field: fieldName,
+                reason: `Condition references unknown field '${condition.dependsOn}'`,
+              }),
+            );
+          }
+        }
+      }
+    }
+
     // Check for circular conditional dependencies using DFS
     const conditionMap = this.buildConditionMap(validatedFields);
     const cycle = this.detectCircularDependencies(conditionMap);
