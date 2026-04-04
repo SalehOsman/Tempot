@@ -1,4 +1,4 @@
-import { ok, err } from 'neverthrow';
+import { ok, err, type Result } from 'neverthrow';
 import { z } from 'zod';
 import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
@@ -6,6 +6,7 @@ import { FIELD_SKIPPED_SENTINEL, type FieldMetadata } from '../input-engine.type
 import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import type { FormRunnerDeps, FormRunnerInput } from './form.runner.js';
 import { ACTION_CALLBACKS } from './action-buttons.builder.js';
+import { renderValidationError } from './validation-error.renderer.js';
 
 const DEFAULT_MAX_RETRIES = 3;
 
@@ -68,20 +69,28 @@ function isCancelSignal(response: unknown): boolean {
   return false;
 }
 
+/** Try to parse and validate a user response; returns ok(value) or err */
+function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unknown, AppError> {
+  const { metadata, fieldSchema } = ctx;
+  const pr = ctx.handler.parseResponse(response, metadata);
+  if (pr.isErr()) return err(pr.error);
+
+  return ctx.handler.validate(pr.value, fieldSchema, metadata);
+}
+
 /** Process a single field: render, parse, validate with retry */
 export async function processField(
   input: FormRunnerInput,
   ctx: FieldContext,
   deps: FormRunnerDeps,
 ): AsyncResult<unknown, AppError> {
-  const { metadata, fieldSchema, maxRetries } = ctx;
+  const { metadata, maxRetries } = ctx;
   let retryCount = 0;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const rr = await resolveResponseCtx(input, ctx, deps);
     if (rr.isErr()) return err(rr.error);
 
-    // Check for cancel signal when allowCancel is enabled
     if (ctx.allowCancel && isCancelSignal(rr.value)) {
       return err(
         new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
@@ -91,15 +100,15 @@ export async function processField(
       );
     }
 
-    const pr = ctx.handler.parseResponse(rr.value, metadata);
-    if (pr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    const vr = ctx.handler.validate(pr.value, fieldSchema, metadata);
+    const vr = tryParseAndValidate(rr.value, ctx);
     if (vr.isErr()) {
       retryCount++;
+      const errorText = renderValidationError(
+        metadata,
+        { current: retryCount, max: maxRetries },
+        deps.t,
+      );
+      deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
       continue;
     }
 
