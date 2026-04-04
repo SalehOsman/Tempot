@@ -4,7 +4,7 @@
 
 This document has the same authority as `constitution.md`.
 All AI tools operating in this project MUST read and follow it without exception.
-Version: 1.1.0
+Version: 1.2.0
 
 ---
 
@@ -45,6 +45,8 @@ Version: 1.1.0
   5.  Follow the appropriate prompt template:
       - New package / Phase B execution: `.specify/templates/executor-prompt-template.md`
       - Bug fixing / error resolution: `.specify/templates/executor-bugfix-template.md`
+      - SpecKit specification phase: `.specify/templates/executor-speckit-template.md`
+      - Documentation-only tasks: `.specify/templates/executor-docs-template.md`
   6.  Include a **Documentation Sync phase** (Constitution Rule L) that explicitly commands:
       - Updating all affected SpecKit artifacts (`data-model.md`, `tasks.md`, `research.md`, `spec.md`) to reflect implementation changes
       - Running `/speckit.analyze` (Spec Consistency Gate — internal artifact consistency)

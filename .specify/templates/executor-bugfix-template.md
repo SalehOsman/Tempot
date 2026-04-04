@@ -2,7 +2,7 @@
 
 > **Authority:** This template has the same authority as `roles.md`.
 > Every bugfix prompt written for the Executor MUST follow this structure.
-> **Version:** 1.1.0
+> **Version:** 1.2.0
 
 ---
 
@@ -169,6 +169,20 @@ Select affected package(s), type (patch for bugfix), and write a summary.
 - Single responsibility: fix THIS bug only. Do not "while I'm here" fix other issues (Constitution Rule IX).
 - If the root cause is unclear or ambiguity exists: STOP. Do NOT guess a fix. Report your analysis and wait.
 - If the fix requires changing shared code (`packages/shared/`, base types): document the blast radius on all dependent packages before proceeding (Constitution Rule LIV).
+
+## Pre-Report Checklist
+
+Before writing the Final Report, verify each item. If any item fails, fix it before reporting.
+
+- [ ] Bug was reproduced and symptoms confirmed
+- [ ] Root cause identified at exact file:line
+- [ ] Failing test written BEFORE fix (TDD RED phase)
+- [ ] Fix applied at the source — no wrappers or workarounds (Constitution Rule VII)
+- [ ] Test passes AFTER fix (TDD GREEN phase)
+- [ ] Full test suite of affected package passes (zero regressions)
+- [ ] If shared code changed: blast radius documented (Constitution Rule LIV)
+- [ ] All affected documentation updated if behavior changed (Constitution Rule L)
+- [ ] No files outside bug scope were modified (Constitution Rule IX)
 
 ## Final Report
 

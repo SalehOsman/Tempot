@@ -145,7 +145,6 @@ module-registry exists as placeholder only (README only, no package.json or impl
 - Architecture Spec: `docs/tempot_v11_final.md`
 - Workflow Guide: `docs/developer/workflow-guide.md`
 - Roadmap: `docs/ROADMAP.md`
-- SpecKit Gemini Guide: `docs/developer/SPECKIT-GEMINI-GUIDE.md`
 
 ## Toolchain References
 

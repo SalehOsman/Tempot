@@ -2,7 +2,7 @@
 
 > **Authority:** This template has the same authority as `roles.md`.
 > Every Phase B prompt written for the Executor MUST follow this structure.
-> **Version:** 1.1.0
+> **Version:** 1.2.0
 
 ---
 
@@ -134,6 +134,8 @@ follow its instructions exactly.
    /speckit.analyze
    ```
 
+   `/speckit.analyze` is a SpecKit slash command — run it in the same way you run other SpecKit commands (e.g., `/speckit.specify`). It is NOT a shell command.
+
    Fix any inconsistencies before proceeding.
 
    **C. Reconciliation Gate** — Run `pnpm spec:validate` to verify spec→code alignment:
@@ -173,6 +175,21 @@ follow its instructions exactly.
 - Do ONLY what spec.md requires. No bonus features, no refactoring of unrelated code, no "while I'm here" changes.
 - Every public API returns `Result<T, AppError>` via neverthrow.
 - All code, comments, variables in English.
+
+## Pre-Report Checklist
+
+Before writing the Final Report, verify each item. If any item fails, fix it before reporting.
+
+- [ ] All tasks from the plan have been executed
+- [ ] Every code change followed TDD (RED → GREEN → REFACTOR)
+- [ ] All tests pass (paste `pnpm test` output as evidence)
+- [ ] Build succeeds (paste `pnpm build` output as evidence)
+- [ ] Code review completed with zero CRITICAL issues
+- [ ] All affected documentation updated (Constitution Rule L)
+- [ ] `/speckit.analyze` passed (paste output)
+- [ ] `pnpm spec:validate` passed (paste output)
+- [ ] Changeset created via `pnpm changeset`
+- [ ] No files outside task scope were modified (Constitution Rule IX)
 
 ## Final Report
 
