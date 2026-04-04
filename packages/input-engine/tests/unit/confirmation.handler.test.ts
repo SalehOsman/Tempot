@@ -11,7 +11,11 @@ import type {
   FormProgress,
 } from '../../src/runner/form.runner.js';
 import { CONFIRMATION_ACTIONS } from '../../src/runner/confirmation.renderer.js';
-import { handleConfirmationLoop } from '../../src/runner/confirmation.handler.js';
+import {
+  handleConfirmationLoop,
+  type InlineKeyboardButton,
+  type InlineKeyboardMarkup,
+} from '../../src/runner/confirmation.handler.js';
 
 /** Register field metadata on a Zod schema instance via z.globalRegistry */
 function registerField(schema: z.ZodType, metadata: FieldMetadata): z.ZodType {
@@ -183,6 +187,43 @@ describe('ConfirmationHandler (handleConfirmationLoop)', () => {
       expect(error.code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
       expect(error.details).toMatchObject({ stage: 'confirmation' });
     });
+
+    it('preserves partial save data when user cancels during confirmation', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      const conversation = createMockConversation([CONFIRMATION_ACTIONS.CANCEL]);
+      const ctx = createMockCtx();
+
+      const deps = createMockDeps();
+      deps.registry.register(createMockHandler('ShortText'));
+      deps.registry.register(createMockHandler('Email'));
+
+      const progress = createProgress();
+      progress.partialSaveEnabled = true;
+      progress.formData = { name: 'John', email: 'john@test.com' };
+      progress.completedFieldNames = ['name', 'email'];
+      progress.fieldsCompleted = 2;
+      progress.totalFields = 2;
+
+      const input: FormRunnerInput = { conversation, ctx, schema };
+      const result = await handleConfirmationLoop(input, deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      const error = result._unsafeUnwrapErr();
+      expect(error.code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      expect(error.details).toMatchObject({ stage: 'confirmation' });
+      // Partial save data must be preserved — confirmation handler does NOT clear formData
+      expect(progress.formData).toEqual({ name: 'John', email: 'john@test.com' });
+      expect(progress.completedFieldNames).toEqual(['name', 'email']);
+    });
   });
 
   describe('edit flow', () => {
@@ -279,6 +320,117 @@ describe('ConfirmationHandler (handleConfirmationLoop)', () => {
       // Detail should be removed from formData (condition now false)
       expect(progress.formData).not.toHaveProperty('detail');
     });
+
+    it('D27: skips newly-visible fields before edit point in schema order', async () => {
+      // Schema: A, B (cond: C=x), C
+      // Initially: A='val', C='x' completed. B was skipped during initial fill
+      //   because C wasn't in formData when B was evaluated.
+      // Now formData has C='x', so B's condition is true.
+      // Edit C (index 2). B at index 1 becomes visible but is BEFORE edit point.
+      // D27: B should NOT be asked.
+      const aSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.a',
+      } as FieldMetadata);
+      const bSchema = registerField(z.string(), {
+        fieldType: 'LongText',
+        i18nKey: 'form.b',
+        conditions: [{ dependsOn: 'c', operator: 'equals' as const, value: 'x' }],
+      } as FieldMetadata);
+      const cSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.c',
+      } as FieldMetadata);
+      const schema = z.object({ a: aSchema, b: bSchema, c: cSchema });
+
+      // Flow: EDIT → select C (index 2) → re-enter C → CONFIRM
+      const conversation = createMockConversation([
+        CONFIRMATION_ACTIONS.EDIT,
+        'ie:test-form:2:c',
+        CONFIRMATION_ACTIONS.CONFIRM,
+      ]);
+      const ctx = createMockCtx();
+
+      const aHandler = createMockHandler('ShortText', 'val');
+      const bHandler = createMockHandler('LongText', 'b-value');
+      const cHandler = createMockHandler('Email', 'x');
+      const deps = createMockDeps();
+      deps.registry.register(aHandler);
+      deps.registry.register(bHandler);
+      deps.registry.register(cHandler);
+
+      const progress = createProgress();
+      // B was never completed (skipped during initial fill), but C='x' makes B visible now
+      progress.formData = { a: 'val', c: 'x' };
+      progress.completedFieldNames = ['a', 'c'];
+      progress.fieldsCompleted = 2;
+      progress.totalFields = 3;
+
+      const input: FormRunnerInput = { conversation, ctx, schema };
+      const result = await handleConfirmationLoop(input, deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // B should NOT have been asked — it's before the edit point (index 1 < 2)
+      expect(progress.completedFieldNames).not.toContain('b');
+      expect(bHandler.parseResponse).not.toHaveBeenCalled();
+    });
+
+    it('T3: newly-visible field after edit point is asked', async () => {
+      // Schema: category, sub_category (cond: category=electronics), name
+      // Completed: category=food, name=Pizza (sub_category skipped)
+      // Edit category to 'electronics' → sub_category at index 1 becomes visible
+      // Since edit point is index 0, sub_category at index 1 is AFTER edit point and SHOULD be asked
+      const catSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.category',
+      } as FieldMetadata);
+      const subCatSchema = registerField(z.string(), {
+        fieldType: 'SingleChoice',
+        i18nKey: 'form.sub_category',
+        conditions: [{ dependsOn: 'category', operator: 'equals' as const, value: 'electronics' }],
+      } as FieldMetadata);
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({
+        category: catSchema,
+        sub_category: subCatSchema,
+        name: nameSchema,
+      });
+
+      // Flow: EDIT → select category → new value 'electronics' → (sub_category is asked) → CONFIRM
+      const conversation = createMockConversation([
+        CONFIRMATION_ACTIONS.EDIT,
+        'ie:test-form:0:category',
+        CONFIRMATION_ACTIONS.CONFIRM,
+      ]);
+      const ctx = createMockCtx();
+
+      const catHandler = createMockHandler('ShortText', 'electronics');
+      const subCatHandler = createMockHandler('SingleChoice', 'phones');
+      const nameHandler = createMockHandler('Email', 'iPhone');
+      const deps = createMockDeps();
+      deps.registry.register(catHandler);
+      deps.registry.register(subCatHandler);
+      deps.registry.register(nameHandler);
+
+      const progress = createProgress();
+      progress.formData = { category: 'food', name: 'Pizza' };
+      progress.completedFieldNames = ['category', 'name'];
+      progress.fieldsCompleted = 2;
+      progress.totalFields = 3;
+
+      const input: FormRunnerInput = { conversation, ctx, schema };
+      const result = await handleConfirmationLoop(input, deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // Category should be updated
+      expect(progress.formData['category']).toBe('electronics');
+      // sub_category should now be in formData (was asked since it's after edit point)
+      expect(progress.formData['sub_category']).toBe('phones');
+      expect(progress.completedFieldNames).toContain('sub_category');
+    });
   });
 
   describe('timeout', () => {
@@ -311,5 +463,26 @@ describe('ConfirmationHandler (handleConfirmationLoop)', () => {
       // startTime should have been reset to a recent value
       expect(progress.startTime).toBeGreaterThan(startBefore);
     });
+  });
+});
+
+describe('Keyboard type safety (M8)', () => {
+  it('InlineKeyboardButton has text and callback_data fields', () => {
+    const button: InlineKeyboardButton = {
+      text: 'Confirm',
+      callback_data: 'confirm',
+    };
+    expect(button.text).toBe('Confirm');
+    expect(button.callback_data).toBe('confirm');
+  });
+
+  it('InlineKeyboardMarkup has reply_markup with inline_keyboard', () => {
+    const markup: InlineKeyboardMarkup = {
+      reply_markup: {
+        inline_keyboard: [[{ text: 'Confirm', callback_data: 'confirm' }]],
+      },
+    };
+    expect(markup.reply_markup.inline_keyboard).toHaveLength(1);
+    expect(markup.reply_markup.inline_keyboard[0]![0]!.text).toBe('Confirm');
   });
 });

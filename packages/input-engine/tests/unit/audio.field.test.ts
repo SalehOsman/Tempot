@@ -62,6 +62,16 @@ describe('AudioFieldHandler', () => {
       });
     });
 
+    it('preserves mime_type from Telegram audio through parse', () => {
+      const message = {
+        audio: { file_id: 'aud456', file_size: 4000, duration: 90, mime_type: 'audio/ogg' },
+      };
+      const result = handler.parseResponse(message, createMeta());
+      expect(result.isOk()).toBe(true);
+      const parsed = result._unsafeUnwrap() as Record<string, unknown>;
+      expect(parsed['mimeType']).toBe('audio/ogg');
+    });
+
     it('returns err when no audio in message', () => {
       const result = handler.parseResponse({}, createMeta());
       expect(result.isErr()).toBe(true);
@@ -136,6 +146,26 @@ describe('AudioFieldHandler', () => {
       expect(degraded['telegramFileId']).toBe('aud_789');
       expect(degraded['storageUrl']).toBeUndefined();
       expect(logger.warn).toHaveBeenCalled();
+    });
+
+    it('uses actual mime type from parsed audio instead of hardcoded value', async () => {
+      const storageClient: StorageEngineClient = {
+        upload: vi.fn().mockResolvedValue(ok('https://storage/audio.ogg')),
+        validate: vi.fn().mockResolvedValue(ok(undefined)),
+      };
+      const logger = createMockLogger();
+      const renderCtx = createMockRenderCtx({ storageClient, logger });
+      const value = { fileId: 'aud_ogg', fileSize: 3000, duration: 45, mimeType: 'audio/ogg' };
+
+      const result = await handler.postProcess!(value, renderCtx, createMeta());
+
+      expect(result.isOk()).toBe(true);
+      const enriched = result._unsafeUnwrap() as Record<string, unknown>;
+      expect(enriched['mimeType']).toBe('audio/ogg');
+      expect(storageClient.upload).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ mimeType: 'audio/ogg' }),
+      );
     });
   });
 });

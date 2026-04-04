@@ -65,3 +65,12 @@ export function decodeFormCallback(data: string): Result<FormCallbackData, AppEr
 export function generateFormId(): string {
   return crypto.randomUUID().slice(0, 8);
 }
+
+/** Extract callback data string from a raw response object */
+export function extractCallbackData(response: unknown): string | undefined {
+  if (response === null || response === undefined) return undefined;
+  const msg = response as Record<string, unknown>;
+  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
+  const data = cbQuery?.['data'];
+  return typeof data === 'string' ? data : undefined;
+}

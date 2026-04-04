@@ -1,13 +1,6 @@
-import type { FieldMetadata } from '../input-engine.types.js';
+import type { FieldMetadata, TranslateFunction } from '../input-engine.types.js';
+import { defaultT } from '../input-engine.types.js';
 import { shouldRenderField } from './condition.evaluator.js';
-
-/** Translation function type */
-type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
-
-/** Default translate — returns raw key */
-function defaultT(key: string): string {
-  return key;
-}
 
 /** Function type for field visibility evaluation */
 type ShouldRenderFn = (metadata: FieldMetadata, formData: Record<string, unknown>) => boolean;

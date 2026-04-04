@@ -1,4 +1,5 @@
 import { encodeFormCallback } from '../utils/callback-data.helper.js';
+import { defaultT, type TranslateFunction } from '../input-engine.types.js';
 
 /** Callback action constants */
 export const ACTION_CALLBACKS = {
@@ -21,14 +22,6 @@ export interface ActionButtonContext {
 /** A row of action buttons */
 export interface ActionButtonRow {
   buttons: Array<{ text: string; callbackData: string }>;
-}
-
-/** Translation function type */
-type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
-
-/** Default translate — returns raw key */
-function defaultT(key: string): string {
-  return key;
 }
 
 /** Build action button rows based on field context. Pure function. */

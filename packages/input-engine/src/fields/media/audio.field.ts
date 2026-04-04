@@ -13,6 +13,7 @@ interface TelegramAudio {
   file_id: string;
   file_size?: number;
   duration?: number;
+  mime_type?: string;
 }
 
 /** Parsed audio result */
@@ -20,6 +21,7 @@ interface AudioValue {
   fileId: string;
   fileSize?: number;
   duration?: number;
+  mimeType?: string;
 }
 
 /** Check duration against maxDurationSeconds constraint */
@@ -75,6 +77,7 @@ export class AudioFieldHandler implements FieldHandler {
     const result: AudioValue = { fileId: aud.file_id };
     if (aud.file_size !== undefined) result.fileSize = aud.file_size;
     if (aud.duration !== undefined) result.duration = aud.duration;
+    if (aud.mime_type !== undefined) result.mimeType = aud.mime_type;
     return ok(result);
   }
 
@@ -99,7 +102,7 @@ export class AudioFieldHandler implements FieldHandler {
     return uploadToStorage({
       fileId: aud.fileId,
       fileName: 'audio.mp3',
-      mimeType: 'audio/mpeg',
+      mimeType: aud.mimeType ?? 'audio/mpeg',
       fileSize: aud.fileSize,
       conversation: renderCtx.conversation as UploadParams['conversation'],
       ctx: renderCtx.ctx as UploadParams['ctx'],

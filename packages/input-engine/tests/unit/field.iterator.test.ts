@@ -1083,4 +1083,179 @@ describe('FieldIterator (iterateFields)', () => {
       });
     });
   });
+
+  describe('back navigation — multiple consecutive (T1)', () => {
+    it('A→B→C, back→B, back→A, then completes all three normally', async () => {
+      // Schema: first (ShortText), second (Email), third (LongText)
+      const firstSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.first',
+      } as FieldMetadata);
+      const secondSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.second',
+      } as FieldMetadata);
+      const thirdSchema = registerField(z.string(), {
+        fieldType: 'LongText',
+        i18nKey: 'form.third',
+      } as FieldMetadata);
+      const schema = z.object({
+        first: firstSchema,
+        second: secondSchema,
+        third: thirdSchema,
+      });
+
+      // first handler: always succeeds (render ok, parse/validate return value)
+      const firstHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('val-first')),
+        validate: vi.fn().mockReturnValue(ok('val-first')),
+      };
+
+      // second handler: 1st call ok, 2nd call (after back from third) returns NAVIGATE_BACK,
+      // 3rd call ok again
+      let secondCallCount = 0;
+      const secondHandler: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockImplementation(() => {
+          secondCallCount++;
+          if (secondCallCount === 2) {
+            return Promise.resolve(err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK)));
+          }
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('val-second')),
+        validate: vi.fn().mockReturnValue(ok('val-second')),
+      };
+
+      // third handler: 1st call returns NAVIGATE_BACK, 2nd call ok
+      let thirdCallCount = 0;
+      const thirdHandler: FieldHandler = {
+        fieldType: 'LongText',
+        render: vi.fn().mockImplementation(() => {
+          thirdCallCount++;
+          if (thirdCallCount === 1) {
+            return Promise.resolve(err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK)));
+          }
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('val-third')),
+        validate: vi.fn().mockReturnValue(ok('val-third')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(firstHandler);
+      deps.registry.register(secondHandler);
+      deps.registry.register(thirdHandler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      // Flow: first(ok) → second(ok) → third(BACK) → second(BACK) → first(ok) → second(ok) → third(ok)
+      expect(result.isOk()).toBe(true);
+
+      // first: called 2 times (initial + after back from second)
+      expect(firstHandler.render).toHaveBeenCalledTimes(2);
+      // second: called 3 times (initial + back-from-third re-render + final)
+      expect(secondHandler.render).toHaveBeenCalledTimes(3);
+      // third: called 2 times (initial BACK + final)
+      expect(thirdHandler.render).toHaveBeenCalledTimes(2);
+
+      expect(progress.formData).toEqual({
+        first: 'val-first',
+        second: 'val-second',
+        third: 'val-third',
+      });
+      expect(progress.fieldsCompleted).toBe(3);
+      expect(progress.completedFieldNames).toEqual(['first', 'second', 'third']);
+    });
+  });
+
+  describe('all optional fields skipped (T5)', () => {
+    it('all fields optional + all skipped → valid empty result', async () => {
+      // Schema: 3 optional fields, each with different type to avoid registry conflict
+      const alphaSchema = registerField(z.string(), {
+        fieldType: 'Phone',
+        i18nKey: 'form.alpha',
+        optional: true,
+      } as FieldMetadata);
+      const betaSchema = registerField(z.string(), {
+        fieldType: 'URL',
+        i18nKey: 'form.beta',
+        optional: true,
+      } as FieldMetadata);
+      const gammaSchema = registerField(z.string(), {
+        fieldType: 'Integer',
+        i18nKey: 'form.gamma',
+        optional: true,
+      } as FieldMetadata);
+      const schema = z.object({
+        alpha: alphaSchema,
+        beta: betaSchema,
+        gamma: gammaSchema,
+      });
+
+      // All handlers return FIELD_SKIPPED_SENTINEL from parse/validate (user skip)
+      const alphaHandler: FieldHandler = {
+        fieldType: 'Phone',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+      const betaHandler: FieldHandler = {
+        fieldType: 'URL',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+      const gammaHandler: FieldHandler = {
+        fieldType: 'Integer',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(alphaHandler);
+      deps.registry.register(betaHandler);
+      deps.registry.register(gammaHandler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+
+      // All 3 fields should be in formData with undefined values
+      expect('alpha' in progress.formData).toBe(true);
+      expect('beta' in progress.formData).toBe(true);
+      expect('gamma' in progress.formData).toBe(true);
+      expect(progress.formData['alpha']).toBeUndefined();
+      expect(progress.formData['beta']).toBeUndefined();
+      expect(progress.formData['gamma']).toBeUndefined();
+
+      // All 3 fields should be marked completed
+      expect(progress.fieldsCompleted).toBe(3);
+      expect(progress.completedFieldNames).toEqual(['alpha', 'beta', 'gamma']);
+
+      // Each handler rendered exactly once
+      expect(alphaHandler.render).toHaveBeenCalledTimes(1);
+      expect(betaHandler.render).toHaveBeenCalledTimes(1);
+      expect(gammaHandler.render).toHaveBeenCalledTimes(1);
+
+      // Skip events should have been emitted for all 3 fields
+      const publishCalls = (deps.eventBus.publish as ReturnType<typeof vi.fn>).mock.calls;
+      const skipEvents = publishCalls.filter(
+        (call: unknown[]) => call[0] === 'input-engine.field.skipped',
+      );
+      expect(skipEvents).toHaveLength(3);
+      expect(
+        skipEvents.map((e: unknown[]) => (e[1] as Record<string, unknown>)['fieldName']),
+      ).toEqual(['alpha', 'beta', 'gamma']);
+      // All should have reason 'user_skip' (not max_retries_skip)
+      for (const event of skipEvents) {
+        expect((event[1] as Record<string, unknown>)['reason']).toBe('user_skip');
+      }
+    });
+  });
 });

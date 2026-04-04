@@ -357,6 +357,28 @@ describe('AIExtractorFieldHandler', () => {
       expect(replyMarkup.inline_keyboard[1]).toHaveLength(1);
       expect(replyMarkup.inline_keyboard[1][0].callback_data).toContain('__ai_manual__');
     });
+
+    it('returns ok(undefined) when AI extraction throws a timeout error', async () => {
+      const throwingClient = createMockAiClient({
+        extract: vi.fn().mockRejectedValue(new Error('Request timeout')),
+      });
+      const logger = createMockLogger();
+      const mockConv = createMockConv();
+      const mockCtx = createMockCtx();
+      const renderCtx = createRenderCtx({
+        aiClient: throwingClient,
+        logger,
+        conversation: mockConv,
+        ctx: mockCtx,
+      });
+      const meta = createMeta({ targetFields: ['name', 'age'] });
+
+      const result = await handler.render(renderCtx, meta);
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toBeUndefined();
+      expect(logger.warn).toHaveBeenCalled();
+    });
   });
 
   describe('parseResponse', () => {

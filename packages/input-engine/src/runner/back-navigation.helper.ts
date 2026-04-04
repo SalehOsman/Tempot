@@ -70,14 +70,27 @@ export function navigateBack(params: NavigateBackParams): number {
     break;
   }
 
+  // Temporarily remove the target field's value so cleanConditionalFields
+  // evaluates conditions without stale data (C2 fix). Restore afterward
+  // so the value remains available for previousValue support.
+  const resolvedIndex = Math.max(0, targetIndex);
+  const targetFieldName = fieldNames[resolvedIndex]!;
+  const savedValue = progress.formData[targetFieldName];
+  delete progress.formData[targetFieldName];
+
   // Clean up conditional fields that became hidden after removing data
   cleanConditionalFields({
-    startIndex: Math.max(0, targetIndex) + 1,
+    startIndex: resolvedIndex + 1,
     fieldNames,
     progress,
     schema,
     deps,
   });
 
-  return Math.max(0, targetIndex);
+  // Restore the value for previousValue support
+  if (savedValue !== undefined) {
+    progress.formData[targetFieldName] = savedValue;
+  }
+
+  return resolvedIndex;
 }

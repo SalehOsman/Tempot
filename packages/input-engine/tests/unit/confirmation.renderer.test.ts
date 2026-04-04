@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import type { FieldMetadata } from '../../src/input-engine.types.js';
+import { describe, it, expect, vi } from 'vitest';
+import type { FieldMetadata, TranslateFunction } from '../../src/input-engine.types.js';
 import {
   formatFieldValue,
   buildConfirmationSummary,
   CONFIRMATION_ACTIONS,
+  TELEGRAM_MAX_MESSAGE_LENGTH,
 } from '../../src/runner/confirmation.renderer.js';
 
 describe('ConfirmationRenderer', () => {
@@ -56,36 +57,60 @@ describe('ConfirmationRenderer', () => {
       expect(formatFieldValue('file-id', metadata)).toBe('input-engine.confirmation.file_uploaded');
     });
 
-    it('shows ✓ for true boolean', () => {
+    it('uses i18n for true boolean via translate function', () => {
       const metadata: FieldMetadata = { fieldType: 'BooleanToggle', i18nKey: 'form.agree' };
-      expect(formatFieldValue(true, metadata)).toBe('✓');
+      const mockT = vi.fn((key: string) => {
+        if (key === 'input-engine.confirmation.boolean_true') return '✓';
+        return key;
+      }) as unknown as TranslateFunction;
+      expect(formatFieldValue(true, metadata, mockT)).toBe('✓');
+      expect(mockT).toHaveBeenCalledWith('input-engine.confirmation.boolean_true');
     });
 
-    it('shows ✗ for false boolean', () => {
+    it('uses i18n for false boolean via translate function', () => {
       const metadata: FieldMetadata = { fieldType: 'BooleanToggle', i18nKey: 'form.agree' };
-      expect(formatFieldValue(false, metadata)).toBe('✗');
+      const mockT = vi.fn((key: string) => {
+        if (key === 'input-engine.confirmation.boolean_false') return '✗';
+        return key;
+      }) as unknown as TranslateFunction;
+      expect(formatFieldValue(false, metadata, mockT)).toBe('✗');
+      expect(mockT).toHaveBeenCalledWith('input-engine.confirmation.boolean_false');
     });
 
-    it('shows — for undefined value (skipped optional)', () => {
+    it('uses i18n for undefined value (skipped optional)', () => {
       const metadata: FieldMetadata = {
         fieldType: 'ShortText',
         i18nKey: 'form.name',
         optional: true,
       };
-      expect(formatFieldValue(undefined, metadata)).toBe('—');
+      const mockT = vi.fn((key: string) => {
+        if (key === 'input-engine.confirmation.empty_value') return '—';
+        return key;
+      }) as unknown as TranslateFunction;
+      expect(formatFieldValue(undefined, metadata, mockT)).toBe('—');
+      expect(mockT).toHaveBeenCalledWith('input-engine.confirmation.empty_value');
     });
 
-    it('shows — for null value', () => {
+    it('uses i18n for null value', () => {
       const metadata: FieldMetadata = { fieldType: 'ShortText', i18nKey: 'form.name' };
-      expect(formatFieldValue(null, metadata)).toBe('—');
+      const mockT = vi.fn((key: string) => {
+        if (key === 'input-engine.confirmation.empty_value') return '—';
+        return key;
+      }) as unknown as TranslateFunction;
+      expect(formatFieldValue(null, metadata, mockT)).toBe('—');
+      expect(mockT).toHaveBeenCalledWith('input-engine.confirmation.empty_value');
     });
 
-    it('truncates values longer than 100 characters', () => {
+    it('uses i18n for truncation suffix via translate function', () => {
       const metadata: FieldMetadata = { fieldType: 'LongText', i18nKey: 'form.text' };
+      const mockT = vi.fn((key: string) => {
+        if (key === 'input-engine.confirmation.truncated_suffix') return '...';
+        return key;
+      }) as unknown as TranslateFunction;
       const longValue = 'a'.repeat(150);
-      const result = formatFieldValue(longValue, metadata);
+      const result = formatFieldValue(longValue, metadata, mockT);
       expect(result).toBe('a'.repeat(100) + '...');
-      expect(result.length).toBe(103);
+      expect(mockT).toHaveBeenCalledWith('input-engine.confirmation.truncated_suffix');
     });
 
     it('does not truncate values at exactly 100 characters', () => {
@@ -111,7 +136,7 @@ describe('ConfirmationRenderer', () => {
   });
 
   describe('buildConfirmationSummary', () => {
-    it('builds multi-line summary with title and field values', () => {
+    it('returns an array of string chunks', () => {
       const formData: Record<string, unknown> = {
         name: 'John',
         email: 'john@test.com',
@@ -123,9 +148,12 @@ describe('ConfirmationRenderer', () => {
 
       const result = buildConfirmationSummary(formData, fieldMetadata);
 
-      expect(result).toContain('input-engine.confirmation.title');
-      expect(result).toContain('form.name: John');
-      expect(result).toContain('form.email: john@test.com');
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThanOrEqual(1);
+      const joined = result.join('\n');
+      expect(joined).toContain('input-engine.confirmation.title');
+      expect(joined).toContain('form.name: John');
+      expect(joined).toContain('form.email: john@test.com');
     });
 
     it('uses translate function for title and labels', () => {
@@ -143,8 +171,9 @@ describe('ConfirmationRenderer', () => {
 
       const result = buildConfirmationSummary(formData, fieldMetadata, t);
 
-      expect(result).toContain('Please confirm:');
-      expect(result).toContain('Full Name: John');
+      const joined = result.join('\n');
+      expect(joined).toContain('Please confirm:');
+      expect(joined).toContain('Full Name: John');
     });
 
     it('skips fields not in metadata map', () => {
@@ -158,11 +187,12 @@ describe('ConfirmationRenderer', () => {
 
       const result = buildConfirmationSummary(formData, fieldMetadata);
 
-      expect(result).toContain('form.name: John');
-      expect(result).not.toContain('extraField');
+      const joined = result.join('\n');
+      expect(joined).toContain('form.name: John');
+      expect(joined).not.toContain('extraField');
     });
 
-    it('shows — for skipped optional fields', () => {
+    it('shows i18n empty_value key for skipped optional fields (with default t)', () => {
       const formData: Record<string, unknown> = { name: undefined };
       const fieldMetadata = new Map<string, FieldMetadata>([
         ['name', { fieldType: 'ShortText', i18nKey: 'form.name', optional: true }],
@@ -170,7 +200,53 @@ describe('ConfirmationRenderer', () => {
 
       const result = buildConfirmationSummary(formData, fieldMetadata);
 
-      expect(result).toContain('form.name: —');
+      const joined = result.join('\n');
+      expect(joined).toContain('form.name: input-engine.confirmation.empty_value');
+    });
+
+    it('splits into multiple chunks when total exceeds 4096 characters', () => {
+      // Create enough fields to exceed TELEGRAM_MAX_MESSAGE_LENGTH
+      const formData: Record<string, unknown> = {};
+      const fieldMetadata = new Map<string, FieldMetadata>();
+      // Each line: "field_NNN: " + 90 chars of value ≈ 100+ chars per line
+      // Need ~50 fields to exceed 4096
+      for (let i = 0; i < 60; i++) {
+        const fieldName = `field_${String(i).padStart(3, '0')}`;
+        formData[fieldName] = 'x'.repeat(90);
+        fieldMetadata.set(fieldName, {
+          fieldType: 'ShortText',
+          i18nKey: `form.${fieldName}`,
+        });
+      }
+
+      const result = buildConfirmationSummary(formData, fieldMetadata);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(1);
+      for (const chunk of result) {
+        expect(chunk.length).toBeLessThanOrEqual(TELEGRAM_MAX_MESSAGE_LENGTH);
+      }
+    });
+
+    it('returns single-element array when content fits in 4096 characters', () => {
+      const formData: Record<string, unknown> = { name: 'John' };
+      const fieldMetadata = new Map<string, FieldMetadata>([
+        ['name', { fieldType: 'ShortText', i18nKey: 'form.name' }],
+      ]);
+
+      const result = buildConfirmationSummary(formData, fieldMetadata);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it('returns array with single empty-like string for empty form', () => {
+      const formData: Record<string, unknown> = {};
+      const fieldMetadata = new Map<string, FieldMetadata>();
+
+      const result = buildConfirmationSummary(formData, fieldMetadata);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThanOrEqual(1);
     });
   });
 });

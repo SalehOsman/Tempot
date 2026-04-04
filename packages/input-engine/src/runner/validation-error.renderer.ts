@@ -1,4 +1,5 @@
-import type { FieldMetadata, FieldType } from '../input-engine.types.js';
+import type { FieldMetadata, FieldType, TranslateFunction } from '../input-engine.types.js';
+import { defaultT } from '../input-engine.types.js';
 
 /** Retry state for error context */
 export interface RetryState {
@@ -23,14 +24,6 @@ const DEFAULT_ERROR_KEYS: Partial<Record<FieldType, string>> = {
 };
 
 const GENERIC_ERROR_KEY = 'input-engine.errors.generic';
-
-/** Translation function type */
-type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
-
-/** Default translate — returns raw key */
-function defaultT(key: string): string {
-  return key;
-}
 
 /** Render a validation error message with retry context */
 export function renderValidationError(

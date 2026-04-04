@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { uploadToStorage } from '../../src/fields/media/storage-upload.helper.js';
+import type { StorageUploadResult } from '../../src/index.js';
 import type { StorageEngineClient, InputEngineLogger } from '../../src/input-engine.contracts.js';
 
 function createMockLogger(): InputEngineLogger {
@@ -53,6 +54,20 @@ function createMockCtx(filePath?: string): MockCtx {
     },
   };
 }
+
+describe('StorageUploadResult barrel export', () => {
+  it('is importable from the barrel as a type', () => {
+    // Type-level check: if StorageUploadResult is not exported, this file won't compile
+    const result: StorageUploadResult = {
+      telegramFileId: 'test-id',
+      storageUrl: 'https://example.com/file.jpg',
+      fileName: 'file.jpg',
+      mimeType: 'image/jpeg',
+      size: 1024,
+    };
+    expect(result.telegramFileId).toBe('test-id');
+  });
+});
 
 describe('uploadToStorage', () => {
   it('downloads from Telegram and uploads to storage on success', async () => {

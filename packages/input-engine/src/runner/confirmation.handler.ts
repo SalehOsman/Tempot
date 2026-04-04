@@ -5,12 +5,10 @@ import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { buildSchemaMetadataMap } from './field-metadata.util.js';
 import { shouldRenderField } from './condition.evaluator.js';
 import { buildConfirmationSummary, CONFIRMATION_ACTIONS } from './confirmation.renderer.js';
-import { decodeFormCallback } from '../utils/callback-data.helper.js';
+import { decodeFormCallback, extractCallbackData } from '../utils/callback-data.helper.js';
 import { iterateFields } from './field.iterator.js';
 import type { FormRunnerDeps, FormRunnerInput, FormProgress } from './form.runner.js';
-
-/** Translation function type */
-type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+import type { TranslateFunction } from '../input-engine.types.js';
 
 /** Typed shape for the conversation object used internally */
 interface ConversationShape {
@@ -23,8 +21,21 @@ interface CtxShape {
   reply: (text: string, options?: unknown) => Promise<unknown>;
 }
 
+/** Single inline keyboard button */
+export interface InlineKeyboardButton {
+  text: string;
+  callback_data: string;
+}
+
+/** Inline keyboard markup for Telegram reply */
+export interface InlineKeyboardMarkup {
+  reply_markup: {
+    inline_keyboard: InlineKeyboardButton[][];
+  };
+}
+
 /** Build inline keyboard for confirmation (Confirm / Edit / Cancel) */
-function buildConfirmationKeyboard(t: TranslateFunction): unknown {
+function buildConfirmationKeyboard(t: TranslateFunction): InlineKeyboardMarkup {
   return {
     reply_markup: {
       inline_keyboard: [
@@ -52,7 +63,7 @@ function buildFieldSelectionKeyboard(
   schema: z.ZodObject<z.ZodRawShape>,
   progress: FormProgress,
   t: TranslateFunction = (key: string) => key,
-): unknown {
+): InlineKeyboardMarkup {
   const fieldNames = Object.keys(schema.shape);
   const metaMap = buildSchemaMetadataMap(schema);
   const buttons = fieldNames
@@ -86,17 +97,18 @@ async function displayAndWaitForAction(ctx: ConfirmationContext): AsyncResult<st
 
   progress.startTime = Date.now();
 
-  const summary = buildConfirmationSummary(progress.formData, metaMap, t);
+  const chunks = buildConfirmationSummary(progress.formData, metaMap, t);
   const keyboard = buildConfirmationKeyboard(t);
 
   await conv.external(async () => {
-    await gramCtx.reply(summary, keyboard);
+    for (let i = 0; i < chunks.length; i++) {
+      const isLast = i === chunks.length - 1;
+      await gramCtx.reply(chunks[i]!, isLast ? keyboard : undefined);
+    }
   });
 
   const response = await conv.waitFor('callback_query:data');
-  const msg = response as Record<string, unknown>;
-  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
-  const action = cbQuery?.['data'] as string | undefined;
+  const action = extractCallbackData(response);
 
   if (!action) {
     return err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, { reason: 'No action' }));
@@ -117,9 +129,7 @@ async function handleEditAction(ctx: ConfirmationContext): AsyncResult<void, App
   });
 
   const response = await conv.waitFor('callback_query:data');
-  const msg = response as Record<string, unknown>;
-  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
-  const cbData = cbQuery?.['data'] as string | undefined;
+  const cbData = extractCallbackData(response);
   if (!cbData) {
     return err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, { reason: 'No selection' }));
   }
@@ -137,15 +147,34 @@ async function reEnterField(
   fieldName: string,
 ): AsyncResult<void, AppError> {
   const { input, deps, progress } = ctx;
+  const fieldNames = Object.keys(input.schema.shape);
+  const editSchemaIdx = fieldNames.indexOf(fieldName);
+
   const idx = progress.completedFieldNames.indexOf(fieldName);
   if (idx !== -1) {
     progress.completedFieldNames.splice(idx, 1);
     progress.fieldsCompleted = Math.max(0, progress.fieldsCompleted - 1);
   }
 
-  const iterResult = await iterateFields(input, deps, progress);
-  if (iterResult.isErr()) return iterResult;
+  // D27: Skip fields before edit point to prevent newly-visible pre-edit fields
+  const tempSkipped: string[] = [];
+  for (let i = 0; i < editSchemaIdx; i++) {
+    const fn = fieldNames[i]!;
+    if (!progress.completedFieldNames.includes(fn)) {
+      progress.completedFieldNames.push(fn);
+      tempSkipped.push(fn);
+    }
+  }
 
+  const iterResult = await iterateFields(input, deps, progress);
+
+  // Remove temporary skips
+  for (const fn of tempSkipped) {
+    const tempIdx = progress.completedFieldNames.indexOf(fn);
+    if (tempIdx !== -1) progress.completedFieldNames.splice(tempIdx, 1);
+  }
+
+  if (iterResult.isErr()) return iterResult;
   removeConditionallyHiddenFields(input.schema, progress);
   return ok(undefined);
 }

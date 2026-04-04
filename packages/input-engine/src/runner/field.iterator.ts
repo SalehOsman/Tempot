@@ -83,22 +83,32 @@ async function processFieldStep(params: IterationStepParams): AsyncResult<number
   const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
   const metadata = getFieldMetadata(fieldSchema);
 
+  if (!metadata) {
+    deps.logger.debug({
+      msg: 'Skipping field without metadata',
+      formId: progress.formId,
+      fieldName,
+    });
+    return ok(index + 1);
+  }
+
   if (!shouldRenderField(metadata, progress.formData)) {
     deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
     return ok(index + 1);
   }
 
   const previousValue = progress.formData[fieldName];
-  const ctxOrErr = buildFieldContext(deps, progress, {
+  const ctxResult = buildFieldContext(deps, progress, {
     fieldName,
     metadata,
     fieldSchema,
     fieldIndex: index,
     previousValue,
   });
-  if (ctxOrErr instanceof AppError) return err(ctxOrErr);
+  if (ctxResult.isErr()) return err(ctxResult.error);
+  const fieldCtx = ctxResult.value;
 
-  const result = await processField(input, ctxOrErr, deps);
+  const result = await processField(input, fieldCtx, deps);
 
   if (result.isErr() && result.error.code === INPUT_ENGINE_ERRORS.NAVIGATE_BACK) {
     const newIdx = navigateBack({
@@ -113,13 +123,13 @@ async function processFieldStep(params: IterationStepParams): AsyncResult<number
   }
 
   if (result.isOk() && result.value === FIELD_SKIPPED_SENTINEL) {
-    await handleFieldSkip(deps, progress, ctxOrErr);
+    await handleFieldSkip(deps, progress, fieldCtx);
     return ok(index + 1);
   }
 
   if (result.isErr()) return err(result.error);
 
-  await handleFieldSuccess({ deps, progress, ctx: ctxOrErr, value: result.value });
+  await handleFieldSuccess({ deps, progress, ctx: fieldCtx, value: result.value });
   return ok(index + 1);
 }
 

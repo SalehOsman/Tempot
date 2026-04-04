@@ -1,4 +1,5 @@
 import type { InputEngineEventBus, InputEngineLogger } from '../input-engine.contracts.js';
+import type { FieldType } from '../input-engine.types.js';
 
 /** Bundled dependencies for safe event emission */
 export interface EventEmitterDeps {
@@ -99,7 +100,7 @@ export interface FieldSkippedPayload {
   formId: string;
   userId: string;
   fieldName: string;
-  fieldType: string;
+  fieldType: FieldType;
   reason: 'user_skip' | 'max_retries_skip' | 'condition';
 }
 

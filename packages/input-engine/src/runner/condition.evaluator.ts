@@ -41,10 +41,10 @@ function evaluateSingle(condition: FieldCondition, formData: Record<string, unkn
  * Returns true if the field should be rendered (all conditions met or no conditions).
  */
 export function shouldRenderField(
-  metadata: FieldMetadata,
+  metadata: FieldMetadata | undefined,
   formData: Record<string, unknown>,
 ): boolean {
-  if (!metadata.conditions || metadata.conditions.length === 0) {
+  if (!metadata?.conditions || metadata.conditions.length === 0) {
     return true;
   }
   return metadata.conditions.every((c) => evaluateSingle(c, formData));

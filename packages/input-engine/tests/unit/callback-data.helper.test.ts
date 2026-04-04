@@ -3,6 +3,7 @@ import {
   encodeFormCallback,
   decodeFormCallback,
   generateFormId,
+  extractCallbackData,
 } from '../../src/utils/callback-data.helper.js';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 
@@ -56,6 +57,33 @@ describe('callback-data.utils', () => {
       const result = decodeFormCallback('ie:form1:abc:opt_1');
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED);
+    });
+  });
+
+  describe('extractCallbackData', () => {
+    it('extracts data from callback_query response', () => {
+      const response = { callback_query: { data: 'ie:form1:0:value' } };
+      expect(extractCallbackData(response)).toBe('ie:form1:0:value');
+    });
+
+    it('returns undefined for null response', () => {
+      expect(extractCallbackData(null)).toBeUndefined();
+    });
+
+    it('returns undefined for undefined response', () => {
+      expect(extractCallbackData(undefined)).toBeUndefined();
+    });
+
+    it('returns undefined when callback_query is absent', () => {
+      expect(extractCallbackData({ text: 'hello' })).toBeUndefined();
+    });
+
+    it('returns undefined when data is not a string', () => {
+      expect(extractCallbackData({ callback_query: { data: 42 } })).toBeUndefined();
+    });
+
+    it('returns undefined when callback_query has no data', () => {
+      expect(extractCallbackData({ callback_query: {} })).toBeUndefined();
     });
   });
 

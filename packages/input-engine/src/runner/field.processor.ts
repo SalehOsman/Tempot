@@ -7,6 +7,7 @@ import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import type { FormRunnerDeps, FormRunnerInput } from './form.runner.js';
 import { ACTION_CALLBACKS } from './action-buttons.builder.js';
 import { renderValidationError } from './validation-error.renderer.js';
+import { extractCallbackData } from '../utils/callback-data.helper.js';
 
 const DEFAULT_MAX_RETRIES = 3;
 
@@ -67,37 +68,32 @@ async function resolveResponseCtx(
 
 /** Detect cancel signal from user response */
 function isCancelSignal(response: unknown): boolean {
-  if (response === null || response === undefined) return false;
-  const msg = response as Record<string, unknown>;
-
-  // Check for __cancel__ callback data
-  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
-  if (cbQuery?.['data'] && typeof cbQuery['data'] === 'string') {
-    if (cbQuery['data'].includes(ACTION_CALLBACKS.CANCEL)) return true;
+  const data = extractCallbackData(response);
+  if (data?.includes(ACTION_CALLBACKS.CANCEL)) return true;
+  if (response !== null && response !== undefined) {
+    const msg = response as Record<string, unknown>;
+    if (typeof msg['text'] === 'string' && msg['text'].trim().toLowerCase() === '/cancel') {
+      return true;
+    }
   }
-
-  // Check for /cancel text command
-  if (typeof msg['text'] === 'string' && msg['text'].trim().toLowerCase() === '/cancel') {
-    return true;
-  }
-
   return false;
 }
 
 /** Detect keep-current signal from user response */
 function isKeepCurrentSignal(response: unknown): boolean {
-  if (response === null || response === undefined) return false;
-  const msg = response as Record<string, unknown>;
-  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
-  if (cbQuery?.['data'] && typeof cbQuery['data'] === 'string') {
-    if (cbQuery['data'].includes(ACTION_CALLBACKS.KEEP_CURRENT)) return true;
-  }
-  return false;
+  const data = extractCallbackData(response);
+  return data?.includes(ACTION_CALLBACKS.KEEP_CURRENT) === true;
+}
+
+/** Detect back navigation signal from user response */
+function isBackSignal(response: unknown): boolean {
+  const data = extractCallbackData(response);
+  return data?.includes(ACTION_CALLBACKS.BACK) === true;
 }
 
 /** Check for cancel signal and return cancel error if detected */
-function checkCancelSignal(response: unknown, ctx: FieldContext): AppError | null {
-  if (!ctx.allowCancel || !isCancelSignal(response)) return null;
+function checkCancelSignal(response: unknown, ctx: FieldContext): AppError | undefined {
+  if (!ctx.allowCancel || !isCancelSignal(response)) return undefined;
   return new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
     reason: 'user_cancel',
     fieldName: ctx.fieldName,
@@ -144,6 +140,10 @@ export async function processField(
       return ok(ctx.previousValue);
     }
 
+    if (isBackSignal(rr.value)) {
+      return err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK, { fieldName: ctx.fieldName }));
+    }
+
     const vr = tryParseAndValidate(rr.value, ctx);
     if (vr.isErr()) {
       retryCount++;
@@ -153,6 +153,10 @@ export async function processField(
         deps.t,
       );
       deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
+      const extFn = (input.conversation as { external?: <T>(fn: () => Promise<T>) => Promise<T> })
+        .external;
+      const replyFn = (input.ctx as { reply?: (t: string) => Promise<unknown> }).reply;
+      if (extFn && replyFn) await extFn(() => replyFn(errorText));
       continue;
     }
 
@@ -192,15 +196,17 @@ export function buildFieldContext(
     formOptions?: { allowCancel?: boolean };
   },
   params: FieldBuildParams,
-): FieldContext | AppError {
+): Result<FieldContext, AppError> {
   const handler = deps.registry.get(params.metadata.fieldType);
   if (!handler) {
-    return new AppError(INPUT_ENGINE_ERRORS.FIELD_TYPE_UNKNOWN, {
-      fieldName: params.fieldName,
-      fieldType: params.metadata.fieldType,
-    });
+    return err(
+      new AppError(INPUT_ENGINE_ERRORS.FIELD_TYPE_UNKNOWN, {
+        fieldName: params.fieldName,
+        fieldType: params.metadata.fieldType,
+      }),
+    );
   }
-  return {
+  return ok({
     handler,
     metadata: params.metadata,
     fieldSchema: params.fieldSchema,
@@ -212,5 +218,5 @@ export function buildFieldContext(
     fieldIndex: params.fieldIndex,
     allowCancel: progress.formOptions?.allowCancel ?? true,
     previousValue: params.previousValue,
-  };
+  });
 }

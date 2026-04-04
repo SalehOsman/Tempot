@@ -211,3 +211,11 @@ export const DEFAULT_FORM_OPTIONS: Required<FormOptions> = {
 
 /** Sentinel value returned by processField to signal field was skipped */
 export const FIELD_SKIPPED_SENTINEL = Symbol.for('input-engine.field.skipped');
+
+/** Translation function type used across runner modules */
+export type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+
+/** Default translate — returns raw key */
+export function defaultT(key: string): string {
+  return key;
+}
