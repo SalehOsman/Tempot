@@ -195,6 +195,7 @@ async function runFormInternal<T>(
     storageKey,
     startTime: Date.now(),
     maxMilliseconds: merged.maxMilliseconds,
+    formOptions: merged,
   };
 
   await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
