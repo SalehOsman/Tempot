@@ -166,12 +166,15 @@ async function reEnterField(
     }
   }
 
-  const iterResult = await iterateFields(input, deps, progress);
-
-  // Remove temporary skips
-  for (const fn of tempSkipped) {
-    const tempIdx = progress.completedFieldNames.indexOf(fn);
-    if (tempIdx !== -1) progress.completedFieldNames.splice(tempIdx, 1);
+  let iterResult: Awaited<AsyncResult<void, AppError>>;
+  try {
+    iterResult = await iterateFields(input, deps, progress);
+  } finally {
+    // Remove temporary skips even if iterateFields throws/errors
+    for (const fn of tempSkipped) {
+      const tempIdx = progress.completedFieldNames.indexOf(fn);
+      if (tempIdx !== -1) progress.completedFieldNames.splice(tempIdx, 1);
+    }
   }
 
   if (iterResult.isErr()) return iterResult;
