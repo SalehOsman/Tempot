@@ -2065,3 +2065,64 @@ AI API calls, Langfuse integration, and Redis-backed rate limiting require live 
 | `zod`                   | ^3.0.0       | Schema validation for tool parameters     | runtime     |
 | `typescript`            | 5.9.3        | Build                                     | dev         |
 | `vitest`                | 4.1.0        | Testing                                   | dev         |
+
+---
+
+## Phase 2 — LLM-Friendly Patterns
+
+**Added**: 2026-04-04
+
+### Overview
+
+Phase 2 adds 5 patterns that make ai-core more practical for real LLM tool calling. These are additive — no existing APIs are broken.
+
+### Architecture
+
+#### New Files
+
+| File                                | Purpose                         | Size Est.  | Dependencies                  |
+| ----------------------------------- | ------------------------------- | ---------- | ----------------------------- |
+| `src/pagination/pagination.util.ts` | Generic `paginate<T>()` utility | ~50 lines  | None (pure function)          |
+| `src/tools/output-limiter.util.ts`  | `truncateToolOutput()` utility  | ~45 lines  | None (pure function)          |
+| `src/tools/input-normalization.ts`  | 6 Zod preprocessors + namespace | ~85 lines  | `zod`                         |
+| `src/tools/batch-executor.ts`       | `executeBatch()` function       | ~100 lines | `tool.registry.ts`, contracts |
+
+#### Modified Files
+
+| File                          | Changes                                                                                                                                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ai-core.types.ts`        | Add `group?`, `maxOutputChars?` to `AITool`; add `defaultMaxOutputChars?` to `AIConfig`; add `PaginatedResult<T>`, `PaginationOptions`, `BatchItem`, `BatchResult` types; update `DEFAULT_AI_CONFIG` |
+| `src/ai-core.errors.ts`       | Add `BATCH_EMPTY_ITEMS: 'ai-core.batch.empty_items'`                                                                                                                                                 |
+| `src/ai-core.config.ts`       | Add `TEMPOT_AI_MAX_OUTPUT_CHARS` env var loading                                                                                                                                                     |
+| `src/tools/tool.registry.ts`  | Add `getByGroup()`, `getByGroups()`, `getGroups()` methods; pagination overloads on `getAll()` and `getByGroup()`                                                                                    |
+| `src/router/intent.router.ts` | Add output truncation in `convertToSDKTools()` after tool execution; add optional `config?: AIConfig` to `IntentRouterDeps`                                                                          |
+| `src/index.ts`                | Add barrel exports for all new types and utilities                                                                                                                                                   |
+
+#### Task Dependency Graph (Phase 2)
+
+```
+Task 23 (Types + Errors + Pagination Utility)
+  ├─→ Task 24 (Extension Groups — needs AITool.group from T23)
+  ├─→ Task 25 (Output Limiting — needs AITool.maxOutputChars + AIConfig from T23)
+  ├─→ Task 26 (Input Normalization — standalone, but after T23 for consistency)
+  └─→ Task 27 (Batch Executor — needs BatchResult type from T23)
+       └─→ Task 28 (Barrel Exports — after all new code exists)
+```
+
+### Integration Points
+
+**IntentRouter.convertToSDKTools()** (current lines 213-244 of `intent.router.ts`):
+
+- After `tool.execute(params)` returns `ok` (line 239: `return result.value`), add truncation:
+  ```typescript
+  const output = result.value;
+  const maxChars = tool.maxOutputChars ?? this.deps.config?.defaultMaxOutputChars ?? 4000;
+  const outputStr = typeof output === 'string' ? output : JSON.stringify(output);
+  return truncateToolOutput(outputStr, maxChars);
+  ```
+- Add `config?: AIConfig` to `IntentRouterDeps` interface (line 41-50)
+
+**ToolRegistry** (current 79 lines):
+
+- New methods use the existing `this.tools` Map
+- Pagination methods use the generic `paginate()` utility from `pagination/pagination.util.ts`

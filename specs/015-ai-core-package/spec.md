@@ -383,3 +383,27 @@ interface ModuleToolsRegisteredPayload {
 - **SC-005**: CASL tool filtering produces zero unauthorized tool access — model never receives tools the user cannot use.
 - **SC-006**: Daily rate limiting enforced per role with zero bypass — limit exceeded returns i18n message.
 - **SC-007**: Conversation memory retrieves relevant past context in new sessions (semantic search recall > 70%).
+
+---
+
+## Phase 2 — LLM-Friendly Patterns
+
+**Added**: 2026-04-04
+**Status**: In Progress
+**Input**: Analysis of ida-pro-mcp project patterns for LLM tool calling ergonomics
+
+### Phase 2 Functional Requirements
+
+- **FR-020**: System MUST provide a generic `PaginatedResult<T>` type and `paginate<T>(items, page, pageSize)` utility function that returns `{ items: T[]; total: number; page: number; pageSize: number; totalPages: number }`. Default page size: 20. The utility clamps page to valid bounds (minimum 1, maximum totalPages). It works on any array — not tied to ToolRegistry.
+- **FR-021**: System MUST support an optional `group?: string` property on the `AITool` interface for logical categorization of tools (e.g., `'users'`, `'invoices'`, `'reports'`). `ToolRegistry` MUST provide `getByGroup(group: string): AITool[]`, `getByGroups(groups: string[]): AITool[]`, and `getGroups(): string[]` methods. Pagination overloads MUST be available on `getAll()` and `getByGroup()`.
+- **FR-022**: System MUST support an optional `maxOutputChars?: number` property on the `AITool` interface for per-tool output size limiting. A global `defaultMaxOutputChars?: number` config (default 4000) is added to `AIConfig`. System MUST provide a `truncateToolOutput(output, maxChars)` utility that truncates and appends `\n...[truncated — showing {shown}/{total} chars]`. The `IntentRouter.convertToSDKTools()` method MUST apply truncation after successful tool execution using per-tool limit (falling back to global config).
+- **FR-023**: System MUST provide a standalone Zod preprocessor library with these functions: `coerceNumber` (string/number → number), `coerceInteger` (string/number → integer), `coerceBoolean` (string/boolean/0/1 → boolean), `normalizeString` (trim + collapse whitespace), `flexibleDate` (string/number/Date → Date), `normalizeArray` (single item or CSV string → array). All exported individually AND as a `preprocessors` namespace object. This is opt-in — modules use it when defining tool parameter schemas. NOT middleware.
+- **FR-024**: System MUST provide a `executeBatch(deps, items, toolName)` function for sequential batch tool execution. Each item produces its own `Result<unknown, AppError>`. Returns `BatchResult` containing `results` array (per-item), `summary` with `succeeded`/`failed`/`total` counts. Empty items array returns `err(AI_ERRORS.BATCH_EMPTY_ITEMS)`. Execution is sequential (not parallel) to respect rate limits. Dependencies are `{ toolRegistry: ToolRegistry; logger: AILogger }`.
+
+### Phase 2 Success Criteria
+
+- **SC-008**: `paginate()` returns correct `totalPages`, clamps invalid page numbers, and handles empty arrays — verified by unit tests.
+- **SC-009**: `ToolRegistry.getByGroup()` returns only tools matching the group; `getGroups()` returns distinct group names — verified by unit tests.
+- **SC-010**: Tool output exceeding `maxOutputChars` is truncated with suffix showing character counts — verified by unit tests. `IntentRouter` applies truncation transparently after tool execution.
+- **SC-011**: All 6 Zod preprocessors coerce valid inputs correctly and reject invalid inputs — verified by unit tests. Each preprocessor composes with standard Zod schemas via `.pipe()`.
+- **SC-012**: Batch executor returns partial results (mix of ok/err per item), never throws. Empty input returns specific error code — verified by unit tests.

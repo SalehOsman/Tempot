@@ -154,3 +154,54 @@ Optimal retrieval requires different prefixes for queries vs. documents:
 | ------------ | ----------------------------------------- |
 | Query        | `task: search result \| query: {content}` |
 | Document     | `title: {title} \| text: {content}`       |
+
+---
+
+## Phase 2 — Additional Types
+
+### `PaginatedResult<T>` (Generic Utility Type)
+
+| Property     | Type     | Description                       |
+| ------------ | -------- | --------------------------------- |
+| `items`      | `T[]`    | Items for the current page        |
+| `total`      | `number` | Total item count across all pages |
+| `page`       | `number` | Current page number (1-based)     |
+| `pageSize`   | `number` | Items per page                    |
+| `totalPages` | `number` | Total number of pages             |
+
+### `PaginationOptions` (Input for paginate utility)
+
+| Property   | Type     | Description              | Default |
+| ---------- | -------- | ------------------------ | ------- |
+| `page`     | `number` | Requested page (1-based) | 1       |
+| `pageSize` | `number` | Items per page           | 20      |
+
+### `BatchItem<T>` (Input for batch executor)
+
+| Property | Type | Description                    |
+| -------- | ---- | ------------------------------ |
+| `params` | `T`  | Parameters to pass to the tool |
+
+### `BatchResult` (Output from batch executor)
+
+| Property  | Type                                                   | Description                  |
+| --------- | ------------------------------------------------------ | ---------------------------- |
+| `results` | `Result<unknown, AppError>[]`                          | Per-item results (ok or err) |
+| `summary` | `{ succeeded: number; failed: number; total: number }` | Aggregate counts             |
+
+### `AITool` Interface Changes (Phase 2)
+
+Two optional properties added to the existing `AITool` interface:
+
+| Property         | Type                  | Description                                        | Default                   |
+| ---------------- | --------------------- | -------------------------------------------------- | ------------------------- |
+| `group`          | `string \| undefined` | Logical tool group (e.g., `'users'`, `'invoices'`) | `undefined`               |
+| `maxOutputChars` | `number \| undefined` | Per-tool output size limit                         | `undefined` (uses global) |
+
+### `AIConfig` Interface Change (Phase 2)
+
+One optional property added:
+
+| Property                | Type                  | Description              | Default |
+| ----------------------- | --------------------- | ------------------------ | ------- |
+| `defaultMaxOutputChars` | `number \| undefined` | Global output size limit | `4000`  |

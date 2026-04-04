@@ -784,3 +784,231 @@ Task 0 (scaffolding)
 | 21    | Barrel Exports          | P1       | 5 min       | Final | All                          |
 | 22    | Pluggable Toggle        | P0       | 10 min      | 1A    | FR-017, Rule XVI             |
 | **—** | **Total**               |          | **250 min** |       |                              |
+
+---
+
+## Phase 2 Tasks
+
+**Added**: 2026-04-04
+**Source**: Phase 2 spec additions (FR-020 to FR-024)
+
+---
+
+## Task 23: Phase 2 Types, Error Codes & Pagination Utility
+
+**Priority:** P0 (dependency for Tasks 24-28)
+**Estimated time:** 15 min
+**FR:** FR-020, FR-021, FR-022, FR-024
+**SC:** SC-008, SC-012
+
+**Files to modify:**
+
+- `packages/ai-core/src/ai-core.types.ts` — Add `group?` and `maxOutputChars?` to `AITool` interface; add `defaultMaxOutputChars?` to `AIConfig`; add `PaginatedResult<T>`, `PaginationOptions`, `BatchItem<T>`, `BatchResult` types; update `DEFAULT_AI_CONFIG` with `defaultMaxOutputChars: 4000`
+- `packages/ai-core/src/ai-core.errors.ts` — Add `BATCH_EMPTY_ITEMS: 'ai-core.batch.empty_items'`
+- `packages/ai-core/src/ai-core.config.ts` — Add `TEMPOT_AI_MAX_OUTPUT_CHARS` env var to `loadAIConfig()`
+
+**Files to create:**
+
+- `packages/ai-core/src/pagination/pagination.util.ts` — Generic `paginate<T>(items, options?)` function
+
+**Test files:**
+
+- `packages/ai-core/tests/unit/pagination.util.test.ts` (NEW)
+- `packages/ai-core/tests/unit/ai-core.types.test.ts` (MODIFY if needed for new type checks)
+
+**Acceptance criteria:**
+
+- [ ] `PaginatedResult<T>` type exported with fields: `items`, `total`, `page`, `pageSize`, `totalPages` (SC-008)
+- [ ] `PaginationOptions` type exported with optional `page` (default 1) and `pageSize` (default 20) (SC-008)
+- [ ] `BatchItem<T>` type exported with `params: T` (SC-012)
+- [ ] `BatchResult` type exported with `results: Result<unknown, AppError>[]` and `summary: { succeeded, failed, total }` (SC-012)
+- [ ] `AITool` interface has `group?: string` and `maxOutputChars?: number` — both optional, backward compatible
+- [ ] `AIConfig` interface has `defaultMaxOutputChars?: number`
+- [ ] `DEFAULT_AI_CONFIG` includes `defaultMaxOutputChars: 4000`
+- [ ] `AI_ERRORS.BATCH_EMPTY_ITEMS` equals `'ai-core.batch.empty_items'`
+- [ ] `loadAIConfig()` reads `TEMPOT_AI_MAX_OUTPUT_CHARS` env var
+- [ ] `paginate()` returns correct `totalPages` = `ceil(total / pageSize)` (SC-008)
+- [ ] `paginate()` clamps page to `[1, totalPages]` range (SC-008)
+- [ ] `paginate()` handles empty array (returns `{ items: [], total: 0, page: 1, pageSize, totalPages: 0 }`) (SC-008)
+- [ ] `paginate()` defaults to page=1, pageSize=20
+- [ ] No `any` types, no eslint-disable
+- [ ] All tests pass (minimum 8 tests for paginate: normal page, first page, last page, page beyond max clamped, page below 1 clamped, empty array, custom pageSize, exact boundary)
+
+---
+
+## Task 24: Extension Groups on ToolRegistry
+
+**Priority:** P1
+**Estimated time:** 10 min
+**FR:** FR-021
+**SC:** SC-008, SC-009
+**Dependencies:** Task 23 (needs `AITool.group`, `PaginatedResult`, `paginate`)
+
+**Files to modify:**
+
+- `packages/ai-core/src/tools/tool.registry.ts` — Add `getByGroup(group)`, `getByGroups(groups)`, `getGroups()` methods; add pagination overloads on `getAll()` and `getByGroup()`
+
+**Test files:**
+
+- `packages/ai-core/tests/unit/tool.registry.test.ts` (MODIFY — add group + pagination tests)
+
+**Acceptance criteria:**
+
+- [ ] `getByGroup(group: string): AITool[]` returns only tools with matching group (SC-009)
+- [ ] `getByGroup(group: string, options: PaginationOptions): PaginatedResult<AITool>` returns paginated result (SC-008)
+- [ ] `getByGroups(groups: string[]): AITool[]` returns tools matching ANY of the provided groups (SC-009)
+- [ ] `getGroups(): string[]` returns sorted, distinct group names (excludes undefined) (SC-009)
+- [ ] `getAll(options: PaginationOptions): PaginatedResult<AITool>` overload returns paginated result (SC-008)
+- [ ] Original `getAll(): AITool[]` still works (backward compatible — no required params added)
+- [ ] Tools without `group` property are excluded from group queries but included in `getAll()`
+- [ ] No `any` types, no eslint-disable
+- [ ] All new tests pass (minimum 8 tests: getByGroup found, getByGroup empty, getByGroups multi, getGroups distinct/sorted, getAll paginated, getByGroup paginated, tools without group excluded from group queries, backward compatibility of getAll)
+
+---
+
+## Task 25: Output Size Limiting
+
+**Priority:** P1
+**Estimated time:** 15 min
+**FR:** FR-022
+**SC:** SC-010
+**Dependencies:** Task 23 (needs `AITool.maxOutputChars`, `AIConfig.defaultMaxOutputChars`)
+
+**Files to create:**
+
+- `packages/ai-core/src/tools/output-limiter.util.ts` — `truncateToolOutput(output: string, maxChars: number): string` utility
+
+**Files to modify:**
+
+- `packages/ai-core/src/router/intent.router.ts` — Add output truncation in `convertToSDKTools()` after successful tool execution; add `config?: AIConfig` to `IntentRouterDeps`
+
+**Test files:**
+
+- `packages/ai-core/tests/unit/output-limiter.util.test.ts` (NEW)
+- `packages/ai-core/tests/unit/intent.router.test.ts` (MODIFY — add output truncation tests)
+
+**Acceptance criteria:**
+
+- [ ] `truncateToolOutput(output, maxChars)` returns output unchanged if `output.length <= maxChars` (SC-010)
+- [ ] `truncateToolOutput(output, maxChars)` truncates and appends `\n...[truncated — showing {maxChars}/{total} chars]` if exceeded (SC-010)
+- [ ] The truncation suffix itself is counted in the maxChars budget (truncate at `maxChars - suffix.length`) (SC-010)
+- [ ] `IntentRouterDeps` interface has optional `config?: AIConfig`
+- [ ] `convertToSDKTools()` applies truncation after `tool.execute()` returns ok — uses `tool.maxOutputChars ?? this.deps.config?.defaultMaxOutputChars ?? 4000` (SC-010)
+- [ ] Truncation handles non-string tool output by `JSON.stringify()` first (SC-010)
+- [ ] No `any` types, no eslint-disable
+- [ ] All tests pass (minimum 8 tests: output under limit unchanged, output at exact limit unchanged, output over limit truncated with suffix, suffix shows correct char counts, non-string output JSON.stringified, IntentRouter applies truncation for tool with maxOutputChars, IntentRouter uses global default when tool has no maxOutputChars, IntentRouter does not truncate when output is under limit)
+
+---
+
+## Task 26: Input Normalization Preprocessors
+
+**Priority:** P1
+**Estimated time:** 15 min
+**FR:** FR-023
+**SC:** SC-011
+**Dependencies:** Task 23 (for consistency, but functionally standalone)
+
+**Files to create:**
+
+- `packages/ai-core/src/tools/input-normalization.ts` — 6 Zod preprocessor functions + `preprocessors` namespace
+
+**Test files:**
+
+- `packages/ai-core/tests/unit/input-normalization.test.ts` (NEW)
+
+**Acceptance criteria:**
+
+- [ ] `coerceNumber`: `z.preprocess()` that converts string→number, passes number through, rejects non-numeric strings (SC-011)
+- [ ] `coerceInteger`: like coerceNumber but also rejects floats (e.g., "3.5" → rejected) (SC-011)
+- [ ] `coerceBoolean`: converts `"true"`/`"false"`/`"1"`/`"0"`/`1`/`0`/`true`/`false` → boolean (SC-011)
+- [ ] `normalizeString`: trims whitespace + collapses multiple spaces to single space (SC-011)
+- [ ] `flexibleDate`: converts ISO string / Unix timestamp (number) / Date object → Date (SC-011)
+- [ ] `normalizeArray`: converts single item to `[item]`, CSV string `"a,b,c"` to `["a","b","c"]` (trimmed), passes arrays through (SC-011)
+- [ ] All 6 exported individually: `export { coerceNumber, coerceInteger, ... }` (SC-011)
+- [ ] All 6 also exported as `preprocessors` namespace: `export const preprocessors = { coerceNumber, ... }` (SC-011)
+- [ ] Each preprocessor returns a `ZodEffects` or `ZodPipeline` that composes with `.pipe()` — e.g., `coerceNumber.pipe(z.number().min(0))` (SC-011)
+- [ ] No `any` types, no eslint-disable
+- [ ] All tests pass (minimum 18 tests: 3 per preprocessor — valid coercion, pass-through, rejection)
+
+---
+
+## Task 27: Batch Tool Executor
+
+**Priority:** P1
+**Estimated time:** 20 min
+**FR:** FR-024
+**SC:** SC-012
+**Dependencies:** Task 23 (needs `BatchItem`, `BatchResult`, `AI_ERRORS.BATCH_EMPTY_ITEMS`)
+
+**Files to create:**
+
+- `packages/ai-core/src/tools/batch-executor.ts` — `executeBatch()` function
+
+**Test files:**
+
+- `packages/ai-core/tests/unit/batch-executor.test.ts` (NEW)
+
+**Acceptance criteria:**
+
+- [ ] `BatchExecutorDeps` type: `{ toolRegistry: ToolRegistry; logger: AILogger }`
+- [ ] `executeBatch(deps, items: BatchItem<unknown>[], toolName: string): AsyncResult<BatchResult, AppError>`
+- [ ] Empty `items` array returns `err(AppError(AI_ERRORS.BATCH_EMPTY_ITEMS))` (SC-012)
+- [ ] Tool not found returns `err(AppError(AI_ERRORS.TOOL_NOT_FOUND))`
+- [ ] Items executed sequentially (NOT parallel) — verified by test with timing assertions or call order (SC-012)
+- [ ] Each item produces its own `Result<unknown, AppError>` — partial failure supported (SC-012)
+- [ ] `BatchResult.summary` has correct `succeeded`, `failed`, `total` counts (SC-012)
+- [ ] Logger called with batch start (tool name, item count) and batch end (summary)
+- [ ] No `any` types, no eslint-disable
+- [ ] All tests pass (minimum 10 tests: all succeed, all fail, partial failure, empty items error, tool not found error, sequential execution verified, summary counts correct, single item batch, logger called on start, logger called on end)
+
+---
+
+## Task 28: Barrel Exports Update
+
+**Priority:** P1
+**Estimated time:** 5 min
+**FR:** All Phase 2 FRs
+**Dependencies:** Tasks 23-27 (all Phase 2 code must exist)
+
+**Files to modify:**
+
+- `packages/ai-core/src/index.ts` — Add exports for all Phase 2 public APIs
+
+**Test files:** N/A (verified by build)
+
+**Acceptance criteria:**
+
+- [ ] `PaginatedResult`, `PaginationOptions`, `BatchItem`, `BatchResult` types exported
+- [ ] `paginate` function exported from `./pagination/pagination.util.js`
+- [ ] `truncateToolOutput` function exported from `./tools/output-limiter.util.js`
+- [ ] `coerceNumber`, `coerceInteger`, `coerceBoolean`, `normalizeString`, `flexibleDate`, `normalizeArray`, `preprocessors` exported from `./tools/input-normalization.js`
+- [ ] `executeBatch` function exported from `./tools/batch-executor.js`
+- [ ] `BatchExecutorDeps` type exported from `./tools/batch-executor.js`
+- [ ] No duplicate exports, no circular imports
+- [ ] `pnpm build --filter @tempot/ai-core` succeeds
+- [ ] No `any` types, no eslint-disable
+
+---
+
+## Phase 2 Task Dependency Graph
+
+```
+Task 23 (Types + Errors + Pagination)
+  ├─→ Task 24 (Extension Groups)
+  ├─→ Task 25 (Output Limiting)
+  ├─→ Task 26 (Input Normalization)
+  └─→ Task 27 (Batch Executor)
+       └─→ Task 28 (Barrel Exports)
+```
+
+## Phase 2 Summary
+
+| Task  | Name                        | Priority | Est.       | FR Coverage        |
+| ----- | --------------------------- | -------- | ---------- | ------------------ |
+| 23    | Types + Errors + Pagination | P0       | 15 min     | FR-020,021,022,024 |
+| 24    | Extension Groups            | P1       | 10 min     | FR-021             |
+| 25    | Output Size Limiting        | P1       | 15 min     | FR-022             |
+| 26    | Input Normalization         | P1       | 15 min     | FR-023             |
+| 27    | Batch Tool Executor         | P1       | 20 min     | FR-024             |
+| 28    | Barrel Exports              | P1       | 5 min      | All Phase 2        |
+| **—** | **Total**                   |          | **80 min** |                    |

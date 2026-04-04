@@ -114,3 +114,37 @@
 | AI-powered input validation | Not in Phase 1 | `input-engine` package not yet implemented                      |
 | Dynamic translation via AI  | Not in Phase 1 | i18n-core handles static translations, AI translation deferred  |
 | A/B testing of prompts      | Not in Phase 1 | Langfuse supports this, but deferred until baseline established |
+
+---
+
+## Phase 2 Decisions
+
+### 18. Generic Pagination Over ToolRegistry-Specific
+
+- **Decision:** Implement pagination as a generic `paginate<T>(items, options)` utility, not as ToolRegistry-specific methods. ToolRegistry uses the generic utility internally.
+- **Rationale:** Pagination is useful across multiple contexts (tool lists, search results, batch results). A generic utility avoids duplication and is more composable. ToolRegistry provides convenience overloads that delegate to the generic utility.
+- **Alternatives rejected:** ToolRegistry-only pagination (not reusable). Database-level pagination (tools are in-memory). Cursor-based pagination (overkill for in-memory arrays with typical sizes < 100).
+
+### 19. Output Limiting as AITool Property (Not Router Middleware)
+
+- **Decision:** Add `maxOutputChars?: number` as an optional property on the `AITool` interface. The `IntentRouter.convertToSDKTools()` method applies truncation after tool execution. A global `defaultMaxOutputChars` in `AIConfig` provides a fallback.
+- **Rationale:** Tool authors know best what output size is reasonable for their tool. A per-tool property gives fine-grained control while the global default ensures safety for all tools. Applying truncation in `convertToSDKTools()` is the single integration point where all tool outputs flow back to the model.
+- **Alternatives rejected:** Router middleware (adds complexity, tools still produce unbounded output). Hardcoded limit (no flexibility). Post-processing in each tool (duplicated logic).
+
+### 20. Zod Preprocessors as Opt-in Library (Not Auto-Middleware)
+
+- **Decision:** Provide Zod preprocessor functions (`coerceNumber`, `coerceBoolean`, `normalizeString`, etc.) as a standalone library. Module developers compose them into their tool parameter schemas using Zod's `.pipe()` method. No automatic middleware.
+- **Rationale:** LLMs often send parameters as strings even when the schema specifies numbers or booleans. Preprocessors handle this gracefully. Making them opt-in means tool authors control exactly which parameters get normalized — no surprises from automatic coercion.
+- **Alternatives rejected:** Auto-middleware on all tool parameters (may break tools expecting exact types). Per-field decorators (TypeScript doesn't support schema decorators on Zod). Runtime type coercion without Zod (loses validation guarantees).
+
+### 21. Batch Executor with Sequential Execution and Partial Failure
+
+- **Decision:** Execute batch items sequentially (not parallel) with individual `Result<T, AppError>` per item. Return `BatchResult` with per-item results and summary counts. Empty items returns a specific error.
+- **Rationale:** Sequential execution respects rate limits and prevents overwhelming external APIs. Partial failure means one bad item doesn't abort the entire batch — critical for user experience. The `BatchResult.summary` provides an at-a-glance overview.
+- **Alternatives rejected:** Parallel execution (may hit rate limits). All-or-nothing (one failure aborts everything). Streaming results (overkill for typical batch sizes < 50).
+
+### 22. Extension Groups as Optional Flat Tags
+
+- **Decision:** Add `group?: string` to `AITool` interface. Tools without a group are ungrouped. `ToolRegistry` provides query methods: `getByGroup()`, `getByGroups()`, `getGroups()`. No hierarchy — groups are flat string tags.
+- **Rationale:** Groups help LLMs understand tool organization (e.g., "all user tools" vs "all invoice tools"). Making `group` optional preserves backward compatibility — existing tools work without changes. Flat tags (not hierarchical categories) keep the API simple.
+- **Alternatives rejected:** Mandatory group (breaks existing tools). Hierarchical categories (over-engineered for current needs). Module-based grouping (already handled by `toolsByModule` in ToolRegistry — groups are cross-module conceptual categories).
