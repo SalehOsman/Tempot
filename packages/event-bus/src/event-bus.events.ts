@@ -103,4 +103,11 @@ export interface TempotEvents {
     valid: boolean;
     retryCount: number;
   };
+  'input-engine.field.skipped': {
+    formId: string;
+    userId: string;
+    fieldName: string;
+    fieldType: string;
+    reason: 'user_skip' | 'max_retries_skip' | 'condition';
+  };
 }

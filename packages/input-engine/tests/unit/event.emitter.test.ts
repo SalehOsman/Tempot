@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { emitFormResumed } from '../../src/runner/event.emitter.js';
-import type { EventEmitterDeps } from '../../src/runner/event.emitter.js';
+import type { EventEmitterDeps, FieldSkippedPayload } from '../../src/runner/event.emitter.js';
+import type { FieldType } from '../../src/input-engine.types.js';
 
 function createMockDeps(): EventEmitterDeps {
   return {
@@ -57,5 +58,33 @@ describe('emitFormResumed', () => {
         errorCode: 'EVENT_BUS_FAILURE',
       }),
     );
+  });
+});
+
+describe('FieldSkippedPayload', () => {
+  it('constrains fieldType to valid FieldType values', () => {
+    const validFieldType: FieldType = 'ShortText';
+    const payload: FieldSkippedPayload = {
+      formId: 'test-form',
+      userId: 'user-1',
+      fieldName: 'name',
+      fieldType: validFieldType,
+      reason: 'user_skip',
+    };
+    expect(payload.fieldType).toBe('ShortText');
+  });
+
+  it('accepts all FieldSkippedPayload reason values', () => {
+    const reasons: FieldSkippedPayload['reason'][] = ['user_skip', 'max_retries_skip', 'condition'];
+    for (const reason of reasons) {
+      const payload: FieldSkippedPayload = {
+        formId: 'f',
+        userId: 'u',
+        fieldName: 'n',
+        fieldType: 'Audio',
+        reason,
+      };
+      expect(payload.reason).toBe(reason);
+    }
   });
 });

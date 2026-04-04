@@ -1,4 +1,5 @@
 import type { InputEngineEventBus, InputEngineLogger } from '../input-engine.contracts.js';
+import type { FieldType } from '../input-engine.types.js';
 
 /** Bundled dependencies for safe event emission */
 export interface EventEmitterDeps {
@@ -89,6 +90,25 @@ export async function emitFormResumed(
   payload: FormResumedPayload,
 ): Promise<void> {
   await emitEvent(deps, 'input-engine.form.resumed', {
+    ...payload,
+    timestamp: new Date(),
+  });
+}
+
+/** Field skip event payload */
+export interface FieldSkippedPayload {
+  formId: string;
+  userId: string;
+  fieldName: string;
+  fieldType: FieldType;
+  reason: 'user_skip' | 'max_retries_skip' | 'condition';
+}
+
+export async function emitFieldSkipped(
+  deps: EventEmitterDeps,
+  payload: FieldSkippedPayload,
+): Promise<void> {
+  await emitEvent(deps, 'input-engine.field.skipped', {
     ...payload,
     timestamp: new Date(),
   });

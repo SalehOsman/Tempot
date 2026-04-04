@@ -1,140 +1,136 @@
 import { ok, err } from 'neverthrow';
 import { z } from 'zod';
-import { AppError } from '@tempot/shared';
-import type { AsyncResult } from '@tempot/shared';
+import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
-import { shouldRenderField } from './condition.evaluator.js';
-import { emitEvent } from './event.emitter.js';
-import type { EventEmitterDeps } from './event.emitter.js';
 import type { FieldMetadata } from '../input-engine.types.js';
-import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
-import { saveFieldProgress } from './partial-save.helper.js';
-import type { FormRunnerDeps } from './form.runner.js';
-import type { FormRunnerInput, FormProgress } from './form.runner.js';
+import { FIELD_SKIPPED_SENTINEL } from '../input-engine.types.js';
+import { shouldRenderField } from './condition.evaluator.js';
+import { emitEvent, type EventEmitterDeps } from './event.emitter.js';
+import { maybeSaveProgress } from './partial-save.helper.js';
+import { navigateBack } from './back-navigation.helper.js';
+import { getFieldMetadata } from './field-metadata.util.js';
+import { handleFieldSkip } from './field-skip.helper.js';
+import { processField, buildFieldContext, type FieldContext } from './field.processor.js';
+import { computeDynamicTotal, renderProgress } from './progress.renderer.js';
+import type { FormRunnerDeps, FormRunnerInput, FormProgress } from './form.runner.js';
 
-const DEFAULT_MAX_RETRIES = 3;
-
-/** Internal context for processing a single field */
-interface FieldContext {
-  handler: FieldHandler;
-  metadata: FieldMetadata;
-  fieldSchema: z.ZodType;
-  fieldName: string;
-  maxRetries: number;
-  formData: Record<string, unknown>;
-  retryCount: number;
-  formId: string;
-  fieldIndex: number;
+/** Bundled params for handleFieldSuccess to stay within max-params */
+interface FieldSuccessParams {
+  deps: FormRunnerDeps;
+  progress: FormProgress;
+  ctx: FieldContext;
+  value: unknown;
 }
 
-/** Process a single field: render, parse, validate with retry */
-async function processField(
-  input: FormRunnerInput,
-  ctx: FieldContext,
-  deps: FormRunnerDeps,
-): AsyncResult<unknown, AppError> {
-  const { handler, metadata, fieldSchema, maxRetries } = ctx;
-  let retryCount = 0;
+/** Handle a successful field result: update progress and emit event */
+async function handleFieldSuccess(params: FieldSuccessParams): Promise<void> {
+  const { deps, progress, ctx, value } = params;
+  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
+  progress.formData[ctx.fieldName] = value;
+  progress.fieldsCompleted++;
+  progress.completedFieldNames.push(ctx.fieldName);
+  await maybeSaveProgress(deps, progress);
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const renderCtx: RenderContext = {
-      conversation: input.conversation,
-      ctx: input.ctx,
-      formData: ctx.formData,
-      formId: ctx.formId,
-      fieldIndex: ctx.fieldIndex,
-    };
-
-    const rr = await handler.render(renderCtx, metadata);
-    if (rr.isErr()) return err(rr.error);
-
-    let responseCtx: unknown = rr.value;
-    if (responseCtx === undefined && deps.renderPrompt) {
-      const promptResult = await deps.renderPrompt(renderCtx, metadata);
-      if (promptResult.isErr()) return err(promptResult.error);
-      responseCtx = promptResult.value;
-    }
-    if (responseCtx === undefined) {
-      responseCtx = input.ctx;
-    }
-
-    const pr = handler.parseResponse(responseCtx, metadata);
-    if (pr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    const vr = handler.validate(pr.value, fieldSchema, metadata);
-    if (vr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    ctx.retryCount = retryCount;
-    return ok(vr.value);
-  }
-
-  return err(
-    new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
-      fieldName: ctx.fieldName,
-      fieldType: metadata.fieldType,
-      maxRetries,
-    }),
-  );
+  await emitEvent(evDeps, 'input-engine.field.validated', {
+    formId: progress.formId,
+    userId: deps.userId,
+    fieldType: ctx.metadata.fieldType,
+    fieldName: ctx.fieldName,
+    valid: true,
+    retryCount: ctx.retryCount,
+  });
 }
 
-/** Save current field progress if partial save is enabled */
-async function maybeSaveProgress(deps: FormRunnerDeps, progress: FormProgress): Promise<void> {
-  if (!progress.partialSaveEnabled || !deps.storageAdapter) return;
-
-  await saveFieldProgress(
-    { storageAdapter: deps.storageAdapter, logger: deps.logger },
-    progress.storageKey,
-    {
-      formData: { ...progress.formData },
-      fieldsCompleted: progress.fieldsCompleted,
-      completedFieldNames: [...progress.completedFieldNames],
-    },
-  );
-}
-
-/** Params for building a field context */
-interface FieldBuildParams {
-  fieldName: string;
-  metadata: FieldMetadata;
-  fieldSchema: z.ZodType;
-  fieldIndex: number;
-}
-
-/** Build FieldContext for a given field, or error if handler missing */
-function buildFieldContext(
-  deps: FormRunnerDeps,
-  progress: FormProgress,
-  params: FieldBuildParams,
-): FieldContext | AppError {
-  const handler = deps.registry.get(params.metadata.fieldType);
-  if (!handler) {
-    return new AppError(INPUT_ENGINE_ERRORS.FIELD_TYPE_UNKNOWN, {
-      fieldName: params.fieldName,
-      fieldType: params.metadata.fieldType,
+/** Check if the form deadline has been exceeded */
+function checkDeadline(progress: FormProgress): AppError | undefined {
+  if (Date.now() - progress.startTime > progress.maxMilliseconds) {
+    return new AppError(INPUT_ENGINE_ERRORS.FORM_TIMEOUT, {
+      formId: progress.formId,
+      elapsedMs: Date.now() - progress.startTime,
+      maxMs: progress.maxMilliseconds,
     });
   }
-  return {
-    handler,
-    metadata: params.metadata,
-    fieldSchema: params.fieldSchema,
-    fieldName: params.fieldName,
-    maxRetries: params.metadata.maxRetries ?? DEFAULT_MAX_RETRIES,
-    formData: progress.formData,
-    retryCount: 0,
-    formId: progress.formId,
-    fieldIndex: params.fieldIndex,
-  };
+  return undefined;
 }
 
-function getFieldMetadata(schema: z.ZodType): FieldMetadata {
-  const meta = z.globalRegistry.get(schema);
-  return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
+/** Build a metadata map for all fields in the schema */
+function buildMetadataMap(
+  fieldNames: string[],
+  schema: z.ZodObject<z.ZodRawShape>,
+): Map<string, FieldMetadata> {
+  const map = new Map<string, FieldMetadata>();
+  for (const name of fieldNames) {
+    const fieldSchema = schema.shape[name] as z.ZodType;
+    const metadata = getFieldMetadata(fieldSchema);
+    if (metadata) map.set(name, metadata);
+  }
+  return map;
+}
+
+/** Params for processing a single field within the iteration loop */
+interface IterationStepParams {
+  input: FormRunnerInput;
+  deps: FormRunnerDeps;
+  progress: FormProgress;
+  fieldNames: string[];
+  index: number;
+}
+
+/** Process one field and return the next index, or an error to abort */
+async function processFieldStep(params: IterationStepParams): AsyncResult<number, AppError> {
+  const { input, deps, progress, fieldNames, index } = params;
+  const fieldName = fieldNames[index]!;
+  const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
+  const metadata = getFieldMetadata(fieldSchema);
+
+  if (!metadata) {
+    deps.logger.debug({
+      msg: 'Skipping field without metadata',
+      formId: progress.formId,
+      fieldName,
+    });
+    return ok(index + 1);
+  }
+
+  if (!shouldRenderField(metadata, progress.formData)) {
+    deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
+    return ok(index + 1);
+  }
+
+  const previousValue = progress.formData[fieldName];
+  const ctxResult = buildFieldContext(deps, progress, {
+    fieldName,
+    metadata,
+    fieldSchema,
+    fieldIndex: index,
+    previousValue,
+  });
+  if (ctxResult.isErr()) return err(ctxResult.error);
+  const fieldCtx = ctxResult.value;
+
+  const result = await processField(input, fieldCtx, deps);
+
+  if (result.isErr() && result.error.code === INPUT_ENGINE_ERRORS.NAVIGATE_BACK) {
+    const newIdx = navigateBack({
+      currentIndex: index,
+      fieldNames,
+      progress,
+      schema: input.schema,
+      deps,
+    });
+    await maybeSaveProgress(deps, progress);
+    return ok(newIdx);
+  }
+
+  if (result.isOk() && result.value === FIELD_SKIPPED_SENTINEL) {
+    await handleFieldSkip(deps, progress, fieldCtx);
+    return ok(index + 1);
+  }
+
+  if (result.isErr()) return err(result.error);
+
+  await handleFieldSuccess({ deps, progress, ctx: fieldCtx, value: result.value });
+  return ok(index + 1);
 }
 
 /** Iterate all schema fields, processing each one */
@@ -144,56 +140,36 @@ export async function iterateFields(
   progress: FormProgress,
 ): AsyncResult<void, AppError> {
   const fieldNames = Object.keys(input.schema.shape);
-  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
   progress.totalFields = fieldNames.length;
+  const progressMeta = progress.formOptions?.showProgress
+    ? buildMetadataMap(fieldNames, input.schema)
+    : undefined;
 
-  for (let i = 0; i < fieldNames.length; i++) {
-    const fieldName = fieldNames[i]!;
-    // Deadline check
-    if (Date.now() - progress.startTime > progress.maxMilliseconds) {
-      return err(
-        new AppError(INPUT_ENGINE_ERRORS.FORM_TIMEOUT, {
-          formId: progress.formId,
-          elapsedMs: Date.now() - progress.startTime,
-          maxMs: progress.maxMilliseconds,
-        }),
-      );
-    }
+  let index = 0;
+  while (index < fieldNames.length) {
+    const deadlineErr = checkDeadline(progress);
+    if (deadlineErr) return err(deadlineErr);
 
-    if (progress.completedFieldNames.includes(fieldName)) continue;
-
-    const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
-    const metadata = getFieldMetadata(fieldSchema);
-
-    if (!shouldRenderField(metadata, progress.formData)) {
-      deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
+    if (progress.completedFieldNames.includes(fieldNames[index]!)) {
+      index++;
       continue;
     }
 
-    const ctxOrErr = buildFieldContext(deps, progress, {
-      fieldName,
-      metadata,
-      fieldSchema,
-      fieldIndex: i,
-    });
-    if (ctxOrErr instanceof AppError) return err(ctxOrErr);
+    if (progressMeta) {
+      const dynamicTotal = computeDynamicTotal({
+        fieldNames,
+        allMetadata: progressMeta,
+        formData: progress.formData,
+        shouldRenderFn: shouldRenderField,
+      });
+      const currentPos = progress.fieldsCompleted + 1;
+      const progressText = renderProgress(currentPos, dynamicTotal, deps.t);
+      deps.logger.debug({ msg: 'Progress', progressText, fieldName: fieldNames[index] });
+    }
 
-    const result = await processField(input, ctxOrErr, deps);
-    if (result.isErr()) return err(result.error);
-
-    progress.formData[fieldName] = result.value;
-    progress.fieldsCompleted++;
-    progress.completedFieldNames.push(fieldName);
-    await maybeSaveProgress(deps, progress);
-
-    await emitEvent(evDeps, 'input-engine.field.validated', {
-      formId: progress.formId,
-      userId: deps.userId,
-      fieldType: metadata.fieldType,
-      fieldName,
-      valid: true,
-      retryCount: ctxOrErr.retryCount,
-    });
+    const stepResult = await processFieldStep({ input, deps, progress, fieldNames, index });
+    if (stepResult.isErr()) return err(stepResult.error);
+    index = stepResult.value;
   }
 
   return ok(undefined);

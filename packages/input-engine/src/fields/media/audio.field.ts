@@ -6,12 +6,14 @@ import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 import { checkFileSize } from './file-size.helper.js';
+import { uploadToStorage, type UploadParams } from './storage-upload.helper.js';
 
 /** Telegram Audio shape */
 interface TelegramAudio {
   file_id: string;
   file_size?: number;
   duration?: number;
+  mime_type?: string;
 }
 
 /** Parsed audio result */
@@ -19,6 +21,7 @@ interface AudioValue {
   fileId: string;
   fileSize?: number;
   duration?: number;
+  mimeType?: string;
 }
 
 /** Check duration against maxDurationSeconds constraint */
@@ -74,6 +77,7 @@ export class AudioFieldHandler implements FieldHandler {
     const result: AudioValue = { fileId: aud.file_id };
     if (aud.file_size !== undefined) result.fileSize = aud.file_size;
     if (aud.duration !== undefined) result.duration = aud.duration;
+    if (aud.mime_type !== undefined) result.mimeType = aud.mime_type;
     return ok(result);
   }
 
@@ -86,5 +90,24 @@ export class AudioFieldHandler implements FieldHandler {
     if (durationCheck.isErr()) return durationCheck;
 
     return ok(aud);
+  }
+
+  async postProcess(
+    value: unknown,
+    renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
+    if (!renderCtx.storageClient || !renderCtx.logger) return ok(value);
+    const aud = value as AudioValue;
+    return uploadToStorage({
+      fileId: aud.fileId,
+      fileName: 'audio.mp3',
+      mimeType: aud.mimeType ?? 'audio/mpeg',
+      fileSize: aud.fileSize,
+      conversation: renderCtx.conversation as UploadParams['conversation'],
+      ctx: renderCtx.ctx as UploadParams['ctx'],
+      storageClient: renderCtx.storageClient,
+      logger: renderCtx.logger,
+    });
   }
 }

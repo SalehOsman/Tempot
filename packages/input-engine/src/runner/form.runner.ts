@@ -11,7 +11,12 @@ import {
   emitFormResumed,
   type EventEmitterDeps,
 } from './event.emitter.js';
-import type { InputEngineLogger, InputEngineEventBus } from '../input-engine.contracts.js';
+import type {
+  InputEngineLogger,
+  InputEngineEventBus,
+  StorageEngineClient,
+  AIExtractionClient,
+} from '../input-engine.contracts.js';
 import {
   DEFAULT_FORM_OPTIONS,
   type FieldMetadata,
@@ -21,6 +26,7 @@ import type { FieldHandlerRegistry, RenderContext } from '../fields/field.handle
 import type { ConversationsStorageAdapter } from '../storage/conversations-storage.adapter.js';
 import { buildStorageKey, restorePartialSave, deletePartialSave } from './partial-save.helper.js';
 import { iterateFields } from './field.iterator.js';
+import { handleConfirmationLoop } from './confirmation.handler.js';
 
 /** Dependencies injected into the FormRunner */
 export interface FormRunnerDeps {
@@ -37,6 +43,9 @@ export interface FormRunnerDeps {
     renderCtx: RenderContext,
     metadata: FieldMetadata,
   ) => AsyncResult<unknown, AppError>;
+  t?: (key: string, params?: Record<string, unknown>) => string;
+  storageClient?: StorageEngineClient;
+  aiClient?: AIExtractionClient;
 }
 
 /** Bundled input for runForm: conversation context + schema */
@@ -58,6 +67,7 @@ export interface FormProgress {
   storageKey: string;
   startTime: number;
   maxMilliseconds: number;
+  formOptions?: Required<FormOptions>;
 }
 
 function checkPreconditions(
@@ -186,11 +196,19 @@ async function runFormInternal<T>(
     storageKey,
     startTime: Date.now(),
     maxMilliseconds: merged.maxMilliseconds,
+    formOptions: merged,
   };
 
   await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
   await tryRestore(deps, progress, evDeps);
   const loopResult = await iterateFields(input, deps, progress);
+
+  if (loopResult.isOk() && merged.showConfirmation) {
+    const confirmResult = await handleConfirmationLoop(input, deps, progress);
+    if (confirmResult.isErr()) {
+      return handleResult<T>(err(confirmResult.error), { deps, progress, evDeps, merged });
+    }
+  }
 
   return handleResult<T>(loopResult, { deps, progress, evDeps, merged });
 }

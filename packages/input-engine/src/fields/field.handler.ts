@@ -1,6 +1,11 @@
 import type { Result, AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 import type { FieldType, FieldMetadata } from '../input-engine.types.js';
+import type {
+  StorageEngineClient,
+  AIExtractionClient,
+  InputEngineLogger,
+} from '../input-engine.contracts.js';
 
 /** Context passed to render method */
 export interface RenderContext {
@@ -9,6 +14,11 @@ export interface RenderContext {
   formData: Record<string, unknown>;
   formId: string;
   fieldIndex: number;
+  previousValue?: unknown; // Populated during back navigation
+  storageClient?: StorageEngineClient;
+  aiClient?: AIExtractionClient;
+  logger?: InputEngineLogger;
+  t?: (key: string, params?: Record<string, unknown>) => string;
 }
 
 /** Interface that every field type handler implements */
@@ -30,6 +40,13 @@ export interface FieldHandler {
     schema: unknown, // ZodType
     metadata: FieldMetadata,
   ): Result<unknown, AppError>;
+
+  /** Post-process validated value (e.g., upload media to storage) */
+  postProcess?(
+    value: unknown,
+    renderCtx: RenderContext,
+    metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError>;
 }
 
 /** Registry of all field handlers, keyed by FieldType */

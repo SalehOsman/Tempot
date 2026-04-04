@@ -14,7 +14,7 @@ import type {
   EgyptianMobileResult,
   CurrencyAmountResult,
 } from '../../src/input-engine.types.js';
-import { DEFAULT_FORM_OPTIONS } from '../../src/input-engine.types.js';
+import { DEFAULT_FORM_OPTIONS, FIELD_SKIPPED_SENTINEL } from '../../src/input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 import type {
   StorageEngineClient,
@@ -80,6 +80,24 @@ describe('input-engine.types', () => {
       expect(DEFAULT_FORM_OPTIONS.allowCancel).toBe(true);
       expect(DEFAULT_FORM_OPTIONS.formId).toBe('');
     });
+
+    it('showProgress defaults to true', () => {
+      expect(DEFAULT_FORM_OPTIONS.showProgress).toBe(true);
+    });
+
+    it('showConfirmation defaults to true', () => {
+      expect(DEFAULT_FORM_OPTIONS.showConfirmation).toBe(true);
+    });
+  });
+
+  describe('FIELD_SKIPPED_SENTINEL', () => {
+    it('is a Symbol', () => {
+      expect(typeof FIELD_SKIPPED_SENTINEL).toBe('symbol');
+    });
+
+    it('uses Symbol.for with deterministic key', () => {
+      expect(FIELD_SKIPPED_SENTINEL).toBe(Symbol.for('input-engine.field.skipped'));
+    });
   });
 
   describe('ChoiceOption interface', () => {
@@ -125,6 +143,15 @@ describe('input-engine.types', () => {
         formId: 'test-form',
       };
       expect(opts.formId).toBe('test-form');
+    });
+
+    it('accepts showProgress and showConfirmation', () => {
+      const opts: FormOptions = {
+        showProgress: false,
+        showConfirmation: false,
+      };
+      expect(opts.showProgress).toBe(false);
+      expect(opts.showConfirmation).toBe(false);
     });
   });
 
