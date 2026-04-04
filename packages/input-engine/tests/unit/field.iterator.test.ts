@@ -735,4 +735,216 @@ describe('FieldIterator (iterateFields)', () => {
       });
     });
   });
+
+  describe('cancel interception', () => {
+    it('returns err(FORM_CANCELLED) when response contains __cancel__ callback and allowCancel is true', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Simulate handler returning a callback query with __cancel__ data
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi
+          .fn()
+          .mockResolvedValue(ok({ callback_query: { data: 'ie:test-form:0:__cancel__' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      progress.formOptions = {
+        partialSave: false,
+        partialSaveTTL: 86_400_000,
+        maxMilliseconds: 600_000,
+        allowCancel: true,
+        formId: 'test-form',
+        showProgress: true,
+        showConfirmation: true,
+      };
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      // parseResponse should NOT have been called — cancel detected before parsing
+      expect(handler.parseResponse).not.toHaveBeenCalled();
+    });
+
+    it('returns err(FORM_CANCELLED) when user types /cancel and allowCancel is true', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Simulate handler returning a text response with /cancel
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ text: '/cancel' })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      progress.formOptions = {
+        partialSave: false,
+        partialSaveTTL: 86_400_000,
+        maxMilliseconds: 600_000,
+        allowCancel: true,
+        formId: 'test-form',
+        showProgress: true,
+        showConfirmation: true,
+      };
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      // parseResponse should NOT have been called — cancel intercepted before parsing
+      expect(handler.parseResponse).not.toHaveBeenCalled();
+    });
+
+    it('treats /cancel as normal input when allowCancel is false', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Handler returns /cancel text, but parseResponse handles it as normal
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ text: '/cancel' })),
+        parseResponse: vi.fn().mockReturnValue(ok('/cancel')),
+        validate: vi.fn().mockReturnValue(ok('/cancel')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      progress.formOptions = {
+        partialSave: false,
+        partialSaveTTL: 86_400_000,
+        maxMilliseconds: 600_000,
+        allowCancel: false,
+        formId: 'test-form',
+        showProgress: true,
+        showConfirmation: true,
+      };
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // parseResponse SHOULD have been called — /cancel treated as normal input
+      expect(handler.parseResponse).toHaveBeenCalled();
+      expect(progress.formData).toEqual({ name: '/cancel' });
+    });
+
+    it('preserves partial save data on cancellation (not deleted)', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      // Name succeeds normally
+      const nameHandler = createMockHandler('ShortText', 'John');
+      // Email returns cancel signal
+      const emailHandler: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockResolvedValue(ok({ text: '/cancel' })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const mockAdapter = {
+        read: vi.fn().mockResolvedValue(undefined),
+        write: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      };
+
+      const deps = createMockDeps({
+        storageAdapter: mockAdapter as never,
+      });
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const progress = createProgress();
+      progress.partialSaveEnabled = true;
+      progress.formOptions = {
+        partialSave: true,
+        partialSaveTTL: 86_400_000,
+        maxMilliseconds: 600_000,
+        allowCancel: true,
+        formId: 'test-form',
+        showProgress: true,
+        showConfirmation: true,
+      };
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      // Partial save data should be preserved — name was completed
+      expect(progress.formData).toHaveProperty('name', 'John');
+      // iterateFields does NOT delete partial save — that's form.runner's handleResult job
+      // So the storage adapter's delete should NOT have been called by iterateFields
+      expect(mockAdapter.delete).not.toHaveBeenCalled();
+    });
+
+    it('returns FORM_CANCELLED error with appropriate metadata', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi
+          .fn()
+          .mockResolvedValue(ok({ callback_query: { data: 'ie:test-form:0:__cancel__' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      progress.formOptions = {
+        partialSave: false,
+        partialSaveTTL: 86_400_000,
+        maxMilliseconds: 600_000,
+        allowCancel: true,
+        formId: 'test-form',
+        showProgress: true,
+        showConfirmation: true,
+      };
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      const error = result._unsafeUnwrapErr();
+      expect(error.code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      expect(error.details).toMatchObject({
+        reason: 'user_cancel',
+        fieldName: 'name',
+      });
+    });
+  });
 });
