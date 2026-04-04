@@ -438,9 +438,95 @@ describe('IntentRouter', () => {
       expect(sdkTool.description).toBe('Test tool for conversion');
 
       // Execute the SDK tool's execute function — it should call the original tool
+      // Note: truncateToolOutput stringifies non-string output
       const executeResult = await sdkTool.execute({ query: 'test' });
       expect(executeFn).toHaveBeenCalledWith({ query: 'test' });
-      expect(executeResult).toEqual({ data: 'result' });
+      expect(executeResult).toBe(JSON.stringify({ data: 'result' }));
+    });
+  });
+
+  describe('output truncation (Phase 2)', () => {
+    it('truncates tool output when tool has maxOutputChars', async () => {
+      const longResult = 'x'.repeat(500);
+      const tool = createMockTool({
+        name: 'long-output-tool',
+        maxOutputChars: 100,
+        execute: vi.fn(async () => ok(longResult)),
+      });
+      const caslFilter = createMockCASLFilter([tool]);
+      const deps = createDefaultDeps({ caslFilter: caslFilter as never });
+      const router = new IntentRouter(deps);
+      const options = createDefaultRouteOptions();
+
+      mockGenerateText.mockImplementation(async (callOpts: Record<string, unknown>) => {
+        const tools = callOpts.tools as Record<
+          string,
+          { execute: (params: unknown) => Promise<unknown> }
+        >;
+        const result = await tools['long-output-tool'].execute({});
+        expect(typeof result).toBe('string');
+        expect((result as string).length).toBeLessThanOrEqual(100);
+        expect(result as string).toContain('...[truncated');
+        return defaultGenerateTextResult();
+      });
+
+      await router.route(options);
+      expect(mockGenerateText).toHaveBeenCalledOnce();
+    });
+
+    it('uses global default when tool has no maxOutputChars', async () => {
+      const longResult = 'y'.repeat(5000);
+      const tool = createMockTool({
+        name: 'default-limit-tool',
+        execute: vi.fn(async () => ok(longResult)),
+      });
+      const caslFilter = createMockCASLFilter([tool]);
+      const deps = createDefaultDeps({
+        caslFilter: caslFilter as never,
+        config: { defaultMaxOutputChars: 200 } as never,
+      });
+      const router = new IntentRouter(deps);
+      const options = createDefaultRouteOptions();
+
+      mockGenerateText.mockImplementation(async (callOpts: Record<string, unknown>) => {
+        const tools = callOpts.tools as Record<
+          string,
+          { execute: (params: unknown) => Promise<unknown> }
+        >;
+        const result = await tools['default-limit-tool'].execute({});
+        expect(typeof result).toBe('string');
+        expect((result as string).length).toBeLessThanOrEqual(200);
+        return defaultGenerateTextResult();
+      });
+
+      await router.route(options);
+      expect(mockGenerateText).toHaveBeenCalledOnce();
+    });
+
+    it('does not truncate when output is under limit', async () => {
+      const shortResult = 'short';
+      const tool = createMockTool({
+        name: 'short-output-tool',
+        maxOutputChars: 1000,
+        execute: vi.fn(async () => ok(shortResult)),
+      });
+      const caslFilter = createMockCASLFilter([tool]);
+      const deps = createDefaultDeps({ caslFilter: caslFilter as never });
+      const router = new IntentRouter(deps);
+      const options = createDefaultRouteOptions();
+
+      mockGenerateText.mockImplementation(async (callOpts: Record<string, unknown>) => {
+        const tools = callOpts.tools as Record<
+          string,
+          { execute: (params: unknown) => Promise<unknown> }
+        >;
+        const result = await tools['short-output-tool'].execute({});
+        expect(result).toBe('short');
+        return defaultGenerateTextResult();
+      });
+
+      await router.route(options);
+      expect(mockGenerateText).toHaveBeenCalledOnce();
     });
   });
 

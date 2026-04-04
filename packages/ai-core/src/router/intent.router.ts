@@ -2,7 +2,8 @@ import { generateText, stepCountIs } from 'ai';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { AITool } from '../ai-core.types.js';
+import type { AITool, AIConfig } from '../ai-core.types.js';
+import { truncateToolOutput } from '../tools/output-limiter.util.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
 import type { CASLToolFilter } from '../tools/casl-tool.filter.js';
 import type {
@@ -47,6 +48,7 @@ export interface IntentRouterDeps {
   ragPipeline: RAGPipeline;
   auditService: AuditService;
   logger: AILogger;
+  config?: AIConfig;
 }
 
 /** Options for the route method (max-params=3 compliance) */
@@ -236,7 +238,8 @@ export class IntentRouter {
           if (result.isErr()) {
             throw result.error;
           }
-          return result.value;
+          const maxChars = tool.maxOutputChars ?? this.deps.config?.defaultMaxOutputChars ?? 4_000;
+          return truncateToolOutput(result.value, maxChars);
         },
       };
     }
