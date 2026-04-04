@@ -18,6 +18,7 @@ export const INPUT_ENGINE_ERRORS = {
   FIELD_PARSE_FAILED: 'input-engine.field.parse_failed',
   FIELD_RENDER_FAILED: 'input-engine.field.render_failed',
   FIELD_TYPE_UNKNOWN: 'input-engine.field.type_unknown',
+  NAVIGATE_BACK: 'input-engine.field.navigate_back',
 
   // Partial save errors
   PARTIAL_SAVE_FAILED: 'input-engine.partial_save.failed',

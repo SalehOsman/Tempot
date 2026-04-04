@@ -9,6 +9,7 @@ import type { EventEmitterDeps } from './event.emitter.js';
 import type { FieldMetadata } from '../input-engine.types.js';
 import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import { saveFieldProgress } from './partial-save.helper.js';
+import { navigateBack } from './back-navigation.helper.js';
 import type { FormRunnerDeps } from './form.runner.js';
 import type { FormRunnerInput, FormProgress } from './form.runner.js';
 
@@ -137,6 +138,45 @@ function getFieldMetadata(schema: z.ZodType): FieldMetadata {
   return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
 }
 
+/** Bundled params for handleFieldSuccess to stay within max-params */
+interface FieldSuccessParams {
+  deps: FormRunnerDeps;
+  progress: FormProgress;
+  ctx: FieldContext;
+  value: unknown;
+}
+
+/** Handle a successful field result: update progress and emit event */
+async function handleFieldSuccess(params: FieldSuccessParams): Promise<void> {
+  const { deps, progress, ctx, value } = params;
+  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
+  progress.formData[ctx.fieldName] = value;
+  progress.fieldsCompleted++;
+  progress.completedFieldNames.push(ctx.fieldName);
+  await maybeSaveProgress(deps, progress);
+
+  await emitEvent(evDeps, 'input-engine.field.validated', {
+    formId: progress.formId,
+    userId: deps.userId,
+    fieldType: ctx.metadata.fieldType,
+    fieldName: ctx.fieldName,
+    valid: true,
+    retryCount: ctx.retryCount,
+  });
+}
+
+/** Check if the form deadline has been exceeded */
+function checkDeadline(progress: FormProgress): AppError | undefined {
+  if (Date.now() - progress.startTime > progress.maxMilliseconds) {
+    return new AppError(INPUT_ENGINE_ERRORS.FORM_TIMEOUT, {
+      formId: progress.formId,
+      elapsedMs: Date.now() - progress.startTime,
+      maxMs: progress.maxMilliseconds,
+    });
+  }
+  return undefined;
+}
+
 /** Iterate all schema fields, processing each one */
 export async function iterateFields(
   input: FormRunnerInput,
@@ -144,29 +184,26 @@ export async function iterateFields(
   progress: FormProgress,
 ): AsyncResult<void, AppError> {
   const fieldNames = Object.keys(input.schema.shape);
-  const evDeps: EventEmitterDeps = { eventBus: deps.eventBus, logger: deps.logger };
   progress.totalFields = fieldNames.length;
 
-  for (let i = 0; i < fieldNames.length; i++) {
-    const fieldName = fieldNames[i]!;
-    // Deadline check
-    if (Date.now() - progress.startTime > progress.maxMilliseconds) {
-      return err(
-        new AppError(INPUT_ENGINE_ERRORS.FORM_TIMEOUT, {
-          formId: progress.formId,
-          elapsedMs: Date.now() - progress.startTime,
-          maxMs: progress.maxMilliseconds,
-        }),
-      );
-    }
+  let index = 0;
+  while (index < fieldNames.length) {
+    const fieldName = fieldNames[index]!;
 
-    if (progress.completedFieldNames.includes(fieldName)) continue;
+    const deadlineErr = checkDeadline(progress);
+    if (deadlineErr) return err(deadlineErr);
+
+    if (progress.completedFieldNames.includes(fieldName)) {
+      index++;
+      continue;
+    }
 
     const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
     const metadata = getFieldMetadata(fieldSchema);
 
     if (!shouldRenderField(metadata, progress.formData)) {
       deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
+      index++;
       continue;
     }
 
@@ -174,26 +211,28 @@ export async function iterateFields(
       fieldName,
       metadata,
       fieldSchema,
-      fieldIndex: i,
+      fieldIndex: index,
     });
     if (ctxOrErr instanceof AppError) return err(ctxOrErr);
 
     const result = await processField(input, ctxOrErr, deps);
+
+    if (result.isErr() && result.error.code === INPUT_ENGINE_ERRORS.NAVIGATE_BACK) {
+      index = navigateBack({
+        currentIndex: index,
+        fieldNames,
+        progress,
+        schema: input.schema,
+        deps,
+      });
+      await maybeSaveProgress(deps, progress);
+      continue;
+    }
+
     if (result.isErr()) return err(result.error);
 
-    progress.formData[fieldName] = result.value;
-    progress.fieldsCompleted++;
-    progress.completedFieldNames.push(fieldName);
-    await maybeSaveProgress(deps, progress);
-
-    await emitEvent(evDeps, 'input-engine.field.validated', {
-      formId: progress.formId,
-      userId: deps.userId,
-      fieldType: metadata.fieldType,
-      fieldName,
-      valid: true,
-      retryCount: ctxOrErr.retryCount,
-    });
+    await handleFieldSuccess({ deps, progress, ctx: ctxOrErr, value: result.value });
+    index++;
   }
 
   return ok(undefined);
