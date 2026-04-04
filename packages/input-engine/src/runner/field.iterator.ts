@@ -88,11 +88,13 @@ async function processFieldStep(params: IterationStepParams): AsyncResult<number
     return ok(index + 1);
   }
 
+  const previousValue = progress.formData[fieldName];
   const ctxOrErr = buildFieldContext(deps, progress, {
     fieldName,
     metadata,
     fieldSchema,
     fieldIndex: index,
+    previousValue,
   });
   if (ctxOrErr instanceof AppError) return err(ctxOrErr);
 

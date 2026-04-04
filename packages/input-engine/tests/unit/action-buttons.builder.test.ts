@@ -149,6 +149,48 @@ describe('buildActionButtons', () => {
     });
   });
 
+  describe('Keep current button', () => {
+    it('shows Keep current button when hasPreviousValue is true', () => {
+      const ctx = makeContext({
+        isFirstField: false,
+        hasPreviousValue: true,
+      });
+      const rows = buildActionButtons(ctx, t);
+
+      const allButtons = rows.flatMap((row) => row.buttons);
+      const keepBtn = allButtons.find((btn) =>
+        btn.callbackData.includes(ACTION_CALLBACKS.KEEP_CURRENT),
+      );
+      expect(keepBtn).toBeDefined();
+      expect(keepBtn!.text).toBe('input-engine.actions.keep_current');
+    });
+
+    it('does NOT show Keep current button when hasPreviousValue is false', () => {
+      const ctx = makeContext({
+        isFirstField: false,
+        hasPreviousValue: false,
+      });
+      const rows = buildActionButtons(ctx, t);
+
+      const allButtons = rows.flatMap((row) => row.buttons);
+      const keepBtn = allButtons.find((btn) =>
+        btn.callbackData.includes(ACTION_CALLBACKS.KEEP_CURRENT),
+      );
+      expect(keepBtn).toBeUndefined();
+    });
+
+    it('does NOT show Keep current button when hasPreviousValue is undefined', () => {
+      const ctx = makeContext({ isFirstField: false });
+      const rows = buildActionButtons(ctx, t);
+
+      const allButtons = rows.flatMap((row) => row.buttons);
+      const keepBtn = allButtons.find((btn) =>
+        btn.callbackData.includes(ACTION_CALLBACKS.KEEP_CURRENT),
+      );
+      expect(keepBtn).toBeUndefined();
+    });
+  });
+
   describe('row structure', () => {
     it('returns empty array when no buttons are needed', () => {
       const ctx = makeContext({

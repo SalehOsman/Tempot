@@ -9,6 +9,7 @@ export interface RenderContext {
   formData: Record<string, unknown>;
   formId: string;
   fieldIndex: number;
+  previousValue?: unknown; // Populated during back navigation
 }
 
 /** Interface that every field type handler implements */

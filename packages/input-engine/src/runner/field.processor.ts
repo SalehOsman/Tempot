@@ -22,6 +22,7 @@ export interface FieldContext {
   formId: string;
   fieldIndex: number;
   allowCancel: boolean;
+  previousValue?: unknown;
 }
 
 /** Resolve the response context: render, try renderPrompt fallback, fallback to input.ctx */
@@ -36,6 +37,7 @@ async function resolveResponseCtx(
     formData: ctx.formData,
     formId: ctx.formId,
     fieldIndex: ctx.fieldIndex,
+    previousValue: ctx.previousValue,
   };
   const rr = await ctx.handler.render(renderCtx, ctx.metadata);
   if (rr.isErr()) return err(rr.error);
@@ -69,6 +71,17 @@ function isCancelSignal(response: unknown): boolean {
   return false;
 }
 
+/** Detect keep-current signal from user response */
+function isKeepCurrentSignal(response: unknown): boolean {
+  if (response === null || response === undefined) return false;
+  const msg = response as Record<string, unknown>;
+  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
+  if (cbQuery?.['data'] && typeof cbQuery['data'] === 'string') {
+    if (cbQuery['data'].includes(ACTION_CALLBACKS.KEEP_CURRENT)) return true;
+  }
+  return false;
+}
+
 /** Try to parse and validate a user response; returns ok(value) or err */
 function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unknown, AppError> {
   const { metadata, fieldSchema } = ctx;
@@ -98,6 +111,11 @@ export async function processField(
           fieldName: ctx.fieldName,
         }),
       );
+    }
+
+    if (isKeepCurrentSignal(rr.value) && ctx.previousValue !== undefined) {
+      ctx.retryCount = 0;
+      return ok(ctx.previousValue);
     }
 
     const vr = tryParseAndValidate(rr.value, ctx);
@@ -135,6 +153,7 @@ interface FieldBuildParams {
   metadata: FieldMetadata;
   fieldSchema: z.ZodType;
   fieldIndex: number;
+  previousValue?: unknown;
 }
 
 /** Build FieldContext for a given field, or error if handler missing */
@@ -165,5 +184,6 @@ export function buildFieldContext(
     formId: progress.formId,
     fieldIndex: params.fieldIndex,
     allowCancel: progress.formOptions?.allowCancel ?? true,
+    previousValue: params.previousValue,
   };
 }

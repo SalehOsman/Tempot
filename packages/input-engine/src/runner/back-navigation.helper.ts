@@ -60,11 +60,10 @@ export function navigateBack(params: NavigateBackParams): number {
       continue;
     }
 
-    // Found the target — remove it from completed
+    // Found the target — remove it from completed (keep formData for previousValue)
     if (progress.completedFieldNames.includes(targetField)) {
       const idx = progress.completedFieldNames.indexOf(targetField);
       progress.completedFieldNames.splice(idx, 1);
-      delete progress.formData[targetField];
       progress.fieldsCompleted = Math.max(0, progress.fieldsCompleted - 1);
     }
 

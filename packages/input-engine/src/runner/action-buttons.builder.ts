@@ -15,6 +15,7 @@ export interface ActionButtonContext {
   isOptional: boolean;
   isFirstField: boolean;
   allowCancel: boolean;
+  hasPreviousValue?: boolean;
 }
 
 /** A row of action buttons */
@@ -49,6 +50,13 @@ export function buildActionButtons(
     navButtons.push({
       text: t('input-engine.actions.skip'),
       callbackData: encodeFormCallback(ctx.formId, ctx.fieldIndex, ACTION_CALLBACKS.SKIP),
+    });
+  }
+
+  if (ctx.hasPreviousValue) {
+    navButtons.push({
+      text: t('input-engine.actions.keep_current'),
+      callbackData: encodeFormCallback(ctx.formId, ctx.fieldIndex, ACTION_CALLBACKS.KEEP_CURRENT),
     });
   }
 

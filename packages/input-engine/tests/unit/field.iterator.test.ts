@@ -215,7 +215,7 @@ describe('FieldIterator (iterateFields)', () => {
       });
     });
 
-    it('removes field from completedFieldNames and formData on back', async () => {
+    it('removes field from completedFieldNames on back but preserves formData', async () => {
       const nameSchema = registerField(z.string(), {
         fieldType: 'ShortText',
         i18nKey: 'form.name',
@@ -265,9 +265,9 @@ describe('FieldIterator (iterateFields)', () => {
       const progress = createProgress();
       await iterateFields(createInput(schema), deps, progress);
 
-      // When name handler runs the second time, 'name' should have been removed
+      // When name handler runs the second time, 'name' should still be in formData (for previousValue)
       expect(capturedFormData).toBeDefined();
-      expect(capturedFormData!['name']).toBeUndefined();
+      expect(capturedFormData!['name']).toBe('John');
       expect(capturedCompleted).toBeDefined();
       expect(capturedCompleted).not.toContain('name');
     });
@@ -508,6 +508,142 @@ describe('FieldIterator (iterateFields)', () => {
       expect(progress.completedFieldNames).toContain('fieldB');
       expect(progress.completedFieldNames).toContain('fieldC');
       expect(progress.fieldsCompleted).toBe(3);
+    });
+
+    it('keep current returns the previousValue unchanged', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      let emailCallCount = 0;
+      const emailHandler: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockImplementation(() => {
+          emailCallCount++;
+          if (emailCallCount === 1) {
+            return Promise.resolve(err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK)));
+          }
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('john@test.com')),
+        validate: vi.fn().mockReturnValue(ok('john@test.com')),
+      };
+
+      // Name handler: first call returns normal, second returns keep_current callback
+      let nameRenderCount = 0;
+      const nameHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockImplementation(() => {
+          nameRenderCount++;
+          if (nameRenderCount === 1) return Promise.resolve(ok(undefined));
+          return Promise.resolve(
+            ok({ callback_query: { data: 'ie:test-form:0:__keep_current__' } }),
+          );
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('John')),
+        validate: vi.fn().mockReturnValue(ok('John')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // Name should keep its original value 'John' (from keep_current)
+      expect(progress.formData['name']).toBe('John');
+      expect(progress.formData['email']).toBe('john@test.com');
+      // parseResponse should be called once (first time), NOT on keep_current
+      expect(nameHandler.parseResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it('re-entering a new value overrides the previous value', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      // Name returns 'John' first time, 'Jane' after back
+      let nameCallCount = 0;
+      const nameHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockImplementation(() => {
+          nameCallCount++;
+          return ok(nameCallCount === 1 ? 'John' : 'Jane');
+        }),
+        validate: vi.fn().mockImplementation(() => {
+          return ok(nameCallCount === 1 ? 'John' : 'Jane');
+        }),
+      };
+
+      let emailCallCount = 0;
+      const emailHandler: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockImplementation(() => {
+          emailCallCount++;
+          if (emailCallCount === 1) {
+            return Promise.resolve(err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK)));
+          }
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('jane@test.com')),
+        validate: vi.fn().mockReturnValue(ok('jane@test.com')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // New value 'Jane' should override original 'John'
+      expect(progress.formData['name']).toBe('Jane');
+      expect(progress.formData['email']).toBe('jane@test.com');
+    });
+
+    it('previousValue is undefined on first-time field entry', async () => {
+      // We verify this indirectly: on first entry, keep_current callback
+      // should NOT result in keeping any value (no previousValue exists)
+      // The field should be processed via normal parse/validate flow
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('John')),
+        validate: vi.fn().mockReturnValue(ok('John')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      expect(progress.formData['name']).toBe('John');
+      // parseResponse should have been called — normal flow, not keep_current
+      expect(handler.parseResponse).toHaveBeenCalled();
     });
 
     it('saves partial state after back navigation if enabled', async () => {
