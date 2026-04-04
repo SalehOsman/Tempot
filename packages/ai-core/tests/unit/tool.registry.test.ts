@@ -184,6 +184,135 @@ describe('ToolRegistry', () => {
     });
   });
 
+  describe('getByGroup', () => {
+    it('returns only tools matching the group', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+      registry.register(createMockTool({ name: 'b', group: 'cms' }));
+      registry.register(createMockTool({ name: 'c', group: 'search' }));
+
+      const result = registry.getByGroup('cms');
+
+      expect(result).toHaveLength(2);
+      expect(result.map((t) => t.name)).toEqual(['a', 'b']);
+    });
+
+    it('returns empty array for unknown group', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+
+      const result = registry.getByGroup('unknown');
+
+      expect(result).toEqual([]);
+    });
+
+    it('returns paginated result when options provided', () => {
+      for (let i = 0; i < 5; i++) {
+        registry.register(createMockTool({ name: `tool-${i}`, group: 'bulk' }));
+      }
+
+      const result = registry.getByGroup('bulk', { pageSize: 2, page: 1 });
+
+      expect(result.items).toHaveLength(2);
+      expect(result.total).toBe(5);
+      expect(result.totalPages).toBe(3);
+    });
+  });
+
+  describe('getByGroups', () => {
+    it('returns tools matching any of the provided groups', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+      registry.register(createMockTool({ name: 'b', group: 'search' }));
+      registry.register(createMockTool({ name: 'c', group: 'auth' }));
+
+      const result = registry.getByGroups(['cms', 'search']);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((t) => t.name).sort()).toEqual(['a', 'b']);
+    });
+
+    it('excludes tools without group property', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+      registry.register(createMockTool({ name: 'b' })); // no group
+
+      const result = registry.getByGroups(['cms']);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('a');
+    });
+
+    it('returns empty array when no tools match any group', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+
+      const result = registry.getByGroups(['search', 'auth']);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getGroups', () => {
+    it('returns sorted distinct group names', () => {
+      registry.register(createMockTool({ name: 'a', group: 'cms' }));
+      registry.register(createMockTool({ name: 'b', group: 'search' }));
+      registry.register(createMockTool({ name: 'c', group: 'cms' }));
+      registry.register(createMockTool({ name: 'd' })); // no group
+
+      const groups = registry.getGroups();
+
+      expect(groups).toEqual(['cms', 'search']);
+    });
+
+    it('returns empty array when no tools have groups', () => {
+      registry.register(createMockTool({ name: 'a' }));
+      registry.register(createMockTool({ name: 'b' }));
+
+      const groups = registry.getGroups();
+
+      expect(groups).toEqual([]);
+    });
+  });
+
+  describe('getAll with pagination', () => {
+    it('returns paginated result when options provided', () => {
+      for (let i = 0; i < 5; i++) {
+        registry.register(createMockTool({ name: `tool-${i}` }));
+      }
+
+      const result = registry.getAll({ pageSize: 2, page: 2 });
+
+      expect(result.items).toHaveLength(2);
+      expect(result.total).toBe(5);
+      expect(result.page).toBe(2);
+    });
+
+    it('returns all tools as array when no options', () => {
+      registry.register(createMockTool({ name: 'a' }));
+      registry.register(createMockTool({ name: 'b' }));
+
+      const result = registry.getAll();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe('tools without group', () => {
+    it('excludes tools without group from getByGroup queries', () => {
+      registry.register(createMockTool({ name: 'grouped', group: 'cms' }));
+      registry.register(createMockTool({ name: 'ungrouped' })); // no group
+
+      const byGroup = registry.getByGroup('cms');
+      expect(byGroup).toHaveLength(1);
+      expect(byGroup[0].name).toBe('grouped');
+    });
+
+    it('includes tools without group in getAll', () => {
+      registry.register(createMockTool({ name: 'grouped', group: 'cms' }));
+      registry.register(createMockTool({ name: 'ungrouped' }));
+
+      const all = registry.getAll();
+      expect(all).toHaveLength(2);
+    });
+  });
+
   describe('full module replace (design doc Concern 2)', () => {
     it('removes old tools when module re-registers with a new set', () => {
       const handler = eventBus.handlers.get('module.tools.registered');
