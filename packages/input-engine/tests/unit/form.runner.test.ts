@@ -55,12 +55,13 @@ function createMockDeps(overrides?: Partial<FormRunnerDeps>): FormRunnerDeps {
   };
 }
 
-/** Create a FormRunnerInput for a given schema */
+/** Create a FormRunnerInput for a given schema (showConfirmation: false to isolate field tests) */
 function createInput(schema: z.ZodObject<z.ZodRawShape>): FormRunnerInput {
   return {
     conversation: {},
     ctx: { message: { text: 'mock-input' } },
     schema,
+    options: { showConfirmation: false },
   };
 }
 
@@ -354,7 +355,7 @@ describe('FormRunner (runForm)', () => {
 
     const input: FormRunnerInput = {
       ...createInput(schema),
-      options: { formId: 'my-form-123' },
+      options: { formId: 'my-form-123', showConfirmation: false },
     };
     await runForm(input, deps);
 
@@ -419,7 +420,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -473,7 +474,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       const result = await runForm<{ name: string; email: string }>(input, deps);
 
@@ -514,7 +515,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -549,7 +550,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -578,7 +579,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -610,7 +611,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'ps-form' },
+        options: { partialSave: true, formId: 'ps-form', showConfirmation: false },
       };
       const result = await runForm(input, deps);
 
@@ -651,7 +652,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { formId: 'timeout-form' },
+        options: { formId: 'timeout-form', showConfirmation: false },
       };
       const result = await runForm(input, deps);
 
@@ -687,7 +688,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { formId: 'timeout-form' },
+        options: { formId: 'timeout-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -739,7 +740,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { partialSave: true, formId: 'timeout-form' },
+        options: { partialSave: true, formId: 'timeout-form', showConfirmation: false },
       };
       const result = await runForm(input, deps);
 
@@ -825,7 +826,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { formId: 'rp-test' },
+        options: { formId: 'rp-test', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -955,7 +956,7 @@ describe('FormRunner (runForm)', () => {
 
       const input: FormRunnerInput = {
         ...createInput(schema),
-        options: { formId: 'render-test-form' },
+        options: { formId: 'render-test-form', showConfirmation: false },
       };
       await runForm(input, deps);
 
@@ -1028,6 +1029,33 @@ describe('FormRunner (runForm)', () => {
       };
       expect(progress.formOptions).toBeDefined();
       expect(progress.formOptions!.showProgress).toBe(true);
+    });
+  });
+
+  describe('confirmation step integration', () => {
+    it('skips confirmation when showConfirmation is false', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const deps = createMockDeps();
+      deps.registry.register(createMockHandler('ShortText', 'John'));
+
+      const input: FormRunnerInput = {
+        conversation: {},
+        ctx: { message: { text: 'mock-input' } },
+        schema,
+        options: { showConfirmation: false },
+      };
+
+      const result = await runForm<{ name: string }>(input, deps);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value).toEqual({ name: 'John' });
+      }
     });
   });
 });

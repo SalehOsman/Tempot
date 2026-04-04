@@ -26,6 +26,7 @@ import type { FieldHandlerRegistry, RenderContext } from '../fields/field.handle
 import type { ConversationsStorageAdapter } from '../storage/conversations-storage.adapter.js';
 import { buildStorageKey, restorePartialSave, deletePartialSave } from './partial-save.helper.js';
 import { iterateFields } from './field.iterator.js';
+import { handleConfirmationLoop } from './confirmation.handler.js';
 
 /** Dependencies injected into the FormRunner */
 export interface FormRunnerDeps {
@@ -201,6 +202,13 @@ async function runFormInternal<T>(
   await emitFormStarted(evDeps, { formId, userId: deps.userId, chatId: deps.chatId, fieldCount });
   await tryRestore(deps, progress, evDeps);
   const loopResult = await iterateFields(input, deps, progress);
+
+  if (loopResult.isOk() && merged.showConfirmation) {
+    const confirmResult = await handleConfirmationLoop(input, deps, progress);
+    if (confirmResult.isErr()) {
+      return handleResult<T>(err(confirmResult.error), { deps, progress, evDeps, merged });
+    }
+  }
 
   return handleResult<T>(loopResult, { deps, progress, evDeps, merged });
 }

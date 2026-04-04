@@ -104,6 +104,12 @@ export { SchedulePickerFieldHandler } from './fields/time-place/schedule-picker.
 export { SchemaValidator } from './runner/schema.validator.js';
 export type { FormRunnerDeps, FormRunnerInput } from './runner/form.runner.js';
 export { runForm } from './runner/form.runner.js';
+export {
+  formatFieldValue,
+  buildConfirmationSummary,
+  CONFIRMATION_ACTIONS,
+} from './runner/confirmation.renderer.js';
+export { handleConfirmationLoop } from './runner/confirmation.handler.js';
 
 // Utils
 export type { FormCallbackData } from './utils/callback-data.helper.js';
