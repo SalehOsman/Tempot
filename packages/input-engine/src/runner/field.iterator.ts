@@ -2,147 +2,15 @@ import { ok, err } from 'neverthrow';
 import { z } from 'zod';
 import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
-import { FIELD_SKIPPED_SENTINEL, type FieldMetadata } from '../input-engine.types.js';
+import { FIELD_SKIPPED_SENTINEL } from '../input-engine.types.js';
 import { shouldRenderField } from './condition.evaluator.js';
 import { emitEvent, type EventEmitterDeps } from './event.emitter.js';
-import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
-import { saveFieldProgress } from './partial-save.helper.js';
+import { maybeSaveProgress } from './partial-save.helper.js';
 import { navigateBack } from './back-navigation.helper.js';
 import { getFieldMetadata } from './field-metadata.util.js';
 import { handleFieldSkip } from './field-skip.helper.js';
+import { processField, buildFieldContext, type FieldContext } from './field.processor.js';
 import type { FormRunnerDeps, FormRunnerInput, FormProgress } from './form.runner.js';
-
-const DEFAULT_MAX_RETRIES = 3;
-
-/** Internal context for processing a single field */
-interface FieldContext {
-  handler: FieldHandler;
-  metadata: FieldMetadata;
-  fieldSchema: z.ZodType;
-  fieldName: string;
-  maxRetries: number;
-  formData: Record<string, unknown>;
-  retryCount: number;
-  formId: string;
-  fieldIndex: number;
-}
-
-/** Resolve the response context: render, try renderPrompt fallback, fallback to input.ctx */
-async function resolveResponseCtx(
-  input: FormRunnerInput,
-  ctx: FieldContext,
-  deps: FormRunnerDeps,
-): AsyncResult<unknown, AppError> {
-  const renderCtx: RenderContext = {
-    conversation: input.conversation,
-    ctx: input.ctx,
-    formData: ctx.formData,
-    formId: ctx.formId,
-    fieldIndex: ctx.fieldIndex,
-  };
-  const rr = await ctx.handler.render(renderCtx, ctx.metadata);
-  if (rr.isErr()) return err(rr.error);
-
-  let responseCtx: unknown = rr.value;
-  if (responseCtx === undefined && deps.renderPrompt) {
-    const promptResult = await deps.renderPrompt(renderCtx, ctx.metadata);
-    if (promptResult.isErr()) return err(promptResult.error);
-    responseCtx = promptResult.value;
-  }
-  if (responseCtx === undefined) responseCtx = input.ctx;
-  return ok(responseCtx);
-}
-
-/** Process a single field: render, parse, validate with retry */
-async function processField(
-  input: FormRunnerInput,
-  ctx: FieldContext,
-  deps: FormRunnerDeps,
-): AsyncResult<unknown, AppError> {
-  const { metadata, fieldSchema, maxRetries } = ctx;
-  let retryCount = 0;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const rr = await resolveResponseCtx(input, ctx, deps);
-    if (rr.isErr()) return err(rr.error);
-
-    const pr = ctx.handler.parseResponse(rr.value, metadata);
-    if (pr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    const vr = ctx.handler.validate(pr.value, fieldSchema, metadata);
-    if (vr.isErr()) {
-      retryCount++;
-      continue;
-    }
-
-    ctx.retryCount = retryCount;
-    return ok(vr.value);
-  }
-
-  if (ctx.metadata.optional) {
-    ctx.retryCount = maxRetries;
-    return ok(FIELD_SKIPPED_SENTINEL);
-  }
-  return err(
-    new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
-      fieldName: ctx.fieldName,
-      fieldType: metadata.fieldType,
-      maxRetries,
-    }),
-  );
-}
-
-/** Save current field progress if partial save is enabled */
-async function maybeSaveProgress(deps: FormRunnerDeps, progress: FormProgress): Promise<void> {
-  if (!progress.partialSaveEnabled || !deps.storageAdapter) return;
-
-  await saveFieldProgress(
-    { storageAdapter: deps.storageAdapter, logger: deps.logger },
-    progress.storageKey,
-    {
-      formData: { ...progress.formData },
-      fieldsCompleted: progress.fieldsCompleted,
-      completedFieldNames: [...progress.completedFieldNames],
-    },
-  );
-}
-
-/** Params for building a field context */
-interface FieldBuildParams {
-  fieldName: string;
-  metadata: FieldMetadata;
-  fieldSchema: z.ZodType;
-  fieldIndex: number;
-}
-
-/** Build FieldContext for a given field, or error if handler missing */
-function buildFieldContext(
-  deps: FormRunnerDeps,
-  progress: FormProgress,
-  params: FieldBuildParams,
-): FieldContext | AppError {
-  const handler = deps.registry.get(params.metadata.fieldType);
-  if (!handler) {
-    return new AppError(INPUT_ENGINE_ERRORS.FIELD_TYPE_UNKNOWN, {
-      fieldName: params.fieldName,
-      fieldType: params.metadata.fieldType,
-    });
-  }
-  return {
-    handler,
-    metadata: params.metadata,
-    fieldSchema: params.fieldSchema,
-    fieldName: params.fieldName,
-    maxRetries: params.metadata.maxRetries ?? DEFAULT_MAX_RETRIES,
-    formData: progress.formData,
-    retryCount: 0,
-    formId: progress.formId,
-    fieldIndex: params.fieldIndex,
-  };
-}
 
 /** Bundled params for handleFieldSuccess to stay within max-params */
 interface FieldSuccessParams {
@@ -183,6 +51,60 @@ function checkDeadline(progress: FormProgress): AppError | undefined {
   return undefined;
 }
 
+/** Params for processing a single field within the iteration loop */
+interface IterationStepParams {
+  input: FormRunnerInput;
+  deps: FormRunnerDeps;
+  progress: FormProgress;
+  fieldNames: string[];
+  index: number;
+}
+
+/** Process one field and return the next index, or an error to abort */
+async function processFieldStep(params: IterationStepParams): AsyncResult<number, AppError> {
+  const { input, deps, progress, fieldNames, index } = params;
+  const fieldName = fieldNames[index]!;
+  const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
+  const metadata = getFieldMetadata(fieldSchema);
+
+  if (!shouldRenderField(metadata, progress.formData)) {
+    deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
+    return ok(index + 1);
+  }
+
+  const ctxOrErr = buildFieldContext(deps, progress, {
+    fieldName,
+    metadata,
+    fieldSchema,
+    fieldIndex: index,
+  });
+  if (ctxOrErr instanceof AppError) return err(ctxOrErr);
+
+  const result = await processField(input, ctxOrErr, deps);
+
+  if (result.isErr() && result.error.code === INPUT_ENGINE_ERRORS.NAVIGATE_BACK) {
+    const newIdx = navigateBack({
+      currentIndex: index,
+      fieldNames,
+      progress,
+      schema: input.schema,
+      deps,
+    });
+    await maybeSaveProgress(deps, progress);
+    return ok(newIdx);
+  }
+
+  if (result.isOk() && result.value === FIELD_SKIPPED_SENTINEL) {
+    await handleFieldSkip(deps, progress, ctxOrErr);
+    return ok(index + 1);
+  }
+
+  if (result.isErr()) return err(result.error);
+
+  await handleFieldSuccess({ deps, progress, ctx: ctxOrErr, value: result.value });
+  return ok(index + 1);
+}
+
 /** Iterate all schema fields, processing each one */
 export async function iterateFields(
   input: FormRunnerInput,
@@ -194,57 +116,17 @@ export async function iterateFields(
 
   let index = 0;
   while (index < fieldNames.length) {
-    const fieldName = fieldNames[index]!;
-
     const deadlineErr = checkDeadline(progress);
     if (deadlineErr) return err(deadlineErr);
 
-    if (progress.completedFieldNames.includes(fieldName)) {
+    if (progress.completedFieldNames.includes(fieldNames[index]!)) {
       index++;
       continue;
     }
 
-    const fieldSchema = input.schema.shape[fieldName] as z.ZodType;
-    const metadata = getFieldMetadata(fieldSchema);
-
-    if (!shouldRenderField(metadata, progress.formData)) {
-      deps.logger.debug({ msg: 'Skipping conditional field', formId: progress.formId, fieldName });
-      index++;
-      continue;
-    }
-
-    const ctxOrErr = buildFieldContext(deps, progress, {
-      fieldName,
-      metadata,
-      fieldSchema,
-      fieldIndex: index,
-    });
-    if (ctxOrErr instanceof AppError) return err(ctxOrErr);
-
-    const result = await processField(input, ctxOrErr, deps);
-
-    if (result.isErr() && result.error.code === INPUT_ENGINE_ERRORS.NAVIGATE_BACK) {
-      index = navigateBack({
-        currentIndex: index,
-        fieldNames,
-        progress,
-        schema: input.schema,
-        deps,
-      });
-      await maybeSaveProgress(deps, progress);
-      continue;
-    }
-
-    if (result.isOk() && result.value === FIELD_SKIPPED_SENTINEL) {
-      await handleFieldSkip(deps, progress, ctxOrErr);
-      index++;
-      continue;
-    }
-
-    if (result.isErr()) return err(result.error);
-
-    await handleFieldSuccess({ deps, progress, ctx: ctxOrErr, value: result.value });
-    index++;
+    const stepResult = await processFieldStep({ input, deps, progress, fieldNames, index });
+    if (stepResult.isErr()) return err(stepResult.error);
+    index = stepResult.value;
   }
 
   return ok(undefined);
