@@ -2,6 +2,7 @@ import { ok, err } from 'neverthrow';
 import { z } from 'zod';
 import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
+import type { FieldMetadata } from '../input-engine.types.js';
 import { FIELD_SKIPPED_SENTINEL } from '../input-engine.types.js';
 import { shouldRenderField } from './condition.evaluator.js';
 import { emitEvent, type EventEmitterDeps } from './event.emitter.js';
@@ -10,6 +11,7 @@ import { navigateBack } from './back-navigation.helper.js';
 import { getFieldMetadata } from './field-metadata.util.js';
 import { handleFieldSkip } from './field-skip.helper.js';
 import { processField, buildFieldContext, type FieldContext } from './field.processor.js';
+import { computeDynamicTotal, renderProgress } from './progress.renderer.js';
 import type { FormRunnerDeps, FormRunnerInput, FormProgress } from './form.runner.js';
 
 /** Bundled params for handleFieldSuccess to stay within max-params */
@@ -49,6 +51,20 @@ function checkDeadline(progress: FormProgress): AppError | undefined {
     });
   }
   return undefined;
+}
+
+/** Build a metadata map for all fields in the schema */
+function buildMetadataMap(
+  fieldNames: string[],
+  schema: z.ZodObject<z.ZodRawShape>,
+): Map<string, FieldMetadata> {
+  const map = new Map<string, FieldMetadata>();
+  for (const name of fieldNames) {
+    const fieldSchema = schema.shape[name] as z.ZodType;
+    const metadata = getFieldMetadata(fieldSchema);
+    if (metadata) map.set(name, metadata);
+  }
+  return map;
 }
 
 /** Params for processing a single field within the iteration loop */
@@ -113,6 +129,9 @@ export async function iterateFields(
 ): AsyncResult<void, AppError> {
   const fieldNames = Object.keys(input.schema.shape);
   progress.totalFields = fieldNames.length;
+  const progressMeta = progress.formOptions?.showProgress
+    ? buildMetadataMap(fieldNames, input.schema)
+    : undefined;
 
   let index = 0;
   while (index < fieldNames.length) {
@@ -122,6 +141,18 @@ export async function iterateFields(
     if (progress.completedFieldNames.includes(fieldNames[index]!)) {
       index++;
       continue;
+    }
+
+    if (progressMeta) {
+      const dynamicTotal = computeDynamicTotal({
+        fieldNames,
+        allMetadata: progressMeta,
+        formData: progress.formData,
+        shouldRenderFn: shouldRenderField,
+      });
+      const currentPos = progress.fieldsCompleted + 1;
+      const progressText = renderProgress(currentPos, dynamicTotal, deps.t);
+      deps.logger.debug({ msg: 'Progress', progressText, fieldName: fieldNames[index] });
     }
 
     const stepResult = await processFieldStep({ input, deps, progress, fieldNames, index });
