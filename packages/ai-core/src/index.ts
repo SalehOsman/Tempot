@@ -71,6 +71,8 @@ export type { ContentIngestionDeps, IngestOptions } from './content/content-inge
 export { RAGPipeline } from './rag/rag-pipeline.service.js';
 export type { RAGContext, RetrieveOptions } from './rag/rag-pipeline.service.js';
 export { ToolRegistry } from './tools/tool.registry.js';
+export { executeBatch } from './tools/batch-executor.js';
+export type { BatchExecutorDeps } from './tools/batch-executor.js';
 export { CASLToolFilter } from './tools/casl-tool.filter.js';
 export { ConfirmationEngine } from './confirmation/confirmation.engine.js';
 export type {
