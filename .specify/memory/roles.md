@@ -52,7 +52,7 @@ Version: 1.1.0
       - Updating `ROADMAP.md` (Rule LXXXIX)
       - Creating changesets via `pnpm changeset` (Rule LXI)
       - Updating ADR README index if a new ADR was created (Rule XLIV)
-      - Updating `CLAUDE.md` tech stack if a new dependency was added
+      - Updating context file (`CLAUDE.md`) tech stack if a new dependency was added
       - Updating architecture spec (`docs/tempot_v11_final.md`) if architectural patterns changed
         No prompt is complete without this phase. Omitting it is a violation of Rule L.
 

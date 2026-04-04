@@ -18,7 +18,7 @@ Combined with **superpowers** for the execution phase, this creates an 11-step l
 - No code enters the codebase without an approved `spec.md`
 - Every architectural decision is documented before implementation
 - TDD is structurally enforced (tests before code)
-- The `pnpm generate:module` CLI refuses to run without an approved spec
+- Module creation requires an approved `spec.md` before any code is written (Constitution Rule XLVI)
 - Consistent documentation across all contributions
 
 ## Alternatives Rejected

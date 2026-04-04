@@ -158,9 +158,11 @@ Implemented via Prisma `$extends()` — never middleware. BaseEntity fields: `id
 
 ### XXIX. Rate Limiting
 
-- Bot: `@grammyjs/ratelimiter` (official grammY plugin)
-- API: `rate-limiter-flexible` for Hono Dashboard/Mini App
-- ADR-020
+Three layers, each with its own library:
+
+- **Bot (inbound):** `@grammyjs/ratelimiter` — per-user Telegram message throttling (ADR-020)
+- **Application-level:** `rate-limiter-flexible` — per-user rate limiting for AI, services, and internal APIs (ADR-020)
+- **HTTP middleware:** `hono-rate-limiter` — request-level rate limiting for Hono Dashboard/Mini App endpoints (ADR-030)
 
 ### XXX. Input Sanitization
 
@@ -201,7 +203,7 @@ RED → GREEN → REFACTOR cycle is non-negotiable. Tests are written BEFORE imp
 
 - Unit Tests: 70% (Vitest)
 - Integration Tests: 20% (Vitest + Testcontainers)
-- E2E Tests: 10% (Vitest + grammY Test)
+- E2E Tests: 10% (Vitest + custom mock context via createMockContext in ux-helpers)
 
 ### XXXVI. Coverage Thresholds
 
@@ -268,7 +270,7 @@ ADR required for any substitution from the tech stack defined in `tempot_v11_fin
 
 ### XLVI. Module Creation Gate
 
-CLI Generator (`pnpm generate:module`) refuses to run without an approved `spec.md`. No module exists without specification.
+No module exists without an approved specification. `spec.md` with all clarifications resolved MUST exist before any module code is written. This is enforced by the Handoff Gate (Rule LXXIX) and code review.
 
 ### XLVII. Technical Contracts
 
@@ -297,7 +299,7 @@ Claude Code and Gemini CLI are both supported. `superpowers` plugin is MANDATORY
 
 Code MUST match documentation and documentation MUST match code. This is bidirectional — not one-way:
 
-1. **Code → Docs:** No code change enters `main` without updating ALL affected documentation artifacts. "Affected" includes: SpecKit artifacts (`spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`), `ROADMAP.md`, ADR README index, architecture spec (`docs/tempot_v11_final.md`), `CLAUDE.md` tech stack, and CHANGELOG via Changesets.
+1. **Code → Docs:** No code change enters `main` without updating ALL affected documentation artifacts. "Affected" includes: SpecKit artifacts (`spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`), `ROADMAP.md`, ADR README index, architecture spec (`docs/tempot_v11_final.md`), context file (`CLAUDE.md`) tech stack, and CHANGELOG via Changesets.
 2. **Docs → Code:** No documentation change enters `main` without verifying the code still matches the updated documentation.
 3. **Automated checks:** Two mandatory gates after any artifact update: (a) `/speckit.analyze` verifies internal consistency between SpecKit artifacts (spec ↔ plan ↔ tasks ↔ data-model), and (b) `pnpm spec:validate` verifies spec→code alignment. Both must pass. Manual verification is STILL REQUIRED for ADR index, ROADMAP, architecture spec, and CLAUDE.md alignment.
 4. **Scope:** This applies to ALL change types — new features, bugfixes, refactors, and dependency updates. No exceptions.
@@ -380,7 +382,7 @@ Every package, module, and architectural decision documented from day one. No un
 
 ### LXII. Documentation Tools
 
-- Docusaurus for developer docs + end-user guide
+- Docusaurus for developer docs + end-user guide (planned — not yet set up)
 - JSDoc/TSDoc for all public APIs
 - TypeDoc for auto-generated API reference
 - All documentation in English
@@ -635,7 +637,7 @@ For P0/P1 production bugs only:
 
 ### LXXXVIII. Retroactive Compliance
 
-Packages built before this methodology was ratified (database, shared, logger, event-bus, auth-core, session-manager) must be brought into compliance: generate missing `tasks.md`, create missing design docs, run code review.
+Packages built before this methodology was ratified (database, shared, logger, event-bus, auth-core) must be brought into compliance: generate missing `tasks.md`, create missing design docs, run code review.
 
 ### LXXXIX. Roadmap Tracking
 
@@ -643,6 +645,7 @@ Packages built before this methodology was ratified (database, shared, logger, e
 
 ---
 
-**Version**: 2.2.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-26
+**Version**: 2.3.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-05
+**Amendment 2.3.0**: Phase 1A.2 documentation cleanup — removed phantom `pnpm generate:module` references (Rule XLVI rewritten), clarified rate limiting layers (Rule XXIX), fixed grammY Test reference (Rule XXXV), marked Docusaurus as planned (Rule LXII), removed session-manager from pre-methodology list (Rule LXXXVIII), updated Rule L wording. Total: 88 rules (+ 1 reserved).
 **Amendment 2.2.0**: Renumbered Development Methodology from L–LX to LXXIX–LXXXIX, eliminating duplicate numbering with Governance/Observability sections. Added reserved placeholders at L and LI. Total: 87 rules (+ 2 reserved).
 **Amendment 2.1.0**: Added Package Quality section (Rules LXXI–LXXVIII). Strengthened Rule XXI to cover all public APIs. Root cause: retroactive compliance review of pre-methodology packages revealed systematic build setup and code quality gaps.

@@ -82,7 +82,7 @@ Planned scope:
 
 1. **module-registry** — Full SpecKit + Superpowers cycle (currently README placeholder only)
 2. **bot-server reconstruction** — Replace 72-line prototype with production assembly
-3. **CLI Generator** — Implement `pnpm generate:module` or remove references
+3. **Bot-server integration testing** — Validate module-registry + bot-server work together end-to-end
 
 ## Phase 3 — Business Modules
 

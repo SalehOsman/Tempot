@@ -16,7 +16,7 @@ Non-compliance is a critical violation.
 
 ## Constitution (Highest Authority)
 
-Read `.specify/memory/constitution.md` before any decision. It contains 87 rules governing every aspect of development.
+Read `.specify/memory/constitution.md` before any decision. It contains 88 rules governing every aspect of development.
 
 ## Architecture Spec
 
@@ -39,6 +39,8 @@ Produces spec artifacts in `specs/{NNN}-{feature}/`. Commands:
 
 We do NOT use `/speckit.implement`. Superpowers handles execution.
 
+**Gemini CLI note:** Set `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"` before running SpecKit commands so artifacts land in the correct numbered directory.
+
 ### Superpowers — Execution Toolchain
 
 Consumes SpecKit artifacts and produces working code. Skills:
@@ -47,12 +49,15 @@ Consumes SpecKit artifacts and produces working code. Skills:
 - `using-git-worktrees` → creates isolated feature branch
 - `writing-plans` → converts `tasks.md` to 2-5 min executable tasks
 - `subagent-driven-development` → executes with TDD + two-stage review (REQUIRED on Claude Code)
+- `executing-plans` → executes with TDD (used on Gemini CLI since no subagent support)
 - `requesting-code-review` → reviews against spec + constitution
 - `receiving-code-review` → processes review feedback
 - `verification-before-completion` → final validation
 - `finishing-a-development-branch` → merge or PR
 - `systematic-debugging` → 4-phase root cause analysis (includes root-cause-tracing, defense-in-depth, condition-based-waiting)
 - `dispatching-parallel-agents` → concurrent subagent workflows
+
+**Platform note:** On Claude Code, use `subagent-driven-development`. On Gemini CLI, use `executing-plans` (no subagent support).
 
 ### How They Connect
 
@@ -124,12 +129,13 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. Phase 1 in progress — 12 packages on main.
+Phase 0 complete. Phase 1 in progress — 13 packages on main.
 
 **Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core (8 packages)
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Infrastructure (built before formal methodology):** sentry (1 package)
-**Remaining Phase 1:** cms-engine, input-engine, notifier, search-engine, document-engine, import-engine (6 packages)
+**Needs full spec (settings):** settings requires full SpecKit cycle from `/speckit.specify`
+**Remaining Phase 1:** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — specs incomplete, need tasks.md + data-model.md + research.md)
 
 module-registry exists as placeholder only (README only, no package.json or implementation).
 

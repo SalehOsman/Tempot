@@ -9,7 +9,7 @@
 - Core modules (`isCore: true`) stop the bot if invalid
 - Optional modules are skipped with a WARN log if invalid
 - Registers all module commands with grammY router
-- Powers the CLI generator's spec gate (`pnpm generate:module`)
+- Enforces spec gate — refuses to load modules without an approved `spec.md`
 
 ## Phase
 
@@ -17,20 +17,20 @@ Phase 5 — App Assembly (used by `bot-server`)
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package          | Purpose                  |
+| ---------------- | ------------------------ |
 | `@tempot/logger` | Validation error logging |
-| `@tempot/shared` | AppError |
+| `@tempot/shared` | AppError                 |
 
 ## Module Validation Rules
 
-| Check | Core module | Optional module |
-|-------|------------|----------------|
-| `module.config.ts` exists | ❌ Stops bot | ⚠️ WARN, skip |
-| `abilities.ts` exists | ❌ Stops bot | ⚠️ WARN, skip |
-| `locales/ar.json` exists | ❌ Stops bot | ⚠️ WARN, skip |
-| `locales/en.json` exists | ❌ Stops bot | ⚠️ WARN, skip |
-| `isActive: false` | Skip silently | Skip silently |
+| Check                     | Core module   | Optional module |
+| ------------------------- | ------------- | --------------- |
+| `module.config.ts` exists | ❌ Stops bot  | ⚠️ WARN, skip   |
+| `abilities.ts` exists     | ❌ Stops bot  | ⚠️ WARN, skip   |
+| `locales/ar.json` exists  | ❌ Stops bot  | ⚠️ WARN, skip   |
+| `locales/en.json` exists  | ❌ Stops bot  | ⚠️ WARN, skip   |
+| `isActive: false`         | Skip silently | Skip silently   |
 
 ## API
 
@@ -39,14 +39,10 @@ import { ModuleRegistry } from '@tempot/module-registry';
 
 // In bot-server startup
 const registry = new ModuleRegistry();
-await registry.discover();    // scans modules/ directory
-await registry.validate();    // validates each module
-registry.register(bot);       // registers commands with grammY
+await registry.discover(); // scans modules/ directory
+await registry.validate(); // validates each module
+registry.register(bot); // registers commands with grammY
 ```
-
-## CLI Gate
-
-`pnpm generate:module` calls `ModuleRegistry.checkSpec(name)` before scaffolding. Refuses to create a module without an approved `spec.md` in `/specs/`.
 
 ## Status
 

@@ -28,7 +28,7 @@ This document captures the comprehensive plan to bring Tempot from its current s
 
 #### Category B — Important Gaps
 
-5. **`pnpm generate:module` is a phantom** — Referenced in 8 places but never implemented.
+5. ~~**`pnpm generate:module` is a phantom**~~ — ✅ Resolved in Phase 1A.2: all references removed, Rule XLVI rewritten.
 6. **No build orchestration** — No Turbo, no Nx.
 7. **Error Reference System not implemented** (Rule XXIV).
 
@@ -114,7 +114,7 @@ This document captures the comprehensive plan to bring Tempot from its current s
 
 1. **module-registry** — Full SpecKit + Superpowers cycle. Implements module lifecycle management per spec Section 15.
 2. **bot-server reconstruction** — Replace 72-line prototype with production bot assembly. Hono web server, grammY middleware pipeline, health checks per spec Section 14.
-3. **CLI Generator** (optional) — Implement `pnpm generate:module` or remove all references to it.
+3. **Bot-server integration testing** — Validate module-registry + bot-server work together end-to-end.
 
 ### Phase 3: Test Module — person-registration (1-2 sessions)
 

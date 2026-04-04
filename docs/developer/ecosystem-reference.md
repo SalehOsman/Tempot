@@ -94,6 +94,12 @@
 | `@hono/swagger-ui`  | Auto-generated Swagger documentation UI                        |
 | `hono-rate-limiter` | Configurable rate limiting with Redis/BullMQ backing           |
 
+> **Rate limiter layers (Constitution Rule XXIX):**
+>
+> 1. **Bot (inbound):** `@grammyjs/ratelimiter` — per-user Telegram message throttling (ADR-020)
+> 2. **Application-level:** `rate-limiter-flexible` — per-user AI/service rate limiting (ADR-020, installed in ai-core)
+> 3. **HTTP middleware:** `hono-rate-limiter` — request-level rate limiting for Hono endpoints (ADR-030, Phase 2)
+
 ---
 
 ## Vercel AI SDK Advanced Features — 📐 ADR-031

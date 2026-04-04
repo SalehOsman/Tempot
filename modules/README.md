@@ -28,5 +28,3 @@ modules/{name}/
 ```
 
 No module can be created without an approved `spec.md` in `/specs/`.
-
-Use: `pnpm generate:module` to scaffold a new module.
