@@ -61,14 +61,6 @@ export interface RouteOptions {
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
-/** Options for building messages (private helper) */
-interface BuildMessagesOptions {
-  systemPrompt: string;
-  ragContext: RAGContext;
-  history: Array<{ role: 'user' | 'assistant'; content: string }>;
-  currentMessage: string;
-}
-
 export class IntentRouter {
   /** Holds a pending confirmation if a tool triggered one during generation */
   private pendingConfirmation: PendingConfirmation | null = null;
@@ -191,9 +183,12 @@ export class IntentRouter {
   }
 
   /** Build messages array for the model */
-  private buildMessages(
-    options: BuildMessagesOptions,
-  ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
+  private buildMessages(options: {
+    systemPrompt: string;
+    ragContext: RAGContext;
+    history: Array<{ role: 'user' | 'assistant'; content: string }>;
+    currentMessage: string;
+  }): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
     const { systemPrompt, ragContext, history, currentMessage } = options;
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
 
