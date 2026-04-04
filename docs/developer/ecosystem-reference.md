@@ -111,7 +111,7 @@
 | Built-in `usage`             | Token counting per request                       | Custom token counter              |
 | `experimental_telemetry`     | OpenTelemetry integration                        | Custom telemetry                  |
 
-> **Version note:** Evaluate upgrading from AI SDK v4.x to v5.x during ai-core spec phase.
+> **Version note:** AI SDK v6.x is the current approved version (ADR-037). Upgrade from v4.x completed during ai-core implementation.
 
 ---
 

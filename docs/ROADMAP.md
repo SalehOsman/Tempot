@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-04 (ai-core Phase 2 complete — 5 LLM-friendly patterns, 256 tests)
+> Last updated: 2026-04-04 (Phase 1A documentation cleanup — project readiness plan)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -32,7 +32,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 8   | regional-engine | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                                  |
 | 9   | cms-engine      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
 | 10  | storage-engine  | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                                  |
-| 11  | input-engine    | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ❌    | Phase 2 verified, pending merge (2026-04-04) |
+| 11  | input-engine    | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete (Phase 1 + Phase 2 merged)       |
 | 12  | ux-helpers      | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                                  |
 | 13  | sentry          | —    | —       | —    | —       | —     | —      | —        | —         | ✅\*    | —      | ✅\*  | Built (infra, pre-methodology)               |
 | 14  | notifier        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
@@ -40,6 +40,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 16  | ai-core         | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete (Phase 2 merged)                 |
 | 17  | document-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
 | 18  | import-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
+| 19  | settings        | ❌   | ❌      | ❌   | ❌      | ❌    | ❌     | ❌       | ❌        | ❌      | ❌     | ❌    | Not started (identified in audit 2026-04-04) |
 | —   | module-registry | —    | —       | —    | —       | —     | —      | —        | —         | —       | —      | —     | Placeholder only (README, no impl)           |
 
 ✅\* = Built but skipped workflow steps (pre-methodology)
@@ -61,20 +62,27 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 ### Next Action
 
-**All retroactive reviews complete** (auth-core `8402a71`, event-bus `7bbb4e1`, logger `d90e95c`)
-**regional-engine complete** — first package built with full SpecKit + Superpowers methodology
-**storage-engine complete** — 14 source files, 117 tests, 4 providers (Local/S3/Drive/Telegram)
-**ux-helpers complete** — 22 source files, 156 tests, 15 components across 6 categories
-**Comprehensive audit fix complete** — 10 commits on branch `fix/audit-v2-2026-03-30` resolving 24 findings (ISSUE-009/010/011 + ISSUE-004 residuals + infra fixes + code review fixes)
-**EventBus typing rework complete** — typed publish contracts (ADR-036) enforced across event-bus, session-manager, shared/cache-service, and storage-engine; ESLint import boundary enforcement added
-**ai-core complete** — 20 source files, 179 tests, 12 services (provider factory, resilience, rate limiter, embedding, RAG pipeline, intent router, confirmation engine, audit, content ingestion, conversation memory, dev assistant, module reviewer) — post-review fixes applied (dead code removal, module-reviewer rewrite with 5 structured checks, tool version change events, phantom dependency removal)
-**input-engine Phase 2 complete** — 8 UX & Integration features (Tasks 49-60): optional field skip, cancel interception, validation error display, progress indicator, back navigation, confirmation step, storage integration, AI extraction full flow. 622 tests (up from 448), 0 ESLint errors, clean build. Pending merge from `feature/011-input-engine-phase2`.
-**ai-core Phase 2 complete** — 5 LLM-friendly patterns (pagination, extension groups, output size limiting, input normalization, batch tool executor). 256 tests (up from 179), 8 new source files, 0 ESLint errors, clean build. Pending merge from `feature/015-ai-core-phase2`.
-**Next:** merge ai-core Phase 2 and input-engine Phase 2, then choose next package to build (5 remaining: cms-engine, notifier, search-engine, document-engine, import-engine)
+**Project readiness plan created** — see `docs/superpowers/specs/2026-04-04-project-readiness-plan.md` for full details.
 
-## Phase 2 — Bot Server Reconstruction
+**Phase 1 status:** 13 packages built and merged (shared, logger, database, event-bus, auth-core, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, input-engine, ai-core, sentry). 6 packages remaining (settings, cms-engine, notifier, search-engine, document-engine, import-engine).
 
-Not started. Depends on Phase 1 completion.
+**Next steps (in order):**
+
+1. Phase 1A: Documentation cleanup (current session)
+2. Phase 1B: Complete SpecKit artifacts for 6 remaining packages (Gemini CLI)
+3. Phase 1C: Build 6 packages sequentially (Claude Code)
+4. Phase 2: Module infrastructure (module-registry, bot-server reconstruction)
+5. Phase 3: Test module (person-registration)
+
+## Phase 2 — Module Infrastructure
+
+Not started. Depends on Phase 1 completion (all 19 packages built and merged).
+
+Planned scope:
+
+1. **module-registry** — Full SpecKit + Superpowers cycle (currently README placeholder only)
+2. **bot-server reconstruction** — Replace 72-line prototype with production assembly
+3. **CLI Generator** — Implement `pnpm generate:module` or remove references
 
 ## Phase 3 — Business Modules
 

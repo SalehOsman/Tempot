@@ -38,7 +38,7 @@
 - لا كود بدون spec. لا كود بدون اختبار أولاً.
 - لا تطوير على main. كل feature في branch معزول.
 
-المرحلة الحالية: Phase 1 — الحزمة التالية: session-manager rebuild.
+المرحلة الحالية: Phase 1 — 13 حزمة مكتملة على main، خطة جاهزية المشروع قيد التنفيذ (docs/superpowers/specs/2026-04-04-project-readiness-plan.md).
 
 القواعد الحرجة: Result Pattern (neverthrow)، Repository Pattern، Event-Driven، i18n-Only، No any types.
 

@@ -6,7 +6,7 @@
 
 TypeScript `strict: true` is mandatory. No `any` types. STRICTLY PROHIBITED: Using @ts-ignore, @ts-expect-error, or eslint-disable to bypass type or lint errors.
 
-### II. Code Limits (ADR-030)
+### II. Code Limits (ESLint enforced)
 
 - Maximum 200 lines per file
 - Maximum 50 lines per function
@@ -119,7 +119,7 @@ Error code format: `module.error_name` (e.g. `user.not_found`, `invoice.payment.
 
 ### XXIII. No Double Logging
 
-`loggedAt` flag on `AppError` prevents logging the same error multiple times as it propagates up the stack. ADR-034.
+`loggedAt` flag on `AppError` prevents logging the same error multiple times as it propagates up the stack.
 
 ### XXIV. Error Reference System
 
@@ -431,6 +431,8 @@ Four standardized status patterns:
 - Session expired: notification + restart button
 
 ### LXX. Critical Bug-Fixing Methodology
+
+> **Cross-reference:** This rule consolidates items from Rule I (no `any`/`@ts-ignore`/`eslint-disable`) and Rule VII (fix at source). It is intentionally restated here as a unified bug-fixing checklist.
 
 1. NEVER write wrappers or proxy functions to patch or hide bad code.
 2. ALWAYS fix the root cause DIRECTLY inside the problematic original code.
