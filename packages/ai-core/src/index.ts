@@ -18,6 +18,10 @@ export type {
   EmbeddingSearchOptions,
   EmbeddingSearchResult,
   ContentChunk,
+  PaginatedResult,
+  PaginationOptions,
+  BatchItem,
+  BatchResult,
 } from './ai-core.types.js';
 export {
   DEFAULT_AI_CONFIG,
@@ -103,3 +107,6 @@ export { DevAssistant } from './cli/dev.assistant.js';
 export type { DevAssistantDeps, DevAssistantResult } from './cli/dev.assistant.js';
 export { ModuleReviewer } from './cli/module.reviewer.js';
 export type { ModuleReviewerDeps, ReviewCheck, ReviewResult } from './cli/module.reviewer.js';
+
+// Pagination
+export { paginate } from './pagination/pagination.util.js';

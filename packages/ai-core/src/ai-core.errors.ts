@@ -34,6 +34,9 @@ export const AI_ERRORS = {
   TOOL_EXECUTION_FAILED: 'ai-core.tool.execution_failed',
   TOOL_UNAUTHORIZED: 'ai-core.tool.unauthorized',
 
+  // Batch errors
+  BATCH_EMPTY_ITEMS: 'ai-core.batch.empty_items',
+
   // Confirmation errors
   CONFIRMATION_EXPIRED: 'ai-core.confirmation.expired',
   CONFIRMATION_REJECTED: 'ai-core.confirmation.rejected',

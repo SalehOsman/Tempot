@@ -37,6 +37,8 @@ export function loadAIConfig(): Result<AIConfig, AppError> {
       Number(process.env.AI_GENERATION_TIMEOUT_MS) || DEFAULT_AI_CONFIG.generationTimeoutMs,
     embeddingTimeoutMs:
       Number(process.env.AI_EMBEDDING_TIMEOUT_MS) || DEFAULT_AI_CONFIG.embeddingTimeoutMs,
+    defaultMaxOutputChars:
+      Number(process.env.TEMPOT_AI_MAX_OUTPUT_CHARS) || DEFAULT_AI_CONFIG.defaultMaxOutputChars,
   });
 }
 

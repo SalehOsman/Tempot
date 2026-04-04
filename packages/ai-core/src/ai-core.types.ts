@@ -1,5 +1,5 @@
 import type { ZodType } from 'zod';
-import type { AsyncResult } from '@tempot/shared';
+import type { AsyncResult, Result } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
 /** AI provider identifier */
@@ -26,6 +26,7 @@ export interface AIConfig {
   confidenceThreshold: number;
   generationTimeoutMs: number;
   embeddingTimeoutMs: number;
+  defaultMaxOutputChars?: number;
 }
 
 /** Resilience configuration */
@@ -64,6 +65,8 @@ export interface AITool {
   confirmationLevel: ConfirmationLevel;
   version: string;
   execute: (params: unknown) => AsyncResult<unknown, AppError>;
+  group?: string;
+  maxOutputChars?: number;
 }
 
 /** AI session state — stored in Redis via session-manager */
@@ -116,6 +119,7 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
   confidenceThreshold: 0.7,
   generationTimeoutMs: 30_000,
   embeddingTimeoutMs: 10_000,
+  defaultMaxOutputChars: 4_000,
 };
 
 export const DEFAULT_RESILIENCE_CONFIG: ResilienceConfig = {
@@ -138,3 +142,33 @@ export const DEFAULT_CHUNKING_CONFIG: ChunkingConfig = {
   overlapTokens: 50,
   maxDocumentBytes: 10_485_760,
 };
+
+/** Paginated result wrapper */
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/** Pagination options */
+export interface PaginationOptions {
+  page?: number;
+  pageSize?: number;
+}
+
+/** Single item in a batch execution */
+export interface BatchItem<T> {
+  params: T;
+}
+
+/** Result of batch execution */
+export interface BatchResult {
+  results: Array<Result<unknown, AppError>>;
+  summary: {
+    succeeded: number;
+    failed: number;
+    total: number;
+  };
+}

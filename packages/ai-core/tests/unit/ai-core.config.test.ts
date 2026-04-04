@@ -73,6 +73,21 @@ describe('loadAIConfig', () => {
     const result = loadAIConfig();
     expect(result._unsafeUnwrap().generationTimeoutMs).toBe(60000);
   });
+
+  it('reads TEMPOT_AI_MAX_OUTPUT_CHARS env var', () => {
+    process.env.TEMPOT_AI_MAX_OUTPUT_CHARS = '8000';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().defaultMaxOutputChars).toBe(8000);
+    delete process.env.TEMPOT_AI_MAX_OUTPUT_CHARS;
+  });
+
+  it('defaults defaultMaxOutputChars to 4000 when env var not set', () => {
+    delete process.env.TEMPOT_AI_MAX_OUTPUT_CHARS;
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().defaultMaxOutputChars).toBe(4000);
+  });
 });
 
 describe('loadResilienceConfig', () => {
