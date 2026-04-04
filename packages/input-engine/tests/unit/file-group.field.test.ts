@@ -1,7 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ok, err } from 'neverthrow';
+import { AppError } from '@tempot/shared';
 import { FileGroupFieldHandler } from '../../src/fields/media/file-group.field.js';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 import type { FieldMetadata } from '../../src/input-engine.types.js';
+import type { RenderContext } from '../../src/fields/field.handler.js';
+import type { StorageEngineClient, InputEngineLogger } from '../../src/input-engine.contracts.js';
 
 function createMeta(overrides: Partial<FieldMetadata> = {}): FieldMetadata {
   return {
@@ -9,6 +13,28 @@ function createMeta(overrides: Partial<FieldMetadata> = {}): FieldMetadata {
     i18nKey: 'test.fileGroup',
     ...overrides,
   } as FieldMetadata;
+}
+
+function createMockLogger(): InputEngineLogger {
+  return { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+}
+
+function createMockRenderCtx(overrides: Partial<RenderContext> = {}): RenderContext {
+  return {
+    conversation: {
+      external: vi.fn().mockImplementation((fn: () => Promise<unknown>) => fn()),
+    },
+    ctx: {
+      api: {
+        getFile: vi.fn().mockResolvedValue({ file_path: 'docs/file.pdf' }),
+        file: { download: vi.fn().mockResolvedValue(Buffer.from('data')) },
+      },
+    },
+    formData: {},
+    formId: 'test',
+    fieldIndex: 0,
+    ...overrides,
+  };
 }
 
 describe('FileGroupFieldHandler', () => {
@@ -104,6 +130,58 @@ describe('FileGroupFieldHandler', () => {
       const result = handler.validate([], undefined, createMeta());
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FIELD_VALIDATION_FAILED);
+    });
+  });
+
+  describe('postProcess', () => {
+    it('uploads to storage and returns enriched result when storageClient provided', async () => {
+      const storageClient: StorageEngineClient = {
+        upload: vi.fn().mockResolvedValue(ok('https://storage/file.pdf')),
+        validate: vi.fn().mockResolvedValue(ok(undefined)),
+      };
+      const logger = createMockLogger();
+      const renderCtx = createMockRenderCtx({ storageClient, logger });
+      const value = {
+        fileId: 'fg_123',
+        fileName: 'file.pdf',
+        fileSize: 2048,
+        mimeType: 'application/pdf',
+      };
+
+      const result = await handler.postProcess!(value, renderCtx, createMeta());
+
+      expect(result.isOk()).toBe(true);
+      const enriched = result._unsafeUnwrap() as Record<string, unknown>;
+      expect(enriched['telegramFileId']).toBe('fg_123');
+      expect(enriched['storageUrl']).toBe('https://storage/file.pdf');
+    });
+
+    it('returns original value unchanged when no storageClient', async () => {
+      const renderCtx = createMockRenderCtx({ storageClient: undefined });
+      const value = { fileId: 'fg_456', fileName: 'doc.pdf' };
+
+      const result = await handler.postProcess!(value, renderCtx, createMeta());
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(value);
+    });
+
+    it('degrades gracefully on upload failure', async () => {
+      const storageClient: StorageEngineClient = {
+        upload: vi.fn().mockResolvedValue(err(new AppError('storage.failed'))),
+        validate: vi.fn().mockResolvedValue(ok(undefined)),
+      };
+      const logger = createMockLogger();
+      const renderCtx = createMockRenderCtx({ storageClient, logger });
+      const value = { fileId: 'fg_789', fileName: 'file.doc', mimeType: 'application/msword' };
+
+      const result = await handler.postProcess!(value, renderCtx, createMeta());
+
+      expect(result.isOk()).toBe(true);
+      const degraded = result._unsafeUnwrap() as Record<string, unknown>;
+      expect(degraded['telegramFileId']).toBe('fg_789');
+      expect(degraded['storageUrl']).toBeUndefined();
+      expect(logger.warn).toHaveBeenCalled();
     });
   });
 });

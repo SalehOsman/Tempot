@@ -6,6 +6,7 @@ import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 import { checkFileSize } from './file-size.helper.js';
+import { uploadToStorage, type UploadParams } from './storage-upload.helper.js';
 
 /** Telegram Document shape */
 interface TelegramDocument {
@@ -131,5 +132,24 @@ export class FileGroupFieldHandler implements FieldHandler {
     }
 
     return ok(files);
+  }
+
+  async postProcess(
+    value: unknown,
+    renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
+    if (!renderCtx.storageClient || !renderCtx.logger) return ok(value);
+    const file = value as FileItem;
+    return uploadToStorage({
+      fileId: file.fileId,
+      fileName: file.fileName,
+      mimeType: file.mimeType,
+      fileSize: file.fileSize,
+      conversation: renderCtx.conversation as UploadParams['conversation'],
+      ctx: renderCtx.ctx as UploadParams['ctx'],
+      storageClient: renderCtx.storageClient,
+      logger: renderCtx.logger,
+    });
   }
 }

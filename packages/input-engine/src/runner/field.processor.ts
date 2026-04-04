@@ -25,20 +25,33 @@ export interface FieldContext {
   previousValue?: unknown;
 }
 
-/** Resolve the response context: render, try renderPrompt fallback, fallback to input.ctx */
-async function resolveResponseCtx(
+/** Build a RenderContext from current processing state */
+function buildRenderCtx(
   input: FormRunnerInput,
   ctx: FieldContext,
   deps: FormRunnerDeps,
-): AsyncResult<unknown, AppError> {
-  const renderCtx: RenderContext = {
+): RenderContext {
+  return {
     conversation: input.conversation,
     ctx: input.ctx,
     formData: ctx.formData,
     formId: ctx.formId,
     fieldIndex: ctx.fieldIndex,
     previousValue: ctx.previousValue,
+    storageClient: deps.storageClient,
+    aiClient: deps.aiClient,
+    logger: deps.logger,
+    t: deps.t,
   };
+}
+
+/** Resolve the response context: render, try renderPrompt fallback, fallback to input.ctx */
+async function resolveResponseCtx(
+  input: FormRunnerInput,
+  ctx: FieldContext,
+  deps: FormRunnerDeps,
+): AsyncResult<unknown, AppError> {
+  const renderCtx = buildRenderCtx(input, ctx, deps);
   const rr = await ctx.handler.render(renderCtx, ctx.metadata);
   if (rr.isErr()) return err(rr.error);
 
@@ -100,6 +113,16 @@ function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unkno
   return ctx.handler.validate(pr.value, fieldSchema, metadata);
 }
 
+/** Run postProcess on validated value if handler supports it */
+async function runPostProcess(
+  value: unknown,
+  ctx: FieldContext,
+  renderCtx: RenderContext,
+): AsyncResult<unknown, AppError> {
+  if (!ctx.handler.postProcess) return ok(value);
+  return ctx.handler.postProcess(value, renderCtx, ctx.metadata);
+}
+
 /** Process a single field: render, parse, validate with retry */
 export async function processField(
   input: FormRunnerInput,
@@ -134,7 +157,8 @@ export async function processField(
     }
 
     ctx.retryCount = retryCount;
-    return ok(vr.value);
+    const renderCtx = buildRenderCtx(input, ctx, deps);
+    return runPostProcess(vr.value, ctx, renderCtx);
   }
 
   if (ctx.metadata.optional) {

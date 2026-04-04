@@ -6,6 +6,7 @@ import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 import { checkFileSize } from './file-size.helper.js';
+import { uploadToStorage, type UploadParams } from './storage-upload.helper.js';
 
 /** Telegram PhotoSize shape */
 interface TelegramPhotoSize {
@@ -68,5 +69,24 @@ export class PhotoFieldHandler implements FieldHandler {
       return sizeCheck;
     }
     return ok(photo);
+  }
+
+  async postProcess(
+    value: unknown,
+    renderCtx: RenderContext,
+    _metadata: FieldMetadata,
+  ): AsyncResult<unknown, AppError> {
+    if (!renderCtx.storageClient || !renderCtx.logger) return ok(value);
+    const photo = value as PhotoValue;
+    return uploadToStorage({
+      fileId: photo.fileId,
+      fileName: 'photo.jpg',
+      mimeType: 'image/jpeg',
+      fileSize: photo.fileSize,
+      conversation: renderCtx.conversation as UploadParams['conversation'],
+      ctx: renderCtx.ctx as UploadParams['ctx'],
+      storageClient: renderCtx.storageClient,
+      logger: renderCtx.logger,
+    });
   }
 }
