@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-03 (ai-core post-review fixes — dead code removal, tool version events, module-reviewer rewrite, doc sync)
+> Last updated: 2026-04-04 (input-engine Phase 2 complete — 8 UX & Integration features, 622 tests)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -32,7 +32,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 8   | regional-engine | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 9   | cms-engine      | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 10  | storage-engine  | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
-| 11  | input-engine    | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ⚠️     | ❌    | Implementation complete (2026-04-03)    |
+| 11  | input-engine    | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ❌    | Phase 2 verified, pending merge (2026-04-04) |
 | 12  | ux-helpers      | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 13  | sentry          | —    | —       | —    | —       | —     | —      | —        | —         | ✅\*    | —      | ✅\*  | Built (infra, pre-methodology)          |
 | 14  | notifier        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
@@ -68,7 +68,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 **Comprehensive audit fix complete** — 10 commits on branch `fix/audit-v2-2026-03-30` resolving 24 findings (ISSUE-009/010/011 + ISSUE-004 residuals + infra fixes + code review fixes)
 **EventBus typing rework complete** — typed publish contracts (ADR-036) enforced across event-bus, session-manager, shared/cache-service, and storage-engine; ESLint import boundary enforcement added
 **ai-core complete** — 20 source files, 179 tests, 12 services (provider factory, resilience, rate limiter, embedding, RAG pipeline, intent router, confirmation engine, audit, content ingestion, conversation memory, dev assistant, module reviewer) — post-review fixes applied (dead code removal, module-reviewer rewrite with 5 structured checks, tool version change events, phantom dependency removal)
-**Next:** choose next package to build (6 remaining: cms-engine, input-engine, notifier, search-engine, document-engine, import-engine)
+**input-engine Phase 2 complete** — 8 UX & Integration features (Tasks 49-60): optional field skip, cancel interception, validation error display, progress indicator, back navigation, confirmation step, storage integration, AI extraction full flow. 622 tests (up from 448), 0 ESLint errors, clean build. Pending merge from `feature/011-input-engine-phase2`.
+**Next:** merge input-engine, then choose next package to build (5 remaining: cms-engine, notifier, search-engine, document-engine, import-engine)
 
 ## Phase 2 — Bot Server Reconstruction
 
