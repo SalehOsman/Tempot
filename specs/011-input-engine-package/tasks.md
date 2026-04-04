@@ -2,7 +2,8 @@
 
 **Feature:** 011-input-engine-package  
 **Source:** spec.md (Complete) + plan.md (Corrected) + research.md + data-model.md  
-**Generated:** 2026-04-03
+**Generated:** 2026-04-03  
+**Updated:** 2026-04-04 (Phase 2 — UX & Integration tasks added)
 
 ---
 
@@ -1075,6 +1076,7 @@
 - [x] `TempotEvents` interface updated with `'input-engine.form.cancelled'` event with inline payload: `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason` ('user_cancel'|'timeout'|'max_retries') (F3)
 - [x] `TempotEvents` interface updated with `'input-engine.form.resumed'` event with inline payload: `formId`, `userId`, `resumedFromField`, `totalFields` (F1)
 - [ ] `TempotEvents` interface updated with `'input-engine.field.validated'` event with inline payload: `formId`, `userId`, `fieldType`, `fieldName`, `valid`, `retryCount`
+- [ ] `TempotEvents` interface updated with `'input-engine.field.skipped'` event with inline payload: `formId`, `userId`, `fieldName`, `fieldType`, `reason` ('user_skip'|'max_retries_skip'|'condition')
 - [ ] Payload types defined **inline** in event-bus.events.ts — do NOT import from `@tempot/input-engine` (avoids circular dependency)
 - [ ] No other files in `packages/event-bus/` are modified
 - [ ] TypeScript compilation passes with no errors
@@ -1332,6 +1334,364 @@
 
 ---
 
+## Phase 11: User Story 7/8/9 — UX & Integration (Priority: P2)
+
+**Goal**: Add form navigation (skip/cancel/back), progress indicators, validation error display, confirmation step, storage engine integration, and full AI extraction flow. These are 8 new features that enhance the form-filling UX and complete external integrations.
+
+**Prerequisites**: All Phase 1 tasks (0–48) complete. All 39 field handlers, FormRunner, partial save, and event emission are working.
+
+**Backward Compatibility**: All Phase 2 features are additive and opt-in via `FormOptions` or `FormRunnerDeps`. Existing `runForm()` calls with no new options work identically.
+
+### Task 49: [US7] Action Buttons Builder
+
+**Priority:** P2  
+**Estimated time:** 10 min  
+**FR:** FR-052, FR-053, D7  
+**Dependencies:** Task 1 (types), Task 6 (FormRunner)
+
+**Files to create:**
+
+- `packages/input-engine/src/runner/action-buttons.builder.ts`
+
+**Test file:** `packages/input-engine/tests/unit/action-buttons.builder.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `ACTION_CALLBACKS` constant exported: `SKIP: '__skip__'`, `CANCEL: '__cancel__'`, `BACK: '__back__'`, `KEEP_CURRENT: '__keep_current__'`
+- [ ] `ActionButtonContext` interface exported: `formId`, `fieldIndex`, `isOptional`, `isFirstField`, `allowCancel`
+- [ ] `ActionButtonRow` interface exported: `buttons: Array<{ text: string; callbackData: string }>`
+- [ ] `buildActionButtons(ctx, t)` function exported — pure function, no side effects
+- [ ] Returns Skip row only when `isOptional: true`
+- [ ] Returns Back button only when `isFirstField: false`
+- [ ] Returns Cancel button only when `allowCancel: true`
+- [ ] All button text uses `t()` function — zero hardcoded user-facing text
+- [ ] Callback data format: `ie:{formId}:{fieldIndex}:{action}` using `encodeCallbackData` from `@tempot/ux-helpers`
+- [ ] No `any` types
+- [ ] All tests pass (minimum 6 tests: optional field shows skip, non-optional hides skip, first field hides back, non-first shows back, allowCancel shows cancel, allowCancel false hides cancel)
+
+---
+
+### Task 50: [US7] FormOptions & FormRunnerDeps Updates
+
+**Priority:** P2  
+**Estimated time:** 5 min  
+**FR:** FR-055, FR-057, FR-054  
+**Dependencies:** Task 1 (types), Task 6 (FormRunner)
+
+**Files to modify:**
+
+- `packages/input-engine/src/input-engine.types.ts` — add `showProgress`, `showConfirmation` to `FormOptions` and `DEFAULT_FORM_OPTIONS`
+- `packages/input-engine/src/runner/form.runner.ts` — add `t`, `storageClient`, `aiClient` to `FormRunnerDeps`
+
+**Test file:** `packages/input-engine/tests/unit/input-engine.types.test.ts`, `packages/input-engine/tests/unit/form.runner.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `FormOptions` interface updated with `showProgress?: boolean` (default `true`) and `showConfirmation?: boolean` (default `true`)
+- [ ] `DEFAULT_FORM_OPTIONS` updated with `showProgress: true` and `showConfirmation: true`
+- [ ] `FormRunnerDeps` interface updated with optional `t?: (key: string, params?: Record<string, unknown>) => string`
+- [ ] `FormRunnerDeps` interface updated with optional `storageClient?: StorageEngineClient`
+- [ ] `FormRunnerDeps` interface updated with optional `aiClient?: AIExtractionClient`
+- [ ] Existing callers unaffected — all new fields are optional
+- [ ] No `any` types
+- [ ] All tests pass (minimum 4 tests: new FormOptions defaults, showProgress default true, showConfirmation default true, FormRunnerDeps new fields optional)
+
+---
+
+### Task 51: [US7] Optional Field Skip
+
+**Priority:** P2  
+**Estimated time:** 10 min  
+**FR:** FR-051, EC4, EC6  
+**Dependencies:** Task 49 (action buttons), Task 6 (FormRunner)
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — handle `__skip__` callback + auto-skip on max retries for optional fields
+- `packages/input-engine/src/runner/event.emitter.ts` — add `emitFieldSkipped` function
+
+**Test file:** `packages/input-engine/tests/unit/field.iterator.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] When `metadata.optional === true`, action buttons include "Skip ⏭" button
+- [ ] When user taps "Skip" (`__skip__` callback), `processField` returns a sentinel value
+- [ ] `iterateFields` sets `formData[fieldName] = undefined`, marks field complete, emits `input-engine.field.skipped` with reason `user_skip`
+- [ ] When `maxRetries` exhausted AND `metadata.optional === true`, field is auto-skipped: `formData[fieldName] = undefined`, emit `input-engine.field.skipped` with reason `max_retries_skip`, instead of returning `err(FIELD_MAX_RETRIES)`
+- [ ] `emitFieldSkipped(eventBus, payload)` function added to `event.emitter.ts`
+- [ ] `FieldSkippedPayload` matches data-model.md: `formId`, `userId`, `fieldName`, `fieldType`, `reason`
+- [ ] `FIELD_SKIPPED_SENTINEL` constant defined in `input-engine.types.ts` — a unique symbol or constant used as `ok(FIELD_SKIPPED_SENTINEL)` to signal skip to the iterator
+- [ ] No `any` types
+- [ ] All tests pass (minimum 5 tests: skip via callback, auto-skip on max retries, non-optional field no skip, skip event emitted with correct reason, formData[field] is undefined after skip)
+
+---
+
+### Task 52: [US7] Cancel Button Interception
+
+**Priority:** P2  
+**Estimated time:** 8 min  
+**FR:** FR-052, FR-053, EC2  
+**Dependencies:** Task 49 (action buttons), Task 6 (FormRunner)
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — detect `__cancel__` callback and `/cancel` text
+
+**Test file:** `packages/input-engine/tests/unit/field.iterator.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] When `allowCancel: true`, action buttons include "Cancel ❌" button
+- [ ] When user taps cancel button (`__cancel__` callback), `processField` returns `err(FORM_CANCELLED)`
+- [ ] When user types `/cancel` and `allowCancel: true`, iterator intercepts BEFORE `parseResponse` — returns `err(FORM_CANCELLED)`
+- [ ] Partial save data PRESERVED (not deleted) on cancellation
+- [ ] When `allowCancel: false`, no cancel button shown and `/cancel` text passed to field handler as normal input
+- [ ] No `any` types
+- [ ] All tests pass (minimum 5 tests: cancel via button, cancel via /cancel text, allowCancel false ignores /cancel, partial save preserved on cancel, cancel returns FORM_CANCELLED error)
+
+---
+
+### Task 53: [US8] Validation Error Display
+
+**Priority:** P2  
+**Estimated time:** 10 min  
+**FR:** FR-054, EC4  
+**Dependencies:** Task 50 (FormRunnerDeps with `t`)
+
+**Files to create:**
+
+- `packages/input-engine/src/runner/validation-error.renderer.ts`
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — call error renderer on parse/validate failure
+
+**Test file:** `packages/input-engine/tests/unit/validation-error.renderer.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `renderValidationError(metadata, retryState, t)` function exported
+- [ ] Uses `metadata.i18nErrorKey` when defined; otherwise falls back to `DEFAULT_ERROR_KEYS[metadata.fieldType]`; ultimate fallback to `'input-engine.errors.generic'`
+- [ ] `DEFAULT_ERROR_KEYS` maps each field type to a default error i18n key
+- [ ] Error message includes retry context: `t(errorKey, { attempt: retryState.current, maxRetries: retryState.max })`
+- [ ] Error is displayed to user BEFORE re-rendering the field (in `processField` retry loop)
+- [ ] `RetryState` interface: `{ current: number; max: number }`
+- [ ] No `any` types
+- [ ] All tests pass (minimum 5 tests: custom i18nErrorKey used, default error key per field type, generic fallback, retry count in params, error rendered before re-render)
+
+---
+
+### Task 54: [US7] Bidirectional Field Iteration
+
+**Priority:** P2  
+**Estimated time:** 15 min  
+**FR:** FR-056, EC36, EC37, EC38  
+**Dependencies:** Task 49 (action buttons), Task 6 (FormRunner)
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — restructure from `for` loop to `while` loop with mutable index
+
+**Test file:** `packages/input-engine/tests/unit/field.iterator.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `iterateFields` restructured from `for` loop to `while (index < fieldNames.length)` loop with mutable `index`
+- [ ] `NAVIGATE_BACK` error code added to `INPUT_ENGINE_ERRORS` in `input-engine.errors.ts` — internal sentinel, not user-facing
+- [ ] When user taps "⬅ Back" (`__back__` callback), `processField` returns a sentinel value (e.g., `err(NAVIGATE_BACK)`)
+- [ ] `iterateFields` detects the sentinel, removes last entry from `completedFieldNames`, removes its value from `formData`, decrements `fieldsCompleted`, decrements `index`
+- [ ] Back past conditional field: re-evaluates conditions, removes newly-hidden conditional fields from `completedFieldNames` and `formData` (EC36)
+- [ ] First field (`fieldIndex === 0`): no "⬅ Back" button, back action ignored if somehow triggered (EC37)
+- [ ] After partial save restore: back navigation works within restored fields (EC38)
+- [ ] When re-rendering previous field, `RenderContext` includes `previousValue` for the handler
+- [ ] If partial save enabled, updated state saved after back navigation
+- [ ] No `any` types
+- [ ] All tests pass (minimum 7 tests: back moves to previous field, back removes field from completed, back on first field ignored, back past conditional re-evaluates, back after restore works, previousValue in RenderContext, formData updated after back)
+
+---
+
+### Task 55: [US8] Progress Indicator
+
+**Priority:** P2  
+**Estimated time:** 10 min  
+**FR:** FR-055, EC42  
+**Dependencies:** Task 50 (FormOptions with `showProgress`)
+
+**Files to create:**
+
+- `packages/input-engine/src/runner/progress.renderer.ts`
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — call progress renderer before each field
+
+**Test file:** `packages/input-engine/tests/unit/progress.renderer.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `computeDynamicTotal(allFieldNames, allMetadata, currentFormData, shouldRenderFn)` function exported — counts only fields that would render given current formData
+- [ ] `renderProgress(current, total, t)` function exported — returns `t('input-engine.progress', { current, total })`
+- [ ] When `showProgress: true` (default), progress message sent before each field
+- [ ] When `showProgress: false`, no progress message sent
+- [ ] Dynamic total re-computed after each field (conditional visibility may change) (EC42)
+- [ ] When conditional field is skipped mid-form, total decreases
+- [ ] No `any` types
+- [ ] All tests pass (minimum 6 tests: progress shown by default, progress hidden when false, dynamic total with conditions, total decreases on conditional skip, correct current/total values, uses t function for i18n)
+
+---
+
+### Task 56: [US7] Back Navigation with Keep Current
+
+**Priority:** P2  
+**Estimated time:** 8 min  
+**FR:** FR-056 (second part), Clarification Q4  
+**Dependencies:** Task 54 (bidirectional iteration), Task 49 (action buttons)
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — pass `previousValue` in RenderContext during back navigation
+- `packages/input-engine/src/fields/field.handler.ts` — add optional `previousValue` to `RenderContext`
+- `packages/input-engine/src/runner/action-buttons.builder.ts` — add "Keep current ✓" button when previousValue exists
+
+**Test file:** `packages/input-engine/tests/unit/field.iterator.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `RenderContext` updated with optional `previousValue: unknown`
+- [ ] When navigating back, `previousValue` populated with the previously entered value
+- [ ] Action buttons include "Keep current ✓" (`__keep_current__` callback) when `previousValue` is defined
+- [ ] When user taps "Keep current", `processField` returns the `previousValue` unchanged
+- [ ] When user enters a new value, normal parse/validate flow applies
+- [ ] `RenderContext.previousValue` is `undefined` for first-time field entry
+- [ ] No `any` types
+- [ ] All tests pass (minimum 5 tests: keep current returns previous value, re-enter overrides value, previousValue undefined on first entry, keep current button shown on back, keep current button hidden on first entry)
+
+---
+
+### Task 57: [US8] Confirmation Step
+
+**Priority:** P2  
+**Estimated time:** 15 min  
+**FR:** FR-057, FR-058, EC39, EC40, EC41  
+**Dependencies:** Task 54 (bidirectional iteration), Task 55 (progress), Task 50 (FormOptions)
+
+**Files to create:**
+
+- `packages/input-engine/src/runner/confirmation.renderer.ts`
+
+**Files to modify:**
+
+- `packages/input-engine/src/runner/field.iterator.ts` — call confirmation after all fields complete (when `showConfirmation: true`)
+- `packages/input-engine/src/runner/form.runner.ts` — reset timeout deadline when confirmation shown (EC40)
+
+**Test file:** `packages/input-engine/tests/unit/confirmation.renderer.test.ts`
+
+**Acceptance criteria:**
+
+- [ ] `formatFieldValue(value, metadata)` function exported — text shows value, choice shows label, media shows "✓ File uploaded", boolean shows ✓/✗, skipped optional shows "—" (EC41)
+- [ ] `buildConfirmationSummary(formData, fieldMetadata, t)` function exported — builds multi-line summary string
+- [ ] `CONFIRMATION_ACTIONS` constant exported: `CONFIRM: '__confirm__'`, `EDIT: '__edit__'`, `CANCEL: '__cancel__'`
+- [ ] When `showConfirmation: true` (default), confirmation summary displayed after all fields complete
+- [ ] Three inline buttons: "✅ Confirm" (returns `ok(formData)`), "✏️ Edit field" (shows field list), "❌ Cancel" (returns `err(FORM_CANCELLED)`)
+- [ ] Edit flow: user selects field from secondary keyboard → re-enters value (with `previousValue` context) → conditional fields re-evaluated → summary re-displayed (EC39)
+- [ ] Confirmation step does NOT count toward `maxMilliseconds` — deadline reset when summary shown (EC40)
+- [ ] When `showConfirmation: false`, form returns `ok(formData)` immediately after last field
+- [ ] No `any` types
+- [ ] All tests pass (minimum 8 tests: confirm returns ok, cancel returns err, edit re-enters field, edit re-evaluates conditions, timeout reset on confirmation, field value formatting per type, skipped optional shows dash, showConfirmation false skips step)
+
+---
+
+### Task 58: [US9] Storage Engine Integration in Media Handlers
+
+**Priority:** P2  
+**Estimated time:** 12 min  
+**FR:** FR-059  
+**Dependencies:** Task 50 (FormRunnerDeps with `storageClient`), Tasks 30-34 (media handlers)
+
+**Files to modify:**
+
+- `packages/input-engine/src/fields/media/photo.field.ts` — call `storageClient.upload()` when available
+- `packages/input-engine/src/fields/media/document.field.ts` — same
+- `packages/input-engine/src/fields/media/video.field.ts` — same
+- `packages/input-engine/src/fields/media/audio.field.ts` — same
+- `packages/input-engine/src/fields/media/file-group.field.ts` — same (per file in group)
+
+**Test file:** Update 5 existing media test files with storage integration tests
+
+**Acceptance criteria:**
+
+- [ ] When `storageClient` provided: after successful parse/validate, handler downloads file from Telegram via `conversation.external(() => ctx.api.getFile(fileId))`, then calls `storageClient.upload(buffer, { filename, mimeType })` via `conversation.external()` (D22 — input-engine downloads to Buffer, storage-engine stays Telegram-agnostic)
+- [ ] On upload success: returns `{ telegramFileId, storageUrl, fileName, mimeType, size }`
+- [ ] On upload failure: logs warning, returns `{ telegramFileId }` only (graceful degradation)
+- [ ] When `storageClient` NOT provided: returns `{ telegramFileId }` only (current Phase 1 behavior)
+- [ ] `storageClient` passed through from `FormRunnerDeps` to handler via `RenderContext` or deps chain
+- [ ] All 5 media handlers (Photo, Document, Video, Audio, FileGroup) updated consistently
+- [ ] No `any` types
+- [ ] All tests pass (minimum 10 tests: 2 per media handler — with storageClient and without)
+
+---
+
+### Task 59: [US9] AI Extraction Full Flow
+
+**Priority:** P2  
+**Estimated time:** 15 min  
+**FR:** FR-031 (enhanced), FR-059 (AI part)  
+**Dependencies:** Task 50 (FormRunnerDeps with `aiClient`), Task 23 (AI extractor placeholder)
+
+**Files to modify:**
+
+- `packages/input-engine/src/fields/smart/ai-extractor.field.ts` — implement full extraction → confirmation → accept/edit/manual flow
+
+**Test file:** Update `packages/input-engine/tests/unit/ai-extractor.field.test.ts` with full flow tests
+
+**Acceptance criteria:**
+
+- [ ] `render()`: sends i18n prompt asking user to send free-text, photo, or document for extraction
+- [ ] `parseResponse()`: receives user's input (free text, photo caption, or document caption — see D23, no OCR/PDF parsing in Phase 2)
+- [ ] Handler calls `aiClient.extract(input, targetFields)` via `conversation.external()`
+- [ ] On success: displays extracted values for confirmation with 3 buttons: "✅ Accept all", "✏️ Edit", "📝 Manual input"
+- [ ] On partial success: accepts confirmed values, asks remaining fields manually
+- [ ] When AI unavailable (`aiClient.isAvailable()` returns false): skips extraction, shows i18n unavailability message, falls back to manual step-by-step input (Rule XXXIII)
+- [ ] On extraction failure: logs warning, falls back to manual input
+- [ ] No `any` types
+- [ ] All tests pass (minimum 8 tests: full extraction success, partial extraction, AI unavailable fallback, user accepts all, user edits, user chooses manual, extraction failure fallback, confirmation UI rendered)
+
+---
+
+### Task 60: [US7/US8/US9] Barrel Exports Update & Phase 2 Validation
+
+**Priority:** P2  
+**Estimated time:** 5 min  
+**FR:** All Phase 2  
+**Dependencies:** All Tasks 49–59
+
+**Files to modify:**
+
+- `packages/input-engine/src/index.ts` — export new Phase 2 public types and constants
+
+**Test file:** All existing tests continue to pass
+
+**Acceptance criteria:**
+
+- [ ] Exports `ACTION_CALLBACKS` from `action-buttons.builder.ts`
+- [ ] Exports `CONFIRMATION_ACTIONS` from `confirmation.renderer.ts`
+- [ ] Updated `FormOptions` already exported (now includes `showProgress`, `showConfirmation`)
+- [ ] Updated `FormRunnerDeps` already exported (now includes `t`, `storageClient`, `aiClient`)
+- [ ] Exports `FieldSkippedPayload` event type
+- [ ] `tsc --noEmit` passes with zero errors
+- [ ] `eslint src/ --max-warnings 0` passes
+- [ ] All existing Phase 1 tests continue to pass
+- [ ] All new Phase 2 tests pass
+- [ ] No file exceeds 200 code lines (Rule II)
+- [ ] No function exceeds 50 code lines (Rule II)
+- [ ] No function exceeds 3 parameters (Rule II)
+- [ ] Zero hardcoded user-facing text (Rule XXXIX)
+- [ ] All new files follow `{Feature}.{type}.ts` naming (Rule III)
+
+**Checkpoint**: All 8 Phase 2 features are functional: optional field skip, cancel interception, validation error display, progress indicator, back navigation, confirmation step, storage integration, AI extraction full flow.
+
+---
+
 ## Task Dependency Graph
 
 ```
@@ -1380,6 +1740,27 @@ Task 0 (scaffolding)
         ├─→ Task 39 (event registration — cross-package)
         │
         └───────── All tasks (0-48) ─→ Task 40 (barrel exports)
+
+Phase 2 — UX & Integration (Tasks 49–60):
+
+All Phase 1 tasks (0-48) ──────────────────────────────────┐
+                                                            │
+  Task 49 (action buttons builder)                          │
+  Task 50 (FormOptions/FormRunnerDeps updates)              │
+    │                                                       │
+    ├─→ Task 51 (optional field skip) ←── T49               │
+    ├─→ Task 52 (cancel interception) ←── T49               │
+    ├─→ Task 53 (validation error display) ←── T50          │
+    ├─→ Task 54 (bidirectional iteration) ←── T49           │
+    │     └─→ Task 56 (back nav with keep current) ←── T54  │
+    ├─→ Task 55 (progress indicator) ←── T50                │
+    │                                                       │
+    ├─→ Task 57 (confirmation step) ←── T54,T55,T50         │
+    │                                                       │
+    ├─→ Task 58 (storage integration) ←── T50,T30-34        │
+    ├─→ Task 59 (AI extraction full flow) ←── T50,T23       │
+    │                                                       │
+    └─→ Task 60 (barrel exports + validation) ←── T49-59    │
 ```
 
 ---
@@ -1391,16 +1772,26 @@ Task 0 (scaffolding)
 - **Phase 1 (Setup)**: No dependencies — start immediately
 - **Phase 2 (Foundation)**: Depends on Phase 1 — BLOCKS all user story phases
 - **Phases 3–9 (User Stories + Fields)**: All depend on Phase 2 completion (especially Task 4 — FieldHandler interface). Once Phase 2 is done, all field handler tasks within and across phases can run in parallel.
-- **Phase 10 (Polish)**: Task 39 (events) depends on Task 1; Task 40 (barrel) depends on ALL tasks
+- **Phase 10 (Polish)**: Task 39 (events) depends on Task 1; Task 40 (barrel) depends on ALL Phase 1 tasks
+- **Phase 11 (UX & Integration)**: Depends on ALL Phase 1 tasks (0–48) complete. Tasks 49 (action buttons) and 50 (FormOptions updates) are the entry points. Other Phase 2 tasks build sequentially on them.
 
 ### Parallel Opportunities
 
-Once Phase 2 is complete:
+Once Phase 2 (Foundation) is complete:
 
 - **All field handlers** (Tasks 7–18, 19–20, 22–38, 41–48) can be implemented in parallel — each is an independent file implementing the same interface
 - Within each phase, tasks marked `[P]` have no inter-dependencies
 - Task 38 (DateRange) depends on Task 35 (DatePicker) — sequential
 - Task 44 (SchedulePicker) depends on Task 35 (DatePicker) — sequential
+
+Within Phase 11 (UX & Integration):
+
+- **Tasks 49 + 50** can run in parallel (both are entry points)
+- **Tasks 51, 52, 53, 54, 55** can run in parallel after Task 49/50 (different files)
+- **Task 56** depends on Task 54 (bidirectional iteration must exist first)
+- **Task 57** depends on Tasks 54, 55, 50 (needs iteration, progress, and FormOptions)
+- **Tasks 58, 59** can run in parallel (independent: storage vs AI)
+- **Task 60** depends on all Tasks 49–59
 
 ### Within Each Field Handler
 
@@ -1412,14 +1803,25 @@ Once Phase 2 is complete:
 
 ## Success Criteria Traceability
 
-| SC     | Description                                                      | Verified By                                                                |
-| ------ | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| SC-001 | Zero conversation boilerplate — single Zod schema + metadata     | Task 6 (FormRunner Core), Task 5 (Schema Validator)                        |
-| SC-002 | Validation response time < 100ms for synchronous fields (NFR-001)| Task 6 (FormRunner), Tasks 7–18 (field handler validate methods)           |
-| SC-003 | 100% forms support `/cancel` when `allowCancel: true`            | Task 6 (FormRunner Core — cancel handling)                                 |
-| SC-004 | 100% partial session resume after restart within TTL             | Task 3 (Storage Adapter), Task 6 (FormRunner — partial save/restore)       |
-| SC-005 | All 39 field types pass unit tests (valid, invalid, edge cases)  | Tasks 7–18, 19–20, 22–38, 41–48 (each field handler has dedicated tests)  |
-| SC-006 | Zero hardcoded user-facing text — 100% i18n coverage             | All field handler tasks (i18n keys only, no literal strings)               |
+| SC     | Description                                                        | Verified By                                                              |
+| ------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| SC-001 | Zero conversation boilerplate — single Zod schema + metadata       | Task 6 (FormRunner Core), Task 5 (Schema Validator)                      |
+| SC-002 | Validation response time < 100ms for synchronous fields (NFR-001)  | Task 6 (FormRunner), Tasks 7–18 (field handler validate methods)         |
+| SC-003 | 100% forms support `/cancel` when `allowCancel: true`              | Task 6 (FormRunner Core), Task 52 (Cancel Interception)                  |
+| SC-004 | 100% partial session resume after restart within TTL               | Task 3 (Storage Adapter), Task 6 (FormRunner — partial save/restore)     |
+| SC-005 | All 39 field types pass unit tests (valid, invalid, edge cases)    | Tasks 7–18, 19–20, 22–38, 41–48 (each field handler has dedicated tests) |
+| SC-006 | Zero hardcoded user-facing text — 100% i18n coverage               | All field handler tasks (i18n keys only, no literal strings)             |
+| SC-007 | AIExtractorField degrades to manual within 1s of AI unavailability | Task 23 (AI Extractor), Task 59 (AI Extraction Full Flow)                |
+| SC-008 | Toggle guard returns err with zero side effects                    | Task 2 (Toggle Guard & Config)                                           |
+| SC-009 | Optional fields display Skip button, skip sets undefined           | Task 51 (Optional Field Skip)                                            |
+| SC-010 | Optional fields auto-skip on maxRetries exhaustion                 | Task 51 (Optional Field Skip — auto-skip on max retries)                 |
+| SC-011 | Cancel button + /cancel text both produce err(FORM_CANCELLED)      | Task 52 (Cancel Button Interception)                                     |
+| SC-012 | Validation errors display i18n messages with retry context         | Task 53 (Validation Error Display)                                       |
+| SC-013 | Progress indicator shows dynamic "Field X of Y"                    | Task 55 (Progress Indicator)                                             |
+| SC-014 | Back navigation re-renders previous field with Keep current        | Task 54 (Bidirectional Iteration), Task 56 (Back Nav with Keep Current)  |
+| SC-015 | Confirmation summary displays values with edit/re-evaluate flow    | Task 57 (Confirmation Step)                                              |
+| SC-016 | Media handlers call storageClient.upload() with graceful degrade   | Task 58 (Storage Engine Integration)                                     |
+| SC-017 | AIExtractorField full extraction → confirmation → acceptance       | Task 59 (AI Extraction Full Flow)                                        |
 
 ## NFR Performance Benchmark
 
@@ -1437,55 +1839,69 @@ All measurable NFR targets (NFR-001 through NFR-007) are validated through unit-
 
 ## Summary
 
-| Task  | Name                   | Priority | Est. Time   | Phase | FR Coverage                  |
-| ----- | ---------------------- | -------- | ----------- | ----- | ---------------------------- |
-| 0     | Package Scaffolding    | P0       | 5 min       | 1     | Infrastructure               |
-| 1     | Types/Contracts/Errors | P0       | 15 min      | 2     | FR-001,002,003,040           |
-| 2     | Toggle Guard & Config  | P0       | 5 min       | 2     | FR-040, D6, Rule XVI         |
-| 3     | Storage Adapter        | P0       | 10 min      | 2     | FR-005, D4, Rule XXXII       |
-| 4     | FieldHandler Interface | P0       | 10 min      | 2     | FR-003, Research 7           |
-| 5     | Schema Validator       | P0       | 10 min      | 2     | FR-039, EC-17,19             |
-| 6     | FormRunner Core        | P0       | 25 min      | 2     | FR-001,004-007,038,041,042   |
-| 7     | ShortText Field        | P1       | 10 min      | 3     | FR-008                       |
-| 8     | LongText Field         | P1       | 8 min       | 3     | FR-009                       |
-| 9     | Email Field            | P1       | 8 min       | 3     | FR-010                       |
-| 10    | Phone Field            | P1       | 8 min       | 3     | FR-011                       |
-| 11    | URL Field              | P1       | 5 min       | 3     | FR-012                       |
-| 12    | RegexValidated Field   | P1       | 8 min       | 3     | FR-013                       |
-| 13    | Integer Field          | P1       | 8 min       | 3     | FR-014                       |
-| 14    | Float Field            | P1       | 8 min       | 3     | FR-015                       |
-| 15    | Currency Field         | P1       | 10 min      | 3     | FR-016, EC-14                |
-| 16    | Percentage Field       | P1       | 5 min       | 3     | FR-017                       |
-| 17    | SingleChoice Field     | P1       | 10 min      | 3     | FR-018                       |
-| 18    | BooleanToggle Field    | P1       | 5 min       | 3     | FR-020                       |
-| 19    | MultipleChoice Field   | P1       | 12 min      | 4     | FR-019, EC-12                |
-| 20    | SearchableList Field   | P1       | 15 min      | 4     | FR-021, EC-8                 |
-| 21    | Callback Data Utils    | P1       | 5 min       | 4     | FR-041, EC-7                 |
-| 22    | ConditionalField       | P2       | 10 min      | 5     | FR-030, EC-17,19             |
-| 23    | AIExtractorField       | P2       | 15 min      | 5     | FR-031, EC-3,13, Rule XXXIII |
-| 24    | GeoSelectField         | P2       | 12 min      | 6     | FR-032                       |
-| 25    | GeoAddressField        | P2       | 8 min       | 6     | FR-033                       |
-| 26    | NationalID Field       | P2       | 12 min      | 7     | FR-034, EC-28,29             |
-| 27    | PassportNumber Field   | P2       | 5 min       | 7     | FR-035                       |
-| 28    | StarRating Field       | P2       | 8 min       | 7     | FR-036, EC-21                |
-| 29    | MultiStepChoice Field  | P2       | 15 min      | 7     | FR-037, EC-20                |
-| 30    | Photo Field            | P2       | 10 min      | 8     | FR-026, EC-15                |
-| 31    | Document Field         | P2       | 8 min       | 8     | FR-027                       |
-| 32    | Video Field            | P2       | 8 min       | 8     | FR-028                       |
-| 33    | Audio Field            | P2       | 8 min       | 8     | FR-028                       |
-| 34    | FileGroup Field        | P2       | 12 min      | 8     | FR-029, EC-18                |
-| 35    | DatePicker Field       | P1       | 15 min      | 9     | FR-022, EC-9                 |
-| 36    | TimePicker Field       | P1       | 10 min      | 9     | FR-023, EC-10                |
-| 37    | Location Field         | P1       | 8 min       | 9     | FR-024, EC-11                |
-| 38    | DateRange Field        | P2       | 10 min      | 9     | FR-025                       |
-| 39    | Event Registration     | P1       | 5 min       | 10    | Spec § Events                |
-| 40    | Barrel Exports         | P1       | 5 min       | 10    | All                          |
-| 41    | CurrencyAmount Field   | P2       | 10 min      | 3     | FR-047, EC-35                |
-| 42    | IBAN Field             | P2       | 12 min      | 7     | FR-045, EC-25,26             |
-| 43    | EgyptianMobile Field   | P2       | 10 min      | 7     | FR-046, EC-27                |
-| 44    | SchedulePicker Field   | P2       | 15 min      | 9     | FR-043, EC-32,33             |
-| 45    | QRCode Field           | P2       | 10 min      | 7     | FR-048, EC-23,24             |
-| 46    | Toggle Field           | P2       | 5 min       | 7     | FR-049                       |
-| 47    | Tags Field             | P2       | 15 min      | 7     | FR-050, EC-30,31             |
-| 48    | Contact Field          | P2       | 8 min       | 8     | FR-044, EC-34                |
-| **—** | **Total**              |          | **474 min** |       |                              |
+| Task  | Name                     | Priority | Est. Time   | Phase | FR Coverage                  |
+| ----- | ------------------------ | -------- | ----------- | ----- | ---------------------------- |
+| 0     | Package Scaffolding      | P0       | 5 min       | 1     | Infrastructure               |
+| 1     | Types/Contracts/Errors   | P0       | 15 min      | 2     | FR-001,002,003,040           |
+| 2     | Toggle Guard & Config    | P0       | 5 min       | 2     | FR-040, D6, Rule XVI         |
+| 3     | Storage Adapter          | P0       | 10 min      | 2     | FR-005, D4, Rule XXXII       |
+| 4     | FieldHandler Interface   | P0       | 10 min      | 2     | FR-003, Research 7           |
+| 5     | Schema Validator         | P0       | 10 min      | 2     | FR-039, EC-17,19             |
+| 6     | FormRunner Core          | P0       | 25 min      | 2     | FR-001,004-007,038,041,042   |
+| 7     | ShortText Field          | P1       | 10 min      | 3     | FR-008                       |
+| 8     | LongText Field           | P1       | 8 min       | 3     | FR-009                       |
+| 9     | Email Field              | P1       | 8 min       | 3     | FR-010                       |
+| 10    | Phone Field              | P1       | 8 min       | 3     | FR-011                       |
+| 11    | URL Field                | P1       | 5 min       | 3     | FR-012                       |
+| 12    | RegexValidated Field     | P1       | 8 min       | 3     | FR-013                       |
+| 13    | Integer Field            | P1       | 8 min       | 3     | FR-014                       |
+| 14    | Float Field              | P1       | 8 min       | 3     | FR-015                       |
+| 15    | Currency Field           | P1       | 10 min      | 3     | FR-016, EC-14                |
+| 16    | Percentage Field         | P1       | 5 min       | 3     | FR-017                       |
+| 17    | SingleChoice Field       | P1       | 10 min      | 3     | FR-018                       |
+| 18    | BooleanToggle Field      | P1       | 5 min       | 3     | FR-020                       |
+| 19    | MultipleChoice Field     | P1       | 12 min      | 4     | FR-019, EC-12                |
+| 20    | SearchableList Field     | P1       | 15 min      | 4     | FR-021, EC-8                 |
+| 21    | Callback Data Utils      | P1       | 5 min       | 4     | FR-041, EC-7                 |
+| 22    | ConditionalField         | P2       | 10 min      | 5     | FR-030, EC-17,19             |
+| 23    | AIExtractorField         | P2       | 15 min      | 5     | FR-031, EC-3,13, Rule XXXIII |
+| 24    | GeoSelectField           | P2       | 12 min      | 6     | FR-032                       |
+| 25    | GeoAddressField          | P2       | 8 min       | 6     | FR-033                       |
+| 26    | NationalID Field         | P2       | 12 min      | 7     | FR-034, EC-28,29             |
+| 27    | PassportNumber Field     | P2       | 5 min       | 7     | FR-035                       |
+| 28    | StarRating Field         | P2       | 8 min       | 7     | FR-036, EC-21                |
+| 29    | MultiStepChoice Field    | P2       | 15 min      | 7     | FR-037, EC-20                |
+| 30    | Photo Field              | P2       | 10 min      | 8     | FR-026, EC-15                |
+| 31    | Document Field           | P2       | 8 min       | 8     | FR-027                       |
+| 32    | Video Field              | P2       | 8 min       | 8     | FR-028                       |
+| 33    | Audio Field              | P2       | 8 min       | 8     | FR-028                       |
+| 34    | FileGroup Field          | P2       | 12 min      | 8     | FR-029, EC-18                |
+| 35    | DatePicker Field         | P1       | 15 min      | 9     | FR-022, EC-9                 |
+| 36    | TimePicker Field         | P1       | 10 min      | 9     | FR-023, EC-10                |
+| 37    | Location Field           | P1       | 8 min       | 9     | FR-024, EC-11                |
+| 38    | DateRange Field          | P2       | 10 min      | 9     | FR-025                       |
+| 39    | Event Registration       | P1       | 5 min       | 10    | Spec § Events                |
+| 40    | Barrel Exports           | P1       | 5 min       | 10    | All Phase 1                  |
+| 41    | CurrencyAmount Field     | P2       | 10 min      | 3     | FR-047, EC-35                |
+| 42    | IBAN Field               | P2       | 12 min      | 7     | FR-045, EC-25,26             |
+| 43    | EgyptianMobile Field     | P2       | 10 min      | 7     | FR-046, EC-27                |
+| 44    | SchedulePicker Field     | P2       | 15 min      | 9     | FR-043, EC-32,33             |
+| 45    | QRCode Field             | P2       | 10 min      | 7     | FR-048, EC-23,24             |
+| 46    | Toggle Field             | P2       | 5 min       | 7     | FR-049                       |
+| 47    | Tags Field               | P2       | 15 min      | 7     | FR-050, EC-30,31             |
+| 48    | Contact Field            | P2       | 8 min       | 8     | FR-044, EC-34                |
+| **—** | **Phase 1 Subtotal**     |          | **474 min** |       |                              |
+| 49    | Action Buttons Builder   | P2       | 10 min      | 11    | FR-052,053, D7               |
+| 50    | FormOptions/Deps Updates | P2       | 5 min       | 11    | FR-055,057,054               |
+| 51    | Optional Field Skip      | P2       | 10 min      | 11    | FR-051, EC-4,6               |
+| 52    | Cancel Interception      | P2       | 8 min       | 11    | FR-052,053, EC-2             |
+| 53    | Validation Error Display | P2       | 10 min      | 11    | FR-054, EC-4                 |
+| 54    | Bidirectional Iteration  | P2       | 15 min      | 11    | FR-056, EC-36,37,38          |
+| 55    | Progress Indicator       | P2       | 10 min      | 11    | FR-055, EC-42                |
+| 56    | Back Nav Keep Current    | P2       | 8 min       | 11    | FR-056, Clarification Q4     |
+| 57    | Confirmation Step        | P2       | 15 min      | 11    | FR-057,058, EC-39,40,41      |
+| 58    | Storage Integration      | P2       | 12 min      | 11    | FR-059                       |
+| 59    | AI Extraction Full Flow  | P2       | 15 min      | 11    | FR-031, FR-059               |
+| 60    | Barrel Exports Phase 2   | P2       | 5 min       | 11    | All Phase 2                  |
+| **—** | **Phase 2 Subtotal**     |          | **123 min** |       |                              |
+| **—** | **Grand Total**          |          | **597 min** |       |                              |

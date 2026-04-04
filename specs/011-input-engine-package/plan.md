@@ -62,19 +62,32 @@
 │   @tempot/shared CacheService)                                        │
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
+│  Phase 2 — UX & Integration Layer                                     │
+│  ────────────────────────────────                                     │
+│  ActionButtonsBuilder  │  ProgressRenderer    │  ConfirmationRenderer │
+│  (Skip/Cancel/Back/    │  (dynamic "X of Y"   │  (summary + edit +   │
+│   KeepCurrent buttons) │   progress messages) │   confirm flow)      │
+│  ──────────────────────┼──────────────────────┼───────────────────────│
+│  ValidationErrorDisplay│  BackNavigator       │  FieldSkipHandler    │
+│  (i18n error + retry   │  (bidirectional      │  (optional skip +    │
+│   count rendering)     │   iteration index)   │   auto-skip on max)  │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
 │  External Dependencies (structural interfaces — injected at runtime)  │
 │  ──────────────────────────────────────────────────────────────────   │
 │  StorageEngineClient?  │  AIExtractionClient?  │  RegionalClient?    │
 │  (@tempot/storage)     │  (@tempot/ai-core)    │  (@tempot/regional) │
+│  t? (i18n function)    │                       │                     │
 └────────────────────────┴───────────────────────┴─────────────────────┘
 ```
 
-**Four Phases:**
+**Five Phases:**
 
 - **Phase 1A — Foundation**: Package scaffolding, types/contracts/errors, toggle guard, conversations storage adapter, FieldHandler interface, FormRunner core
 - **Phase 1B — Text & Number Fields**: All 6 text fields + all 5 number fields (11 handlers)
 - **Phase 1C — Choice & Time/Place Fields**: All 4 choice fields + all 5 time/place fields (9 handlers)
 - **Phase 1D — Advanced Fields + Polish**: Media (6), Smart (2), Geo (2), Identity (4), Interactive (5), barrel exports, event registration (19 handlers + infrastructure)
+- **Phase 2 — UX & Integration**: Action buttons, optional field skip, cancel interception, validation error display, progress indicator, back navigation, confirmation step, storage integration, AI extraction full flow (8 new features, 12 tasks)
 
 ---
 
@@ -94,17 +107,17 @@
 
 ## Constitution Check
 
-| Rule   | Requirement                           | Status                                         |
-| ------ | ------------------------------------- | ---------------------------------------------- |
-| III    | File naming: `{Feature}.{type}.ts`    | Pass — all files follow pattern                |
-| XVI    | Toggle guard: `TEMPOT_INPUT_ENGINE`   | Pass — D6                                      |
-| XXI    | Result pattern: `Result<T, AppError>` | Pass — D5, correcting architecture spec        |
-| XXXII  | Redis degradation                     | Pass — CacheService handles fallback           |
-| XXXIII | AI degradation                        | Pass — AIExtractorField falls back to manual   |
-| XXXIX  | i18n-Only                             | Pass — FR-004                                  |
-| XLIII  | No zombie code                        | Will verify                                    |
-| LXVII  | Confirmation expiry (N/A for forms)   | N/A — no confirmations in input-engine         |
-| LXXVII | No phantom dependencies               | Pass — structural interfaces for optional deps |
+| Rule   | Requirement                           | Status                                                           |
+| ------ | ------------------------------------- | ---------------------------------------------------------------- |
+| III    | File naming: `{Feature}.{type}.ts`    | Pass — all files follow pattern                                  |
+| XVI    | Toggle guard: `TEMPOT_INPUT_ENGINE`   | Pass — D6                                                        |
+| XXI    | Result pattern: `Result<T, AppError>` | Pass — D5, correcting architecture spec                          |
+| XXXII  | Redis degradation                     | Pass — CacheService handles fallback                             |
+| XXXIII | AI degradation                        | Pass — AIExtractorField falls back to manual                     |
+| XXXIX  | i18n-Only                             | Pass — FR-004, FR-054 (error msgs via t())                       |
+| XLIII  | No zombie code                        | Will verify                                                      |
+| LXVII  | Confirmation expiry                   | Pass — FR-057 confirmation step; timeout reset on display (EC40) |
+| LXXVII | No phantom dependencies               | Pass — structural interfaces for optional deps                   |
 
 ---
 
@@ -138,7 +151,15 @@ packages/input-engine/
 │   ├── input-engine.config.ts             # Config loading + toggle guard
 │   ├── runner/
 │   │   ├── form.runner.ts                 # FormRunner — orchestrates form lifecycle
-│   │   └── schema.validator.ts            # Schema validation at call time
+│   │   ├── field.iterator.ts              # Field iteration loop (bidirectional in Phase 2)
+│   │   ├── schema.validator.ts            # Schema validation at call time
+│   │   ├── condition.evaluator.ts         # Conditional field evaluation
+│   │   ├── event.emitter.ts               # Lifecycle event emission
+│   │   ├── partial-save.helper.ts         # Partial save read/write/delete
+│   │   ├── action-buttons.builder.ts      # [Phase 2] Skip/Cancel/Back/KeepCurrent buttons
+│   │   ├── progress.renderer.ts           # [Phase 2] Dynamic "X of Y" progress messages
+│   │   ├── validation-error.renderer.ts   # [Phase 2] i18n error message display
+│   │   └── confirmation.renderer.ts       # [Phase 2] Summary + edit + confirm flow
 │   ├── storage/
 │   │   └── conversations-storage.adapter.ts  # Custom conversations storage via CacheService
 │   ├── fields/
@@ -201,6 +222,11 @@ packages/input-engine/
         ├── form.runner.test.ts
         ├── conversations-storage.adapter.test.ts
         ├── field.handler.test.ts
+        ├── action-buttons.builder.test.ts       # [Phase 2]
+        ├── progress.renderer.test.ts            # [Phase 2]
+        ├── validation-error.renderer.test.ts    # [Phase 2]
+        ├── confirmation.renderer.test.ts        # [Phase 2]
+        ├── field.iterator.test.ts               # [Phase 2] bidirectional iteration tests
         ├── short-text.field.test.ts
         ├── long-text.field.test.ts
         ├── email.field.test.ts
@@ -1043,4 +1069,445 @@ Export all public types, interfaces, constants, and the `runForm()` function. Al
 
 ## Complexity Tracking
 
-No constitution violations to justify. The package follows all rules directly.
+No constitution violations to justify. The package follows all rules directly. Phase 2 introduces Rule LXVII compliance (confirmation button expiry — confirmation step timeout is reset per EC40, not enforced as 5-minute expiry since the form has its own deadline mechanism).
+
+---
+
+## Phase 2 — UX & Integration Features
+
+**Prerequisites:** Phase 1 (Tasks 0–39) complete. All 39 field handlers, FormRunner, partial save, and event emission are working.
+
+**Dependencies within Phase 2:** Tasks build sequentially. Task 40 (action-buttons builder) provides the button-building utility used by Tasks 41–43 and 46. Task 44 (bidirectional iteration) restructures the core field loop used by Tasks 41, 43, and 46. Task 48 (confirmation) depends on the progress renderer (Task 45) for display formatting.
+
+**Backward Compatibility:** All Phase 2 features are additive and opt-in via `FormOptions` or `FormRunnerDeps`. Existing `runForm()` calls with no new options work identically. Default values: `showProgress: true`, `showConfirmation: true`, `allowCancel: true` — these match the spec defaults but the FormRunner already handled cancel in Phase 1, so Phase 2 adds the inline button rendering.
+
+---
+
+### Task 40 — Action Buttons Builder
+
+#### FR Covered: FR-052, FR-053, D7
+
+#### Files
+
+- Create: `src/runner/action-buttons.builder.ts`
+- Test: `tests/unit/action-buttons.builder.test.ts`
+
+Builds inline keyboard action button rows to append to field handler keyboards. Each button uses encoded callback data: `ie:{formId}:{fieldIndex}:__action__`.
+
+```typescript
+import type { FormOptions } from '../input-engine.types.js';
+
+/** Action button identifiers in callback data */
+export const ACTION_CALLBACKS = {
+  SKIP: '__skip__',
+  CANCEL: '__cancel__',
+  BACK: '__back__',
+  KEEP_CURRENT: '__keep_current__',
+} as const;
+
+/** Context for building action buttons */
+interface ActionButtonContext {
+  formId: string;
+  fieldIndex: number;
+  isOptional: boolean;
+  isFirstField: boolean;
+  allowCancel: boolean;
+}
+
+/** Build inline keyboard row(s) for action buttons */
+export function buildActionButtons(
+  ctx: ActionButtonContext,
+  t: TranslateFunction,
+): ActionButtonRow[] {
+  // Returns array of button rows:
+  // Row 1 (conditional): [Skip ⏭] — only if isOptional
+  // Row 2 (conditional): [⬅ Back] [Cancel ❌] — Back if !isFirstField, Cancel if allowCancel
+  // Each button: { text: t(key), callback_data: encodeCallbackData(...) }
+}
+
+/** Type alias for translation function */
+type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+
+/** Action button row structure */
+interface ActionButtonRow {
+  buttons: Array<{ text: string; callbackData: string }>;
+}
+```
+
+The builder is a pure function — no side effects, no async, no external deps beyond the `t` function. Callback data format: `ie:{formId}:{fieldIndex}:{action}`.
+
+---
+
+### Task 41 — Optional Field Skip
+
+#### FR Covered: FR-051, EC4, EC6
+
+#### Files
+
+- Modify: `src/runner/field.iterator.ts` — handle skip callback + auto-skip on max retries for optional fields
+- Modify: `src/runner/event.emitter.ts` — add `emitFieldSkipped` function
+- Modify: `src/input-engine.errors.ts` — add `FIELD_SKIPPED` error code (internal, not user-facing)
+- Test: `tests/unit/field.iterator.test.ts` — skip via callback, auto-skip on max retries
+
+When a field has `metadata.optional === true`:
+
+1. The action buttons builder includes a "Skip ⏭" button
+2. If the user taps "Skip", `processField` detects the `__skip__` callback and returns a sentinel value (e.g., `ok(FIELD_SKIPPED_SENTINEL)`)
+3. `iterateFields` sets `formData[fieldName] = undefined`, marks the field complete, emits `input-engine.field.skipped` with reason `user_skip`
+4. If `maxRetries` is exhausted AND `metadata.optional === true`, the field is auto-skipped: `formData[fieldName] = undefined`, emit `input-engine.field.skipped` with reason `max_retries_skip`, instead of returning `err(FIELD_MAX_RETRIES)`
+
+---
+
+### Task 42 — Cancel Button Interception
+
+#### FR Covered: FR-052, FR-053, EC2
+
+#### Files
+
+- Modify: `src/runner/field.iterator.ts` — detect `__cancel__` callback and `/cancel` text
+- Test: `tests/unit/field.iterator.test.ts` — cancel via button, cancel via text, cancel disabled
+
+When `allowCancel: true` (default):
+
+1. The action buttons builder includes a "Cancel ❌" button
+2. If the user taps the cancel button (`__cancel__` callback), `processField` returns `err(FORM_CANCELLED)`
+3. If the user types `/cancel`, `parseResponse` in the field handler returns the raw text. The iterator intercepts `/cancel` text BEFORE calling parseResponse — if detected, returns `err(FORM_CANCELLED)`
+4. Partial save data is PRESERVED (not deleted) — the existing `handleResult` in `form.runner.ts` already handles this for `FORM_CANCELLED`
+
+When `allowCancel: false`:
+
+1. No cancel button is shown (action buttons builder omits it)
+2. `/cancel` text is NOT intercepted — passed to field handler as normal input
+
+---
+
+### Task 43 — Validation Error Display
+
+#### FR Covered: FR-054, EC4
+
+#### Files
+
+- Create: `src/runner/validation-error.renderer.ts`
+- Modify: `src/runner/field.iterator.ts` — call error renderer on parse/validate failure
+- Test: `tests/unit/validation-error.renderer.test.ts`
+
+```typescript
+import type { FieldMetadata } from '../input-engine.types.js';
+
+/** Default error i18n keys per field type category */
+const DEFAULT_ERROR_KEYS: Record<string, string> = {
+  ShortText: 'input-engine.errors.text_invalid',
+  LongText: 'input-engine.errors.text_invalid',
+  Email: 'input-engine.errors.email_invalid',
+  Phone: 'input-engine.errors.phone_invalid',
+  Integer: 'input-engine.errors.number_invalid',
+  Float: 'input-engine.errors.number_invalid',
+  // ... one per field type
+};
+
+/** Render a validation error message via i18n */
+export function renderValidationError(
+  metadata: FieldMetadata,
+  retryState: RetryState,
+  t: TranslateFunction,
+): string {
+  const errorKey =
+    metadata.i18nErrorKey ??
+    DEFAULT_ERROR_KEYS[metadata.fieldType] ??
+    'input-engine.errors.generic';
+  return t(errorKey, {
+    attempt: retryState.current,
+    maxRetries: retryState.max,
+  });
+}
+
+interface RetryState {
+  current: number;
+  max: number;
+}
+
+type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+```
+
+The error is displayed to the user BEFORE re-rendering the field. The `processField` retry loop calls this function when `parseResponse` or `validate` fails. The rendered error string is sent via `renderPrompt` or `ctx.reply`.
+
+---
+
+### Task 44 — Bidirectional Field Iteration
+
+#### FR Covered: FR-056, EC36, EC37, EC38
+
+#### Files
+
+- Modify: `src/runner/field.iterator.ts` — restructure from `for` loop to `while` loop with mutable index
+- Test: `tests/unit/field.iterator.test.ts` — back navigation, back past conditional, back on first field
+
+The current `iterateFields` uses a `for (let i = 0; ...)` loop that only moves forward. Phase 2 restructures it to a `while (index < fieldNames.length)` loop where `index` can be decremented on back navigation:
+
+**Back navigation logic:**
+
+1. User taps "⬅ Back" button (`__back__` callback detected in `processField`)
+2. `processField` returns a sentinel value (e.g., `err(NAVIGATE_BACK)` — internal, not user-facing)
+3. `iterateFields` detects the sentinel, removes the last entry from `completedFieldNames`, removes its value from `formData`, decrements `fieldsCompleted`, and decrements `index` to re-render the previous field
+4. If `index` would go below 0 (first field), the back action is ignored (EC37)
+5. After going back, conditional fields between the new index and the old index are re-evaluated (EC36)
+6. When re-rendering the previous field, the `RenderContext` includes the previous value so the handler can show "Current value: X" and a "Keep current ✓" button
+
+**Constraints:**
+
+- First field (`fieldIndex === 0`): no "⬅ Back" button (EC37)
+- After partial save restore: back navigation works within restored fields (EC38)
+- Conditional re-evaluation: when going back to a field that other conditional fields depend on, changing the value triggers re-evaluation. Newly-hidden conditional fields are removed from `completedFieldNames` and `formData` (EC36)
+
+---
+
+### Task 45 — Progress Indicator
+
+#### FR Covered: FR-055, EC42
+
+#### Files
+
+- Create: `src/runner/progress.renderer.ts`
+- Modify: `src/runner/field.iterator.ts` — call progress renderer before each field
+- Test: `tests/unit/progress.renderer.test.ts`
+
+```typescript
+import type { FieldMetadata } from '../input-engine.types.js';
+
+/** Compute dynamic total by evaluating which remaining fields would render */
+export function computeDynamicTotal(
+  allFieldNames: string[],
+  allMetadata: Map<string, FieldMetadata>,
+  currentFormData: Record<string, unknown>,
+  shouldRenderFn: (m: FieldMetadata, d: Record<string, unknown>) => boolean,
+): number {
+  return allFieldNames.filter((name) => {
+    const meta = allMetadata.get(name);
+    return meta ? shouldRenderFn(meta, currentFormData) : true;
+  }).length;
+}
+
+/** Build progress message string */
+export function renderProgress(current: number, total: number, t: TranslateFunction): string {
+  return t('input-engine.progress', { current, total });
+}
+
+type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+```
+
+When `showProgress: true` (default), before rendering each field:
+
+1. Call `computeDynamicTotal` to get the current total (excluding conditionally hidden fields)
+2. Call `renderProgress` to build the i18n string
+3. Send the progress message via `renderPrompt` or `ctx.reply`
+4. The total is re-computed after each field completes because conditional visibility may change (EC42)
+
+When `showProgress: false`, skip the progress message entirely.
+
+---
+
+### Task 46 — Back Navigation with Keep Current
+
+#### FR Covered: FR-056 (second part), Clarification Q4
+
+#### Files
+
+- Modify: `src/runner/field.iterator.ts` — pass `previousValue` in RenderContext during back navigation
+- Modify: `src/fields/field.handler.ts` — add optional `previousValue` to `RenderContext`
+- Modify: `src/runner/action-buttons.builder.ts` — add "Keep current ✓" button when previousValue exists
+- Test: `tests/unit/field.iterator.test.ts` — keep current flow, re-enter flow
+
+When the user navigates back to a previously completed field:
+
+1. `RenderContext` includes `previousValue: unknown` — the value previously entered for this field
+2. The field handler renders the field with context showing the previous value (e.g., "Current value: Ahmed")
+3. Action buttons include "Keep current ✓" (`__keep_current__` callback) in addition to normal buttons
+4. If the user taps "Keep current", `processField` returns the `previousValue` unchanged
+5. If the user enters a new value, normal parse/validate flow applies
+
+The `RenderContext.previousValue` is `undefined` for first-time field entry and populated only during back-navigation re-render.
+
+---
+
+### Task 47 — FormOptions & FormRunnerDeps Updates
+
+#### FR Covered: FR-055, FR-057, FR-054
+
+#### Files
+
+- Modify: `src/input-engine.types.ts` — add `showProgress`, `showConfirmation` to `FormOptions` and `DEFAULT_FORM_OPTIONS`
+- Modify: `src/runner/form.runner.ts` — add `t`, `storageClient`, `aiClient` to `FormRunnerDeps`
+- Test: `tests/unit/input-engine.types.test.ts` — verify new defaults
+- Test: `tests/unit/form.runner.test.ts` — verify new deps are optional
+
+```typescript
+// Updated FormOptions
+export interface FormOptions {
+  partialSave?: boolean;
+  partialSaveTTL?: number;
+  maxMilliseconds?: number;
+  allowCancel?: boolean;
+  formId?: string;
+  showProgress?: boolean; // default true
+  showConfirmation?: boolean; // default true
+}
+
+// Updated DEFAULT_FORM_OPTIONS
+export const DEFAULT_FORM_OPTIONS: Required<FormOptions> = {
+  partialSave: false,
+  partialSaveTTL: 86_400_000,
+  maxMilliseconds: 600_000,
+  allowCancel: true,
+  formId: '',
+  showProgress: true,
+  showConfirmation: true,
+};
+
+// Updated FormRunnerDeps — add Phase 2 optional deps
+export interface FormRunnerDeps {
+  // ... existing ...
+  t?: (key: string, params?: Record<string, unknown>) => string;
+  storageClient?: StorageEngineClient;
+  aiClient?: AIExtractionClient;
+}
+```
+
+These type changes are prerequisites for the other Phase 2 tasks. Existing callers are unaffected because all new fields are optional.
+
+---
+
+### Task 48 — Confirmation Step
+
+#### FR Covered: FR-057, FR-058, EC39, EC40, EC41
+
+#### Files
+
+- Create: `src/runner/confirmation.renderer.ts`
+- Modify: `src/runner/field.iterator.ts` — call confirmation after all fields complete (when `showConfirmation: true`)
+- Modify: `src/runner/form.runner.ts` — reset timeout deadline when confirmation shown (EC40)
+- Test: `tests/unit/confirmation.renderer.test.ts`
+
+```typescript
+import type { FieldMetadata } from '../input-engine.types.js';
+
+/** Display format for a field value in the confirmation summary */
+export function formatFieldValue(value: unknown, metadata: FieldMetadata): string {
+  // Text fields: show value directly
+  // Choice fields: show selected label from metadata.options
+  // Media fields: "✓ File uploaded"
+  // Boolean fields: ✓ or ✗
+  // Skipped optional fields (undefined): "—"
+}
+
+/** Build the full confirmation summary message */
+export function buildConfirmationSummary(
+  formData: Record<string, unknown>,
+  fieldMetadata: Map<string, FieldMetadata>,
+  t: TranslateFunction,
+): string {
+  // For each field: t(metadata.i18nKey) + ": " + formatFieldValue(value, metadata)
+  // Returns multi-line summary string
+}
+
+/** Confirmation action enum */
+export const CONFIRMATION_ACTIONS = {
+  CONFIRM: '__confirm__',
+  EDIT: '__edit__',
+  CANCEL: '__cancel__',
+} as const;
+
+type TranslateFunction = (key: string, params?: Record<string, unknown>) => string;
+```
+
+**Confirmation flow:**
+
+1. After all fields are completed, display summary via `buildConfirmationSummary`
+2. Show 3 inline buttons: "✅ Confirm", "✏️ Edit field", "❌ Cancel"
+3. **Confirm**: return `ok(formData)` (form completes)
+4. **Edit**: show secondary inline keyboard listing all field names. User selects a field → re-enter that field (with previous value context) → re-evaluate conditions → re-display summary
+5. **Cancel**: return `err(FORM_CANCELLED)` with partial save preserved
+6. **Timeout reset**: when the confirmation summary is displayed, `progress.startTime` is reset to `Date.now()`, giving the user a fresh `maxMilliseconds` window to review (EC40)
+7. **Edit → conditional re-evaluation**: if editing a field changes conditional visibility, newly-visible fields are asked and newly-hidden fields are removed from formData before re-displaying the summary (EC39)
+
+---
+
+### Task 49 — Storage Engine Integration in Media Handlers
+
+#### FR Covered: FR-059
+
+#### Files
+
+- Modify: `src/fields/media/photo.field.ts` — call `storageClient.upload()` when available
+- Modify: `src/fields/media/document.field.ts` — same
+- Modify: `src/fields/media/video.field.ts` — same
+- Modify: `src/fields/media/audio.field.ts` — same
+- Modify: `src/fields/media/file-group.field.ts` — same (per file in group)
+- Test: update 5 media test files with storage integration tests
+
+When `StorageEngineClient` is provided in `FormRunnerDeps.storageClient`:
+
+1. After successful `parseResponse` + `validate`, the media handler calls `storageClient.upload()` via `conversation.external()`
+2. On success: returns `{ telegramFileId, storageUrl, fileName, mimeType, size }`
+3. On failure: logs a warning via `logger.warn()` and returns `{ telegramFileId }` only (graceful degradation)
+
+When `StorageEngineClient` is NOT provided:
+
+1. Returns `{ telegramFileId }` only (current Phase 1 behavior, no change)
+
+The `storageClient` is passed through from `FormRunnerDeps` to the field handler via the `RenderContext` or a new `FieldDeps` parameter. Since each handler's `render` method receives `RenderContext` which already includes `formData`, we extend `RenderContext` to include optional `storageClient` reference, or pass it via the existing `deps` chain.
+
+---
+
+### Task 50 — AI Extraction Full Flow
+
+#### FR Covered: FR-031 (enhanced), FR-059 (AI part)
+
+#### Files
+
+- Modify: `src/fields/smart/ai-extractor.field.ts` — implement full extraction → confirmation → accept/edit/manual flow
+- Test: update `tests/unit/ai-extractor.field.test.ts` with full flow tests
+
+The AIExtractorField handler currently has a placeholder. Phase 2 implements the full flow:
+
+1. **Render**: send i18n prompt asking user to send free-text, photo, or document
+2. **Parse**: receive the user's input (text message, photo caption, or document)
+3. **Extract**: call `aiClient.extract(input, targetFields)` via `conversation.external()`
+4. **Display**: show extracted values for confirmation with 3 buttons:
+   - "✅ Accept all" — accept all extracted values
+   - "✏️ Edit" — let user edit individual extracted values
+   - "📝 Manual input" — abandon AI extraction, ask all target fields manually
+5. **Partial success**: if some target fields are not extracted, accept the extracted ones and ask remaining manually
+6. **AI unavailable**: if `aiClient.isAvailable()` returns false, skip extraction entirely, show i18n unavailability message, fall back to manual step-by-step input for all target fields (Rule XXXIII)
+7. **Extraction failure**: if `aiClient.extract()` returns err, log warning, fall back to manual input
+
+---
+
+### Task 51 — Barrel Exports Update & Phase 2 Validation
+
+#### FR Covered: All Phase 2
+
+#### Files
+
+- Modify: `src/index.ts` — export new Phase 2 public types and constants
+- Run: full test suite + tsc + eslint
+- Verify: all 8 new features work end-to-end with existing Phase 1 infrastructure
+
+Export from `src/index.ts`:
+
+- `ACTION_CALLBACKS` from `action-buttons.builder.ts`
+- `CONFIRMATION_ACTIONS` from `confirmation.renderer.ts`
+- Updated `FormOptions` (already exported, now includes `showProgress`, `showConfirmation`)
+- Updated `FormRunnerDeps` (already exported, now includes `t`, `storageClient`, `aiClient`)
+- `FieldSkippedPayload` event type (for external consumption)
+
+Validation checklist:
+
+- [ ] `tsc --noEmit` passes with zero errors
+- [ ] `eslint src/ --max-warnings 0` passes
+- [ ] All existing Phase 1 tests continue to pass
+- [ ] All new Phase 2 tests pass
+- [ ] No file exceeds 200 code lines (Rule II)
+- [ ] No function exceeds 50 code lines (Rule II)
+- [ ] No function exceeds 3 parameters (Rule II)
+- [ ] Zero hardcoded user-facing text (Rule XXXIX)
+- [ ] All new files follow `{Feature}.{type}.ts` naming (Rule III)

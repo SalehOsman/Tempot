@@ -6,12 +6,12 @@
 
 Contract that every field type implements. The FormRunner delegates to the appropriate handler based on the `fieldType` from registry metadata.
 
-| Property        | Type                                                                                                             | Description                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `fieldType`     | `FieldType`                                                                                                      | The field type identifier (e.g., `'ShortText'`, `'Integer'`) |
+| Property        | Type                                                                                                                | Description                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `fieldType`     | `FieldType`                                                                                                         | The field type identifier (e.g., `'ShortText'`, `'Integer'`) |
 | `render`        | `(conversation, ctx, metadata: FieldMetadata, formData: Record<string, unknown>) => AsyncResult<unknown, AppError>` | Render the field prompt and UI (buttons, calendar, etc.)     |
-| `parseResponse` | `(message: Message, metadata: FieldMetadata) => Result<unknown, AppError>`                                       | Parse the user's response into a typed value                 |
-| `validate`      | `(value: unknown, schema: ZodType, metadata: FieldMetadata) => Result<unknown, AppError>`                        | Validate the parsed value against the Zod schema             |
+| `parseResponse` | `(message: Message, metadata: FieldMetadata) => Result<unknown, AppError>`                                          | Parse the user's response into a typed value                 |
+| `validate`      | `(value: unknown, schema: ZodType, metadata: FieldMetadata) => Result<unknown, AppError>`                           | Validate the parsed value against the Zod schema             |
 
 ---
 
@@ -74,13 +74,15 @@ Metadata attached to each Zod field schema via `z.globalRegistry.register()`. No
 
 Options passed to `runForm()` that control form behavior.
 
-| Property          | Type      | Description                     | Default             |
-| ----------------- | --------- | ------------------------------- | ------------------- |
-| `partialSave`     | `boolean` | Enable partial save to Redis    | `false`             |
-| `partialSaveTTL`  | `number`  | TTL in ms for partial save data | `86400000` (24h)    |
-| `maxMilliseconds` | `number`  | Form timeout in ms              | `600000` (10 min)   |
-| `allowCancel`     | `boolean` | Allow `/cancel` command         | `true`              |
-| `formId`          | `string`  | Unique form instance ID         | Auto-generated UUID |
+| Property           | Type      | Description                        | Default             |
+| ------------------ | --------- | ---------------------------------- | ------------------- |
+| `partialSave`      | `boolean` | Enable partial save to Redis       | `false`             |
+| `partialSaveTTL`   | `number`  | TTL in ms for partial save data    | `86400000` (24h)    |
+| `maxMilliseconds`  | `number`  | Form timeout in ms                 | `600000` (10 min)   |
+| `allowCancel`      | `boolean` | Allow `/cancel` command and button | `true`              |
+| `formId`           | `string`  | Unique form instance ID            | Auto-generated UUID |
+| `showProgress`     | `boolean` | Show "Field X of Y" progress       | `true`              |
+| `showConfirmation` | `boolean` | Show summary before submission     | `true`              |
 
 ---
 
@@ -241,12 +243,12 @@ Result returned by CurrencyAmount field.
 
 ### Event Payloads (not persisted)
 
-| Payload                 | Fields                                                              | Event Name                     |
-| ----------------------- | ------------------------------------------------------------------- | ------------------------------ |
-| `FormCompletedPayload`  | `formId`, `userId`, `fieldCount`, `durationMs`, `hadPartialSave`    | `input-engine.form.completed`  |
+| Payload                 | Fields                                                                                                      | Event Name                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `FormCompletedPayload`  | `formId`, `userId`, `fieldCount`, `durationMs`, `hadPartialSave`                                            | `input-engine.form.completed`  |
 | `FormCancelledPayload`  | `formId`, `userId`, `fieldsCompleted`, `totalFields`, `reason: 'user_cancel' \| 'timeout' \| 'max_retries'` | `input-engine.form.cancelled`  |
-| `FormResumedPayload`    | `formId`, `userId`, `resumedFromField`, `totalFields`               | `input-engine.form.resumed`    |
-| `FieldValidatedPayload` | `formId`, `userId`, `fieldType`, `fieldName`, `valid`, `retryCount` | `input-engine.field.validated` |
+| `FormResumedPayload`    | `formId`, `userId`, `resumedFromField`, `totalFields`                                                       | `input-engine.form.resumed`    |
+| `FieldValidatedPayload` | `formId`, `userId`, `fieldType`, `fieldName`, `valid`, `retryCount`                                         | `input-engine.field.validated` |
 
 ---
 
@@ -254,21 +256,28 @@ Result returned by CurrencyAmount field.
 
 Context object passed to field handlers during rendering, providing form-level positioning information.
 
-| Property     | Type     | Description                                      |
-| ------------ | -------- | ------------------------------------------------ |
-| `formId`     | `string` | Unique form instance identifier                  |
-| `fieldIndex` | `number` | Zero-based index of the current field in the form |
+| Property        | Type                      | Description                                                      |
+| --------------- | ------------------------- | ---------------------------------------------------------------- |
+| `formId`        | `string`                  | Unique form instance identifier                                  |
+| `fieldIndex`    | `number`                  | Zero-based index of the current field in the form                |
+| `previousValue` | `unknown?`                | Previous value for this field (populated during back navigation) |
+| `conversation`  | `unknown`                 | grammY Conversation object                                       |
+| `ctx`           | `unknown`                 | grammY Context object                                            |
+| `formData`      | `Record<string, unknown>` | Form data collected so far                                       |
 
 ---
 
 ### `FormRunnerDeps` (Runtime — injected dependencies)
 
-Optional dependencies injected into the FormRunner to support partial save and custom rendering.
+Optional dependencies injected into the FormRunner to support partial save, custom rendering, and Phase 2 features.
 
-| Property          | Type                                                    | Description                                                     |
-| ----------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
-| `storageAdapter?` | `ConversationsStorageAdapter`                           | Storage adapter for partial save (F2 — wires partial save)      |
-| `renderPrompt?`   | `(ctx: unknown, text: string) => Promise<unknown>`      | Custom render function for field prompts (F4 — render layer)    |
+| Property          | Type                                                        | Description                                                  |
+| ----------------- | ----------------------------------------------------------- | ------------------------------------------------------------ |
+| `storageAdapter?` | `ConversationsStorageAdapter`                               | Storage adapter for partial save (F2 — wires partial save)   |
+| `renderPrompt?`   | `(ctx: unknown, text: string) => Promise<unknown>`          | Custom render function for field prompts (F4 — render layer) |
+| `t?`              | `(key: string, params?: Record<string, unknown>) => string` | i18n translation function (Phase 2 — structural interface)   |
+| `storageClient?`  | `StorageEngineClient`                                       | For media upload integration (FR-059, Phase 2)               |
+| `aiClient?`       | `AIExtractionClient`                                        | For AI extraction integration (FR-031, Phase 2)              |
 
 ---
 
@@ -298,15 +307,55 @@ Data structure serialized to Redis when partial save is enabled.
 
 ---
 
+### `ActionButtonContext` (Runtime — Phase 2)
+
+Context for building inline keyboard action button rows.
+
+| Property       | Type      | Description                                |
+| -------------- | --------- | ------------------------------------------ |
+| `formId`       | `string`  | Form instance identifier for callback data |
+| `fieldIndex`   | `number`  | Current field index for callback data      |
+| `isOptional`   | `boolean` | Whether to show "Skip ⏭" button           |
+| `isFirstField` | `boolean` | Whether to suppress "⬅ Back" button        |
+| `allowCancel`  | `boolean` | Whether to show "Cancel ❌" button         |
+
+---
+
+### `ActionButtonRow` (Runtime — Phase 2)
+
+A row of inline keyboard buttons for form actions.
+
+| Property  | Type                                            | Description         |
+| --------- | ----------------------------------------------- | ------------------- |
+| `buttons` | `Array<{ text: string; callbackData: string }>` | Buttons in this row |
+
+---
+
+### `FieldSkippedPayload` (Event — Phase 2)
+
+Emitted when a field is skipped (user skip, auto-skip, or condition skip).
+
+| Property    | Type                                               | Description                     |
+| ----------- | -------------------------------------------------- | ------------------------------- |
+| `formId`    | `string`                                           | Form instance identifier        |
+| `userId`    | `string`                                           | User who skipped                |
+| `fieldName` | `string`                                           | Name of the skipped field       |
+| `fieldType` | `string`                                           | Field type of the skipped field |
+| `reason`    | `'user_skip' \| 'max_retries_skip' \| 'condition'` | Why the field was skipped       |
+
+---
+
 ## Relationships
 
 - `FieldHandler` is an **in-memory runtime interface** with no database backing. Handlers are registered in a `Map<FieldType, FieldHandler>` at package initialization.
 - `FieldMetadata` is **attached to Zod schemas** via `z.globalRegistry`. Not stored separately — metadata is accessed via `z.globalRegistry.get(schema)` at runtime.
 - `FormState` is stored in **Redis via CacheService** through the custom conversations storage adapter. Not a database table. Automatically expired via TTL.
-- `FormOptions` is a **runtime configuration object** passed to `runForm()`. Not persisted.
+- `FormOptions` is a **runtime configuration object** passed to `runForm()`. Not persisted. Phase 2 adds `showProgress` and `showConfirmation`.
 - `ChoiceOption`, `FieldCondition`, and `MultiStepLevel` are **nested types** within `FieldMetadata`. Not stored independently.
 - `TimeSlot`, `CountryCode`, `NationalIDResult`, `ContactResult`, `SchedulePickerResult`, `EgyptianMobileResult`, and `CurrencyAmountResult` are **runtime result types** — returned from field handlers, not persisted.
-- Event payloads are defined **inline** in `event-bus.events.ts` (structurally matching the types above) to avoid circular dependencies.
+- Event payloads are defined **inline** in `event-bus.events.ts` (structurally matching the types above) to avoid circular dependencies. Phase 2 adds `FieldSkippedPayload`.
+- `ActionButtonContext` and `ActionButtonRow` are **Phase 2 runtime types** used by `buildActionButtons()` to compose inline keyboard rows. Not persisted.
+- `FormRunnerDeps` Phase 2 additions (`t`, `storageClient`, `aiClient`) are **optional structural interfaces** — callers that don't use Phase 2 features can omit them.
 
 ---
 
@@ -338,15 +387,33 @@ runForm() called
   ├── Check for existing partial save
   │   ├── Found → Resume from checkpoint
   │   └── Not found → Start fresh
-  ├── For each field:
-  │   ├── Evaluate conditions (skip if condition not met)
-  │   ├── Render field prompt and UI
-  │   ├── Wait for user response
+  ├── For each field (bidirectional iteration — Phase 2):
+  │   ├── Compute dynamic progress total (Phase 2, if showProgress)
+  │   ├── Display progress indicator (Phase 2, if showProgress)
+  │   ├── Evaluate conditions (skip if condition not met, emit field.skipped)
+  │   ├── Build action buttons: Skip (if optional), Back (if not first), Cancel (if allowed)
+  │   ├── Render field prompt + action buttons (single message, D7)
+  │   ├── Wait for user response OR action button tap
+  │   ├── Handle action buttons:
+  │   │   ├── __skip__ → set undefined, emit field.skipped(user_skip), next
+  │   │   ├── __cancel__ → return err(FORM_CANCELLED), preserve partial save
+  │   │   ├── __back__ → decrement index, re-evaluate conditionals, re-render
+  │   │   └── __keep_current__ → keep previous value, next
   │   ├── Parse and validate response
   │   │   ├── Valid → Save to partial state, checkpoint, next field
-  │   │   └── Invalid → Show error, retry (up to maxRetries)
-  │   └── Handle /cancel, timeout, unexpected input
-  ├── All fields complete → Assemble result
+  │   │   └── Invalid → Show i18n error (Phase 2), retry (up to maxRetries)
+  │   │       └── If optional + max retries → auto-skip (Phase 2)
+  │   └── Handle /cancel text (when allowCancel, Phase 2)
+  ├── All fields complete
+  │   ├── If showConfirmation (Phase 2):
+  │   │   ├── Reset timeout deadline
+  │   │   ├── Display confirmation summary
+  │   │   ├── Wait for Confirm / Edit / Cancel
+  │   │   │   ├── ✅ Confirm → proceed to result
+  │   │   │   ├── ✏️ Edit → re-enter field, re-evaluate conditions, re-display
+  │   │   │   └── ❌ Cancel → return err(FORM_CANCELLED)
+  │   │   └── Loop until Confirm or Cancel
+  │   └── If !showConfirmation → proceed directly
   ├── Delete partial save from Redis
   ├── Emit form.completed event
   └── Return ok(formData)
