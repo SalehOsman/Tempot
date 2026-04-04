@@ -112,3 +112,17 @@ export type { ModuleReviewerDeps, ReviewCheck, ReviewResult } from './cli/module
 
 // Pagination
 export { paginate } from './pagination/pagination.util.js';
+
+// Tool output utilities
+export { truncateToolOutput } from './tools/output-limiter.util.js';
+
+// Input normalization preprocessors
+export {
+  coerceNumber,
+  coerceInteger,
+  coerceBoolean,
+  normalizeString,
+  flexibleDate,
+  normalizeArray,
+  preprocessors,
+} from './tools/input-normalization.js';
