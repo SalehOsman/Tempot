@@ -428,6 +428,87 @@ describe('FieldIterator (iterateFields)', () => {
       });
     });
 
+    it('after partial save restore, back navigation works within restored fields', async () => {
+      // EC38: 3-field form with partial save restore of fields A and B
+      const fieldASchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.fieldA',
+      } as FieldMetadata);
+      const fieldBSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.fieldB',
+      } as FieldMetadata);
+      const fieldCSchema = registerField(z.string(), {
+        fieldType: 'LongText',
+        i18nKey: 'form.fieldC',
+      } as FieldMetadata);
+      const schema = z.object({
+        fieldA: fieldASchema,
+        fieldB: fieldBSchema,
+        fieldC: fieldCSchema,
+      });
+
+      const handlerA: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('newValB')),
+        validate: vi.fn().mockReturnValue(ok('newValB')),
+      };
+
+      const handlerB: FieldHandler = {
+        fieldType: 'Email',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('reValB')),
+        validate: vi.fn().mockReturnValue(ok('reValB')),
+      };
+
+      let fieldCCallCount = 0;
+      const handlerC: FieldHandler = {
+        fieldType: 'LongText',
+        render: vi.fn().mockImplementation(() => {
+          fieldCCallCount++;
+          if (fieldCCallCount === 1) {
+            return Promise.resolve(err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK)));
+          }
+          return Promise.resolve(ok(undefined));
+        }),
+        parseResponse: vi.fn().mockReturnValue(ok('valC')),
+        validate: vi.fn().mockReturnValue(ok('valC')),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handlerA);
+      deps.registry.register(handlerB);
+      deps.registry.register(handlerC);
+
+      // Simulate partial save restore: fields A and B already completed
+      const progress = createProgress();
+      progress.completedFieldNames = ['fieldA', 'fieldB'];
+      progress.formData = { fieldA: 'valA', fieldB: 'valB' };
+      progress.fieldsCompleted = 2;
+
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      // Field A should NOT have been rendered (was already completed and not the back target)
+      expect(handlerA.render).not.toHaveBeenCalled();
+      // Field B should be re-rendered once (after back nav removed it from completed)
+      expect(handlerB.render).toHaveBeenCalledTimes(1);
+      // Field C rendered twice: first (NAVIGATE_BACK) + second (success)
+      expect(handlerC.render).toHaveBeenCalledTimes(2);
+      // Final formData should have re-entered value for B and new value for C
+      expect(progress.formData).toEqual({
+        fieldA: 'valA',
+        fieldB: 'reValB',
+        fieldC: 'valC',
+      });
+      // All 3 fields should be completed
+      expect(progress.completedFieldNames).toContain('fieldA');
+      expect(progress.completedFieldNames).toContain('fieldB');
+      expect(progress.completedFieldNames).toContain('fieldC');
+      expect(progress.fieldsCompleted).toBe(3);
+    });
+
     it('saves partial state after back navigation if enabled', async () => {
       const nameSchema = registerField(z.string(), {
         fieldType: 'ShortText',

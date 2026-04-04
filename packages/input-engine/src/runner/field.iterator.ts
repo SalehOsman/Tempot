@@ -10,6 +10,7 @@ import type { FieldMetadata } from '../input-engine.types.js';
 import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import { saveFieldProgress } from './partial-save.helper.js';
 import { navigateBack } from './back-navigation.helper.js';
+import { getFieldMetadata } from './field-metadata.util.js';
 import type { FormRunnerDeps } from './form.runner.js';
 import type { FormRunnerInput, FormProgress } from './form.runner.js';
 
@@ -131,11 +132,6 @@ function buildFieldContext(
     formId: progress.formId,
     fieldIndex: params.fieldIndex,
   };
-}
-
-function getFieldMetadata(schema: z.ZodType): FieldMetadata {
-  const meta = z.globalRegistry.get(schema);
-  return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
 }
 
 /** Bundled params for handleFieldSuccess to stay within max-params */

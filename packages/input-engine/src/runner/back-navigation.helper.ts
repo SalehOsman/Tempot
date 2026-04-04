@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { shouldRenderField } from './condition.evaluator.js';
-import type { FieldMetadata } from '../input-engine.types.js';
 import type { FormRunnerDeps, FormProgress } from './form.runner.js';
+import { getFieldMetadata } from './field-metadata.util.js';
 
 /** Parameters for navigateBack */
 interface NavigateBackParams {
@@ -19,11 +19,6 @@ interface CleanConditionalParams {
   progress: FormProgress;
   schema: z.ZodObject<z.ZodRawShape>;
   deps: FormRunnerDeps;
-}
-
-function getFieldMetadata(schema: z.ZodType): FieldMetadata {
-  const meta = z.globalRegistry.get(schema);
-  return (meta as Record<string, unknown> | undefined)?.['input-engine'] as FieldMetadata;
 }
 
 /** Remove conditional fields that are no longer visible after back navigation */
