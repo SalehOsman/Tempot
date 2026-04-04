@@ -194,6 +194,8 @@ export interface FormOptions {
   maxMilliseconds?: number; // ms, default 600000 (10 min)
   allowCancel?: boolean; // default true
   formId?: string; // auto-generated if not provided
+  showProgress?: boolean; // default true
+  showConfirmation?: boolean; // default true
 }
 
 /** Default form options */
@@ -203,4 +205,9 @@ export const DEFAULT_FORM_OPTIONS: Required<FormOptions> = {
   maxMilliseconds: 600_000,
   allowCancel: true,
   formId: '', // Will be replaced with UUID at runtime
+  showProgress: true,
+  showConfirmation: true,
 };
+
+/** Sentinel value returned by processField to signal field was skipped */
+export const FIELD_SKIPPED_SENTINEL = Symbol.for('input-engine.field.skipped');

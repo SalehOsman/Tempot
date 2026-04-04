@@ -6,7 +6,11 @@ import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
 import { FieldHandlerRegistry } from '../../src/fields/field.handler.js';
 import type { FieldHandler } from '../../src/fields/field.handler.js';
 import type { FieldMetadata, FieldType } from '../../src/input-engine.types.js';
-import type { FormRunnerDeps, FormRunnerInput } from '../../src/runner/form.runner.js';
+import type {
+  FormRunnerDeps,
+  FormRunnerInput,
+  FormProgress,
+} from '../../src/runner/form.runner.js';
 import { runForm } from '../../src/runner/form.runner.js';
 import type { ConversationsStorageAdapter } from '../../src/storage/conversations-storage.adapter.js';
 
@@ -966,6 +970,64 @@ describe('FormRunner (runForm)', () => {
       const nameRenderCtx = nameRenderCall[0] as Record<string, unknown>;
       expect(nameRenderCtx['formId']).toBe('render-test-form');
       expect(nameRenderCtx['fieldIndex']).toBe(0);
+    });
+  });
+
+  describe('FormRunnerDeps optional Phase 2 fields', () => {
+    it('accepts t as optional translation function', () => {
+      const deps = createMockDeps({
+        t: (key: string) => key,
+      });
+      expect(deps.t).toBeDefined();
+      expect(deps.t!('test.key')).toBe('test.key');
+    });
+
+    it('accepts storageClient as optional', () => {
+      const deps = createMockDeps({
+        storageClient: {
+          upload: () => Promise.resolve({ isOk: () => true }) as never,
+          validate: () => Promise.resolve({ isOk: () => true }) as never,
+        },
+      });
+      expect(deps.storageClient).toBeDefined();
+    });
+
+    it('accepts aiClient as optional', () => {
+      const deps = createMockDeps({
+        aiClient: {
+          extract: () => Promise.resolve({ isOk: () => true }) as never,
+          isAvailable: () => true,
+        },
+      });
+      expect(deps.aiClient).toBeDefined();
+      expect(deps.aiClient!.isAvailable()).toBe(true);
+    });
+  });
+
+  describe('FormProgress.formOptions', () => {
+    it('FormProgress accepts formOptions as optional', () => {
+      const progress: FormProgress = {
+        fieldsCompleted: 0,
+        totalFields: 3,
+        formId: 'test',
+        formData: {},
+        completedFieldNames: [],
+        partialSaveEnabled: false,
+        storageKey: '',
+        startTime: Date.now(),
+        maxMilliseconds: 600_000,
+        formOptions: {
+          partialSave: false,
+          partialSaveTTL: 86_400_000,
+          maxMilliseconds: 600_000,
+          allowCancel: true,
+          formId: '',
+          showProgress: true,
+          showConfirmation: true,
+        },
+      };
+      expect(progress.formOptions).toBeDefined();
+      expect(progress.formOptions!.showProgress).toBe(true);
     });
   });
 });

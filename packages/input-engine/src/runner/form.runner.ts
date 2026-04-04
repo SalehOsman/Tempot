@@ -11,7 +11,12 @@ import {
   emitFormResumed,
   type EventEmitterDeps,
 } from './event.emitter.js';
-import type { InputEngineLogger, InputEngineEventBus } from '../input-engine.contracts.js';
+import type {
+  InputEngineLogger,
+  InputEngineEventBus,
+  StorageEngineClient,
+  AIExtractionClient,
+} from '../input-engine.contracts.js';
 import {
   DEFAULT_FORM_OPTIONS,
   type FieldMetadata,
@@ -37,6 +42,9 @@ export interface FormRunnerDeps {
     renderCtx: RenderContext,
     metadata: FieldMetadata,
   ) => AsyncResult<unknown, AppError>;
+  t?: (key: string, params?: Record<string, unknown>) => string;
+  storageClient?: StorageEngineClient;
+  aiClient?: AIExtractionClient;
 }
 
 /** Bundled input for runForm: conversation context + schema */
@@ -58,6 +66,7 @@ export interface FormProgress {
   storageKey: string;
   startTime: number;
   maxMilliseconds: number;
+  formOptions?: Required<FormOptions>;
 }
 
 function checkPreconditions(
