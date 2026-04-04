@@ -82,6 +82,15 @@ function isKeepCurrentSignal(response: unknown): boolean {
   return false;
 }
 
+/** Check for cancel signal and return cancel error if detected */
+function checkCancelSignal(response: unknown, ctx: FieldContext): AppError | null {
+  if (!ctx.allowCancel || !isCancelSignal(response)) return null;
+  return new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
+    reason: 'user_cancel',
+    fieldName: ctx.fieldName,
+  });
+}
+
 /** Try to parse and validate a user response; returns ok(value) or err */
 function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unknown, AppError> {
   const { metadata, fieldSchema } = ctx;
@@ -104,14 +113,8 @@ export async function processField(
     const rr = await resolveResponseCtx(input, ctx, deps);
     if (rr.isErr()) return err(rr.error);
 
-    if (ctx.allowCancel && isCancelSignal(rr.value)) {
-      return err(
-        new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
-          reason: 'user_cancel',
-          fieldName: ctx.fieldName,
-        }),
-      );
-    }
+    const cancelErr = checkCancelSignal(rr.value, ctx);
+    if (cancelErr) return err(cancelErr);
 
     if (isKeepCurrentSignal(rr.value) && ctx.previousValue !== undefined) {
       ctx.retryCount = 0;
