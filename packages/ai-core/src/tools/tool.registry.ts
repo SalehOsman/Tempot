@@ -62,7 +62,7 @@ export class ToolRegistry {
     return filtered;
   }
 
-  /** Get tools matching any of the provided groups */
+  /** Get tools matching any of the provided groups (use paginate() directly if needed) */
   getByGroups(groups: string[]): AITool[] {
     const groupSet = new Set(groups);
     return Array.from(this.tools.values()).filter(
