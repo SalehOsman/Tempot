@@ -1,18 +1,16 @@
 import { ok, err } from 'neverthrow';
 import { z } from 'zod';
-import { AppError } from '@tempot/shared';
-import type { AsyncResult } from '@tempot/shared';
+import { AppError, type AsyncResult } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
+import { FIELD_SKIPPED_SENTINEL, type FieldMetadata } from '../input-engine.types.js';
 import { shouldRenderField } from './condition.evaluator.js';
-import { emitEvent } from './event.emitter.js';
-import type { EventEmitterDeps } from './event.emitter.js';
-import type { FieldMetadata } from '../input-engine.types.js';
+import { emitEvent, type EventEmitterDeps } from './event.emitter.js';
 import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import { saveFieldProgress } from './partial-save.helper.js';
 import { navigateBack } from './back-navigation.helper.js';
 import { getFieldMetadata } from './field-metadata.util.js';
-import type { FormRunnerDeps } from './form.runner.js';
-import type { FormRunnerInput, FormProgress } from './form.runner.js';
+import { handleFieldSkip } from './field-skip.helper.js';
+import type { FormRunnerDeps, FormRunnerInput, FormProgress } from './form.runner.js';
 
 const DEFAULT_MAX_RETRIES = 3;
 
@@ -29,44 +27,52 @@ interface FieldContext {
   fieldIndex: number;
 }
 
+/** Resolve the response context: render, try renderPrompt fallback, fallback to input.ctx */
+async function resolveResponseCtx(
+  input: FormRunnerInput,
+  ctx: FieldContext,
+  deps: FormRunnerDeps,
+): AsyncResult<unknown, AppError> {
+  const renderCtx: RenderContext = {
+    conversation: input.conversation,
+    ctx: input.ctx,
+    formData: ctx.formData,
+    formId: ctx.formId,
+    fieldIndex: ctx.fieldIndex,
+  };
+  const rr = await ctx.handler.render(renderCtx, ctx.metadata);
+  if (rr.isErr()) return err(rr.error);
+
+  let responseCtx: unknown = rr.value;
+  if (responseCtx === undefined && deps.renderPrompt) {
+    const promptResult = await deps.renderPrompt(renderCtx, ctx.metadata);
+    if (promptResult.isErr()) return err(promptResult.error);
+    responseCtx = promptResult.value;
+  }
+  if (responseCtx === undefined) responseCtx = input.ctx;
+  return ok(responseCtx);
+}
+
 /** Process a single field: render, parse, validate with retry */
 async function processField(
   input: FormRunnerInput,
   ctx: FieldContext,
   deps: FormRunnerDeps,
 ): AsyncResult<unknown, AppError> {
-  const { handler, metadata, fieldSchema, maxRetries } = ctx;
+  const { metadata, fieldSchema, maxRetries } = ctx;
   let retryCount = 0;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const renderCtx: RenderContext = {
-      conversation: input.conversation,
-      ctx: input.ctx,
-      formData: ctx.formData,
-      formId: ctx.formId,
-      fieldIndex: ctx.fieldIndex,
-    };
-
-    const rr = await handler.render(renderCtx, metadata);
+    const rr = await resolveResponseCtx(input, ctx, deps);
     if (rr.isErr()) return err(rr.error);
 
-    let responseCtx: unknown = rr.value;
-    if (responseCtx === undefined && deps.renderPrompt) {
-      const promptResult = await deps.renderPrompt(renderCtx, metadata);
-      if (promptResult.isErr()) return err(promptResult.error);
-      responseCtx = promptResult.value;
-    }
-    if (responseCtx === undefined) {
-      responseCtx = input.ctx;
-    }
-
-    const pr = handler.parseResponse(responseCtx, metadata);
+    const pr = ctx.handler.parseResponse(rr.value, metadata);
     if (pr.isErr()) {
       retryCount++;
       continue;
     }
 
-    const vr = handler.validate(pr.value, fieldSchema, metadata);
+    const vr = ctx.handler.validate(pr.value, fieldSchema, metadata);
     if (vr.isErr()) {
       retryCount++;
       continue;
@@ -76,6 +82,10 @@ async function processField(
     return ok(vr.value);
   }
 
+  if (ctx.metadata.optional) {
+    ctx.retryCount = maxRetries;
+    return ok(FIELD_SKIPPED_SENTINEL);
+  }
   return err(
     new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
       fieldName: ctx.fieldName,
@@ -222,6 +232,12 @@ export async function iterateFields(
         deps,
       });
       await maybeSaveProgress(deps, progress);
+      continue;
+    }
+
+    if (result.isOk() && result.value === FIELD_SKIPPED_SENTINEL) {
+      await handleFieldSkip(deps, progress, ctxOrErr);
+      index++;
       continue;
     }
 

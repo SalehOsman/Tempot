@@ -93,3 +93,22 @@ export async function emitFormResumed(
     timestamp: new Date(),
   });
 }
+
+/** Field skip event payload */
+export interface FieldSkippedPayload {
+  formId: string;
+  userId: string;
+  fieldName: string;
+  fieldType: string;
+  reason: 'user_skip' | 'max_retries_skip' | 'condition';
+}
+
+export async function emitFieldSkipped(
+  deps: EventEmitterDeps,
+  payload: FieldSkippedPayload,
+): Promise<void> {
+  await emitEvent(deps, 'input-engine.field.skipped', {
+    ...payload,
+    timestamp: new Date(),
+  });
+}

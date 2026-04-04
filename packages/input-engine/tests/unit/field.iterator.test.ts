@@ -3,6 +3,7 @@ import { ok, err } from 'neverthrow';
 import { z } from 'zod';
 import { AppError } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../../src/input-engine.errors.js';
+import { FIELD_SKIPPED_SENTINEL } from '../../src/input-engine.types.js';
 import { FieldHandlerRegistry } from '../../src/fields/field.handler.js';
 import type { FieldHandler } from '../../src/fields/field.handler.js';
 import type { FieldMetadata, FieldType } from '../../src/input-engine.types.js';
@@ -562,6 +563,176 @@ describe('FieldIterator (iterateFields)', () => {
       // Should have written: 1) after name, 2) after NAVIGATE_BACK, 3) after name again,
       // 4) after email. At minimum, write is called after back navigation.
       expect(mockAdapter.write.mock.calls.length).toBeGreaterThanOrEqual(3);
+    });
+  });
+
+  describe('skip handling', () => {
+    it('sets formData[fieldName] to undefined when processField returns FIELD_SKIPPED_SENTINEL', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        optional: true,
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Handler returns FIELD_SKIPPED_SENTINEL from validate
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      expect(progress.formData['name']).toBeUndefined();
+      expect('name' in progress.formData).toBe(true);
+    });
+
+    it('marks skipped field as completed in completedFieldNames', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        optional: true,
+      } as FieldMetadata);
+      const emailSchema = registerField(z.string(), {
+        fieldType: 'Email',
+        i18nKey: 'form.email',
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema, email: emailSchema });
+
+      // Name handler returns sentinel (skip)
+      const nameHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+      const emailHandler = createMockHandler('Email', 'john@test.com');
+
+      const deps = createMockDeps();
+      deps.registry.register(nameHandler);
+      deps.registry.register(emailHandler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      expect(progress.completedFieldNames).toContain('name');
+      expect(progress.completedFieldNames).toContain('email');
+      expect(progress.fieldsCompleted).toBe(2);
+    });
+
+    it('emits input-engine.field.skipped with reason user_skip', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        optional: true,
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+        validate: vi.fn().mockReturnValue(ok(FIELD_SKIPPED_SENTINEL)),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      await iterateFields(createInput(schema), deps, progress);
+
+      const publishCalls = (deps.eventBus.publish as ReturnType<typeof vi.fn>).mock.calls;
+      const skipEvent = publishCalls.find(
+        (call: unknown[]) => call[0] === 'input-engine.field.skipped',
+      );
+      expect(skipEvent).toBeDefined();
+      expect(skipEvent![1]).toMatchObject({
+        formId: progress.formId,
+        userId: 'test-user',
+        fieldName: 'name',
+        fieldType: 'ShortText',
+        reason: 'user_skip',
+      });
+    });
+
+    it('returns err(FIELD_MAX_RETRIES) for non-optional field on maxRetries exhaustion', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        maxRetries: 2,
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Handler always fails validation
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('bad')),
+        validate: vi
+          .fn()
+          .mockReturnValue(
+            err(new AppError(INPUT_ENGINE_ERRORS.FIELD_VALIDATION_FAILED, { reason: 'invalid' })),
+          ),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES);
+    });
+
+    it('auto-skips optional field on maxRetries exhaustion with reason max_retries_skip', async () => {
+      const nameSchema = registerField(z.string(), {
+        fieldType: 'ShortText',
+        i18nKey: 'form.name',
+        optional: true,
+        maxRetries: 2,
+      } as FieldMetadata);
+      const schema = z.object({ name: nameSchema });
+
+      // Handler always fails validation
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok(undefined)),
+        parseResponse: vi.fn().mockReturnValue(ok('bad')),
+        validate: vi
+          .fn()
+          .mockReturnValue(
+            err(new AppError(INPUT_ENGINE_ERRORS.FIELD_VALIDATION_FAILED, { reason: 'invalid' })),
+          ),
+      };
+
+      const deps = createMockDeps();
+      deps.registry.register(handler);
+
+      const progress = createProgress();
+      const result = await iterateFields(createInput(schema), deps, progress);
+
+      expect(result.isOk()).toBe(true);
+      expect(progress.formData['name']).toBeUndefined();
+      expect('name' in progress.formData).toBe(true);
+      expect(progress.completedFieldNames).toContain('name');
+
+      const publishCalls = (deps.eventBus.publish as ReturnType<typeof vi.fn>).mock.calls;
+      const skipEvent = publishCalls.find(
+        (call: unknown[]) => call[0] === 'input-engine.field.skipped',
+      );
+      expect(skipEvent).toBeDefined();
+      expect(skipEvent![1]).toMatchObject({
+        reason: 'max_retries_skip',
+      });
     });
   });
 });
