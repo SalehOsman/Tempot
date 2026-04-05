@@ -41,7 +41,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 17  | document-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 18  | settings        | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 19  | import-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
-| —   | module-registry | —    | —       | —    | —       | —     | —      | —        | —         | —       | —      | —     | Placeholder only (README, no impl)      |
+| —   | module-registry | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ❌    | Implementation complete, pending merge  |
 
 ✅\* = Built but skipped workflow steps (pre-methodology)
 
@@ -66,18 +66,18 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 **Next steps (in order):**
 
-1. Phase 2A: module-registry — Full SpecKit + Superpowers cycle (spec #019)
+1. ~~Phase 2A: module-registry~~ — ✅ Complete (spec #019, pending merge)
 2. Phase 2B: bot-server reconstruction — Full SpecKit + Superpowers cycle (spec #020)
 3. Phase 2C: Integration testing — Validate module-registry + bot-server work together
 4. Phase 3: First test module (person-registration)
 
 ## Phase 2 — Module Infrastructure
 
-**Status:** Next up. Settings (last required Phase 1 package) complete. 5 optional Phase 1 packages deferred.
+**Status:** In progress. module-registry implementation complete (pending merge).
 
 Planned scope:
 
-1. **module-registry** (spec #019) — Full SpecKit + Superpowers cycle (currently README placeholder only)
+1. **module-registry** (spec #019) — ✅ Implementation complete, 98 tests, pending merge
 2. **bot-server reconstruction** (spec #020) — Replace 72-line prototype with production assembly
 3. **Integration testing** — Validate module-registry + bot-server work together end-to-end
 
