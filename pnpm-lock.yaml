@@ -128,6 +128,9 @@ importers:
       hono:
         specifier: ^4.7.11
         version: 4.11.4
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
       rate-limiter-flexible:
         specifier: ^5.0.4
         version: 5.0.5

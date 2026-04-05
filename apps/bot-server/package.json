@@ -17,6 +17,7 @@
     "@grammyjs/ratelimiter": "^1.2.0",
     "sanitize-html": "^2.15.0",
     "rate-limiter-flexible": "^5.0.4",
+    "neverthrow": "8.2.0",
     "@tempot/shared": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@tempot/event-bus": "workspace:*",
