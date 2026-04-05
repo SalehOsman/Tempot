@@ -6,13 +6,33 @@
   "scripts": {
     "dev": "tsx watch --env-file=../../.env src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "grammy": "1.41.1"
+    "grammy": "^1.41.1",
+    "hono": "^4.7.11",
+    "@casl/ability": "^6.7.3",
+    "sanitize-html": "^2.15.0",
+    "rate-limiter-flexible": "^5.0.4",
+    "neverthrow": "8.2.0",
+    "@tempot/shared": "workspace:*",
+    "@tempot/logger": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
+    "@tempot/auth-core": "workspace:*",
+    "@tempot/session-manager": "workspace:*",
+    "@tempot/settings": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/database": "workspace:*",
+    "@tempot/module-registry": "workspace:*",
+    "@tempot/sentry": "workspace:*",
+    "@tempot/ux-helpers": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "tsx": "^4.0.0"
+    "@types/sanitize-html": "^2.13.0",
+    "tsx": "^4.0.0",
+    "vitest": "4.1.0"
   }
 }

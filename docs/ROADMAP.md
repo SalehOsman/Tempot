@@ -67,7 +67,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 **Next steps (in order):**
 
 1. ~~Phase 2A: module-registry~~ — ✅ Complete (spec #019, merged to main)
-2. Phase 2B: bot-server reconstruction — Full SpecKit + Superpowers cycle (spec #020)
+2. Phase 2B: bot-server reconstruction — Code review fixes complete, 131 tests passing (spec #020)
 3. Phase 2C: Integration testing — Validate module-registry + bot-server work together
 4. Phase 3: First test module (person-registration)
 
@@ -78,7 +78,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 Planned scope:
 
 1. **module-registry** (spec #019) — ✅ Merged to main, 98 tests passing
-2. **bot-server reconstruction** (spec #020) — Replace 72-line prototype with production assembly
+2. **bot-server reconstruction** (spec #020) — Code review fixes applied (8 CRITICAL, 10 WARNING), 131 tests passing, pending merge
 3. **DevOps: Local development setup** — Cloudflare Tunnel (`cloudflared`) for local webhook testing (Architecture Spec Section 25.4)
 4. **Integration testing** — Validate module-registry + bot-server work together end-to-end
 

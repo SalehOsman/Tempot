@@ -63,6 +63,30 @@ Result of probing a single subsystem during health check.
 
 ---
 
+### `SubsystemProbe`
+
+A function that probes a single subsystem and returns its health status. Used by `runSingleProbe` to execute health checks with timeout and latency measurement.
+
+**Storage:** In-memory only — registered at server creation, invoked per health check request.
+
+| Field | Type                            | Description                                     | Constraints                              |
+| ----- | ------------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| probe | `() => Promise<SubsystemCheck>` | Async function that checks a subsystem's health | Must resolve within 4s timeout (NFR-003) |
+
+---
+
+### `HealthProbes`
+
+Map of subsystem names to their probe functions. Passed to the health route factory.
+
+**Storage:** In-memory only — created at server initialization.
+
+| Type                                            | Description                                             |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| `Record<string, () => Promise<SubsystemCheck>>` | Keys: database, redis, ai_provider, disk, queue_manager |
+
+---
+
 ### `HealthCheckResponse`
 
 Aggregated health check result returned by the `/health` endpoint.
@@ -125,6 +149,49 @@ Shutdown steps from Architecture Spec Section 25.3:
 | 7     | Log shutdown completion                  | Immediate |
 
 Total timeout: 30 seconds (enforced by ShutdownManager).
+
+---
+
+### Error Codes
+
+Application-specific error codes defined in `bot-server.errors.ts`, used with `AppError` from `@tempot/shared`.
+
+| Code                                   | Context                                     | Fatal? |
+| -------------------------------------- | ------------------------------------------- | ------ |
+| `bot-server.config.invalid_port`       | Port value is not a valid number in 1-65535 | Yes    |
+| `bot-server.auth.ability_build_failed` | CASL ability construction failed for a user | No     |
+
+These are in addition to the existing error codes (`MISSING_BOT_TOKEN`, `INVALID_BOT_MODE`, etc.) documented in the implementation.
+
+---
+
+### `commandModuleMap`
+
+Optional mapping of bot command names to module names, used by the audit middleware to resolve which module handled a given command.
+
+**Storage:** In-memory only — passed to audit middleware at bot creation.
+
+| Type                     | Description                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| `Record<string, string>` | Keys: command names (e.g., `'start'`). Values: module names (e.g., `'core-module'`). |
+
+When present, the audit middleware uses this map to log the correct module name for each command. Falls back to `'bot-server'` when no mapping exists.
+
+---
+
+### `commandScopeMap`
+
+Runtime mapping of bot command names to their scoped user restrictions, used by the scoped-users middleware to enforce per-command user access (D13 in spec.md).
+
+**Storage:** In-memory only — built from module configs during module loading.
+
+| Type                                      | Description                                                                                                                                     |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Map<string, { scopedUsers?: number[] }>` | Keys: command names (e.g., `'admin_panel'`). Values: objects with optional `scopedUsers` array of Telegram user IDs allowed to use the command. |
+
+When `scopedUsers` is defined and non-empty, only listed user IDs can execute that command — even SUPER_ADMIN is blocked if not in the list (D13). When `scopedUsers` is undefined or empty, the command is accessible to all authorized users.
+
+> **Note:** Named `commandScopeMap` (not `commandModuleMap`) to avoid a type conflict with `AuditDeps.commandModuleMap`, which maps commands to module names for audit logging.
 
 ## Relationships
 

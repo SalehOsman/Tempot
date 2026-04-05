@@ -83,16 +83,70 @@ importers:
 
   apps/bot-server:
     dependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.0
+      '@tempot/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
+      '@tempot/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@tempot/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      '@tempot/i18n-core':
+        specifier: workspace:*
+        version: link:../../packages/i18n-core
+      '@tempot/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@tempot/module-registry':
+        specifier: workspace:*
+        version: link:../../packages/module-registry
+      '@tempot/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@tempot/session-manager':
+        specifier: workspace:*
+        version: link:../../packages/session-manager
+      '@tempot/settings':
+        specifier: workspace:*
+        version: link:../../packages/settings
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
       grammy:
-        specifier: 1.41.1
+        specifier: ^1.41.1
         version: 1.41.1
+      hono:
+        specifier: ^4.7.11
+        version: 4.11.4
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      rate-limiter-flexible:
+        specifier: ^5.0.4
+        version: 5.0.5
+      sanitize-html:
+        specifier: ^2.15.0
+        version: 2.17.2
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.37
+      '@types/sanitize-html':
+        specifier: ^2.13.0
+        version: 2.16.1
       tsx:
         specifier: ^4.0.0
         version: 4.21.0
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@20.19.37)(vite@8.0.1(@types/node@20.19.37)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/ai-core:
     dependencies:

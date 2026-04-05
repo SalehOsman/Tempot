@@ -16,9 +16,9 @@
 
 ### 3. Rate Limiting Strategy
 
-- **Decision:** Use @grammyjs/ratelimiter for bot-side rate limiting and rate-limiter-flexible for API-side (Hono) rate limiting, both backed by Redis.
-- **Rationale:** Architecture Spec Section 20 mandates @grammyjs/ratelimiter for bot updates (ADR-020). For the HTTP server (health check, future dashboard API), rate-limiter-flexible provides consistent API-side rate limiting. Both use Redis as the backing store for distributed rate limiting across multiple instances.
-- **Alternatives considered:** Custom rate limiter (rejected — ADR-020 explicitly chose library-based over custom). grammY ratelimiter only (rejected — doesn't cover HTTP endpoints).
+- **Decision:** Use rate-limiter-flexible for all rate limiting scopes (user_flood, ai_request, denied_access), backed by in-memory storage with Redis upgrade path.
+- **Rationale:** Architecture Spec Section 20 mandates rate limiting for bot updates. Using rate-limiter-flexible for all scopes provides a uniform API, consistent error handling, and per-scope configuration (separate points/duration for each scope). The user_flood scope handles general bot message rate limiting, ai_request scope protects AI endpoints, and denied_access scope throttles users who fail authorization. All scopes use the same RateLimiterMemory backend, with Redis backing available for multi-instance deployments.
+- **Alternatives considered:** @grammyjs/ratelimiter (rejected — wraps rate-limiter-flexible internally, adds unnecessary grammY coupling; using rate-limiter-flexible directly provides more control over scope configuration and error handling). Custom rate limiter (rejected — ADR-020 explicitly chose library-based over custom).
 
 ### 4. Input Sanitization Approach
 
