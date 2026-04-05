@@ -112,7 +112,7 @@ export interface ValidationError {
 /** Discovery result summary */
 export interface DiscoveryResult {
   discovered: DiscoveredModule[];
-  skipped: string[];
+  skipped: Array<{ name: string; isCore: boolean }>;
   failed: Array<{ path: string; error: string }>;
 }
 

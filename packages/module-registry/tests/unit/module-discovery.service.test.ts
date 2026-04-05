@@ -168,7 +168,7 @@ describe('ModuleDiscovery', () => {
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       expect(result.value.discovered).toHaveLength(0);
-      expect(result.value.skipped).toContain('inactive-mod');
+      expect(result.value.skipped).toContainEqual({ name: 'inactive-mod', isCore: false });
       expect(result.value.failed).toHaveLength(0);
     }
   });
@@ -220,7 +220,7 @@ describe('ModuleDiscovery', () => {
     if (result.isOk()) {
       expect(result.value.discovered).toHaveLength(1);
       expect(result.value.discovered[0].name).toBe('module-a');
-      expect(result.value.skipped).toContain('module-b');
+      expect(result.value.skipped).toContainEqual({ name: 'module-b', isCore: false });
       expect(result.value.failed).toHaveLength(1);
     }
   });

@@ -562,6 +562,57 @@ describe('ModuleValidator', () => {
         expect(logger.warn).toHaveBeenCalled();
       }
     });
+
+    it('should fail when required package is disabled via toggle guard env var', async () => {
+      const config = createValidConfig({
+        name: 'ai-module',
+        features: {
+          ...createValidConfig().features,
+          hasAI: true,
+        },
+        aiDegradationMode: 'graceful',
+      });
+      const module = createModule({ config, name: config.name });
+
+      // ai-core directory exists in packages but is disabled via env
+      const originalEnv = process.env['TEMPOT_AI'];
+      process.env['TEMPOT_AI'] = 'false';
+
+      try {
+        const validator = new ModuleValidator({
+          specsDir: '/specs',
+          packagesDir: '/packages',
+          listDir: async (path: string) => {
+            if (path === '/specs') return ['019-ai-module'];
+            if (path === '/packages') return ['shared', 'ai-core'];
+            return [];
+          },
+          pathExists: createPathExists({
+            specMdPaths: ['/specs/019-ai-module/spec.md'],
+          }),
+          logger,
+        });
+
+        const result = await validator.validate([module]);
+
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+          expect(result.value.validated).toHaveLength(0);
+          expect(
+            result.value.failed.some(
+              (e: ValidationError) =>
+                e.code.includes('dependency') && e.message.includes('ai-core'),
+            ),
+          ).toBe(true);
+        }
+      } finally {
+        if (originalEnv === undefined) {
+          delete process.env['TEMPOT_AI'];
+        } else {
+          process.env['TEMPOT_AI'] = originalEnv;
+        }
+      }
+    });
   });
 
   describe('name uniqueness', () => {

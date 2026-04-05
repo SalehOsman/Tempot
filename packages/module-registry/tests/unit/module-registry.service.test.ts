@@ -142,7 +142,7 @@ describe('ModuleRegistry', () => {
 
     it('should log discovery summary', async () => {
       const discoveryResult = createDiscoveryResult({
-        skipped: ['inactive-mod'],
+        skipped: [{ name: 'inactive-mod', isCore: false }],
         failed: [{ path: '/modules/broken', error: 'bad config' }],
       });
       const discovery: ModuleDiscoveryPort = {
@@ -154,6 +154,24 @@ describe('ModuleRegistry', () => {
       await registry.discover();
 
       expect(logger.info).toHaveBeenCalled();
+    });
+
+    it('should emit module.disabled event for inactive modules', async () => {
+      const discoveryResult = createDiscoveryResult({
+        skipped: [{ name: 'disabled-mod', isCore: true }],
+      });
+      const discovery: ModuleDiscoveryPort = {
+        discover: vi.fn().mockResolvedValue(ok(discoveryResult)),
+      };
+      const validator: ModuleValidatorPort = { validate: vi.fn() };
+
+      const registry = new ModuleRegistry({ discovery, validator, eventBus, logger });
+      await registry.discover();
+
+      expect(eventBus.publish).toHaveBeenCalledWith(
+        'module-registry.module.disabled',
+        expect.objectContaining({ moduleName: 'disabled-mod', isCore: true }),
+      );
     });
   });
 
@@ -234,7 +252,36 @@ describe('ModuleRegistry', () => {
 
       expect(eventBus.publish).toHaveBeenCalledWith(
         'module-registry.module.validation_failed',
-        expect.objectContaining({ moduleName: 'test-module' }),
+        expect.objectContaining({ moduleName: 'test-module', isCore: false }),
+      );
+    });
+
+    it('should emit module.skipped event for optional module failures', async () => {
+      const discoveryResult = createDiscoveryResult();
+      const validationResult = createValidationResult({
+        validated: [],
+        failed: [
+          {
+            module: 'test-module',
+            code: MODULE_REGISTRY_ERRORS.STRUCTURE_INVALID,
+            message: 'Missing file',
+          },
+        ],
+      });
+      const discovery: ModuleDiscoveryPort = {
+        discover: vi.fn().mockResolvedValue(ok(discoveryResult)),
+      };
+      const validator: ModuleValidatorPort = {
+        validate: vi.fn().mockResolvedValue(ok(validationResult)),
+      };
+
+      const registry = new ModuleRegistry({ discovery, validator, eventBus, logger });
+      await registry.discover();
+      await registry.validate();
+
+      expect(eventBus.publish).toHaveBeenCalledWith(
+        'module-registry.module.skipped',
+        expect.objectContaining({ moduleName: 'test-module', reason: 'Missing file' }),
       );
     });
 
@@ -342,6 +389,26 @@ describe('ModuleRegistry', () => {
       if (result.isErr()) {
         expect(result.error.code).toBe(MODULE_REGISTRY_ERRORS.NOT_VALIDATED);
       }
+    });
+
+    it('should succeed with empty modules after discover+validate', async () => {
+      const emptyDiscovery = createDiscoveryResult({ discovered: [] });
+      const emptyValidation = createValidationResult({ validated: [] });
+      const discovery: ModuleDiscoveryPort = {
+        discover: vi.fn().mockResolvedValue(ok(emptyDiscovery)),
+      };
+      const validator: ModuleValidatorPort = {
+        validate: vi.fn().mockResolvedValue(ok(emptyValidation)),
+      };
+      const bot = createBot();
+
+      const registry = new ModuleRegistry({ discovery, validator, eventBus, logger });
+      await registry.discover();
+      await registry.validate();
+      const result = await registry.register(bot);
+
+      expect(result.isOk()).toBe(true);
+      expect(bot.api.setMyCommands).toHaveBeenCalledWith([]);
     });
 
     it('should register commands via bot and emit events', async () => {

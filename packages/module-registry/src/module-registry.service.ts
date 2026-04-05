@@ -30,6 +30,7 @@ export interface ModuleRegistryDeps {
 export class ModuleRegistry {
   private readonly deps: ModuleRegistryDeps;
   private discoveredModules: DiscoveredModule[] | null = null;
+  private validated = false;
   private registry: Map<string, ValidatedModule> = new Map();
 
   constructor(deps: ModuleRegistryDeps) {
@@ -48,6 +49,13 @@ export class ModuleRegistry {
       modulesSkipped: discovery.skipped.length,
       modulesFailed: discovery.failed.length,
     });
+
+    for (const skipped of discovery.skipped) {
+      await this.emitEvent('module-registry.module.disabled', {
+        moduleName: skipped.name,
+        isCore: skipped.isCore,
+      });
+    }
 
     this.deps.logger.info({
       msg: 'Discovery completed',
@@ -72,10 +80,7 @@ export class ModuleRegistry {
   }
 
   async register(bot: RegistryBot): AsyncResult<void> {
-    if (this.registry.size === 0 && this.discoveredModules !== null) {
-      return err(new AppError(MODULE_REGISTRY_ERRORS.NOT_VALIDATED));
-    }
-    if (this.discoveredModules === null) {
+    if (!this.validated) {
       return err(new AppError(MODULE_REGISTRY_ERRORS.NOT_VALIDATED));
     }
 
@@ -122,6 +127,8 @@ export class ModuleRegistry {
       });
     }
 
+    this.validated = true;
+
     const failedCoreModules = this.findFailedCoreModules(validation);
     await this.emitFailureEvents(validation);
 
@@ -151,23 +158,33 @@ export class ModuleRegistry {
   }
 
   private findFailedCoreModules(validation: ValidationResult): string[] {
-    if (!this.discoveredModules) return [];
-    const coreModules = new Set(
-      this.discoveredModules.filter((m) => m.config.isCore).map((m) => m.name),
-    );
+    const coreModules = this.getCoreModuleNames();
     const failedNames = [...new Set(validation.failed.map((f) => f.module))];
     return failedNames.filter((name) => coreModules.has(name));
   }
 
   private async emitFailureEvents(validation: ValidationResult): Promise<void> {
+    const coreModules = this.getCoreModuleNames();
     const failedModuleNames = [...new Set(validation.failed.map((f) => f.module))];
     for (const moduleName of failedModuleNames) {
       const moduleErrors = validation.failed.filter((f) => f.module === moduleName);
+      const isCore = coreModules.has(moduleName);
       await this.emitEvent('module-registry.module.validation_failed', {
         moduleName,
+        isCore,
         errors: moduleErrors.map((e) => e.message),
       });
+
+      if (!isCore) {
+        const reason = moduleErrors.map((e) => e.message).join('; ');
+        await this.emitEvent('module-registry.module.skipped', { moduleName, reason });
+      }
     }
+  }
+
+  private getCoreModuleNames(): Set<string> {
+    if (!this.discoveredModules) return new Set();
+    return new Set(this.discoveredModules.filter((m) => m.config.isCore).map((m) => m.name));
   }
 
   private async emitEvent(event: string, payload: Record<string, unknown>): Promise<void> {

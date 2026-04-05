@@ -30,7 +30,7 @@ export class ModuleDiscovery implements ModuleDiscoveryPort {
 
   async discover(): AsyncResult<DiscoveryResult> {
     const discovered: DiscoveredModule[] = [];
-    const skipped: string[] = [];
+    const skipped: Array<{ name: string; isCore: boolean }> = [];
     const failed: Array<{ path: string; error: string }> = [];
 
     const entries = await this.listModulesDir();
@@ -65,7 +65,7 @@ export class ModuleDiscovery implements ModuleDiscoveryPort {
       const config = parsed.data;
 
       if (!config.isActive) {
-        skipped.push(config.name);
+        skipped.push({ name: config.name, isCore: config.isCore });
         this.deps.logger.info({ msg: 'Module inactive, skipping', module: config.name });
         continue;
       }

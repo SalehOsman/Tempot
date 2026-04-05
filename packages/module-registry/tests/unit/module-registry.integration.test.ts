@@ -349,7 +349,7 @@ describe('Module Registry — Integration', () => {
     expect(discoverResult.isOk()).toBe(true);
     if (discoverResult.isOk()) {
       expect(discoverResult.value.discovered).toHaveLength(0);
-      expect(discoverResult.value.skipped).toContain('sleeping');
+      expect(discoverResult.value.skipped).toContainEqual({ name: 'sleeping', isCore: false });
     }
 
     expect(pipeline.logger.info).toHaveBeenCalledWith(

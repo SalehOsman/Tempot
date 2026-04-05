@@ -1,6 +1,7 @@
 import { MODULE_REGISTRY_ERRORS } from './module-registry.errors.js';
 import {
   FEATURE_PACKAGE_MAP,
+  TOGGLE_GUARD_PACKAGES,
   type DiscoveredModule,
   type RegistryLogger,
   type ValidationError,
@@ -118,6 +119,17 @@ export async function checkSpecGate(
   return errors;
 }
 
+/**
+ * Checks if a package is available: exists in packageDirs AND
+ * not disabled via toggle guard env var (spec D12).
+ */
+function isPackageAvailable(pkg: string, packageDirs: string[]): boolean {
+  if (!packageDirs.includes(pkg)) return false;
+  const guard = TOGGLE_GUARD_PACKAGES[pkg];
+  if (guard && process.env[guard.envVar] === 'false') return false;
+  return true;
+}
+
 /** Check required, feature-implied, and optional dependencies */
 export function checkDependencies(
   module: DiscoveredModule,
@@ -127,7 +139,7 @@ export function checkDependencies(
   const errors: ValidationError[] = [];
 
   for (const pkg of module.config.requires.packages) {
-    if (!packageDirs.includes(pkg)) {
+    if (!isPackageAvailable(pkg, packageDirs)) {
       errors.push({
         module: module.name,
         code: MODULE_REGISTRY_ERRORS.DEPENDENCY_MISSING,
@@ -139,7 +151,7 @@ export function checkDependencies(
   const features = module.config.features;
   for (const [feature, pkg] of Object.entries(FEATURE_PACKAGE_MAP)) {
     const featureKey = feature as keyof typeof features;
-    if (features[featureKey] && !packageDirs.includes(pkg)) {
+    if (features[featureKey] && !isPackageAvailable(pkg, packageDirs)) {
       errors.push({
         module: module.name,
         code: MODULE_REGISTRY_ERRORS.DEPENDENCY_MISSING,
@@ -149,7 +161,7 @@ export function checkDependencies(
   }
 
   for (const pkg of module.config.requires.optional) {
-    if (!packageDirs.includes(pkg)) {
+    if (!isPackageAvailable(pkg, packageDirs)) {
       logger.warn({ msg: 'Optional package not available', module: module.name, package: pkg });
     }
   }
