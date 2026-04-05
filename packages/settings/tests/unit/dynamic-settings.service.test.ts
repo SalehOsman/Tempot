@@ -166,6 +166,31 @@ describe('DynamicSettingsService', () => {
         expect(result.error.code).toBe(SETTINGS_ERRORS.DYNAMIC_UNKNOWN_KEY);
       }
     });
+
+    it('should return error when cached value is corrupted JSON', async () => {
+      vi.mocked(cache.get).mockResolvedValue(ok('{corrupted'));
+
+      const result = await service.get('join_mode');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(SETTINGS_ERRORS.DYNAMIC_PARSE_FAILED);
+      }
+    });
+
+    it('should return error when DB value is corrupted JSON', async () => {
+      vi.mocked(cache.get).mockResolvedValue(ok(undefined));
+      vi.mocked(repository.findByKey).mockResolvedValue(
+        ok(createMockRecord('join_mode', '{corrupted')),
+      );
+
+      const result = await service.get('join_mode');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(SETTINGS_ERRORS.DYNAMIC_PARSE_FAILED);
+      }
+    });
   });
 
   describe('set()', () => {
@@ -219,6 +244,19 @@ describe('DynamicSettingsService', () => {
         changedBy: 'admin-1',
       });
     });
+
+    it('should return error when existing DB value is corrupted JSON', async () => {
+      vi.mocked(repository.findByKey).mockResolvedValue(
+        ok(createMockRecord('join_mode', '{corrupted')),
+      );
+
+      const result = await service.set('join_mode', 'CLOSED', 'admin-1');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(SETTINGS_ERRORS.DYNAMIC_PARSE_FAILED);
+      }
+    });
   });
 
   describe('delete()', () => {
@@ -241,6 +279,36 @@ describe('DynamicSettingsService', () => {
         newValue: DYNAMIC_SETTING_DEFAULTS['join_mode'],
         changedBy: 'admin-1',
       });
+    });
+
+    it('should emit settings.maintenance.toggled when deleting maintenance_mode', async () => {
+      vi.mocked(repository.findByKey).mockResolvedValue(
+        ok(createMockRecord('maintenance_mode', 'true')),
+      );
+      vi.mocked(repository.deleteByKey).mockResolvedValue(
+        ok(createMockRecord('maintenance_mode', 'true')),
+      );
+
+      const result = await service.delete('maintenance_mode', 'admin-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(eventBus.publish).toHaveBeenCalledWith('settings.maintenance.toggled', {
+        enabled: false,
+        changedBy: 'admin-1',
+      });
+    });
+
+    it('should return error when existing DB value is corrupted JSON on delete', async () => {
+      vi.mocked(repository.findByKey).mockResolvedValue(
+        ok(createMockRecord('join_mode', '{corrupted')),
+      );
+
+      const result = await service.delete('join_mode', 'admin-1');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(SETTINGS_ERRORS.DYNAMIC_PARSE_FAILED);
+      }
     });
   });
 

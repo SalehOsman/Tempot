@@ -9,6 +9,7 @@ export const SETTINGS_ERRORS = {
   DYNAMIC_DELETE_FAILED: 'settings.dynamic.delete_failed',
   DYNAMIC_CREATE_FAILED: 'settings.dynamic.create_failed',
   CACHE_READ_FAILED: 'settings.cache.read_failed',
+  DYNAMIC_PARSE_FAILED: 'settings.dynamic.parse_failed',
   CACHE_INVALIDATION_FAILED: 'settings.cache.invalidation_failed',
   REPOSITORY_ERROR: 'settings.repository.error',
 } as const;

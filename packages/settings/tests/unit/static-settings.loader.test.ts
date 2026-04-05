@@ -98,4 +98,32 @@ describe('StaticSettingsLoader', () => {
       expect(result.value.superAdminIds).toEqual([42]);
     }
   });
+
+  it('should reject SUPER_ADMIN_IDS containing zero', () => {
+    process.env['BOT_TOKEN'] = 'test-token';
+    process.env['DATABASE_URL'] = 'postgresql://localhost/test';
+    process.env['SUPER_ADMIN_IDS'] = '0';
+    process.env['DEFAULT_LANGUAGE'] = 'ar';
+    process.env['DEFAULT_COUNTRY'] = 'EG';
+
+    const result = StaticSettingsLoader.load();
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED);
+    }
+  });
+
+  it('should reject SUPER_ADMIN_IDS containing zero among valid IDs', () => {
+    process.env['BOT_TOKEN'] = 'test-token';
+    process.env['DATABASE_URL'] = 'postgresql://localhost/test';
+    process.env['SUPER_ADMIN_IDS'] = '123,0,456';
+    process.env['DEFAULT_LANGUAGE'] = 'ar';
+    process.env['DEFAULT_COUNTRY'] = 'EG';
+
+    const result = StaticSettingsLoader.load();
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED);
+    }
+  });
 });

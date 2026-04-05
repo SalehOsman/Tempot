@@ -12,8 +12,8 @@ const superAdminIdsSchema = z
     return val.split(',').map((s) => s.trim());
   })
   .refine(
-    (parts) => parts.every((part) => !isNaN(Number(part))),
-    'SUPER_ADMIN_IDS contains non-numeric values',
+    (parts) => parts.every((part) => !isNaN(Number(part)) && Number(part) > 0),
+    'SUPER_ADMIN_IDS must contain only positive integers',
   )
   .transform((parts) => parts.map(Number));
 

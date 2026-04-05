@@ -1,5 +1,5 @@
 import { ok, err } from 'neverthrow';
-import type { AsyncResult } from '@tempot/shared';
+import type { Result, AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type {
   DynamicSettingKey,
@@ -15,6 +15,14 @@ const VALID_KEYS = new Set<string>(Object.keys(DYNAMIC_SETTING_DEFAULTS));
 
 function validateKey(key: string): boolean {
   return VALID_KEYS.has(key);
+}
+
+function safeJsonParse(raw: string, key: string): Result<unknown, AppError> {
+  try {
+    return ok(JSON.parse(raw));
+  } catch {
+    return err(new AppError(SETTINGS_ERRORS.DYNAMIC_PARSE_FAILED, { key, raw }));
+  }
 }
 
 export class DynamicSettingsService {
@@ -33,7 +41,9 @@ export class DynamicSettingsService {
     const cacheResult = await this.deps.cache.get<string>(cacheKey);
 
     if (cacheResult.isOk() && cacheResult.value != null) {
-      return ok(JSON.parse(cacheResult.value) as DynamicSettingDefinitions[K]);
+      const parsed = safeJsonParse(cacheResult.value, key);
+      if (parsed.isErr()) return err(parsed.error);
+      return ok(parsed.value as DynamicSettingDefinitions[K]);
     }
     if (cacheResult.isErr()) {
       this.deps.logger.warn({
@@ -64,7 +74,9 @@ export class DynamicSettingsService {
       return ok(DYNAMIC_SETTING_DEFAULTS[key]);
     }
 
-    const parsedValue = JSON.parse(dbResult.value.value) as DynamicSettingDefinitions[K];
+    const parsed = safeJsonParse(dbResult.value.value, key);
+    if (parsed.isErr()) return err(parsed.error);
+    const parsedValue = parsed.value as DynamicSettingDefinitions[K];
     const setCacheResult = await this.deps.cache.set(cacheKey, dbResult.value.value, CACHE_TTL_MS);
     if (setCacheResult.isErr()) {
       this.deps.logger.warn({ key, message: 'Failed to populate cache after DB read' });
@@ -83,10 +95,13 @@ export class DynamicSettingsService {
 
     const existingResult = await this.deps.repository.findByKey(key);
     const existed = existingResult.isOk() && existingResult.value !== null;
-    const oldValue =
-      existed && existingResult.isOk()
-        ? (JSON.parse(existingResult.value!.value) as unknown)
-        : DYNAMIC_SETTING_DEFAULTS[key];
+    let oldValue: unknown = DYNAMIC_SETTING_DEFAULTS[key];
+
+    if (existed && existingResult.isOk() && existingResult.value !== null) {
+      const parsed = safeJsonParse(existingResult.value.value, key);
+      if (parsed.isErr()) return err(parsed.error);
+      oldValue = parsed.value;
+    }
 
     const upsertResult = await this.deps.repository.upsert(key, JSON.stringify(value), updatedBy);
     if (upsertResult.isErr()) {
@@ -104,10 +119,13 @@ export class DynamicSettingsService {
     }
 
     const existingResult = await this.deps.repository.findByKey(key);
-    const oldValue =
-      existingResult.isOk() && existingResult.value !== null
-        ? (JSON.parse(existingResult.value.value) as unknown)
-        : DYNAMIC_SETTING_DEFAULTS[key];
+    let oldValue: unknown = DYNAMIC_SETTING_DEFAULTS[key];
+
+    if (existingResult.isOk() && existingResult.value !== null) {
+      const parsed = safeJsonParse(existingResult.value.value, key);
+      if (parsed.isErr()) return err(parsed.error);
+      oldValue = parsed.value;
+    }
 
     const deleteResult = await this.deps.repository.deleteByKey(key);
     if (deleteResult.isErr()) {
@@ -121,6 +139,12 @@ export class DynamicSettingsService {
       newValue: DYNAMIC_SETTING_DEFAULTS[key],
       changedBy: deletedBy,
     });
+    if (key === 'maintenance_mode') {
+      await this.emitEvent('settings.maintenance.toggled', {
+        enabled: DYNAMIC_SETTING_DEFAULTS['maintenance_mode'],
+        changedBy: deletedBy,
+      });
+    }
     return ok(undefined);
   }
 

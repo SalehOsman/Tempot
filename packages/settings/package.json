@@ -19,8 +19,6 @@
   "dependencies": {
     "@prisma/client": "^7.5.0",
     "@tempot/shared": "workspace:*",
-    "@tempot/event-bus": "workspace:*",
-    "@tempot/logger": "workspace:*",
     "neverthrow": "8.2.0",
     "zod": "^4.3.6"
   },
