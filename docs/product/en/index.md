@@ -1,6 +1,16 @@
 ---
 title: Tempot Documentation
 description: Main documentation page for the Tempot bot framework
+tags:
+  - overview
+  - landing
+audience:
+  - package-developer
+  - bot-developer
+  - operator
+  - end-user
+contentType: developer-docs
+template: splash
 ---
 
 Welcome to Tempot Documentation.

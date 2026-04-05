@@ -1,6 +1,16 @@
 ---
 title: توثيق تمبوت
 description: الصفحة الرئيسية لتوثيق منصة تمبوت
+tags:
+  - overview
+  - landing
+audience:
+  - package-developer
+  - bot-developer
+  - operator
+  - end-user
+contentType: developer-docs
+template: splash
 ---
 
 مرحبًا بك في توثيق تمبوت.
