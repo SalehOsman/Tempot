@@ -1,3 +1,8 @@
+import type { AsyncResult } from '@tempot/shared';
+import type { AppError } from '@tempot/shared';
+import type { CacheService } from '@tempot/shared';
+import type { SettingsRepositoryPort } from './settings.repository.js';
+
 /** Static settings validated from .env at startup */
 export interface StaticSettings {
   botToken: string;
@@ -52,6 +57,27 @@ export interface MaintenanceModePayload {
 export interface MaintenanceStatus {
   enabled: boolean;
   isSuperAdmin: (userId: number) => boolean;
+}
+
+/** Minimal logger interface — structurally compatible with pino.Logger */
+export interface SettingsLogger {
+  info: (data: unknown) => void;
+  warn: (data: unknown) => void;
+  error: (data: unknown) => void;
+  debug: (data: unknown) => void;
+}
+
+/** Minimal event bus interface — structurally compatible with EventBusOrchestrator */
+export interface SettingsEventBus {
+  publish(eventName: string, payload: unknown): AsyncResult<void, AppError>;
+}
+
+/** Dependencies for DynamicSettingsService */
+export interface DynamicSettingsServiceDeps {
+  repository: SettingsRepositoryPort;
+  cache: CacheService;
+  eventBus: SettingsEventBus;
+  logger: SettingsLogger;
 }
 
 /** Default values for all dynamic settings (type-safe via mapped type — DC-6) */
