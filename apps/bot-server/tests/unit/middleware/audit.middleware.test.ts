@@ -94,4 +94,17 @@ describe('createAuditMiddleware', () => {
 
     expect(mockAuditLog).toHaveBeenCalledWith(expect.objectContaining({ action: 'message' }));
   });
+
+  it('includes userRole from sessionUser on context', async () => {
+    const mockAuditLog = vi.fn().mockResolvedValue(undefined);
+    const deps: AuditDeps = { auditLog: mockAuditLog };
+
+    const middleware = createAuditMiddleware(deps);
+    const ctx = createMockContext() as MockContext & Record<string, unknown>;
+    ctx['sessionUser'] = { id: '123', role: 'USER' };
+
+    await middleware(ctx as never, next);
+
+    expect(mockAuditLog).toHaveBeenCalledWith(expect.objectContaining({ userRole: 'USER' }));
+  });
 });

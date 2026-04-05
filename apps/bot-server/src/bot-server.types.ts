@@ -78,6 +78,18 @@ export interface SettingsProvider {
   get: (key: string) => Promise<unknown>;
 }
 
+/** Probe function for a single health check subsystem */
+export type SubsystemProbe = () => Promise<SubsystemCheck>;
+
+/** Probe registry matching HealthCheckResponse.checks subsystems */
+export interface HealthProbes {
+  database: SubsystemProbe;
+  redis: SubsystemProbe;
+  ai_provider: SubsystemProbe;
+  disk: SubsystemProbe;
+  queue_manager: SubsystemProbe;
+}
+
 /** A single step in the startup sequence — used for logging and error reporting */
 export interface StartupStep {
   /** Step identifier (e.g., 'loadConfig') */

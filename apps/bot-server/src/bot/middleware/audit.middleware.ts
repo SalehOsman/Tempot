@@ -4,6 +4,7 @@ export interface AuditEntry {
   action: string;
   module: string;
   userId?: string;
+  userRole?: string;
   status?: string;
 }
 
@@ -19,6 +20,10 @@ function extractAction(ctx: Context): string {
   return 'message';
 }
 
+interface SessionUserLike {
+  role?: string;
+}
+
 /**
  * Creates audit middleware that logs every request result.
  * Runs AFTER handlers (wraps next()) and logs success/failure.
@@ -30,6 +35,9 @@ export function createAuditMiddleware(
   return async (ctx: Context, next: NextFunction): Promise<void> => {
     const action = extractAction(ctx);
     const userId = ctx.from?.id?.toString();
+    const ctxRecord = ctx as unknown as Record<string, unknown>;
+    const sessionUser = ctxRecord['sessionUser'] as SessionUserLike | undefined;
+    const userRole = sessionUser?.role;
 
     try {
       await next();
@@ -38,6 +46,7 @@ export function createAuditMiddleware(
           action,
           module: 'bot-server',
           userId,
+          userRole,
           status: 'SUCCESS',
         });
       } catch {
@@ -49,6 +58,7 @@ export function createAuditMiddleware(
           action,
           module: 'bot-server',
           userId,
+          userRole,
           status: 'FAILURE',
         });
       } catch {

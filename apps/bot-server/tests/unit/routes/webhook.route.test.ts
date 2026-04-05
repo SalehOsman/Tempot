@@ -114,4 +114,20 @@ describe('createWebhookRoute', () => {
     expect(response.status).toBe(400);
     expect(deps.bot.handleUpdate).not.toHaveBeenCalled();
   });
+
+  it('returns 400 when body is missing update_id', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ message: { text: 'hello' } }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(deps.bot.handleUpdate).not.toHaveBeenCalled();
+  });
 });

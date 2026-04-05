@@ -59,6 +59,9 @@ export function loadConfig(): Result<BotServerConfig, AppError> {
   const botMode = rawMode as BotMode;
 
   const port = process.env['PORT'] ? Number(process.env['PORT']) : DEFAULT_PORT;
+  if (!Number.isFinite(port) || port < 1 || port > 65535) {
+    return err(new AppError(BOT_SERVER_ERRORS.INVALID_PORT, { value: process.env['PORT'] }));
+  }
 
   const adminResult = parseSuperAdminIds(process.env['SUPER_ADMIN_IDS']);
   if (adminResult.isErr()) {

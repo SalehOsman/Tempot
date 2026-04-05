@@ -184,4 +184,43 @@ describe('loadConfig', () => {
       expect(result.value.port).toBe(8080);
     }
   });
+
+  it('returns err with INVALID_PORT for non-numeric PORT', () => {
+    process.env['BOT_TOKEN'] = 'test-token';
+    process.env['BOT_MODE'] = 'polling';
+    process.env['PORT'] = 'abc';
+
+    const result = loadConfig();
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(BOT_SERVER_ERRORS.INVALID_PORT);
+    }
+  });
+
+  it('returns err with INVALID_PORT for out-of-range PORT', () => {
+    process.env['BOT_TOKEN'] = 'test-token';
+    process.env['BOT_MODE'] = 'polling';
+    process.env['PORT'] = '99999';
+
+    const result = loadConfig();
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(BOT_SERVER_ERRORS.INVALID_PORT);
+    }
+  });
+
+  it('returns err with INVALID_PORT for PORT of 0', () => {
+    process.env['BOT_TOKEN'] = 'test-token';
+    process.env['BOT_MODE'] = 'polling';
+    process.env['PORT'] = '0';
+
+    const result = loadConfig();
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(BOT_SERVER_ERRORS.INVALID_PORT);
+    }
+  });
 });

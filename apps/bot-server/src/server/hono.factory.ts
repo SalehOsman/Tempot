@@ -2,17 +2,7 @@ import { Hono } from 'hono';
 import type { Bot, Context as GrammyContext } from 'grammy';
 import { createWebhookRoute } from './routes/webhook.route.js';
 import { createHealthRoute } from './routes/health.route.js';
-import type { BotMode, ModuleLogger, SubsystemCheck } from '../bot-server.types.js';
-
-type SubsystemProbe = () => Promise<SubsystemCheck>;
-
-interface HealthProbes {
-  database: SubsystemProbe;
-  redis: SubsystemProbe;
-  ai_provider: SubsystemProbe;
-  disk: SubsystemProbe;
-  queue_manager: SubsystemProbe;
-}
+import type { BotMode, HealthProbes, ModuleLogger } from '../bot-server.types.js';
 
 interface HonoFactoryDeps {
   bot: Bot<GrammyContext>;

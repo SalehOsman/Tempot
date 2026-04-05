@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { timingSafeEqual } from 'node:crypto';
 import type { Context as HonoContext } from 'hono';
 import type { Bot, Context as GrammyContext } from 'grammy';
 import type { Update } from 'grammy/types';
@@ -28,6 +29,11 @@ export function createWebhookRoute(deps: WebhookRouteDeps): Hono {
       return c.json({ error: 'Bad Request' }, 400);
     }
 
+    if (typeof body['update_id'] !== 'number') {
+      logger.warn({ msg: 'webhook_missing_update_id' });
+      return c.json({ error: 'Bad Request' }, 400);
+    }
+
     await bot.handleUpdate(body as unknown as Update);
     return c.json({ ok: true }, 200);
   });
@@ -42,7 +48,12 @@ export function createWebhookRoute(deps: WebhookRouteDeps): Hono {
 function verifySecret(c: HonoContext, expected: string): boolean {
   const received = c.req.header(TELEGRAM_SECRET_HEADER);
   if (!received) return false;
-  return received === expected;
+
+  const expectedBuf = Buffer.from(expected, 'utf8');
+  const receivedBuf = Buffer.from(received, 'utf8');
+
+  if (expectedBuf.length !== receivedBuf.length) return false;
+  return timingSafeEqual(expectedBuf, receivedBuf);
 }
 
 async function parseBody(c: HonoContext): Promise<Record<string, unknown> | null> {

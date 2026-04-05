@@ -1,6 +1,8 @@
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
+import type { ModuleConfig } from '@tempot/module-registry';
+import type { Bot, Context } from 'grammy';
 import type {
   ModuleLogger,
   ModuleDependencyContainer,
@@ -21,17 +23,11 @@ interface ModuleLoaderDeps {
 
 interface ValidatedModuleInput {
   path: string;
-  config: {
-    name: string;
-    isCore: boolean;
-    isActive: boolean;
-    commands: unknown[];
-    scopedUsers?: number[];
-  };
+  config: ModuleConfig;
 }
 
 export async function loadModuleHandlers(
-  bot: unknown,
+  bot: Bot<Context>,
   modules: ValidatedModuleInput[],
   deps: ModuleLoaderDeps,
 ): AsyncResult<string[]> {
@@ -51,7 +47,7 @@ export async function loadModuleHandlers(
 }
 
 async function loadSingleModule(
-  bot: unknown,
+  bot: Bot<Context>,
   mod: ValidatedModuleInput,
   deps: ModuleLoaderDeps,
 ): AsyncResult<string | undefined> {
@@ -84,7 +80,7 @@ function handleMissingExport(
 }
 
 interface ExecuteSetupParams {
-  bot: unknown;
+  bot: Bot<Context>;
   mod: ValidatedModuleInput;
   setupFn: ModuleSetupFn;
   deps: ModuleLoaderDeps;
@@ -99,11 +95,11 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
     sessionProvider: deps.sessionProvider,
     i18n: deps.i18n,
     settings: deps.settings,
-    config: mod.config as ModuleDependencyContainer['config'],
+    config: mod.config,
   };
 
   try {
-    await setupFn(bot as Parameters<ModuleSetupFn>[0], container);
+    await setupFn(bot, container);
     childLogger.info({ msg: 'Module loaded', module: mod.config.name });
     return ok(mod.config.name);
   } catch (error: unknown) {
