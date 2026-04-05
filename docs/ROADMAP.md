@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-05 (added Phase 4-6 scope from Architecture Spec)
+> Last updated: 2026-04-05 (adopted Starlight over Docusaurus — ADR-038)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -90,11 +90,11 @@ Not started. Depends on Phase 2.
 
 Not started. Depends on Phase 3.
 
-| #   | App       | Technology | Description                                                        |
-| --- | --------- | ---------- | ------------------------------------------------------------------ |
-| 1   | dashboard | Next.js    | Comprehensive admin panel with auto-discovered module plugin pages |
-| 2   | mini-apps | Next.js    | User-facing mini applications with secure `initData` binding       |
-| 3   | docs      | Docusaurus | Engineering documentation platform                                 |
+| #   | App       | Technology        | Description                                                        |
+| --- | --------- | ----------------- | ------------------------------------------------------------------ |
+| 1   | dashboard | Next.js           | Comprehensive admin panel with auto-discovered module plugin pages |
+| 2   | mini-apps | Next.js           | User-facing mini applications with secure `initData` binding       |
+| 3   | docs      | Starlight (Astro) | Engineering documentation platform — ADR-038                       |
 
 > Design details: `docs/architecture/DASHBOARD-MINIAPP-DESIGN.md` (Architecture Spec Section 12)
 

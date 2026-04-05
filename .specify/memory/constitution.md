@@ -382,9 +382,11 @@ Every package, module, and architectural decision documented from day one. No un
 
 ### LXII. Documentation Tools
 
-- Docusaurus for developer docs + end-user guide (planned — not yet set up)
+- Starlight (Astro) for developer docs + end-user guide (planned — not yet set up) — 📐 ADR-038
+- starlight-typedoc for monorepo API reference (one instance per package)
 - JSDoc/TSDoc for all public APIs
 - TypeDoc for auto-generated API reference
+- Vale for prose quality enforcement
 - All documentation in English
 
 ### LXIII. ADR Timing

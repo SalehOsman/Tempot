@@ -87,25 +87,26 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 
 ## Tech Stack (Locked Versions)
 
-| Component        | Technology                          | Version       |
-| ---------------- | ----------------------------------- | ------------- |
-| Runtime          | Node.js                             | 20+           |
-| Language         | TypeScript Strict Mode              | 5.9.3         |
-| Bot Engine       | grammY                              | ^1.41.1       |
-| Web Server       | Hono                                | 4.x           |
-| Database         | PostgreSQL + pgvector               | 16            |
-| Primary ORM      | Prisma                              | 7.x           |
-| Secondary ORM    | Drizzle (pgvector only)             | 0.45.x        |
-| Cache            | cache-manager + Keyv adapters       | 6.x           |
-| Queue            | BullMQ via queue factory            | 5.x           |
-| AI Abstraction   | Vercel AI SDK                       | 6.x           |
-| Auth             | CASL (@casl/ability + @casl/prisma) | 6.x           |
-| Error Handling   | neverthrow                          | 8.2.0         |
-| Testing          | Vitest + Testcontainers             | 4.1.0 / 8.0.1 |
-| i18n             | i18next                             | 25.x          |
-| Logging          | Pino                                | 9.x           |
-| Boundaries       | eslint-plugin-boundaries            | 4.x           |
-| Error Monitoring | @sentry/node                        | 8.x           |
+| Component        | Technology                            | Version       |
+| ---------------- | ------------------------------------- | ------------- |
+| Runtime          | Node.js                               | 20+           |
+| Language         | TypeScript Strict Mode                | 5.9.3         |
+| Bot Engine       | grammY                                | ^1.41.1       |
+| Web Server       | Hono                                  | 4.x           |
+| Database         | PostgreSQL + pgvector                 | 16            |
+| Primary ORM      | Prisma                                | 7.x           |
+| Secondary ORM    | Drizzle (pgvector only)               | 0.45.x        |
+| Cache            | cache-manager + Keyv adapters         | 6.x           |
+| Queue            | BullMQ via queue factory              | 5.x           |
+| AI Abstraction   | Vercel AI SDK                         | 6.x           |
+| Auth             | CASL (@casl/ability + @casl/prisma)   | 6.x           |
+| Error Handling   | neverthrow                            | 8.2.0         |
+| Testing          | Vitest + Testcontainers               | 4.1.0 / 8.0.1 |
+| i18n             | i18next                               | 25.x          |
+| Logging          | Pino                                  | 9.x           |
+| Boundaries       | eslint-plugin-boundaries              | 4.x           |
+| Error Monitoring | @sentry/node                          | 8.x           |
+| Documentation    | Starlight (Astro) + starlight-typedoc | latest        |
 
 ## Critical Rules (Quick Reference)
 
@@ -131,13 +132,10 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 Phase 0 complete. Phase 1 in progress — 13 packages on main.
 
-**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core (8 packages)
+**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core, input-engine, settings, module-registry (11 packages)
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Infrastructure (built before formal methodology):** sentry (1 package)
-**Needs full spec (settings):** settings requires full SpecKit cycle from `/speckit.specify`
 **Remaining Phase 1:** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — specs incomplete, need tasks.md + data-model.md + research.md)
-
-module-registry exists as placeholder only (README only, no package.json or implementation).
 
 ## Key Documents
 
