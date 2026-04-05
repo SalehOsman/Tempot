@@ -10,6 +10,7 @@
 
 import { startApplication, type OrchestratorDeps } from './startup/orchestrator.js';
 import type { AsyncResult } from '@tempot/shared';
+import type { Bot, Context } from 'grammy';
 import { loadConfig } from './startup/config.loader.js';
 import { bootstrapSuperAdmins } from './startup/bootstrap.js';
 import { warmCaches } from './startup/cache-warmer.js';
@@ -66,7 +67,7 @@ function createModuleLoaderFn(
     },
   };
   return (bot: unknown, validated: unknown[]) =>
-    loadModuleHandlers(bot, validated as Parameters<typeof loadModuleHandlers>[1], {
+    loadModuleHandlers(bot as Bot<Context>, validated as Parameters<typeof loadModuleHandlers>[1], {
       logger,
       eventBus: moduleEventBus,
       sessionProvider: { getSession: async () => ({}) },

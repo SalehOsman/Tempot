@@ -5,7 +5,7 @@ import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
 export interface AuthDeps {
   getSessionUser: (userId: number) => Promise<SessionUser | null>;
   abilityDefinitions: AbilityDefinition[];
-  logger: { warn: (data: unknown) => void };
+  logger: { warn: (data: unknown) => void; error: (data: unknown) => void };
   t: (key: string) => string;
 }
 

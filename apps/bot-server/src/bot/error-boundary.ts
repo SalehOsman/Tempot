@@ -2,7 +2,7 @@ import type { BotError, Context } from 'grammy';
 import { generateErrorReference } from '@tempot/shared';
 
 export interface ErrorBoundaryDeps {
-  logger: { error: (data: unknown) => void };
+  logger: { error: (data: unknown) => void; warn: (data: unknown) => void };
   eventBus: {
     publish: (event: string, payload: Record<string, unknown>) => Promise<unknown>;
   };
