@@ -4,7 +4,7 @@
 
 **Goal:** Build a comprehensive documentation platform for Tempot using Starlight (Astro) that serves 4 audiences (end user, new developer, advanced developer, template user), organizes content via the Diataxis framework, auto-generates API reference from TypeDoc, provides an AI documentation generation pipeline from SpecKit artifacts, integrates with the RAG pipeline for AI-assisted search, and enforces prose quality via Vale linting in CI.
 
-**Architecture:** Documentation content lives in `docs/` at the project root, split into three directories: `docs/archive/` (existing docs preserved as read-only reference), `docs/development/` (project development process — ADRs, methodology, devlog, retrospectives — NOT published), and `docs/product/` (user/developer-facing content organized by locale and Diataxis sections). The Starlight (Astro) application in `apps/docs/` is a build tool only — its `astro.config.mjs` sets `contentDir` to `../../docs/product/` to read content from the project root. API reference is auto-generated at build time by `starlight-typedoc` with one plugin instance per `@tempot/*` package. Documentation generation scripts live in `apps/docs/scripts/` — `generate-docs.ts` for AI-first content generation, `ingest-docs.ts` for RAG ingestion, and `check-freshness.ts` for staleness detection. Markdown-aware chunking extends `@tempot/ai-core` with a new chunking strategy.
+**Architecture:** Documentation content lives in `docs/` at the project root, split into three directories: `docs/archive/` (existing docs preserved as read-only reference), `docs/development/` (project development process — ADRs, methodology, devlog, retrospectives — NOT published), and `docs/product/` (user/developer-facing content organized by locale and Diataxis sections). The Starlight (Astro) application in `apps/docs/` is a build tool only — a directory junction maps `apps/docs/src/content/docs/` → `docs/product/` at the project root (Starlight 0.34.x requires content at `src/content/docs/` with no `contentDir` option). The junction is created automatically by `scripts/setup-content-link.cjs` via the `prepare` hook. API reference is auto-generated at build time by `starlight-typedoc` with one plugin instance per `@tempot/*` package. Documentation generation scripts live in `apps/docs/scripts/` — `generate-docs.ts` for AI-first content generation, `ingest-docs.ts` for RAG ingestion, and `check-freshness.ts` for staleness detection. Markdown-aware chunking extends `@tempot/ai-core` with a new chunking strategy.
 
 **Tech Stack:** Astro 5.x (static site generator), @astrojs/starlight (documentation theme), starlight-typedoc (API reference generation), TypeDoc (TypeScript documentation generator), i18next (Starlight's built-in i18n — matches Tempot's stack), Vale (prose linter for CI), Vercel AI SDK 6.x (AI generation pipeline — via `@tempot/ai-core`), pgvector (RAG vector storage — via `@tempot/database`), @tempot/ai-core (RAG ingestion service), @tempot/shared (Result pattern, AppError).
 
@@ -108,12 +108,12 @@ interface FreshnessReport {
 - [ ] Create `docs/development/` with subdirectories: `adr/`, `methodology/`, `devlog/`, `retrospectives/`
 - [ ] Create `docs/product/` with Diataxis structure for both locales: `{ar,en}/{tutorials,guides,concepts,user-guide}/`
 - [ ] Initialize `apps/docs/` with `package.json` — name: `docs`, private: true, scripts: `dev`, `build`, `preview`
-- [ ] Create `astro.config.mjs` with Starlight plugin, `contentDir: '../../docs/product/'`, i18n config (`ar` default RTL, `en` secondary), and sidebar configuration for Diataxis sections
+- [ ] Create `astro.config.mjs` with Starlight plugin, i18n config (`ar` default RTL, `en` secondary), and sidebar configuration for Diataxis sections. Content is served via directory junction from `src/content/docs/` → `docs/product/` (created by `scripts/setup-content-link.cjs`).
 - [ ] Create `tsconfig.json` extending Astro's base config
 - [ ] Create landing pages for both locales at `docs/product/{ar,en}/index.md` with typed DocFrontmatter
 - [ ] Create `scripts/docs.types.ts` with shared type definitions
 - [ ] Run `pnpm install` to verify workspace resolution
-- [ ] Run `pnpm build` in `apps/docs` to verify Starlight builds successfully with `contentDir` pointing to `docs/product/`
+- [ ] Run `pnpm build` in `apps/docs` to verify Starlight builds successfully with junction from `src/content/docs/` → `docs/product/`
 - [ ] Verify `docs/archive/` contains all previously existing docs untouched
 - [ ] Commit: `chore(docs): scaffold Starlight documentation site with i18n, Diataxis structure, and content relocation`
 

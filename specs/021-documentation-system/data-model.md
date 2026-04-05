@@ -170,7 +170,7 @@ Source Code + SpecKit Artifacts
 
 Starlight Build (pnpm build in apps/docs)
   │
-  ├── reads all Markdown from docs/product/ (via contentDir)
+  ├── reads all Markdown from docs/product/ (via directory junction at src/content/docs/)
   ├── starlight-typedoc generates API reference at build time
   └── outputs static site to apps/docs/dist/
 
