@@ -505,12 +505,11 @@ describe('Module Registry — Integration', () => {
     }
   });
 
-  it('performance: discovery + validation completes within 500ms', async () => {
-    const modules = [
-      { name: 'perf-a', config: makeConfig({ name: 'perf-a' }) },
-      { name: 'perf-b', config: makeConfig({ name: 'perf-b' }) },
-      { name: 'perf-c', config: makeConfig({ name: 'perf-c' }) },
-    ];
+  it('performance: discovery + validation completes within 500ms for 20 modules (SC-012)', async () => {
+    const modules = Array.from({ length: 20 }, (_, i) => ({
+      name: `perf-${String(i + 1).padStart(2, '0')}`,
+      config: makeConfig({ name: `perf-${String(i + 1).padStart(2, '0')}` }),
+    }));
     const pipeline = createPipeline(modules);
 
     const start = performance.now();
