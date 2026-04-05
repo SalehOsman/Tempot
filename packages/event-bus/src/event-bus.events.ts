@@ -133,4 +133,31 @@ export interface TempotEvents {
     enabled: boolean;
     changedBy: string | null;
   };
+  // Module Registry events (DC-1 through DC-8, inline payloads)
+  'module-registry.discovery.completed': {
+    modulesFound: number;
+    modulesSkipped: number;
+    modulesFailed: number;
+  };
+  'module-registry.module.validated': {
+    moduleName: string;
+    isCore: boolean;
+  };
+  'module-registry.module.validation_failed': {
+    moduleName: string;
+    isCore: boolean;
+    errors: string[];
+  };
+  'module-registry.module.skipped': {
+    moduleName: string;
+    reason: string;
+  };
+  'module-registry.module.registered': {
+    moduleName: string;
+    commandCount: number;
+  };
+  'module-registry.module.disabled': {
+    moduleName: string;
+    isCore: boolean;
+  };
 }
