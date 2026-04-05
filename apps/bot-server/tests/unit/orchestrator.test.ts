@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
+import type { ValidatedModule, ModuleConfig } from '@tempot/module-registry';
 import { startApplication, type OrchestratorDeps } from '../../src/startup/orchestrator.js';
 import { BOT_SERVER_ERRORS } from '../../src/bot-server.errors.js';
 
@@ -37,8 +38,8 @@ function createMockDeps(): OrchestratorDeps {
       listen: vi.fn(),
       close: vi.fn().mockResolvedValue(undefined),
     }),
-    registerShutdownHooks: vi.fn(),
-    setupSignalHandlers: vi.fn(),
+    registerShutdownHooks: vi.fn().mockReturnValue(ok(undefined)),
+    setupSignalHandlers: vi.fn().mockReturnValue(ok(undefined)),
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
     },
@@ -155,13 +156,38 @@ describe('startApplication', () => {
     expect(result._unsafeUnwrapErr().code).toBe(BOT_SERVER_ERRORS.CORE_MODULE_HANDLER_FAILED);
   });
 
-  it('continues on non-fatal cache warming failure', async () => {
-    deps.warmCaches = vi.fn().mockResolvedValue(ok(undefined));
+  it('logs warning and continues when cache warming returns err (W5)', async () => {
+    deps.warmCaches = vi
+      .fn()
+      .mockResolvedValue(err(new AppError(BOT_SERVER_ERRORS.CACHE_WARMING_FAILED)));
 
     const result = await startApplication(deps);
 
     expect(result.isOk()).toBe(true);
     expect(deps.discover).toHaveBeenCalled();
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'cache_warming_failed',
+        error: BOT_SERVER_ERRORS.CACHE_WARMING_FAILED,
+      }),
+    );
+    // Must NOT log success when warming failed
+    expect(deps.logger.info).not.toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'caches_warmed' }),
+    );
+  });
+
+  it('logs caches_warmed only when cache warming succeeds (W5)', async () => {
+    deps.warmCaches = vi.fn().mockResolvedValue(ok(undefined));
+
+    await startApplication(deps);
+
+    expect(deps.logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'caches_warmed' }),
+    );
+    expect(deps.logger.warn).not.toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'cache_warming_failed' }),
+    );
   });
 
   it('emits system.startup.completed with durationMs, modulesLoaded, mode', async () => {
@@ -205,5 +231,56 @@ describe('startApplication', () => {
     await startApplication(deps);
 
     expect(mockBot.start).not.toHaveBeenCalled();
+  });
+
+  it('passes ValidatedModule[] to loadModuleHandlers, not unknown[] (W7)', async () => {
+    const mockConfig: ModuleConfig = {
+      name: 'test-module',
+      version: '1.0.0',
+      requiredRole: 'USER',
+      commands: [{ command: 'test', description: 'Test command' }],
+      features: {
+        hasDatabase: false,
+        hasNotifications: false,
+        hasAttachments: false,
+        hasExport: false,
+        hasAI: false,
+        hasInputEngine: false,
+        hasImport: false,
+        hasSearch: false,
+        hasDynamicCMS: false,
+        hasRegional: false,
+      },
+      isActive: true,
+      isCore: true,
+      requires: { packages: [], optional: [] },
+    };
+
+    const validatedModules: ValidatedModule[] = [
+      {
+        name: 'test-module',
+        path: '/modules/test',
+        config: mockConfig,
+        validatedAt: new Date(),
+      },
+    ];
+
+    deps.validate = vi
+      .fn()
+      .mockResolvedValue(ok({ validated: validatedModules, skipped: [], failed: [] }));
+
+    await startApplication(deps);
+
+    expect(deps.loadModuleHandlers).toHaveBeenCalledWith(expect.anything(), validatedModules);
+  });
+
+  it('passes BotLike to loadModuleHandlers and createHttpServer, not unknown (W7)', async () => {
+    const mockBot = { start: vi.fn().mockResolvedValue(undefined) };
+    deps.createBot = vi.fn().mockReturnValue(mockBot);
+
+    await startApplication(deps);
+
+    expect(deps.loadModuleHandlers).toHaveBeenCalledWith(mockBot, expect.anything());
+    expect(deps.createHttpServer).toHaveBeenCalledWith(mockBot, expect.anything());
   });
 });

@@ -43,6 +43,7 @@ describe('createWebhookRoute', () => {
 
   it('returns 200 with valid secret header and JSON body', async () => {
     const app = createTestApp(deps);
+    const updatePayload = { update_id: 1, message: { text: 'hello' } };
 
     const response = await app.request('/webhook', {
       method: 'POST',
@@ -50,11 +51,30 @@ describe('createWebhookRoute', () => {
         'Content-Type': 'application/json',
         'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
       },
-      body: JSON.stringify({ update_id: 1, message: { text: 'hello' } }),
+      body: JSON.stringify(updatePayload),
     });
 
     expect(response.status).toBe(200);
     expect(deps.bot.handleUpdate).toHaveBeenCalledOnce();
+    expect(deps.bot.handleUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ update_id: 1, message: { text: 'hello' } }),
+    );
+  });
+
+  it('returns 400 when update_id is a string instead of number', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ update_id: 'not-a-number', message: { text: 'hello' } }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(deps.bot.handleUpdate).not.toHaveBeenCalled();
   });
 
   it('returns 401 when secret header is missing', async () => {

@@ -107,4 +107,56 @@ describe('createAuditMiddleware', () => {
 
     expect(mockAuditLog).toHaveBeenCalledWith(expect.objectContaining({ userRole: 'USER' }));
   });
+
+  it('resolves module name from commandModuleMap when command matches', async () => {
+    const mockAuditLog = vi.fn().mockResolvedValue(undefined);
+    const deps: AuditDeps = {
+      auditLog: mockAuditLog,
+      commandModuleMap: { '/settings': 'settings-module', '/help': 'help-module' },
+    };
+
+    const middleware = createAuditMiddleware(deps);
+    const ctx = createMockContext({
+      message: { text: '/settings arg1', from: { id: 123 } },
+    });
+
+    await middleware(ctx as never, next);
+
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({ module: 'settings-module', action: '/settings' }),
+    );
+  });
+
+  it('falls back to "bot-server" when command is not in commandModuleMap', async () => {
+    const mockAuditLog = vi.fn().mockResolvedValue(undefined);
+    const deps: AuditDeps = {
+      auditLog: mockAuditLog,
+      commandModuleMap: { '/settings': 'settings-module' },
+    };
+
+    const middleware = createAuditMiddleware(deps);
+    const ctx = createMockContext({
+      message: { text: '/unknown', from: { id: 123 } },
+    });
+
+    await middleware(ctx as never, next);
+
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({ module: 'bot-server', action: '/unknown' }),
+    );
+  });
+
+  it('uses "bot-server" as module when commandModuleMap is not provided', async () => {
+    const mockAuditLog = vi.fn().mockResolvedValue(undefined);
+    const deps: AuditDeps = { auditLog: mockAuditLog };
+
+    const middleware = createAuditMiddleware(deps);
+    const ctx = createMockContext({
+      message: { text: '/start', from: { id: 123 } },
+    });
+
+    await middleware(ctx as never, next);
+
+    expect(mockAuditLog).toHaveBeenCalledWith(expect.objectContaining({ module: 'bot-server' }));
+  });
 });

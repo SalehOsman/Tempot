@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { registerShutdownHooks, setupSignalHandlers } from '../../src/startup/shutdown.js';
 import type { ShutdownManager } from '@tempot/shared';
+import { AppError } from '@tempot/shared';
 
 interface MockHook {
   (): Promise<void>;
@@ -129,6 +130,27 @@ describe('registerShutdownHooks', () => {
 
     expect(resources.logger.warn).toHaveBeenCalled();
   });
+
+  it('should return ok result when all hooks register successfully (W6)', () => {
+    const result = registerShutdownHooks(shutdownManager, resources);
+
+    expect(result.isOk()).toBe(true);
+  });
+
+  it('should return err result when a hook registration fails (W6)', () => {
+    const failingManager = {
+      register: vi.fn(() => ({
+        isOk: () => false,
+        isErr: () => true,
+        error: new AppError('shutdown.hook_registration_failed'),
+      })),
+      execute: vi.fn(),
+    } as unknown as ShutdownManager;
+
+    const result = registerShutdownHooks(failingManager, resources);
+
+    expect(result.isErr()).toBe(true);
+  });
 });
 
 describe('setupSignalHandlers', () => {
@@ -199,5 +221,11 @@ describe('setupSignalHandlers', () => {
     await vi.waitFor(() => {
       expect(mockProcess.exit).toHaveBeenCalledWith(0);
     });
+  });
+
+  it('should return ok result when signal handlers are registered (W6)', () => {
+    const result = setupSignalHandlers(shutdownManager, resources, mockProcess);
+
+    expect(result.isOk()).toBe(true);
   });
 });

@@ -31,7 +31,7 @@ export function createBot(token: string, deps: BotFactoryDeps): Bot<Context> {
   const bot = new Bot<Context>(token);
 
   bot.use(createSanitizerMiddleware());
-  bot.use(createRateLimiterMiddleware({ t: deps.t }));
+  bot.use(createRateLimiterMiddleware({ t: deps.t, logger: deps.logger }));
   bot.use(createMaintenanceMiddleware(deps));
   bot.use(createAuthMiddleware(deps));
   bot.use(createScopedUsersMiddleware(deps));

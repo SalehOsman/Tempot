@@ -28,6 +28,8 @@ export function createErrorBoundary(
     deps.logger.error({
       code: 'bot-server.unhandled_error',
       referenceCode,
+      userId: err.ctx.from?.id,
+      chatId: err.ctx.chat?.id,
       error: actualError.message,
       stack: actualError.stack,
     });
@@ -37,23 +39,35 @@ export function createErrorBoundary(
         referenceCode,
         errorCode: 'bot-server.unhandled_error',
       });
-    } catch {
-      // Best-effort
+    } catch (error: unknown) {
+      deps.logger.warn({
+        code: 'bot-server.event_publish_failed',
+        referenceCode,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
 
     if (deps.sentryReporter) {
       try {
         deps.sentryReporter.reportWithReference(actualError, referenceCode);
-      } catch {
-        // Best-effort
+      } catch (error: unknown) {
+        deps.logger.warn({
+          code: 'bot-server.sentry_report_failed',
+          referenceCode,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
     try {
       const message = deps.t('bot-server.error_message', { referenceCode });
       await err.ctx.reply(message);
-    } catch {
-      // Best-effort — user may have blocked the bot
+    } catch (error: unknown) {
+      deps.logger.warn({
+        code: 'bot-server.error_reply_failed',
+        referenceCode,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   };
 }

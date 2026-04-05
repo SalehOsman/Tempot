@@ -1,7 +1,7 @@
 import type { Context, NextFunction } from 'grammy';
 
 export interface ScopedUsersDeps {
-  commandModuleMap: Map<string, { scopedUsers?: number[] }>;
+  commandScopeMap: Map<string, { scopedUsers?: number[] }>;
   t: (key: string) => string;
 }
 
@@ -22,7 +22,7 @@ export function createScopedUsersMiddleware(
     }
 
     const command = text.split(' ')[0].substring(1).split('@')[0];
-    const moduleInfo = deps.commandModuleMap.get(command);
+    const moduleInfo = deps.commandScopeMap.get(command);
 
     if (!moduleInfo?.scopedUsers?.length) {
       await next();

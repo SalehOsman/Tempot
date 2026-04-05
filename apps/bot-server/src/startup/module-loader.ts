@@ -52,7 +52,13 @@ async function loadSingleModule(
   deps: ModuleLoaderDeps,
 ): AsyncResult<string | undefined> {
   const childLogger = deps.logger.child({ module: mod.config.name });
-  const imported = await deps.importer(mod.path);
+
+  let imported: { default?: ModuleSetupFn };
+  try {
+    imported = await deps.importer(mod.path);
+  } catch (error: unknown) {
+    return handleImportError(mod, error, childLogger);
+  }
 
   if (!imported.default) {
     return handleMissingExport(mod, childLogger);
@@ -76,6 +82,26 @@ function handleMissingExport(
     );
   }
   logger.warn({ msg: 'Module missing default export, skipping', module: mod.config.name });
+  return Promise.resolve(ok(undefined));
+}
+
+function handleImportError(
+  mod: ValidatedModuleInput,
+  error: unknown,
+  logger: ModuleLogger,
+): AsyncResult<string | undefined> {
+  if (mod.config.isCore) {
+    logger.error({ msg: 'Core module import failed', module: mod.config.name, error });
+    return Promise.resolve(
+      err(
+        new AppError(BOT_SERVER_ERRORS.CORE_MODULE_HANDLER_FAILED, {
+          module: mod.config.name,
+          error,
+        }),
+      ),
+    );
+  }
+  logger.warn({ msg: 'Non-core module import failed, skipping', module: mod.config.name, error });
   return Promise.resolve(ok(undefined));
 }
 

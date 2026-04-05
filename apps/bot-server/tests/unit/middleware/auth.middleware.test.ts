@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAuthMiddleware } from '../../../src/bot/middleware/auth.middleware.js';
 import type { AuthDeps } from '../../../src/bot/middleware/auth.middleware.js';
 import { RoleEnum } from '@tempot/auth-core';
+import { createMongoAbility } from '@casl/ability';
+import type { AbilityDefinition } from '@tempot/auth-core';
 
 interface MockContext {
   from: { id: number } | undefined;
@@ -25,6 +27,7 @@ function createDeps(overrides: Partial<AuthDeps> = {}): AuthDeps {
     abilityDefinitions: [],
     logger: {
       warn: vi.fn(),
+      error: vi.fn(),
     },
     t: vi.fn((key: string) => `translated:${key}`),
     ...overrides,
@@ -39,10 +42,14 @@ describe('createAuthMiddleware', () => {
     next = vi.fn().mockResolvedValue(undefined);
   });
 
+  const manageAllDefinition: AbilityDefinition = () =>
+    createMongoAbility([{ action: 'manage', subject: 'all' }]);
+
   it('stores session user and ability on context for known users', async () => {
     const sessionUser = { id: 'user-1', role: RoleEnum.USER };
     const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+      abilityDefinitions: [manageAllDefinition],
     });
 
     const middleware = createAuthMiddleware(deps);
@@ -67,7 +74,7 @@ describe('createAuthMiddleware', () => {
     expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
   });
 
-  it('creates guest session user when no session found', async () => {
+  it('creates guest session user and blocks when no session found (W3)', async () => {
     const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(null),
     });
@@ -77,12 +84,12 @@ describe('createAuthMiddleware', () => {
 
     await middleware(ctx as never, next);
 
-    expect(next).toHaveBeenCalledOnce();
+    expect(next).not.toHaveBeenCalled();
     expect(ctx['sessionUser']).toEqual({
       id: '123',
       role: RoleEnum.GUEST,
     });
-    expect(ctx['ability']).toBeDefined();
+    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
   });
 
   it('calls next even when ability build fails', async () => {
@@ -100,9 +107,10 @@ describe('createAuthMiddleware', () => {
 
     await middleware(ctx as never, next);
 
-    expect(next).toHaveBeenCalledOnce();
+    expect(next).not.toHaveBeenCalled();
     expect(ctx['sessionUser']).toEqual(sessionUser);
     expect(deps.logger.warn).toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
   });
 
   it('passes user id to getSessionUser', async () => {

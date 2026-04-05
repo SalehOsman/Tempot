@@ -11,6 +11,7 @@
 import { startApplication, type OrchestratorDeps } from './startup/orchestrator.js';
 import type { AsyncResult } from '@tempot/shared';
 import type { Bot, Context } from 'grammy';
+import { ok } from 'neverthrow';
 import { loadConfig } from './startup/config.loader.js';
 import { bootstrapSuperAdmins } from './startup/bootstrap.js';
 import { warmCaches } from './startup/cache-warmer.js';
@@ -49,8 +50,8 @@ function buildDeps(): OrchestratorDeps {
     registerCommands: createStubAsyncOkWithArg(),
     createBot: (token: string) => createBotWithStubs(token, logger, eventBus),
     createHttpServer: () => ({ listen: () => {}, close: async () => {} }),
-    registerShutdownHooks: () => {},
-    setupSignalHandlers: () => {},
+    registerShutdownHooks: () => ok(undefined),
+    setupSignalHandlers: () => ok(undefined),
     eventBus,
     logger,
   };
@@ -92,7 +93,8 @@ function createBotWithStubs(
     }),
     getSessionUser: async () => null,
     abilityDefinitions: [],
-    commandModuleMap: new Map(),
+    commandScopeMap: new Map(),
+    commandModuleMap: {},
     auditLog: async () => {},
   });
 }
@@ -121,31 +123,19 @@ function createStubEventBus() {
 }
 
 function createStubAsyncOk(): () => AsyncResult<void> {
-  return async () => {
-    const { ok } = await import('neverthrow');
-    return ok(undefined);
-  };
+  return async () => ok(undefined);
 }
 
 function createStubAsyncOkWithArg(): (_arg: unknown) => AsyncResult<void> {
-  return async () => {
-    const { ok } = await import('neverthrow');
-    return ok(undefined);
-  };
+  return async () => ok(undefined);
 }
 
 function createStubDiscovery() {
-  return async () => {
-    const { ok } = await import('neverthrow');
-    return ok({ discovered: [], skipped: [], failed: [] });
-  };
+  return async () => ok({ discovered: [], skipped: [], failed: [] });
 }
 
 function createStubValidation() {
-  return async () => {
-    const { ok } = await import('neverthrow');
-    return ok({ validated: [], skipped: [], failed: [] });
-  };
+  return async () => ok({ validated: [], skipped: [], failed: [] });
 }
 
 async function main(): Promise<void> {

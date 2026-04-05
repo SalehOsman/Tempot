@@ -1,4 +1,7 @@
+import { ok, err } from 'neverthrow';
+import type { Result } from 'neverthrow';
 import type { ShutdownManager } from '@tempot/shared';
+import { AppError } from '@tempot/shared';
 import type { ModuleLogger } from '../bot-server.types.js';
 
 /** Resources that may need cleanup during graceful shutdown */
@@ -30,7 +33,7 @@ function safeRegister(
   manager: ShutdownManager,
   hook: () => Promise<void>,
   logger: ModuleLogger,
-): void {
+): Result<void, AppError> {
   const result = manager.register(hook);
   if (result.isErr()) {
     logger.warn({
@@ -38,7 +41,9 @@ function safeRegister(
       msg: 'shutdown_hook_registration_failed',
       error: result.error.code,
     });
+    return err(new AppError(result.error.code));
   }
+  return ok(undefined);
 }
 
 function buildHooks(resources: ShutdownResources): Array<() => Promise<void>> {
@@ -76,11 +81,15 @@ function buildHooks(resources: ShutdownResources): Array<() => Promise<void>> {
 export function registerShutdownHooks(
   shutdownManager: ShutdownManager,
   resources: ShutdownResources,
-): void {
+): Result<void, AppError> {
   const hooks = buildHooks(resources);
   for (const hook of hooks) {
-    safeRegister(shutdownManager, hook, resources.logger);
+    const result = safeRegister(shutdownManager, hook, resources.logger);
+    if (result.isErr()) {
+      return err(result.error);
+    }
   }
+  return ok(undefined);
 }
 
 /**
@@ -91,7 +100,7 @@ export function setupSignalHandlers(
   shutdownManager: ShutdownManager,
   resources: ShutdownResources,
   processRef: ProcessLike = process,
-): void {
+): Result<void, AppError> {
   let shuttingDown = false;
 
   const handleSignal = async (signal: string): Promise<void> => {
@@ -126,4 +135,6 @@ export function setupSignalHandlers(
 
   processRef.on('SIGTERM', () => void handleSignal('SIGTERM'));
   processRef.on('SIGINT', () => void handleSignal('SIGINT'));
+
+  return ok(undefined);
 }

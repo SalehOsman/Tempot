@@ -34,10 +34,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('blocks unlisted users from module with scopedUsers list', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('admin', { scopedUsers: [999, 888] });
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('admin', { scopedUsers: [999, 888] });
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: '/admin', from: { id: 123 } },
@@ -51,10 +51,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('allows listed users', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('admin', { scopedUsers: [123, 456] });
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('admin', { scopedUsers: [123, 456] });
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: '/admin', from: { id: 123 } },
@@ -68,10 +68,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('skips when scopedUsers is undefined', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('help', {});
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('help', {});
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: '/help', from: { id: 123 } },
@@ -84,10 +84,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('skips when scopedUsers is empty', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('help', { scopedUsers: [] });
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('help', { scopedUsers: [] });
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: '/help', from: { id: 123 } },
@@ -100,10 +100,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('blocks SUPER_ADMIN if not in scoped list (D13)', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('restricted', { scopedUsers: [999] });
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('restricted', { scopedUsers: [999] });
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     // SUPER_ADMIN user ID 777 is NOT in the scopedUsers list
     const ctx = createMockContext({
@@ -118,9 +118,9 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('passes non-command messages through', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: 'just a message', from: { id: 123 } },
@@ -133,10 +133,10 @@ describe('createScopedUsersMiddleware', () => {
   });
 
   it('strips @botname from command before lookup', async () => {
-    const commandModuleMap = new Map<string, { scopedUsers?: number[] }>();
-    commandModuleMap.set('start', { scopedUsers: [123] });
+    const commandScopeMap = new Map<string, { scopedUsers?: number[] }>();
+    commandScopeMap.set('start', { scopedUsers: [123] });
 
-    const deps: ScopedUsersDeps = { commandModuleMap, t: mockT };
+    const deps: ScopedUsersDeps = { commandScopeMap, t: mockT };
     const middleware = createScopedUsersMiddleware(deps);
     const ctx = createMockContext({
       message: { text: '/start@mybot', from: { id: 123 } },

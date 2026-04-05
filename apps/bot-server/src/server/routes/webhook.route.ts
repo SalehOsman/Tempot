@@ -29,12 +29,12 @@ export function createWebhookRoute(deps: WebhookRouteDeps): Hono {
       return c.json({ error: 'Bad Request' }, 400);
     }
 
-    if (typeof body['update_id'] !== 'number') {
+    if (!isValidUpdate(body)) {
       logger.warn({ msg: 'webhook_missing_update_id' });
       return c.json({ error: 'Bad Request' }, 400);
     }
 
-    await bot.handleUpdate(body as unknown as Update);
+    await bot.handleUpdate(body);
     return c.json({ ok: true }, 200);
   });
 
@@ -67,4 +67,8 @@ async function parseBody(c: HonoContext): Promise<Record<string, unknown> | null
   } catch {
     return null;
   }
+}
+
+function isValidUpdate(body: Record<string, unknown>): body is Record<string, unknown> & Update {
+  return typeof body['update_id'] === 'number';
 }

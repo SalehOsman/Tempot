@@ -30,15 +30,15 @@
 
 **Acceptance criteria:**
 
-- [ ] `package.json` includes all `@tempot/*` workspace dependencies: shared, logger, event-bus, auth-core, session-manager, settings, i18n-core, database, module-registry, sentry, ux-helpers
-- [ ] `package.json` includes production deps: grammy 1.41.1, hono 4.x, @grammyjs/ratelimiter, sanitize-html, rate-limiter-flexible
-- [ ] `package.json` includes devDependencies: @types/sanitize-html, vitest
-- [ ] `tsconfig.json` has `outDir: "dist"`, `rootDir: "src"`, `composite: true` (Rule LXXIV)
-- [ ] `bot-server.types.ts` defines: BotMode, BotServerConfig, ModuleDependencyContainer, ModuleSetupFn, SubsystemCheck, HealthCheckResponse, ModuleLogger, ModuleEventBus, SessionProvider, I18nProvider, SettingsProvider
-- [ ] `bot-server.errors.ts` defines 14 error codes as `const` object
-- [ ] Directory structure created: `bot/`, `server/routes/`, `startup/`
-- [ ] `pnpm install` succeeds with no errors
-- [ ] No `any` types (Rule I)
+- [x] `package.json` includes all `@tempot/*` workspace dependencies: shared, logger, event-bus, auth-core, session-manager, settings, i18n-core, database, module-registry, sentry, ux-helpers
+- [x] `package.json` includes production deps: grammy 1.41.1, hono 4.x, @grammyjs/ratelimiter, sanitize-html, rate-limiter-flexible
+- [x] `package.json` includes devDependencies: @types/sanitize-html, vitest
+- [x] `tsconfig.json` has `outDir: "dist"`, `rootDir: "src"`, `composite: true` (Rule LXXIV)
+- [x] `bot-server.types.ts` defines: BotMode, BotServerConfig, ModuleDependencyContainer, ModuleSetupFn, SubsystemCheck, HealthCheckResponse, ModuleLogger, ModuleEventBus, SessionProvider, I18nProvider, SettingsProvider
+- [x] `bot-server.errors.ts` defines 14 error codes as `const` object
+- [x] Directory structure created: `bot/`, `server/routes/`, `startup/`
+- [x] `pnpm install` succeeds with no errors
+- [x] No `any` types (Rule I)
 
 ---
 
@@ -56,17 +56,17 @@
 
 **Acceptance criteria:**
 
-- [ ] `loadConfig()` returns `Result<BotServerConfig, AppError>` (Rule XXI)
-- [ ] Missing `BOT_TOKEN` → returns `err` with `MISSING_BOT_TOKEN` code (FR-001)
-- [ ] Invalid `BOT_MODE` (not polling/webhook) → returns `err` with `INVALID_BOT_MODE` code (FR-006)
-- [ ] `BOT_MODE=webhook` without `WEBHOOK_URL` → returns `err` (FR-006)
-- [ ] `BOT_MODE=webhook` without `WEBHOOK_SECRET` → returns `err` (FR-007)
-- [ ] `SUPER_ADMIN_IDS` parsed as comma-separated numbers (FR-010)
-- [ ] Invalid `SUPER_ADMIN_IDS` (non-numeric) → returns `err` (D24 in spec.md)
-- [ ] Empty/missing `SUPER_ADMIN_IDS` → returns `ok` with empty array + logged warning
-- [ ] `PORT` defaults to 3000 when not set (D25 in spec.md)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 8: missing token, invalid mode, valid polling, valid webhook, missing webhook URL, missing webhook secret, SUPER_ADMIN_IDS parsing, port default)
+- [x] `loadConfig()` returns `Result<BotServerConfig, AppError>` (Rule XXI)
+- [x] Missing `BOT_TOKEN` → returns `err` with `MISSING_BOT_TOKEN` code (FR-001)
+- [x] Invalid `BOT_MODE` (not polling/webhook) → returns `err` with `INVALID_BOT_MODE` code (FR-006)
+- [x] `BOT_MODE=webhook` without `WEBHOOK_URL` → returns `err` (FR-006)
+- [x] `BOT_MODE=webhook` without `WEBHOOK_SECRET` → returns `err` (FR-007)
+- [x] `SUPER_ADMIN_IDS` parsed as comma-separated numbers (FR-010)
+- [x] Invalid `SUPER_ADMIN_IDS` (non-numeric) → returns `err` (D24 in spec.md)
+- [x] Empty/missing `SUPER_ADMIN_IDS` → returns `ok` with empty array + logged warning
+- [x] `PORT` defaults to 3000 when not set (D25 in spec.md)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 8: missing token, invalid mode, valid polling, valid webhook, missing webhook URL, missing webhook secret, SUPER_ADMIN_IDS parsing, port default)
 
 ---
 
@@ -84,13 +84,13 @@
 
 **Acceptance criteria:**
 
-- [ ] `bootstrapSuperAdmins()` returns `AsyncResult<void>` (Rule XXI)
-- [ ] Each ID in the list gets SUPER_ADMIN role in auth-core (FR-010)
-- [ ] Empty list → logs warning, returns ok (SC-008)
-- [ ] Existing super admin → idempotent update, no error
-- [ ] Bootstrap completes before module discovery starts (D8 in spec.md)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 4: two IDs, empty list, already exists, called before discovery)
+- [x] `bootstrapSuperAdmins()` returns `AsyncResult<void>` (Rule XXI)
+- [x] Each ID in the list gets SUPER_ADMIN role in auth-core (FR-010)
+- [x] Empty list → logs warning, returns ok (SC-008)
+- [x] Existing super admin → idempotent update, no error
+- [x] Bootstrap completes before module discovery starts (D8 in spec.md)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 4: two IDs, empty list, already exists, called before discovery)
 
 ---
 
@@ -108,13 +108,13 @@
 
 **Acceptance criteria:**
 
-- [ ] `warmCaches()` returns `AsyncResult<void>` (Rule XXI)
-- [ ] Settings warmed first, then translations (FR-011, D7 in spec.md)
-- [ ] Settings warming failure → logs warning, continues (SC-009)
-- [ ] Translation warming failure → logs warning, continues
-- [ ] Both succeed → returns ok
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 4: both succeed, settings fail, translations fail, order enforced)
+- [x] `warmCaches()` returns `AsyncResult<void>` (Rule XXI)
+- [x] Settings warmed first, then translations (FR-011, D7 in spec.md)
+- [x] Settings warming failure → logs warning, continues (SC-009)
+- [x] Translation warming failure → logs warning, continues
+- [x] Both succeed → returns ok
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 4: both succeed, settings fail, translations fail, order enforced)
 
 ---
 
@@ -149,23 +149,23 @@
 
 **Acceptance criteria:**
 
-- [ ] Sanitizer middleware strips dangerous HTML from text content (FR-005)
-- [ ] Rate limiter middleware blocks requests over configured limits (FR-005, D19 in spec.md)
-- [ ] Auth middleware blocks unauthorized users with localized message (FR-005)
-- [ ] Maintenance middleware blocks non-admin users when enabled, allows SUPER_ADMIN through (FR-014, SC-012)
-- [ ] Scoped users middleware blocks unlisted users from restricted modules (FR-015, SC-013)
-- [ ] Scoped users middleware blocks SUPER_ADMIN if not in list (D13 in spec.md)
-- [ ] Scoped users middleware skips when scopedUsers is undefined/empty (D20 in spec.md)
-- [ ] Audit middleware logs request result with user ID and action (FR-005)
-- [ ] Error boundary generates ERR-YYYYMMDD-XXXX reference code (FR-012, SC-010)
-- [ ] Error boundary logs full error with stack trace (FR-012)
-- [ ] Error boundary emits system.error event (FR-013)
-- [ ] Error boundary reports to Sentry when enabled, skips when disabled (FR-012)
-- [ ] Error boundary sends localized user-facing message with reference code (FR-012, NFR-005)
-- [ ] Bot factory applies middleware in the fixed order (SC-004)
-- [ ] All user-facing text (error messages, maintenance messages, rate limit messages, unauthorized messages) is localized via i18n — zero hardcoded strings (SC-015, NFR-005)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 20: 2 sanitizer, 2 rate limiter, 2 auth, 3 maintenance, 4 scoped users, 2 audit, 5 error boundary)
+- [x] Sanitizer middleware strips dangerous HTML from text content (FR-005)
+- [x] Rate limiter middleware blocks requests over configured limits (FR-005, D19 in spec.md)
+- [x] Auth middleware blocks unauthorized users with localized message (FR-005)
+- [x] Maintenance middleware blocks non-admin users when enabled, allows SUPER_ADMIN through (FR-014, SC-012)
+- [x] Scoped users middleware blocks unlisted users from restricted modules (FR-015, SC-013)
+- [x] Scoped users middleware blocks SUPER_ADMIN if not in list (D13 in spec.md)
+- [x] Scoped users middleware skips when scopedUsers is undefined/empty (D20 in spec.md)
+- [x] Audit middleware logs request result with user ID and action (FR-005)
+- [x] Error boundary generates ERR-YYYYMMDD-XXXX reference code (FR-012, SC-010)
+- [x] Error boundary logs full error with stack trace (FR-012)
+- [x] Error boundary emits system.error event (FR-013)
+- [x] Error boundary reports to Sentry when enabled, skips when disabled (FR-012)
+- [x] Error boundary sends localized user-facing message with reference code (FR-012, NFR-005)
+- [x] Bot factory applies middleware in the fixed order (SC-004)
+- [x] All user-facing text (error messages, maintenance messages, rate limit messages, unauthorized messages) is localized via i18n — zero hardcoded strings (SC-015, NFR-005)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 20: 2 sanitizer, 2 rate limiter, 2 auth, 3 maintenance, 4 scoped users, 2 audit, 5 error boundary)
 
 ---
 
@@ -183,15 +183,15 @@
 
 **Acceptance criteria:**
 
-- [ ] `loadModuleHandlers()` returns `AsyncResult<string[]>` (loaded module names) (Rule XXI)
-- [ ] Dynamically imports each module's index.ts and calls its default setup function (FR-003, D2 in spec.md)
-- [ ] Passes correct ModuleDependencyContainer with scoped child logger (D26 in spec.md)
-- [ ] Core module handler failure → returns fatal error (FR-004, SC-002)
-- [ ] Non-core module handler failure → logs warning, continues (FR-004, SC-003)
-- [ ] Module without default export setup function → error (D2 in spec.md)
-- [ ] Returns list of successfully loaded module names
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 6: valid load, core failure, non-core failure, missing setup, correct deps, loaded names)
+- [x] `loadModuleHandlers()` returns `AsyncResult<string[]>` (loaded module names) (Rule XXI)
+- [x] Dynamically imports each module's index.ts and calls its default setup function (FR-003, D2 in spec.md)
+- [x] Passes correct ModuleDependencyContainer with scoped child logger (D26 in spec.md)
+- [x] Core module handler failure → returns fatal error (FR-004, SC-002)
+- [x] Non-core module handler failure → logs warning, continues (FR-004, SC-003)
+- [x] Module without default export setup function → error (D2 in spec.md)
+- [x] Returns list of successfully loaded module names
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 6: valid load, core failure, non-core failure, missing setup, correct deps, loaded names)
 
 ---
 
@@ -212,20 +212,20 @@
 
 **Acceptance criteria:**
 
-- [ ] Webhook route accepts POST with correct `X-Telegram-Bot-Api-Secret-Token` header → 200 (FR-007, SC-005)
-- [ ] Webhook route rejects missing secret header → 401 (FR-007)
-- [ ] Webhook route rejects wrong secret header → 401 (FR-007)
-- [ ] Webhook route rejects non-POST methods → 405
-- [ ] Webhook route rejects non-JSON body → 400
-- [ ] Health route returns `healthy` when all subsystems OK (FR-008, SC-006)
-- [ ] Health route returns `unhealthy` when DB or Redis down (FR-008, D4 in spec.md)
-- [ ] Health route returns `degraded` when AI or disk has issues (FR-008, D4 in spec.md)
-- [ ] Health route includes `latency_ms` for each subsystem (FR-008)
-- [ ] Health route includes `version` and `uptime` (FR-008)
-- [ ] Health route responds within 5 seconds (NFR-003)
-- [ ] Hono factory registers health route in both modes, webhook route only in webhook mode (D15, D22 in spec.md)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 10: 5 webhook, 5 health)
+- [x] Webhook route accepts POST with correct `X-Telegram-Bot-Api-Secret-Token` header → 200 (FR-007, SC-005)
+- [x] Webhook route rejects missing secret header → 401 (FR-007)
+- [x] Webhook route rejects wrong secret header → 401 (FR-007)
+- [x] Webhook route rejects non-POST methods → 405
+- [x] Webhook route rejects non-JSON body → 400
+- [x] Health route returns `healthy` when all subsystems OK (FR-008, SC-006)
+- [x] Health route returns `unhealthy` when DB or Redis down (FR-008, D4 in spec.md)
+- [x] Health route returns `degraded` when AI or disk has issues (FR-008, D4 in spec.md)
+- [x] Health route includes `latency_ms` for each subsystem (FR-008)
+- [x] Health route includes `version` and `uptime` (FR-008)
+- [x] Health route responds within 5 seconds (NFR-003)
+- [x] Hono factory registers health route in both modes, webhook route only in webhook mode (D15, D22 in spec.md)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 10: 5 webhook, 5 health)
 
 ---
 
@@ -243,16 +243,16 @@
 
 **Acceptance criteria:**
 
-- [ ] Uses `ShutdownManager` from `@tempot/shared` (research.md decision 8)
-- [ ] Hooks registered in Architecture Spec Section 25.3 order: HTTP → bot → queues → cache → primary DB → vector DB → log (FR-009, SC-007)
-- [ ] SIGTERM triggers `shutdownManager.execute()` (FR-009)
-- [ ] SIGINT triggers the same shutdown sequence (FR-009)
-- [ ] Emits `system.shutdown.initiated` event with reason (FR-013, SC-011)
-- [ ] Emits `system.shutdown.completed` event with duration (FR-013, SC-011)
-- [ ] Second signal is ignored while shutdown is in progress
-- [ ] 30-second total timeout enforced by ShutdownManager (NFR-002)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 5: correct order, SIGTERM, SIGINT, events emitted, duplicate signal)
+- [x] Uses `ShutdownManager` from `@tempot/shared` (research.md decision 8)
+- [x] Hooks registered in Architecture Spec Section 25.3 order: HTTP → bot → queues → cache → primary DB → vector DB → log (FR-009, SC-007)
+- [x] SIGTERM triggers `shutdownManager.execute()` (FR-009)
+- [x] SIGINT triggers the same shutdown sequence (FR-009)
+- [x] Emits `system.shutdown.initiated` event with reason (FR-013, SC-011)
+- [x] Emits `system.shutdown.completed` event with duration (FR-013, SC-011)
+- [x] Second signal is ignored while shutdown is in progress
+- [x] 30-second total timeout enforced by ShutdownManager (NFR-002)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 5: correct order, SIGTERM, SIGINT, events emitted, duplicate signal)
 
 ---
 
@@ -274,19 +274,19 @@
 
 **Acceptance criteria:**
 
-- [ ] Orchestrator calls steps in exact order: loadConfig → connectDatabase → bootstrapSuperAdmins → warmCaches → discover → validate → loadModuleHandlers → register → startHttp → emit startup event (FR-001, SC-001)
-- [ ] Missing config → exits with fatal error (SC-001)
-- [ ] Database unreachable → exits with fatal error (SC-001)
-- [ ] Core module validation failure → halts (FR-002, SC-002)
-- [ ] Core module handler failure → halts (FR-004, SC-002)
-- [ ] Non-core module failure → warns, continues (FR-004, SC-003)
-- [ ] Emits `system.startup.completed` with durationMs, modulesLoaded, mode (FR-013, SC-011)
-- [ ] After all module handlers are loaded, `register(bot)` is called to register all commands with Telegram API via a single `setMyCommands` call (FR-016, SC-001)
-- [ ] Polling mode: calls `bot.start()`, webhook mode: no `bot.start()` (FR-006, SC-005)
-- [ ] `src/index.ts` prototype is fully replaced — no leftover prototype code
-- [ ] Entry point has no business logic — only creates deps and calls orchestrator (research.md decision 12)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 7: full sequence, missing config, DB fail, core validation fail, core handler fail, non-core fail, startup event)
+- [x] Orchestrator calls steps in exact order: loadConfig → connectDatabase → bootstrapSuperAdmins → warmCaches → discover → validate → loadModuleHandlers → register → startHttp → emit startup event (FR-001, SC-001)
+- [x] Missing config → exits with fatal error (SC-001)
+- [x] Database unreachable → exits with fatal error (SC-001)
+- [x] Core module validation failure → halts (FR-002, SC-002)
+- [x] Core module handler failure → halts (FR-004, SC-002)
+- [x] Non-core module failure → warns, continues (FR-004, SC-003)
+- [x] Emits `system.startup.completed` with durationMs, modulesLoaded, mode (FR-013, SC-011)
+- [x] After all module handlers are loaded, `register(bot)` is called to register all commands with Telegram API via a single `setMyCommands` call (FR-016, SC-001)
+- [x] Polling mode: calls `bot.start()`, webhook mode: no `bot.start()` (FR-006, SC-005)
+- [x] `src/index.ts` prototype is fully replaced — no leftover prototype code
+- [x] Entry point has no business logic — only creates deps and calls orchestrator (research.md decision 12)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 7: full sequence, missing config, DB fail, core validation fail, core handler fail, non-core fail, startup event)
 
 ---
 
@@ -305,13 +305,13 @@
 
 **Acceptance criteria:**
 
-- [ ] `TempotEvents` interface includes `system.startup.completed` with `{ durationMs: number; modulesLoaded: number; mode: string }` (D16 in spec.md)
-- [ ] `TempotEvents` interface includes `system.shutdown.initiated` with `{ reason: string }` (D16 in spec.md)
-- [ ] `TempotEvents` interface includes `system.shutdown.completed` with `{ durationMs: number }` (D16 in spec.md)
-- [ ] `TempotEvents` interface includes `system.error` with `{ referenceCode: string; errorCode: string; module?: string }` (D16 in spec.md)
-- [ ] Events emitted by orchestrator, shutdown handler, and error boundary match these types (SC-011)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 4: one per event type)
+- [x] `TempotEvents` interface includes `system.startup.completed` with `{ durationMs: number; modulesLoaded: number; mode: string }` (D16 in spec.md)
+- [x] `TempotEvents` interface includes `system.shutdown.initiated` with `{ reason: string }` (D16 in spec.md)
+- [x] `TempotEvents` interface includes `system.shutdown.completed` with `{ durationMs: number }` (D16 in spec.md)
+- [x] `TempotEvents` interface includes `system.error` with `{ referenceCode: string; errorCode: string; module?: string }` (D16 in spec.md)
+- [x] Events emitted by orchestrator, shutdown handler, and error boundary match these types (SC-011)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 4: one per event type)
 
 ---
 
@@ -328,14 +328,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Full startup with mocked packages → all steps execute in correct order (SC-001)
-- [ ] Core module failure → halts at correct step (SC-002)
-- [ ] Non-core module failure → continues past failure (SC-003)
-- [ ] Polling mode → no webhook route, health check available (SC-005)
-- [ ] Webhook mode → webhook + health check routes available (SC-005)
-- [ ] Startup completes within 30 seconds (SC-014)
-- [ ] No `any` types (Rule I)
-- [ ] All tests pass (minimum 5: full startup, core fail, non-core fail, polling mode, webhook mode)
+- [x] Full startup with mocked packages → all steps execute in correct order (SC-001)
+- [x] Core module failure → halts at correct step (SC-002)
+- [x] Non-core module failure → continues past failure (SC-003)
+- [x] Polling mode → no webhook route, health check available (SC-005)
+- [x] Webhook mode → webhook + health check routes available (SC-005)
+- [x] Startup completes within 30 seconds (SC-014)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 5: full startup, core fail, non-core fail, polling mode, webhook mode)
 
 ---
 

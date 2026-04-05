@@ -162,6 +162,36 @@ describe('createHealthRoute', () => {
     expect(body.status).toBe('unhealthy');
   });
 
+  it('measures latency_ms even when probe does not return it', async () => {
+    deps.probes.database = vi.fn().mockResolvedValue({ status: 'ok' });
+    const app = createTestApp(deps);
+
+    const response = await app.request('/health');
+    const body = (await response.json()) as HealthCheckResponse;
+
+    expect(body.checks.database.status).toBe('ok');
+    expect(body.checks.database.latency_ms).toBeTypeOf('number');
+    expect(body.checks.database.latency_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it('times out probe after 4 seconds', async () => {
+    vi.useFakeTimers();
+    deps.probes.database = vi.fn().mockImplementation(
+      () => new Promise(() => {}), // never resolves
+    );
+    const app = createTestApp(deps);
+
+    const requestPromise = app.request('/health');
+    await vi.advanceTimersByTimeAsync(4_001);
+    const response = await requestPromise;
+    const body = (await response.json()) as HealthCheckResponse;
+
+    expect(body.checks.database.status).toBe('error');
+    expect(body.checks.database.error).toContain('4000');
+
+    vi.useRealTimers();
+  });
+
   it('returns degraded when queue_manager is down', async () => {
     deps.probes.queue_manager = vi.fn().mockResolvedValue(errorCheck('Queue offline'));
     const app = createTestApp(deps);

@@ -10,6 +10,7 @@ export interface AuditEntry {
 
 export interface AuditDeps {
   auditLog: (entry: AuditEntry) => Promise<void>;
+  commandModuleMap?: Record<string, string>;
 }
 
 function extractAction(ctx: Context): string {
@@ -18,6 +19,16 @@ function extractAction(ctx: Context): string {
     return text.split(' ')[0];
   }
   return 'message';
+}
+
+function resolveModule(
+  action: string,
+  commandModuleMap: Record<string, string> | undefined,
+): string {
+  if (commandModuleMap && action.startsWith('/')) {
+    return commandModuleMap[action] ?? 'bot-server';
+  }
+  return 'bot-server';
 }
 
 interface SessionUserLike {
@@ -38,13 +49,14 @@ export function createAuditMiddleware(
     const ctxRecord = ctx as unknown as Record<string, unknown>;
     const sessionUser = ctxRecord['sessionUser'] as SessionUserLike | undefined;
     const userRole = sessionUser?.role;
+    const module = resolveModule(action, deps.commandModuleMap);
 
     try {
       await next();
       try {
         await deps.auditLog({
           action,
-          module: 'bot-server',
+          module,
           userId,
           userRole,
           status: 'SUCCESS',
@@ -56,7 +68,7 @@ export function createAuditMiddleware(
       try {
         await deps.auditLog({
           action,
-          module: 'bot-server',
+          module,
           userId,
           userRole,
           status: 'FAILURE',

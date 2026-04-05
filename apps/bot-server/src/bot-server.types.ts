@@ -8,7 +8,7 @@ export type BotMode = 'polling' | 'webhook';
 export interface ModuleDependencyContainer {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
-  sessionProvider: SessionProviderInterface;
+  sessionProvider: SessionProvider;
   i18n: I18nProvider;
   settings: SettingsProvider;
   config: ModuleConfig;
@@ -64,7 +64,7 @@ export interface ModuleEventBus {
 }
 
 /** Session provider interface for modules */
-export interface SessionProviderInterface {
+export interface SessionProvider {
   getSession: (userId: string, chatId: string) => Promise<unknown>;
 }
 

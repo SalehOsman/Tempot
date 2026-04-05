@@ -2,19 +2,8 @@ import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
+import type { DiscoveryResult, ValidationResult, ValidatedModule } from '@tempot/module-registry';
 import type { BotServerConfig, ModuleLogger } from '../bot-server.types.js';
-
-interface DiscoveryResult {
-  discovered: unknown[];
-  skipped: unknown[];
-  failed: unknown[];
-}
-
-interface ValidationResult {
-  validated: unknown[];
-  skipped: unknown[];
-  failed: unknown[];
-}
 
 interface BotLike {
   start: () => Promise<void>;
@@ -32,12 +21,12 @@ export interface OrchestratorDeps {
   warmCaches: () => AsyncResult<void>;
   discover: () => AsyncResult<DiscoveryResult>;
   validate: () => AsyncResult<ValidationResult>;
-  loadModuleHandlers: (bot: unknown, validated: unknown[]) => AsyncResult<string[]>;
-  registerCommands: (bot: unknown) => AsyncResult<void>;
+  loadModuleHandlers: (bot: BotLike, validated: ValidatedModule[]) => AsyncResult<string[]>;
+  registerCommands: (bot: BotLike) => AsyncResult<void>;
   createBot: (token: string) => BotLike;
-  createHttpServer: (bot: unknown, config: BotServerConfig) => HttpServerLike;
-  registerShutdownHooks: (httpServer: HttpServerLike, bot: BotLike) => void;
-  setupSignalHandlers: () => void;
+  createHttpServer: (bot: BotLike, config: BotServerConfig) => HttpServerLike;
+  registerShutdownHooks: (httpServer: HttpServerLike, bot: BotLike) => Result<void, AppError>;
+  setupSignalHandlers: () => Result<void, AppError>;
   eventBus: {
     publish: (event: string, payload: Record<string, unknown>) => Promise<unknown>;
   };
@@ -62,8 +51,16 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   const { bot, loadedModules } = fatalStepsResult.value;
 
   const httpServer = deps.createHttpServer(bot, config);
-  deps.registerShutdownHooks(httpServer, bot);
-  deps.setupSignalHandlers();
+
+  const shutdownResult = deps.registerShutdownHooks(httpServer, bot);
+  if (shutdownResult.isErr()) {
+    return err(shutdownResult.error);
+  }
+
+  const signalResult = deps.setupSignalHandlers();
+  if (signalResult.isErr()) {
+    return err(signalResult.error);
+  }
 
   if (config.botMode === 'polling') {
     await bot.start();
@@ -110,8 +107,12 @@ async function runFatalSteps(
     return err(bootstrapResult.error);
   }
 
-  await deps.warmCaches();
-  deps.logger.info({ msg: 'caches_warmed' });
+  const cacheResult = await deps.warmCaches();
+  if (cacheResult.isErr()) {
+    deps.logger.warn({ msg: 'cache_warming_failed', error: cacheResult.error.code });
+  } else {
+    deps.logger.info({ msg: 'caches_warmed' });
+  }
 
   const discoveryResult = await deps.discover();
   if (discoveryResult.isErr()) {

@@ -12,6 +12,7 @@ function createMockDeps(overrides: Partial<ErrorBoundaryDeps> = {}): ErrorBounda
   return {
     logger: {
       error: vi.fn(),
+      warn: vi.fn(),
     },
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
@@ -27,6 +28,8 @@ function createMockDeps(overrides: Partial<ErrorBoundaryDeps> = {}): ErrorBounda
 interface MockBotError {
   error: Error;
   ctx: {
+    from?: { id: number };
+    chat?: { id: number };
     reply: ReturnType<typeof vi.fn>;
   };
 }
@@ -35,6 +38,8 @@ function createMockBotError(error: Error): MockBotError {
   return {
     error,
     ctx: {
+      from: { id: 123 },
+      chat: { id: 456 },
       reply: vi.fn().mockResolvedValue(undefined),
     },
   };
@@ -126,7 +131,7 @@ describe('createErrorBoundary', () => {
     const boundary = createErrorBoundary(deps);
     const botError = {
       error: 'string error',
-      ctx: { reply: vi.fn().mockResolvedValue(undefined) },
+      ctx: { from: { id: 123 }, chat: { id: 456 }, reply: vi.fn().mockResolvedValue(undefined) },
     };
 
     await boundary(botError as never);
@@ -135,6 +140,65 @@ describe('createErrorBoundary', () => {
       expect.objectContaining({
         error: 'string error',
       }),
+    );
+  });
+
+  it('includes userId and chatId in error log payload (C4 — FR-012)', async () => {
+    const deps = createMockDeps();
+    const boundary = createErrorBoundary(deps);
+    const botError = createMockBotError(new Error('fail'));
+
+    await boundary(botError as never);
+
+    expect(deps.logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 123,
+        chatId: 456,
+      }),
+    );
+  });
+
+  it('logs warning when eventBus.publish fails (C1)', async () => {
+    const deps = createMockDeps({
+      eventBus: { publish: vi.fn().mockRejectedValue(new Error('bus down')) },
+    });
+    const boundary = createErrorBoundary(deps);
+    const botError = createMockBotError(new Error('fail'));
+
+    await boundary(botError as never);
+
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'bot-server.event_publish_failed' }),
+    );
+  });
+
+  it('logs warning when sentry report fails (C1)', async () => {
+    const sentryReporter = {
+      reportWithReference: vi.fn().mockImplementation(() => {
+        throw new Error('sentry crash');
+      }),
+    };
+    const deps = createMockDeps({ sentryReporter });
+    const boundary = createErrorBoundary(deps);
+    const botError = createMockBotError(new Error('fail'));
+
+    await boundary(botError as never);
+
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'bot-server.sentry_report_failed' }),
+    );
+  });
+
+  it('logs warning when ctx.reply fails (C1)', async () => {
+    const deps = createMockDeps();
+    const boundary = createErrorBoundary(deps);
+    const botError = createMockBotError(new Error('fail'));
+    botError.ctx.reply.mockRejectedValue(new Error('blocked'));
+
+    await boundary(botError as never);
+
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'bot-server.error_reply_failed' }),
     );
   });
 });

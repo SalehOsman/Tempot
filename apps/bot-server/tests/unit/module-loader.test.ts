@@ -186,6 +186,46 @@ describe('loadModuleHandlers', () => {
     expect(setupFn).toHaveBeenCalledTimes(3);
   });
 
+  it('core module import failure (importer throws) returns err with CORE_MODULE_HANDLER_FAILED', async () => {
+    const importer: ModuleImporter = vi.fn().mockRejectedValue(new Error('import failed'));
+    const deps = createDeps(importer);
+    const modules = [createMockModule({ name: 'core-broken', isCore: true })];
+
+    const result = await loadModuleHandlers(mockBot, modules, deps);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(BOT_SERVER_ERRORS.CORE_MODULE_HANDLER_FAILED);
+    }
+    expect(deps.logger._child.error).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'Core module import failed' }),
+    );
+  });
+
+  it('non-core module import failure (importer throws) logs warning and skips', async () => {
+    const goodSetup: ModuleSetupFn = vi.fn().mockResolvedValue(undefined);
+    const importer: ModuleImporter = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('import failed'))
+      .mockResolvedValueOnce({ default: goodSetup });
+    const deps = createDeps(importer);
+    const modules = [
+      createMockModule({ name: 'bad-import', isCore: false }),
+      createMockModule({ name: 'good-mod', isCore: false, path: '/path/to/good' }),
+    ];
+
+    const result = await loadModuleHandlers(mockBot, modules, deps);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toEqual(['good-mod']);
+      expect(result.value).not.toContain('bad-import');
+    }
+    expect(deps.logger._child.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'Non-core module import failed, skipping' }),
+    );
+  });
+
   it('returns empty array when no modules are provided', async () => {
     const importer: ModuleImporter = vi.fn();
     const deps = createDeps(importer);

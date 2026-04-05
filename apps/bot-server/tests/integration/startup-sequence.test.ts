@@ -58,8 +58,8 @@ function createFullDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
       listen: vi.fn(),
       close: vi.fn().mockResolvedValue(undefined),
     }),
-    registerShutdownHooks: vi.fn(),
-    setupSignalHandlers: vi.fn(),
+    registerShutdownHooks: vi.fn().mockReturnValue(ok(undefined)),
+    setupSignalHandlers: vi.fn().mockReturnValue(ok(undefined)),
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
     },

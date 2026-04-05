@@ -13,7 +13,6 @@
   "dependencies": {
     "grammy": "^1.41.1",
     "hono": "^4.7.11",
-    "@hono/node-server": "^1.14.4",
     "@casl/ability": "^6.7.3",
     "sanitize-html": "^2.15.0",
     "rate-limiter-flexible": "^5.0.4",

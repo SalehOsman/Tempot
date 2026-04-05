@@ -15,7 +15,7 @@ interface HealthRouteDeps {
   logger: ModuleLogger;
 }
 
-const PROBE_TIMEOUT_MS = 5_000;
+const PROBE_TIMEOUT_MS = 4_000;
 
 /** Subsystems whose failure means "unhealthy" (critical) */
 const CRITICAL_SUBSYSTEMS = new Set(['database', 'redis']);
@@ -76,12 +76,16 @@ async function runSingleProbe(
     }, PROBE_TIMEOUT_MS);
   });
 
+  const start = Date.now();
   try {
-    return await Promise.race([probe(), timeoutPromise]);
+    const result = await Promise.race([probe(), timeoutPromise]);
+    const latency_ms = Date.now() - start;
+    return { ...result, latency_ms };
   } catch (error: unknown) {
+    const latency_ms = Date.now() - start;
     const message = error instanceof Error ? error.message : 'Unknown error';
     logger.error({ msg: 'health_probe_failed', subsystem: name, error: message });
-    return { status: 'error', error: message };
+    return { status: 'error', error: message, latency_ms };
   }
 }
 

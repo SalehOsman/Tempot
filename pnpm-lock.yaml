@@ -86,12 +86,6 @@ importers:
       '@casl/ability':
         specifier: ^6.7.3
         version: 6.8.0
-      '@grammyjs/ratelimiter':
-        specifier: ^1.2.0
-        version: 1.2.1
-      '@hono/node-server':
-        specifier: ^1.14.4
-        version: 1.19.9(hono@4.11.4)
       '@tempot/auth-core':
         specifier: workspace:*
         version: link:../../packages/auth-core
@@ -1552,9 +1546,6 @@ packages:
     engines: {node: ^12.20.0 || >=14.13.1}
     peerDependencies:
       grammy: ^1.20.1
-
-  '@grammyjs/ratelimiter@1.2.1':
-    resolution: {integrity: sha512-4bmVUBCBnIb2epbDiBLCvvnVjaYg7kDCPR1Ptt6gqoxm5vlD8BjainYv+yjF6221hu2KUv8QAckumDI+6xyGsQ==}
 
   '@grammyjs/types@3.25.0':
     resolution: {integrity: sha512-iN9i5p+8ZOu9OMxWNcguojQfz4K/PDyMPOnL7PPCON+SoA/F8OKMH3uR7CVUkYfdNe0GCz8QOzAWrnqusQYFOg==}
@@ -6647,8 +6638,6 @@ snapshots:
   '@grammyjs/conversations@2.1.1(grammy@1.41.1)':
     dependencies:
       grammy: 1.41.1
-
-  '@grammyjs/ratelimiter@1.2.1': {}
 
   '@grammyjs/types@3.25.0': {}
 
