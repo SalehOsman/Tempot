@@ -181,17 +181,17 @@ When present, the audit middleware uses this map to log the correct module name 
 
 ### `commandScopeMap`
 
-Optional mapping of bot command names to their required access scopes, used by the scoped-users middleware to enforce per-command access control.
+Runtime mapping of bot command names to their scoped user restrictions, used by the scoped-users middleware to enforce per-command user access (D13 in spec.md).
 
-**Storage:** In-memory only — passed to scoped-users middleware at bot creation.
+**Storage:** In-memory only — built from module configs during module loading.
 
-| Type                     | Description                                                                                        |
-| ------------------------ | -------------------------------------------------------------------------------------------------- |
-| `Record<string, string>` | Keys: command names (e.g., `'admin'`). Values: scope identifiers (e.g., `'admin'`, `'moderator'`). |
+| Type                                      | Description                                                                                                                                     |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Map<string, { scopedUsers?: number[] }>` | Keys: command names (e.g., `'admin_panel'`). Values: objects with optional `scopedUsers` array of Telegram user IDs allowed to use the command. |
 
-When present, the scoped-users middleware checks if the calling user has access to the scope mapped to the invoked command. Falls back to allowing access when no mapping exists for a command.
+When `scopedUsers` is defined and non-empty, only listed user IDs can execute that command — even SUPER_ADMIN is blocked if not in the list (D13). When `scopedUsers` is undefined or empty, the command is accessible to all authorized users.
 
-> **Note:** Renamed from `commandModuleMap` in `ScopedUsersDeps` to avoid a type conflict with `AuditDeps.commandModuleMap`, which maps commands to module names rather than scopes.
+> **Note:** Named `commandScopeMap` (not `commandModuleMap`) to avoid a type conflict with `AuditDeps.commandModuleMap`, which maps commands to module names for audit logging.
 
 ## Relationships
 
