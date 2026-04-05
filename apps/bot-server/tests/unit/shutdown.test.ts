@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { registerShutdownHooks, setupSignalHandlers } from '../../src/startup/shutdown.js';
+import type { ShutdownManager } from '@tempot/shared';
 
 interface MockHook {
   (): Promise<void>;
@@ -10,16 +11,16 @@ const createMockShutdownManager = () => {
   return {
     register: vi.fn((hook: MockHook) => {
       hooks.push(hook);
-      return { isOk: () => true, isErr: () => false };
+      return { isOk: () => true, isErr: () => false, value: undefined };
     }),
     execute: vi.fn(async () => {
       for (const hook of hooks) {
         await hook();
       }
-      return { isOk: () => true };
+      return { isOk: () => true, isErr: () => false, value: undefined };
     }),
     _getHooks: () => hooks,
-  };
+  } as unknown as ShutdownManager & { _getHooks: () => MockHook[] };
 };
 
 const createMockResources = () => ({
@@ -58,7 +59,7 @@ describe('registerShutdownHooks', () => {
     expect(shutdownManager.register).toHaveBeenCalledTimes(7);
   });
 
-  it('should execute hooks in correct order: httpServer -> bot -> queue -> cache -> prisma -> drizzle -> log', async () => {
+  it('should execute hooks in correct order', async () => {
     registerShutdownHooks(shutdownManager, resources);
 
     const callOrder: string[] = [];
@@ -82,7 +83,7 @@ describe('registerShutdownHooks', () => {
       callOrder.push('drizzlePool.end');
     });
 
-    const hooks = shutdownManager._getHooks();
+    const hooks = (shutdownManager as unknown as { _getHooks: () => MockHook[] })._getHooks();
     for (const hook of hooks) {
       await hook();
     }
@@ -95,7 +96,6 @@ describe('registerShutdownHooks', () => {
       'prisma.$disconnect',
       'drizzlePool.end',
     ]);
-    // 7th hook is log completion — verified via logger.info
     expect(resources.logger.info).toHaveBeenCalled();
   });
 
@@ -107,13 +107,27 @@ describe('registerShutdownHooks', () => {
 
     registerShutdownHooks(shutdownManager, partialResources);
 
-    const hooks = shutdownManager._getHooks();
+    const hooks = (shutdownManager as unknown as { _getHooks: () => MockHook[] })._getHooks();
     for (const hook of hooks) {
       await hook();
     }
 
-    // Should not throw — all hooks executed safely
     expect(shutdownManager.register).toHaveBeenCalledTimes(7);
+  });
+
+  it('should log warning when register returns error', () => {
+    const failingManager = {
+      register: vi.fn(() => ({
+        isOk: () => false,
+        isErr: () => true,
+        error: { code: 'test.error' },
+      })),
+      execute: vi.fn(),
+    } as unknown as ShutdownManager;
+
+    registerShutdownHooks(failingManager, resources);
+
+    expect(resources.logger.warn).toHaveBeenCalled();
   });
 });
 
@@ -143,17 +157,15 @@ describe('setupSignalHandlers', () => {
     expect(registeredSignals).toContain('SIGINT');
   });
 
-  it('should publish system.shutdown.initiated event on signal', async () => {
+  it('should publish shutdown.initiated event on signal', async () => {
     setupSignalHandlers(shutdownManager, resources, mockProcess);
 
-    // Extract the SIGTERM handler
     const sigtermCall = mockProcess.on.mock.calls.find((call) => call[0] === 'SIGTERM');
     expect(sigtermCall).toBeDefined();
 
     const handler = sigtermCall![1] as () => void;
     handler();
 
-    // Allow async handler to complete
     await vi.waitFor(() => {
       expect(resources.eventBus.publish).toHaveBeenCalledWith(
         'system.shutdown.initiated',
@@ -162,15 +174,13 @@ describe('setupSignalHandlers', () => {
     });
   });
 
-  it('should ignore second signal when shutdown is already in progress', async () => {
+  it('should ignore second signal during shutdown', async () => {
     setupSignalHandlers(shutdownManager, resources, mockProcess);
 
     const sigtermCall = mockProcess.on.mock.calls.find((call) => call[0] === 'SIGTERM');
     const handler = sigtermCall![1] as () => void;
 
-    // First call triggers shutdown
     handler();
-    // Second call should be ignored
     handler();
 
     await vi.waitFor(() => {
@@ -178,7 +188,7 @@ describe('setupSignalHandlers', () => {
     });
   });
 
-  it('should call process.exit(0) after successful shutdown', async () => {
+  it('should call process.exit(0) after shutdown', async () => {
     setupSignalHandlers(shutdownManager, resources, mockProcess);
 
     const sigtermCall = mockProcess.on.mock.calls.find((call) => call[0] === 'SIGTERM');
