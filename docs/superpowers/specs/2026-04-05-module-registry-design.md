@@ -50,26 +50,33 @@ The `@tempot/module-registry` package provides runtime discovery and validation 
 
 ### DC-3: Toggle Guard Env Vars
 
-**Decision**: Hardcoded `TOGGLE_GUARD_PACKAGES` constant mapping package names to `TEMPOT_{NAME}` env var names. Small, stable list from Architecture Spec Section 30. When architecture changes, constant is updated deliberately.
+**Decision**: Hardcoded `TOGGLE_GUARD_PACKAGES` constant mapping package directory names to their env var names from Architecture Spec Section 30. The env var names use shortened forms (e.g., `TEMPOT_AI` not `TEMPOT_AI_CORE`). Packages marked "أساسي" (core) in Section 30 have NO toggle guard — they are always enabled. When architecture changes, constant is updated deliberately.
 
 **Rationale**: The toggle guard packages are an architectural constant, not a dynamic configuration. Hardcoding makes the relationship explicit and reviewable. The list matches Section 30 exactly.
 
-**Packages with toggle guards:**
+**Packages with toggle guards (from Section 30):**
 
-| Package         | Environment Variable   |
-| --------------- | ---------------------- |
-| session-manager | TEMPOT_SESSION_MANAGER |
-| i18n-core       | TEMPOT_I18N_CORE       |
-| regional-engine | TEMPOT_REGIONAL_ENGINE |
-| storage-engine  | TEMPOT_STORAGE_ENGINE  |
-| ux-helpers      | TEMPOT_UX_HELPERS      |
-| ai-core         | TEMPOT_AI_CORE         |
-| cms-engine      | TEMPOT_CMS_ENGINE      |
-| notifier        | TEMPOT_NOTIFIER        |
-| search-engine   | TEMPOT_SEARCH_ENGINE   |
-| document-engine | TEMPOT_DOCUMENT_ENGINE |
-| import-engine   | TEMPOT_IMPORT_ENGINE   |
-| input-engine    | TEMPOT_INPUT_ENGINE    |
+| Package (dir name) | Environment Variable | Default |
+| ------------------ | -------------------- | ------- |
+| auth-core          | TEMPOT_AUTH          | true    |
+| session-manager    | TEMPOT_SESSIONS      | true    |
+| notifier           | TEMPOT_NOTIFIER      | true    |
+| logger             | TEMPOT_LOGGER        | true    |
+| ai-core            | TEMPOT_AI            | true    |
+| storage-engine     | TEMPOT_STORAGE       | true    |
+| regional-engine    | TEMPOT_REGIONAL      | true    |
+| input-engine       | TEMPOT_INPUT         | false   |
+| cms-engine         | TEMPOT_DYNAMIC_CMS   | false   |
+| search-engine      | TEMPOT_SEARCH        | false   |
+| document-engine    | TEMPOT_DOCUMENTS     | false   |
+| import-engine      | TEMPOT_IMPORT        | false   |
+
+**Packages WITHOUT toggle guards (core/أساسي — always enabled):**
+event-bus, cache-manager, queue-factory, shared, module-registry.
+
+**Note**: `hasExport` in `ModuleFeatures` has no implied package dependency in `FEATURE_PACKAGE_MAP`. This is intentional — export functionality is built into modules directly, not provided by a separate package.
+
+**Note on plan.md divergence**: plan.md Task 3 shows `ModuleDiscovery` constructor without `loadConfig`. This design doc (DC-1) is authoritative — the constructor MUST include `loadConfig` for testability. Implementer follows the design doc.
 
 ### DC-4: Command Registration
 
@@ -147,7 +154,7 @@ export interface ModuleValidatorPort {
 
 ## 7. Event Schema
 
-Six lifecycle events registered in `packages/event-bus/src/event-bus.events.ts`:
+Six lifecycle events registered in `packages/event-bus/src/event-bus.events.ts`. The `registered` event fires once per module (with that module's command count), even though all commands are set on the bot in a single `setMyCommands()` call. This provides per-module audit granularity:
 
 | Event                                      | Payload                                           | When                                           |
 | ------------------------------------------ | ------------------------------------------------- | ---------------------------------------------- |
