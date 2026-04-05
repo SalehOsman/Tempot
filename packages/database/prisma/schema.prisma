@@ -97,3 +97,17 @@ model Attachment {
   @@index([provider])
   @@index([isDeleted])
 }
+
+model Setting {
+  key         String   @id
+  value       String
+  description String?
+
+  // Audit fields (Constitution Rule XXVII)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@map("settings")
+}
