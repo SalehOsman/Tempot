@@ -110,4 +110,27 @@ export interface TempotEvents {
     fieldType: string;
     reason: 'user_skip' | 'max_retries_skip' | 'condition';
   };
+  // Settings events (DC-5: inline payloads, no imports)
+  'settings.setting.updated': {
+    key: string;
+    oldValue: unknown;
+    newValue: unknown;
+    changedBy: string | null;
+  };
+  'settings.setting.created': {
+    key: string;
+    oldValue: unknown;
+    newValue: unknown;
+    changedBy: string | null;
+  };
+  'settings.setting.deleted': {
+    key: string;
+    oldValue: unknown;
+    newValue: unknown;
+    changedBy: string | null;
+  };
+  'settings.maintenance.toggled': {
+    enabled: boolean;
+    changedBy: string | null;
+  };
 }
