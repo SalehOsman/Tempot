@@ -62,14 +62,21 @@ The `@tempot/module-registry` package provides runtime discovery and validation 
 | session-manager    | TEMPOT_SESSIONS      | true    |
 | notifier           | TEMPOT_NOTIFIER      | true    |
 | logger             | TEMPOT_LOGGER        | true    |
+| audit-log          | TEMPOT_AUDIT         | true    |
 | ai-core            | TEMPOT_AI            | true    |
 | storage-engine     | TEMPOT_STORAGE       | true    |
+| backup-engine      | TEMPOT_BACKUP        | true    |
 | regional-engine    | TEMPOT_REGIONAL      | true    |
+| privacy-module     | TEMPOT_PRIVACY       | true    |
+| dashboard          | TEMPOT_DASHBOARD     | true    |
 | input-engine       | TEMPOT_INPUT         | false   |
 | cms-engine         | TEMPOT_DYNAMIC_CMS   | false   |
 | search-engine      | TEMPOT_SEARCH        | false   |
 | document-engine    | TEMPOT_DOCUMENTS     | false   |
 | import-engine      | TEMPOT_IMPORT        | false   |
+| payment-core       | TEMPOT_PAYMENT       | false   |
+| mini-apps          | TEMPOT_MINI_APPS     | false   |
+| sentry             | TEMPOT_SENTRY        | false   |
 
 **Packages WITHOUT toggle guards (core/أساسي — always enabled):**
 event-bus, cache-manager, queue-factory, shared, module-registry.
