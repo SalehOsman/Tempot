@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAuthMiddleware } from '../../../src/bot/middleware/auth.middleware.js';
 import type { AuthDeps } from '../../../src/bot/middleware/auth.middleware.js';
+import { RoleEnum } from '@tempot/auth-core';
 
 interface MockContext {
   from: { id: number } | undefined;
@@ -18,21 +19,31 @@ function createMockContext(overrides: Partial<MockContext> = {}): MockContext {
   };
 }
 
+function createDeps(overrides: Partial<AuthDeps> = {}): AuthDeps {
+  return {
+    getSessionUser: vi.fn().mockResolvedValue(null),
+    abilityDefinitions: [],
+    logger: {
+      warn: vi.fn(),
+    },
+    t: vi.fn((key: string) => `translated:${key}`),
+    ...overrides,
+  };
+}
+
 describe('createAuthMiddleware', () => {
   let next: ReturnType<typeof vi.fn>;
-  const mockT = vi.fn((key: string) => `translated:${key}`);
 
   beforeEach(() => {
     vi.clearAllMocks();
     next = vi.fn().mockResolvedValue(undefined);
   });
 
-  it('allows authorized users and stores session user on context', async () => {
-    const sessionUser = { id: 'user-1', role: 'USER' };
-    const deps: AuthDeps = {
+  it('stores session user and ability on context for known users', async () => {
+    const sessionUser = { id: 'user-1', role: RoleEnum.USER };
+    const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(sessionUser),
-      t: mockT,
-    };
+    });
 
     const middleware = createAuthMiddleware(deps);
     const ctx = createMockContext();
@@ -41,13 +52,11 @@ describe('createAuthMiddleware', () => {
 
     expect(next).toHaveBeenCalledOnce();
     expect(ctx['sessionUser']).toEqual(sessionUser);
+    expect(ctx['ability']).toBeDefined();
   });
 
   it('blocks requests without from field with localized message', async () => {
-    const deps: AuthDeps = {
-      getSessionUser: vi.fn(),
-      t: mockT,
-    };
+    const deps = createDeps();
 
     const middleware = createAuthMiddleware(deps);
     const ctx = createMockContext({ from: undefined });
@@ -58,11 +67,10 @@ describe('createAuthMiddleware', () => {
     expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
   });
 
-  it('allows guest users (no session) and calls next', async () => {
-    const deps: AuthDeps = {
+  it('creates guest session user when no session found', async () => {
+    const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(null),
-      t: mockT,
-    };
+    });
 
     const middleware = createAuthMiddleware(deps);
     const ctx = createMockContext();
@@ -70,6 +78,41 @@ describe('createAuthMiddleware', () => {
     await middleware(ctx as never, next);
 
     expect(next).toHaveBeenCalledOnce();
-    expect(deps.getSessionUser).toHaveBeenCalledWith(123);
+    expect(ctx['sessionUser']).toEqual({
+      id: '123',
+      role: RoleEnum.GUEST,
+    });
+    expect(ctx['ability']).toBeDefined();
+  });
+
+  it('calls next even when ability build fails', async () => {
+    const sessionUser = { id: 'user-1', role: RoleEnum.USER };
+    const failingDefinition = () => {
+      throw new Error('definition error');
+    };
+    const deps = createDeps({
+      getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+      abilityDefinitions: [failingDefinition],
+    });
+
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext();
+
+    await middleware(ctx as never, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(ctx['sessionUser']).toEqual(sessionUser);
+    expect(deps.logger.warn).toHaveBeenCalled();
+  });
+
+  it('passes user id to getSessionUser', async () => {
+    const deps = createDeps();
+
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext({ from: { id: 999 } });
+
+    await middleware(ctx as never, next);
+
+    expect(deps.getSessionUser).toHaveBeenCalledWith(999);
   });
 });

@@ -90,6 +90,7 @@ function createBotWithStubs(
       isSuperAdmin: () => false,
     }),
     getSessionUser: async () => null,
+    abilityDefinitions: [],
     commandModuleMap: new Map(),
     auditLog: async () => {},
   });

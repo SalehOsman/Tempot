@@ -4,6 +4,7 @@ export const BOT_SERVER_ERRORS = {
   MISSING_WEBHOOK_URL: 'bot-server.config.missing_webhook_url',
   MISSING_WEBHOOK_SECRET: 'bot-server.config.missing_webhook_secret',
   INVALID_SUPER_ADMIN_IDS: 'bot-server.config.invalid_super_admin_ids',
+  INVALID_PORT: 'bot-server.config.invalid_port',
   STARTUP_FAILED: 'bot-server.startup.failed',
   CORE_MODULE_HANDLER_FAILED: 'bot-server.module.core_handler_failed',
   MODULE_HANDLER_FAILED: 'bot-server.module.handler_failed',
@@ -13,4 +14,5 @@ export const BOT_SERVER_ERRORS = {
   SUPER_ADMIN_BOOTSTRAP_FAILED: 'bot-server.bootstrap.super_admin_failed',
   CACHE_WARMING_FAILED: 'bot-server.startup.cache_warming_failed',
   DATABASE_UNREACHABLE: 'bot-server.startup.database_unreachable',
+  ABILITY_BUILD_FAILED: 'bot-server.auth.ability_build_failed',
 } as const;
