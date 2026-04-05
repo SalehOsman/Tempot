@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "node scripts/setup-content-link.cjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
