@@ -48,7 +48,7 @@ As an advanced developer building modules, I want to browse auto-generated API d
 
 **Why this priority**: API reference is the most frequently accessed section for active developers and must be auto-generated to stay in sync.
 
-**Independent Test**: Run `pnpm build` in `apps/docs` and verify that API reference pages are generated for all packages with public exports.
+**Independent Test**: Run `pnpm build` in `apps/docs` and verify that API reference pages are generated for all packages with public exports. Content is sourced from `docs/product/`.
 
 **Acceptance Scenarios**:
 
@@ -160,7 +160,7 @@ Enhancement to existing character-based chunking in `@tempot/ai-core`. New chunk
 
 ### D7. Arabic Primary Language with English Secondary
 
-Arabic is the primary language (matching Tempot's target audience). English is secondary. Starlight's built-in i18n handles locale routing (`/ar/...` and `/en/...`). Content files are organized as `src/content/docs/{locale}/...`.
+Arabic is the primary language (matching Tempot's target audience). English is secondary. Starlight's built-in i18n handles locale routing (`/ar/...` and `/en/...`). Content files are organized as `docs/product/{locale}/...` at the project root. Starlight reads from this directory via `contentDir` configuration.
 
 ### D8. Vale for Prose Quality Enforcement
 
@@ -174,16 +174,29 @@ All documentation pages use typed frontmatter with fields: `title`, `description
 
 Default re-indexing is incremental: file content hashes are stored alongside vectors. On re-ingestion, only files with changed hashes are re-processed. Full rebuild (`--full` flag) deletes all `developer-docs` content and re-ingests everything.
 
+### D11. Zero-Deletion Archive Policy
+
+All existing documentation in `docs/` (tempot_v11_final.md, ROADMAP.md, architecture/adr/, developer/) is moved to `docs/archive/` and preserved as read-only historical reference. Nothing is deleted — ever. A `docs/archive/README.md` explains that this is archived reference material. New documentation in `docs/product/` and `docs/development/` may reference archived content via relative links. ADRs in the archive remain as historical record; new ADRs are created in `docs/development/adr/`.
+
+### D12. Development vs Product Documentation Separation
+
+Documentation is split into two categories with distinct purposes and audiences:
+
+- **`docs/development/`** — Project development process: ADRs (new), methodology (SpecKit + Superpowers), devlog, retrospectives. Audience: internal development team. NOT published via Starlight.
+- **`docs/product/`** — Product documentation: tutorials, guides, reference, concepts, user-guide. Audience: package developers, bot developers, operators, end users. Published via Starlight.
+
+This separation ensures development-internal decisions do not clutter user-facing documentation.
+
 ---
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: System MUST serve documentation at `apps/docs/` using Starlight (Astro) with native RTL support.
+- **FR-001**: System MUST serve documentation using Starlight (Astro) at `apps/docs/` with content sourced from `docs/product/` and native RTL support.
 - **FR-002**: System MUST generate API reference documentation for each `@tempot/*` package using starlight-typedoc with one plugin instance per package.
 - **FR-003**: System MUST support i18n with Arabic as primary language and English as secondary, using Starlight's built-in i18n system.
-- **FR-004**: System MUST organize content using the Diataxis framework: tutorials, guides, reference, concepts, and user-guide sections.
+- **FR-004**: System MUST organize product content in `docs/product/` using the Diataxis framework: tutorials, guides, reference, concepts, and user-guide sections. Development documentation in `docs/development/` is organized separately (adr, methodology, devlog, retrospectives).
 - **FR-005**: System MUST provide an AI documentation generation pipeline (`generate-docs.ts`) that reads SpecKit artifacts and source code to produce Starlight-compatible Markdown.
 - **FR-006**: System MUST provide a RAG ingestion script (`docs:ingest`) that chunks documentation by Markdown headings and ingests into `@tempot/ai-core` with `contentType: 'developer-docs'`.
 - **FR-007**: System MUST implement Markdown-aware chunking that splits by headings (`##`, `###`) instead of character counts, preserving section metadata.
@@ -192,6 +205,8 @@ Default re-indexing is incremental: file content hashes are stored alongside vec
 - **FR-010**: System MUST support incremental RAG re-indexing with hash-based change detection per file.
 - **FR-011**: System MUST fall back gracefully for pre-methodology packages (no SpecKit artifacts) by using source code and JSDoc comments only.
 - **FR-012**: System MUST integrate Vale prose linter for style consistency enforcement in CI.
+- **FR-013**: System MUST archive all existing documentation from `docs/` into `docs/archive/` with zero deletion. An archive README MUST explain the archive's purpose and reference policy.
+- **FR-014**: System MUST create `docs/development/` directory structure for project development documentation (adr, methodology, devlog, retrospectives), separate from product documentation.
 
 ### Non-Functional Requirements
 
@@ -209,7 +224,7 @@ interface DocFrontmatter {
   title: string;
   description: string;
   tags: string[];
-  audience: ('developer' | 'user')[];
+  audience: ('package-developer' | 'bot-developer' | 'operator' | 'end-user')[];
   package?: string;
   contentType: 'developer-docs';
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
@@ -220,7 +235,7 @@ interface DocGenerationConfig {
   packageName: string;
   specDir: string; // Path to specs/{NNN}-{feature}/
   sourceDir: string; // Path to packages/{name}/src/ or apps/{name}/src/
-  outputDir: string; // Path to apps/docs/src/content/docs/
+  outputDir: string; // Path to docs/product/
   locale: 'ar' | 'en';
 }
 
@@ -254,3 +269,5 @@ interface DocChunkMetadata {
 - **SC-012**: Documentation site loads in under 3 seconds on simulated 3G (NFR-001).
 - **SC-013**: Full API reference generation completes in under 5 minutes (NFR-002).
 - **SC-014**: Full RAG ingestion completes in under 10 minutes (NFR-003).
+- **SC-015**: `docs/archive/` contains all previously existing documentation files intact with zero deletions, plus an archive README (FR-013).
+- **SC-016**: `docs/development/` contains adr, methodology, devlog, and retrospectives subdirectories (FR-014).

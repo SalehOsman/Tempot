@@ -10,22 +10,27 @@
 
 **Priority:** P0 (prerequisite for all other tasks)
 **Estimated time:** 20 min
-**FR:** FR-001, FR-003, FR-004
+**FR:** FR-001, FR-003, FR-004, FR-013, FR-014
 **Files to create:**
 
 - `apps/docs/package.json`
 - `apps/docs/astro.config.mjs`
 - `apps/docs/tsconfig.json`
-- `apps/docs/src/content/docs/ar/index.md`
-- `apps/docs/src/content/docs/en/index.md`
-- `apps/docs/src/content/docs/ar/tutorials/` (directory)
-- `apps/docs/src/content/docs/ar/guides/` (directory)
-- `apps/docs/src/content/docs/ar/concepts/` (directory)
-- `apps/docs/src/content/docs/ar/user-guide/` (directory)
-- `apps/docs/src/content/docs/en/tutorials/` (directory)
-- `apps/docs/src/content/docs/en/guides/` (directory)
-- `apps/docs/src/content/docs/en/concepts/` (directory)
-- `apps/docs/src/content/docs/en/user-guide/` (directory)
+- `docs/archive/README.md` (archive notice)
+- `docs/development/adr/` (directory)
+- `docs/development/methodology/` (directory)
+- `docs/development/devlog/` (directory)
+- `docs/development/retrospectives/` (directory)
+- `docs/product/ar/index.md` (Arabic landing page)
+- `docs/product/en/index.md` (English landing page)
+- `docs/product/ar/tutorials/` (directory)
+- `docs/product/ar/guides/` (directory)
+- `docs/product/ar/concepts/` (directory)
+- `docs/product/ar/user-guide/` (directory)
+- `docs/product/en/tutorials/` (directory)
+- `docs/product/en/guides/` (directory)
+- `docs/product/en/concepts/` (directory)
+- `docs/product/en/user-guide/` (directory)
 - `apps/docs/scripts/docs.types.ts`
   **Test file:** N/A (infrastructure setup)
 
@@ -33,15 +38,19 @@
 
 **Acceptance criteria:**
 
+- [ ] All existing documentation moved from `docs/` to `docs/archive/` with directory structure preserved (FR-013)
+- [ ] `docs/archive/README.md` exists with zero-deletion policy notice (FR-013)
+- [ ] `docs/development/` directory created with subdirectories: `adr/`, `methodology/`, `devlog/`, `retrospectives/` (FR-014)
 - [ ] `package.json` includes dependencies: astro, @astrojs/starlight, starlight-typedoc, typedoc, typedoc-plugin-markdown
 - [ ] `package.json` includes scripts: `dev`, `build`, `preview`
+- [ ] `astro.config.mjs` configures Starlight with `contentDir: '../../docs/product/'` pointing to project root
 - [ ] `astro.config.mjs` configures Starlight with Arabic (`ar`) as default locale (RTL) and English (`en`) as secondary
 - [ ] Sidebar configuration includes Diataxis sections: tutorials, guides, reference, concepts, user-guide (FR-004)
-- [ ] Landing pages exist for both locales with valid DocFrontmatter (FR-003)
-- [ ] Diataxis directory structure created for both locales (FR-004)
+- [ ] Landing pages exist for both locales at `docs/product/{ar,en}/index.md` with valid DocFrontmatter (FR-003)
+- [ ] Diataxis directory structure created for both locales under `docs/product/` (FR-004)
 - [ ] `scripts/docs.types.ts` defines: DocFrontmatter, DocGenerationConfig, DocChunkMetadata, FreshnessReport
 - [ ] `pnpm install` succeeds with no errors
-- [ ] `pnpm build` in `apps/docs` produces a Starlight site (FR-001)
+- [ ] `pnpm build` in `apps/docs` produces a Starlight site with content from `docs/product/` (FR-001)
 - [ ] No `any` types (Rule I)
 
 ---
@@ -174,7 +183,7 @@
 
 **Acceptance criteria:**
 
-- [ ] Reads all `.md` files from `apps/docs/src/content/docs/` recursively (FR-006)
+- [ ] Reads all `.md` files from `docs/product/` recursively (FR-006)
 - [ ] Extracts YAML frontmatter metadata from each file (FR-006)
 - [ ] Chunks content using `chunkByMarkdownHeadings()` from Task 4 (FR-006, FR-007)
 - [ ] Computes SHA-256 content hash per chunk (FR-010)
@@ -236,7 +245,7 @@
 - [ ] `ProhibitedWords.yml` flags deprecated or incorrect terminology (FR-012)
 - [ ] `SentenceLength.yml` enforces maximum sentence length (FR-012)
 - [ ] GitHub Actions workflow runs Vale on documentation PRs
-- [ ] `vale apps/docs/src/content/docs/` runs locally with zero errors on seeded content (SC-010)
+- [ ] `vale docs/product/` runs locally with zero errors on seeded content (SC-010)
 - [ ] No `any` types (Rule I)
 
 ---
@@ -272,14 +281,14 @@
 **Dependencies:** Task 0, Task 2
 **Files to create:**
 
-- `apps/docs/src/content/docs/ar/tutorials/getting-started.md`
-- `apps/docs/src/content/docs/en/tutorials/getting-started.md`
-- `apps/docs/src/content/docs/ar/guides/creating-a-module.md`
-- `apps/docs/src/content/docs/en/guides/creating-a-module.md`
-- `apps/docs/src/content/docs/ar/concepts/architecture-overview.md`
-- `apps/docs/src/content/docs/en/concepts/architecture-overview.md`
-- `apps/docs/src/content/docs/ar/user-guide/getting-started.md`
-- `apps/docs/src/content/docs/en/user-guide/getting-started.md`
+- `docs/product/ar/tutorials/getting-started.md`
+- `docs/product/en/tutorials/getting-started.md`
+- `docs/product/ar/guides/creating-a-module.md`
+- `docs/product/en/guides/creating-a-module.md`
+- `docs/product/ar/concepts/architecture-overview.md`
+- `docs/product/en/concepts/architecture-overview.md`
+- `docs/product/ar/user-guide/getting-started.md`
+- `docs/product/en/user-guide/getting-started.md`
   **Test file:** N/A (content creation)
 
 **Acceptance criteria:**
@@ -298,7 +307,7 @@
 
 **Priority:** P0 (validation gate)
 **Estimated time:** 20 min
-**FR:** FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012
+**FR:** FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014
 **Dependencies:** Task 0, Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7, Task 8, Task 9
 **Files to create:**
 
@@ -314,11 +323,13 @@
 - [ ] `pnpm docs:ingest --full` re-indexes all content (SC-008)
 - [ ] `pnpm docs:freshness` correctly identifies stale/fresh docs (SC-009)
 - [ ] Vale passes on all seeded content with zero errors (SC-010)
+- [ ] `docs/archive/` contains all previously existing docs, untouched (SC-015)
+- [ ] `docs/development/` exists with correct subdirectories, not published via Starlight (SC-016)
 - [ ] All documentation pages include typed frontmatter (SC-011)
 - [ ] Documentation site loads in under 3 seconds on simulated 3G (SC-012)
 - [ ] Full API reference generation completes in under 5 minutes (SC-013)
 - [ ] Full RAG ingestion completes in under 10 minutes (SC-014)
-- [ ] All acceptance criteria from spec.md (SC-001 through SC-014) verified
+- [ ] All acceptance criteria from spec.md (SC-001 through SC-016) verified
 - [ ] No `any` types (Rule I)
 - [ ] All tests pass (minimum 7: build, generate pre-methodology, generate with specs, ingest, freshness, Vale, frontmatter)
 
@@ -351,17 +362,17 @@ Task 4 (Markdown Chunking — ai-core)
 
 ## Summary
 
-| Task | Name                     | Priority | Est. Time   | FR Coverage                 |
-| ---- | ------------------------ | -------- | ----------- | --------------------------- |
-| 0    | Project Scaffolding      | P0       | 20 min      | FR-001, FR-003, FR-004      |
-| 1    | starlight-typedoc Config | P0       | 15 min      | FR-002                      |
-| 2    | Frontmatter Validation   | P0       | 15 min      | FR-009                      |
-| 3    | AI Generation Pipeline   | P1       | 30 min      | FR-005, FR-011              |
-| 4    | Markdown-Aware Chunking  | P0       | 20 min      | FR-007                      |
-| 5    | RAG Ingestion Script     | P1       | 20 min      | FR-006, FR-010              |
-| 6    | Freshness Detection      | P1       | 15 min      | FR-008                      |
-| 7    | Vale Prose Linting       | P2       | 15 min      | FR-012                      |
-| 8    | RTL/LTR Verification     | P1       | 15 min      | FR-003                      |
-| 9    | Content Seeding          | P1       | 20 min      | FR-003, FR-004              |
-| 10   | Integration & Validation | P0       | 20 min      | FR-001 through FR-012 (all) |
-|      | **Total**                |          | **205 min** |                             |
+| Task | Name                     | Priority | Est. Time   | FR Coverage                            |
+| ---- | ------------------------ | -------- | ----------- | -------------------------------------- |
+| 0    | Project Scaffolding      | P0       | 20 min      | FR-001, FR-003, FR-004, FR-013, FR-014 |
+| 1    | starlight-typedoc Config | P0       | 15 min      | FR-002                                 |
+| 2    | Frontmatter Validation   | P0       | 15 min      | FR-009                                 |
+| 3    | AI Generation Pipeline   | P1       | 30 min      | FR-005, FR-011                         |
+| 4    | Markdown-Aware Chunking  | P0       | 20 min      | FR-007                                 |
+| 5    | RAG Ingestion Script     | P1       | 20 min      | FR-006, FR-010                         |
+| 6    | Freshness Detection      | P1       | 15 min      | FR-008                                 |
+| 7    | Vale Prose Linting       | P2       | 15 min      | FR-012                                 |
+| 8    | RTL/LTR Verification     | P1       | 15 min      | FR-003                                 |
+| 9    | Content Seeding          | P1       | 20 min      | FR-003, FR-004                         |
+| 10   | Integration & Validation | P0       | 20 min      | FR-001 through FR-014 (all)            |
+|      | **Total**                |          | **205 min** |                                        |

@@ -4,7 +4,7 @@
 
 **Goal:** Build a comprehensive documentation platform for Tempot using Starlight (Astro) that serves 4 audiences (end user, new developer, advanced developer, template user), organizes content via the Diataxis framework, auto-generates API reference from TypeDoc, provides an AI documentation generation pipeline from SpecKit artifacts, integrates with the RAG pipeline for AI-assisted search, and enforces prose quality via Vale linting in CI.
 
-**Architecture:** The documentation lives in `apps/docs/` as a Starlight (Astro) application. Content is organized under `src/content/docs/{locale}/` with Diataxis sections (tutorials, guides, reference, concepts, user-guide). API reference is auto-generated at build time by `starlight-typedoc` with one plugin instance per `@tempot/*` package. Documentation generation scripts live in `apps/docs/scripts/` — `generate-docs.ts` for AI-first content generation, `ingest-docs.ts` for RAG ingestion, and `check-freshness.ts` for staleness detection. Markdown-aware chunking extends `@tempot/ai-core` with a new chunking strategy.
+**Architecture:** Documentation content lives in `docs/` at the project root, split into three directories: `docs/archive/` (existing docs preserved as read-only reference), `docs/development/` (project development process — ADRs, methodology, devlog, retrospectives — NOT published), and `docs/product/` (user/developer-facing content organized by locale and Diataxis sections). The Starlight (Astro) application in `apps/docs/` is a build tool only — its `astro.config.mjs` sets `contentDir` to `../../docs/product/` to read content from the project root. API reference is auto-generated at build time by `starlight-typedoc` with one plugin instance per `@tempot/*` package. Documentation generation scripts live in `apps/docs/scripts/` — `generate-docs.ts` for AI-first content generation, `ingest-docs.ts` for RAG ingestion, and `check-freshness.ts` for staleness detection. Markdown-aware chunking extends `@tempot/ai-core` with a new chunking strategy.
 
 **Tech Stack:** Astro 5.x (static site generator), @astrojs/starlight (documentation theme), starlight-typedoc (API reference generation), TypeDoc (TypeScript documentation generator), i18next (Starlight's built-in i18n — matches Tempot's stack), Vale (prose linter for CI), Vercel AI SDK 6.x (AI generation pipeline — via `@tempot/ai-core`), pgvector (RAG vector storage — via `@tempot/database`), @tempot/ai-core (RAG ingestion service), @tempot/shared (Result pattern, AppError).
 
@@ -20,6 +20,9 @@
 - All documentation frontmatter uses typed schema with `contentType: 'developer-docs'` mapping to `AIContentType` (D9 in spec.md)
 - Content follows Diataxis framework: tutorials, guides, reference, concepts, user-guide (D2 in spec.md)
 - `apps/docs/` is an application — not a library, no package exports
+- Existing documentation archived in `docs/archive/` — zero deletion policy (D11 in spec.md)
+- Development documentation (`docs/development/`) separate from product documentation (`docs/product/`) — only product docs published via Starlight (D12 in spec.md)
+- `apps/docs/` is a build application only — content lives in `docs/product/` at project root
 
 ---
 
@@ -33,7 +36,7 @@ interface DocFrontmatter {
   title: string;
   description: string;
   tags: string[];
-  audience: ('developer' | 'user')[];
+  audience: ('package-developer' | 'bot-developer' | 'operator' | 'end-user')[];
   package?: string;
   contentType: 'developer-docs';
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
@@ -44,7 +47,7 @@ interface DocGenerationConfig {
   packageName: string;
   specDir: string;
   sourceDir: string;
-  outputDir: string;
+  outputDir: string; // Path to docs/product/
   locale: 'ar' | 'en';
 }
 
@@ -79,31 +82,40 @@ interface FreshnessReport {
 - `apps/docs/package.json`
 - `apps/docs/astro.config.mjs`
 - `apps/docs/tsconfig.json`
-- `apps/docs/src/content/docs/ar/index.md` (Arabic landing page)
-- `apps/docs/src/content/docs/en/index.md` (English landing page)
-- `apps/docs/src/content/docs/ar/tutorials/` (directory)
-- `apps/docs/src/content/docs/ar/guides/` (directory)
-- `apps/docs/src/content/docs/ar/concepts/` (directory)
-- `apps/docs/src/content/docs/ar/user-guide/` (directory)
-- `apps/docs/src/content/docs/en/tutorials/` (directory)
-- `apps/docs/src/content/docs/en/guides/` (directory)
-- `apps/docs/src/content/docs/en/concepts/` (directory)
-- `apps/docs/src/content/docs/en/user-guide/` (directory)
+- `docs/archive/README.md` (archive notice)
+- `docs/development/adr/` (directory)
+- `docs/development/methodology/` (directory)
+- `docs/development/devlog/` (directory)
+- `docs/development/retrospectives/` (directory)
+- `docs/product/ar/index.md` (Arabic landing page)
+- `docs/product/en/index.md` (English landing page)
+- `docs/product/ar/tutorials/` (directory)
+- `docs/product/ar/guides/` (directory)
+- `docs/product/ar/concepts/` (directory)
+- `docs/product/ar/user-guide/` (directory)
+- `docs/product/en/tutorials/` (directory)
+- `docs/product/en/guides/` (directory)
+- `docs/product/en/concepts/` (directory)
+- `docs/product/en/user-guide/` (directory)
 - `apps/docs/scripts/docs.types.ts`
 
 **Test file:** N/A (infrastructure setup)
 
 **Steps:**
 
+- [ ] Move all existing documentation from `docs/` to `docs/archive/` preserving directory structure
+- [ ] Create `docs/archive/README.md` — notice that these files are archived (zero-deletion policy, D11) and should not be edited
+- [ ] Create `docs/development/` with subdirectories: `adr/`, `methodology/`, `devlog/`, `retrospectives/`
+- [ ] Create `docs/product/` with Diataxis structure for both locales: `{ar,en}/{tutorials,guides,concepts,user-guide}/`
 - [ ] Initialize `apps/docs/` with `package.json` — name: `docs`, private: true, scripts: `dev`, `build`, `preview`
-- [ ] Create `astro.config.mjs` with Starlight plugin, i18n config (`ar` default RTL, `en` secondary), and sidebar configuration for Diataxis sections
+- [ ] Create `astro.config.mjs` with Starlight plugin, `contentDir: '../../docs/product/'`, i18n config (`ar` default RTL, `en` secondary), and sidebar configuration for Diataxis sections
 - [ ] Create `tsconfig.json` extending Astro's base config
-- [ ] Create landing pages for both locales with typed DocFrontmatter
-- [ ] Create empty Diataxis directory structure for both locales
+- [ ] Create landing pages for both locales at `docs/product/{ar,en}/index.md` with typed DocFrontmatter
 - [ ] Create `scripts/docs.types.ts` with shared type definitions
 - [ ] Run `pnpm install` to verify workspace resolution
-- [ ] Run `pnpm build` in `apps/docs` to verify Starlight builds successfully
-- [ ] Commit: `chore(docs): scaffold Starlight documentation site with i18n and Diataxis structure`
+- [ ] Run `pnpm build` in `apps/docs` to verify Starlight builds successfully with `contentDir` pointing to `docs/product/`
+- [ ] Verify `docs/archive/` contains all previously existing docs untouched
+- [ ] Commit: `chore(docs): scaffold Starlight documentation site with i18n, Diataxis structure, and content relocation`
 
 ---
 
@@ -219,9 +231,9 @@ interface FreshnessReport {
 
 **Steps:**
 
-- [ ] Write tests for: reads Markdown files from `src/content/docs/`, extracts frontmatter metadata, chunks by Markdown headings, computes content hash per chunk, calls `ContentIngestionService.ingest()` with `contentType: 'developer-docs'`, incremental mode skips unchanged files (matching hash), full mode (`--full`) re-indexes everything, metadata includes filePath/section/language/package
+- [ ] Write tests for: reads Markdown files from `docs/product/`, extracts frontmatter metadata, chunks by Markdown headings, computes content hash per chunk, calls `ContentIngestionService.ingest()` with `contentType: 'developer-docs'`, incremental mode skips unchanged files (matching hash), full mode (`--full`) re-indexes everything, metadata includes filePath/section/language/package
 - [ ] Run tests — expect RED (no implementation)
-- [ ] Implement file discovery — recursively finds all `.md` files in `src/content/docs/`
+- [ ] Implement file discovery — recursively finds all `.md` files in `docs/product/`
 - [ ] Implement frontmatter extraction — parses YAML frontmatter from each file
 - [ ] Implement chunking integration — uses `chunkByMarkdownHeadings()` from Task 4
 - [ ] Implement hash-based change detection — stores content hashes, skips unchanged files
@@ -247,7 +259,7 @@ interface FreshnessReport {
 
 - [ ] Write tests for: source file newer than doc → reports stale with diff timestamp, doc up to date → not stale, all docs fresh → exit code 0 with "all fresh", outputs FreshnessReport per package, handles packages without docs gracefully
 - [ ] Run tests — expect RED (no implementation)
-- [ ] Implement source-to-doc mapping — for each package, map `packages/{name}/src/` to `apps/docs/src/content/docs/**/{name}*`
+- [ ] Implement source-to-doc mapping — for each package, map `packages/{name}/src/` to `docs/product/**/{name}*`
 - [ ] Implement git timestamp comparison — use `git log -1 --format=%cI` for both source and doc
 - [ ] Implement report output — structured JSON to stdout for CI consumption
 - [ ] Add CLI interface: `pnpm docs:freshness`
@@ -277,7 +289,7 @@ interface FreshnessReport {
 - [ ] Create `ProhibitedWords.yml` to flag deprecated/incorrect terminology
 - [ ] Create `SentenceLength.yml` with max sentence length rule
 - [ ] Create GitHub Actions workflow that runs Vale on documentation PRs
-- [ ] Run `vale apps/docs/src/content/docs/` locally to verify configuration
+- [ ] Run `vale docs/product/` locally to verify configuration
 - [ ] Commit: `feat(docs): add Vale prose linting with custom Tempot style rules`
 
 ---
@@ -308,14 +320,14 @@ interface FreshnessReport {
 
 **Files:** Create:
 
-- `apps/docs/src/content/docs/ar/tutorials/getting-started.md`
-- `apps/docs/src/content/docs/en/tutorials/getting-started.md`
-- `apps/docs/src/content/docs/ar/guides/creating-a-module.md`
-- `apps/docs/src/content/docs/en/guides/creating-a-module.md`
-- `apps/docs/src/content/docs/ar/concepts/architecture-overview.md`
-- `apps/docs/src/content/docs/en/concepts/architecture-overview.md`
-- `apps/docs/src/content/docs/ar/user-guide/getting-started.md`
-- `apps/docs/src/content/docs/en/user-guide/getting-started.md`
+- `docs/product/ar/tutorials/getting-started.md`
+- `docs/product/en/tutorials/getting-started.md`
+- `docs/product/ar/guides/creating-a-module.md`
+- `docs/product/en/guides/creating-a-module.md`
+- `docs/product/ar/concepts/architecture-overview.md`
+- `docs/product/en/concepts/architecture-overview.md`
+- `docs/product/ar/user-guide/getting-started.md`
+- `docs/product/en/user-guide/getting-started.md`
 
 **Test file:** N/A (content creation)
 

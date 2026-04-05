@@ -58,6 +58,18 @@
 
 ### 10. Content Locale Organization
 
-- **Decision:** Organize content files as `src/content/docs/{locale}/...` using Starlight's built-in i18n routing.
-- **Rationale:** Starlight's i18n system handles locale routing, fallback, and sidebar generation natively. Arabic (`ar`) is the default locale; English (`en`) is the secondary.
-- **Alternatives considered:** Single locale with translation keys (rejected — Starlight doesn't work this way). Separate Starlight instances per locale (rejected — duplication).
+- **Decision:** Organize content files as `docs/product/{locale}/...` using Starlight's built-in i18n routing, with `contentDir` in `astro.config.mjs` pointing to `../../docs/product/`.
+- **Rationale:** Starlight's i18n system handles locale routing, fallback, and sidebar generation natively. Arabic (`ar`) is the default locale; English (`en`) is the secondary. Content lives at project root for better discoverability — `apps/docs/` is a build tool only.
+- **Alternatives considered:** Single locale with translation keys (rejected — Starlight doesn't work this way). Separate Starlight instances per locale (rejected — duplication). Content inside `apps/docs/src/content/docs/` (rejected — buries content deep in build app).
+
+### 11. Zero-Deletion Archive Policy
+
+- **Decision:** All existing documentation in `docs/` is moved to `docs/archive/` with a README notice. No files are deleted.
+- **Rationale:** Preserves institutional knowledge and avoids accidental loss of context during the migration to the new Starlight-based documentation structure. The archive serves as a read-only reference.
+- **Alternatives considered:** Delete old docs after migration (rejected — risks losing institutional knowledge). Keep old docs in place alongside new structure (rejected — confusing coexistence of old/new formats).
+
+### 12. Development vs Product Documentation Separation
+
+- **Decision:** Internal development documentation (ADRs, methodology, devlog, retrospectives) lives in `docs/development/` and is NOT published via Starlight. Product documentation (user/developer-facing content) lives in `docs/product/` and is the only content published.
+- **Rationale:** Separates internal process documentation from public-facing content. Development docs are for the core team only and should not appear in the published documentation site. This keeps the Starlight site focused on content relevant to the 4 target audiences (package-developer, bot-developer, operator, end-user).
+- **Alternatives considered:** Publish everything including internal docs (rejected — exposes internal process to end users). Keep development docs inside `apps/docs/` with draft flags (rejected — still present in build, risk of accidental publication).

@@ -8,15 +8,15 @@ Typed frontmatter schema for all documentation pages, used for rendering metadat
 
 **Storage:** Embedded in Markdown files as YAML frontmatter.
 
-| Field       | Type                                         | Description                                        | Constraints / Validation                          |
-| ----------- | -------------------------------------------- | -------------------------------------------------- | ------------------------------------------------- |
-| title       | `string`                                     | Page title displayed in navigation and browser tab | Required, max 100 characters                      |
-| description | `string`                                     | Brief page description for SEO and search          | Required, max 200 characters                      |
-| tags        | `string[]`                                   | Categorization tags for search and filtering       | Required, at least 1 tag                          |
-| audience    | `('developer' \| 'user')[]`                  | Target audience(s) for the page                    | Required, at least 1 audience                     |
-| package     | `string`                                     | Associated `@tempot/*` package name                | Optional, must match a valid package if present   |
-| contentType | `'developer-docs'`                           | Maps to `AIContentType` enum for RAG ingestion     | Required, fixed value `'developer-docs'`          |
-| difficulty  | `'beginner' \| 'intermediate' \| 'advanced'` | Content difficulty level                           | Optional, defaults to `'intermediate'` if omitted |
+| Field       | Type                                                                     | Description                                        | Constraints / Validation                          |
+| ----------- | ------------------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------- |
+| title       | `string`                                                                 | Page title displayed in navigation and browser tab | Required, max 100 characters                      |
+| description | `string`                                                                 | Brief page description for SEO and search          | Required, max 200 characters                      |
+| tags        | `string[]`                                                               | Categorization tags for search and filtering       | Required, at least 1 tag                          |
+| audience    | `('package-developer' \| 'bot-developer' \| 'operator' \| 'end-user')[]` | Target audience(s) for the page                    | Required, at least 1 audience                     |
+| package     | `string`                                                                 | Associated `@tempot/*` package name                | Optional, must match a valid package if present   |
+| contentType | `'developer-docs'`                                                       | Maps to `AIContentType` enum for RAG ingestion     | Required, fixed value `'developer-docs'`          |
+| difficulty  | `'beginner' \| 'intermediate' \| 'advanced'`                             | Content difficulty level                           | Optional, defaults to `'intermediate'` if omitted |
 
 ---
 
@@ -31,7 +31,7 @@ Configuration for the AI documentation generation pipeline, specifying source an
 | packageName | `string`       | Name of the package being documented                 | Required, must match a workspace package      |
 | specDir     | `string`       | Path to `specs/{NNN}-{feature}/`                     | Optional — empty for pre-methodology packages |
 | sourceDir   | `string`       | Path to `packages/{name}/src/` or `apps/{name}/src/` | Required, must exist on filesystem            |
-| outputDir   | `string`       | Path to `apps/docs/src/content/docs/`                | Required, created if not exists               |
+| outputDir   | `string`       | Path to `docs/product/`                              | Required, created if not exists               |
 | locale      | `'ar' \| 'en'` | Target language for generation                       | Required                                      |
 
 ---
@@ -44,7 +44,7 @@ Metadata associated with each documentation chunk during RAG ingestion.
 
 | Field       | Type     | Description                                       | Constraints / Validation                        |
 | ----------- | -------- | ------------------------------------------------- | ----------------------------------------------- |
-| filePath    | `string` | Path to the source Markdown file                  | Required, relative to `apps/docs/`              |
+| filePath    | `string` | Path to the source Markdown file                  | Required, relative to `docs/product/`           |
 | section     | `string` | Heading text of the section this chunk belongs to | Required, extracted from `##` or `###` headings |
 | language    | `string` | Language code (`ar` or `en`)                      | Required, derived from file path locale         |
 | package     | `string` | Associated package name from frontmatter          | Optional, may be absent for general docs        |
@@ -103,7 +103,7 @@ Vale prose linter configuration for documentation quality enforcement.
 
 ```
 DocFrontmatter
-  └─→ embedded in every Markdown file in apps/docs/src/content/docs/
+  └─→ embedded in every Markdown file in docs/product/
        ├── contentType → maps to AIContentType for RAG ingestion
        ├── package → links doc to @tempot/* package
        └── audience + difficulty → enables filtered retrieval
@@ -140,7 +140,7 @@ ValeConfig
 ## Storage Mechanisms
 
 - **File-based (config):** StarlightConfig (`astro.config.mjs`), ValeConfig (`.vale.ini`), TypeDoc configs
-- **File-based (content):** Markdown documentation files with DocFrontmatter in `src/content/docs/`
+- **File-based (content):** Markdown documentation files with DocFrontmatter in `docs/product/`
 - **Vector database:** DocChunkMetadata stored alongside embeddings via `@tempot/ai-core`
 - **Transient:** FreshnessReport (stdout/CI output only), DocGenerationConfig (runtime-computed)
 
@@ -155,14 +155,14 @@ Source Code + SpecKit Artifacts
   │     ├── calls AI model
   │     └── outputs: Starlight Markdown with DocFrontmatter
   │           │
-  │           ├─→ apps/docs/src/content/docs/{locale}/tutorials/
-  │           ├─→ apps/docs/src/content/docs/{locale}/guides/
-  │           ├─→ apps/docs/src/content/docs/{locale}/concepts/
-  │           └─→ apps/docs/src/content/docs/{locale}/user-guide/
+  │           ├─→ docs/product/{locale}/tutorials/
+  │           ├─→ docs/product/{locale}/guides/
+  │           ├─→ docs/product/{locale}/concepts/
+  │           └─→ docs/product/{locale}/user-guide/
   │
   ├─→ starlight-typedoc (build-time)
   │     ├── reads: packages/*/src/**/*.ts (TypeDoc)
-  │     └── outputs: apps/docs/src/content/docs/reference/{package}/
+  │     └── outputs: docs/product/reference/{package}/
   │
   └─→ freshness detection script
         ├── compares git timestamps: source vs. docs
@@ -170,13 +170,13 @@ Source Code + SpecKit Artifacts
 
 Starlight Build (pnpm build in apps/docs)
   │
-  ├── reads all Markdown from src/content/docs/
+  ├── reads all Markdown from docs/product/ (via contentDir)
   ├── starlight-typedoc generates API reference at build time
   └── outputs static site to apps/docs/dist/
 
 RAG Ingestion (pnpm docs:ingest)
   │
-  ├── reads all Markdown from apps/docs/src/content/docs/
+  ├── reads all Markdown from docs/product/
   ├── extracts DocFrontmatter metadata
   ├── splits content by Markdown headings (## / ###)
   ├── computes content hashes for incremental detection
