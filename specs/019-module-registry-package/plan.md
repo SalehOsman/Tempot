@@ -6,7 +6,7 @@
 
 **Architecture:** A `ModuleRegistry` class that orchestrates a three-phase pipeline (Discover → Validate → Register) using three collaborators: `ModuleDiscovery` (scans `modules/` and loads `module.config.ts` files), `ModuleValidator` (validates structure, configuration, spec gate, and dependencies), and an in-memory registry (`Map<string, ValidatedModule>`). The package is non-optional — no toggle guard.
 
-**Tech Stack:** TypeScript Strict Mode 5.9.3, neverthrow 8.2.0 (Result pattern), Vitest 4.1.0 (testing), `@tempot/shared` (AppError, Result types — direct dependency), `@tempot/logger` (Pino 9.x — injected via `RegistryLogger` interface), `@tempot/event-bus` (injected via `RegistryEventBus` interface), grammY ^1.41.1 (Bot type for command registration), zod ^4.3.6 (config validation). No database. No cache. No Prisma.
+**Tech Stack:** TypeScript Strict Mode 5.9.3, neverthrow 8.2.0 (Result pattern), Vitest 4.1.0 (testing), `@tempot/shared` (AppError, Result types — direct dependency), `@tempot/logger` (Pino 9.x — injected via `RegistryLogger` interface), `@tempot/event-bus` (injected via `RegistryEventBus` interface), grammY (injected via `RegistryBot` interface — not a direct dependency), zod ^4.3.6 (config validation). No database. No cache. No Prisma.
 
 **Design Constraints:**
 
@@ -134,6 +134,13 @@ export interface RegistryEventBus {
     event: K,
     payload: Record<string, unknown>,
   ) => Promise<{ isOk: () => boolean }>;
+}
+
+/** Bot interface (minimal — injected dependency for command registration) */
+export interface RegistryBot {
+  api: {
+    setMyCommands: (commands: Array<{ command: string; description: string }>) => Promise<boolean>;
+  };
 }
 ```
 
@@ -423,7 +430,7 @@ export const moduleConfigSchema = z
   - `getModule(name)` → `ValidatedModule | undefined`
   - `getAllModules()` → `ValidatedModule[]`
   - `getAllCommands()` → `ModuleCommand[]`
-  - `register(bot)` → `AsyncResult<void>` — registers commands on bot instance
+  - `register(bot: RegistryBot)` → `AsyncResult<void>` — registers commands via injected bot interface
 - [ ] Run tests — expect PASS
 - [ ] Commit: `feat(module-registry): registry service with query interface`
 
@@ -486,7 +493,7 @@ export const moduleConfigSchema = z
 
 **Steps:**
 
-- [ ] Export all types: `ModuleConfig`, `ModuleCommand`, `ModuleFeatures`, `ModuleRequirements`, `UserRole`, `AiDegradationMode`, `DiscoveredModule`, `ValidatedModule`, `ValidationError`, `DiscoveryResult`, `ValidationResult`, `RegistryLogger`, `RegistryEventBus`
+- [ ] Export all types: `ModuleConfig`, `ModuleCommand`, `ModuleFeatures`, `ModuleRequirements`, `UserRole`, `AiDegradationMode`, `DiscoveredModule`, `ValidatedModule`, `ValidationError`, `DiscoveryResult`, `ValidationResult`, `RegistryLogger`, `RegistryEventBus`, `RegistryBot`
 - [ ] Export constants: `FEATURE_PACKAGE_MAP`, `MODULE_REGISTRY_ERRORS`
 - [ ] Export services: `ModuleDiscovery`, `ModuleValidator`, `ModuleRegistry`
 - [ ] Export schema: `moduleConfigSchema`

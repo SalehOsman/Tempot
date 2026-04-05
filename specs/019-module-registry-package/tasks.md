@@ -68,6 +68,7 @@
 - [ ] `ValidationResult` interface exported with `validated`, `skipped`, `failed`
 - [ ] `RegistryLogger` interface exported with `info`, `warn`, `error`, `debug` methods
 - [ ] `RegistryEventBus` interface exported with `publish` method
+- [ ] `RegistryBot` interface exported with `api.setMyCommands` method
 - [ ] `FEATURE_PACKAGE_MAP` constant exported with all 8 feature-to-package mappings
 - [ ] `MODULE_REGISTRY_ERRORS` constant exported with 12 error codes following `module-registry.{category}.{detail}` pattern
 - [ ] No `any` types
@@ -173,14 +174,14 @@
 - [ ] Spec gate: module with matching spec dir containing `spec.md` passes
 - [ ] Spec gate: module with no matching spec dir fails
 - [ ] Spec gate: matching works with both `{name}` and `{name}-package` suffixes (SC-003)
-  - [ ] Dependency validation: available required packages passes
-  - [ ] Dependency validation: missing required package fails
-  - [ ] Dependency validation: `hasNotifications: true` checks for `notifier` package
-  - [ ] Dependency validation: `hasAI: true` checks for `ai-core` package (SC-004)
-  - [ ] Dependency validation: missing optional package logs warning but passes
-  - [ ] Dependency validation: checks `TEMPOT_{NAME}` env var for toggle guard packages
-  - [ ] Name uniqueness: two modules with different names pass
-  - [ ] Name uniqueness: duplicate name — second module fails (SC-005)
+- [ ] Dependency validation: available required packages passes
+- [ ] Dependency validation: missing required package fails
+- [ ] Dependency validation: `hasNotifications: true` checks for `notifier` package
+- [ ] Dependency validation: `hasAI: true` checks for `ai-core` package (SC-004)
+- [ ] Dependency validation: missing optional package logs warning but passes
+- [ ] Dependency validation: checks `TEMPOT_{NAME}` env var for toggle guard packages
+- [ ] Name uniqueness: two modules with different names pass
+- [ ] Name uniqueness: duplicate name — second module fails (SC-005)
 - [ ] All `Result` returns — no thrown exceptions (FR-015)
 - [ ] No `any` types (FR-016)
 - [ ] All tests pass (minimum 20: structural × 10, spec gate × 3, deps × 5, uniqueness × 2)
@@ -209,19 +210,19 @@
 - [ ] `discover()` logs summary: N found, M skipped, K failed (SC-009)
 - [ ] `validate()` returns `AsyncResult<ValidationResult>` — delegates to validator
 - [ ] `validate()` returns fatal error when any core module fails validation (FR-004, SC-002)
-  - [ ] `validate()` skips optional module failures with warning (FR-004, SC-002)
+- [ ] `validate()` skips optional module failures with warning (FR-004, SC-002)
 - [ ] `validate()` emits `module-registry.module.validated` for each valid module
-  - [ ] `validate()` emits `module-registry.module.validation_failed` for each failed module
-  - [ ] `validate()` emits `module-registry.module.skipped` for each skipped optional module
-  - [ ] `validate()` emits `module-registry.module.disabled` for inactive modules (Rule LVII, SC-008)
+- [ ] `validate()` emits `module-registry.module.validation_failed` for each failed module
+- [ ] `validate()` emits `module-registry.module.skipped` for each skipped optional module
+- [ ] `validate()` emits `module-registry.module.disabled` for inactive modules (Rule LVII, SC-008)
 - [ ] `validate()` before `discover()` returns error with code `module-registry.state.not_discovered`
 - [ ] `validate()` logs summary: N validated, M skipped, K failed (SC-009)
-- [ ] `register(bot)` returns `AsyncResult<void>` — registers commands on bot instance (SC-007)
+- [ ] `register(bot: RegistryBot)` returns `AsyncResult<void>` — registers commands via injected bot interface (SC-007)
 - [ ] `register(bot)` before `validate()` returns error with code `module-registry.state.not_validated`
 - [ ] `register(bot)` emits `module-registry.module.registered` per module
 - [ ] `getModule(name)` returns `ValidatedModule | undefined` (SC-006)
-  - [ ] `getAllModules()` returns `ValidatedModule[]` (SC-006)
-  - [ ] `getAllCommands()` returns consolidated `ModuleCommand[]` from all modules (SC-006)
+- [ ] `getAllModules()` returns `ValidatedModule[]` (SC-006)
+- [ ] `getAllCommands()` returns consolidated `ModuleCommand[]` from all modules (SC-006)
 - [ ] Event emission failures are logged but do not fail the pipeline
 - [ ] All `Result` returns — no thrown exceptions (FR-015)
 - [ ] No `any` types (FR-016)
@@ -270,7 +271,7 @@
 
 **Acceptance criteria:**
 
-- [ ] Exports all types: `UserRole`, `AiDegradationMode`, `ModuleCommand`, `ModuleFeatures`, `ModuleRequirements`, `ModuleConfig`, `DiscoveredModule`, `ValidatedModule`, `ValidationError`, `DiscoveryResult`, `ValidationResult`, `RegistryLogger`, `RegistryEventBus`
+- [ ] Exports all types: `UserRole`, `AiDegradationMode`, `ModuleCommand`, `ModuleFeatures`, `ModuleRequirements`, `ModuleConfig`, `DiscoveredModule`, `ValidatedModule`, `ValidationError`, `DiscoveryResult`, `ValidationResult`, `RegistryLogger`, `RegistryEventBus`, `RegistryBot`
 - [ ] Exports constants: `FEATURE_PACKAGE_MAP`, `MODULE_REGISTRY_ERRORS`
 - [ ] Exports services: `ModuleDiscovery`, `ModuleValidator`, `ModuleRegistry`
 - [ ] Exports schema: `moduleConfigSchema`
