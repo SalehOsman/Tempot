@@ -39,8 +39,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 15  | search-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
 | 16  | ai-core         | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete (Phase 2 merged)                 |
 | 17  | document-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
-| 18  | import-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
-| 19  | settings        | ❌   | ❌      | ❌   | ❌      | ❌    | ❌     | ❌       | ❌        | ❌      | ❌     | ❌    | Not started (identified in audit 2026-04-04) |
+| 18  | settings        | ❌   | ❌      | ❌   | ❌      | ❌    | ❌     | ❌       | ❌        | ❌      | ❌     | ❌    | Not started (identified in audit 2026-04-04) |
+| 19  | import-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                                  |
 | —   | module-registry | —    | —       | —    | —       | —     | —      | —        | —         | —       | —      | —     | Placeholder only (README, no impl)           |
 
 ✅\* = Built but skipped workflow steps (pre-methodology)
