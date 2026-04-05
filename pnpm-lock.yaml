@@ -449,6 +449,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@tempot/database':
+        specifier: workspace:*
+        version: link:../database
       typescript:
         specifier: 5.9.3
         version: 5.9.3
