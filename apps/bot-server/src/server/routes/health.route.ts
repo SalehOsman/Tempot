@@ -1,16 +1,12 @@
 import { Hono } from 'hono';
 import type { Context as HonoContext } from 'hono';
-import type { HealthCheckResponse, ModuleLogger, SubsystemCheck } from '../../bot-server.types.js';
-
-type SubsystemProbe = () => Promise<SubsystemCheck>;
-
-interface HealthProbes {
-  database: SubsystemProbe;
-  redis: SubsystemProbe;
-  ai_provider: SubsystemProbe;
-  disk: SubsystemProbe;
-  queue_manager: SubsystemProbe;
-}
+import type {
+  HealthCheckResponse,
+  HealthProbes,
+  ModuleLogger,
+  SubsystemCheck,
+  SubsystemProbe,
+} from '../../bot-server.types.js';
 
 interface HealthRouteDeps {
   probes: HealthProbes;
@@ -19,13 +15,13 @@ interface HealthRouteDeps {
   logger: ModuleLogger;
 }
 
-const PROBE_TIMEOUT_MS = 4_000;
+const PROBE_TIMEOUT_MS = 5_000;
 
 /** Subsystems whose failure means "unhealthy" (critical) */
 const CRITICAL_SUBSYSTEMS = new Set(['database', 'redis']);
 
 /** Subsystems whose failure means "degraded" (non-critical) */
-const DEGRADED_SUBSYSTEMS = new Set(['ai_provider', 'disk']);
+const DEGRADED_SUBSYSTEMS = new Set(['ai_provider', 'disk', 'queue_manager']);
 
 export function createHealthRoute(deps: HealthRouteDeps): Hono {
   const route = new Hono();

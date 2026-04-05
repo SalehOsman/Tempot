@@ -161,4 +161,16 @@ describe('createHealthRoute', () => {
     expect(response.status).toBe(503);
     expect(body.status).toBe('unhealthy');
   });
+
+  it('returns degraded when queue_manager is down', async () => {
+    deps.probes.queue_manager = vi.fn().mockResolvedValue(errorCheck('Queue offline'));
+    const app = createTestApp(deps);
+
+    const response = await app.request('/health');
+    const body = (await response.json()) as HealthCheckResponse;
+
+    expect(response.status).toBe(200);
+    expect(body.status).toBe('degraded');
+    expect(body.checks.queue_manager.status).toBe('error');
+  });
 });
