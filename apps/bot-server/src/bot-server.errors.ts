@@ -1,0 +1,16 @@
+export const BOT_SERVER_ERRORS = {
+  MISSING_BOT_TOKEN: 'bot-server.config.missing_bot_token',
+  INVALID_BOT_MODE: 'bot-server.config.invalid_bot_mode',
+  MISSING_WEBHOOK_URL: 'bot-server.config.missing_webhook_url',
+  MISSING_WEBHOOK_SECRET: 'bot-server.config.missing_webhook_secret',
+  INVALID_SUPER_ADMIN_IDS: 'bot-server.config.invalid_super_admin_ids',
+  STARTUP_FAILED: 'bot-server.startup.failed',
+  CORE_MODULE_HANDLER_FAILED: 'bot-server.module.core_handler_failed',
+  MODULE_HANDLER_FAILED: 'bot-server.module.handler_failed',
+  MODULE_SETUP_MISSING: 'bot-server.module.setup_missing',
+  WEBHOOK_UNAUTHORIZED: 'bot-server.webhook.unauthorized',
+  HEALTH_CHECK_TIMEOUT: 'bot-server.health.timeout',
+  SUPER_ADMIN_BOOTSTRAP_FAILED: 'bot-server.bootstrap.super_admin_failed',
+  CACHE_WARMING_FAILED: 'bot-server.startup.cache_warming_failed',
+  DATABASE_UNREACHABLE: 'bot-server.startup.database_unreachable',
+} as const;
