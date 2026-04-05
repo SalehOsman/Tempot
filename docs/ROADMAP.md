@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-05 (settings package implementation complete)
+> Last updated: 2026-04-05 (added Phase 4-6 scope from Architecture Spec)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -41,7 +41,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 | 17  | document-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 18  | settings        | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 19  | import-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
-| —   | module-registry | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ❌    | Implementation complete, pending merge  |
+| —   | module-registry | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 
 ✅\* = Built but skipped workflow steps (pre-methodology)
 
@@ -66,20 +66,21 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec 
 
 **Next steps (in order):**
 
-1. ~~Phase 2A: module-registry~~ — ✅ Complete (spec #019, pending merge)
+1. ~~Phase 2A: module-registry~~ — ✅ Complete (spec #019, merged to main)
 2. Phase 2B: bot-server reconstruction — Full SpecKit + Superpowers cycle (spec #020)
 3. Phase 2C: Integration testing — Validate module-registry + bot-server work together
 4. Phase 3: First test module (person-registration)
 
 ## Phase 2 — Module Infrastructure
 
-**Status:** In progress. module-registry implementation complete (pending merge).
+**Status:** In progress. module-registry merged to main.
 
 Planned scope:
 
-1. **module-registry** (spec #019) — ✅ Implementation complete, 98 tests, pending merge
+1. **module-registry** (spec #019) — ✅ Merged to main, 98 tests passing
 2. **bot-server reconstruction** (spec #020) — Replace 72-line prototype with production assembly
-3. **Integration testing** — Validate module-registry + bot-server work together end-to-end
+3. **DevOps: Local development setup** — Cloudflare Tunnel (`cloudflared`) for local webhook testing (Architecture Spec Section 25.4)
+4. **Integration testing** — Validate module-registry + bot-server work together end-to-end
 
 ## Phase 3 — Business Modules
 
@@ -88,3 +89,47 @@ Not started. Depends on Phase 2.
 ## Phase 4 — Additional Frontends
 
 Not started. Depends on Phase 3.
+
+| #   | App       | Technology | Description                                                        |
+| --- | --------- | ---------- | ------------------------------------------------------------------ |
+| 1   | dashboard | Next.js    | Comprehensive admin panel with auto-discovered module plugin pages |
+| 2   | mini-apps | Next.js    | User-facing mini applications with secure `initData` binding       |
+| 3   | docs      | Docusaurus | Engineering documentation platform                                 |
+
+> Design details: `docs/architecture/DASHBOARD-MINIAPP-DESIGN.md` (Architecture Spec Section 12)
+
+## Phase 5 — Enterprise Infrastructure
+
+Not started. Depends on Phase 3.
+
+| #   | Package        | Toggle Env       | Description                                                                  |
+| --- | -------------- | ---------------- | ---------------------------------------------------------------------------- |
+| 1   | backup-engine  | `TEMPOT_BACKUP`  | Automatic backups via queue factory + storage-engine                         |
+| 2   | privacy-module | `TEMPOT_PRIVACY` | GDPR-style consent management, data retention, right to erasure (Section 31) |
+| 3   | payment-core   | `TEMPOT_PAYMENT` | Telegram Payments + Stripe + PayPal, subscription plans (Section 32)         |
+| 4   | audit-log      | `TEMPOT_AUDIT`   | Unified audit log with 90-day lifecycle and SUPER_ADMIN alerts (Section 10)  |
+
+> `audit-log` is the single reference for all audit structure (Sections 8.5.5, 10.2, 19, 20, 31 defer to it).
+
+## Phase 6 — Observability & Developer Experience
+
+Not started. Depends on Phase 4.
+
+| #   | Item                 | Version Target | Description                                                |
+| --- | -------------------- | -------------- | ---------------------------------------------------------- |
+| 1   | OpenTelemetry        | v1.4           | Distributed tracing and metrics collection                 |
+| 2   | Prometheus + Grafana | v1.4           | Metrics storage and visualization dashboards               |
+| 3   | DX Tooling           | v1.1           | Starter Templates + VS Code Extension + Module Marketplace |
+
+## Version Mapping
+
+Maps Architecture Spec version milestones (Section 33) to project development phases.
+
+| Version | Name          | Scope                                               | Phase Mapping       | Status         |
+| ------- | ------------- | --------------------------------------------------- | ------------------- | -------------- |
+| v1.0    | MVP           | Complete infrastructure — everything in the spec    | Phase 0–3           | In development |
+| v1.1    | DX            | Starter Templates + VS Code Extension + Marketplace | Phase 6 (partial)   | Planned        |
+| v1.2    | AI            | RAG + Anomaly Detection + Smart Search              | Phase 3+ (AI layer) | Planned        |
+| v1.3    | Mini Apps     | Starter Template + Component Library                | Phase 4 (partial)   | Planned        |
+| v1.4    | Observability | OpenTelemetry + Prometheus + Grafana                | Phase 6 (partial)   | Planned        |
+| v2.0    | Enterprise    | Multi-bot + Multi-tenant + SSO + Cross-platform     | Beyond Phase 6      | Future vision  |
