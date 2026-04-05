@@ -160,4 +160,21 @@ export interface TempotEvents {
     moduleName: string;
     isCore: boolean;
   };
+  // System lifecycle events (DC-6: inline payloads, no cross-package imports)
+  'system.startup.completed': {
+    durationMs: number;
+    modulesLoaded: number;
+    mode: string;
+  };
+  'system.shutdown.initiated': {
+    reason: string;
+  };
+  'system.shutdown.completed': {
+    durationMs: number;
+  };
+  'system.error': {
+    referenceCode: string;
+    errorCode: string;
+    module?: string;
+  };
 }

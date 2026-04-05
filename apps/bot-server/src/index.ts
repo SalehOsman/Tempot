@@ -1,72 +1,166 @@
 /**
- * [PROTOTYPE - WILL NOT ENTER PRODUCTION]
+ * Tempot Bot Server — Production Entry Point
  *
- * WARNING: This file currently violates several constitutional rules:
- * - Rule XXXIX (i18n-Only): Contains hardcoded English strings.
- * - Rule XXV (Security by Default): Lacks CASL, Ratelimiter, and Zod layers.
+ * Thin shell with zero business logic. Creates real dependency instances
+ * and calls the startup orchestrator. On failure, logs and exits.
  *
- * This minimal implementation exists SOLELY to test the Telegram bot connection
- * before the core infrastructure packages are built.
- * IT MUST BE DELETED AND REWRITTEN as soon as the core packages (logger, i18n, etc.) are ready.
+ * @see specs/020-bot-server/spec.md
+ * @see docs/superpowers/specs/2026-04-05-bot-server-design.md Section 2.1
  */
 
-// To run: pnpm dev (from root)
+import { startApplication, type OrchestratorDeps } from './startup/orchestrator.js';
+import type { AsyncResult } from '@tempot/shared';
+import { loadConfig } from './startup/config.loader.js';
+import { bootstrapSuperAdmins } from './startup/bootstrap.js';
+import { warmCaches } from './startup/cache-warmer.js';
+import { loadModuleHandlers } from './startup/module-loader.js';
+import { createBot } from './bot/bot.factory.js';
 
-import { Bot } from 'grammy';
+/**
+ * Build OrchestratorDeps from real infrastructure packages.
+ *
+ * NOTE: This function will be fully wired when all @tempot/* packages
+ * are integrated. Currently uses minimal stubs for packages not yet
+ * wired (logger, database, event-bus, etc.). Each stub will be
+ * replaced with the real import as the application is assembled.
+ */
+function buildDeps(): OrchestratorDeps {
+  const logger = createStubLogger();
+  const eventBus = createStubEventBus();
 
-const token = process.env.BOT_TOKEN;
-
-if (!token) {
-  process.stderr.write('BOT_TOKEN is missing — add it to your .env file\n');
-  process.exit(1);
+  return {
+    loadConfig,
+    connectDatabase: createStubAsyncOk(),
+    bootstrapSuperAdmins: (ids: number[]) =>
+      bootstrapSuperAdmins(ids, {
+        prisma: { session: { upsert: async () => ({}) } },
+        logger,
+      }),
+    warmCaches: () =>
+      warmCaches({
+        settingsWarmer: { warmAll: async () => {} },
+        i18nWarmer: { warmAll: async () => {} },
+        logger,
+      }),
+    discover: createStubDiscovery(),
+    validate: createStubValidation(),
+    loadModuleHandlers: createModuleLoaderFn(logger, eventBus),
+    registerCommands: createStubAsyncOkWithArg(),
+    createBot: (token: string) => createBotWithStubs(token, logger, eventBus),
+    createHttpServer: () => ({ listen: () => {}, close: async () => {} }),
+    registerShutdownHooks: () => {},
+    setupSignalHandlers: () => {},
+    eventBus,
+    logger,
+  };
 }
 
-const bot = new Bot(token);
+function createModuleLoaderFn(
+  logger: OrchestratorDeps['logger'],
+  eventBus: { publish: (event: string, payload: Record<string, unknown>) => Promise<unknown> },
+) {
+  const moduleEventBus = {
+    publish: async (event: string, payload: Record<string, unknown>) => {
+      await eventBus.publish(event, payload);
+      return { isOk: () => true };
+    },
+  };
+  return (bot: unknown, validated: unknown[]) =>
+    loadModuleHandlers(bot, validated as Parameters<typeof loadModuleHandlers>[1], {
+      logger,
+      eventBus: moduleEventBus,
+      sessionProvider: { getSession: async () => ({}) },
+      i18n: { t: (key: string) => key },
+      settings: { get: async () => null },
+      importer: async (path: string) => import(path),
+    });
+}
 
-bot.command('start', (ctx) => {
-  return ctx.reply(
-    'Tempot is connected!\n\n' +
-      'Bot is running in minimal mode.\n' +
-      'No database or Redis required at this stage.',
-  );
-});
-
-bot.command('ping', (ctx) => {
-  return ctx.reply('Pong!');
-});
-
-bot.on('message', (ctx) => {
-  return ctx.reply(`Echo: ${ctx.message.text ?? '(non-text message)'}`);
-});
-
-bot.catch((err) => {
-  process.stderr.write(
-    JSON.stringify({
-      level: 'error',
-      module: 'bot-server',
-      message: 'Bot error',
-      error: err.message,
-    }) + '\n',
-  );
-});
-
-process.stderr.write('Starting Tempot bot in minimal mode...\n');
-
-bot.start({
-  onStart: (info) => {
-    process.stderr.write(`Bot connected: @${info.username}\n`);
-    process.stderr.write('Listening for messages... (Ctrl+C to stop)\n');
-  },
-});
-
-// Basic graceful shutdown (Partial compliance with Rule XVII)
-const stopRunner = () => {
-  process.stderr.write('Stopping bot gracefully...\n');
-  bot.stop().then(() => {
-    process.stderr.write('Bot stopped.\n');
-    process.exit(0);
+function createBotWithStubs(
+  token: string,
+  logger: OrchestratorDeps['logger'],
+  eventBus: OrchestratorDeps['eventBus'],
+) {
+  return createBot(token, {
+    logger,
+    eventBus,
+    t: (key: string) => key,
+    getMaintenanceStatus: async () => ({
+      enabled: false,
+      isSuperAdmin: () => false,
+    }),
+    getSessionUser: async () => null,
+    commandModuleMap: new Map(),
+    auditLog: async () => {},
   });
-};
+}
 
-process.once('SIGINT', stopRunner);
-process.once('SIGTERM', stopRunner);
+function createStubLogger() {
+  const logger: OrchestratorDeps['logger'] = {
+    info: (data: unknown) => {
+      process.stderr.write(JSON.stringify(data) + '\n');
+    },
+    warn: (data: unknown) => {
+      process.stderr.write(JSON.stringify(data) + '\n');
+    },
+    error: (data: unknown) => {
+      process.stderr.write(JSON.stringify(data) + '\n');
+    },
+    debug: () => {},
+    child: () => logger,
+  };
+  return logger;
+}
+
+function createStubEventBus() {
+  return {
+    publish: async () => ({ isOk: () => true }),
+  };
+}
+
+function createStubAsyncOk(): () => AsyncResult<void> {
+  return async () => {
+    const { ok } = await import('neverthrow');
+    return ok(undefined);
+  };
+}
+
+function createStubAsyncOkWithArg(): (_arg: unknown) => AsyncResult<void> {
+  return async () => {
+    const { ok } = await import('neverthrow');
+    return ok(undefined);
+  };
+}
+
+function createStubDiscovery() {
+  return async () => {
+    const { ok } = await import('neverthrow');
+    return ok({ discovered: [], skipped: [], failed: [] });
+  };
+}
+
+function createStubValidation() {
+  return async () => {
+    const { ok } = await import('neverthrow');
+    return ok({ validated: [], skipped: [], failed: [] });
+  };
+}
+
+async function main(): Promise<void> {
+  const deps = buildDeps();
+  const result = await startApplication(deps);
+
+  if (result.isErr()) {
+    process.stderr.write(
+      JSON.stringify({
+        level: 'fatal',
+        module: 'bot-server',
+        msg: 'startup_failed',
+        error: result.error.code,
+      }) + '\n',
+    );
+    process.exit(1);
+  }
+}
+
+void main();
