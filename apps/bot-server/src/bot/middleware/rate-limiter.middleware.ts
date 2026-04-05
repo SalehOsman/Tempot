@@ -1,44 +1,62 @@
 import type { Context, NextFunction } from 'grammy';
-import { limit } from '@grammyjs/ratelimiter';
-
-const TIME_FRAME_MS = 60_000;
-const MAX_REQUESTS = 30;
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 export interface RateLimiterDeps {
   t: (key: string) => string;
 }
 
-interface RateLimiterContext {
-  from:
-    | {
-        id: number;
-        is_bot: boolean;
-        first_name: string;
-        last_name?: string;
-        username?: string;
-        language_code?: string;
-      }
-    | undefined;
-  reply: (text: string) => Promise<unknown>;
+type UpdateScope = 'command' | 'upload' | 'message';
+
+interface ScopeConfig {
+  points: number;
+  duration: number;
 }
 
-interface NoRedis {
-  incr(key: string): Promise<number>;
-  pexpire(key: string, milliseconds: number): Promise<number>;
+const SCOPE_CONFIGS: Record<UpdateScope, ScopeConfig> = {
+  command: { points: 10, duration: 60 },
+  upload: { points: 5, duration: 600 },
+  message: { points: 30, duration: 60 },
+};
+
+function classifyUpdate(ctx: Context): UpdateScope {
+  const msg = ctx.message;
+  if (msg?.text?.startsWith('/')) return 'command';
+  if (msg?.document || msg?.photo || msg?.video) return 'upload';
+  return 'message';
 }
 
 /**
- * Creates rate limiter middleware wrapping @grammyjs/ratelimiter.
- * Sends a localized message when the user exceeds the rate limit.
+ * Creates rate limiter middleware with differentiated per-scope
+ * limits using rate-limiter-flexible directly (D19 in spec.md).
+ *
+ * - command: 10 requests per 60 seconds
+ * - upload:  5 requests per 600 seconds
+ * - message: 30 requests per 60 seconds
  */
 export function createRateLimiterMiddleware(
   deps: RateLimiterDeps,
 ): (ctx: Context, next: NextFunction) => Promise<void> {
-  return limit<RateLimiterContext, NoRedis>({
-    timeFrame: TIME_FRAME_MS,
-    limit: MAX_REQUESTS,
-    onLimitExceeded: async (ctx) => {
+  const limiters: Record<UpdateScope, RateLimiterMemory> = {
+    command: new RateLimiterMemory(SCOPE_CONFIGS.command),
+    upload: new RateLimiterMemory(SCOPE_CONFIGS.upload),
+    message: new RateLimiterMemory(SCOPE_CONFIGS.message),
+  };
+
+  return async (ctx: Context, next: NextFunction): Promise<void> => {
+    const userId = ctx.from?.id;
+    if (!userId) {
+      await next();
+      return;
+    }
+
+    const scope = classifyUpdate(ctx);
+    const limiter = limiters[scope];
+
+    try {
+      await limiter.consume(String(userId));
+      await next();
+    } catch {
       await ctx.reply(deps.t('bot-server.rate_limit_exceeded'));
-    },
-  }) as (ctx: Context, next: NextFunction) => Promise<void>;
+    }
+  };
 }
