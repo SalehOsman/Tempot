@@ -26,14 +26,14 @@
 
 **Acceptance criteria:**
 
-- [ ] All 10 points of `docs/developer/package-creation-checklist.md` pass
-- [ ] `.gitignore` includes: `dist/`, `node_modules/`, `*.tsbuildinfo`, `src/**/*.js`, `src/**/*.js.map`, `src/**/*.d.ts`, `src/**/*.d.ts.map`, `tests/**/*.js`, `tests/**/*.d.ts`
-- [ ] `tsconfig.json` extends `../../tsconfig.json`, has `"outDir": "dist"`, `"rootDir": "src"`
-- [ ] `package.json` has `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports": { ".": "./dist/index.js" }`
-- [ ] `package.json` has exact versions: `vitest: "4.1.0"`, `typescript: "5.9.3"`, `neverthrow: "8.2.0"`
-- [ ] `vitest.config.ts` exists with unit and integration test projects
-- [ ] `src/index.ts` exists as empty barrel file
-- [ ] No compiled artifacts in `src/`
+- [x] All 10 points of `docs/developer/package-creation-checklist.md` pass
+- [x] `.gitignore` includes: `dist/`, `node_modules/`, `*.tsbuildinfo`, `src/**/*.js`, `src/**/*.js.map`, `src/**/*.d.ts`, `src/**/*.d.ts.map`, `tests/**/*.js`, `tests/**/*.d.ts`
+- [x] `tsconfig.json` extends `../../tsconfig.json`, has `"outDir": "dist"`, `"rootDir": "src"`
+- [x] `package.json` has `"main": "dist/index.js"`, `"types": "dist/index.d.ts"`, `"exports": { ".": "./dist/index.js" }`
+- [x] `package.json` has exact versions: `vitest: "4.1.0"`, `typescript: "5.9.3"`, `neverthrow: "8.2.0"`
+- [x] `vitest.config.ts` exists with unit and integration test projects
+- [x] `src/index.ts` exists as empty barrel file
+- [x] No compiled artifacts in `src/`
 
 ---
 
@@ -52,19 +52,19 @@
 
 **Acceptance criteria:**
 
-- [ ] `StaticSettings` interface exported with typed fields: `botToken`, `databaseUrl`, `superAdminIds`, `defaultLanguage`, `defaultCountry`
-- [ ] `JoinMode` type exported: `'AUTO' | 'REQUEST' | 'INVITE_ONLY' | 'CLOSED'`
-- [ ] `DynamicSettingDefinitions` interface exported mapping all 6 known keys to typed values
-- [ ] `DynamicSettingKey` type exported as `keyof DynamicSettingDefinitions`
-- [ ] `DynamicSettingRecord` interface exported matching Prisma `Setting` model shape
-- [ ] `SettingChangedPayload` interface exported: `{ key, oldValue, newValue, changedBy }`
-- [ ] `MaintenanceModePayload` interface exported: `{ enabled, changedBy }`
-- [ ] `MaintenanceStatus` interface exported: `{ enabled, isSuperAdmin }`
-- [ ] `DYNAMIC_SETTING_DEFAULTS` constant exported with all 6 keys and default values
-- [ ] `SETTINGS_ERRORS` constant exported with hierarchical error codes (`settings.static.*`, `settings.dynamic.*`, `settings.cache.*`, `settings.repository.*`)
-- [ ] All settings that could change are externalized — no hardcoded user-facing text or business logic values (FR-012)
-- [ ] No `any` types
-- [ ] All tests pass
+- [x] `StaticSettings` interface exported with typed fields: `botToken`, `databaseUrl`, `superAdminIds`, `defaultLanguage`, `defaultCountry`
+- [x] `JoinMode` type exported: `'AUTO' | 'REQUEST' | 'INVITE_ONLY' | 'CLOSED'`
+- [x] `DynamicSettingDefinitions` interface exported mapping all 6 known keys to typed values
+- [x] `DynamicSettingKey` type exported as `keyof DynamicSettingDefinitions`
+- [x] `DynamicSettingRecord` interface exported matching Prisma `Setting` model shape
+- [x] `SettingChangedPayload` interface exported: `{ key, oldValue, newValue, changedBy }`
+- [x] `MaintenanceModePayload` interface exported: `{ enabled, changedBy }`
+- [x] `MaintenanceStatus` interface exported: `{ enabled, isSuperAdmin }`
+- [x] `DYNAMIC_SETTING_DEFAULTS` constant exported with all 6 keys and default values
+- [x] `SETTINGS_ERRORS` constant exported with hierarchical error codes (`settings.static.*`, `settings.dynamic.*`, `settings.cache.*`, `settings.repository.*`)
+- [x] All settings that could change are externalized — no hardcoded user-facing text or business logic values (FR-012)
+- [x] No `any` types
+- [x] All tests pass
 
 ---
 
@@ -83,17 +83,17 @@
 
 **Acceptance criteria:**
 
-- [ ] `StaticSettingsLoader.load()` returns `Result<StaticSettings, AppError>`
-- [ ] Validates all 5 required env vars: `BOT_TOKEN`, `DATABASE_URL`, `SUPER_ADMIN_IDS`, `DEFAULT_LANGUAGE`, `DEFAULT_COUNTRY`
-- [ ] Returns `err` with code `settings.static.validation_failed` when any required variable is missing
-- [ ] Parses `SUPER_ADMIN_IDS` from comma-separated string to `number[]`
-- [ ] Empty `SUPER_ADMIN_IDS` (`""`) yields empty array `[]`
-- [ ] Non-numeric `SUPER_ADMIN_IDS` returns validation error
-- [ ] Uses zod for schema validation with transform support
-- [ ] Bot fails fast at startup when required .env variables are missing (SC-009)
-- [ ] Completes in < 100ms (NFR-002, SC-002) — benchmark test required
-- [ ] No `any` types
-- [ ] All tests pass (minimum 4: happy path, missing var, empty admin IDs, invalid admin IDs)
+- [x] `StaticSettingsLoader.load()` returns `Result<StaticSettings, AppError>`
+- [x] Validates all 5 required env vars: `BOT_TOKEN`, `DATABASE_URL`, `SUPER_ADMIN_IDS`, `DEFAULT_LANGUAGE`, `DEFAULT_COUNTRY`
+- [x] Returns `err` with code `settings.static.validation_failed` when any required variable is missing
+- [x] Parses `SUPER_ADMIN_IDS` from comma-separated string to `number[]`
+- [x] Empty `SUPER_ADMIN_IDS` (`""`) yields empty array `[]`
+- [x] Non-numeric `SUPER_ADMIN_IDS` returns validation error
+- [x] Uses zod for schema validation with transform support
+- [x] Bot fails fast at startup when required .env variables are missing (SC-009)
+- [x] Completes in < 100ms (NFR-002, SC-002) — benchmark test required
+- [x] No `any` types
+- [x] All tests pass (minimum 4: happy path, missing var, empty admin IDs, invalid admin IDs)
 
 ---
 
@@ -112,16 +112,16 @@
 
 **Acceptance criteria:**
 
-- [ ] `SettingsRepositoryPort` interface exported with methods: `findByKey`, `findAll`, `upsert`, `deleteByKey`
-- [ ] `SettingsRepository` class implements `SettingsRepositoryPort`
-- [ ] Prisma client injected via constructor (Rule XIV — no direct Prisma calls in services)
-- [ ] `findByKey(key)` returns `AsyncResult<DynamicSettingRecord | null>`
-- [ ] `findAll()` returns `AsyncResult<DynamicSettingRecord[]>`
-- [ ] `upsert(key, value, updatedBy)` returns `AsyncResult<DynamicSettingRecord>`
-- [ ] `deleteByKey(key)` returns `AsyncResult<DynamicSettingRecord>`
-- [ ] All methods wrap Prisma errors in `AppError` with code `settings.repository.error`
-- [ ] No `any` types (mock Prisma client typed appropriately in tests)
-- [ ] All tests pass (minimum 4: find existing, find missing, upsert, delete)
+- [x] `SettingsRepositoryPort` interface exported with methods: `findByKey`, `findAll`, `upsert`, `deleteByKey`
+- [x] `SettingsRepository` class implements `SettingsRepositoryPort`
+- [x] Prisma client injected via constructor (Rule XIV — no direct Prisma calls in services)
+- [x] `findByKey(key)` returns `AsyncResult<DynamicSettingRecord | null>`
+- [x] `findAll()` returns `AsyncResult<DynamicSettingRecord[]>`
+- [x] `upsert(key, value, updatedBy)` returns `AsyncResult<DynamicSettingRecord>`
+- [x] `deleteByKey(key)` returns `AsyncResult<DynamicSettingRecord>`
+- [x] All methods wrap Prisma errors in `AppError` with code `settings.repository.error`
+- [x] No `any` types (mock Prisma client typed appropriately in tests)
+- [x] All tests pass (minimum 4: find existing, find missing, upsert, delete)
 
 ---
 
@@ -140,25 +140,25 @@
 
 **Acceptance criteria:**
 
-- [ ] `get<K extends DynamicSettingKey>(key: K)` returns `AsyncResult<DynamicSettingDefinitions[K]>`
-- [ ] `get()` checks cache first (`settings:{key}`), falls back to database on miss
-- [ ] `get()` returns `DYNAMIC_SETTING_DEFAULTS[key]` when no DB row exists (FR-009)
-- [ ] All dynamic settings return correct defaults on first deployment with empty database (SC-004)
-- [ ] `get()` returns `DYNAMIC_SETTING_DEFAULTS[key]` and logs warning when DB is unavailable (NFR-004)
-- [ ] System degrades gracefully when database is unavailable — returns defaults instead of errors (SC-010)
-- [ ] `get()` for unknown key returns `err` with code `settings.dynamic.unknown_key`
-- [ ] `set<K>(key, value, updatedBy?)` upserts DB → invalidates cache → emits `settings.setting.updated`
-- [ ] `set('maintenance_mode', ...)` additionally emits `settings.maintenance.toggled`
-- [ ] `delete(key)` deletes DB → invalidates cache → emits `settings.setting.deleted`
-- [ ] Setting change events are emitted for all create/update/delete operations (SC-006)
-- [ ] Cache key pattern: `settings:{key}`, TTL: 300,000ms (5 minutes)
-- [ ] Cached reads complete in < 2ms (NFR-001, SC-001) — benchmark test required
-- [ ] Cache invalidation is immediate — no stale reads after writes (NFR-003, SC-003)
-- [ ] Event payloads include `key`, `oldValue`, `newValue`, `changedBy`
-- [ ] Event emission failures are logged but do not fail the write operation
-- [ ] All methods return `Result<T, AppError>` — no thrown exceptions (FR-010)
-- [ ] No `any` types (FR-011)
-- [ ] All tests pass (minimum 7: cache hit, cache miss, default fallback, DB unavailable, set+invalidate, delete+invalidate, maintenance toggle event)
+- [x] `get<K extends DynamicSettingKey>(key: K)` returns `AsyncResult<DynamicSettingDefinitions[K]>`
+- [x] `get()` checks cache first (`settings:{key}`), falls back to database on miss
+- [x] `get()` returns `DYNAMIC_SETTING_DEFAULTS[key]` when no DB row exists (FR-009)
+- [x] All dynamic settings return correct defaults on first deployment with empty database (SC-004)
+- [x] `get()` returns `DYNAMIC_SETTING_DEFAULTS[key]` and logs warning when DB is unavailable (NFR-004)
+- [x] System degrades gracefully when database is unavailable — returns defaults instead of errors (SC-010)
+- [x] `get()` for unknown key returns `err` with code `settings.dynamic.unknown_key`
+- [x] `set<K>(key, value, updatedBy?)` upserts DB → invalidates cache → emits `settings.setting.updated`
+- [x] `set('maintenance_mode', ...)` additionally emits `settings.maintenance.toggled`
+- [x] `delete(key)` deletes DB → invalidates cache → emits `settings.setting.deleted`
+- [x] Setting change events are emitted for all create/update/delete operations (SC-006)
+- [x] Cache key pattern: `settings:{key}`, TTL: 300,000ms (5 minutes)
+- [x] Cached reads complete in < 2ms (NFR-001, SC-001) — benchmark test required
+- [x] Cache invalidation is immediate — no stale reads after writes (NFR-003, SC-003)
+- [x] Event payloads include `key`, `oldValue`, `newValue`, `changedBy`
+- [x] Event emission failures are logged but do not fail the write operation
+- [x] All methods return `Result<T, AppError>` — no thrown exceptions (FR-010)
+- [x] No `any` types (FR-011)
+- [x] All tests pass (minimum 7: cache hit, cache miss, default fallback, DB unavailable, set+invalidate, delete+invalidate, maintenance toggle event)
 
 ---
 
@@ -177,15 +177,15 @@
 
 **Acceptance criteria:**
 
-- [ ] `MaintenanceService` constructor takes `DynamicSettingsService` and `StaticSettings`
-- [ ] `getStatus()` returns `AsyncResult<MaintenanceStatus>`
-- [ ] `MaintenanceStatus.enabled` reflects current `maintenance_mode` dynamic setting
-- [ ] `MaintenanceStatus.isSuperAdmin(userId)` checks against `StaticSettings.superAdminIds`
-- [ ] When `maintenance_mode` read fails, defaults to `enabled: false` (safe fallback)
-- [ ] SUPER_ADMIN can always bypass (returns `true` for IDs in the list) (SC-005)
-- [ ] Regular user returns `false` for `isSuperAdmin` (SC-005)
-- [ ] No `any` types
-- [ ] All tests pass (minimum 4: disabled status, enabled status, super admin check true, super admin check false)
+- [x] `MaintenanceService` constructor takes `DynamicSettingsService` and `StaticSettings`
+- [x] `getStatus()` returns `AsyncResult<MaintenanceStatus>`
+- [x] `MaintenanceStatus.enabled` reflects current `maintenance_mode` dynamic setting
+- [x] `MaintenanceStatus.isSuperAdmin(userId)` checks against `StaticSettings.superAdminIds`
+- [x] When `maintenance_mode` read fails, defaults to `enabled: false` (safe fallback)
+- [x] SUPER_ADMIN can always bypass (returns `true` for IDs in the list) (SC-005)
+- [x] Regular user returns `false` for `isSuperAdmin` (SC-005)
+- [x] No `any` types
+- [x] All tests pass (minimum 4: disabled status, enabled status, super admin check true, super admin check false)
 
 ---
 
@@ -204,15 +204,15 @@
 
 **Acceptance criteria:**
 
-- [ ] `SettingsService` composes `StaticSettingsLoader`, `DynamicSettingsService`, `MaintenanceService`
-- [ ] `getStatic()` returns `Result<StaticSettings, AppError>` (sync — returns cached startup result)
-- [ ] `getDynamic<K>(key)` delegates to `DynamicSettingsService.get(key)`
-- [ ] `setDynamic<K>(key, value, updatedBy?)` delegates to `DynamicSettingsService.set(key, value, updatedBy)`
-- [ ] `deleteDynamic(key)` delegates to `DynamicSettingsService.delete(key)`
-- [ ] `getMaintenanceStatus()` delegates to `MaintenanceService.getStatus()`
-- [ ] All methods return `Result<T, AppError>` — no thrown exceptions (FR-010)
-- [ ] No `any` types (FR-011)
-- [ ] All tests pass (minimum 5: getStatic, getDynamic, setDynamic, deleteDynamic, getMaintenanceStatus)
+- [x] `SettingsService` composes `StaticSettingsLoader`, `DynamicSettingsService`, `MaintenanceService`
+- [x] `getStatic()` returns `Result<StaticSettings, AppError>` (sync — returns cached startup result)
+- [x] `getDynamic<K>(key)` delegates to `DynamicSettingsService.get(key)`
+- [x] `setDynamic<K>(key, value, updatedBy?)` delegates to `DynamicSettingsService.set(key, value, updatedBy)`
+- [x] `deleteDynamic(key)` delegates to `DynamicSettingsService.delete(key)`
+- [x] `getMaintenanceStatus()` delegates to `MaintenanceService.getStatus()`
+- [x] All methods return `Result<T, AppError>` — no thrown exceptions (FR-010)
+- [x] No `any` types (FR-011)
+- [x] All tests pass (minimum 5: getStatic, getDynamic, setDynamic, deleteDynamic, getMaintenanceStatus)
 
 ---
 
@@ -231,12 +231,12 @@
 
 **Acceptance criteria:**
 
-- [ ] `Setting` model added with `key` as `@id`, `value` as `String`, `description` as `String?`
-- [ ] Audit fields: `createdAt`, `updatedAt`, `createdBy`, `updatedBy` (Rule XXVII)
-- [ ] No soft-delete fields (hard delete — see research.md Decision 6)
-- [ ] Table name `settings` via `@@map("settings")`
-- [ ] `npx prisma validate` passes
-- [ ] `npx prisma generate` succeeds
+- [x] `Setting` model added with `key` as `@id`, `value` as `String`, `description` as `String?`
+- [x] Audit fields: `createdAt`, `updatedAt`, `createdBy`, `updatedBy` (Rule XXVII)
+- [x] No soft-delete fields (hard delete — see research.md Decision 6)
+- [x] Table name `settings` via `@@map("settings")`
+- [x] `npx prisma validate` passes
+- [x] `npx prisma generate` succeeds
 
 ---
 
@@ -255,12 +255,12 @@
 
 **Acceptance criteria:**
 
-- [ ] `settings.setting.updated` event type registered with `SettingChangedPayload`
-- [ ] `settings.setting.created` event type registered with `SettingChangedPayload`
-- [ ] `settings.setting.deleted` event type registered with `SettingChangedPayload`
-- [ ] `settings.maintenance.toggled` event type registered with `MaintenanceModePayload`
-- [ ] All event names follow `{module}.{entity}.{action}` convention
-- [ ] Build passes with new event types
+- [x] `settings.setting.updated` event type registered with `SettingChangedPayload`
+- [x] `settings.setting.created` event type registered with `SettingChangedPayload`
+- [x] `settings.setting.deleted` event type registered with `SettingChangedPayload`
+- [x] `settings.maintenance.toggled` event type registered with `MaintenanceModePayload`
+- [x] All event names follow `{module}.{entity}.{action}` convention
+- [x] Build passes with new event types
 
 ---
 
@@ -279,14 +279,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Exports all types: `StaticSettings`, `JoinMode`, `DynamicSettingKey`, `DynamicSettingDefinitions`, `DynamicSettingRecord`, `SettingChangedPayload`, `MaintenanceModePayload`, `MaintenanceStatus`
-- [ ] Exports constants: `DYNAMIC_SETTING_DEFAULTS`, `SETTINGS_ERRORS`
-- [ ] Exports services: `StaticSettingsLoader`, `SettingsRepository`, `DynamicSettingsService`, `MaintenanceService`, `SettingsService`
-- [ ] Exports port interface: `SettingsRepositoryPort`
-- [ ] All existing tests still pass after barrel update
-- [ ] 10-point package-creation-checklist passes final verification
-- [ ] No `any` types in any file across the package (SC-008)
-- [ ] All public methods return `Result<T, AppError>` — zero thrown exceptions (SC-007)
+- [x] Exports all types: `StaticSettings`, `JoinMode`, `DynamicSettingKey`, `DynamicSettingDefinitions`, `DynamicSettingRecord`, `SettingChangedPayload`, `MaintenanceModePayload`, `MaintenanceStatus`
+- [x] Exports constants: `DYNAMIC_SETTING_DEFAULTS`, `SETTINGS_ERRORS`
+- [x] Exports services: `StaticSettingsLoader`, `SettingsRepository`, `DynamicSettingsService`, `MaintenanceService`, `SettingsService`
+- [x] Exports port interface: `SettingsRepositoryPort`
+- [x] All existing tests still pass after barrel update
+- [x] 10-point package-creation-checklist passes final verification
+- [x] No `any` types in any file across the package (SC-008)
+- [x] All public methods return `Result<T, AppError>` — zero thrown exceptions (SC-007)
 
 ---
 
@@ -305,13 +305,13 @@
 
 **Acceptance criteria:**
 
-- [ ] Full CRUD flow: create → read → update → read → delete → read (returns default)
-- [ ] Cache behavior: read after write returns fresh value (cache invalidated)
-- [ ] Default values: empty database returns all defaults from `DYNAMIC_SETTING_DEFAULTS`
-- [ ] Maintenance mode: enable → check status → disable → check status
-- [ ] Event emission: verify events emitted for create, update, delete operations
-- [ ] Uses Testcontainers 8.0.1 for PostgreSQL
-- [ ] All tests pass
+- [x] Full CRUD flow: create → read → update → read → delete → read (returns default)
+- [x] Cache behavior: read after write returns fresh value (cache invalidated)
+- [x] Default values: empty database returns all defaults from `DYNAMIC_SETTING_DEFAULTS`
+- [x] Maintenance mode: enable → check status → disable → check status
+- [x] Event emission: verify events emitted for create, update, delete operations
+- [x] Uses Testcontainers 8.0.1 for PostgreSQL
+- [x] All tests pass
 
 ---
 
