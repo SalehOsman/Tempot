@@ -198,13 +198,13 @@ interface FreshnessReport {
 **Files:** Create:
 
 - `packages/ai-core/src/chunking/markdown-chunker.ts`
-- `packages/ai-core/tests/unit/chunking/markdown-chunker.test.ts`
+- `packages/ai-core/tests/unit/markdown-chunker.test.ts`
 
 **Files:** Update:
 
 - `packages/ai-core/src/chunking/index.ts` (export new chunker)
 
-**Test file:** `packages/ai-core/tests/unit/chunking/markdown-chunker.test.ts`
+**Test file:** `packages/ai-core/tests/unit/markdown-chunker.test.ts`
 
 **Steps:**
 
