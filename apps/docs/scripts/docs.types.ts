@@ -1,3 +1,5 @@
+import type { ContentIngestionService } from '@tempot/ai-core';
+
 /** Frontmatter schema for all documentation pages */
 export interface DocFrontmatter {
   title: string;
@@ -39,4 +41,30 @@ export interface FreshnessReport {
   sourceMtime: string;
   docMtime: string;
   isStale: boolean;
+}
+
+/** CLI arguments for the ingestion script */
+export interface IngestCliArgs {
+  full: boolean;
+  dryRun: boolean;
+}
+
+/** Dependencies injected into ingestFile for testability */
+export interface IngestFileDeps {
+  ingestionService: ContentIngestionService;
+}
+
+/** Input for building chunk metadata */
+export interface ChunkMetadataInput {
+  filePath: string;
+  section: string;
+  packageName: string | undefined;
+  fileContent: string;
+}
+
+/** Result from processFiles helper */
+export interface ProcessFilesResult {
+  readonly processed: number;
+  readonly skipped: number;
+  readonly hashes: Record<string, string>;
 }
