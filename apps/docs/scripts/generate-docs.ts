@@ -3,36 +3,16 @@ import { existsSync } from 'node:fs';
 import { err, ok, type Result } from 'neverthrow';
 import { validateFrontmatter, DocValidationError } from './validate-frontmatter.js';
 import { parseFrontmatter } from './parse-frontmatter.js';
-import type { DocFrontmatter, DocGenerationConfig } from './docs.types.js';
+import type {
+  DocGenerationConfig,
+  PackageInfo,
+  DocOutput,
+  GenerateCliArgs,
+  PromptBuildContext,
+} from './docs.types.js';
 
-/** Discovered package metadata for documentation generation */
-export interface PackageInfo {
-  name: string;
-  sourceDir: string;
-  specDir: string;
-  hasSpecArtifacts: boolean;
-}
-
-/** Output of processing an AI response */
-export interface DocOutput {
-  frontmatter: DocFrontmatter;
-  content: string;
-}
-
-/** CLI arguments for the generation script */
-export interface CliArgs {
-  package?: string;
-  locale: 'ar' | 'en';
-}
-
-/** Context passed to the prompt builder */
-interface PromptBuildContext {
-  name: string;
-  sourceDir: string;
-  specDir: string;
-  hasSpecArtifacts: boolean;
-  locale: 'ar' | 'en';
-}
+export type { PackageInfo, DocOutput, PromptBuildContext } from './docs.types.js';
+export type CliArgs = GenerateCliArgs;
 
 /** Discover all packages in the monorepo */
 export async function discoverPackages(): Promise<PackageInfo[]> {
@@ -65,20 +45,27 @@ function findSpecDir(packageName: string): string {
 /** Read SpecKit artifacts and return prompt sections */
 async function readSpecArtifacts(specDir: string): Promise<string[]> {
   const sections: string[] = ['## SpecKit Artifacts', ''];
-  const specContent = await readFile(`${specDir}/spec.md`, 'utf-8');
-  const planContent = await readFile(`${specDir}/plan.md`, 'utf-8');
-  const dataModelContent = await readFile(`${specDir}/data-model.md`, 'utf-8');
-  sections.push(
-    '### Spec',
-    specContent,
-    '',
-    '### Plan',
-    planContent,
-    '',
-    '### Data Model',
-    dataModelContent,
-    '',
-  );
+  const artifacts = ['spec.md', 'plan.md', 'data-model.md'] as const;
+  for (const artifact of artifacts) {
+    const filePath = `${specDir}/${artifact}`;
+    if (!existsSync(filePath)) {
+      process.stderr.write(
+        JSON.stringify({ level: 'warn', msg: `Missing artifact: ${filePath}` }) + '\n',
+      );
+      continue;
+    }
+    try {
+      const content = await readFile(filePath, 'utf-8');
+      const label = artifact.replace('.md', '').replace(/-/g, ' ');
+      const title = label.replace(/\b\w/g, (c) => c.toUpperCase());
+      sections.push(`### ${title}`, content, '');
+    } catch (error: unknown) {
+      process.stderr.write(
+        JSON.stringify({ level: 'warn', msg: `Failed to read ${filePath}: ${String(error)}` }) +
+          '\n',
+      );
+    }
+  }
   return sections;
 }
 

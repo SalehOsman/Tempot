@@ -54,12 +54,10 @@ describe('generateDocs', () => {
 
   describe('buildDocPrompt', () => {
     it('constructs prompt including SpecKit artifacts for packages with specs', async () => {
-      vi.mocked(readFile).mockImplementation(async (path: unknown) => {
+      vi.mocked(existsSync).mockImplementation((path: unknown) => {
         const p = String(path);
-        if (p.includes('spec.md')) return '# Spec\nShared utilities spec';
-        if (p.includes('plan.md')) return '# Plan\nShared plan content';
-        if (p.includes('data-model.md')) return '# Data Model\nShared data model';
-        return '';
+        if (p.includes('specs/021-shared')) return true;
+        return true;
       });
 
       vi.mocked(readdir).mockResolvedValueOnce([

@@ -68,3 +68,32 @@ export interface ProcessFilesResult {
   readonly skipped: number;
   readonly hashes: Record<string, string>;
 }
+
+/** Discovered package metadata for documentation generation */
+export interface PackageInfo {
+  name: string;
+  sourceDir: string;
+  specDir: string;
+  hasSpecArtifacts: boolean;
+}
+
+/** Output of processing an AI response */
+export interface DocOutput {
+  frontmatter: DocFrontmatter;
+  content: string;
+}
+
+/** CLI arguments for the generation script */
+export interface GenerateCliArgs {
+  package?: string;
+  locale: 'ar' | 'en';
+}
+
+/** Context passed to the prompt builder */
+export interface PromptBuildContext {
+  name: string;
+  sourceDir: string;
+  specDir: string;
+  hasSpecArtifacts: boolean;
+  locale: 'ar' | 'en';
+}

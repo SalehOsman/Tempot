@@ -49,9 +49,33 @@ describe('Integration & Final Validation (Task 10)', () => {
   });
 
   describe('SC-002: API reference generation', () => {
-    it('dist/ contains reference/ directory with package docs', () => {
+    const referencePackages = [
+      'ai-core',
+      'auth-core',
+      'database',
+      'event-bus',
+      'i18n-core',
+      'input-engine',
+      'logger',
+      'module-registry',
+      'regional-engine',
+      'sentry',
+      'session-manager',
+      'settings',
+      'shared',
+      'storage-engine',
+      'ux-helpers',
+    ];
+
+    it('dist/ contains reference/ directory', () => {
       expect(existsSync(join(DIST_DIR, 'reference'))).toBe(true);
     });
+
+    for (const pkg of referencePackages) {
+      it(`reference/${pkg}/ exists in dist/`, () => {
+        expect(existsSync(join(DIST_DIR, 'reference', pkg))).toBe(true);
+      });
+    }
   });
 
   describe('SC-004: Diataxis content structure', () => {
