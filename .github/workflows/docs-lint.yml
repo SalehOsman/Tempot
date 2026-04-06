@@ -1,0 +1,24 @@
+name: Documentation Lint
+
+on:
+  pull_request:
+    paths:
+      - 'docs/product/**/*.md'
+      - 'apps/docs/styles/**'
+      - 'apps/docs/.vale.ini'
+
+jobs:
+  vale:
+    name: Vale Prose Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vale Linter
+        uses: errata-ai/vale-action@v2
+        with:
+          files: docs/product/
+          config: apps/docs/.vale.ini
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

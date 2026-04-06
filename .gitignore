@@ -192,6 +192,7 @@ temp/
 *.generated.ts
 api-docs/
 typedoc-output/
+docs/product/reference/
 
 # -------------------------------------------------------------------
 # Certificates & Keys (never commit)

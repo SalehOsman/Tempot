@@ -1,0 +1,29 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: warning
+ignorecase: true
+swap:
+  Tempot framework: 'the Tempot framework'
+  grammy: 'grammY'
+  Grammy: 'grammY'
+  nodejs: 'Node.js'
+  node.js: 'Node.js'
+  node js: 'Node.js'
+  postgresql: 'PostgreSQL'
+  postgres: 'PostgreSQL'
+  typescript: 'TypeScript'
+  javascript: 'JavaScript'
+  neverthrow: 'neverthrow'
+  bullmq: 'BullMQ'
+  bullMQ: 'BullMQ'
+  vercel ai sdk: 'Vercel AI SDK'
+  ai sdk: 'AI SDK'
+  hono: 'Hono'
+  prisma: 'Prisma'
+  drizzle: 'Drizzle'
+  vitest: 'Vitest'
+  pnpm: 'pnpm'
+  i18next: 'i18next'
+  starlight: 'Starlight'
+  pgvector: 'pgvector'
+  casl: 'CASL'

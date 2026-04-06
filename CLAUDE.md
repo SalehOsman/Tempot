@@ -20,7 +20,7 @@ Read `.specify/memory/constitution.md` before any decision. It contains 88 rules
 
 ## Architecture Spec
 
-Full specification: `docs/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
+Full specification: `docs/archive/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
 
 ## Development Methodology (Rules LXXIX–LXXXIX)
 
@@ -120,7 +120,7 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 8. **No Zombie Code** — delete unused code, don't comment it
 9. **Clean Diff** — only touch files related to current task
 10. **No `any` types** — no eslint-disable, no @ts-ignore
-11. **Package Checklist** — every new package passes `docs/developer/package-creation-checklist.md` before any code
+11. **Package Checklist** — every new package passes `docs/archive/developer/package-creation-checklist.md` before any code
 12. **No console.\*** — use `process.stderr.write(JSON.stringify(...))` if logger unavailable; `outDir` must always be `dist/`
 
 ## Git Workflow
@@ -130,19 +130,20 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. Phase 1 in progress — 13 packages on main.
+Phase 0 complete. Phase 1 in progress — 13 packages + 1 app on main.
 
 **Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core, input-engine, settings, module-registry (11 packages)
 **Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
 **Infrastructure (built before formal methodology):** sentry (1 package)
+**Applications:** bot-server, docs (2 apps — apps/ directory)
 **Remaining Phase 1:** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — specs incomplete, need tasks.md + data-model.md + research.md)
 
 ## Key Documents
 
 - Constitution: `.specify/memory/constitution.md`
-- Architecture Spec: `docs/tempot_v11_final.md`
-- Workflow Guide: `docs/developer/workflow-guide.md`
-- Roadmap: `docs/ROADMAP.md`
+- Architecture Spec: `docs/archive/tempot_v11_final.md`
+- Workflow Guide: `docs/archive/developer/workflow-guide.md`
+- Roadmap: `docs/archive/ROADMAP.md`
 
 ## Toolchain References
 

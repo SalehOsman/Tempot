@@ -58,7 +58,7 @@
 
 ### 10. Content Locale Organization
 
-- **Decision:** Organize content files as `docs/product/{locale}/...` using Starlight's built-in i18n routing, with `contentDir` in `astro.config.mjs` pointing to `../../docs/product/`.
+- **Decision:** Organize content files as `docs/product/{locale}/...` using Starlight's built-in i18n routing. Starlight 0.34.x has no `contentDir` option — a directory junction maps `apps/docs/src/content/docs/` → `docs/product/` (created by `scripts/setup-content-link.cjs` via `prepare` hook).
 - **Rationale:** Starlight's i18n system handles locale routing, fallback, and sidebar generation natively. Arabic (`ar`) is the default locale; English (`en`) is the secondary. Content lives at project root for better discoverability — `apps/docs/` is a build tool only.
 - **Alternatives considered:** Single locale with translation keys (rejected — Starlight doesn't work this way). Separate Starlight instances per locale (rejected — duplication). Content inside `apps/docs/src/content/docs/` (rejected — buries content deep in build app).
 

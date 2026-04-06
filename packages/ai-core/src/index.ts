@@ -126,3 +126,7 @@ export {
   normalizeArray,
   preprocessors,
 } from './tools/input-normalization.js';
+
+// Chunking — Markdown-aware content splitting
+export { chunkMarkdown } from './chunking/index.js';
+export type { MarkdownChunkOptions } from './chunking/index.js';

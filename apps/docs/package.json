@@ -1,0 +1,40 @@
+{
+  "name": "docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "node scripts/setup-content-link.cjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docs:generate": "tsx scripts/generate-docs.ts",
+    "docs:ingest": "tsx scripts/ingest-docs.ts",
+    "docs:freshness": "tsx scripts/check-freshness.ts",
+    "docs:validate": "tsx scripts/validate-frontmatter.ts"
+  },
+  "dependencies": {
+    "astro": "^5.7.10",
+    "@astrojs/starlight": "^0.34.3",
+    "@tempot/ai-core": "workspace:*",
+    "@tempot/database": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "starlight-typedoc": "^0.21.5",
+    "typedoc": "^0.28.4",
+    "typedoc-plugin-markdown": "^4.6.3"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.0.0",
+    "@types/node": "^20.0.0",
+    "cheerio": "^1.0.0",
+    "drizzle-kit": "^0.30.0",
+    "drizzle-orm": "^0.45.0",
+    "neverthrow": "8.2.0",
+    "pg": "^8.0.0",
+    "tsx": "^4.0.0",
+    "vitest": "4.1.0",
+    "zod": "^3.24.0"
+  }
+}

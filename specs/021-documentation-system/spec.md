@@ -160,7 +160,7 @@ Enhancement to existing character-based chunking in `@tempot/ai-core`. New chunk
 
 ### D7. Arabic Primary Language with English Secondary
 
-Arabic is the primary language (matching Tempot's target audience). English is secondary. Starlight's built-in i18n handles locale routing (`/ar/...` and `/en/...`). Content files are organized as `docs/product/{locale}/...` at the project root. Starlight reads from this directory via `contentDir` configuration.
+Arabic is the primary language (matching Tempot's target audience). English is secondary. Starlight's built-in i18n handles locale routing (`/ar/...` and `/en/...`). Content files are organized as `docs/product/{locale}/...` at the project root. Starlight 0.34.x requires content at `src/content/docs/` — a directory junction (Windows) or symlink (Linux/Mac) maps `apps/docs/src/content/docs/` → `docs/product/`. The junction is created automatically by `scripts/setup-content-link.cjs` (runs via `prepare` hook).
 
 ### D8. Vale for Prose Quality Enforcement
 

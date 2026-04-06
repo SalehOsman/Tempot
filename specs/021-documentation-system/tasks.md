@@ -43,7 +43,7 @@
 - [ ] `docs/development/` directory created with subdirectories: `adr/`, `methodology/`, `devlog/`, `retrospectives/` (FR-014)
 - [ ] `package.json` includes dependencies: astro, @astrojs/starlight, starlight-typedoc, typedoc, typedoc-plugin-markdown
 - [ ] `package.json` includes scripts: `dev`, `build`, `preview`
-- [ ] `astro.config.mjs` configures Starlight with `contentDir: '../../docs/product/'` pointing to project root
+- [ ] Content is served via directory junction from `apps/docs/src/content/docs/` → `docs/product/` (created by `scripts/setup-content-link.cjs` via `prepare` hook)
 - [ ] `astro.config.mjs` configures Starlight with Arabic (`ar`) as default locale (RTL) and English (`en`) as secondary
 - [ ] Sidebar configuration includes Diataxis sections: tutorials, guides, reference, concepts, user-guide (FR-004)
 - [ ] Landing pages exist for both locales at `docs/product/{ar,en}/index.md` with valid DocFrontmatter (FR-003)
@@ -148,10 +148,10 @@
 **Files to create:**
 
 - `packages/ai-core/src/chunking/markdown-chunker.ts`
-- `packages/ai-core/tests/unit/chunking/markdown-chunker.test.ts`
+- `packages/ai-core/tests/unit/markdown-chunker.test.ts`
   **Files to update:**
 - `packages/ai-core/src/chunking/index.ts`
-  **Test file:** `packages/ai-core/tests/unit/chunking/markdown-chunker.test.ts`
+  **Test file:** `packages/ai-core/tests/unit/markdown-chunker.test.ts`
 
 **Acceptance criteria:**
 
