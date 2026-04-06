@@ -204,4 +204,103 @@ describe('Integration & Final Validation (Task 10)', () => {
       });
     }
   });
+
+  describe('SC-005: AI generation with SpecKit artifacts', () => {
+    it('buildDocPrompt includes SpecKit sections for packages with specs', async () => {
+      const { buildDocPrompt } = await import('../../scripts/generate-docs.js');
+      const prompt = await buildDocPrompt({
+        name: 'shared',
+        sourceDir: join(ROOT, 'packages', 'shared', 'src'),
+        specDir: join(ROOT, 'specs', '021-documentation-system'),
+        hasSpecArtifacts: true,
+        locale: 'en',
+      });
+      expect(prompt).toContain('SpecKit Artifacts');
+      expect(prompt).toContain('shared');
+      expect(prompt).toContain('Instructions');
+    });
+
+    it('processAIResponse validates frontmatter from AI output', async () => {
+      const { processAIResponse } = await import('../../scripts/generate-docs.js');
+      const validResponse = [
+        '---',
+        'title: Shared Package',
+        'description: Shared utilities for Tempot',
+        'tags: [shared, utilities]',
+        'audience: [package-developer]',
+        'contentType: developer-docs',
+        '---',
+        '# Shared Package',
+        'Documentation content here.',
+      ].join('\n');
+      const config = {
+        packageName: 'shared',
+        specDir: join(ROOT, 'specs', '021-documentation-system'),
+        sourceDir: join(ROOT, 'packages', 'shared', 'src'),
+        outputDir: join(DOCS_DIR, 'product', 'en'),
+        locale: 'en' as const,
+      };
+      const result = processAIResponse(validResponse, config);
+      expect(result.isOk()).toBe(true);
+    });
+  });
+
+  describe('SC-006: Pre-methodology fallback', () => {
+    it('buildDocPrompt omits SpecKit section for packages without specs', async () => {
+      const { buildDocPrompt } = await import('../../scripts/generate-docs.js');
+      const prompt = await buildDocPrompt({
+        name: 'logger',
+        sourceDir: join(ROOT, 'packages', 'logger', 'src'),
+        specDir: '',
+        hasSpecArtifacts: false,
+        locale: 'en',
+      });
+      expect(prompt).not.toContain('SpecKit Artifacts');
+      expect(prompt).toContain('Source Code');
+      expect(prompt).toContain('pre-methodology');
+    });
+  });
+
+  describe('SC-009: Freshness detection', () => {
+    it('checkFreshness returns an array of FreshnessReport objects', async () => {
+      const { checkFreshness } = await import('../../scripts/check-freshness.js');
+      const reports = checkFreshness(['shared']);
+      expect(Array.isArray(reports)).toBe(true);
+      for (const report of reports) {
+        expect(report).toHaveProperty('package');
+        expect(report).toHaveProperty('sourceFile');
+        expect(report).toHaveProperty('docFile');
+        expect(report).toHaveProperty('sourceMtime');
+        expect(report).toHaveProperty('docMtime');
+        expect(typeof report.isStale).toBe('boolean');
+      }
+    });
+
+    it('checkFreshness returns empty array for unknown packages', async () => {
+      const { checkFreshness } = await import('../../scripts/check-freshness.js');
+      const reports = checkFreshness(['nonexistent-package-xyz']);
+      expect(reports).toEqual([]);
+    });
+  });
+
+  describe('SC-010: Vale config validation', () => {
+    it('.vale.ini contains required MinAlertLevel setting', () => {
+      const valeIni = join(__dirname, '..', '..', '.vale.ini');
+      const content = readFileSync(valeIni, 'utf-8');
+      expect(content).toContain('MinAlertLevel');
+    });
+
+    it('.vale.ini references Tempot custom style', () => {
+      const valeIni = join(__dirname, '..', '..', '.vale.ini');
+      const content = readFileSync(valeIni, 'utf-8');
+      expect(content).toContain('Tempot');
+    });
+
+    it('Vale Terminology.yml has valid YAML structure', () => {
+      const termFile = join(__dirname, '..', '..', 'styles', 'Tempot', 'Terminology.yml');
+      const content = readFileSync(termFile, 'utf-8');
+      expect(content).toContain('extends');
+      expect(content).toContain('message');
+    });
+  });
 });
