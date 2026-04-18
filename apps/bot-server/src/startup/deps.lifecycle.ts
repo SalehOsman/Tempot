@@ -6,7 +6,7 @@ import type { OrchestratorDeps } from './orchestrator.js';
 export interface LifecycleFactoryDeps {
   shutdownManager: ShutdownManager;
   cache: CacheService;
-  prismaClient: unknown;
+  prismaClient: typeof import('@tempot/database').prisma;
   eventBus: EventBusOrchestrator;
   log: typeof import('@tempot/logger').logger;
 }
@@ -25,11 +25,11 @@ export function buildLifecycleFactory(deps: LifecycleFactoryDeps): {
           },
         },
         cache: deps.cache,
-        prisma: deps.prismaClient as typeof import('@tempot/database').prisma,
+        prisma: deps.prismaClient,
         logger: deps.log,
         eventBus: {
           publish: async (event: string, payload: unknown) => {
-            await deps.eventBus.publish(event as never, payload as never);
+            await deps.eventBus.publish(event, payload);
           },
           dispose: () => deps.eventBus.dispose(),
         },

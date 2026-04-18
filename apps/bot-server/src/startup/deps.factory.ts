@@ -32,7 +32,7 @@ import type { EventBusOrchestrator } from '@tempot/event-bus';
 function buildShutdownManager(): ShutdownManager {
   return new ShutdownManager({
     info: (msg: string) => logger.info({ msg }),
-    error: (data: unknown) => logger.error(data as object),
+    error: (data: Record<string, unknown>) => logger.error(data),
   });
 }
 
@@ -48,24 +48,19 @@ function buildSettingsService(
   eventBus: EventBusOrchestrator,
 ): SettingsService {
   const staticResult = StaticSettingsLoader.load();
-  const settingsRepo = new SettingsRepository(
-    prisma as unknown as import('@tempot/settings').SettingsPrismaClient,
-  );
+  const settingsRepo = new SettingsRepository(prisma);
 
   const dynSettings = new DynamicSettingsService({
     repository: settingsRepo,
-    cache: cache as unknown as NonNullable<
-      ConstructorParameters<typeof DynamicSettingsService>[0]['cache']
-    >,
+    cache,
     eventBus: {
-      publish: async (event: string, payload: unknown) =>
-        eventBus.publish(event as never, payload as never),
+      publish: async (event: string, payload: unknown) => eventBus.publish(event, payload),
     },
     logger: {
-      info: (data: unknown) => logger.info(data as object),
-      warn: (data: unknown) => logger.warn(data as object),
-      error: (data: unknown) => logger.error(data as object),
-      debug: (data: unknown) => logger.debug(data as object),
+      info: (data: Record<string, unknown>) => logger.info(data),
+      warn: (data: Record<string, unknown>) => logger.warn(data),
+      error: (data: Record<string, unknown>) => logger.error(data),
+      debug: (data: Record<string, unknown>) => logger.debug(data),
     },
   });
 

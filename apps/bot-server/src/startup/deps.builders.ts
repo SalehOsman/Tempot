@@ -18,8 +18,8 @@ export async function buildEventBus(
   const eventBus = new EventBusOrchestrator({
     redis: redisConfig,
     logger: {
-      info: (data: unknown) => log.info(data as object),
-      error: (data: unknown) => log.error(data as object),
+      info: (data: Record<string, unknown>) => log.info(data),
+      error: (data: Record<string, unknown>) => log.error(data),
     },
     shutdownManager,
   });
@@ -35,7 +35,7 @@ export async function buildCacheService(
   const cache = new CacheService(
     {
       publish: async (event: string, payload: unknown) => {
-        await eventBus.publish(event as never, payload as never);
+        await eventBus.publish(event, payload);
         return ok(undefined);
       },
     },
@@ -57,12 +57,12 @@ export function buildSessionProvider(
     cache: cacheAdapter,
     eventBus: {
       publish: async (event: string, payload: unknown) => {
-        await eventBus.publish(event as never, payload as never);
+        await eventBus.publish(event, payload);
         return ok(undefined);
       },
     },
     repository: sessionRepo,
-    logger: { error: (data: unknown) => log.error(data as object) },
+    logger: { error: (data: Record<string, unknown>) => log.error(data) },
   });
 }
 
@@ -77,10 +77,10 @@ export function buildModuleRegistry(
     listDir: async (p: string) => fs.readdir(p),
     isDirectory: async (p: string) => (await fs.stat(p)).isDirectory(),
     logger: {
-      info: (data: unknown) => log.info(data as object),
-      warn: (data: unknown) => log.warn(data as object),
-      debug: (data: unknown) => log.debug(data as object),
-      error: (data: unknown) => log.error(data as object),
+      info: (data: Record<string, unknown>) => log.info(data),
+      warn: (data: Record<string, unknown>) => log.warn(data),
+      debug: (data: Record<string, unknown>) => log.debug(data),
+      error: (data: Record<string, unknown>) => log.error(data),
     },
   });
 
@@ -94,10 +94,10 @@ export function buildModuleRegistry(
         .then(() => true)
         .catch(() => false),
     logger: {
-      info: (data: unknown) => log.info(data as object),
-      warn: (data: unknown) => log.warn(data as object),
-      debug: (data: unknown) => log.debug(data as object),
-      error: (data: unknown) => log.error(data as object),
+      info: (data: Record<string, unknown>) => log.info(data),
+      warn: (data: Record<string, unknown>) => log.warn(data),
+      debug: (data: Record<string, unknown>) => log.debug(data),
+      error: (data: Record<string, unknown>) => log.error(data),
     },
   });
 
@@ -106,15 +106,15 @@ export function buildModuleRegistry(
     validator,
     eventBus: {
       publish: async (event: string, payload: unknown) => {
-        await eventBus.publish(event as never, payload as never);
+        await eventBus.publish(event, payload);
         return ok(undefined);
       },
     },
     logger: {
-      info: (data: unknown) => log.info(data as object),
-      warn: (data: unknown) => log.warn(data as object),
-      debug: (data: unknown) => log.debug(data as object),
-      error: (data: unknown) => log.error(data as object),
+      info: (data: Record<string, unknown>) => log.info(data),
+      warn: (data: Record<string, unknown>) => log.warn(data),
+      debug: (data: Record<string, unknown>) => log.debug(data),
+      error: (data: Record<string, unknown>) => log.error(data),
     },
   });
 }

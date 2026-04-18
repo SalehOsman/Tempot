@@ -125,10 +125,10 @@ export interface ValidationResult {
 
 /** Logger interface (minimal — injected dependency) */
 export interface RegistryLogger {
-  info: (data: unknown) => void;
-  warn: (data: unknown) => void;
-  error: (data: unknown) => void;
-  debug: (data: unknown) => void;
+  info: (data: Record<string, unknown>) => void;
+  warn: (data: Record<string, unknown>) => void;
+  error: (data: Record<string, unknown>) => void;
+  debug: (data: Record<string, unknown>) => void;
 }
 
 /** Event bus interface (minimal — injected dependency) */

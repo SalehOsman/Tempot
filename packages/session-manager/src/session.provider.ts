@@ -49,7 +49,7 @@ export interface SessionProviderDeps {
   eventBus: EventBusAdapter;
   repository: SessionRepository;
   /** Optional logger; required for Rule XXXII SUPER_ADMIN degradation alerts. */
-  logger?: { error: (data: object) => void };
+  logger?: { error: (data: Record<string, unknown>) => void };
 }
 
 /**

@@ -61,10 +61,10 @@ export interface MaintenanceStatus {
 
 /** Minimal logger interface — structurally compatible with pino.Logger */
 export interface SettingsLogger {
-  info: (data: unknown) => void;
-  warn: (data: unknown) => void;
-  error: (data: unknown) => void;
-  debug: (data: unknown) => void;
+  info: (data: Record<string, unknown>) => void;
+  warn: (data: Record<string, unknown>) => void;
+  error: (data: Record<string, unknown>) => void;
+  debug: (data: Record<string, unknown>) => void;
 }
 
 /** Minimal event bus interface — structurally compatible with EventBusOrchestrator */

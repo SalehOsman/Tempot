@@ -37,7 +37,7 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
       logger: opts.log,
       eventBus: {
         publish: async (event: string, payload: unknown) => {
-          await opts.eventBus.publish(event as never, payload as never);
+          await opts.eventBus.publish(event, payload);
           return { isOk: () => true };
         },
       },
@@ -94,7 +94,7 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
       opts.registry.register(bot as unknown as import('@tempot/module-registry').RegistryBot),
     eventBus: {
       publish: async (event: string, payload: unknown) => {
-        await opts.eventBus.publish(event as never, payload as never);
+        await opts.eventBus.publish(event, payload);
       },
     },
     logger: opts.log,
