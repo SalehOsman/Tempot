@@ -37,10 +37,10 @@ import { SessionProvider, sessionContext } from '@tempot/session-manager';
 
 // Construct with a deps object
 const provider = new SessionProvider({
-  cache,      // CacheAdapter — { get, set, del } returning Result
-  eventBus,   // EventBusAdapter — { publish } returning Result
+  cache, // CacheAdapter — { get, set, del } returning Result
+  eventBus, // EventBusAdapter — { publish } returning Result
   repository, // SessionRepository instance
-  logger,     // optional WorkerLogger — { error: (data: object) => void }
+  logger, // optional WorkerLogger — { error: (data: object) => void }
 });
 
 // Read a session (Redis first, Postgres fallback)

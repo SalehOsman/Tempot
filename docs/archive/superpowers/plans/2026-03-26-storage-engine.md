@@ -15,6 +15,7 @@
 ### Task 0: Package Scaffolding (5 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/.gitignore`
 - Create: `packages/storage-engine/tsconfig.json`
 - Create: `packages/storage-engine/package.json`
@@ -148,6 +149,7 @@ git commit -m "chore(storage): scaffold package — 10-point checklist passed"
 ### Task 1: Type Definitions, Contracts & Error Codes (10 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/types.ts`
 - Create: `packages/storage-engine/src/contracts.ts`
 - Create: `packages/storage-engine/src/errors.ts`
@@ -157,10 +159,7 @@ git commit -m "chore(storage): scaffold package — 10-point checklist passed"
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import {
-  DEFAULT_STORAGE_CONFIG,
-  STORAGE_ERRORS,
-} from '../../src/index.js';
+import { DEFAULT_STORAGE_CONFIG, STORAGE_ERRORS } from '../../src/index.js';
 
 describe('Types & Contracts', () => {
   describe('DEFAULT_STORAGE_CONFIG', () => {
@@ -266,7 +265,11 @@ export type {
 export { DEFAULT_STORAGE_CONFIG } from './types.js';
 
 // Contracts
-export type { StorageProvider, StorageFileUploadedPayload, StorageFileDeletedPayload } from './contracts.js';
+export type {
+  StorageProvider,
+  StorageFileUploadedPayload,
+  StorageFileDeletedPayload,
+} from './contracts.js';
 
 // Errors
 export { STORAGE_ERRORS } from './errors.js';
@@ -289,6 +292,7 @@ git commit -m "feat(storage): define types, contracts, and error codes (Task 1)"
 ### Task 2: File Validation Service (15 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/validation.service.ts`
 - Test: `packages/storage-engine/tests/unit/validation-service.test.ts`
 
@@ -460,6 +464,7 @@ Expected: FAIL (ValidationService not found)
 - [ ] **Step 3: Write `src/validation.service.ts`**
 
 See plan.md Task 2 — complete implementation. Key points:
+
 - `validateUpload()` is synchronous: empty file check → size check → MIME allowlist → filename sanitization → UUID v7 generation
 - `validateMimeType()` is async: uses `fileTypeFromBuffer()` for magic byte detection
 - `sanitizeFileName()` strips path traversal via `path.basename()` then special chars via regex
@@ -468,6 +473,7 @@ See plan.md Task 2 — complete implementation. Key points:
 - [ ] **Step 4: Update barrel exports in `src/index.ts`**
 
 Add:
+
 ```typescript
 export { ValidationService } from './validation.service.js';
 export type { ValidatedFile } from './validation.service.js';
@@ -490,6 +496,7 @@ git commit -m "feat(storage): implement ValidationService — size, MIME, saniti
 ### Task 3: LocalProvider (15 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/local.provider.ts`
 - Test: `packages/storage-engine/tests/unit/local-provider.test.ts`
 
@@ -616,6 +623,7 @@ Expected: FAIL (LocalProvider not found)
 - [ ] **Step 3: Write `src/providers/local.provider.ts`**
 
 See plan.md Task 3 — complete implementation. Key points:
+
 - Uses native `node:fs/promises` (writeFile, access, unlink, stat, mkdir) and `node:fs` (createReadStream, createWriteStream)
 - Uses `node:stream/promises` pipeline for stream uploads
 - All methods return `AsyncResult<T, AppError>`
@@ -624,6 +632,7 @@ See plan.md Task 3 — complete implementation. Key points:
 - [ ] **Step 4: Update barrel exports**
 
 Add:
+
 ```typescript
 export { LocalProvider } from './providers/local.provider.js';
 ```
@@ -645,6 +654,7 @@ git commit -m "feat(storage): implement LocalProvider — native fs, no fs-extra
 ### Task 4: S3Provider (15 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/s3.provider.ts`
 - Test: `packages/storage-engine/tests/unit/s3-provider.test.ts`
 
@@ -744,6 +754,7 @@ describe('S3Provider', () => {
 ```
 
 **Note:** S3Provider tests use mocked AWS SDK. The mocking strategy may need refinement during implementation based on actual AWS SDK mock patterns. The key acceptance criteria are:
+
 - Upload uses `@aws-sdk/lib-storage` `Upload` (not `PutObjectCommand`)
 - SSE-S3 (AES256) applied by default, SSE-KMS when configured
 - All methods return `AsyncResult<T, AppError>`
@@ -760,6 +771,7 @@ See plan.md Task 4 — complete implementation.
 - [ ] **Step 4: Update barrel exports**
 
 Add:
+
 ```typescript
 export { S3Provider } from './providers/s3.provider.js';
 ```
@@ -779,6 +791,7 @@ git commit -m "feat(storage): implement S3Provider — streaming upload with SSE
 ### Task 5: DriveProvider (15 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/providers/drive.provider.ts`
 - Test: `packages/storage-engine/tests/unit/drive-provider.test.ts`
 
@@ -907,6 +920,7 @@ See plan.md Task 5. Add `@remarks` JSDoc on `getSignedUrl()` per Design Concern 
 - [ ] **Step 4: Update barrel exports**
 
 Add:
+
 ```typescript
 export { DriveProvider } from './providers/drive.provider.js';
 ```
@@ -926,6 +940,7 @@ git commit -m "feat(storage): implement DriveProvider — pre-configured Drive c
 ### Task 6: StorageProviderFactory (5 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/provider.factory.ts`
 - Test: `packages/storage-engine/tests/unit/provider-factory.test.ts`
 
@@ -1029,6 +1044,7 @@ See plan.md Task 6 — complete implementation.
 - [ ] **Step 4: Update barrel exports**
 
 Add:
+
 ```typescript
 export { createStorageProvider, createDriveProvider } from './provider.factory.js';
 ```
@@ -1048,6 +1064,7 @@ git commit -m "feat(storage): implement provider factory — Local/S3/Drive stra
 ### Task 7: Attachment Prisma Model (5 min)
 
 **Files:**
+
 - Modify: `packages/database/prisma/schema.prisma`
 
 - [ ] **Step 1: Read current schema to find insertion point**
@@ -1104,12 +1121,14 @@ git commit -m "feat(storage): add Attachment Prisma model with audit fields (Tas
 ### Task 8: AttachmentRepository (10 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/attachment.repository.ts`
 - Test: `packages/storage-engine/tests/unit/attachment-repository.test.ts`
 
 - [ ] **Step 1: Study BaseRepository pattern**
 
 Read `packages/database/src/base/base.repository.ts` to understand:
+
 - Constructor signature: `(auditLogger: IAuditLogger, db?: DatabaseClient)`
 - `PrismaModelDelegate` type
 - Available inherited methods: `findById`, `findMany`, `create`, `update`, `delete`
@@ -1197,6 +1216,7 @@ Expected: FAIL (AttachmentRepository not found)
 - [ ] **Step 4: Write `src/attachment.repository.ts`**
 
 See plan.md Task 8. Key points:
+
 - Extends `BaseRepository<Attachment>` from `@tempot/database`
 - `protected moduleName = 'storage'`
 - `protected entityName = 'attachment'`
@@ -1206,6 +1226,7 @@ See plan.md Task 8. Key points:
 - [ ] **Step 5: Update barrel exports**
 
 Add:
+
 ```typescript
 export { AttachmentRepository } from './attachment.repository.js';
 ```
@@ -1225,6 +1246,7 @@ git commit -m "feat(storage): implement AttachmentRepository — BaseRepository 
 ### Task 9: StorageService (Orchestrator) (20 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/storage.service.ts`
 - Test: `packages/storage-engine/tests/unit/storage-service.test.ts`
 
@@ -1247,7 +1269,7 @@ function createMockProvider(type: 'local' | 's3' | 'drive' = 'local'): StoragePr
   return {
     type,
     upload: vi.fn().mockResolvedValue(ok({ providerKey: 'general/2026-03/uuid.pdf' })),
-    download: vi.fn().mockResolvedValue(ok(null)),  // simplified
+    download: vi.fn().mockResolvedValue(ok(null)), // simplified
     delete: vi.fn().mockResolvedValue(ok(undefined)),
     getSignedUrl: vi.fn().mockResolvedValue(ok('https://signed.url')),
     exists: vi.fn().mockResolvedValue(ok(true)),
@@ -1265,10 +1287,12 @@ function createMockAttachmentRepo() {
 
 function createMockValidation() {
   return {
-    validateUpload: vi.fn().mockReturnValue(ok({
-      sanitizedName: 'test-file.pdf',
-      generatedFileName: '01234567-abcd-7000-8000-000000000001.pdf',
-    })),
+    validateUpload: vi.fn().mockReturnValue(
+      ok({
+        sanitizedName: 'test-file.pdf',
+        generatedFileName: '01234567-abcd-7000-8000-000000000001.pdf',
+      }),
+    ),
     validateMimeType: vi.fn().mockResolvedValue(ok(undefined)),
   };
 }
@@ -1357,9 +1381,7 @@ describe('StorageService', () => {
     });
 
     it('should return validation error without uploading', async () => {
-      deps.validation.validateUpload.mockReturnValue(
-        err(new AppError(STORAGE_ERRORS.EMPTY_FILE)),
-      );
+      deps.validation.validateUpload.mockReturnValue(err(new AppError(STORAGE_ERRORS.EMPTY_FILE)));
       const result = await service.upload(Buffer.from(''), validOptions);
       expect(result.isErr()).toBe(true);
       expect(deps.provider.upload).not.toHaveBeenCalled();
@@ -1375,29 +1397,21 @@ describe('StorageService', () => {
     });
 
     it('should return provider error on upload failure', async () => {
-      deps.provider.upload.mockResolvedValue(
-        err(new AppError(STORAGE_ERRORS.UPLOAD_FAILED)),
-      );
+      deps.provider.upload.mockResolvedValue(err(new AppError(STORAGE_ERRORS.UPLOAD_FAILED)));
       const result = await service.upload(Buffer.from('data'), validOptions);
       expect(result.isErr()).toBe(true);
     });
 
     it('should rollback provider on DB failure and log', async () => {
-      deps.attachmentRepo.create.mockResolvedValue(
-        err(new AppError('storage.create_failed')),
-      );
+      deps.attachmentRepo.create.mockResolvedValue(err(new AppError('storage.create_failed')));
       const result = await service.upload(Buffer.from('data'), validOptions);
       expect(result.isErr()).toBe(true);
       expect(deps.provider.delete).toHaveBeenCalled();
     });
 
     it('should log ROLLBACK_FAILED when rollback also fails', async () => {
-      deps.attachmentRepo.create.mockResolvedValue(
-        err(new AppError('storage.create_failed')),
-      );
-      deps.provider.delete.mockResolvedValue(
-        err(new AppError(STORAGE_ERRORS.DELETE_FAILED)),
-      );
+      deps.attachmentRepo.create.mockResolvedValue(err(new AppError('storage.create_failed')));
+      deps.provider.delete.mockResolvedValue(err(new AppError(STORAGE_ERRORS.DELETE_FAILED)));
       const result = await service.upload(Buffer.from('data'), validOptions);
       expect(result.isErr()).toBe(true);
       expect(deps.logger.warn).toHaveBeenCalledWith(
@@ -1406,9 +1420,7 @@ describe('StorageService', () => {
     });
 
     it('should NOT log when rollback succeeds', async () => {
-      deps.attachmentRepo.create.mockResolvedValue(
-        err(new AppError('storage.create_failed')),
-      );
+      deps.attachmentRepo.create.mockResolvedValue(err(new AppError('storage.create_failed')));
       deps.provider.delete.mockResolvedValue(ok(undefined));
       await service.upload(Buffer.from('data'), validOptions);
       expect(deps.logger.warn).not.toHaveBeenCalledWith(
@@ -1417,9 +1429,7 @@ describe('StorageService', () => {
     });
 
     it('should log EVENT_PUBLISH_FAILED but still return success', async () => {
-      deps.eventBus.publish.mockResolvedValue(
-        err(new AppError('event_bus.publish_failed')),
-      );
+      deps.eventBus.publish.mockResolvedValue(err(new AppError('event_bus.publish_failed')));
       const result = await service.upload(Buffer.from('data'), validOptions);
       expect(result.isOk()).toBe(true);
       expect(deps.logger.warn).toHaveBeenCalledWith(
@@ -1458,9 +1468,7 @@ describe('StorageService', () => {
     });
 
     it('should return error when attachment not found', async () => {
-      deps.attachmentRepo.findById.mockResolvedValue(
-        err(new AppError('storage.not_found')),
-      );
+      deps.attachmentRepo.findById.mockResolvedValue(err(new AppError('storage.not_found')));
       const result = await service.download('missing-id');
       expect(result.isErr()).toBe(true);
     });
@@ -1481,9 +1489,7 @@ describe('StorageService', () => {
     });
 
     it('should log EVENT_PUBLISH_FAILED on delete event failure', async () => {
-      deps.eventBus.publish.mockResolvedValue(
-        err(new AppError('event_bus.publish_failed')),
-      );
+      deps.eventBus.publish.mockResolvedValue(err(new AppError('event_bus.publish_failed')));
       const result = await service.delete('att-123');
       expect(result.isOk()).toBe(true);
       expect(deps.logger.warn).toHaveBeenCalledWith(
@@ -1499,10 +1505,7 @@ describe('StorageService', () => {
     it('should return signed URL for attachment', async () => {
       const result = await service.getSignedUrl('att-123');
       expect(result.isOk()).toBe(true);
-      expect(deps.provider.getSignedUrl).toHaveBeenCalledWith(
-        mockAttachment.providerKey,
-        3600,
-      );
+      expect(deps.provider.getSignedUrl).toHaveBeenCalledWith(mockAttachment.providerKey, 3600);
     });
   });
 
@@ -1523,6 +1526,7 @@ Expected: FAIL (StorageService not found)
 - [ ] **Step 3: Write `src/storage.service.ts`**
 
 See plan.md Task 9 — complete implementation. Key points:
+
 - `StorageServiceDeps` interface groups 6 dependencies
 - Upload flow: validate → MIME check (Buffer only) → generate key → provider upload → DB create → emit event
 - Two-phase rollback with logging (Design Concern 3)
@@ -1533,6 +1537,7 @@ See plan.md Task 9 — complete implementation. Key points:
 - [ ] **Step 4: Update barrel exports**
 
 Add:
+
 ```typescript
 export { StorageService } from './storage.service.js';
 export type { StorageServiceDeps } from './storage.service.js';
@@ -1553,6 +1558,7 @@ git commit -m "feat(storage): implement StorageService — orchestrator with rol
 ### Task 10: Event Registration (5 min)
 
 **Files:**
+
 - Modify: `packages/event-bus/src/events.ts`
 
 - [ ] **Step 1: Read current `events.ts`**
@@ -1562,6 +1568,7 @@ Read `packages/event-bus/src/events.ts` to see existing `TempotEvents` interface
 - [ ] **Step 2: Add storage events with inline payload types**
 
 Update `TempotEvents` to add:
+
 - `'storage.file.uploaded'` with inline payload matching `StorageFileUploadedPayload`
 - `'storage.file.deleted'` with inline payload matching `StorageFileDeletedPayload`
 
@@ -1587,6 +1594,7 @@ git commit -m "feat(storage): register storage events in TempotEvents interface 
 ### Task 11: Deferred Deletion Job (Purge) (10 min)
 
 **Files:**
+
 - Create: `packages/storage-engine/src/jobs/purge.job.ts`
 - Test: `packages/storage-engine/tests/unit/purge-job.test.ts`
 
@@ -1645,6 +1653,7 @@ Expected: FAIL (purge job module not found)
 - [ ] **Step 4: Write `src/jobs/purge.job.ts`**
 
 Key points:
+
 - Uses `queueFactory('storage-purge')` from `@tempot/shared`
 - Processing logic: `findExpiredDeleted(beforeDate)` → for each record: `provider.delete(providerKey)` → `attachmentRepo.hardDelete([id])` → emit `storage.file.deleted` with `permanent: true`
 - Handles provider failures gracefully (log and continue)
@@ -1666,6 +1675,7 @@ git commit -m "feat(storage): implement purge job — deferred deletion via Bull
 ### Task 12: Barrel Exports (`src/index.ts`) (5 min)
 
 **Files:**
+
 - Update: `packages/storage-engine/src/index.ts`
 
 - [ ] **Step 1: Write complete barrel exports**
@@ -1687,7 +1697,11 @@ export type {
 export { DEFAULT_STORAGE_CONFIG } from './types.js';
 
 // Contracts
-export type { StorageProvider, StorageFileUploadedPayload, StorageFileDeletedPayload } from './contracts.js';
+export type {
+  StorageProvider,
+  StorageFileUploadedPayload,
+  StorageFileDeletedPayload,
+} from './contracts.js';
 
 // Errors
 export { STORAGE_ERRORS } from './errors.js';
@@ -1744,22 +1758,22 @@ git commit -m "feat(storage): add barrel exports and verify package checklist (T
 
 ## Execution Order Summary
 
-| Order | Task | Est. Time | Dependencies |
-|-------|------|-----------|-------------|
-| 1 | Task 0: Scaffolding | 5 min | None |
-| 2 | Task 1: Types/Contracts/Errors | 10 min | Task 0 |
-| 3 | Task 7: Prisma Model | 5 min | Task 0 |
-| 4 | Task 2: ValidationService | 15 min | Task 1 |
-| 5 | Task 3: LocalProvider | 15 min | Task 1 |
-| 6 | Task 4: S3Provider | 15 min | Task 1 |
-| 7 | Task 5: DriveProvider | 15 min | Task 1 |
-| 8 | Task 6: ProviderFactory | 5 min | Tasks 3-5 |
-| 9 | Task 8: AttachmentRepository | 10 min | Tasks 1, 7 |
-| 10 | Task 10: Event Registration | 5 min | Task 1 |
-| 11 | Task 9: StorageService | 20 min | Tasks 2, 6, 8 |
-| 12 | Task 11: Purge Job | 10 min | Tasks 6, 8 |
-| 13 | Task 12: Barrel Exports | 5 min | All |
-| **Total** | | **140 min** | |
+| Order     | Task                           | Est. Time   | Dependencies  |
+| --------- | ------------------------------ | ----------- | ------------- |
+| 1         | Task 0: Scaffolding            | 5 min       | None          |
+| 2         | Task 1: Types/Contracts/Errors | 10 min      | Task 0        |
+| 3         | Task 7: Prisma Model           | 5 min       | Task 0        |
+| 4         | Task 2: ValidationService      | 15 min      | Task 1        |
+| 5         | Task 3: LocalProvider          | 15 min      | Task 1        |
+| 6         | Task 4: S3Provider             | 15 min      | Task 1        |
+| 7         | Task 5: DriveProvider          | 15 min      | Task 1        |
+| 8         | Task 6: ProviderFactory        | 5 min       | Tasks 3-5     |
+| 9         | Task 8: AttachmentRepository   | 10 min      | Tasks 1, 7    |
+| 10        | Task 10: Event Registration    | 5 min       | Task 1        |
+| 11        | Task 9: StorageService         | 20 min      | Tasks 2, 6, 8 |
+| 12        | Task 11: Purge Job             | 10 min      | Tasks 6, 8    |
+| 13        | Task 12: Barrel Exports        | 5 min       | All           |
+| **Total** |                                | **140 min** |               |
 
 ## Critical Rules to Follow
 

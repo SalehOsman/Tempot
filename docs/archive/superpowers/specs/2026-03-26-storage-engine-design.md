@@ -25,19 +25,19 @@
 
 2. **Fail-fast semantics.** The synchronous validations (size, MIME allowlist, filename sanitization) are cheap and deterministic. Running them first avoids the cost of `fileTypeFromBuffer()` (which reads and analyzes binary headers) when the upload would fail anyway. This satisfies NFR-001 (upload latency < 500ms).
 
-3. **Separation of concerns.** `validateUpload()` checks metadata correctness (what the caller *claims* about the file). `validateMimeType()` checks content correctness (what the file *actually is*). These are fundamentally different operations — one is a policy check, the other is a security check.
+3. **Separation of concerns.** `validateUpload()` checks metadata correctness (what the caller _claims_ about the file). `validateMimeType()` checks content correctness (what the file _actually is_). These are fundamentally different operations — one is a policy check, the other is a security check.
 
 **Tradeoff: Streams bypass MIME spoofing detection.** When the API layer passes a `Readable` stream (typical for files > 1MB per NFR-005), the magic byte check is skipped entirely. An attacker could declare `image/jpeg` but stream a `.exe`. However:
 
 - The spec explicitly states that `hono/body-limit` enforcement happens at the API/bot layer (ADR-022), not in storage-engine.
-- The MIME allowlist check in `validateUpload()` still blocks disallowed MIME *types*. The risk is mismatch, not bypass — the attacker can only claim an *allowed* MIME type.
+- The MIME allowlist check in `validateUpload()` still blocks disallowed MIME _types_. The risk is mismatch, not bypass — the attacker can only claim an _allowed_ MIME type.
 - For high-security use cases, the API layer should buffer small files (< 1MB, which NFR-005 permits) and pass them as `Buffer`.
 
 ### Recommendation
 
 **Keep the split as designed.** The sync/async boundary is correct and intentional.
 
-Add a JSDoc comment on `validateMimeType()` documenting that it is only called for `Buffer` data, and add a comment in `StorageService.upload()` explaining *why* streams skip magic byte detection (referencing NFR-005).
+Add a JSDoc comment on `validateMimeType()` documenting that it is only called for `Buffer` data, and add a comment in `StorageService.upload()` explaining _why_ streams skip magic byte detection (referencing NFR-005).
 
 ### Affected Tasks/Files
 
@@ -65,11 +65,11 @@ catch (error: unknown) {
 
 **What `AppError` preserves:**
 
-Looking at `packages/shared/src/errors.ts`, `AppError` stores the original error in the `details` field. This preserves the full original error object (message, stack trace, AWS-specific error codes, HTTP status codes, etc.) — it is *not* discarded.
+Looking at `packages/shared/src/errors.ts`, `AppError` stores the original error in the `details` field. This preserves the full original error object (message, stack trace, AWS-specific error codes, HTTP status codes, etc.) — it is _not_ discarded.
 
 **Should we log before wrapping?**
 
-No. Constitution Rule XXIII ("No Double Logging") with the `loggedAt` mechanism is designed specifically for this scenario. The error should be logged *once* at the point where it is handled (typically the service layer or the caller), not at the point where it is created. Logging at the provider level *and* at the service level would violate Rule XXIII.
+No. Constitution Rule XXIII ("No Double Logging") with the `loggedAt` mechanism is designed specifically for this scenario. The error should be logged _once_ at the point where it is handled (typically the service layer or the caller), not at the point where it is created. Logging at the provider level _and_ at the service level would violate Rule XXIII.
 
 However, the `loggedAt` flag on `AppError` must be checked by whatever logs the error. The current plan does not show any explicit logging of failed operations in `StorageService`. The caller of `StorageService.upload()` receives the `AppError` and is responsible for logging it.
 
@@ -88,7 +88,7 @@ Since `AppError.details` accepts `unknown` and stores the full original error, a
 Add one clarification: providers should NOT log errors themselves (Rule XXIII compliance). The responsibility chain is:
 
 1. **Provider**: Wraps in `AppError` with hierarchical code + original error as `details`. Does not log.
-2. **StorageService**: Propagates the `AppError` to the caller. May log *if* it needs to take compensating action (e.g., rollback logging — see Concern 3).
+2. **StorageService**: Propagates the `AppError` to the caller. May log _if_ it needs to take compensating action (e.g., rollback logging — see Concern 3).
 3. **Caller** (API/bot layer): Logs the error via `@tempot/logger`, setting `loggedAt` to prevent double-logging.
 
 ### Affected Tasks/Files
@@ -185,7 +185,7 @@ async hardDelete(id: string): AsyncResult<void, AppError> {
 ```
 
 Pros: Contained to one repository, explicit intent.
-Cons: Requires access to the raw Prisma client (before `$extends()`), which the current architecture does not expose. The `db` property on `BaseRepository` is the *extended* client — calling `this.db.attachment.delete()` would trigger the soft-delete extension again.
+Cons: Requires access to the raw Prisma client (before `$extends()`), which the current architecture does not expose. The `db` property on `BaseRepository` is the _extended_ client — calling `this.db.attachment.delete()` would trigger the soft-delete extension again.
 
 **Option B: Use Prisma client directly for permanent deletion**
 
@@ -246,7 +246,7 @@ async hardDelete(ids: string[]): AsyncResult<void, AppError> {
   const { userId, userRole } = this.getContext();
   try {
     await this.db.$executeRaw`DELETE FROM "Attachment" WHERE id = ANY(${ids})`;
-    
+
     await this.auditLogger.log({
       userId,
       userRole,
@@ -255,7 +255,7 @@ async hardDelete(ids: string[]): AsyncResult<void, AppError> {
       targetId: ids.join(','),
       status: 'SUCCESS',
     });
-    
+
     return ok(undefined);
   } catch (e) {
     return err(new AppError('storage.hard_delete_failed', e));
@@ -444,11 +444,11 @@ Concern 4 concludes that `$executeRaw` within `AttachmentRepository` is the corr
 
 ## Summary of Recommendations
 
-| # | Concern | Recommendation | Structural Change? |
-|---|---------|---------------|-------------------|
-| 1 | Sync vs Async validation | Keep the split. Add JSDoc comments. | No |
-| 2 | Provider error wrapping | Keep current pattern. Providers do not log. | No |
-| 3 | Rollback event emission | Check rollback result. Log on failure. No events. | Yes — add Logger to StorageService |
-| 4 | Hard delete for purge | Add `hardDelete()` to AttachmentRepository via `$executeRaw` | Yes — new method on AttachmentRepository |
-| 5 | Event publish result | Check result. Log on failure. Upload still succeeds. | Yes — check publish result, add Logger |
-| 6 | Drive getSignedUrl | Keep returning webViewLink. Document limitations via JSDoc. | No |
+| #   | Concern                  | Recommendation                                               | Structural Change?                       |
+| --- | ------------------------ | ------------------------------------------------------------ | ---------------------------------------- |
+| 1   | Sync vs Async validation | Keep the split. Add JSDoc comments.                          | No                                       |
+| 2   | Provider error wrapping  | Keep current pattern. Providers do not log.                  | No                                       |
+| 3   | Rollback event emission  | Check rollback result. Log on failure. No events.            | Yes — add Logger to StorageService       |
+| 4   | Hard delete for purge    | Add `hardDelete()` to AttachmentRepository via `$executeRaw` | Yes — new method on AttachmentRepository |
+| 5   | Event publish result     | Check result. Log on failure. Upload still succeeds.         | Yes — check publish result, add Logger   |
+| 6   | Drive getSignedUrl       | Keep returning webViewLink. Document limitations via JSDoc.  | No                                       |

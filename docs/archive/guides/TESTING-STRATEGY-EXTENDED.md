@@ -6,11 +6,11 @@
 
 ## Test Pyramid Summary
 
-| Level | Tool | Target | Enforcement |
-|-------|------|--------|-------------|
-| Unit (70%) | Vitest | Services, Handlers, Utilities | Build fails below threshold |
+| Level             | Tool                    | Target                        | Enforcement                 |
+| ----------------- | ----------------------- | ----------------------------- | --------------------------- |
+| Unit (70%)        | Vitest                  | Services, Handlers, Utilities | Build fails below threshold |
 | Integration (20%) | Vitest + Testcontainers | Service + DB + Redis together | Build fails below threshold |
-| E2E (10%) | Vitest + grammY Test | Critical user flows | Advisory |
+| E2E (10%)         | Vitest + grammY Test    | Critical user flows           | Advisory                    |
 
 ---
 
@@ -165,10 +165,7 @@ export class TestDB {
   async stop() {
     await this.redis.quit();
     await this.prisma.$disconnect();
-    await Promise.all([
-      this.pgContainer.stop(),
-      this.redisContainer.stop(),
-    ]);
+    await Promise.all([this.pgContainer.stop(), this.redisContainer.stop()]);
   }
 
   async reset() {
@@ -190,10 +187,7 @@ describe('InvoiceService — integration', () => {
 
   it('should create invoice and emit event', async () => {
     const eventBus = new TestEventBus(); // captures emitted events
-    const service = new InvoiceService(
-      new InvoiceRepository(testDb.prisma),
-      eventBus,
-    );
+    const service = new InvoiceService(new InvoiceRepository(testDb.prisma), eventBus);
 
     const result = await service.create({
       customerId: 'user-1',
@@ -203,7 +197,7 @@ describe('InvoiceService — integration', () => {
     expect(result.isOk()).toBe(true);
     expect(result.value.amount).toBe(1500);
     expect(eventBus.emitted).toContainEqual(
-      expect.objectContaining({ eventName: 'invoices.invoice.created' })
+      expect.objectContaining({ eventName: 'invoices.invoice.created' }),
     );
 
     // Verify persisted in DB
@@ -266,20 +260,18 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 export const options = {
-  vus: 100,           // 100 virtual users
+  vus: 100, // 100 virtual users
   duration: '30s',
   thresholds: {
     http_req_duration: ['p(95)<200'], // 95% of requests under 200ms
-    http_req_failed: ['rate<0.01'],   // Less than 1% errors
+    http_req_failed: ['rate<0.01'], // Less than 1% errors
   },
 };
 
 export default function () {
-  const res = http.post(
-    `${__ENV.WEBHOOK_URL}/webhook`,
-    JSON.stringify(mockTelegramUpdate()),
-    { headers: { 'Content-Type': 'application/json' } },
-  );
+  const res = http.post(`${__ENV.WEBHOOK_URL}/webhook`, JSON.stringify(mockTelegramUpdate()), {
+    headers: { 'Content-Type': 'application/json' },
+  });
   check(res, { 'status is 200': (r) => r.status === 200 });
 }
 ```
@@ -302,7 +294,7 @@ describe('Redis failure resilience', () => {
 
     // Alert should have been sent to SUPER_ADMIN
     expect(notifierMock.send).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'redis_failure' })
+      expect.objectContaining({ type: 'redis_failure' }),
     );
   });
 });
@@ -332,6 +324,7 @@ jobs:
 ```
 
 The build fails if:
+
 - Any test fails
 - Coverage drops below thresholds (Services 80%, Handlers 70%)
 - `pnpm cms:check` reports missing translations

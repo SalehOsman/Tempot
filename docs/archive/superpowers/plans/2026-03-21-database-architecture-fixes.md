@@ -13,6 +13,7 @@
 ### Task 1: Transaction Support in BaseRepository
 
 **Files:**
+
 - Modify: `packages/database/src/base/base.repository.ts`
 - Test: `packages/database/tests/integration/transaction-repository.test.ts`
 
@@ -34,7 +35,10 @@ it('should rollback repository operations when transaction fails', async () => {
 
 ```typescript
 export abstract class BaseRepository<T> {
-  constructor(protected auditLogger: any, protected db: any = prisma) {}
+  constructor(
+    protected auditLogger: any,
+    protected db: any = prisma,
+  ) {}
 
   withTransaction(tx: any): this {
     const RepositoryClass = this.constructor as any;
@@ -52,6 +56,7 @@ export abstract class BaseRepository<T> {
 ### Task 2: Unify Soft Delete in findUnique
 
 **Files:**
+
 - Modify: `packages/database/src/prisma/client.ts`
 - Test: `packages/database/tests/integration/soft-delete.test.ts`
 
@@ -76,6 +81,7 @@ it('should return null when finding a deleted record via findUnique', async () =
 ### Task 3: Standardize Result Pattern in Vector Repository
 
 **Files:**
+
 - Modify: `packages/database/src/base/vector.repository.ts`
 - Test: `packages/database/tests/integration/vector-search.test.ts`
 
@@ -89,6 +95,7 @@ it('should return null when finding a deleted record via findUnique', async () =
 ### Task 4: Complete Audit Trail (deletedBy)
 
 **Files:**
+
 - Modify: `packages/database/src/base/base.repository.ts`
 - Modify: `packages/database/src/prisma/client.ts`
 
@@ -101,6 +108,7 @@ it('should return null when finding a deleted record via findUnique', async () =
 ### Task 5: Dynamic Vector Dimensions
 
 **Files:**
+
 - Modify: `packages/database/src/drizzle/schema.ts`
 
 - [ ] **Step 1: Move dimensions to a project-level constant or env var**

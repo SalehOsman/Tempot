@@ -86,9 +86,7 @@ Always in the same row, Confirm on the right (RTL reading order):
 
 ```typescript
 // In Arabic RTL, right-to-left means first button appears on right
-keyboard
-  .text('❌ إلغاء', 'cancel')
-  .text('✅ تأكيد', 'confirm');
+keyboard.text('❌ إلغاء', 'cancel').text('✅ تأكيد', 'confirm');
 // Renders as: [تأكيد ✅] [إلغاء ❌] — confirm is on the right (primary action)
 ```
 
@@ -126,12 +124,12 @@ Use Tailwind's logical properties instead of directional classes:
 <div className="ml-4 pr-8 text-left border-l-2">
 ```
 
-| Directional class | Logical equivalent |
-|------------------|-------------------|
-| `ml-*`, `mr-*` | `ms-*`, `me-*` |
-| `pl-*`, `pr-*` | `ps-*`, `pe-*` |
-| `text-left`, `text-right` | `text-start`, `text-end` |
-| `border-l-*`, `border-r-*` | `border-s-*`, `border-e-*` |
+| Directional class            | Logical equivalent           |
+| ---------------------------- | ---------------------------- |
+| `ml-*`, `mr-*`               | `ms-*`, `me-*`               |
+| `pl-*`, `pr-*`               | `ps-*`, `pe-*`               |
+| `text-left`, `text-right`    | `text-start`, `text-end`     |
+| `border-l-*`, `border-r-*`   | `border-s-*`, `border-e-*`   |
 | `rounded-l-*`, `rounded-r-*` | `rounded-s-*`, `rounded-e-*` |
 
 ### Sidebar Direction
@@ -140,9 +138,7 @@ The Dashboard sidebar renders on the **right** in RTL mode:
 
 ```tsx
 // apps/dashboard/components/layout/sidebar.tsx
-<aside className="fixed end-0 top-0 h-full w-64 bg-white shadow-s">
-  {/* Sidebar content */}
-</aside>
+<aside className="fixed end-0 top-0 h-full w-64 bg-white shadow-s">{/* Sidebar content */}</aside>
 ```
 
 ### Table Direction
@@ -185,7 +181,7 @@ RTL inputs require explicit alignment:
 ```tsx
 <input
   type="text"
-  dir="auto"        // Auto-detects direction from first character
+  dir="auto" // Auto-detects direction from first character
   className="w-full text-start"
   placeholder="أدخل اسمك"
 />
@@ -204,7 +200,7 @@ Use `dir="auto"` for text inputs that may contain either Arabic or English — t
 const docDefinition = {
   pageDirection: 'RTL',
   defaultStyle: {
-    font: 'Tajawal',          // Arabic-compatible font
+    font: 'Tajawal', // Arabic-compatible font
     alignment: 'right',
     direction: 'rtl',
   },
@@ -255,7 +251,7 @@ For tables with both Arabic and English content:
 ```typescript
 // packages/document-engine/src/excel/excel.builder.ts
 const worksheet = workbook.addWorksheet('الفواتير', {
-  views: [{ rightToLeft: true }],   // Enable RTL for entire sheet
+  views: [{ rightToLeft: true }], // Enable RTL for entire sheet
 });
 ```
 

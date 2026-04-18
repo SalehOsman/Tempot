@@ -1,12 +1,13 @@
 ---
-"@tempot/ai-core": minor
-"@tempot/database": patch
-"@tempot/event-bus": patch
+'@tempot/ai-core': minor
+'@tempot/database': patch
+'@tempot/event-bus': patch
 ---
 
 feat(ai-core): implement ai-core package with full TDD
 
 New package providing provider-agnostic AI capabilities:
+
 - Provider factory with pluggable Gemini/OpenAI registry
 - Resilience service (circuit breaker, retry, timeout, bulkhead)
 - Rate limiter with per-role limits and Redis backend
@@ -21,5 +22,6 @@ New package providing provider-agnostic AI capabilities:
 - Toggle guard for feature flag control
 
 Cross-package changes:
+
 - database: Update VECTOR_DIMENSIONS to 3072, add halfvec expression HNSW index
 - event-bus: Add 5 ai-core event types to TempotEvents

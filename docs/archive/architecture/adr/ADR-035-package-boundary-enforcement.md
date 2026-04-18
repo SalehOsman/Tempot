@@ -11,12 +11,12 @@ The Tempot monorepo has 10+ packages organized in tiers. Without automated enfor
 
 Use `eslint-plugin-boundaries` with ESLint flat config to enforce a four-tier package classification:
 
-| Tier | Classification | Packages | Can Import |
-| ---- | -------------- | -------- | ---------- |
-| 1 | Foundation | `@tempot/shared` | Nothing (leaf) |
-| 2 | Infrastructure | `@tempot/database`, `@tempot/event-bus`, `@tempot/logger`, `@tempot/sentry` | Tier 1 + other Tier 2 |
-| 3 | Cross-cutting | `@tempot/i18n-core`, `@tempot/auth-core` | Tier 1 + Tier 2 |
-| 4 | Domain | All others (existing + future) | Tier 1 + Tier 2 + Tier 3 (NOT other Tier 4) |
+| Tier | Classification | Packages                                                                    | Can Import                                  |
+| ---- | -------------- | --------------------------------------------------------------------------- | ------------------------------------------- |
+| 1    | Foundation     | `@tempot/shared`                                                            | Nothing (leaf)                              |
+| 2    | Infrastructure | `@tempot/database`, `@tempot/event-bus`, `@tempot/logger`, `@tempot/sentry` | Tier 1 + other Tier 2                       |
+| 3    | Cross-cutting  | `@tempot/i18n-core`, `@tempot/auth-core`                                    | Tier 1 + Tier 2                             |
+| 4    | Domain         | All others (existing + future)                                              | Tier 1 + Tier 2 + Tier 3 (NOT other Tier 4) |
 
 Element types are detected by path pattern: `packages/{name}/**`. The broad pattern (not limited to `src/`) is necessary because `eslint-import-resolver-typescript` resolves workspace package imports to their `dist/` directory (e.g., `@tempot/event-bus` → `packages/event-bus/dist/index.d.ts`). Boundary rules prevent:
 

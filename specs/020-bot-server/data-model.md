@@ -230,6 +230,45 @@ HealthCheckResponse
 - **HealthCheckResponse** is computed on each `/health` request from live subsystem probes
 - **ShutdownManager** from `@tempot/shared` manages the hook execution with 30s total timeout
 
+---
+
+### `DepsFactory`
+
+Function that builds the full `OrchestratorDeps` from real production packages.
+
+**Storage:** None — pure factory function, returns assembled dependency graph.
+
+| Signature   | `buildDeps(): Promise<Result<OrchestratorDeps, AppError>>`                             |
+| ----------- | -------------------------------------------------------------------------------------- |
+| Returns ok  | Fully wired `OrchestratorDeps` with real package instances                             |
+| Returns err | `database_unreachable` if Prisma cannot connect; propagates EventBus/Cache init errors |
+
+**Initialization order enforced:**
+
+| Step | Package                                   | Notes                         |
+| ---- | ----------------------------------------- | ----------------------------- |
+| 1    | `@tempot/logger`                          | Pino singleton                |
+| 2    | `@tempot/shared` ShutdownManager          | Logger-bound                  |
+| 3    | `@tempot/database` prisma                 | `$connect()` called           |
+| 4    | `@tempot/event-bus` EventBusOrchestrator  | Redis config from env         |
+| 5    | `@tempot/shared` CacheService             | EventBus-aware                |
+| 6    | `@tempot/session-manager` SessionProvider | Via CacheAdapter              |
+| 7    | `@tempot/settings` SettingsService        | Full init chain               |
+| 8    | `@tempot/i18n-core` loadModuleLocales     | Glob scan                     |
+| 9    | `@tempot/module-registry` ModuleRegistry  | Discovery + Validator         |
+| 10   | bot + httpServer                          | Via createBot / createHonoApp |
+
+---
+
+### `CacheAdapter` (shim)
+
+Built by `buildCacheAdapter(cache: CacheService): CacheAdapter` in `cache.adapter.ts`.
+Bridges `CacheService.get()` which returns `AsyncResult<T | undefined | null>` to the
+`CacheAdapter` interface expected by `SessionProvider` which requires `Promise<Result<T | null, AppError>>`.
+`expire()` is a safe no-op shim — cache-manager handles TTL natively on `set()`.
+
+---
+
 ## Storage Mechanisms
 
 - **Environment variables (read-only):** `BotServerConfig` is loaded from `process.env` once at startup. No writes.

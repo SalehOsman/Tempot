@@ -9,6 +9,7 @@
 **Tech Stack:** TypeScript 5.9.3, Prisma 7.x, cache-manager 6.x via CacheService, neverthrow 8.2.0, zod ^4.3.6, Pino 9.x via @tempot/logger, @tempot/event-bus, Vitest 4.1.0 + Testcontainers 8.0.1.
 
 **Key References:**
+
 - Spec: `specs/018-settings-package/spec.md`
 - Design doc: `docs/superpowers/specs/2026-04-05-settings-design.md`
 - Data model: `specs/018-settings-package/data-model.md`
@@ -16,6 +17,7 @@
 - Package checklist: `docs/developer/package-creation-checklist.md`
 
 **Design Decisions (from design doc):**
+
 - DC-1: ESM module format with `"type": "module"`, `.js` import extensions
 - DC-2: No toggle guard (non-optional package)
 - DC-3: `AppError(code, details?)` constructor
@@ -67,6 +69,7 @@ Modified files (outside packages/settings/):
 **Goal:** Create the `packages/settings/` directory with all infrastructure files, passing the 10-point package-creation-checklist.
 
 **Files:**
+
 - Create: `packages/settings/.gitignore`
 - Create: `packages/settings/tsconfig.json`
 - Create: `packages/settings/package.json`
@@ -122,6 +125,7 @@ Match session-manager pattern exactly (`./dist`, `./src`, `noEmit: false`, `src/
 - [ ] **Step 4: Create `package.json`**
 
 Key differences from plan.md:
+
 1. Add `"type": "module"` (DC-1)
 2. Use `{ "import": ..., "types": ... }` exports pattern (DC-1)
 3. `@prisma/client` as direct dependency, not peer (DC-7, session-manager convention)
@@ -244,6 +248,7 @@ git commit -m "chore(settings): scaffold package — 10-point checklist passed"
 **Goal:** Define all shared types, interfaces, and error codes used across the settings package.
 
 **Files:**
+
 - Create: `packages/settings/src/settings.types.ts`
 - Create: `packages/settings/src/settings.errors.ts`
 - Test: `packages/settings/tests/unit/settings.types.test.ts`
@@ -284,8 +289,10 @@ describe('Settings Type Definitions', () => {
   it('should enforce type safety — defaults match DynamicSettingDefinitions', () => {
     // Type-level test: if this compiles, the mapped type is correct
     const joinMode: DynamicSettingDefinitions['join_mode'] = DYNAMIC_SETTING_DEFAULTS.join_mode;
-    const maintenanceMode: DynamicSettingDefinitions['maintenance_mode'] = DYNAMIC_SETTING_DEFAULTS.maintenance_mode;
-    const logRetention: DynamicSettingDefinitions['log_retention_days'] = DYNAMIC_SETTING_DEFAULTS.log_retention_days;
+    const maintenanceMode: DynamicSettingDefinitions['maintenance_mode'] =
+      DYNAMIC_SETTING_DEFAULTS.maintenance_mode;
+    const logRetention: DynamicSettingDefinitions['log_retention_days'] =
+      DYNAMIC_SETTING_DEFAULTS.log_retention_days;
     expect(joinMode).toBe('AUTO');
     expect(maintenanceMode).toBe(false);
     expect(logRetention).toBe(90);
@@ -381,14 +388,15 @@ export interface MaintenanceStatus {
 }
 
 /** Default values for all dynamic settings (type-safe via mapped type — DC-6) */
-export const DYNAMIC_SETTING_DEFAULTS: { [K in DynamicSettingKey]: DynamicSettingDefinitions[K] } = {
-  join_mode: 'AUTO',
-  maintenance_mode: false,
-  approval_role: '',
-  backup_schedule: '',
-  log_retention_days: 90,
-  dynamic_default_language: '',
-};
+export const DYNAMIC_SETTING_DEFAULTS: { [K in DynamicSettingKey]: DynamicSettingDefinitions[K] } =
+  {
+    join_mode: 'AUTO',
+    maintenance_mode: false,
+    approval_role: '',
+    backup_schedule: '',
+    log_retention_days: 90,
+    dynamic_default_language: '',
+  };
 ```
 
 - [ ] **Step 4: Write `settings.errors.ts`**
@@ -434,6 +442,7 @@ git commit -m "feat(settings): type definitions and error codes"
 **Goal:** Implement startup-time validation of required environment variables via zod, returning `Result<StaticSettings, AppError>`.
 
 **Files:**
+
 - Create: `packages/settings/src/static-settings.loader.ts`
 - Test: `packages/settings/tests/unit/static-settings.loader.test.ts`
 
@@ -586,7 +595,9 @@ const staticSettingsSchema = z.object({
 });
 
 export class StaticSettingsLoader {
-  static load(env: Record<string, string | undefined> = process.env): Result<StaticSettings, AppError> {
+  static load(
+    env: Record<string, string | undefined> = process.env,
+  ): Result<StaticSettings, AppError> {
     const parsed = staticSettingsSchema.safeParse(env);
     if (!parsed.success) {
       return err(new AppError(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED, parsed.error.format()));
@@ -626,6 +637,7 @@ git commit -m "feat(settings): static settings loader with zod validation"
 **Goal:** Implement the Prisma repository for dynamic settings with typed interfaces (DC-7), abstracting DB access per Rule XIV.
 
 **Files:**
+
 - Create: `packages/settings/src/settings.repository.ts`
 - Test: `packages/settings/tests/unit/settings.repository.test.ts`
 
@@ -834,7 +846,11 @@ export class SettingsRepository implements SettingsRepositoryPort {
     }
   }
 
-  async upsert(key: string, value: string, updatedBy: string | null): AsyncResult<DynamicSettingRecord> {
+  async upsert(
+    key: string,
+    value: string,
+    updatedBy: string | null,
+  ): AsyncResult<DynamicSettingRecord> {
     try {
       const result = await this.prisma.setting.upsert({
         where: { key },
@@ -882,10 +898,12 @@ git commit -m "feat(settings): repository with typed Prisma client interface"
 **Goal:** Implement the dynamic settings service with type-safe CRUD, cache-manager caching (5-min TTL, immediate invalidation), event emission, JSON serialization, and graceful degradation.
 
 **Files:**
+
 - Create: `packages/settings/src/dynamic-settings.service.ts`
 - Test: `packages/settings/tests/unit/dynamic-settings.service.test.ts`
 
 **Key design points:**
+
 - Constructor takes: `SettingsRepositoryPort`, `CacheService`, `EventBusOrchestrator`, `Logger`
 - `get<K>(key)`: cache → DB → default. JSON.parse for deserialization.
 - `set<K>(key, value, updatedBy?)`: check if key existed → upsert → JSON.stringify → invalidate cache → emit created/updated event (+ maintenance.toggled if maintenance_mode)
@@ -900,6 +918,7 @@ Create `packages/settings/tests/unit/dynamic-settings.service.test.ts`:
 The test needs mocks for: `SettingsRepositoryPort`, `CacheService`, `EventBusOrchestrator`, and a logger.
 
 Test cases:
+
 1. `get()` — cache hit returns cached value (no DB call)
 2. `get()` — cache miss, DB hit returns parsed JSON value and populates cache
 3. `get()` — cache miss, DB miss returns DYNAMIC_SETTING_DEFAULTS[key]
@@ -933,10 +952,7 @@ import { AppError } from '@tempot/shared';
 import type { CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { Logger } from 'pino';
-import type {
-  DynamicSettingKey,
-  DynamicSettingDefinitions,
-} from './settings.types.js';
+import type { DynamicSettingKey, DynamicSettingDefinitions } from './settings.types.js';
 import { DYNAMIC_SETTING_DEFAULTS } from './settings.types.js';
 import type { SettingsRepositoryPort } from './settings.repository.js';
 import { SETTINGS_ERRORS } from './settings.errors.js';
@@ -969,7 +985,10 @@ export class DynamicSettingsService {
 
     // Cache miss or cache failure — fall through to DB (NFR-005)
     if (cacheResult.isErr()) {
-      this.logger.warn({ key, error: cacheResult.error.code }, 'Cache read failed, falling through to DB');
+      this.logger.warn(
+        { key, error: cacheResult.error.code },
+        'Cache read failed, falling through to DB',
+      );
     }
 
     // Try DB
@@ -1012,9 +1031,10 @@ export class DynamicSettingsService {
     // Check if key existed before (for created vs updated discrimination)
     const existingResult = await this.repository.findByKey(key);
     const existed = existingResult.isOk() && existingResult.value !== null;
-    const oldValue = existed && existingResult.isOk()
-      ? JSON.parse(existingResult.value!.value)
-      : DYNAMIC_SETTING_DEFAULTS[key];
+    const oldValue =
+      existed && existingResult.isOk()
+        ? JSON.parse(existingResult.value!.value)
+        : DYNAMIC_SETTING_DEFAULTS[key];
 
     // Upsert DB
     const upsertResult = await this.repository.upsert(key, serializedValue, updatedBy);
@@ -1060,9 +1080,10 @@ export class DynamicSettingsService {
 
     // Get old value for event payload
     const existingResult = await this.repository.findByKey(key);
-    const oldValue = existingResult.isOk() && existingResult.value !== null
-      ? JSON.parse(existingResult.value.value)
-      : DYNAMIC_SETTING_DEFAULTS[key];
+    const oldValue =
+      existingResult.isOk() && existingResult.value !== null
+        ? JSON.parse(existingResult.value.value)
+        : DYNAMIC_SETTING_DEFAULTS[key];
 
     // Delete from DB
     const deleteResult = await this.repository.deleteByKey(key);
@@ -1095,6 +1116,7 @@ export class DynamicSettingsService {
 ```
 
 **Important implementation notes for the implementer:**
+
 - The `EventBusOrchestrator` type must be imported correctly. Check `packages/event-bus/src/index.ts` for the exact export name and its `publish` method signature.
 - The `CacheService` type is from `@tempot/shared`. Its methods return `AsyncResult`.
 - The `Logger` type is from `pino`. It's used via `@tempot/logger` but the type import is `from 'pino'`.
@@ -1122,6 +1144,7 @@ git commit -m "feat(settings): dynamic settings service with cache and events"
 **Goal:** Implement the maintenance mode helper that provides `getStatus(): AsyncResult<MaintenanceStatus>`.
 
 **Files:**
+
 - Create: `packages/settings/src/maintenance.service.ts`
 - Test: `packages/settings/tests/unit/maintenance.service.test.ts`
 
@@ -1153,7 +1176,10 @@ describe('MaintenanceService', () => {
   it('should return enabled: false when maintenance_mode is false', async () => {
     const mockDynamic = createMockDynamicService();
     mockDynamic.get.mockResolvedValue(ok(false));
-    const service = new MaintenanceService(mockDynamic as unknown as DynamicSettingsService, mockStaticSettings);
+    const service = new MaintenanceService(
+      mockDynamic as unknown as DynamicSettingsService,
+      mockStaticSettings,
+    );
 
     const result = await service.getStatus();
     expect(result.isOk()).toBe(true);
@@ -1165,7 +1191,10 @@ describe('MaintenanceService', () => {
   it('should return enabled: true when maintenance_mode is true', async () => {
     const mockDynamic = createMockDynamicService();
     mockDynamic.get.mockResolvedValue(ok(true));
-    const service = new MaintenanceService(mockDynamic as unknown as DynamicSettingsService, mockStaticSettings);
+    const service = new MaintenanceService(
+      mockDynamic as unknown as DynamicSettingsService,
+      mockStaticSettings,
+    );
 
     const result = await service.getStatus();
     expect(result.isOk()).toBe(true);
@@ -1177,7 +1206,10 @@ describe('MaintenanceService', () => {
   it('should return isSuperAdmin(111) as true', async () => {
     const mockDynamic = createMockDynamicService();
     mockDynamic.get.mockResolvedValue(ok(false));
-    const service = new MaintenanceService(mockDynamic as unknown as DynamicSettingsService, mockStaticSettings);
+    const service = new MaintenanceService(
+      mockDynamic as unknown as DynamicSettingsService,
+      mockStaticSettings,
+    );
 
     const result = await service.getStatus();
     expect(result.isOk()).toBe(true);
@@ -1190,7 +1222,10 @@ describe('MaintenanceService', () => {
   it('should return isSuperAdmin(999) as false', async () => {
     const mockDynamic = createMockDynamicService();
     mockDynamic.get.mockResolvedValue(ok(false));
-    const service = new MaintenanceService(mockDynamic as unknown as DynamicSettingsService, mockStaticSettings);
+    const service = new MaintenanceService(
+      mockDynamic as unknown as DynamicSettingsService,
+      mockStaticSettings,
+    );
 
     const result = await service.getStatus();
     expect(result.isOk()).toBe(true);
@@ -1202,7 +1237,10 @@ describe('MaintenanceService', () => {
   it('should default to enabled: false when maintenance_mode read fails', async () => {
     const mockDynamic = createMockDynamicService();
     mockDynamic.get.mockResolvedValue(err(new AppError('settings.dynamic.unknown_key')));
-    const service = new MaintenanceService(mockDynamic as unknown as DynamicSettingsService, mockStaticSettings);
+    const service = new MaintenanceService(
+      mockDynamic as unknown as DynamicSettingsService,
+      mockStaticSettings,
+    );
 
     const result = await service.getStatus();
     expect(result.isOk()).toBe(true);
@@ -1268,6 +1306,7 @@ git commit -m "feat(settings): maintenance service with super admin bypass"
 **Goal:** Create the unified facade that composes static + dynamic + maintenance services.
 
 **Files:**
+
 - Create: `packages/settings/src/settings.service.ts`
 - Test: `packages/settings/tests/unit/settings.service.test.ts`
 
@@ -1276,6 +1315,7 @@ git commit -m "feat(settings): maintenance service with super admin bypass"
 Create `packages/settings/tests/unit/settings.service.test.ts`:
 
 Test cases:
+
 1. `getStatic()` returns the static settings
 2. `getDynamic(key)` delegates to DynamicSettingsService
 3. `setDynamic(key, value, updatedBy)` delegates to DynamicSettingsService
@@ -1350,6 +1390,7 @@ git commit -m "feat(settings): unified settings service facade"
 **Goal:** Add the `Setting` model to the Prisma schema.
 
 **Files:**
+
 - Modify: `packages/database/prisma/schema.prisma`
 
 - [ ] **Step 1: Add Setting model to schema.prisma**
@@ -1404,6 +1445,7 @@ git commit -m "feat(database): add Setting model for dynamic settings"
 **Goal:** Register the 4 settings events in the `TempotEvents` interface with inline payloads (DC-5).
 
 **Files:**
+
 - Modify: `packages/event-bus/src/event-bus.events.ts`
 
 - [ ] **Step 1: Add settings events to TempotEvents**
@@ -1460,6 +1502,7 @@ git commit -m "feat(event-bus): register settings events with inline payloads"
 **Goal:** Wire up all public exports in `src/index.ts` using the `export *` pattern with `.js` extensions.
 
 **Files:**
+
 - Modify: `packages/settings/src/index.ts`
 
 - [ ] **Step 1: Write barrel exports**
@@ -1485,7 +1528,11 @@ export { SETTINGS_ERRORS } from './settings.errors.js';
 
 // Repository
 export { SettingsRepository } from './settings.repository.js';
-export type { SettingsRepositoryPort, SettingsPrismaClient, SettingDelegate } from './settings.repository.js';
+export type {
+  SettingsRepositoryPort,
+  SettingsPrismaClient,
+  SettingDelegate,
+} from './settings.repository.js';
 
 // Services
 export { StaticSettingsLoader } from './static-settings.loader.js';
@@ -1528,6 +1575,7 @@ git commit -m "feat(settings): barrel exports with full public API surface"
 **Goal:** Test the full settings lifecycle against a real PostgreSQL database via Testcontainers.
 
 **Files:**
+
 - Create: `packages/settings/tests/integration/settings.integration.test.ts`
 
 **Dependencies:** Requires `@testcontainers/postgresql` in devDependencies. If not already present, add it.
@@ -1551,6 +1599,7 @@ Also check how session-manager or database packages set up Testcontainers for in
 Create `packages/settings/tests/integration/settings.integration.test.ts`:
 
 Test cases:
+
 1. Full CRUD flow: set → get (returns new value) → update → get (returns updated) → delete → get (returns default)
 2. Default values: empty database returns all defaults from DYNAMIC_SETTING_DEFAULTS
 3. Cache invalidation: write → read returns fresh value (not stale cached value)

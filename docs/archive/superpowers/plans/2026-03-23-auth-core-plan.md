@@ -23,6 +23,7 @@
 **Goal:** Scaffold the package and define absolute baseline types and interfaces.
 
 **Files:**
+
 - Create: `packages/auth-core/package.json`
 - Create: `packages/auth-core/tsconfig.json`
 - Create: `packages/auth-core/vitest.config.ts`
@@ -38,6 +39,7 @@
 Run: `cmd.exe /c "mkdir packages\auth-core\src\contracts && mkdir packages\auth-core\tests\unit"`
 
 Create `packages/auth-core/package.json`:
+
 ```json
 {
   "name": "@tempot/auth-core",
@@ -59,6 +61,7 @@ Create `packages/auth-core/package.json`:
 ```
 
 Create `packages/auth-core/tsconfig.json`:
+
 ```json
 {
   "extends": "../../tsconfig.json",
@@ -71,6 +74,7 @@ Create `packages/auth-core/tsconfig.json`:
 ```
 
 Create `packages/auth-core/vitest.config.ts`:
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -83,6 +87,7 @@ export default defineConfig({
 ```
 
 Create test `packages/auth-core/tests/unit/contracts.test.ts`:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { RoleEnum } from '../../src/contracts/roles';
@@ -104,6 +109,7 @@ Expected: FAIL with "Cannot find module"
 - [ ] **Step 3: Write minimal implementation**
 
 Create `packages/auth-core/src/contracts/roles.ts`:
+
 ```typescript
 export enum RoleEnum {
   GUEST = 'GUEST',
@@ -114,17 +120,20 @@ export enum RoleEnum {
 ```
 
 Create `packages/auth-core/src/contracts/actions.ts`:
+
 ```typescript
 export type AppAction = 'create' | 'read' | 'update' | 'delete' | 'manage';
 ```
 
 Create `packages/auth-core/src/contracts/subjects.ts`:
+
 ```typescript
 export interface AppSubjects {}
 export type AppSubject = keyof AppSubjects | 'all';
 ```
 
 Create `packages/auth-core/src/contracts/session-user.ts`:
+
 ```typescript
 import { RoleEnum } from './roles';
 
@@ -136,6 +145,7 @@ export interface SessionUser {
 ```
 
 Create `packages/auth-core/src/index.ts`:
+
 ```typescript
 export * from './contracts/roles';
 export * from './contracts/actions';
@@ -159,6 +169,7 @@ Run: `cmd.exe /c "git add packages/auth-core && git commit -m `"feat(auth-core):
 **Goal:** Implement specific AppError extensions for Auth failures using `@tempot/shared`.
 
 **Files:**
+
 - Create: `packages/auth-core/src/errors/auth.errors.ts`
 - Modify: `packages/auth-core/src/index.ts`
 - Test: `packages/auth-core/tests/unit/auth.errors.test.ts`
@@ -166,6 +177,7 @@ Run: `cmd.exe /c "git add packages/auth-core && git commit -m `"feat(auth-core):
 - [ ] **Step 1: Write the failing test**
 
 Create `packages/auth-core/tests/unit/auth.errors.test.ts`:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { UnauthorizedError, ForbiddenError } from '../../src/errors/auth.errors';
@@ -193,6 +205,7 @@ Expected: FAIL with "Cannot find module"
 - [ ] **Step 3: Write minimal implementation**
 
 Create `packages/auth-core/src/errors/auth.errors.ts`:
+
 ```typescript
 import { AppError } from '@tempot/shared';
 
@@ -212,6 +225,7 @@ export class ForbiddenError extends AppError {
 ```
 
 Modify `packages/auth-core/src/index.ts` to append:
+
 ```typescript
 export * from './errors/auth.errors';
 ```
@@ -232,6 +246,7 @@ Run: `cmd.exe /c "git add packages/auth-core/src/errors packages/auth-core/tests
 **Goal:** Build the CASL `Ability` setup using pure Contracts.
 
 **Files:**
+
 - Create: `packages/auth-core/src/factory/ability.factory.ts`
 - Modify: `packages/auth-core/src/index.ts`
 - Test: `packages/auth-core/tests/unit/ability.factory.test.ts`
@@ -239,6 +254,7 @@ Run: `cmd.exe /c "git add packages/auth-core/src/errors packages/auth-core/tests
 - [ ] **Step 1: Write the failing test**
 
 Create `packages/auth-core/tests/unit/ability.factory.test.ts`:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { AbilityFactory } from '../../src/factory/ability.factory';
@@ -249,9 +265,10 @@ import { RoleEnum } from '../../src/contracts/roles';
 describe('AbilityFactory', () => {
   it('should build abilities from provided definitions', () => {
     const user: SessionUser = { id: 1, role: RoleEnum.USER };
-    const definition = (u: SessionUser) => defineAbility((can) => {
-      if (u.role === RoleEnum.USER) can('read', 'all');
-    });
+    const definition = (u: SessionUser) =>
+      defineAbility((can) => {
+        if (u.role === RoleEnum.USER) can('read', 'all');
+      });
 
     const ability = AbilityFactory.build(user, [definition]);
     expect(ability.can('read', 'all')).toBe(true);
@@ -268,6 +285,7 @@ Expected: FAIL with "Cannot find module"
 - [ ] **Step 3: Write minimal implementation**
 
 Create `packages/auth-core/src/factory/ability.factory.ts`:
+
 ```typescript
 import { AnyAbility } from '@casl/ability';
 import { SessionUser } from '../contracts/session-user';
@@ -278,8 +296,8 @@ export class AbilityFactory {
   static build(user: SessionUser, definitions: AbilityDefinition[]): AnyAbility {
     // In a real robust implementation, we would merge the rules from multiple definitions.
     // For CASL, combining rules from multiple abilities requires extracting their rules.
-    const rules = definitions.flatMap(def => def(user).rules);
-    
+    const rules = definitions.flatMap((def) => def(user).rules);
+
     // We import MongoAbility dynamically to construct a unified ability
     // but CASL's createMongoAbility takes rules directly
     const { createMongoAbility } = require('@casl/ability');
@@ -289,6 +307,7 @@ export class AbilityFactory {
 ```
 
 Modify `packages/auth-core/src/index.ts` to append:
+
 ```typescript
 export * from './factory/ability.factory';
 ```
@@ -306,10 +325,11 @@ Run: `cmd.exe /c "git add packages/auth-core/src/factory packages/auth-core/test
 
 ### Task 4: Guards Agent (PARALLEL WORKER C)
 
-**Goal:** Implement the execution Guard to enforce permissions and return standardized `Result` objects. Note: This relies on Task 1 types and Task 2 Error classes (or their local mock equivalent during parallel dev, but since they run after Task 1, we can assume types exist). Wait, Guard depends on Errors (Task 2). BUT rule 2 says Tasks 2, 3, 4 have "absolutely no dependencies on each other". 
-*Correction to Architecture:* If Guard needs to return `UnauthorizedError`, it either depends on Task 2, OR Guard directly constructs `AppError('UNAUTHORIZED')` via `@tempot/shared` to avoid depending on Task 2! Yes, strictly returning `AppError` from `@tempot/shared`.
+**Goal:** Implement the execution Guard to enforce permissions and return standardized `Result` objects. Note: This relies on Task 1 types and Task 2 Error classes (or their local mock equivalent during parallel dev, but since they run after Task 1, we can assume types exist). Wait, Guard depends on Errors (Task 2). BUT rule 2 says Tasks 2, 3, 4 have "absolutely no dependencies on each other".
+_Correction to Architecture:_ If Guard needs to return `UnauthorizedError`, it either depends on Task 2, OR Guard directly constructs `AppError('UNAUTHORIZED')` via `@tempot/shared` to avoid depending on Task 2! Yes, strictly returning `AppError` from `@tempot/shared`.
 
 **Files:**
+
 - Create: `packages/auth-core/src/guards/guard.ts`
 - Modify: `packages/auth-core/src/index.ts`
 - Test: `packages/auth-core/tests/unit/guard.test.ts`
@@ -317,6 +337,7 @@ Run: `cmd.exe /c "git add packages/auth-core/src/factory packages/auth-core/test
 - [ ] **Step 1: Write the failing test**
 
 Create `packages/auth-core/tests/unit/guard.test.ts`:
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { Guard } from '../../src/guards/guard';
@@ -350,6 +371,7 @@ Expected: FAIL with "Cannot find module"
 - [ ] **Step 3: Write minimal implementation**
 
 Create `packages/auth-core/src/guards/guard.ts`:
+
 ```typescript
 import { AnyAbility } from '@casl/ability';
 import { err, ok } from 'neverthrow';
@@ -358,11 +380,15 @@ import { AppAction } from '../contracts/actions';
 import { AppSubject } from '../contracts/subjects';
 
 export class Guard {
-  static enforce(ability: AnyAbility, action: AppAction, subject: AppSubject): Result<void, AppError> {
+  static enforce(
+    ability: AnyAbility,
+    action: AppAction,
+    subject: AppSubject,
+  ): Result<void, AppError> {
     if (ability.can(action, subject)) {
       return ok(undefined);
     }
-    
+
     // Using generic AppError to avoid depending on Task 2
     return err(new AppError('FORBIDDEN', { action, subject }));
   }
@@ -370,6 +396,7 @@ export class Guard {
 ```
 
 Modify `packages/auth-core/src/index.ts` to append:
+
 ```typescript
 export * from './guards/guard';
 ```

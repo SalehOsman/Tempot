@@ -102,19 +102,13 @@ export default tseslint.config(
             // Infrastructure (Tier 2): can import Foundation + other Infrastructure
             {
               from: { type: 'infrastructure' },
-              allow: [
-                { to: { type: 'foundation' } },
-                { to: { type: 'infrastructure' } },
-              ],
+              allow: [{ to: { type: 'foundation' } }, { to: { type: 'infrastructure' } }],
             },
 
             // Cross-cutting (Tier 3): can import Foundation + Infrastructure
             {
               from: { type: 'cross-cutting' },
-              allow: [
-                { to: { type: 'foundation' } },
-                { to: { type: 'infrastructure' } },
-              ],
+              allow: [{ to: { type: 'foundation' } }, { to: { type: 'infrastructure' } }],
             },
 
             // Domain (Tier 4): can import Foundation + Infrastructure + Cross-cutting

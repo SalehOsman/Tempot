@@ -15,6 +15,7 @@
 ### Task 1: Refactor `orchestrator.ts`
 
 **Files:**
+
 - Modify: `packages/event-bus/src/orchestrator.ts`
 - Test: `packages/event-bus/tests/orchestrator.test.ts`
 
@@ -35,6 +36,7 @@
 ### Task 2: Refactor `local.bus.ts`
 
 **Files:**
+
 - Modify: `packages/event-bus/src/local/local.bus.ts`
 
 - [ ] **Step 1: Remove `any` and `eslint-disable`**
@@ -53,6 +55,7 @@
 ### Task 3: Refactor `base.repository.ts`
 
 **Files:**
+
 - Modify: `packages/database/src/base/base.repository.ts`
 
 - [ ] **Step 1: Define `IAuditLogger` locally**
@@ -69,6 +72,7 @@
 ### Task 4: Refactor `transaction.manager.ts`
 
 **Files:**
+
 - Modify: `packages/database/src/manager/transaction.manager.ts`
 
 - [ ] **Step 1: Remove `any` and `eslint-disable`**
@@ -86,6 +90,7 @@
 ### Task 5: Create `AuditLogRepository`
 
 **Files:**
+
 - Create: `packages/database/src/repositories/audit-log.repository.ts`
 - Modify: `packages/database/src/index.ts`
 
@@ -99,6 +104,7 @@
 ### Task 6: Refactor `AuditLogger`
 
 **Files:**
+
 - Modify: `packages/logger/src/audit/audit.logger.ts`
 
 - [ ] **Step 1: Inject `AuditLogRepository`**

@@ -18,14 +18,14 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package              | Purpose                               |
+| -------------------- | ------------------------------------- |
 | `@grammyjs/menu` 1.x | List display and navigation — ADR-025 |
-| `@tempot/database` | Prisma `where` query construction |
-| `@tempot/shared` | cache-manager for search state |
-| `@tempot/ai-core` | Semantic search (optional) |
-| `@tempot/ux-helpers` | Status messages |
-| `@tempot/i18n-core` | Localised UI text |
+| `@tempot/database`   | Prisma `where` query construction     |
+| `@tempot/shared`     | cache-manager for search state        |
+| `@tempot/ai-core`    | Semantic search (optional)            |
+| `@tempot/ux-helpers` | Status messages                       |
+| `@tempot/i18n-core`  | Localised UI text                     |
 
 ## API
 
@@ -42,16 +42,20 @@ const dataProvider = async (page: number, query: string, filters: FilterRule[]) 
   return { items, total };
 };
 
-await SearchEngine.render(ctx, {
-  titleKey: 'invoices.list.title',
-  pageSize: 10,
-  searchMode: 'exact',       // or 'semantic' when hasAI=true
-  filters: [
-    { field: 'status', type: 'enum', options: ['PENDING', 'PAID', 'CANCELLED'] },
-    { field: 'createdAt', type: 'date_range' },
-    { field: 'amount', type: 'number_range' },
-  ],
-}, dataProvider);
+await SearchEngine.render(
+  ctx,
+  {
+    titleKey: 'invoices.list.title',
+    pageSize: 10,
+    searchMode: 'exact', // or 'semantic' when hasAI=true
+    filters: [
+      { field: 'status', type: 'enum', options: ['PENDING', 'PAID', 'CANCELLED'] },
+      { field: 'createdAt', type: 'date_range' },
+      { field: 'amount', type: 'number_range' },
+    ],
+  },
+  dataProvider,
+);
 ```
 
 ## ADRs

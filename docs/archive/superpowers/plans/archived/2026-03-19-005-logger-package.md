@@ -13,6 +13,7 @@
 ### Task 1: Structured Technical Logger with User Context (Pino)
 
 **Files:**
+
 - Create: `packages/logger/src/technical/pino.logger.ts`
 - Test: `packages/logger/tests/unit/pino-logger.test.ts`
 
@@ -27,11 +28,11 @@ describe('Pino Logger', () => {
   it('should automatically inject userId from session context', () => {
     const stream = { write: vi.fn() };
     const testLogger = logger.child({}, { stream } as any);
-    
+
     sessionContext.run({ userId: 'user_123' }, () => {
       testLogger.info('Test context');
     });
-    
+
     expect(stream.write).toHaveBeenCalledWith(expect.stringContaining('user_123'));
   });
 });
@@ -57,7 +58,7 @@ export const logger = pino({
   mixin() {
     const context = sessionContext.getStore();
     return context?.userId ? { userId: context.userId } : {};
-  }
+  },
 });
 ```
 
@@ -78,6 +79,7 @@ git commit -m "feat(logger): implement structured Pino logger with ALS context i
 ### Task 2: Unified Audit Logger Service
 
 **Files:**
+
 - Create: `packages/logger/src/audit/audit.logger.ts`
 - Test: `packages/logger/tests/unit/audit-logger.test.ts`
 
@@ -95,7 +97,7 @@ describe('AuditLogger', () => {
       action: 'user.update',
       module: 'users',
       before: { name: 'Old' },
-      after: { name: 'New' }
+      after: { name: 'New' },
     });
     expect(result).toBeDefined();
   });
@@ -118,8 +120,8 @@ export class AuditLogger {
       data: {
         ...entry,
         timestamp: new Date(),
-        status: 'SUCCESS'
-      }
+        status: 'SUCCESS',
+      },
     });
   }
 }
@@ -142,6 +144,7 @@ git commit -m "feat(logger): implement unified AuditLogger service"
 ### Task 3: PII Redaction Logic
 
 **Files:**
+
 - Modify: `packages/logger/src/technical/pino.logger.ts`
 - Test: `packages/logger/tests/unit/redaction.test.ts`
 

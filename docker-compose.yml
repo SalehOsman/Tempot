@@ -33,7 +33,7 @@ services:
     container_name: tempot-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: tempot
       POSTGRES_PASSWORD: tempot_password
@@ -41,7 +41,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tempot -d tempot_db"]
+      test: ['CMD-SHELL', 'pg_isready -U tempot -d tempot_db']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,12 +52,12 @@ services:
     container_name: tempot-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5

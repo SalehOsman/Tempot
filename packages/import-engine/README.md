@@ -21,16 +21,16 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `csv-parse` 5.x | CSV streaming parser |
-| `xlsx` (SheetJS) 0.18.x | Excel file reading |
-| `zod` 3.x | Row validation |
-| `@tempot/shared` | queue factory (BullMQ) |
-| `@tempot/event-bus` | Receive file, emit batches and completion |
-| `@tempot/document-engine` | Error report generation |
-| `@tempot/storage-engine` | Uploaded file reading |
-| `@tempot/logger` | Import progress logging |
+| Package                   | Purpose                                   |
+| ------------------------- | ----------------------------------------- |
+| `csv-parse` 5.x           | CSV streaming parser                      |
+| `xlsx` (SheetJS) 0.18.x   | Excel file reading                        |
+| `zod` 3.x                 | Row validation                            |
+| `@tempot/shared`          | queue factory (BullMQ)                    |
+| `@tempot/event-bus`       | Receive file, emit batches and completion |
+| `@tempot/document-engine` | Error report generation                   |
+| `@tempot/storage-engine`  | Uploaded file reading                     |
+| `@tempot/logger`          | Import progress logging                   |
 
 ## Event Flow
 
@@ -38,7 +38,7 @@ Phase 4 — Advanced Engines
 // Module triggers import
 await eventBus.emit('import.file.received', {
   fileId: attachmentId,
-  schema: myZodSchema,         // validation schema per row
+  schema: myZodSchema, // validation schema per row
   batchSize: 50,
   userId,
   locale: 'ar',
@@ -46,13 +46,16 @@ await eventBus.emit('import.file.received', {
 
 // Module listens for batches
 eventBus.on('import.batch.ready', async ({ rows, batchNumber }) => {
-  await Promise.all(rows.map(row => myRepo.create(row)));
+  await Promise.all(rows.map((row) => myRepo.create(row)));
 });
 
 // Module listens for completion
-eventBus.on('import.process.completed', async ({ totalRows, successCount, errorCount, errorFileUrl }) => {
-  await notifier.send(userId, 'import.completed', { successCount, errorCount });
-});
+eventBus.on(
+  'import.process.completed',
+  async ({ totalRows, successCount, errorCount, errorFileUrl }) => {
+    await notifier.send(userId, 'import.completed', { successCount, errorCount });
+  },
+);
 ```
 
 ## Scripts

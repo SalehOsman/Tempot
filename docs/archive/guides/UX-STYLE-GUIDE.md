@@ -11,6 +11,7 @@ This guide defines the mandatory UX and UI standards for the Tempot framework ac
 The core interaction principle in Tempot is to **always edit the existing message** instead of sending a new one. This keeps the chat history clean and provides a "web-app-like" experience within Telegram.
 
 ### Interaction Flow:
+
 1. **Trigger**: User presses an inline button.
 2. **Indicator**: Immediately update the message with a ⏳ **Loading** state (if the action takes >1 second).
 3. **Result**: Update the same message with the final result.
@@ -24,12 +25,12 @@ The core interaction principle in Tempot is to **always edit the existing messag
 
 Every automated response must follow one of these four status patterns:
 
-| Type | Emoji | Pattern | Example |
-| :--- | :---: | :--- | :--- |
-| **Loading** | ⏳ | Symbol + Present Tense Verb | ⏳ Processing payment... |
-| **Success** | ✅ | Symbol + Past Tense Action | ✅ Invoice paid successfully |
-| **Error** | ❌ | Symbol + Problem + Solution | ❌ Connection failed. Please try again later. |
-| **Warning** | ⚠️ | Symbol + Caution + Options | ⚠️ This action is irreversible. Are you sure? |
+| Type        | Emoji | Pattern                     | Example                                       |
+| :---------- | :---: | :-------------------------- | :-------------------------------------------- |
+| **Loading** |  ⏳   | Symbol + Present Tense Verb | ⏳ Processing payment...                      |
+| **Success** |  ✅   | Symbol + Past Tense Action  | ✅ Invoice paid successfully                  |
+| **Error**   |  ❌   | Symbol + Problem + Solution | ❌ Connection failed. Please try again later. |
+| **Warning** |  ⚠️   | Symbol + Caution + Options  | ⚠️ This action is irreversible. Are you sure? |
 
 ---
 
@@ -38,12 +39,14 @@ Every automated response must follow one of these four status patterns:
 **Constitution Rule LXVI / Spec 13.1**
 
 ### Inline Keyboards (Telegram)
+
 - **Character Limits**: Maximum **20 Arabic characters** or **24 English characters** per button.
 - **Layout**: Maximum **3 buttons per row**. Long text buttons should occupy their own row.
 - **Emoji Position**: Always place emojis at the **start** of the button text for instant scannability.
 - **Action-Oriented Text**: Use descriptive action names (e.g., "🗑️ Delete Invoice") instead of generic terms like "Yes" or "Confirm".
 
 ### Button Pairs (Confirm/Cancel)
+
 - **Same Row**: Confirm and Cancel buttons must **always** be in the same row.
 - **RTL Ordering**: In Arabic (RTL), the **Confirm (Primary)** button must be on the **right**, and the **Cancel (Secondary)** button on the **left**.
 
@@ -56,10 +59,12 @@ Every automated response must follow one of these four status patterns:
 Arabic is the primary language of Tempot. RTL support is not optional.
 
 ### General Principles
+
 - **Number Formatting**: Never format numbers manually. Use `RegionalEngine.formatNumber()` and `RegionalEngine.formatCurrency()`.
 - **Directional Markers**: Use Unicode directional markers for mixed Arabic/English content to prevent layout "jitter".
 
 ### Dashboard & Mini App (Web)
+
 - **Root Direction**: Set `dir="rtl"` and `lang="ar"` on the `<html>` tag.
 - **Logical Properties**: Use Tailwind logical properties instead of directional ones:
   - Use `ms-*` / `me-*` (Margin Start/End) instead of `ml-*` / `mr-*`.

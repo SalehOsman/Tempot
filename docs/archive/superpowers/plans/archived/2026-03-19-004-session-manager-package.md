@@ -13,6 +13,7 @@
 ### Task 1: Dual-layer Persistence Logic with Event Bus Sync
 
 **Files:**
+
 - Create: `packages/session-manager/src/persistence/session.provider.ts`
 - Test: `packages/session-manager/tests/unit/session-persistence.test.ts`
 
@@ -27,10 +28,14 @@ describe('Session Persistence', () => {
     const eventBus = { publish: vi.fn() };
     const provider = new SessionProvider(eventBus as any);
     await provider.save({ userId: '1', role: 'USER' });
-    
+
     const redisSession = await provider.getFromRedis('1');
     expect(redisSession).toBeDefined();
-    expect(eventBus.publish).toHaveBeenCalledWith('session.updated', expect.any(Object), 'INTERNAL');
+    expect(eventBus.publish).toHaveBeenCalledWith(
+      'session.updated',
+      expect.any(Object),
+      'INTERNAL',
+    );
   });
 });
 ```
@@ -53,7 +58,7 @@ export class SessionProvider {
   async save(session: any) {
     // Primary fast write
     await this.redis.set(`session:${session.userId}`, JSON.stringify(session), 'EX', 86400);
-    
+
     // Asynchronous background sync via event bus
     this.eventBus.publish('session.updated', session, 'INTERNAL').catch(console.error);
   }
@@ -82,6 +87,7 @@ git commit -m "feat(session): implement basic dual-layer persistence with event-
 ### Task 2: AsyncLocalStorage for Session Context
 
 **Files:**
+
 - Create: `packages/session-manager/src/context/session.context.ts`
 - Test: `packages/session-manager/tests/unit/session-context.test.ts`
 
@@ -135,6 +141,7 @@ git commit -m "feat(session): add AsyncLocalStorage for global session access"
 ### Task 3: Session Schema Versioning (Section 15.6)
 
 **Files:**
+
 - Create: `packages/session-manager/src/versioning/session.migrator.ts`
 - Test: `packages/session-manager/tests/unit/session-versioning.test.ts`
 
@@ -164,13 +171,13 @@ Expected: FAIL (migrateSession not defined)
 ```typescript
 export function migrateSession(data: any, targetVersion: number) {
   let current = { ...data };
-  
+
   if (current._version === 1 && targetVersion >= 2) {
     current.profile = { name: current.name };
     delete current.name;
     current._version = 2;
   }
-  
+
   return current;
 }
 ```

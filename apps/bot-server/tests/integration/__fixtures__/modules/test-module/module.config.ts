@@ -1,0 +1,21 @@
+export default {
+  name: 'test-module',
+  version: '1.0.0',
+  requiredRole: 'GUEST',
+  commands: [{ command: 'ping', description: 'ping command' }],
+  features: {
+    hasDatabase: false,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasAI: false,
+    hasInputEngine: false,
+    hasImport: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+  isActive: true,
+  isCore: false,
+  requires: { packages: [], optional: [] },
+};

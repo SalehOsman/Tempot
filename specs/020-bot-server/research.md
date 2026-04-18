@@ -73,3 +73,15 @@
 - **Decision:** Thin entry point (`src/index.ts`) that creates dependencies and calls the startup orchestrator. All logic lives in dedicated modules under `bot/`, `server/`, `startup/`.
 - **Rationale:** The existing bot-server README already defines this structure. A thin entry point makes the application testable (the orchestrator can be tested with mocked dependencies) and follows the separation of concerns principle. The orchestrator is the only file that knows the full startup order.
 - **Alternatives considered:** Monolithic entry point (rejected — the 72-line prototype is exactly this, and it's marked "WILL NOT ENTER PRODUCTION"). Dependency injection container framework (rejected — Constitution doesn't use DI frameworks, D26 in spec.md uses a plain object).
+
+### 13. Wiring Strategy: Factory Function vs DI Container (Phase B)
+
+- **Decision:** Single async factory function `buildDeps()` in `deps.factory.ts` that constructs all real `@tempot/*` instances and returns `Result<OrchestratorDeps, AppError>`.
+- **Rationale:** Keeps the existing `OrchestratorDeps` interface intact (no interface changes, all existing orchestrator tests pass unmodified). The factory is the only place that knows initialization order — a DI container would add framework complexity for no gain given the linear 10-step order. `Result<>` return type allows clean fatal-error propagation before the orchestrator starts.
+- **Alternatives considered:** DI container (e.g., tsyringe / inversify) — rejected: adds framework dependency, overkill for a linear startup sequence. Splitting into multiple smaller factory functions — partially adopted: `buildSettingsService`, `buildCacheAdapter`, `buildHealthProbes` are extracted to separate files for testability. Single function with no Result wrapper — rejected: cannot propagate DB/bus init failures before orchestrator starts.
+
+### 14. CacheService → CacheAdapter Adapter (Phase B)
+
+- **Decision:** Thin adapter shim `buildCacheAdapter(cache)` in `cache.adapter.ts` that normalises `undefined → null` and unwraps `AsyncResult` into `Promise<Result<T|null, AppError>>`.
+- **Rationale:** `CacheService` returns `AsyncResult<T | undefined | null>` (cache-manager semantics); `SessionProvider.CacheAdapter` expects `Promise<Result<T | null, AppError>>`. The two types are incompatible at the call site but structurally equivalent — a thin shim avoids modifying either package. `expire()` is a no-op: cache-manager applies TTL on `set()`, so EXPIRE commands are unnecessary.
+- **Alternatives considered:** Modify `CacheService` return type — rejected: breaking change to `@tempot/shared`. Cast via `as never` inline — rejected: hides the mismatch and violates Rule I (no `any`/`as never` escapes). Modify `SessionProvider.CacheAdapter` — rejected: breaking change to `@tempot/session-manager`.

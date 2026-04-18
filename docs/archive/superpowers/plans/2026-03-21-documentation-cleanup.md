@@ -13,6 +13,7 @@
 ### Task 1: Create Missing ADRs (026-029)
 
 **Files:**
+
 - Create: `docs/architecture/adr/ADR-026-neverthrow-result-pattern.md`
 - Create: `docs/architecture/adr/ADR-027-pino-logging.md`
 - Create: `docs/architecture/adr/ADR-028-testing-strategy-vitest.md`
@@ -36,6 +37,7 @@ git commit -m "docs: add missing ADRs 026-029 and update index"
 ### Task 2: Consolidate UX/UI Rules
 
 **Files:**
+
 - Create: `docs/guides/UX-STYLE-GUIDE.md`
 - Modify: `README.md` (Documentation links)
 - Modify: `docs/guides/RTL-GUIDELINES.md` (Mark as deprecated/legacy)
@@ -55,6 +57,7 @@ git commit -m "docs: consolidate UX/UI rules into unified style guide"
 ### Task 3: Purge Deprecated Workflow References
 
 **Files:**
+
 - Modify: `docs/developer/workflow-guide.md`
 - Modify: `docs/tempot_v11_final.md` (Arabic context preservation)
 - Modify: `docs/guides/TESTING-STRATEGY-EXTENDED.md`

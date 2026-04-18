@@ -1,5 +1,5 @@
 import type { BotError, Context } from 'grammy';
-import { generateErrorReference } from '@tempot/shared';
+import { generateErrorReference, AppError } from '@tempot/shared';
 
 export interface ErrorBoundaryDeps {
   logger: { error: (data: unknown) => void; warn: (data: unknown) => void };
@@ -8,8 +8,43 @@ export interface ErrorBoundaryDeps {
   };
   t: (key: string, options?: Record<string, unknown>) => string;
   sentryReporter?: {
-    reportWithReference: (error: Error, refCode: string) => { isOk: () => boolean };
+    reportWithReference: (error: AppError, refCode: string) => { isOk: () => boolean };
   };
+}
+
+function reportErrorToChannels(
+  deps: ErrorBoundaryDeps,
+  actualError: Error,
+  referenceCode: string,
+): void {
+  deps.eventBus
+    .publish('system.error', {
+      referenceCode,
+      errorCode: 'bot-server.unhandled_error',
+    })
+    .catch((error: unknown) => {
+      deps.logger.warn({
+        code: 'bot-server.event_publish_failed',
+        referenceCode,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
+
+  if (deps.sentryReporter) {
+    try {
+      const appErr =
+        actualError instanceof AppError
+          ? actualError
+          : new AppError('bot-server.unhandled_error', { error: actualError.message });
+      deps.sentryReporter.reportWithReference(appErr, referenceCode);
+    } catch (error: unknown) {
+      deps.logger.warn({
+        code: 'bot-server.sentry_report_failed',
+        referenceCode,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 }
 
 /**
@@ -34,30 +69,7 @@ export function createErrorBoundary(
       stack: actualError.stack,
     });
 
-    try {
-      await deps.eventBus.publish('system.error', {
-        referenceCode,
-        errorCode: 'bot-server.unhandled_error',
-      });
-    } catch (error: unknown) {
-      deps.logger.warn({
-        code: 'bot-server.event_publish_failed',
-        referenceCode,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-
-    if (deps.sentryReporter) {
-      try {
-        deps.sentryReporter.reportWithReference(actualError, referenceCode);
-      } catch (error: unknown) {
-        deps.logger.warn({
-          code: 'bot-server.sentry_report_failed',
-          referenceCode,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+    reportErrorToChannels(deps, actualError, referenceCode);
 
     try {
       const message = deps.t('bot-server.error_message', { referenceCode });

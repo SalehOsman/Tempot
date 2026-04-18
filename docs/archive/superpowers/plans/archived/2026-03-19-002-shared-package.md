@@ -4,7 +4,8 @@
 
 **Goal:** Implement the foundational shared package providing Core Dictionary components (AppError, Result), Unified Cache Service, Standardized Queue Factory, and Graceful Shutdown manager.
 
-**Architecture:** 
+**Architecture:**
+
 - **Core Dictionary:** Unified `AppError` class with i18n support and `Result` type alias via `neverthrow`.
 - **Cache:** A thin wrapper around `cache-manager` for multi-tier caching with Redis degradation fallback.
 - **Queue:** A pure factory function for `BullMQ` to ensure consistent configuration.
@@ -17,6 +18,7 @@
 ### Task 1: Core Dictionary (AppError & Result Types)
 
 **Files:**
+
 - Create: `packages/shared/src/result.ts`
 - Modify: `packages/shared/src/errors.ts`
 - Modify: `packages/shared/src/index.ts`
@@ -60,6 +62,7 @@ export class AppError extends Error {
 ### Task 2: Unified Cache Service
 
 **Files:**
+
 - Create: `packages/shared/src/cache/cache.service.ts`
 - Test: `packages/shared/tests/unit/cache.service.test.ts`
 
@@ -74,6 +77,7 @@ export class AppError extends Error {
 ### Task 3: Redis Degradation Strategy (Rule XXXII)
 
 **Files:**
+
 - Modify: `packages/shared/src/cache/cache.service.ts`
 - Test: `packages/shared/tests/unit/cache-degradation.test.ts`
 
@@ -87,6 +91,7 @@ export class AppError extends Error {
 ### Task 4: Queue Factory (ADR-019)
 
 **Files:**
+
 - Create: `packages/shared/src/queue/queue.factory.ts`
 - Test: `packages/shared/tests/unit/queue.factory.test.ts`
 
@@ -100,6 +105,7 @@ export class AppError extends Error {
 ### Task 5: Graceful Shutdown Hooks (Rule XVII)
 
 **Files:**
+
 - Create: `packages/shared/src/shutdown/shutdown.manager.ts`
 - Test: `packages/shared/tests/unit/shutdown.manager.test.ts`
 

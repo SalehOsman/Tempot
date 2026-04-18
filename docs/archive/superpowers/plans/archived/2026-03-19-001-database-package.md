@@ -13,6 +13,7 @@
 ### Task 1: Base Entity Definition
 
 **Files:**
+
 - Create: `packages/database/src/base/base.entity.ts`
 - Test: `packages/database/tests/unit/base-entity.test.ts`
 
@@ -67,6 +68,7 @@ git commit -m "feat(database): add BaseEntity with mandatory audit fields"
 ### Task 2: Integration Test Infrastructure (Testcontainers)
 
 **Files:**
+
 - Create: `packages/database/tests/utils/test-db.ts`
 
 - [ ] **Step 1: Implement the TestDB utility**
@@ -84,10 +86,10 @@ export class TestDB {
     this.container = await new PostgreSqlContainer('ankane/pgvector:latest').start();
     const url = this.container.getConnectionString();
     process.env.DATABASE_URL = url;
-    
+
     // Run migrations
     execSync('pnpm prisma migrate deploy', { env: process.env });
-    
+
     this.prisma = new PrismaClient();
   }
 
@@ -110,6 +112,7 @@ git commit -m "test(database): setup Testcontainers utility for integration test
 ### Task 3: Prisma Soft Delete Extension
 
 **Files:**
+
 - Create: `packages/database/src/prisma/client.ts`
 - Test: `packages/database/tests/integration/soft-delete.test.ts`
 
@@ -184,6 +187,7 @@ git commit -m "feat(database): implement global soft delete via Prisma extension
 ### Task 4: Base Repository with Result Pattern & AuditLog Triggers
 
 **Files:**
+
 - Create: `packages/database/src/base/base.repository.ts`
 - Test: `packages/database/tests/unit/base-repository.test.ts`
 
@@ -236,7 +240,7 @@ export abstract class BaseRepository<T> {
     const store = sessionContext.getStore();
     return {
       userId: store?.userId,
-      userRole: store?.userRole
+      userRole: store?.userRole,
     };
   }
 
@@ -244,9 +248,9 @@ export abstract class BaseRepository<T> {
     const { userId, userRole } = this.getContext();
     try {
       const item = await this.model.create({
-        data: { ...data, createdBy: userId }
+        data: { ...data, createdBy: userId },
       });
-      
+
       await this.auditLogger.log({
         userId,
         userRole,
@@ -254,7 +258,7 @@ export abstract class BaseRepository<T> {
         module: this.moduleName,
         targetId: (item as any).id,
         after: item,
-        status: 'SUCCESS'
+        status: 'SUCCESS',
       });
 
       return ok(item);
@@ -282,6 +286,7 @@ git commit -m "feat(database): implement BaseRepository with AuditLog triggers (
 ### Task 5: Drizzle ORM + pgvector Setup
 
 **Files:**
+
 - Create: `packages/database/drizzle.config.ts`
 - Create: `packages/database/src/drizzle/schema.ts`
 - Create: `packages/database/src/base/vector.repository.ts`
@@ -329,7 +334,8 @@ export abstract class DrizzleVectorRepository {
   constructor(protected db: any) {}
 
   async search(vec: number[], limit: number = 5) {
-    return this.db.select()
+    return this.db
+      .select()
       .from(embeddings)
       .orderBy(cosineDistance(embeddings.vector, vec))
       .limit(limit);
@@ -354,6 +360,7 @@ git commit -m "feat(database): setup Drizzle ORM with pgvector and base vector r
 ### Task 6: Transaction Manager (FR-007)
 
 **Files:**
+
 - Create: `packages/database/src/manager/transaction.manager.ts`
 - Test: `packages/database/tests/unit/transaction-manager.test.ts`
 
@@ -383,9 +390,7 @@ import { AppError } from '@tempot/shared';
 import { prisma } from '../prisma/client';
 
 export class TransactionManager {
-  static async run<T>(
-    fn: (tx: any) => Promise<Result<T, AppError>>
-  ): Promise<Result<T, AppError>> {
+  static async run<T>(fn: (tx: any) => Promise<Result<T, AppError>>): Promise<Result<T, AppError>> {
     try {
       return await prisma.$transaction(async (tx) => {
         const result = await fn(tx);
@@ -417,6 +422,7 @@ git commit -m "feat(database): implement TransactionManager with Result pattern 
 ### Task 7: AuditLog Schema Definition
 
 **Files:**
+
 - Modify: `packages/database/prisma/schema.prisma`
 - Test: `packages/database/tests/integration/audit-log-schema.test.ts`
 
@@ -456,8 +462,8 @@ describe('AuditLog Schema', () => {
       data: {
         action: 'user.profile.update',
         module: 'users',
-        status: 'SUCCESS'
-      }
+        status: 'SUCCESS',
+      },
     });
     expect(entry.id).toBeDefined();
   });
@@ -486,6 +492,7 @@ git commit -m "feat(database): define AuditLog schema in Prisma (Rule LVII)"
 ### Task 8: Modular Schema Orchestration (FR-006)
 
 **Files:**
+
 - Create: `packages/database/scripts/merge-schemas.ts`
 - Create: `packages/database/prisma/base.prisma`
 - Modify: `package.json`
@@ -500,13 +507,13 @@ import path from 'path';
 async function mergeSchemas() {
   const baseSchema = await fs.readFile('packages/database/prisma/base.prisma', 'utf-8');
   const moduleSchemas = await glob('modules/*/database/*.prisma');
-  
+
   let finalSchema = baseSchema;
   for (const schemaPath of moduleSchemas) {
     const content = await fs.readFile(schemaPath, 'utf-8');
     finalSchema += `\n// From ${schemaPath}\n${content}`;
   }
-  
+
   await fs.writeFile('packages/database/prisma/schema.prisma', finalSchema);
   console.log('Schemas merged successfully.');
 }

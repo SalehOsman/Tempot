@@ -13,6 +13,7 @@
 ### Task 1: Monorepo Initialization (Step 0.1)
 
 **Files:**
+
 - Create: `package.json` (root)
 - Create: `pnpm-workspace.yaml`
 - Create: `.npmrc`
@@ -75,6 +76,7 @@ git commit -m "chore: initialize pnpm workspace and directory structure"
 ### Task 2: TypeScript & Vitest Configuration (Step 0.1)
 
 **Files:**
+
 - Create: `tsconfig.json` (root)
 - Create: `vitest.workspace.ts`
 
@@ -106,13 +108,9 @@ git commit -m "chore: initialize pnpm workspace and directory structure"
 - [ ] **Step 2: Create vitest.workspace.ts**
 
 ```typescript
-import { defineWorkspace } from 'vitest/config'
+import { defineWorkspace } from 'vitest/config';
 
-export default defineWorkspace([
-  'packages/*',
-  'apps/*',
-  'modules/*'
-])
+export default defineWorkspace(['packages/*', 'apps/*', 'modules/*']);
 ```
 
 - [ ] **Step 3: Commit**
@@ -127,6 +125,7 @@ git commit -m "chore: configure root typescript and vitest workspace"
 ### Task 3: Quality Gates & Linting (Step 0.2)
 
 **Files:**
+
 - Create: `.eslintrc.js`
 - Create: `.prettierrc`
 - Modify: `package.json` (lint-staged config)
@@ -138,11 +137,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -192,6 +187,7 @@ git commit -m "chore: setup eslint, prettier, and husky pre-commit hooks"
 ### Task 4: Infrastructure Containers (Step 0.3)
 
 **Files:**
+
 - Create: `docker-compose.yml`
 
 - [ ] **Step 1: Create docker-compose.yml**
@@ -202,7 +198,7 @@ services:
   postgres:
     image: ankane/pgvector:latest
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: tempot
       POSTGRES_PASSWORD: password
@@ -213,7 +209,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   postgres_data:

@@ -8,10 +8,10 @@
 
 Tempot uses two ORMs with distinct responsibilities:
 
-| ORM | Responsibility | Location |
-|-----|---------------|---------|
-| **Prisma 7.x** | All relational data — CRUD, migrations, soft delete, CASL integration | `packages/database/src/prisma/` |
-| **Drizzle ORM** | pgvector operations only — embeddings storage and similarity search | `packages/database/src/drizzle/` |
+| ORM             | Responsibility                                                        | Location                         |
+| --------------- | --------------------------------------------------------------------- | -------------------------------- |
+| **Prisma 7.x**  | All relational data — CRUD, migrations, soft delete, CASL integration | `packages/database/src/prisma/`  |
+| **Drizzle ORM** | pgvector operations only — embeddings storage and similarity search   | `packages/database/src/drizzle/` |
 
 > ⚠️ **Never mix responsibilities.** If you find yourself writing a Prisma `$queryRaw` for a vector operation, use Drizzle instead. If you find yourself using Drizzle for a regular table, use Prisma instead.
 
@@ -131,7 +131,7 @@ import { pgTable, uuid, vector, text, jsonb, timestamp } from 'drizzle-orm/pg-co
 export const embeddings = pgTable('embeddings', {
   id: uuid('id').primaryKey().defaultRandom(),
   contentId: text('content_id').notNull(),
-  contentType: text('content_type').notNull(),  // 'invoice' | 'user' | 'product'
+  contentType: text('content_type').notNull(), // 'invoice' | 'user' | 'product'
   vector: vector('vector', { dimensions: 1536 }).notNull(),
   metadata: jsonb('metadata'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -267,11 +267,7 @@ const invoiceResult = await invoiceRepo.create(data);
 if (invoiceResult.isErr()) return invoiceResult;
 
 // 2. Store the embedding
-const embeddingResult = await embeddingService.store(
-  invoiceResult.value.id,
-  'invoice',
-  embedding,
-);
+const embeddingResult = await embeddingService.store(invoiceResult.value.id, 'invoice', embedding);
 
 // 3. If embedding fails, delete the Prisma record (compensate)
 if (embeddingResult.isErr()) {

@@ -39,9 +39,10 @@ export async function bootstrapSuperAdmins(ids: number[], deps: BootstrapDeps): 
     for (const id of ids) {
       const strId = String(id);
       await prisma.session.upsert({
-        where: { userId_chatId: { userId: strId, chatId: strId } },
+        where: { id: `${strId}:${strId}` },
         update: { role: 'SUPER_ADMIN' },
         create: {
+          id: `${strId}:${strId}`,
           userId: strId,
           chatId: strId,
           role: 'SUPER_ADMIN',

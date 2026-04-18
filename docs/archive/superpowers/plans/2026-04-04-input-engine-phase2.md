@@ -14,53 +14,53 @@
 
 ### New Files
 
-| File | Responsibility |
-|------|---------------|
-| `src/runner/action-buttons.builder.ts` | Pure function: `buildActionButtons()` — returns action button rows based on context |
-| `src/runner/validation-error.renderer.ts` | Pure function: `renderValidationError()` — i18n error text with retry context |
-| `src/runner/progress.renderer.ts` | Pure functions: `computeDynamicTotal()`, `renderProgress()` |
-| `src/runner/confirmation.renderer.ts` | Pure functions: `formatFieldValue()`, `buildConfirmationSummary()` |
-| `src/runner/confirmation.handler.ts` | `handleConfirmationLoop()` — confirmation display + edit flow logic |
-| `src/fields/media/storage-upload.helper.ts` | `uploadToStorage()` — shared Telegram download + storage upload |
+| File                                        | Responsibility                                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `src/runner/action-buttons.builder.ts`      | Pure function: `buildActionButtons()` — returns action button rows based on context |
+| `src/runner/validation-error.renderer.ts`   | Pure function: `renderValidationError()` — i18n error text with retry context       |
+| `src/runner/progress.renderer.ts`           | Pure functions: `computeDynamicTotal()`, `renderProgress()`                         |
+| `src/runner/confirmation.renderer.ts`       | Pure functions: `formatFieldValue()`, `buildConfirmationSummary()`                  |
+| `src/runner/confirmation.handler.ts`        | `handleConfirmationLoop()` — confirmation display + edit flow logic                 |
+| `src/fields/media/storage-upload.helper.ts` | `uploadToStorage()` — shared Telegram download + storage upload                     |
 
 ### Modified Files
 
-| File | Changes |
-|------|---------|
-| `src/input-engine.types.ts` | Add `showProgress`, `showConfirmation` to FormOptions; add `FIELD_SKIPPED_SENTINEL` |
-| `src/input-engine.errors.ts` | Add `NAVIGATE_BACK` error code |
-| `src/runner/form.runner.ts` | Add `t`, `storageClient`, `aiClient` to FormRunnerDeps; wire confirmation step |
-| `src/runner/field.iterator.ts` | While loop, skip/cancel/back handling, progress/error wiring |
-| `src/runner/event.emitter.ts` | Add `emitFieldSkipped()` |
-| `src/fields/field.handler.ts` | Add `previousValue` to RenderContext |
-| `src/fields/media/photo.field.ts` | Storage upload integration |
-| `src/fields/media/document.field.ts` | Storage upload integration |
-| `src/fields/media/video.field.ts` | Storage upload integration |
-| `src/fields/media/audio.field.ts` | Storage upload integration |
-| `src/fields/media/file-group.field.ts` | Storage upload integration |
-| `src/fields/smart/ai-extractor.field.ts` | Full AI extraction flow |
-| `src/index.ts` | Export new Phase 2 types/constants |
-| `../../event-bus/src/event-bus.events.ts` | Add `input-engine.field.skipped` event type |
+| File                                      | Changes                                                                             |
+| ----------------------------------------- | ----------------------------------------------------------------------------------- |
+| `src/input-engine.types.ts`               | Add `showProgress`, `showConfirmation` to FormOptions; add `FIELD_SKIPPED_SENTINEL` |
+| `src/input-engine.errors.ts`              | Add `NAVIGATE_BACK` error code                                                      |
+| `src/runner/form.runner.ts`               | Add `t`, `storageClient`, `aiClient` to FormRunnerDeps; wire confirmation step      |
+| `src/runner/field.iterator.ts`            | While loop, skip/cancel/back handling, progress/error wiring                        |
+| `src/runner/event.emitter.ts`             | Add `emitFieldSkipped()`                                                            |
+| `src/fields/field.handler.ts`             | Add `previousValue` to RenderContext                                                |
+| `src/fields/media/photo.field.ts`         | Storage upload integration                                                          |
+| `src/fields/media/document.field.ts`      | Storage upload integration                                                          |
+| `src/fields/media/video.field.ts`         | Storage upload integration                                                          |
+| `src/fields/media/audio.field.ts`         | Storage upload integration                                                          |
+| `src/fields/media/file-group.field.ts`    | Storage upload integration                                                          |
+| `src/fields/smart/ai-extractor.field.ts`  | Full AI extraction flow                                                             |
+| `src/index.ts`                            | Export new Phase 2 types/constants                                                  |
+| `../../event-bus/src/event-bus.events.ts` | Add `input-engine.field.skipped` event type                                         |
 
 ### Test Files
 
-| File | New/Modified |
-|------|-------------|
-| `tests/unit/action-buttons.builder.test.ts` | New |
-| `tests/unit/input-engine.types.test.ts` | Modified |
-| `tests/unit/form.runner.test.ts` | Modified |
-| `tests/unit/field.iterator.test.ts` | Modified |
-| `tests/unit/validation-error.renderer.test.ts` | New |
-| `tests/unit/progress.renderer.test.ts` | New |
-| `tests/unit/confirmation.renderer.test.ts` | New |
-| `tests/unit/confirmation.handler.test.ts` | New |
-| `tests/unit/storage-upload.helper.test.ts` | New |
-| `tests/unit/photo.field.test.ts` | Modified |
-| `tests/unit/document.field.test.ts` | Modified |
-| `tests/unit/video.field.test.ts` | Modified |
-| `tests/unit/audio.field.test.ts` | Modified |
-| `tests/unit/file-group.field.test.ts` | Modified |
-| `tests/unit/ai-extractor.field.test.ts` | Modified |
+| File                                           | New/Modified |
+| ---------------------------------------------- | ------------ |
+| `tests/unit/action-buttons.builder.test.ts`    | New          |
+| `tests/unit/input-engine.types.test.ts`        | Modified     |
+| `tests/unit/form.runner.test.ts`               | Modified     |
+| `tests/unit/field.iterator.test.ts`            | Modified     |
+| `tests/unit/validation-error.renderer.test.ts` | New          |
+| `tests/unit/progress.renderer.test.ts`         | New          |
+| `tests/unit/confirmation.renderer.test.ts`     | New          |
+| `tests/unit/confirmation.handler.test.ts`      | New          |
+| `tests/unit/storage-upload.helper.test.ts`     | New          |
+| `tests/unit/photo.field.test.ts`               | Modified     |
+| `tests/unit/document.field.test.ts`            | Modified     |
+| `tests/unit/video.field.test.ts`               | Modified     |
+| `tests/unit/audio.field.test.ts`               | Modified     |
+| `tests/unit/file-group.field.test.ts`          | Modified     |
+| `tests/unit/ai-extractor.field.test.ts`        | Modified     |
 
 ---
 
@@ -96,6 +96,7 @@ All code in this codebase follows these patterns — subagents MUST follow them:
 ### Task 49: Action Buttons Builder
 
 **Files:**
+
 - Create: `packages/input-engine/src/runner/action-buttons.builder.ts`
 - Test: `packages/input-engine/tests/unit/action-buttons.builder.test.ts`
 
@@ -106,6 +107,7 @@ All code in this codebase follows these patterns — subagents MUST follow them:
 - [ ] **Step 1: Write failing tests for buildActionButtons**
 
 Create `tests/unit/action-buttons.builder.test.ts` with these test cases:
+
 1. Optional field shows Skip button
 2. Non-optional field hides Skip button
 3. First field (`isFirstField: true`) hides Back button
@@ -226,6 +228,7 @@ All button text uses t() for i18n."
 ### Task 50: FormOptions & FormRunnerDeps Updates
 
 **Files:**
+
 - Modify: `packages/input-engine/src/input-engine.types.ts` (lines 191-206)
 - Modify: `packages/input-engine/src/runner/form.runner.ts` (lines 26-40)
 - Test: `packages/input-engine/tests/unit/input-engine.types.test.ts` (modify)
@@ -236,13 +239,11 @@ All button text uses t() for i18n."
 - [ ] **Step 1: Write failing tests for new FormOptions defaults**
 
 Add tests to existing `tests/unit/input-engine.types.test.ts`:
+
 1. `DEFAULT_FORM_OPTIONS.showProgress` is `true`
 2. `DEFAULT_FORM_OPTIONS.showConfirmation` is `true`
 
-Add tests to existing `tests/unit/form.runner.test.ts`:
-3. `FormRunnerDeps` accepts `t` as optional
-4. `FormRunnerDeps` accepts `storageClient` as optional
-5. `FormRunnerDeps` accepts `aiClient` as optional
+Add tests to existing `tests/unit/form.runner.test.ts`: 3. `FormRunnerDeps` accepts `t` as optional 4. `FormRunnerDeps` accepts `storageClient` as optional 5. `FormRunnerDeps` accepts `aiClient` as optional
 
 - [ ] **Step 2: Run tests to verify they fail**
 
@@ -252,6 +253,7 @@ Expected: FAIL
 - [ ] **Step 3: Update input-engine.types.ts**
 
 In `src/input-engine.types.ts`, modify `FormOptions` (around line 191) to add:
+
 ```typescript
 export interface FormOptions {
   partialSave?: boolean;
@@ -259,12 +261,13 @@ export interface FormOptions {
   maxMilliseconds?: number;
   allowCancel?: boolean;
   formId?: string;
-  showProgress?: boolean;      // NEW — default true
-  showConfirmation?: boolean;  // NEW — default true
+  showProgress?: boolean; // NEW — default true
+  showConfirmation?: boolean; // NEW — default true
 }
 ```
 
 Update `DEFAULT_FORM_OPTIONS` (around line 200):
+
 ```typescript
 export const DEFAULT_FORM_OPTIONS: Required<FormOptions> = {
   partialSave: false,
@@ -272,12 +275,13 @@ export const DEFAULT_FORM_OPTIONS: Required<FormOptions> = {
   maxMilliseconds: 600_000,
   allowCancel: true,
   formId: '',
-  showProgress: true,       // NEW
-  showConfirmation: true,   // NEW
+  showProgress: true, // NEW
+  showConfirmation: true, // NEW
 };
 ```
 
 Also add the `FIELD_SKIPPED_SENTINEL` constant (needed by Task 51):
+
 ```typescript
 /** Sentinel value returned by processField to signal field was skipped */
 export const FIELD_SKIPPED_SENTINEL = Symbol.for('input-engine.field.skipped');
@@ -286,11 +290,13 @@ export const FIELD_SKIPPED_SENTINEL = Symbol.for('input-engine.field.skipped');
 - [ ] **Step 4: Update form.runner.ts FormRunnerDeps**
 
 In `src/runner/form.runner.ts`, add imports and update the interface (around line 26):
+
 ```typescript
 import type { StorageEngineClient, AIExtractionClient } from '../input-engine.contracts.js';
 ```
 
 Add to `FormRunnerDeps` after `renderPrompt`:
+
 ```typescript
   t?: (key: string, params?: Record<string, unknown>) => string;
   storageClient?: StorageEngineClient;
@@ -318,6 +324,7 @@ Add FIELD_SKIPPED_SENTINEL constant for skip signaling."
 ### Task 54: Bidirectional Field Iteration (While Loop)
 
 **Files:**
+
 - Modify: `packages/input-engine/src/runner/field.iterator.ts` (lines 138-200)
 - Modify: `packages/input-engine/src/input-engine.errors.ts` (add NAVIGATE_BACK)
 - Test: `packages/input-engine/tests/unit/field.iterator.test.ts` (modify)
@@ -331,6 +338,7 @@ Add FIELD_SKIPPED_SENTINEL constant for skip signaling."
 - [ ] **Step 1: Add NAVIGATE_BACK error code**
 
 In `src/input-engine.errors.ts`, add after FIELD_TYPE_UNKNOWN (line 20):
+
 ```typescript
   NAVIGATE_BACK: 'input-engine.field.navigate_back',
 ```
@@ -338,6 +346,7 @@ In `src/input-engine.errors.ts`, add after FIELD_TYPE_UNKNOWN (line 20):
 - [ ] **Step 2: Write failing tests for while loop and back navigation**
 
 Add tests to existing `tests/unit/field.iterator.test.ts`:
+
 1. `iterateFields` still processes all fields forward (basic sanity after refactor)
 2. All 448 existing tests still pass (regression check — run full suite)
 3. Back navigation: when `processField` returns `err(NAVIGATE_BACK)`, index decrements
@@ -526,6 +535,7 @@ backward past condition-false fields and cleans up conditional state."
 ### Task 51: Optional Field Skip
 
 **Files:**
+
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Modify: `packages/input-engine/src/runner/event.emitter.ts`
 - Modify: `packages/event-bus/src/event-bus.events.ts` (cross-package)
@@ -538,6 +548,7 @@ backward past condition-false fields and cleans up conditional state."
 - [ ] **Step 1: Add field.skipped event to event-bus (cross-package gap fix)**
 
 In `packages/event-bus/src/event-bus.events.ts`, add after line 105 (before closing `}`):
+
 ```typescript
   'input-engine.field.skipped': {
     formId: string;
@@ -577,6 +588,7 @@ Also export `FieldSkippedPayload` type from the file.
 - [ ] **Step 3: Write failing tests for skip handling**
 
 Add tests to `tests/unit/field.iterator.test.ts`:
+
 1. When processField returns `ok(FIELD_SKIPPED_SENTINEL)`, `formData[fieldName]` is `undefined`
 2. Skip marks field as completed in `completedFieldNames`
 3. Skip emits `input-engine.field.skipped` with reason `user_skip`
@@ -597,22 +609,22 @@ Import `FIELD_SKIPPED_SENTINEL` from `../input-engine.types.js` and `emitFieldSk
 After `if (result.isErr()) return err(result.error);` check, add:
 
 ```typescript
-    // Handle skip sentinel
-    if (result.value === FIELD_SKIPPED_SENTINEL) {
-      progress.formData[fieldName] = undefined;
-      progress.fieldsCompleted++;
-      progress.completedFieldNames.push(fieldName);
-      await maybeSaveProgress(deps, progress);
-      await emitFieldSkipped(evDeps, {
-        formId: progress.formId,
-        userId: deps.userId,
-        fieldName,
-        fieldType: metadata.fieldType,
-        reason: 'user_skip',
-      });
-      index++;
-      continue;
-    }
+// Handle skip sentinel
+if (result.value === FIELD_SKIPPED_SENTINEL) {
+  progress.formData[fieldName] = undefined;
+  progress.fieldsCompleted++;
+  progress.completedFieldNames.push(fieldName);
+  await maybeSaveProgress(deps, progress);
+  await emitFieldSkipped(evDeps, {
+    formId: progress.formId,
+    userId: deps.userId,
+    fieldName,
+    fieldType: metadata.fieldType,
+    reason: 'user_skip',
+  });
+  index++;
+  continue;
+}
 ```
 
 - [ ] **Step 6: Implement auto-skip on maxRetries for optional fields**
@@ -634,8 +646,8 @@ Import `FIELD_SKIPPED_SENTINEL` at the top of the file.
 For auto-skip, the iterator needs to detect this case and emit with reason `max_retries_skip`. Add logic in the skip sentinel handler:
 
 ```typescript
-    // In the skip sentinel handler, determine reason
-    const skipReason = ctxOrErr.retryCount >= ctxOrErr.maxRetries ? 'max_retries_skip' : 'user_skip';
+// In the skip sentinel handler, determine reason
+const skipReason = ctxOrErr.retryCount >= ctxOrErr.maxRetries ? 'max_retries_skip' : 'user_skip';
 ```
 
 - [ ] **Step 7: Run tests to verify they pass**
@@ -660,6 +672,7 @@ event-bus events."
 ### Task 52: Cancel Button Interception
 
 **Files:**
+
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Test: `packages/input-engine/tests/unit/field.iterator.test.ts` (modify)
 
@@ -670,6 +683,7 @@ event-bus events."
 - [ ] **Step 1: Write failing tests**
 
 Add tests to `tests/unit/field.iterator.test.ts`:
+
 1. When processField response contains `__cancel__` callback, returns `err(FORM_CANCELLED)`
 2. When user text is `/cancel` and `allowCancel: true`, returns `err(FORM_CANCELLED)` before parseResponse
 3. When `allowCancel: false`, `/cancel` text is passed to handler's parseResponse as normal input
@@ -686,11 +700,11 @@ Expected: New tests FAIL
 In `src/runner/field.iterator.ts`, modify `processField`. After receiving the response (after `handler.render` or `deps.renderPrompt`), add cancel detection:
 
 ```typescript
-    // Check for cancel callback or /cancel text
-    const cancelDetected = detectCancelSignal(responseCtx, deps);
-    if (cancelDetected) {
-      return err(new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, { reason: 'user_cancel' }));
-    }
+// Check for cancel callback or /cancel text
+const cancelDetected = detectCancelSignal(responseCtx, deps);
+if (cancelDetected) {
+  return err(new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, { reason: 'user_cancel' }));
+}
 ```
 
 Add helper function:
@@ -737,6 +751,7 @@ err(FORM_CANCELLED) when allowCancel is true. When allowCancel is false,
 ### Task 53: Validation Error Display
 
 **Files:**
+
 - Create: `packages/input-engine/src/runner/validation-error.renderer.ts`
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Test: `packages/input-engine/tests/unit/validation-error.renderer.test.ts` (new)
@@ -746,6 +761,7 @@ err(FORM_CANCELLED) when allowCancel is true. When allowCancel is false,
 - [ ] **Step 1: Write failing tests for renderValidationError**
 
 Create `tests/unit/validation-error.renderer.test.ts`:
+
 1. Custom `i18nErrorKey` used when defined in metadata
 2. Default error key per field type when no custom key
 3. Generic fallback `input-engine.errors.generic` when no default for field type
@@ -803,9 +819,7 @@ export function renderValidationError(
   t: TranslateFunction = defaultT,
 ): string {
   const errorKey =
-    metadata.i18nErrorKey ??
-    DEFAULT_ERROR_KEYS[metadata.fieldType] ??
-    GENERIC_ERROR_KEY;
+    metadata.i18nErrorKey ?? DEFAULT_ERROR_KEYS[metadata.fieldType] ?? GENERIC_ERROR_KEY;
 
   return t(errorKey, {
     attempt: retryState.current,
@@ -821,16 +835,12 @@ In `src/runner/field.iterator.ts`, import `renderValidationError` and `RetryStat
 In the `processField` retry loop, after `parseResponse` or `validate` fails:
 
 ```typescript
-    // After parse or validate failure:
-    retryCount++;
-    const errorText = renderValidationError(
-      metadata,
-      { current: retryCount, max: maxRetries },
-      deps.t,
-    );
-    // Error text will be prepended to next render (stored for next iteration)
-    // For now, log it — actual message composition comes with progress integration
-    deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
+// After parse or validate failure:
+retryCount++;
+const errorText = renderValidationError(metadata, { current: retryCount, max: maxRetries }, deps.t);
+// Error text will be prepended to next render (stored for next iteration)
+// For now, log it — actual message composition comes with progress integration
+deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
 ```
 
 - [ ] **Step 5: Run tests to verify they pass**
@@ -854,6 +864,7 @@ Wired into processField retry loop."
 ### Task 55: Progress Indicator
 
 **Files:**
+
 - Create: `packages/input-engine/src/runner/progress.renderer.ts`
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Test: `packages/input-engine/tests/unit/progress.renderer.test.ts` (new)
@@ -863,6 +874,7 @@ Wired into processField retry loop."
 - [ ] **Step 1: Write failing tests for progress renderer**
 
 Create `tests/unit/progress.renderer.test.ts`:
+
 1. `computeDynamicTotal` counts all fields when no conditions
 2. `computeDynamicTotal` excludes condition-false fields
 3. `renderProgress` calls `t('input-engine.progress', { current, total })`
@@ -929,14 +941,19 @@ In `src/runner/field.iterator.ts`, import `computeDynamicTotal` and `renderProgr
 At the start of each while-loop iteration (after condition check, before processField):
 
 ```typescript
-    // Compute progress if enabled (formOptions stored on progress object)
-    if (progress.formOptions?.showProgress) {
-      const allMeta = buildMetadataMap(fieldNames, input.schema);
-      const dynamicTotal = computeDynamicTotal(fieldNames, allMeta, progress.formData, shouldRenderField);
-      const currentPos = progress.fieldsCompleted + 1;
-      const progressText = renderProgress(currentPos, dynamicTotal, deps.t);
-      // progressText will be composed into the message — prepended to field prompt
-    }
+// Compute progress if enabled (formOptions stored on progress object)
+if (progress.formOptions?.showProgress) {
+  const allMeta = buildMetadataMap(fieldNames, input.schema);
+  const dynamicTotal = computeDynamicTotal(
+    fieldNames,
+    allMeta,
+    progress.formData,
+    shouldRenderField,
+  );
+  const currentPos = progress.fieldsCompleted + 1;
+  const progressText = renderProgress(currentPos, dynamicTotal, deps.t);
+  // progressText will be composed into the message — prepended to field prompt
+}
 ```
 
 **Threading `FormOptions` into `iterateFields`:** Since `max-params` is 3 and `iterateFields(input, deps, progress)` is already at the limit, we add `formOptions: Required<FormOptions>` as an optional property on `FormProgress`. This is set in `form.runner.ts` before calling `iterateFields`:
@@ -947,10 +964,11 @@ progress.formOptions = merged; // merged is Required<FormOptions>
 ```
 
 Update `FormProgress` interface in `form.runner.ts`:
+
 ```typescript
 export interface FormProgress {
   // ... existing fields ...
-  formOptions?: Required<FormOptions>;  // NEW — injected before iterateFields
+  formOptions?: Required<FormOptions>; // NEW — injected before iterateFields
 }
 ```
 
@@ -977,6 +995,7 @@ showProgress option in FormOptions."
 ### Task 56: Back Navigation with Keep Current
 
 **Files:**
+
 - Modify: `packages/input-engine/src/fields/field.handler.ts` (line 6-12)
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Modify: `packages/input-engine/src/runner/action-buttons.builder.ts`
@@ -987,6 +1006,7 @@ showProgress option in FormOptions."
 - [ ] **Step 1: Write failing tests**
 
 Add tests to `tests/unit/field.iterator.test.ts`:
+
 1. Keep current returns the `previousValue` unchanged
 2. Re-entering a new value overrides the previous
 3. `previousValue` is `undefined` on first-time field entry
@@ -998,6 +1018,7 @@ Add tests to `tests/unit/field.iterator.test.ts`:
 - [ ] **Step 3: Add previousValue to RenderContext**
 
 In `src/fields/field.handler.ts`, update RenderContext:
+
 ```typescript
 export interface RenderContext {
   conversation: unknown;
@@ -1005,13 +1026,14 @@ export interface RenderContext {
   formData: Record<string, unknown>;
   formId: string;
   fieldIndex: number;
-  previousValue?: unknown;  // NEW — populated during back navigation
+  previousValue?: unknown; // NEW — populated during back navigation
 }
 ```
 
 - [ ] **Step 4: Add Keep Current button to ActionButtonsBuilder**
 
 In `src/runner/action-buttons.builder.ts`, add `hasPreviousValue` to `ActionButtonContext`:
+
 ```typescript
 export interface ActionButtonContext {
   formId: string;
@@ -1019,18 +1041,19 @@ export interface ActionButtonContext {
   isOptional: boolean;
   isFirstField: boolean;
   allowCancel: boolean;
-  hasPreviousValue: boolean;  // NEW
+  hasPreviousValue: boolean; // NEW
 }
 ```
 
 Add Keep Current button in `buildActionButtons`:
+
 ```typescript
-  if (ctx.hasPreviousValue) {
-    navButtons.push({
-      text: t('input-engine.actions.keep_current'),
-      callbackData: encodeFormCallback(ctx.formId, ctx.fieldIndex, ACTION_CALLBACKS.KEEP_CURRENT),
-    });
-  }
+if (ctx.hasPreviousValue) {
+  navButtons.push({
+    text: t('input-engine.actions.keep_current'),
+    callbackData: encodeFormCallback(ctx.formId, ctx.fieldIndex, ACTION_CALLBACKS.KEEP_CURRENT),
+  });
+}
 ```
 
 - [ ] **Step 5: Wire previousValue into processField**
@@ -1038,9 +1061,10 @@ Add Keep Current button in `buildActionButtons`:
 In `field.iterator.ts`, when building `RenderContext` in `processField`, add `previousValue` from `FieldContext`. Add `previousValue` to `FieldContext` interface.
 
 In `iterateFields`, when navigating back, set `previousValue` on the FieldContext before calling `processField`:
+
 ```typescript
-    // Before building FieldContext, check if we have a previous value
-    const previousValue = progress.formData[fieldName]; // may be undefined
+// Before building FieldContext, check if we have a previous value
+const previousValue = progress.formData[fieldName]; // may be undefined
 ```
 
 Handle `__keep_current__` callback in processField — return `ok(previousValue)`.
@@ -1066,6 +1090,7 @@ previous value unchanged."
 ### Task 57: Confirmation Step
 
 **Files:**
+
 - Create: `packages/input-engine/src/runner/confirmation.renderer.ts`
 - Modify: `packages/input-engine/src/runner/field.iterator.ts`
 - Modify: `packages/input-engine/src/runner/form.runner.ts`
@@ -1078,6 +1103,7 @@ previous value unchanged."
 - [ ] **Step 1: Write failing tests for confirmation renderer**
 
 Create `tests/unit/confirmation.renderer.test.ts`:
+
 1. `formatFieldValue` for text shows the value
 2. `formatFieldValue` for choice shows the label from metadata options
 3. `formatFieldValue` for media shows "File uploaded" (i18n)
@@ -1181,15 +1207,15 @@ export function buildConfirmationSummary(
 In `src/runner/form.runner.ts`, after `iterateFields` returns `ok`, check `showConfirmation`:
 
 ```typescript
-  const loopResult = await iterateFields(input, deps, progress);
+const loopResult = await iterateFields(input, deps, progress);
 
-  if (loopResult.isOk() && progress.formOptions?.showConfirmation) {
-    // Reset timeout for confirmation step (D19)
-    progress.startTime = Date.now();
-    const confirmResult = await handleConfirmationLoop(input, deps, progress);
-    if (confirmResult.isErr()) return confirmResult;
-    // On ok, formData may have been updated by edit flow
-  }
+if (loopResult.isOk() && progress.formOptions?.showConfirmation) {
+  // Reset timeout for confirmation step (D19)
+  progress.startTime = Date.now();
+  const confirmResult = await handleConfirmationLoop(input, deps, progress);
+  if (confirmResult.isErr()) return confirmResult;
+  // On ok, formData may have been updated by edit flow
+}
 ```
 
 - [ ] **Step 5: Implement confirmation loop in confirmation.handler.ts**
@@ -1268,8 +1294,9 @@ export async function handleConfirmationLoop(
     // Wait for user response (via conversation.wait or similar grammY pattern)
     // The actual wait mechanism depends on grammY conversation API
     // For now, this receives the callback query data
-    const response = await (conv as { waitForCallbackQuery: (filter: RegExp) => Promise<{ data: string }> })
-      .waitForCallbackQuery(/^ie:/);
+    const response = await (
+      conv as { waitForCallbackQuery: (filter: RegExp) => Promise<{ data: string }> }
+    ).waitForCallbackQuery(/^ie:/);
 
     const decoded = decodeFormCallback(response.data);
     if (!decoded) {
@@ -1284,10 +1311,12 @@ export async function handleConfirmationLoop(
     }
 
     if (action === CONFIRMATION_ACTIONS.CANCEL) {
-      return err(new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
-        reason: 'user_cancel',
-        stage: 'confirmation',
-      }));
+      return err(
+        new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
+          reason: 'user_cancel',
+          stage: 'confirmation',
+        }),
+      );
     }
 
     if (action === CONFIRMATION_ACTIONS.EDIT) {
@@ -1313,8 +1342,9 @@ export async function handleConfirmationLoop(
       });
 
       // Wait for field selection
-      const fieldResponse = await (conv as { waitForCallbackQuery: (filter: RegExp) => Promise<{ data: string }> })
-        .waitForCallbackQuery(/^ie:/);
+      const fieldResponse = await (
+        conv as { waitForCallbackQuery: (filter: RegExp) => Promise<{ data: string }> }
+      ).waitForCallbackQuery(/^ie:/);
 
       const fieldDecoded = decodeFormCallback(fieldResponse.data);
       if (!fieldDecoded) continue;
@@ -1351,7 +1381,9 @@ export async function handleConfirmationLoop(
       // The iterator skips completed fields, so only removed ones will be asked
       // Reset timeout for the edit cycle (D19)
       progress.startTime = Date.now();
-      const editResult = await (await import('./field.iterator.js')).iterateFields(input, deps, progress);
+      const editResult = await (
+        await import('./field.iterator.js')
+      ).iterateFields(input, deps, progress);
       if (editResult.isErr()) return editResult;
 
       // Loop back to display updated confirmation
@@ -1385,6 +1417,7 @@ Edit re-evaluates conditions and re-enters iterator for changed fields."
 ### Task 58: Storage Engine Integration
 
 **Files:**
+
 - Modify: `packages/input-engine/src/fields/media/photo.field.ts`
 - Modify: `packages/input-engine/src/fields/media/document.field.ts`
 - Modify: `packages/input-engine/src/fields/media/video.field.ts`
@@ -1399,6 +1432,7 @@ Edit re-evaluates conditions and re-enters iterator for changed fields."
 - [ ] **Step 1: Write failing tests for storage integration**
 
 Add tests to each media test file (photo, document, video, audio, file-group):
+
 1. With `storageClient` in RenderContext: returns `{ telegramFileId, storageUrl, fileName, mimeType, size }`
 2. Without `storageClient`: returns `{ telegramFileId }` only (existing behavior)
 3. Upload failure: logs warning, returns `{ telegramFileId }` only (graceful degradation)
@@ -1413,6 +1447,7 @@ Expected: New tests FAIL
 - [ ] **Step 3: Add storageClient to RenderContext**
 
 In `src/fields/field.handler.ts`, add to `RenderContext`:
+
 ```typescript
 export interface RenderContext {
   conversation: unknown;
@@ -1421,10 +1456,10 @@ export interface RenderContext {
   formId: string;
   fieldIndex: number;
   previousValue?: unknown;
-  storageClient?: StorageEngineClient;  // NEW — for media upload
-  aiClient?: AIExtractionClient;        // NEW — for AI extraction
-  t?: (key: string, params?: Record<string, unknown>) => string;  // NEW — i18n
-  logger?: InputEngineLogger;           // NEW — for logging upload failures
+  storageClient?: StorageEngineClient; // NEW — for media upload
+  aiClient?: AIExtractionClient; // NEW — for AI extraction
+  t?: (key: string, params?: Record<string, unknown>) => string; // NEW — i18n
+  logger?: InputEngineLogger; // NEW — for logging upload failures
 }
 ```
 
@@ -1474,18 +1509,24 @@ async function downloadFromTelegram(
   const conv = params.conversation as {
     external: <T>(fn: () => Promise<T>) => Promise<T>;
   };
-  const api = (params.ctx as { api: {
-    getFile: (id: string) => Promise<TelegramFile>;
-    downloadFile: (filePath: string) => Promise<Buffer>;
-  } }).api;
+  const api = (
+    params.ctx as {
+      api: {
+        getFile: (id: string) => Promise<TelegramFile>;
+        downloadFile: (filePath: string) => Promise<Buffer>;
+      };
+    }
+  ).api;
 
   const fileInfo = await conv.external(async () => api.getFile(params.fileId));
   if (!fileInfo.file_path) {
-    return err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
-      fieldType: 'MediaUpload',
-      reason: 'Telegram file has no file_path',
-      fileId: params.fileId,
-    }));
+    return err(
+      new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
+        fieldType: 'MediaUpload',
+        reason: 'Telegram file has no file_path',
+        fileId: params.fileId,
+      }),
+    );
   }
 
   const buffer = await conv.external(async () => api.downloadFile(fileInfo.file_path!));
@@ -1510,19 +1551,24 @@ export async function uploadToStorage(
     external: <T>(fn: () => Promise<T>) => Promise<T>;
   };
 
-  const uploadResult = await conv.external(async () =>
-    params.storageClient.upload(buffer, {
-      filename: params.filename,
-      mimeType: params.mimeType,
-    }),
-  ).then(
-    (result) => ok(result as { url: string }),
-    (error: unknown) => err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
-      fieldType: 'MediaUpload',
-      reason: 'Storage upload failed',
-      error: String(error),
-    })),
-  );
+  const uploadResult = await conv
+    .external(async () =>
+      params.storageClient.upload(buffer, {
+        filename: params.filename,
+        mimeType: params.mimeType,
+      }),
+    )
+    .then(
+      (result) => ok(result as { url: string }),
+      (error: unknown) =>
+        err(
+          new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
+            fieldType: 'MediaUpload',
+            reason: 'Storage upload failed',
+            error: String(error),
+          }),
+        ),
+    );
 
   if (uploadResult.isErr()) {
     // Graceful degradation — log and return telegramFileId only
@@ -1540,6 +1586,7 @@ export async function uploadToStorage(
 ```
 
 **Key points:**
+
 - Uses `conversation.external()` for both Telegram download and storage upload (D21)
 - Input-engine downloads file to Buffer, passes Buffer to storage-engine (D22 — storage stays Telegram-agnostic)
 - Result-based error handling throughout — no try/catch
@@ -1583,6 +1630,7 @@ Graceful degradation on failure — returns telegramFileId only."
 ### Task 59: AI Extraction Full Flow
 
 **Files:**
+
 - Modify: `packages/input-engine/src/fields/smart/ai-extractor.field.ts`
 - Test: `packages/input-engine/tests/unit/ai-extractor.field.test.ts` (modify)
 
@@ -1591,6 +1639,7 @@ Graceful degradation on failure — returns telegramFileId only."
 - [ ] **Step 1: Write failing tests for full AI flow**
 
 Modify `tests/unit/ai-extractor.field.test.ts` — add tests:
+
 1. Full extraction success: returns extracted values
 2. Partial extraction: accepted values + missing fields fallback
 3. AI unavailable (`isAvailable()` returns false): falls back to manual input
@@ -1629,10 +1678,7 @@ const AI_ACTIONS = {
 export class AIExtractorFieldHandler implements FieldHandler {
   readonly fieldType = 'AIExtractorField' as const;
 
-  async render(
-    renderCtx: RenderContext,
-    metadata: FieldMetadata,
-  ): AsyncResult<unknown, AppError> {
+  async render(renderCtx: RenderContext, metadata: FieldMetadata): AsyncResult<unknown, AppError> {
     const conv = renderCtx.conversation as {
       external: <T>(fn: () => Promise<T>) => Promise<T>;
       waitFor: () => Promise<unknown>;
@@ -1641,8 +1687,9 @@ export class AIExtractorFieldHandler implements FieldHandler {
     const ctx = renderCtx.ctx as {
       reply: (text: string, options?: unknown) => Promise<unknown>;
     };
-    const t = (renderCtx as { t?: (key: string, params?: Record<string, unknown>) => string }).t
-      ?? ((key: string) => key);
+    const t =
+      (renderCtx as { t?: (key: string, params?: Record<string, unknown>) => string }).t ??
+      ((key: string) => key);
 
     // Check AI availability
     const aiClient = renderCtx.aiClient;
@@ -1669,16 +1716,19 @@ export class AIExtractorFieldHandler implements FieldHandler {
 
     // Call AI extraction via conversation.external() (D21)
     const targetFields = metadata.extractionFields ?? [];
-    const extractionResult = await conv.external(async () =>
-      aiClient.extract(inputText, targetFields),
-    ).then(
-      (result) => ok(result as Record<string, unknown>),
-      (error: unknown) => err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
-        fieldType: this.fieldType,
-        reason: 'AI extraction failed',
-        error: String(error),
-      })),
-    );
+    const extractionResult = await conv
+      .external(async () => aiClient.extract(inputText, targetFields))
+      .then(
+        (result) => ok(result as Record<string, unknown>),
+        (error: unknown) =>
+          err(
+            new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
+              fieldType: this.fieldType,
+              reason: 'AI extraction failed',
+              error: String(error),
+            }),
+          ),
+      );
 
     if (extractionResult.isErr()) {
       // Graceful degradation — log and return undefined for manual fallback
@@ -1696,11 +1746,7 @@ export class AIExtractorFieldHandler implements FieldHandler {
       return ok(undefined); // Nothing extracted — manual fallback
     }
 
-    const summaryText = [
-      t('input-engine.ai.extracted_summary'),
-      '',
-      ...summaryLines,
-    ].join('\n');
+    const summaryText = [t('input-engine.ai.extracted_summary'), '', ...summaryLines].join('\n');
 
     await ctx.reply(summaryText, {
       reply_markup: {
@@ -1708,17 +1754,29 @@ export class AIExtractorFieldHandler implements FieldHandler {
           [
             {
               text: t('input-engine.ai.accept'),
-              callback_data: encodeFormCallback(renderCtx.formId, renderCtx.fieldIndex, AI_ACTIONS.ACCEPT),
+              callback_data: encodeFormCallback(
+                renderCtx.formId,
+                renderCtx.fieldIndex,
+                AI_ACTIONS.ACCEPT,
+              ),
             },
             {
               text: t('input-engine.ai.edit'),
-              callback_data: encodeFormCallback(renderCtx.formId, renderCtx.fieldIndex, AI_ACTIONS.EDIT),
+              callback_data: encodeFormCallback(
+                renderCtx.formId,
+                renderCtx.fieldIndex,
+                AI_ACTIONS.EDIT,
+              ),
             },
           ],
           [
             {
               text: t('input-engine.ai.manual'),
-              callback_data: encodeFormCallback(renderCtx.formId, renderCtx.fieldIndex, AI_ACTIONS.MANUAL),
+              callback_data: encodeFormCallback(
+                renderCtx.formId,
+                renderCtx.fieldIndex,
+                AI_ACTIONS.MANUAL,
+              ),
             },
           ],
         ],
@@ -1771,6 +1829,7 @@ export class AIExtractorFieldHandler implements FieldHandler {
 ```
 
 **Key design decisions:**
+
 - `render()` handles the full AI flow internally since it requires multi-turn conversation interaction
 - AI client accessed via `renderCtx.aiClient` (added in Task 50 via FormRunnerDeps → RenderContext chain)
 - `conversation.external()` wraps both `isAvailable()` and `extract()` calls (D21)
@@ -1804,6 +1863,7 @@ when AI unavailable. Caption-based text extraction (D23)."
 ### Task 60: Barrel Exports Update
 
 **Files:**
+
 - Modify: `packages/input-engine/src/index.ts`
 - Test: All existing tests continue to pass
 
@@ -1824,10 +1884,7 @@ Add to `src/index.ts`:
 ```typescript
 // Phase 2 — Action Buttons
 export { ACTION_CALLBACKS } from './runner/action-buttons.builder.js';
-export type {
-  ActionButtonContext,
-  ActionButtonRow,
-} from './runner/action-buttons.builder.js';
+export type { ActionButtonContext, ActionButtonRow } from './runner/action-buttons.builder.js';
 
 // Phase 2 — Confirmation
 export { CONFIRMATION_ACTIONS } from './runner/confirmation.renderer.js';
@@ -1850,6 +1907,7 @@ export type { FormProgress } from './runner/form.runner.js';
 - [ ] **Step 4: Run full validation suite**
 
 Run:
+
 - `pnpm --filter @tempot/input-engine test` — all tests pass
 - `pnpm --filter @tempot/input-engine exec tsc --noEmit` — zero type errors
 - `pnpm --filter @tempot/input-engine exec eslint src/ --max-warnings 0` — zero warnings

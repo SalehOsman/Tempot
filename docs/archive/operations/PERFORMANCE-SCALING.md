@@ -6,13 +6,13 @@
 
 ## Performance Thresholds
 
-| Service | Normal | Alert Threshold | Action |
-|---------|--------|----------------|--------|
-| Database query | < 100ms | > 500ms | Investigate query, add index |
-| Redis operation | < 10ms | > 100ms | Check Redis memory, connection pool |
-| AI Provider call | < 2s | > 10s | Check circuit breaker, enable queue mode |
-| Error rate | < 1% | > 5% | Immediate investigation |
-| Memory usage | < 70% | > 90% | Scale horizontally or increase limits |
+| Service          | Normal  | Alert Threshold | Action                                   |
+| ---------------- | ------- | --------------- | ---------------------------------------- |
+| Database query   | < 100ms | > 500ms         | Investigate query, add index             |
+| Redis operation  | < 10ms  | > 100ms         | Check Redis memory, connection pool      |
+| AI Provider call | < 2s    | > 10s           | Check circuit breaker, enable queue mode |
+| Error rate       | < 1%    | > 5%            | Immediate investigation                  |
+| Memory usage     | < 70%   | > 90%           | Scale horizontally or increase limits    |
 
 All thresholds are monitored via the `/health` endpoint and Sentry alerts.
 
@@ -36,6 +36,7 @@ export const prisma = new PrismaClient({
 ```
 
 Recommended pool sizes:
+
 - Development: `connection_limit=5`
 - Production (single instance): `connection_limit=10`
 - Production (multiple instances): `connection_limit=5` per instance
@@ -107,13 +108,13 @@ redis:
 
 All cache keys must have explicit TTLs (Constitution Rule XIX):
 
-| Key pattern | TTL | Reason |
-|-------------|-----|--------|
-| `session:{userId}` | 30 minutes | Active session window |
-| `settings:{key}` | 5 minutes | Settings rarely change |
-| `translation:{key}:{lang}` | 1 hour | CMS cache |
-| `search:{userId}:{query}` | 30 minutes | Search state |
-| `ai:embed:{hash}` | 24 hours | Expensive to regenerate |
+| Key pattern                | TTL        | Reason                  |
+| -------------------------- | ---------- | ----------------------- |
+| `session:{userId}`         | 30 minutes | Active session window   |
+| `settings:{key}`           | 5 minutes  | Settings rarely change  |
+| `translation:{key}:{lang}` | 1 hour     | CMS cache               |
+| `search:{userId}:{query}`  | 30 minutes | Search state            |
+| `ai:embed:{hash}`          | 24 hours   | Expensive to regenerate |
 
 ---
 
@@ -132,9 +133,9 @@ export function createWorker(queueName: string, processor: Processor) {
 
 function getWorkerConcurrency(queueName: string): number {
   const concurrencyMap: Record<string, number> = {
-    'notifications': 10,    // High throughput, lightweight
+    notifications: 10, // High throughput, lightweight
     'document-generation': 3, // CPU-intensive PDF/Excel generation
-    'ai-embedding': 5,      // Rate-limited by AI provider
+    'ai-embedding': 5, // Rate-limited by AI provider
     'import-processing': 2, // Memory-intensive for large files
   };
   return concurrencyMap[queueName] ?? 5;
@@ -148,10 +149,10 @@ const defaultJobOptions: DefaultJobOptions = {
   attempts: 3,
   backoff: {
     type: 'exponential',
-    delay: 2000,  // 2s, 4s, 8s
+    delay: 2000, // 2s, 4s, 8s
   },
-  removeOnComplete: { count: 100 },   // Keep last 100 completed
-  removeOnFail: { count: 500 },       // Keep last 500 failed for inspection
+  removeOnComplete: { count: 100 }, // Keep last 100 completed
+  removeOnFail: { count: 500 }, // Keep last 500 failed for inspection
 };
 ```
 
@@ -213,9 +214,9 @@ import KeyvPostgres from '@keyv/postgres';
 export const cache = createCache({
   stores: [
     // L1: In-memory (fastest, lost on restart)
-    new Keyv({ store: new KeyvMap(), ttl: 60_000 }),      // 1 minute
+    new Keyv({ store: new KeyvMap(), ttl: 60_000 }), // 1 minute
     // L2: Redis (fast, survives restarts)
-    new Keyv({ store: new KeyvRedis(process.env.REDIS_URL), ttl: 3_600_000 }),  // 1 hour
+    new Keyv({ store: new KeyvRedis(process.env.REDIS_URL), ttl: 3_600_000 }), // 1 hour
     // L3: PostgreSQL (slow, permanent fallback)
     new Keyv({ store: new KeyvPostgres(process.env.DATABASE_URL), ttl: 86_400_000 }), // 24 hours
   ],
@@ -231,7 +232,7 @@ For settings and translations, warm the cache on startup:
 export async function warmCache() {
   // Load all active settings into cache
   const settings = await prisma.setting.findMany({ where: { isActive: true } });
-  await Promise.all(settings.map(s => cache.set(`settings:${s.key}`, s.value)));
+  await Promise.all(settings.map((s) => cache.set(`settings:${s.key}`, s.value)));
 
   // Load default language translations
   await cmsEngine.warmTranslations(['ar', 'en']);

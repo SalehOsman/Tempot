@@ -8,14 +8,14 @@
 
 Tempot supports deployment on any Node.js-compatible platform. This guide covers the 6 supported deployment targets.
 
-| Platform | Best For | Estimated Cost | Difficulty |
-|----------|---------|---------------|------------|
-| Railway | Quick start, small-medium bots | $5–20/month | Easy |
-| Render | Medium bots with free tier | $0–25/month | Easy |
-| Fly.io | High performance, global distribution | $10–30/month | Medium |
-| DigitalOcean | Full control, managed DB | $20–50/month | Medium |
-| AWS | Enterprise, high scale | $30+/month | Hard |
-| VPS (generic) | Any Linux server | Variable | Medium |
+| Platform      | Best For                              | Estimated Cost | Difficulty |
+| ------------- | ------------------------------------- | -------------- | ---------- |
+| Railway       | Quick start, small-medium bots        | $5–20/month    | Easy       |
+| Render        | Medium bots with free tier            | $0–25/month    | Easy       |
+| Fly.io        | High performance, global distribution | $10–30/month   | Medium     |
+| DigitalOcean  | Full control, managed DB              | $20–50/month   | Medium     |
+| AWS           | Enterprise, high scale                | $30+/month     | Hard       |
+| VPS (generic) | Any Linux server                      | Variable       | Medium     |
 
 ---
 
@@ -85,12 +85,12 @@ restartPolicyType = "ON_FAILURE"
 
 ### Cost Estimate
 
-| Component | Cost |
-|-----------|------|
-| Bot server (512MB RAM) | ~$5/month |
-| PostgreSQL (1GB) | ~$5/month |
-| Redis (256MB) | ~$3/month |
-| **Total** | **~$13/month** |
+| Component              | Cost           |
+| ---------------------- | -------------- |
+| Bot server (512MB RAM) | ~$5/month      |
+| PostgreSQL (1GB)       | ~$5/month      |
+| Redis (256MB)          | ~$3/month      |
+| **Total**              | **~$13/month** |
 
 ---
 
@@ -280,13 +280,13 @@ For enterprise deployments with high availability requirements.
 
 ### Estimated Cost (us-east-1)
 
-| Component | Cost |
-|-----------|------|
-| ECS Fargate (0.5 vCPU, 1GB) | ~$15/month |
-| RDS PostgreSQL (db.t3.micro) | ~$15/month |
-| ElastiCache Redis (cache.t3.micro) | ~$12/month |
-| ALB | ~$16/month |
-| **Total** | **~$58/month** |
+| Component                          | Cost           |
+| ---------------------------------- | -------------- |
+| ECS Fargate (0.5 vCPU, 1GB)        | ~$15/month     |
+| RDS PostgreSQL (db.t3.micro)       | ~$15/month     |
+| ElastiCache Redis (cache.t3.micro) | ~$12/month     |
+| ALB                                | ~$16/month     |
+| **Total**                          | **~$58/month** |
 
 See `docs/deployment/CLOUD-DEPLOYMENT-GUIDES/aws-cdk/` for CDK infrastructure code (Phase 5).
 

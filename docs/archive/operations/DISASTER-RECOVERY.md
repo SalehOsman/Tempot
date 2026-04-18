@@ -6,13 +6,13 @@
 
 ## RTO / RPO Targets
 
-| Service | RTO (Recovery Time) | RPO (Recovery Point) |
-|---------|--------------------|--------------------|
-| Bot (grammY) | < 5 minutes | 0 (stateless) |
-| PostgreSQL | < 30 minutes | < 1 hour (daily backup) |
-| Redis | < 2 minutes | 0 (reconstructable from DB) |
-| Storage files | < 1 hour | < 24 hours |
-| Full system | < 1 hour | < 1 hour |
+| Service       | RTO (Recovery Time) | RPO (Recovery Point)        |
+| ------------- | ------------------- | --------------------------- |
+| Bot (grammY)  | < 5 minutes         | 0 (stateless)               |
+| PostgreSQL    | < 30 minutes        | < 1 hour (daily backup)     |
+| Redis         | < 2 minutes         | 0 (reconstructable from DB) |
+| Storage files | < 1 hour            | < 24 hours                  |
+| Full system   | < 1 hour            | < 1 hour                    |
 
 ---
 
@@ -203,11 +203,11 @@ SELECT * FROM audit_logs WHERE action LIKE '%.delete' AND "targetId" = 'affected
 
 ## Backup Schedule
 
-| Backup Type | Frequency | Retention | Storage |
-|-------------|-----------|-----------|---------|
-| PostgreSQL full dump | Daily (02:00 Cairo time) | 30 days | Google Drive + Local |
-| PostgreSQL full dump | Weekly (Sunday 03:00) | 90 days | Google Drive + S3 |
-| Storage files | Daily (03:00 Cairo time) | 30 days | S3 |
+| Backup Type          | Frequency                | Retention | Storage              |
+| -------------------- | ------------------------ | --------- | -------------------- |
+| PostgreSQL full dump | Daily (02:00 Cairo time) | 30 days   | Google Drive + Local |
+| PostgreSQL full dump | Weekly (Sunday 03:00)    | 90 days   | Google Drive + S3    |
+| Storage files        | Daily (03:00 Cairo time) | 30 days   | S3                   |
 
 Backups are encrypted before upload (AES-256). SUPER_ADMIN is notified immediately on backup failure.
 

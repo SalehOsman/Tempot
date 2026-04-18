@@ -13,6 +13,7 @@
 ### Task 1: Role Definitions & Hierarchy
 
 **Files:**
+
 - Create: `packages/auth-core/src/roles/role.definitions.ts`
 - Test: `packages/auth-core/tests/unit/role.test.ts`
 
@@ -67,6 +68,7 @@ git commit -m "feat(auth): define user roles and hierarchy"
 ### Task 2: CASL Ability Factory
 
 **Files:**
+
 - Create: `packages/auth-core/src/ability/ability.factory.ts`
 - Test: `packages/auth-core/tests/unit/ability.test.ts`
 
@@ -127,6 +129,7 @@ git commit -m "feat(auth): implement basic CASL ability factory"
 ### Task 3: Scoped Authorization Logic
 
 **Files:**
+
 - Modify: `packages/auth-core/src/ability/ability.factory.ts`
 - Test: `packages/auth-core/tests/unit/scoped-auth.test.ts`
 
@@ -162,7 +165,7 @@ export function createAbilityForUser(user: { id: string; role: UserRole; scopes?
   if (user.role === UserRole.SUPER_ADMIN) {
     can('manage', 'all');
   } else if (user.role === UserRole.ADMIN) {
-    user.scopes?.forEach(scope => {
+    user.scopes?.forEach((scope) => {
       can('manage', scope);
     });
   }
@@ -188,6 +191,7 @@ git commit -m "feat(auth): add scoped authorization logic for admins"
 ### Task 4: Audit Logging for Denied Access (FR-006)
 
 **Files:**
+
 - Create: `packages/auth-core/src/middleware/auth.guard.ts`
 - Test: `packages/auth-core/tests/unit/auth-guard.test.ts`
 
@@ -238,7 +242,7 @@ export class AuthGuard {
       before: null,
       after: null,
       status: 'FAILED',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     return err(new AppError('auth.permission_denied', `Access denied for ${action} on ${subject}`));

@@ -26,11 +26,11 @@ Phase 5 — App Assembly (final phase)
 
 All `@tempot/*` packages plus:
 
-| Package | Purpose |
-|---------|---------|
-| `grammy` 1.41.1 | Telegram bot engine |
-| `hono` 4.x | Web server (webhook + API) |
-| `tsx` 4.21.0 | TypeScript dev runner |
+| Package         | Purpose                    |
+| --------------- | -------------------------- |
+| `grammy` 1.41.1 | Telegram bot engine        |
+| `hono` 4.x      | Web server (webhook + API) |
+| `tsx` 4.21.0    | TypeScript dev runner      |
 
 ## Structure (Phase 5)
 

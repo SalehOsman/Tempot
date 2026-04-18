@@ -89,6 +89,7 @@ packages/ux-helpers/
 ## Task 1: Infrastructure Setup
 
 **Files:**
+
 - Create: `packages/ux-helpers/.gitignore`
 - Create: `packages/ux-helpers/package.json`
 - Create: `packages/ux-helpers/tsconfig.json`
@@ -270,15 +271,15 @@ export const EMOJI_NUMBERS: readonly string[] = [
 
 /** Unicode range for Arabic characters */
 export const ARABIC_CHAR_RANGE_START = 0x0600;
-export const ARABIC_CHAR_RANGE_END = 0x06FF;
+export const ARABIC_CHAR_RANGE_END = 0x06ff;
 
 /** Arabic Supplement range */
 export const ARABIC_SUPPLEMENT_START = 0x0750;
-export const ARABIC_SUPPLEMENT_END = 0x077F;
+export const ARABIC_SUPPLEMENT_END = 0x077f;
 
 /** Arabic Extended-A range */
-export const ARABIC_EXTENDED_A_START = 0x08A0;
-export const ARABIC_EXTENDED_A_END = 0x08FF;
+export const ARABIC_EXTENDED_A_START = 0x08a0;
+export const ARABIC_EXTENDED_A_END = 0x08ff;
 
 /** Emoji bullet for list items per Section 13.2 */
 export const EMOJI_BULLET = '\u25CF';
@@ -504,7 +505,7 @@ mkdir -p packages/ux-helpers/tests/unit
 - [ ] **Step 10: Run `pnpm install` to resolve workspace dependencies**
 
 Run: `pnpm install`
-Expected: Clean install resolving workspace:* deps.
+Expected: Clean install resolving workspace:\* deps.
 
 - [ ] **Step 11: Verify package builds**
 
@@ -514,6 +515,7 @@ Expected: Clean compile with zero errors. Output in `dist/`.
 - [ ] **Step 12: Run 10-point package-creation checklist**
 
 Verify all 10 points from `docs/developer/package-creation-checklist.md`:
+
 1. `.gitignore` exists with required patterns
 2. `tsconfig.json` has `"outDir": "dist"`
 3. `package.json` main/types point to `dist/`
@@ -537,6 +539,7 @@ git commit -m "feat(ux-helpers): scaffold package infrastructure with types, err
 ## Task 2: Label Validator + Callback Data Encoder
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/label.validator.ts`
 - Create: `packages/ux-helpers/src/callback-data/callback-data.encoder.ts`
 - Create: `packages/ux-helpers/tests/unit/label.validator.test.ts`
@@ -603,8 +606,8 @@ function isArabicCodePoint(code: number): boolean {
 
 function isAlphabetic(code: number): boolean {
   return (
-    (code >= 0x0041 && code <= 0x005A) || // A-Z
-    (code >= 0x0061 && code <= 0x007A) || // a-z
+    (code >= 0x0041 && code <= 0x005a) || // A-Z
+    (code >= 0x0061 && code <= 0x007a) || // a-z
     isArabicCodePoint(code)
   );
 }
@@ -872,9 +875,7 @@ function getByteLength(str: string): number {
   return new TextEncoder().encode(str).length;
 }
 
-export function encodeCallbackData(
-  parts: readonly string[],
-): Result<string, AppError> {
+export function encodeCallbackData(parts: readonly string[]): Result<string, AppError> {
   if (parts.length === 0) {
     return err(new AppError(UX_ERRORS.CALLBACK_EMPTY));
   }
@@ -893,9 +894,7 @@ export function encodeCallbackData(
   return ok(encoded);
 }
 
-export function decodeCallbackData(
-  data: string,
-): Result<readonly string[], AppError> {
+export function decodeCallbackData(data: string): Result<readonly string[], AppError> {
   if (data.length === 0) {
     return err(new AppError(UX_ERRORS.CALLBACK_EMPTY));
   }
@@ -912,9 +911,7 @@ export function encodeWithExpiry(
   return encodeCallbackData(allParts);
 }
 
-export function decodeWithExpiry(
-  data: string,
-): Result<DecodedCallbackWithExpiry, AppError> {
+export function decodeWithExpiry(data: string): Result<DecodedCallbackWithExpiry, AppError> {
   if (data.length === 0) {
     return err(new AppError(UX_ERRORS.CALLBACK_EMPTY));
   }
@@ -953,9 +950,15 @@ Expected: All callback data encoder tests PASS.
 - [ ] **Step 12: Update barrel exports in `src/index.ts`**
 
 Add:
+
 ```typescript
 // Label Validator
-export { validateLabel, detectLanguage, getCharLimit, getRowLimit } from './keyboards/label.validator.js';
+export {
+  validateLabel,
+  detectLanguage,
+  getCharLimit,
+  getRowLimit,
+} from './keyboards/label.validator.js';
 
 // Callback Data Encoder
 export {
@@ -983,6 +986,7 @@ git commit -m "feat(ux-helpers): add label validator and callback data encoder"
 ## Task 3: Status Formatter (Pure)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/status.formatter.ts`
 - Create: `packages/ux-helpers/tests/unit/status.formatter.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts` (add exports)
@@ -1079,9 +1083,15 @@ Expected: PASS.
 - [ ] **Step 5: Update barrel exports**
 
 Add to `src/index.ts`:
+
 ```typescript
 // Status Formatter
-export { formatLoading, formatSuccess, formatError, formatWarning } from './messages/status.formatter.js';
+export {
+  formatLoading,
+  formatSuccess,
+  formatError,
+  formatWarning,
+} from './messages/status.formatter.js';
 ```
 
 - [ ] **Step 6: Verify build passes and commit**
@@ -1097,6 +1107,7 @@ git commit -m "feat(ux-helpers): add pure status formatter with 4 status types"
 ## Task 4: Message Composer
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/message.composer.ts`
 - Create: `packages/ux-helpers/tests/unit/message.composer.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1126,18 +1137,13 @@ describe('Message Composer', () => {
   });
 
   it('should compose multiple paragraphs with double newline spacing', () => {
-    const result = createComposer()
-      .paragraph('para.one')
-      .paragraph('para.two')
-      .build();
+    const result = createComposer().paragraph('para.one').paragraph('para.two').build();
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toBe('para.one\n\npara.two');
   });
 
   it('should format bullet list with emoji bullets', () => {
-    const result = createComposer()
-      .bulletList(['Item 1', 'Item 2', 'Item 3'])
-      .build();
+    const result = createComposer().bulletList(['Item 1', 'Item 2', 'Item 3']).build();
     expect(result.isOk()).toBe(true);
     const text = result._unsafeUnwrap();
     expect(text).toContain('\u25CF Item 1');
@@ -1146,11 +1152,7 @@ describe('Message Composer', () => {
   });
 
   it('should add visual separator', () => {
-    const result = createComposer()
-      .paragraph('before')
-      .separator()
-      .paragraph('after')
-      .build();
+    const result = createComposer().paragraph('before').separator().paragraph('after').build();
     expect(result.isOk()).toBe(true);
     const text = result._unsafeUnwrap();
     expect(text).toContain('before');
@@ -1201,9 +1203,7 @@ export function createComposer(): ComposerBuilder {
     },
 
     bulletList(items) {
-      const formatted = items
-        .map((item) => `${EMOJI_BULLET} ${item}`)
-        .join('\n');
+      const formatted = items.map((item) => `${EMOJI_BULLET} ${item}`).join('\n');
       sections.push(formatted);
       return builder;
     },
@@ -1241,6 +1241,7 @@ Expected: PASS.
 - [ ] **Step 5: Update barrel exports and commit**
 
 Add to `src/index.ts`:
+
 ```typescript
 // Message Composer
 export { createComposer } from './messages/message.composer.js';
@@ -1257,6 +1258,7 @@ git commit -m "feat(ux-helpers): add message composer with paragraph, bullet lis
 ## Task 5: Error Formatter
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/error.formatter.ts`
 - Create: `packages/ux-helpers/tests/unit/error.formatter.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1286,6 +1288,7 @@ git commit -m "feat(ux-helpers): add error formatter with 4 error types per Rule
 ## Task 6: Inline Keyboard Builder
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/inline.builder.ts`
 - Create: `packages/ux-helpers/tests/unit/inline.builder.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1315,6 +1318,7 @@ git commit -m "feat(ux-helpers): add inline keyboard builder wrapping grammY Inl
 ## Task 7: Reply Keyboard Builder
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/reply.builder.ts`
 - Create: `packages/ux-helpers/tests/unit/reply.builder.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1344,6 +1348,7 @@ git commit -m "feat(ux-helpers): add reply keyboard builder wrapping grammY Keyb
 ## Task 8: Emoji Number Utility + List Formatter
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/lists/emoji-number.ts`
 - Create: `packages/ux-helpers/src/lists/list.formatter.ts`
 - Create: `packages/ux-helpers/tests/unit/emoji-number.test.ts`
@@ -1400,6 +1405,7 @@ git commit -m "feat(ux-helpers): add emoji number utility and list formatter"
 ## Task 9: Pagination Builder
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/lists/pagination.builder.ts`
 - Create: `packages/ux-helpers/tests/unit/pagination.builder.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1429,6 +1435,7 @@ git commit -m "feat(ux-helpers): add pagination builder with boundary handling"
 ## Task 10: Confirmation Builder
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/keyboards/confirmation.builder.ts`
 - Create: `packages/ux-helpers/tests/unit/confirmation.builder.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1458,6 +1465,7 @@ git commit -m "feat(ux-helpers): add confirmation builder with expiry and RTL or
 ## Task 11: Expiry Checker
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/middleware/expiry.checker.ts`
 - Create: `packages/ux-helpers/tests/unit/expiry.checker.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1487,6 +1495,7 @@ git commit -m "feat(ux-helpers): add expiry checker for confirmation callback da
 ## Task 12: Golden Rule Fallback + Answer Callback + Typing Indicator
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/helpers/golden-rule.fallback.ts`
 - Create: `packages/ux-helpers/src/helpers/answer-callback.ts`
 - Create: `packages/ux-helpers/src/helpers/typing.indicator.ts`
@@ -1546,6 +1555,7 @@ git commit -m "feat(ux-helpers): add golden rule fallback, answer callback, typi
 ## Task 13: Status Sender (Context-Aware)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/messages/status.sender.ts`
 - Create: `packages/ux-helpers/tests/unit/status.sender.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1575,6 +1585,7 @@ git commit -m "feat(ux-helpers): add context-aware status sender using Golden Ru
 ## Task 14: Feedback Handler
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/feedback/feedback.handler.ts`
 - Create: `packages/ux-helpers/tests/unit/feedback.handler.test.ts`
 - Modify: `packages/ux-helpers/src/index.ts`
@@ -1629,6 +1640,7 @@ git commit -m "feat(ux-helpers): add feedback handler for loading-action-result 
 ## Task 15: Mock Context Factory (Testing Subpath)
 
 **Files:**
+
 - Create: `packages/ux-helpers/src/testing/mock.context.ts`
 - Create: `packages/ux-helpers/tests/unit/mock.context.test.ts`
 
@@ -1654,16 +1666,16 @@ interface TrackedFn {
   reset: () => void;
 }
 
-function createTrackedFn(
-  returnValue: unknown = true,
-): TrackedFn {
+function createTrackedFn(returnValue: unknown = true): TrackedFn {
   const calls: unknown[][] = [];
   const fn = ((...args: unknown[]) => {
     calls.push(args);
     return Promise.resolve(returnValue);
   }) as TrackedFn;
   fn.calls = calls;
-  fn.reset = () => { calls.length = 0; };
+  fn.reset = () => {
+    calls.length = 0;
+  };
   return fn;
 }
 
@@ -1686,9 +1698,7 @@ export function createMockContext(options?: MockContextOptions) {
   return {
     chat: { id: chatId, type: 'private' as const },
     message: { message_id: messageId },
-    callbackQuery: options?.callbackData
-      ? { data: options.callbackData }
-      : undefined,
+    callbackQuery: options?.callbackData ? { data: options.callbackData } : undefined,
     from: { id: options?.userId ?? 456 },
     editMessageText,
     reply,
@@ -1712,6 +1722,7 @@ git commit -m "feat(ux-helpers): add mock context factory for testing subpath"
 ## Task 16: Barrel Exports + README Update
 
 **Files:**
+
 - Modify: `packages/ux-helpers/src/index.ts` (finalize all exports)
 - Modify: `packages/ux-helpers/README.md` (update with actual API docs)
 
@@ -1738,6 +1749,7 @@ Expected: Clean compile, zero errors.
 - [ ] **Step 5: Run 10-point package-creation checklist (final)**
 
 Verify all 10 points pass:
+
 1. `.gitignore` — check
 2. `outDir: dist` — check
 3. main/types point to dist — check
@@ -1764,21 +1776,21 @@ git commit -m "feat(ux-helpers): finalize barrel exports and update README"
 
 ## Implementation Order Summary
 
-| Order | Task | Component(s) | Dependencies |
-|-------|------|--------------|--------------|
-| 1 | Infrastructure | package.json, tsconfig, vitest, types, errors, constants | None |
-| 2 | Utilities | Label Validator, Callback Data Encoder | types, errors, constants |
-| 3 | Status Formatter | Pure status formatting | i18n-core, constants |
-| 4 | Message Composer | Text composition rules | i18n-core, constants, errors |
-| 5 | Error Formatter | 4 error type formatters | i18n-core, callback-data.encoder |
-| 6 | Inline Builder | Inline keyboard wrapper | label.validator, grammY |
-| 7 | Reply Builder | Reply keyboard wrapper | label.validator, grammY |
-| 8 | List + Emoji Numbers | List formatting | emoji-number, i18n-core |
-| 9 | Pagination | Page navigation buttons | grammY InlineKeyboard |
-| 10 | Confirmation | Confirm/cancel dialogs | label.validator, callback-data.encoder |
-| 11 | Expiry Checker | Confirmation expiry | callback-data.encoder |
-| 12 | Ctx-Aware Helpers | Golden Rule, Answer CB, Typing | logger, grammY context |
-| 13 | Status Sender | Ctx-aware status messages | status.formatter, golden-rule.fallback |
-| 14 | Feedback Handler | Loading→action→result flow | status.sender, answer-callback, typing |
-| 15 | Mock Context | Testing subpath | grammY types |
-| 16 | Integration | Barrel exports, README | All components |
+| Order | Task                 | Component(s)                                             | Dependencies                           |
+| ----- | -------------------- | -------------------------------------------------------- | -------------------------------------- |
+| 1     | Infrastructure       | package.json, tsconfig, vitest, types, errors, constants | None                                   |
+| 2     | Utilities            | Label Validator, Callback Data Encoder                   | types, errors, constants               |
+| 3     | Status Formatter     | Pure status formatting                                   | i18n-core, constants                   |
+| 4     | Message Composer     | Text composition rules                                   | i18n-core, constants, errors           |
+| 5     | Error Formatter      | 4 error type formatters                                  | i18n-core, callback-data.encoder       |
+| 6     | Inline Builder       | Inline keyboard wrapper                                  | label.validator, grammY                |
+| 7     | Reply Builder        | Reply keyboard wrapper                                   | label.validator, grammY                |
+| 8     | List + Emoji Numbers | List formatting                                          | emoji-number, i18n-core                |
+| 9     | Pagination           | Page navigation buttons                                  | grammY InlineKeyboard                  |
+| 10    | Confirmation         | Confirm/cancel dialogs                                   | label.validator, callback-data.encoder |
+| 11    | Expiry Checker       | Confirmation expiry                                      | callback-data.encoder                  |
+| 12    | Ctx-Aware Helpers    | Golden Rule, Answer CB, Typing                           | logger, grammY context                 |
+| 13    | Status Sender        | Ctx-aware status messages                                | status.formatter, golden-rule.fallback |
+| 14    | Feedback Handler     | Loading→action→result flow                               | status.sender, answer-callback, typing |
+| 15    | Mock Context         | Testing subpath                                          | grammY types                           |
+| 16    | Integration          | Barrel exports, README                                   | All components                         |

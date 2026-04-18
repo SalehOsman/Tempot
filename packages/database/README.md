@@ -14,13 +14,13 @@
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `prisma` 7.x | Relational ORM -- migrations, CRUD, soft delete |
-| `drizzle-orm` 0.45.x | pgvector operations only |
-| `@casl/prisma` | `accessibleBy()` Prisma query integration |
-| `neverthrow` | `Result<T, AppError>` pattern |
-| `@tempot/shared` | `AppError` type |
+| Package              | Purpose                                         |
+| -------------------- | ----------------------------------------------- |
+| `prisma` 7.x         | Relational ORM -- migrations, CRUD, soft delete |
+| `drizzle-orm` 0.45.x | pgvector operations only                        |
+| `@casl/prisma`       | `accessibleBy()` Prisma query integration       |
+| `neverthrow`         | `Result<T, AppError>` pattern                   |
+| `@tempot/shared`     | `AppError` type                                 |
 
 ## API
 
@@ -29,15 +29,17 @@
 class InvoiceRepository extends BaseRepository<Invoice> {
   protected moduleName = 'invoices';
   protected entityName = 'invoice';
-  protected get model() { return this.db.invoice; }
+  protected get model() {
+    return this.db.invoice;
+  }
 }
 
 const repo = new InvoiceRepository(auditLogger);
-const result = await repo.findById('id');                   // Result<Invoice, AppError>
-const list   = await repo.findMany({ status: 'PENDING' }); // Result<Invoice[], AppError>
-const item   = await repo.create(data);                     // Result<Invoice, AppError>
-const upd    = await repo.update('id', data);               // Result<Invoice, AppError>
-const del    = await repo.delete('id');                      // soft delete -> Result<void, AppError>
+const result = await repo.findById('id'); // Result<Invoice, AppError>
+const list = await repo.findMany({ status: 'PENDING' }); // Result<Invoice[], AppError>
+const item = await repo.create(data); // Result<Invoice, AppError>
+const upd = await repo.update('id', data); // Result<Invoice, AppError>
+const del = await repo.delete('id'); // soft delete -> Result<void, AppError>
 
 // TransactionManager
 const result = await TransactionManager.run(async (tx) => {

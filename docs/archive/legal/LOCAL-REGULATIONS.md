@@ -18,15 +18,15 @@ Tempot's Privacy Module (Section 31) implements GDPR-compatible privacy controls
 
 ### Key Requirements
 
-| Requirement | GDPR Equivalent | Tempot Implementation |
-|-------------|----------------|----------------------|
-| Lawful basis for processing | Art. 6 | Consent collected at first interaction |
-| Data subject rights | Arts. 15–22 | `/my-data`, `/export-data`, `/delete-account` commands |
-| Data minimisation | Art. 5(1)(c) | Only essential fields collected per module |
-| Storage limitation | Art. 5(1)(e) | Configurable retention per data type (Section 31.4) |
-| Security measures | Art. 32 | AES-256, HTTPS, bcrypt, audit logging |
-| Breach notification | Art. 33 | SUPER_ADMIN alerted immediately; NTRA notification within 72 hours |
-| Cross-border transfer | Art. 12 | Data stored in Egypt or EU-adequate countries only |
+| Requirement                 | GDPR Equivalent | Tempot Implementation                                              |
+| --------------------------- | --------------- | ------------------------------------------------------------------ |
+| Lawful basis for processing | Art. 6          | Consent collected at first interaction                             |
+| Data subject rights         | Arts. 15–22     | `/my-data`, `/export-data`, `/delete-account` commands             |
+| Data minimisation           | Art. 5(1)(c)    | Only essential fields collected per module                         |
+| Storage limitation          | Art. 5(1)(e)    | Configurable retention per data type (Section 31.4)                |
+| Security measures           | Art. 32         | AES-256, HTTPS, bcrypt, audit logging                              |
+| Breach notification         | Art. 33         | SUPER_ADMIN alerted immediately; NTRA notification within 72 hours |
+| Cross-border transfer       | Art. 12         | Data stored in Egypt or EU-adequate countries only                 |
 
 ### Egypt-Specific Notes
 
@@ -50,14 +50,14 @@ Tempot's Privacy Module (Section 31) implements GDPR-compatible privacy controls
 
 ### Key Requirements
 
-| Requirement | GDPR Equivalent | Tempot Implementation |
-|-------------|----------------|----------------------|
-| Consent | Art. 6 | Explicit consent at onboarding |
-| Purpose limitation | Art. 5(1)(b) | Purpose documented in module.config.ts `privacy.dataTypes` |
-| Data subject rights | Arts. 15–21 | `/my-data`, `/export-data`, `/delete-account` |
-| Data localisation | — | Personal data of Saudi residents must be stored in Saudi Arabia |
-| Cross-border transfer | Art. 29 | Requires SDAIA approval or adequate protection |
-| Breach notification | Art. 20 | SDAIA notification within 72 hours of discovery |
+| Requirement           | GDPR Equivalent | Tempot Implementation                                           |
+| --------------------- | --------------- | --------------------------------------------------------------- |
+| Consent               | Art. 6          | Explicit consent at onboarding                                  |
+| Purpose limitation    | Art. 5(1)(b)    | Purpose documented in module.config.ts `privacy.dataTypes`      |
+| Data subject rights   | Arts. 15–21     | `/my-data`, `/export-data`, `/delete-account`                   |
+| Data localisation     | —               | Personal data of Saudi residents must be stored in Saudi Arabia |
+| Cross-border transfer | Art. 29         | Requires SDAIA approval or adequate protection                  |
+| Breach notification   | Art. 20         | SDAIA notification within 72 hours of discovery                 |
 
 ### Saudi Arabia-Specific Notes
 
@@ -80,6 +80,7 @@ DATABASE_URL=postgresql://...@saudi-server:5432/tempot_db
 ## United Arab Emirates — PDPL and DIFC
 
 **Laws:**
+
 - UAE Federal Decree-Law No. 45 of 2021 (Personal Data Protection Law)
 - Dubai International Financial Centre (DIFC) Data Protection Law 2020 (for DIFC entities)
 
@@ -87,14 +88,14 @@ DATABASE_URL=postgresql://...@saudi-server:5432/tempot_db
 
 ### Key Requirements
 
-| Requirement | GDPR Equivalent | Tempot Implementation |
-|-------------|----------------|----------------------|
-| Consent | Art. 6 | Explicit consent at onboarding |
-| Data subject rights | Arts. 15–22 | Full rights implemented |
-| Data retention | Art. 5(1)(e) | Configurable per module |
-| Cross-border transfer | Chapter 5 | Requires TDRA approval |
-| Breach notification | Art. 26 | TDRA notification within 72 hours |
-| Health data | — | Enhanced consent and security required |
+| Requirement           | GDPR Equivalent | Tempot Implementation                  |
+| --------------------- | --------------- | -------------------------------------- |
+| Consent               | Art. 6          | Explicit consent at onboarding         |
+| Data subject rights   | Arts. 15–22     | Full rights implemented                |
+| Data retention        | Art. 5(1)(e)    | Configurable per module                |
+| Cross-border transfer | Chapter 5       | Requires TDRA approval                 |
+| Breach notification   | Art. 26         | TDRA notification within 72 hours      |
+| Health data           | —               | Enhanced consent and security required |
 
 ### UAE-Specific Notes
 
@@ -105,15 +106,15 @@ DATABASE_URL=postgresql://...@saudi-server:5432/tempot_db
 
 ## Comparison Table
 
-| Requirement | GDPR | Egypt PDPL | Saudi PDPL | UAE PDPL |
-|-------------|------|-----------|-----------|---------|
-| Explicit consent | ✅ | ✅ | ✅ | ✅ |
-| Right to access | ✅ | ✅ | ✅ | ✅ |
-| Right to deletion | ✅ | ✅ | ✅ | ✅ |
-| Data localisation | ❌ (transfers allowed) | Partial | ✅ Strict | Partial |
-| Breach notification | 72 hours | 72 hours | 72 hours | 72 hours |
-| DPO requirement | Large orgs | Large orgs | Large orgs | Large orgs |
-| Children's data | 16 years | 18 years | 18 years | 18 years |
+| Requirement         | GDPR                   | Egypt PDPL | Saudi PDPL | UAE PDPL   |
+| ------------------- | ---------------------- | ---------- | ---------- | ---------- |
+| Explicit consent    | ✅                     | ✅         | ✅         | ✅         |
+| Right to access     | ✅                     | ✅         | ✅         | ✅         |
+| Right to deletion   | ✅                     | ✅         | ✅         | ✅         |
+| Data localisation   | ❌ (transfers allowed) | Partial    | ✅ Strict  | Partial    |
+| Breach notification | 72 hours               | 72 hours   | 72 hours   | 72 hours   |
+| DPO requirement     | Large orgs             | Large orgs | Large orgs | Large orgs |
+| Children's data     | 16 years               | 18 years   | 18 years   | 18 years   |
 
 ---
 

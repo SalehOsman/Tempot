@@ -377,4 +377,87 @@ Task 0 (Scaffolding)
 | 8    | Startup Orchestrator      | P0       | 20 min      | FR-001, FR-002, FR-003, FR-004, FR-006, FR-013, FR-016 |
 | 9    | Lifecycle Events          | P1       | 10 min      | FR-013                                                 |
 | 10   | Integration Tests         | P1       | 15 min      | FR-001, FR-002, FR-004, FR-006                         |
-|      | **Total**                 |          | **170 min** |                                                        |
+| W1   | Dependency Factory        | P0       | 30 min ✅   | D21, D26 (Phase B wiring)                              |
+| W2   | Cache Adapter             | P0       | 10 min ✅   | Design concern 1 (Phase B wiring)                      |
+| W3   | Health Probes             | P0       | 10 min ✅   | FR-008 (Phase B wiring)                                |
+|      | **Total**                 |          | **220 min** |                                                        |
+
+---
+
+## Phase B Wiring Tasks (2026-04-06)
+
+### Task W1: Dependency Factory ✅
+
+**Goal:** Replace all 7 stub functions in `src/index.ts` with real `@tempot/*` package instances via a `deps.factory.ts` factory.
+
+**Files created:**
+
+- `apps/bot-server/src/startup/deps.factory.ts`
+- `apps/bot-server/tests/unit/deps.factory.test.ts`
+
+**Acceptance criteria:**
+
+- [x] `buildDeps()` returns `Promise<Result<OrchestratorDeps, AppError>>`
+- [x] Initialization follows the correct 10-step order (logger → shutdownManager → prisma → eventBus → cache → sessionProvider → settingsService → i18n → moduleRegistry → bot/http)
+- [x] Returns `err` with `database_unreachable` code if `prisma.$connect()` throws
+- [x] Returns `err` if `EventBusOrchestrator.init()` fails
+- [x] Returns `err` if `CacheService.init()` fails
+- [x] All 7 stub functions replaced — none remain in `index.ts`
+- [x] `index.ts` reduced to ≤30 lines (thin entry point only)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 6)
+
+### Task W2: Cache Adapter ✅
+
+**Goal:** Bridge `CacheService` (`AsyncResult<T | undefined | null>`) to `CacheAdapter` interface expected by `SessionProvider` (`Promise<Result<T | null, AppError>>`).
+
+**Files created:**
+
+- `apps/bot-server/src/startup/cache.adapter.ts`
+- `apps/bot-server/tests/unit/cache.adapter.test.ts`
+
+**Acceptance criteria:**
+
+- [x] `buildCacheAdapter(cache)` returns a `CacheAdapter`
+- [x] `get()` normalises `undefined` → `null`
+- [x] `get()` propagates `err` from CacheService
+- [x] `set()` and `del()` forward errors correctly
+- [x] `expire()` is a safe no-op (cache-manager handles TTL internally)
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 8)
+
+### Task W3: Health Probes ✅
+
+**Goal:** Build the `HealthProbes` map from real subsystem instances for the `/health` endpoint.
+
+**Files created:**
+
+- `apps/bot-server/src/startup/health.probes.ts`
+- `apps/bot-server/tests/unit/health.probes.test.ts`
+
+**Acceptance criteria:**
+
+- [x] `buildHealthProbes(resources)` returns a `HealthProbes` map
+- [x] `database` probe: `ok` on success, `error` on `prisma.$queryRaw` throw
+- [x] `redis` probe: `ok` on success, `error` on `cache.get` throw
+- [x] `disk` probe: `ok` above threshold, `degraded` below 500 MB, `error` on `statfs` failure
+- [x] `queue_manager` probe: `ok` when no factory provided, `error` on ping failure
+- [x] `ai_provider` probe: `ok` when no provider, `degraded` (not `error`) on ping failure
+- [x] No `any` types (Rule I)
+- [x] All tests pass (minimum 11)
+
+### Task I1: Phase 2D End-to-End Integration Tests
+
+**Goal:** Build an E2E test for the `bot-server` application that proves the `module-registry` loads a module handler correctly, binds it to the bot via `deps.factory.ts`, and successfully processes a mocked Telegram update, using genuine TestContainers (NO DB Mocking).
+
+**Files created:**
+
+- `apps/bot-server/tests/integration/e2e.test.ts`
+
+**Acceptance criteria:**
+
+- [x] Must use TestContainers (TestDB) for database
+- [x] Must boot using `buildDeps()`
+- [x] Must mock a Telegram request via grammY and verify correct handling
+- [x] Must assert `system.startup.completed` and `system.shutdown.completed` events are emitted via the EventBus
+- [x] No `any` types (Rule I)

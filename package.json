@@ -6,6 +6,10 @@
   },
   "scripts": {
     "dev": "pnpm --filter bot-server dev",
+    "dev:tunnel": "pnpm --filter bot-server dev:tunnel",
+    "webhook:set": "pnpm --filter bot-server webhook:set",
+    "webhook:info": "pnpm --filter bot-server webhook:info",
+    "webhook:delete": "pnpm --filter bot-server webhook:delete",
     "build": "pnpm --recursive build",
     "test": "vitest run",
     "test:unit": "vitest run --reporter=verbose --project=unit",

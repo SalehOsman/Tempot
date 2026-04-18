@@ -20,22 +20,22 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `pdfmake` 0.2.x | PDF generation with RTL — ADR-009 |
-| `ExcelJS` 4.x | Excel generation with RTL |
-| `@tempot/shared` | queue factory (BullMQ) |
-| `@tempot/storage-engine` | Upload generated files |
-| `@tempot/event-bus` | Receive requests, emit completion |
-| `@tempot/auth-core` | CASL permission check |
-| `@tempot/i18n-core` | Document headers and labels |
+| Package                  | Purpose                           |
+| ------------------------ | --------------------------------- |
+| `pdfmake` 0.2.x          | PDF generation with RTL — ADR-009 |
+| `ExcelJS` 4.x            | Excel generation with RTL         |
+| `@tempot/shared`         | queue factory (BullMQ)            |
+| `@tempot/storage-engine` | Upload generated files            |
+| `@tempot/event-bus`      | Receive requests, emit completion |
+| `@tempot/auth-core`      | CASL permission check             |
+| `@tempot/i18n-core`      | Document headers and labels       |
 
 ## Event Flow (never import directly)
 
 ```typescript
 // In a module — emit request
 await eventBus.emit('document.export.requested', {
-  type: 'pdf',           // 'pdf' | 'excel'
+  type: 'pdf', // 'pdf' | 'excel'
   moduleId: 'invoices',
   templateId: 'invoice-report',
   data: { invoices, dateRange },

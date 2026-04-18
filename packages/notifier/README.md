@@ -6,13 +6,13 @@
 
 Five notification types, all via BullMQ queue factory to avoid Telegram rate limits:
 
-| Type | Description | Mechanism |
-|------|-------------|-----------|
-| Individual | Single user by ID | Direct send |
-| Bulk | Specific list of users | BullMQ batches |
-| By role | All users with a given role | BullMQ batches |
-| Broadcast | All active users | BullMQ batches |
-| Scheduled | Specific future time | BullMQ delayed job |
+| Type       | Description                 | Mechanism          |
+| ---------- | --------------------------- | ------------------ |
+| Individual | Single user by ID           | Direct send        |
+| Bulk       | Specific list of users      | BullMQ batches     |
+| By role    | All users with a given role | BullMQ batches     |
+| Broadcast  | All active users            | BullMQ batches     |
+| Scheduled  | Specific future time        | BullMQ delayed job |
 
 All messages use i18n templates — no hardcoded text in notification code.
 
@@ -24,12 +24,12 @@ Phase 4 — Advanced Engines
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `@tempot/shared` | queue factory (BullMQ) |
-| `@tempot/i18n-core` | Message templates |
-| `@tempot/database` | User lookup by role |
-| `@tempot/logger` | Delivery logging |
+| Package             | Purpose                |
+| ------------------- | ---------------------- |
+| `@tempot/shared`    | queue factory (BullMQ) |
+| `@tempot/i18n-core` | Message templates      |
+| `@tempot/database`  | User lookup by role    |
+| `@tempot/logger`    | Delivery logging       |
 
 ## API
 
@@ -55,6 +55,7 @@ await notifier.schedule(userId, 'invoice.payment_reminder', payload, scheduledAt
 ## Telegram Rate Limits
 
 Batch sending respects Telegram limits:
+
 - Max 30 messages/second globally
 - Max 1 message/second per chat
 - BullMQ workers configured with appropriate concurrency and delays
