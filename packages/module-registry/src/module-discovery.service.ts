@@ -42,7 +42,7 @@ export class ModuleDiscovery implements ModuleDiscoveryPort {
 
     for (const dirName of directories) {
       const modulePath = `${this.deps.modulesDir}/${dirName}`;
-      const configPath = `${modulePath}/module.config.ts`;
+      const configPath = `${modulePath}/dist/module.config.js`;
 
       const loadResult = await this.loadModuleConfig(configPath);
       if (!loadResult.ok) {

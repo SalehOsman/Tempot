@@ -99,7 +99,7 @@ model Attachment {
 }
 
 model Setting {
-  key         String   @id
+  key         String  @id
   value       String
   description String?
 

@@ -1,4 +1,4 @@
-export { i18nConfig, DEFAULT_LANGUAGE, FALLBACK_LANGUAGE } from './i18n.config.js';
+export { i18nConfig, DEFAULT_LANGUAGE, FALLBACK_LANGUAGE, initI18n } from './i18n.config.js';
 export { loadModuleLocales } from './i18n.loader.js';
 export { t } from './i18n.translator.js';
 export type { TranslationOptions } from './i18n.translator.js';

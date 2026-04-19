@@ -1,0 +1,33 @@
+{
+  "test-module.commands.start": "▶️ Start using the bot",
+  "test-module.commands.ping": "🏓 Test response time",
+  "test-module.commands.whoami": "👤 View your current session data",
+  "test-module.commands.dbtest": "🗄️ Test database connectivity",
+  "test-module.commands.status": "📊 Bot and services status",
+
+  "test-module.start.header": "✅ *Bot is running!*",
+  "test-module.start.user_id": "👤 Your ID: `{{userId}}`",
+  "test-module.start.version": "🤖 Version: {{version}}",
+  "test-module.start.commands_header": "*Available commands:*",
+
+  "test-module.ping.measuring": "🏓 ...",
+  "test-module.ping.result": "🏓 *Pong!*\nLatency: `{{latency}}ms`",
+
+  "test-module.whoami.no_session": "❌ No session found for your account yet.",
+  "test-module.whoami.header": "👤 *Your session data:*",
+  "test-module.whoami.user_id": "🆔 User ID: `{{userId}}`",
+  "test-module.whoami.chat_id": "💬 Chat ID: `{{chatId}}`",
+  "test-module.whoami.role": "🔑 Role: `{{role}}`",
+  "test-module.whoami.language": "🌍 Language: `{{language}}`",
+  "test-module.whoami.status": "📋 Status: `{{status}}`",
+
+  "test-module.dbtest.header": "🗄️ *Database test:*",
+  "test-module.dbtest.connected": "✅ Database connection is working",
+  "test-module.dbtest.maintenance": "🔧 Maintenance mode: `{{value}}`",
+
+  "test-module.status.header": "📊 *Bot status:*",
+  "test-module.status.uptime": "⏱️ Uptime: `{{h}}h {{m}}m {{s}}s`",
+  "test-module.status.memory": "🧠 Memory used: `{{memMb}} MB`",
+  "test-module.status.module": "📦 Module: `{{name}}` v{{version}}",
+  "test-module.status.running": "🟢 Status: running"
+}

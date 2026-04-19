@@ -47,15 +47,20 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
           return result.isOk() ? result.value : null;
         },
       },
-      i18n: { t: (key: string) => opts.t(key) },
+      i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
       settings: {
         get: async (key: string) => {
           const result = await opts.settingsService.getDynamic(key as never);
           return result.isOk() ? result.value : null;
         },
       },
-      importer: async (p: string) =>
-        import(p) as Promise<{ default?: import('../bot-server.types.js').ModuleSetupFn }>,
+      importer: async (p: string) => {
+        const { pathToFileURL } = await import('node:url');
+        const entryPoint = pathToFileURL(`${p}/dist/index.js`).href;
+        return import(entryPoint) as Promise<{
+          default?: import('../bot-server.types.js').ModuleSetupFn;
+        }>;
+      },
     });
 }
 
@@ -73,7 +78,10 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
       }
     },
     bootstrapSuperAdmins: (ids: number[]) =>
-      bootstrapSuperAdmins(ids, { prisma, logger: opts.log }),
+      bootstrapSuperAdmins(ids, {
+        prisma: prisma as unknown as import('./bootstrap.js').BootstrapPrisma,
+        logger: opts.log,
+      }),
     warmCaches: () =>
       warmCaches({
         settingsWarmer: {

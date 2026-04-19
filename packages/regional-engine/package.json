@@ -26,5 +26,8 @@
     "typescript": "5.9.3",
     "vitest": "4.1.0",
     "country-state-city": "3.2.1"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

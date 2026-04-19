@@ -31,9 +31,10 @@ describe('bootstrapSuperAdmins', () => {
     expect(mockPrisma.session.upsert).toHaveBeenCalledTimes(2);
 
     expect(mockPrisma.session.upsert).toHaveBeenCalledWith({
-      where: { userId_chatId: { userId: '123', chatId: '123' } },
+      where: { id: '123:123' },
       update: { role: 'SUPER_ADMIN' },
       create: {
+        id: '123:123',
         userId: '123',
         chatId: '123',
         role: 'SUPER_ADMIN',
@@ -43,9 +44,10 @@ describe('bootstrapSuperAdmins', () => {
     });
 
     expect(mockPrisma.session.upsert).toHaveBeenCalledWith({
-      where: { userId_chatId: { userId: '456', chatId: '456' } },
+      where: { id: '456:456' },
       update: { role: 'SUPER_ADMIN' },
       create: {
+        id: '456:456',
         userId: '456',
         chatId: '456',
         role: 'SUPER_ADMIN',

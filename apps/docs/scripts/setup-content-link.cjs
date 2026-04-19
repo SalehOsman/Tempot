@@ -1,3 +1,4 @@
+/* eslint-disable */
 // setup-content-link.js — Creates directory junction/symlink from
 // apps/docs/src/content/docs/ → docs/product/ (project root)
 // Starlight 0.34.x requires content at src/content/docs/ — no contentDir option.
@@ -43,8 +44,17 @@ function main() {
   fs.mkdirSync(path.resolve(linkPath, '..'), { recursive: true });
 
   const type = os.platform() === 'win32' ? 'junction' : 'dir';
-  fs.symlinkSync(targetPath, linkPath, type);
-  log('info', 'Junction created: src/content/docs/ → docs/product/');
+  try {
+    fs.symlinkSync(targetPath, linkPath, type);
+    log('info', 'Junction created: src/content/docs/ → docs/product/');
+  } catch (err) {
+    if (err.code !== 'EEXIST') {
+      log('error', err.message);
+      process.exitCode = 1;
+    } else {
+      log('info', 'Junction exists but target might be unreachable. Ignored.');
+    }
+  }
 }
 
 main();

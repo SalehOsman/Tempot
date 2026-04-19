@@ -1,6 +1,27 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+/**
+ * ESM/CJS interop for @prisma/client.
+ *
+ * Problem: In production Docker deploys, Node.js ESM runtime cannot statically
+ * resolve named exports from CJS modules, causing:
+ *   "SyntaxError: Named export 'Prisma' not found."
+ *
+ * Solution: Import types only from @prisma/client (erased at compile time),
+ * and load the runtime values via createRequire which forces CJS resolution.
+ * This satisfies both TypeScript (types are correct) and Node.js (no ESM/CJS crash).
+ */
+import type { PrismaClient as PrismaClientType, Prisma } from '@prisma/client';
+import { createRequire } from 'node:module';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+
+// Load @prisma/client as CJS at runtime — works in both dev and Docker production.
+const _require = createRequire(import.meta.url);
+const { PrismaClient } = _require('@prisma/client') as {
+  PrismaClient: typeof PrismaClientType;
+};
+
+export type { Prisma };
+export { PrismaClient };
 
 /**
  * Extended Prisma client type after applying soft-delete extensions.
@@ -21,7 +42,6 @@ interface SoftDeleteData {
 
 /**
  * Args shape for the model extension delete override.
- * Prisma's Exact<A, Args<T, 'delete'>> narrows to this at runtime.
  */
 interface DeleteArgs {
   where: Record<string, unknown>;
@@ -40,7 +60,6 @@ interface DeleteManyArgs {
 
 /**
  * Prisma query extension callback arguments for $allModels operations.
- * The Prisma extension API passes { args, query } to each hook.
  */
 interface QueryExtensionArgs<TArgs> {
   args: TArgs;
@@ -64,47 +83,43 @@ interface SoftDeletableRecord {
 }
 
 /**
- * Define model extensions for soft delete.
- * These override delete/deleteMany to set isDeleted instead of removing rows.
+ * Soft-delete model extensions.
+ * Override delete/deleteMany to set isDeleted instead of removing rows.
  *
- * Note: Prisma's extension typing for $allModels uses complex mapped generics
- * (Prisma.Exact<A, Prisma.Args<T, 'delete'>>). The runtime values are typed above.
- * The `this: T` context provides getExtensionContext() which returns the delegate.
+ * Note: Prisma.Exact and Prisma.Args are type-only — they are erased at runtime.
+ * The `this: T` context provides getExtensionContext() at runtime.
  */
 const modelExtensions = {
   $allModels: {
     async delete<T, A>(this: T, args: Prisma.Exact<A, Prisma.Args<T, 'delete'>>) {
-      const context = Prisma.getExtensionContext(this);
+      const { Prisma: PrismaRuntime } = _require(
+        '@prisma/client',
+      ) as typeof import('@prisma/client');
+      const context = PrismaRuntime.getExtensionContext(this);
       const typedArgs = args as unknown as DeleteArgs;
       const data: SoftDeleteData = typedArgs.data ?? {};
       return (context as Record<string, (...args: unknown[]) => unknown>).update({
         ...typedArgs,
-        data: {
-          ...data,
-          isDeleted: true,
-          deletedAt: new Date(),
-        },
+        data: { ...data, isDeleted: true, deletedAt: new Date() },
       });
     },
     async deleteMany<T, A>(this: T, args: Prisma.Exact<A, Prisma.Args<T, 'deleteMany'>>) {
-      const context = Prisma.getExtensionContext(this);
+      const { Prisma: PrismaRuntime } = _require(
+        '@prisma/client',
+      ) as typeof import('@prisma/client');
+      const context = PrismaRuntime.getExtensionContext(this);
       const typedArgs = args as unknown as DeleteManyArgs;
       const data: SoftDeleteData = typedArgs.data ?? {};
       return (context as Record<string, (...args: unknown[]) => unknown>).updateMany({
         ...typedArgs,
-        data: {
-          ...data,
-          isDeleted: true,
-          deletedAt: new Date(),
-        },
+        data: { ...data, isDeleted: true, deletedAt: new Date() },
       });
     },
   },
 };
 
 /**
- * Define query extensions for global filters.
- * These inject isDeleted: false into all read queries.
+ * Global query extensions — inject isDeleted: false into all read queries.
  */
 const queryExtensions = {
   $allModels: {
@@ -118,9 +133,7 @@ const queryExtensions = {
     },
     async findUnique({ args, query }: QueryExtensionArgs<WhereArgs>) {
       const result = await query(args);
-      if (result && (result as SoftDeletableRecord).isDeleted) {
-        return null;
-      }
+      if (result && (result as SoftDeletableRecord).isDeleted) return null;
       return result;
     },
     async count({ args, query }: QueryExtensionArgs<WhereArgs>) {
@@ -136,10 +149,8 @@ const queryExtensions = {
  */
 function buildExtendedClient(pool: Pool) {
   // PrismaPg expects its own bundled @types/pg@8.11.11 Pool type,
-  // which conflicts with our @types/pg@8.20.0. The types are structurally
-  // compatible at runtime; we assert via ConstructorParameters to avoid `any`.
+  // which conflicts with our @types/pg@8.20.0. Structurally compatible at runtime.
   const adapter = new PrismaPg(pool as unknown as ConstructorParameters<typeof PrismaPg>[0]);
-
   return new PrismaClient({ adapter }).$extends({
     model: modelExtensions,
     query: queryExtensions,
@@ -159,7 +170,6 @@ function getPrismaClient(): ExtendedPrismaClient {
           'Copy .env.example to .env and configure it.',
       );
     }
-
     const pool = new Pool({ connectionString });
     _prisma = buildExtendedClient(pool);
   }
@@ -167,11 +177,7 @@ function getPrismaClient(): ExtendedPrismaClient {
 }
 
 /**
- * Prisma client instance with soft delete and global where filters.
- * Initialized lazily on first property access via Proxy.
- *
- * The Proxy target is typed as ExtendedPrismaClient. At runtime, every
- * property access delegates to the real client returned by getPrismaClient().
+ * Prisma client singleton — lazy proxy, initialized on first access.
  */
 export const prisma = new Proxy({} as ExtendedPrismaClient, {
   get: (_target, prop: string | symbol) => {
@@ -179,6 +185,3 @@ export const prisma = new Proxy({} as ExtendedPrismaClient, {
     return client[prop as keyof typeof client];
   },
 });
-
-export { Prisma, PrismaClient };
-export * from '@prisma/client';

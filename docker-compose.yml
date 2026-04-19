@@ -11,23 +11,36 @@
 # Current: PostgreSQL (pgvector) + Redis
 #
 # TODO — Phase 5: Add bot-server service after Dockerfile is created
-# bot-server:
-#   build:
-#     context: ./apps/bot-server
-#     dockerfile: Dockerfile
-#   container_name: tempot-bot
-#   restart: unless-stopped
-#   depends_on:
-#     postgres:
-#       condition: service_healthy
-#     redis:
-#       condition: service_healthy
-#   env_file: .env
-#   environment:
-#     - NODE_ENV=production
 # =============================================================================
 
 services:
+  bot-server:
+    build:
+      context: .
+      dockerfile: ./apps/bot-server/Dockerfile
+    container_name: tempot-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://tempot:tempot_password@postgres:5432/tempot_db
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BOT_MODE=polling
+      - SUPER_ADMIN_IDS=7594239391
+      # Uncomment for webhook mode (production). Requires a public URL.
+      # - BOT_MODE=webhook
+      # - WEBHOOK_URL=${WEBHOOK_URL:-https://example.com/webhook}
+      # - WEBHOOK_SECRET=${WEBHOOK_SECRET:-local-dev-secret}
+    ports:
+      - '3000:3000'
+
   postgres:
     image: pgvector/pgvector:0.8.2-pg16
     container_name: tempot-postgres

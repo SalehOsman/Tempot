@@ -4,10 +4,11 @@ import { AppError } from '@tempot/shared';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import type { ModuleLogger } from '../bot-server.types.js';
 
-interface PrismaSessionUpsertArgs {
-  where: { userId_chatId: { userId: string; chatId: string } };
+export interface PrismaSessionUpsertArgs {
+  where: { id: string };
   update: { role: string };
   create: {
+    id: string;
     userId: string;
     chatId: string;
     role: string;
@@ -16,7 +17,7 @@ interface PrismaSessionUpsertArgs {
   };
 }
 
-interface BootstrapPrisma {
+export interface BootstrapPrisma {
   session: {
     upsert: (args: PrismaSessionUpsertArgs) => Promise<unknown>;
   };
@@ -38,10 +39,12 @@ export async function bootstrapSuperAdmins(ids: number[], deps: BootstrapDeps): 
   try {
     for (const id of ids) {
       const strId = String(id);
+      const sessionId = `${strId}:${strId}`;
       await prisma.session.upsert({
-        where: { userId_chatId: { userId: strId, chatId: strId } },
+        where: { id: sessionId },
         update: { role: 'SUPER_ADMIN' },
         create: {
+          id: sessionId,
           userId: strId,
           chatId: strId,
           role: 'SUPER_ADMIN',

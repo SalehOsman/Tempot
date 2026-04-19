@@ -1,0 +1,33 @@
+{
+  "test-module.commands.start": "▶️ بدء استخدام البوت",
+  "test-module.commands.ping": "🏓 اختبار الاستجابة",
+  "test-module.commands.whoami": "👤 معرفة بياناتك الحالية",
+  "test-module.commands.dbtest": "🗄️ اختبار الاتصال بقاعدة البيانات",
+  "test-module.commands.status": "📊 حالة البوت والخدمات",
+
+  "test-module.start.header": "✅ *البوت يعمل بنجاح!*",
+  "test-module.start.user_id": "👤 معرفك: `{{userId}}`",
+  "test-module.start.version": "🤖 الإصدار: {{version}}",
+  "test-module.start.commands_header": "*الأوامر المتاحة:*",
+
+  "test-module.ping.measuring": "🏓 ...",
+  "test-module.ping.result": "🏓 *Pong!*\nالتأخير: `{{latency}}ms`",
+
+  "test-module.whoami.no_session": "❌ لا توجد جلسة مسجّلة لك بعد.",
+  "test-module.whoami.header": "👤 *بياناتك:*",
+  "test-module.whoami.user_id": "🆔 User ID: `{{userId}}`",
+  "test-module.whoami.chat_id": "💬 Chat ID: `{{chatId}}`",
+  "test-module.whoami.role": "🔑 الدور: `{{role}}`",
+  "test-module.whoami.language": "🌍 اللغة: `{{language}}`",
+  "test-module.whoami.status": "📋 الحالة: `{{status}}`",
+
+  "test-module.dbtest.header": "🗄️ *اختبار قاعدة البيانات:*",
+  "test-module.dbtest.connected": "✅ الاتصال بقاعدة البيانات يعمل",
+  "test-module.dbtest.maintenance": "🔧 وضع الصيانة: `{{value}}`",
+
+  "test-module.status.header": "📊 *حالة البوت:*",
+  "test-module.status.uptime": "⏱️ وقت التشغيل: `{{h}}h {{m}}m {{s}}s`",
+  "test-module.status.memory": "🧠 الذاكرة المستخدمة: `{{memMb}} MB`",
+  "test-module.status.module": "📦 الموديول: `{{name}}` v{{version}}",
+  "test-module.status.running": "🟢 الحالة: يعمل"
+}

@@ -7,17 +7,11 @@
  * Language defaults can be overridden via environment variables:
  * - `TEMPOT_DEFAULT_LANGUAGE` — primary language (default: `'ar'`)
  * - `TEMPOT_FALLBACK_LANGUAGE` — fallback language (default: `'en'`)
- *
- * @example
- * ```typescript
- * import i18next from 'i18next';
- * import { i18nConfig } from '@tempot/i18n-core';
- *
- * await i18next.init(i18nConfig);
- * ```
  */
-const DEFAULT_LANGUAGE = process.env.TEMPOT_DEFAULT_LANGUAGE ?? 'ar';
-const FALLBACK_LANGUAGE = process.env.TEMPOT_FALLBACK_LANGUAGE ?? 'en';
+import i18next from 'i18next';
+
+export const DEFAULT_LANGUAGE = process.env.TEMPOT_DEFAULT_LANGUAGE ?? 'ar';
+export const FALLBACK_LANGUAGE = process.env.TEMPOT_FALLBACK_LANGUAGE ?? 'en';
 
 export const i18nConfig = {
   lng: DEFAULT_LANGUAGE,
@@ -28,4 +22,14 @@ export const i18nConfig = {
   },
 };
 
-export { DEFAULT_LANGUAGE, FALLBACK_LANGUAGE };
+/**
+ * Initialize i18next with the Tempot language configuration.
+ *
+ * Must be called once before any `t()` or `loadModuleLocales()` calls.
+ * Idempotent — safe to call multiple times.
+ */
+export async function initI18n(): Promise<void> {
+  if (!i18next.isInitialized) {
+    await i18next.init(i18nConfig);
+  }
+}

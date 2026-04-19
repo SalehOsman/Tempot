@@ -13,7 +13,7 @@ import {
   MaintenanceService,
   SettingsService,
 } from '@tempot/settings';
-import { loadModuleLocales, t } from '@tempot/i18n-core';
+import { loadModuleLocales, t, initI18n } from '@tempot/i18n-core';
 import { SentryReporter, initSentry } from '@tempot/sentry';
 
 import {
@@ -36,8 +36,11 @@ function buildShutdownManager(): ShutdownManager {
   });
 }
 
-function redisConfig(): { host: string; port: number } {
+function redisConfig(): { connectionString: string; host: string; port: number } {
   return {
+    connectionString:
+      process.env['REDIS_URL'] ??
+      `redis://${process.env['REDIS_HOST'] ?? 'localhost'}:${process.env['REDIS_PORT'] ?? 6379}`,
     host: process.env['REDIS_HOST'] ?? 'localhost',
     port: Number(process.env['REDIS_PORT'] ?? 6379),
   };
@@ -48,7 +51,9 @@ function buildSettingsService(
   eventBus: EventBusOrchestrator,
 ): SettingsService {
   const staticResult = StaticSettingsLoader.load();
-  const settingsRepo = new SettingsRepository(prisma);
+  const settingsRepo = new SettingsRepository(
+    prisma as unknown as import('@tempot/settings').SettingsPrismaClient,
+  );
 
   const dynSettings = new DynamicSettingsService({
     repository: settingsRepo,
@@ -103,6 +108,10 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
 
   const sessionProvider = buildSessionProvider(log, eventBus, cache);
   const settingsService = buildSettingsService(cache, eventBus);
+
+  // Initialize i18next before loading module locale bundles.
+  // Without init(), addResourceBundle() silently discards all translations.
+  await initI18n();
 
   const i18nResult = await loadModuleLocales();
   if (i18nResult.isErr()) {

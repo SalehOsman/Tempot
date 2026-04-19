@@ -5,8 +5,12 @@ import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
 /**
  * Database client type that accepts base PrismaClient, TransactionClient,
  * or the extended client (from $extends()) used by the prisma proxy.
+ *
+ * Note: PrismaClient is loaded via createRequire (CJS interop) so it is a
+ * runtime value, not a type. We use `InstanceType<typeof PrismaClient>` to
+ * derive the instance type from the constructor value.
  */
-type DatabaseClient = PrismaClient | Prisma.TransactionClient | typeof prisma;
+type DatabaseClient = InstanceType<typeof PrismaClient> | Prisma.TransactionClient | typeof prisma;
 
 /**
  * Local interface for Audit Logger to avoid circular dependencies

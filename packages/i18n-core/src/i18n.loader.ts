@@ -25,14 +25,13 @@ export async function loadModuleLocales(): Promise<Result<void, AppError>> {
 
       // Expected: modules / {moduleName} / locales / {lang}.json
       if (parts.length >= 4) {
-        const moduleName = parts[1];
         const langFile = parts[3];
         const lang = path.basename(langFile, '.json');
 
         const contentStr = await fs.readFile(file, 'utf-8');
         const content = JSON.parse(contentStr) as Record<string, unknown>;
 
-        i18next.addResourceBundle(lang, moduleName, content, true, true);
+        i18next.addResourceBundle(lang, 'translation', content, true, true);
       }
     }
 

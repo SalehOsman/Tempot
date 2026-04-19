@@ -33,5 +33,8 @@
     "@testcontainers/redis": "11.13.0",
     "@types/node": "^20.0.0",
     "ioredis": "5.10.1"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
