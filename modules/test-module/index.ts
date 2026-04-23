@@ -11,6 +11,7 @@
  */
 import type { Bot, Context } from 'grammy';
 import type { ModuleConfig, ModuleCommand } from '@tempot/module-registry';
+import { handleSettings, handleEvent, handleSession } from './handlers.js';
 
 // ---------------------------------------------------------------------------
 // Local structural types — mirror ModuleDependencyContainer from bot-server
@@ -182,6 +183,9 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   bot.command('whoami', (ctx) => handleWhoami(ctx, deps));
   bot.command('dbtest', (ctx) => handleDbtest(ctx, deps));
   bot.command('status', (ctx) => handleStatus(ctx, deps));
+  bot.command('settings', (ctx) => handleSettings(ctx, deps));
+  bot.command('event', (ctx) => handleEvent(ctx, deps));
+  bot.command('session', (ctx) => handleSession(ctx, deps));
 
   deps.logger.info({
     msg: 'test-module handlers registered',

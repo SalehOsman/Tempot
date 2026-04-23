@@ -255,7 +255,7 @@ Default locale: `ar-EG`. Default country: `EG` (Egypt). RTL support required for
 
 ### XLIV. ADR Requirement
 
-Every architectural decision MUST have an ADR document at `docs/architecture/adr/ADR-{number}-{title}.md` BEFORE implementation. ADR format: Context → Decision → Consequences → Alternatives Rejected.
+Every architectural decision MUST have an ADR document at `docs/archive/architecture/adr/ADR-{number}-{title}.md` BEFORE implementation. ADR format: Context → Decision → Consequences → Alternatives Rejected.
 
 ### XLV. Dependency Rule
 
@@ -299,7 +299,7 @@ Claude Code and Gemini CLI are both supported. `superpowers` plugin is MANDATORY
 
 Code MUST match documentation and documentation MUST match code. This is bidirectional — not one-way:
 
-1. **Code → Docs:** No code change enters `main` without updating ALL affected documentation artifacts. "Affected" includes: SpecKit artifacts (`spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`), `ROADMAP.md`, ADR README index, architecture spec (`docs/tempot_v11_final.md`), context file (`CLAUDE.md`) tech stack, and CHANGELOG via Changesets.
+1. **Code → Docs:** No code change enters `main` without updating ALL affected documentation artifacts. "Affected" includes: SpecKit artifacts (`spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`), `ROADMAP.md`, ADR README index, architecture spec (`docs/archive/tempot_v11_final.md`), context file (`CLAUDE.md`) tech stack, and CHANGELOG via Changesets.
 2. **Docs → Code:** No documentation change enters `main` without verifying the code still matches the updated documentation.
 3. **Automated checks:** Two mandatory gates after any artifact update: (a) `/speckit.analyze` verifies internal consistency between SpecKit artifacts (spec ↔ plan ↔ tasks ↔ data-model), and (b) `pnpm spec:validate` verifies spec→code alignment. Both must pass. Manual verification is STILL REQUIRED for ADR index, ROADMAP, architecture spec, and CLAUDE.md alignment.
 4. **Scope:** This applies to ALL change types — new features, bugfixes, refactors, and dependency updates. No exceptions.
@@ -447,7 +447,7 @@ Four standardized status patterns:
 ### LXXI. Package Creation Checklist Required
 
 Before writing any code for a new package, the 10-point Package Readiness Checklist
-at `docs/developer/package-creation-checklist.md` MUST be completed and all 10 checks
+at `docs/archive/developer/package-creation-checklist.md` MUST be completed and all 10 checks
 must pass. No package enters the codebase without passing the checklist.
 
 ### LXXII. Package Build Setup
@@ -524,7 +524,7 @@ test failures where Vitest loaded stale `.js` files instead of `.ts` source
 ## Development Methodology — SpecKit + Superpowers
 
 > **Authority:** This section is the SOLE reference for the development workflow.
-> **Reference:** `docs/developer/workflow-guide.md` for the detailed practical guide.
+> **Reference:** `docs/archive/developer/workflow-guide.md` for the detailed practical guide.
 
 ### LXXIX. Spec-Driven Development is Mandatory
 
@@ -573,9 +573,9 @@ Superpowers skills activate in this natural sequence. Each reads the SpecKit art
 
 | Skill                            | Purpose                            | Input                   | Output                                       |
 | -------------------------------- | ---------------------------------- | ----------------------- | -------------------------------------------- |
-| `brainstorming`                  | Socratic design refinement         | `spec.md` + `plan.md`   | `docs/superpowers/specs/{date}-{feature}.md` |
+| `brainstorming`                  | Socratic design refinement         | `spec.md` + `plan.md`   | `docs/archive/superpowers/specs/{date}-{feature}.md` |
 | `using-git-worktrees`            | Isolated branch                    | Approved design         | Feature branch + clean worktree              |
-| `writing-plans`                  | Granular 2-5 min tasks             | Design doc + `tasks.md` | `docs/superpowers/plans/{date}-{feature}.md` |
+| `writing-plans`                  | Granular 2-5 min tasks             | Design doc + `tasks.md` | `docs/archive/superpowers/plans/{date}-{feature}.md` |
 | `subagent-driven-development`    | Execute with TDD + review          | Execution plan          | Working code + tests                         |
 | `requesting-code-review`         | Review against spec + constitution | Completed code          | Review report                                |
 | `verification-before-completion` | Final validation                   | All code + tests        | Verification report                          |
@@ -643,11 +643,12 @@ Packages built before this methodology was ratified (database, shared, logger, e
 
 ### LXXXIX. Roadmap Tracking
 
-`docs/ROADMAP.md` is the single source of truth for project progress. Updated after every branch merge.
+`docs/archive/ROADMAP.md` is the single source of truth for project progress. Updated after every branch merge.
 
 ---
 
-**Version**: 2.3.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-05
+**Version**: 2.3.1 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-23
+**Amendment 2.3.1**: Fixed 7 broken documentation paths — all `docs/` references updated to `docs/archive/` to match actual file locations (Rule L, XLIV, LXXI, LXXIX–LXXXIX section header, LXXXIII table, LXXXIX).
 **Amendment 2.3.0**: Phase 1A.2 documentation cleanup — removed phantom `pnpm generate:module` references (Rule XLVI rewritten), clarified rate limiting layers (Rule XXIX), fixed grammY Test reference (Rule XXXV), marked Docusaurus as planned (Rule LXII), removed session-manager from pre-methodology list (Rule LXXXVIII), updated Rule L wording. Total: 88 rules (+ 1 reserved).
 **Amendment 2.2.0**: Renumbered Development Methodology from L–LX to LXXIX–LXXXIX, eliminating duplicate numbering with Governance/Observability sections. Added reserved placeholders at L and LI. Total: 87 rules (+ 2 reserved).
 **Amendment 2.1.0**: Added Package Quality section (Rules LXXI–LXXVIII). Strengthened Rule XXI to cover all public APIs. Root cause: retroactive compliance review of pre-methodology packages revealed systematic build setup and code quality gaps.

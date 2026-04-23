@@ -4,6 +4,9 @@
   "test-module.commands.whoami": "👤 View your current session data",
   "test-module.commands.dbtest": "🗄️ Test database connectivity",
   "test-module.commands.status": "📊 Bot and services status",
+  "test-module.commands.settings": "⚙️ Read a dynamic setting",
+  "test-module.commands.event": "📡 Publish an event to EventBus",
+  "test-module.commands.session": "🗂️ View full session data",
 
   "test-module.start.header": "✅ *Bot is running!*",
   "test-module.start.user_id": "👤 Your ID: `{{userId}}`",
@@ -29,5 +32,18 @@
   "test-module.status.uptime": "⏱️ Uptime: `{{h}}h {{m}}m {{s}}s`",
   "test-module.status.memory": "🧠 Memory used: `{{memMb}} MB`",
   "test-module.status.module": "📦 Module: `{{name}}` v{{version}}",
-  "test-module.status.running": "🟢 Status: running"
+  "test-module.status.running": "🟢 Status: running",
+
+  "test-module.settings.usage": "⚙️ Usage: `/settings <key>`\nExample: `/settings maintenance_mode`",
+  "test-module.settings.header": "⚙️ *Setting:* `{{key}}`",
+  "test-module.settings.value": "📌 Value: `{{value}}`",
+  "test-module.settings.not_found": "❓ Setting `{{key}}` not found or has no value.",
+
+  "test-module.event.usage": "📡 Usage: `/event <name>`\nExample: `/event test.ping`",
+  "test-module.event.published": "✅ *Event published successfully!*\n📡 Event: `{{name}}`\n🟢 Result: sent",
+  "test-module.event.failed": "❌ Failed to publish event: `{{name}}`",
+
+  "test-module.session.header": "🗂️ *Full session data:*",
+  "test-module.session.no_session": "❌ No session found yet.\nSend any message to start.",
+  "test-module.session.field": "• `{{key}}`: `{{value}}`"
 }

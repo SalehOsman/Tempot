@@ -37,8 +37,8 @@ Remove this "Usage Instructions" section from the final prompt.
 Read and comply with these before any action:
 
 - Constitution: `.specify/memory/constitution.md`
-- Package Checklist: `docs/developer/package-creation-checklist.md`
-- Workflow: `docs/developer/workflow-guide.md`
+- Package Checklist: `docs/archive/developer/package-creation-checklist.md`
+- Workflow: `docs/archive/developer/workflow-guide.md`
 
 ## Toolchain
 
@@ -103,11 +103,11 @@ tool before starting its phase.
 Do not improvise the workflow — activate the required skill and
 follow its instructions exactly.
 
-1. **Activate `brainstorming`** — Read spec.md + plan.md. Deepen the technical design via Socratic questions. Address the design concerns listed above. Save design doc to `docs/superpowers/specs/YYYY-MM-DD-{FEATURE}-design.md`. No code in this phase.
+1. **Activate `brainstorming`** — Read spec.md + plan.md. Deepen the technical design via Socratic questions. Address the design concerns listed above. Save design doc to `docs/archive/superpowers/specs/YYYY-MM-DD-{FEATURE}-design.md`. No code in this phase.
 
 2. **Activate `using-git-worktrees`** — Create isolated branch: `feature/{NNN}-{FEATURE_NAME}`.
 
-3. **Activate `writing-plans`** — Convert tasks.md + design doc into granular 2-5 min executable tasks. Each task follows TDD cycle (use `test-driven-development` skill as reference). Save to `docs/superpowers/plans/YYYY-MM-DD-{FEATURE}.md`. Dispatch plan-document-reviewer subagent before proceeding.
+3. **Activate `writing-plans`** — Convert tasks.md + design doc into granular 2-5 min executable tasks. Each task follows TDD cycle (use `test-driven-development` skill as reference). Save to `docs/archive/superpowers/plans/YYYY-MM-DD-{FEATURE}.md`. Dispatch plan-document-reviewer subagent before proceeding.
 
 4. **Activate `subagent-driven-development`** — Before writing any code, study the structure and patterns of an existing package (e.g., `{REFERENCE_PACKAGE}`) to follow established conventions. Run package-creation-checklist before first line of code. Execute tasks sequentially. Per task: implementer subagent → spec-reviewer → code-quality-reviewer. TDD is mandatory (`test-driven-development` skill). If an unexpected error occurs during any task, activate `systematic-debugging` before proceeding.
 
@@ -149,12 +149,12 @@ follow its instructions exactly.
    - Exit 2: BLOCKED — fix all CRITICAL issues before proceeding
 
    **C. Project Documentation** — Update ALL that apply:
-   - `docs/ROADMAP.md` — ALWAYS (Rule LXXXIX). Update "Last updated" date and "Next Action" section
-   - `docs/architecture/adr/README.md` — if any new ADR was created, add its row to the index table
+   - `docs/archive/ROADMAP.md` — ALWAYS (Rule LXXXIX). Update "Last updated" date and "Next Action" section
+   - `docs/archive/architecture/adr/README.md` — if any new ADR was created, add its row to the index table
    - `CLAUDE.md` — if any new dependency was added to the project, update the tech stack table
-   - `docs/tempot_v11_final.md` — if architectural patterns, guarantees, or ADR listings changed
-   - `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
-   - `docs/developer/workflow-guide.md` — if workflow steps changed
+   - `docs/archive/tempot_v11_final.md` — if architectural patterns, guarantees, or ADR listings changed
+   - `docs/archive/developer/package-creation-checklist.md` — if a new quality gate was introduced
+   - `docs/archive/developer/workflow-guide.md` — if workflow steps changed
 
    **D. Changeset** — Create a changeset for the changes:
 

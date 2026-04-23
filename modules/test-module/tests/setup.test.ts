@@ -52,6 +52,9 @@ function makeDeps(overrides: Partial<ModuleDeps> = {}): ModuleDeps {
         { command: 'whoami', description: 'test-module.commands.whoami' },
         { command: 'dbtest', description: 'test-module.commands.dbtest' },
         { command: 'status', description: 'test-module.commands.status' },
+        { command: 'settings', description: 'test-module.commands.settings' },
+        { command: 'event', description: 'test-module.commands.event' },
+        { command: 'session', description: 'test-module.commands.session' },
       ],
       features: {
         hasDatabase: false,
@@ -84,10 +87,10 @@ describe('test-module setup', () => {
     deps = makeDeps();
   });
 
-  it('registers exactly 5 command handlers on the bot', async () => {
+  it('registers exactly 8 command handlers on the bot', async () => {
     await setup(bot as unknown as Bot<Context>, deps);
 
-    expect(bot.command).toHaveBeenCalledTimes(5);
+    expect(bot.command).toHaveBeenCalledTimes(8);
   });
 
   it('registers handlers for all declared commands', async () => {
@@ -97,7 +100,16 @@ describe('test-module setup', () => {
       (call: unknown[]) => call[0],
     );
     expect(registeredCommands).toEqual(
-      expect.arrayContaining(['start', 'ping', 'whoami', 'dbtest', 'status']),
+      expect.arrayContaining([
+        'start',
+        'ping',
+        'whoami',
+        'dbtest',
+        'status',
+        'settings',
+        'event',
+        'session',
+      ]),
     );
   });
 
@@ -105,7 +117,7 @@ describe('test-module setup', () => {
     await setup(bot as unknown as Bot<Context>, deps);
 
     expect(deps.logger.info).toHaveBeenCalledWith(
-      expect.objectContaining({ msg: 'test-module handlers registered', commandCount: 5 }),
+      expect.objectContaining({ msg: 'test-module handlers registered', commandCount: 8 }),
     );
   });
 

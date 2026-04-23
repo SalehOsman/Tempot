@@ -38,7 +38,7 @@ Remove this "Usage Instructions" section from the final prompt.
 Read and comply with these before any action:
 
 - Constitution: `.specify/memory/constitution.md` — especially Rule VII (Fix at Source) and Rule LXX (Critical Bug-Fixing Methodology)
-- Workflow: `docs/developer/workflow-guide.md`
+- Workflow: `docs/archive/developer/workflow-guide.md`
 
 ## Toolchain
 
@@ -139,11 +139,11 @@ Exit 0: continue. Exit 1: fix or justify. Exit 2: BLOCKED.
 
 **C. Project Documentation** — Update ALL that apply:
 
-- `docs/ROADMAP.md` — update "Last updated" date and "Next Action" section (Rule LXXXIX)
-- `docs/architecture/adr/README.md` — if a new ADR was created, add its row to the index
+- `docs/archive/ROADMAP.md` — update "Last updated" date and "Next Action" section (Rule LXXXIX)
+- `docs/archive/architecture/adr/README.md` — if a new ADR was created, add its row to the index
 - `CLAUDE.md` — if a new dependency was added, update the tech stack table
-- `docs/tempot_v11_final.md` — if the fix changed architectural patterns or documented guarantees
-- `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
+- `docs/archive/tempot_v11_final.md` — if the fix changed architectural patterns or documented guarantees
+- `docs/archive/developer/package-creation-checklist.md` — if a new quality gate was introduced
 
 **D. Changeset** — Create a changeset:
 

@@ -1,5 +1,11 @@
 # @tempot/ux-helpers
 
+## 0.1.2
+
+### Patch Changes
+
+- @tempot/logger@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

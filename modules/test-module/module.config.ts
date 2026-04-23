@@ -24,6 +24,9 @@ const config: ModuleConfig = {
     { command: 'whoami', description: 'test-module.commands.whoami' },
     { command: 'dbtest', description: 'test-module.commands.dbtest' },
     { command: 'status', description: 'test-module.commands.status' },
+    { command: 'settings', description: 'test-module.commands.settings' },
+    { command: 'event', description: 'test-module.commands.event' },
+    { command: 'session', description: 'test-module.commands.session' },
   ],
 
   features: {

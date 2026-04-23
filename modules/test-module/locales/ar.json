@@ -4,6 +4,9 @@
   "test-module.commands.whoami": "👤 معرفة بياناتك الحالية",
   "test-module.commands.dbtest": "🗄️ اختبار الاتصال بقاعدة البيانات",
   "test-module.commands.status": "📊 حالة البوت والخدمات",
+  "test-module.commands.settings": "⚙️ قراءة إعداد ديناميكي",
+  "test-module.commands.event": "📡 نشر حدث على EventBus",
+  "test-module.commands.session": "🗂️ عرض بيانات الجلسة الكاملة",
 
   "test-module.start.header": "✅ *البوت يعمل بنجاح!*",
   "test-module.start.user_id": "👤 معرفك: `{{userId}}`",
@@ -29,5 +32,18 @@
   "test-module.status.uptime": "⏱️ وقت التشغيل: `{{h}}h {{m}}m {{s}}s`",
   "test-module.status.memory": "🧠 الذاكرة المستخدمة: `{{memMb}} MB`",
   "test-module.status.module": "📦 الموديول: `{{name}}` v{{version}}",
-  "test-module.status.running": "🟢 الحالة: يعمل"
+  "test-module.status.running": "🟢 الحالة: يعمل",
+
+  "test-module.settings.usage": "⚙️ الاستخدام: `/settings <key>`\nمثال: `/settings maintenance_mode`",
+  "test-module.settings.header": "⚙️ *الإعداد:* `{{key}}`",
+  "test-module.settings.value": "📌 القيمة: `{{value}}`",
+  "test-module.settings.not_found": "❓ الإعداد `{{key}}` غير موجود أو قيمته فارغة.",
+
+  "test-module.event.usage": "📡 الاستخدام: `/event <name>`\nمثال: `/event test.ping`",
+  "test-module.event.published": "✅ *تم نشر الحدث بنجاح!*\n📡 الحدث: `{{name}}`\n🟢 النتيجة: مرسل",
+  "test-module.event.failed": "❌ فشل نشر الحدث: `{{name}}`",
+
+  "test-module.session.header": "🗂️ *بيانات الجلسة الكاملة:*",
+  "test-module.session.no_session": "❌ لا توجد جلسة مسجّلة لك بعد.\nأرسل أي رسالة للبدء.",
+  "test-module.session.field": "• `{{key}}`: `{{value}}`"
 }
