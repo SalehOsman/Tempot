@@ -10,13 +10,15 @@ export type {
   FormOptions,
   TimeSlot,
   CountryCode,
+  TranslateFunction,
+} from './input-engine.types.js';
+export type {
   NationalIDResult,
   ContactResult,
   SchedulePickerResult,
   EgyptianMobileResult,
   CurrencyAmountResult,
-  TranslateFunction,
-} from './input-engine.types.js';
+} from './input-engine.field-results.js';
 export { DEFAULT_FORM_OPTIONS, defaultT } from './input-engine.types.js';
 
 // Contracts

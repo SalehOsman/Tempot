@@ -1,56 +1,11 @@
 import { Result, ok, err } from 'neverthrow';
 import { Session, ISessionProvider } from './session.types.js';
-import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import { SessionRepository } from './session.repository.js';
 import { SessionMemoryStore } from './session.memory-store.js';
 import { migrateSession } from './session.migrator.js';
 import { DEFAULT_SESSION_TTL } from './session.constants.js';
 import { sessionToggle } from './session.toggle.js';
-
-/** Cache adapter interface used by SessionProvider. */
-export interface CacheAdapter {
-  get: <T>(key: string) => Promise<Result<T | null, AppError>>;
-  set: <T>(key: string, value: T, ttl?: number) => Promise<Result<void, AppError>>;
-  del: (key: string) => Promise<Result<void, AppError>>;
-  /** Extends the TTL of a key without reading or overwriting its value. */
-  expire: (key: string, ttl: number) => Promise<Result<void, AppError>>;
-}
-
-/** Event bus adapter interface used by SessionProvider. */
-export interface SessionUpdatedPayload {
-  userId: string;
-  chatId: string;
-  sessionData: unknown;
-}
-
-export interface SessionRedisDegradedPayload {
-  operation: string;
-  errorCode: string;
-  errorMessage: string;
-  timestamp: string;
-}
-
-export interface EventBusAdapter {
-  publish(
-    eventName: 'session-manager.session.updated',
-    payload: SessionUpdatedPayload,
-  ): AsyncResult<void, AppError>;
-  publish(
-    eventName: 'session.redis.degraded',
-    payload: SessionRedisDegradedPayload,
-  ): AsyncResult<void, AppError>;
-  publish(eventName: string, payload: unknown): AsyncResult<void, AppError>;
-}
-
-/** Dependencies injected into SessionProvider. */
-export interface SessionProviderDeps {
-  cache: CacheAdapter;
-  eventBus: EventBusAdapter;
-  repository: SessionRepository;
-  /** Optional logger; required for Rule XXXII SUPER_ADMIN degradation alerts. */
-  logger?: { error: (data: Record<string, unknown>) => void };
-}
+import type { SessionProviderDeps } from './session.provider.types.js';
 
 /**
  * Dual-layer session provider: Redis primary with in-memory fallback (Rule XXXII).

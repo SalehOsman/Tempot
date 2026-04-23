@@ -3,7 +3,8 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
-import type { FieldMetadata, EgyptianMobileResult } from '../../input-engine.types.js';
+import type { FieldMetadata } from '../../input-engine.types.js';
+import type { EgyptianMobileResult } from '../../input-engine.field-results.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 
 const EGYPTIAN_MOBILE_PATTERN = /^01[0125]\d{8}$/;

@@ -3,7 +3,8 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
-import type { FieldMetadata, CurrencyAmountResult } from '../../input-engine.types.js';
+import type { FieldMetadata } from '../../input-engine.types.js';
+import type { CurrencyAmountResult } from '../../input-engine.field-results.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 import { normalizeArabicNumerals } from './arabic-numerals.helper.js';
 

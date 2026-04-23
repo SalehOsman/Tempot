@@ -28,11 +28,13 @@ export class StorageService {
   private readonly logger: StorageLogger;
 
   constructor(deps: StorageServiceDeps) {
-    this.provider = deps.provider;
-    this.attachmentRepo = deps.attachmentRepo;
-    this.validation = deps.validation;
-    this.eventBus = deps.eventBus;
-    this.logger = deps.logger;
+    ({
+      provider: this.provider,
+      attachmentRepo: this.attachmentRepo,
+      validation: this.validation,
+      eventBus: this.eventBus,
+      logger: this.logger,
+    } = deps);
   }
 
   /** Upload a file: validate -> MIME check -> upload to provider -> create DB record -> emit event */
@@ -187,14 +189,6 @@ export class StorageService {
     };
   }
 
-  private async emitEvent(
-    eventName: 'storage.file.uploaded',
-    payload: StorageFileUploadedPayload,
-  ): Promise<void>;
-  private async emitEvent(
-    eventName: 'storage.file.deleted',
-    payload: StorageFileDeletedPayload,
-  ): Promise<void>;
   private async emitEvent(
     eventName: string,
     payload: StorageFileUploadedPayload | StorageFileDeletedPayload,

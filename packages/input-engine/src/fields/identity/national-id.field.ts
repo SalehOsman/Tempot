@@ -3,7 +3,8 @@ import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
-import type { FieldMetadata, NationalIDResult } from '../../input-engine.types.js';
+import type { FieldMetadata } from '../../input-engine.types.js';
+import type { NationalIDResult } from '../../input-engine.field-results.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 import { GOVERNORATE_CODES } from './governorate-codes.const.js';
 

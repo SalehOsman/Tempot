@@ -4,7 +4,7 @@ import { AppError } from '@tempot/shared';
 import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
-import type { ContactResult } from '../../input-engine.types.js';
+import type { ContactResult } from '../../input-engine.field-results.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
 
 /** Telegram Contact shape */
