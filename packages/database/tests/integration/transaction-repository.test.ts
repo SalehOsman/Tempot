@@ -38,7 +38,7 @@ describe('BaseRepository Transaction Support', () => {
     await testDb.start();
 
     // Run schema push for integration tests
-    execSync('cmd.exe /c pnpm prisma db push --accept-data-loss', {
+    execSync('pnpm prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       cwd: path.resolve(__dirname, '../../'),
     });

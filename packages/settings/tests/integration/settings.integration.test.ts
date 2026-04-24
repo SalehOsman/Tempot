@@ -57,7 +57,7 @@ describe('Settings Integration', () => {
 
   beforeAll(async () => {
     await testDb.start();
-    execSync('cmd.exe /c pnpm prisma db push --accept-data-loss', {
+    execSync('pnpm prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       cwd: path.resolve(__dirname, '../../../../packages/database'),
     });
