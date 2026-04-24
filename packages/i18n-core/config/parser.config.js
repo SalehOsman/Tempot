@@ -1,12 +1,13 @@
 /**
- * i18next-parser configuration for Tempot.
+ * i18next-cli configuration for Tempot.
  *
  * Scans TypeScript source files for `t()` function calls and extracts
  * translation keys into per-module locale JSON files.
  *
- * Usage: npx i18next-parser --config packages/i18n-core/config/parser.config.js
+ * Usage: npx i18next-cli --config packages/i18n-core/config/parser.config.js
  *
- * @see https://github.com/i18next/i18next-parser
+ * Migrated from i18next-parser (deprecated Sep 2025) to i18next-cli.
+ * @see https://github.com/i18next/i18next-cli
  */
 module.exports = {
   // Contexts for pluralization etc.
@@ -46,9 +47,6 @@ module.exports = {
 
   // Sort keys alphabetically in output
   sort: true,
-
-  // Use key as default value (helps identify untranslated keys)
-  useKeysAsDefaultValue: false,
 
   // Verbose output
   verbose: false,

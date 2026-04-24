@@ -17,8 +17,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.0.0",
-    "@ai-sdk/openai": "^1.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/openai": "^2.0.0",
     "@tempot/database": "workspace:*",
     "@tempot/event-bus": "workspace:*",
     "@tempot/logger": "workspace:*",
