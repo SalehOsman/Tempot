@@ -6,22 +6,32 @@ import { Pool } from 'pg';
 const PGVECTOR_TEST_IMAGE = 'pgvector/pgvector:0.8.2-pg16';
 
 /**
- * Utility for integration tests to provide a clean PostgreSQL + pgvector environment
+ * Utility for integration tests to provide a clean PostgreSQL + pgvector environment.
+ *
+ * CI-aware: when DATABASE_URL is already set (e.g. by GitHub Actions service containers),
+ * connects directly without starting a testcontainer. When running locally without
+ * DATABASE_URL, starts a testcontainer automatically.
  */
 export class TestDB {
   private container!: StartedPostgreSqlContainer;
   public prisma!: PrismaClient;
   private pool!: Pool;
+  private usingExternalDb = false;
 
   async start() {
-    // Start PostgreSQL with pgvector support
-    this.container = await new PostgreSqlContainer(PGVECTOR_TEST_IMAGE).start();
-    const url = this.container.getConnectionUri();
+    const externalUrl = process.env.DATABASE_URL;
 
-    process.env.DATABASE_URL = url;
-
-    // Setup adapter-pg for Prisma 7
-    this.pool = new Pool({ connectionString: url });
+    if (externalUrl) {
+      // CI mode — use pre-provisioned database (e.g. GitHub Actions service container)
+      this.usingExternalDb = true;
+      this.pool = new Pool({ connectionString: externalUrl });
+    } else {
+      // Local mode — start a testcontainer with pgvector support
+      this.container = await new PostgreSqlContainer(PGVECTOR_TEST_IMAGE).start();
+      const url = this.container.getConnectionUri();
+      process.env.DATABASE_URL = url;
+      this.pool = new Pool({ connectionString: url });
+    }
 
     // Enable pgvector extension explicitly
     await this.pool.query('CREATE EXTENSION IF NOT EXISTS vector;');
@@ -39,7 +49,7 @@ export class TestDB {
     if (this.pool) {
       await this.pool.end();
     }
-    if (this.container) {
+    if (this.container && !this.usingExternalDb) {
       await this.container.stop();
     }
   }

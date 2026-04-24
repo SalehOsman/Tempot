@@ -13,12 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Vale Linter
-        uses: errata-ai/vale-action@v2
+        uses: vale-cli/vale-action@v2
         with:
           files: docs/product/
-          config: apps/docs/.vale.ini
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          vale_flags: "--config=apps/docs/.vale.ini"
+          token: ${{ secrets.GITHUB_TOKEN }}
