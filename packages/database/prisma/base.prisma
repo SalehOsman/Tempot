@@ -69,3 +69,45 @@ model Session {
   @@index([userId, chatId])
   @@index([isDeleted])
 }
+
+model Attachment {
+  id           String  @id @default(cuid())
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  provider     String
+  providerKey  String  @unique
+  url          String?
+  metadata     Json?
+  moduleId     String?
+  entityId     String?
+  isEncrypted  Boolean @default(false)
+
+  // Audit fields (BaseEntity pattern)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([moduleId, entityId])
+  @@index([provider])
+  @@index([isDeleted])
+}
+
+model Setting {
+  key         String  @id
+  value       String
+  description String?
+
+  // Audit fields (Constitution Rule XXVII)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@map("settings")
+}

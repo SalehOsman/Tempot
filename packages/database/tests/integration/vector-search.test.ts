@@ -19,7 +19,7 @@ describe('Vector Search', () => {
     const { execSync } = await import('child_process');
     const path = await import('path');
     // We need to push the drizzle schema
-    execSync('pnpm exec drizzle-kit push', {
+    execSync('pnpm exec drizzle-kit push --force', {
       env: process.env,
       cwd: path.resolve(__dirname, '../../'),
     });
