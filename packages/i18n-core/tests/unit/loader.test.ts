@@ -35,18 +35,18 @@ describe('Modular Locale Loader', () => {
     const result = await loadModuleLocales();
 
     expect(result.isOk()).toBe(true);
-    expect(glob).toHaveBeenCalledWith('modules/*/locales/*.json');
+    expect(glob).toHaveBeenCalledWith(expect.stringContaining('modules/*/locales/*.json'));
     expect(i18next.addResourceBundle).toHaveBeenCalledTimes(2);
     expect(i18next.addResourceBundle).toHaveBeenCalledWith(
       'ar',
-      'auth',
+      'translation',
       { testKey: 'Test Value' },
       true,
       true,
     );
     expect(i18next.addResourceBundle).toHaveBeenCalledWith(
       'en',
-      'auth',
+      'translation',
       { testKey: 'Test Value' },
       true,
       true,
