@@ -50,6 +50,7 @@ export default tseslint.config(
         // Test files are not subject to boundary rules
         '**/*.test.ts',
         '**/*.spec.ts',
+        '**/tests/**',
       ],
     },
     rules: {
@@ -152,6 +153,8 @@ export default tseslint.config(
       'packages/*/vitest.config.js',
       // Generated type declarations
       'vitest.workspace.d.ts',
+      // Astro generated output
+      'apps/docs/.astro/**',
     ],
   },
 );

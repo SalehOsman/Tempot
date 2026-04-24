@@ -32,7 +32,13 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "vitest>vite": "^8.0.5",
+      "astro>vite": "^6.4.2",
+      "@ai-sdk/google>zod": "^4.3.6",
+      "@ai-sdk/openai>zod": "^4.3.6"
+    }
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",

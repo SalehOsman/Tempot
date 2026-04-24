@@ -121,7 +121,7 @@ function buildMockFs(modules: Array<{ name: string; config: ModuleConfig }>) {
 
   const configMap = new Map<string, ModuleConfig>();
   for (const mod of modules) {
-    configMap.set(`${modulesDir}/${mod.name}/module.config.ts`, mod.config);
+    configMap.set(`${modulesDir}/${mod.name}/dist/module.config.js`, mod.config);
   }
 
   const listDir = vi.fn(async (path: string) => {
