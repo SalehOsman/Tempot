@@ -2,6 +2,11 @@ import { glob } from 'glob';
 import fs from 'fs/promises';
 import path from 'path';
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function mergeSchemas() {
   const baseSchemaPath = path.resolve(__dirname, '../prisma/base.prisma');
   const outputSchemaPath = path.resolve(__dirname, '../prisma/schema.prisma');
