@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import fs from 'node:fs/promises';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
@@ -66,6 +66,15 @@ export function buildSessionProvider(
   });
 }
 
+// apps/bot-server/src/startup/ → ../../../../ (project root)
+const PROJECT_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..',
+  '..',
+);
+
 export function buildModuleRegistry(
   log: typeof import('@tempot/logger').logger,
   eventBus: EventBusOrchestrator,
@@ -85,8 +94,8 @@ export function buildModuleRegistry(
   });
 
   const validator = new ModuleValidator({
-    specsDir: path.resolve(process.cwd(), 'specs'),
-    packagesDir: path.resolve(process.cwd(), 'packages'),
+    specsDir: path.resolve(PROJECT_ROOT, 'specs'),
+    packagesDir: path.resolve(PROJECT_ROOT, 'packages'),
     listDir: async (p: string) => fs.readdir(p),
     pathExists: async (p: string) =>
       fs

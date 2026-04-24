@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 
@@ -84,7 +85,9 @@ function buildSettingsService(
 }
 
 function modulesDir(): string {
-  return path.resolve(process.cwd(), 'modules');
+  const thisFile = fileURLToPath(import.meta.url);
+  // apps/bot-server/src/startup/ → ../../../../modules
+  return path.resolve(path.dirname(thisFile), '..', '..', '..', '..', 'modules');
 }
 
 export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
