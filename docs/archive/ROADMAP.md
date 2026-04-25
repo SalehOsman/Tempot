@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-18 (Phase B bot-server wiring — deps.factory.ts merged)
+> Last updated: 2026-04-25 (Fixed Prisma Studio connection issue)
 
 ## Phase 0 — Workspace ✅ Done
 
