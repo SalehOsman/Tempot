@@ -130,13 +130,13 @@ One package in execution at a time. Multiple in specification simultaneously.
 
 ## Current Phase
 
-Phase 0 complete. Phase 1 in progress — 13 packages + 1 app on main.
+Phase 2D complete. 15 packages + 2 apps on main. Phase 3 next — first business module (person-registration).
 
-**Full methodology (SpecKit + Superpowers):** shared, database, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, ai-core, input-engine, settings, module-registry (11 packages)
-**Pre-methodology (retroactive reviews complete):** logger, event-bus, auth-core (3 packages)
+**Full methodology (SpecKit + Superpowers):** session-manager, i18n-core, regional-engine, storage-engine, input-engine, ux-helpers, ai-core, settings, module-registry (9 packages)
+**Pre-methodology (gaps documented in ROADMAP — Rule LXXXVIII):** shared, database, logger, event-bus, auth-core (5 packages)
 **Infrastructure (built before formal methodology):** sentry (1 package)
 **Applications:** bot-server, docs (2 apps — apps/ directory)
-**Remaining Phase 1:** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — specs incomplete, need tasks.md + data-model.md + research.md)
+**Deferred Phase 1 (Rule XC):** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — built only when a business module requires them)
 
 ## Key Documents
 
