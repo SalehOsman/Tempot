@@ -36,6 +36,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ## [Unreleased]
 
+### Fixed
+
+- **Documentation**: Fixed documentation drift between README.md, CLAUDE.md, and ROADMAP.md
+  - Updated Vercel AI SDK version from 4.x to 6.x in README.md
+  - Updated neverthrow version to 8.2.0 in README.md
+  - Updated Vitest version to 4.1.0 in README.md
+  - Updated package statuses to match ROADMAP.md
+    - ux-helpers: Building → Stable
+    - ai-core: Planned → Stable
+    - module-registry: Planned → Stable
+    - bot-server: Planned → Stable
+    - docs: Planned → Stable
+  - Added README.md to apps/docs/
+  - Completed test-module spec artifacts (plan.md, tasks.md, data-model.md, research.md)
+  - Removed @ts-expect-error from session.provider.test.ts
+
+Fixes: Rule L (Code-Documentation Parity) violations
+Fixes: Rule LX (Package README Requirement) violation
+Fixes: Rules LXXIX–LXXXII (Spec-Driven Development) violations
+Fixes: Rule I / LXX (TypeScript Strict Mode) violations
+
 ### Added
 
 - Minimal `bot-server` for connection testing (grammY only, no DB required)

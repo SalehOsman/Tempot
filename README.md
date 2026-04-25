@@ -102,24 +102,24 @@ Tempot is a pnpm monorepo with modular, independently versioned packages.
 | `@tempot/i18n-core`       | Multi-language support via i18next                       | Stable   |
 | `@tempot/regional-engine` | Timezone, currency, geo data with dayjs                  | Stable   |
 | `@tempot/storage-engine`  | Google Drive + S3 + Telegram + Local storage abstraction | Stable   |
-| `@tempot/ux-helpers`      | Message composer, keyboards, pagination, feedback        | Building |
-| `@tempot/ai-core`         | AI provider abstraction via Vercel AI SDK                | Planned  |
+| `@tempot/ux-helpers`      | Message composer, keyboards, pagination, feedback        | Stable   |
+| `@tempot/ai-core`         | AI provider abstraction via Vercel AI SDK                | Stable   |
 | `@tempot/cms-engine`      | Dynamic translation management                           | Planned  |
 | `@tempot/notifier`        | Multi-channel notifications via BullMQ                   | Planned  |
 | `@tempot/document-engine` | PDF, Excel, Word generation                              | Planned  |
 | `@tempot/input-engine`    | Dynamic form generation with Zod validation              | Planned  |
 | `@tempot/search-engine`   | Full-text + semantic search with pgvector                | Planned  |
 | `@tempot/import-engine`   | CSV, Excel import — event-driven processing              | Planned  |
-| `@tempot/module-registry` | Module auto-discovery and validation                     | Planned  |
+| `@tempot/module-registry` | Module auto-discovery and validation                     | Stable   |
 
 ### Applications
 
 | App          | Description                    | Status  |
 | ------------ | ------------------------------ | ------- |
-| `bot-server` | grammY bot + Hono API server   | Planned |
+| `bot-server` | grammY bot + Hono API server   | Stable  |
 | `dashboard`  | Next.js admin panel            | Planned |
 | `mini-app`   | Telegram Mini App frontend     | Planned |
-| `docs`       | Engineering documentation site | Planned |
+| `docs`       | Engineering documentation site | Stable  |
 
 ---
 
@@ -168,13 +168,13 @@ Every technology choice is documented in an Architectural Decision Record with f
 | Vector ORM     | Drizzle 0.45.x                        | Native pgvector operations                          |
 | Cache          | cache-manager 6.x                     | Multi-tier: Memory → Redis → DB                     |
 | Queue          | BullMQ 5.x                            | Reliable job processing                             |
-| AI             | Vercel AI SDK 4.x                     | Provider-agnostic AI abstraction                    |
+| AI             | Vercel AI SDK 6.x                     | Provider-agnostic AI abstraction                    |
 | Auth           | CASL 6.x                              | RBAC + ABAC with Prisma adapter                     |
-| Error Handling | neverthrow 8.x                        | Result pattern — no thrown exceptions               |
+| Error Handling | neverthrow 8.2.0                      | Result pattern — no thrown exceptions               |
 | Validation     | Zod                                   | Runtime schema validation                           |
 | i18n           | i18next 25.x                          | Multi-language with JSON backends                   |
 | Logging        | Pino 9.x                              | Fastest JSON logger for Node.js                     |
-| Testing        | Vitest 4.x + Testcontainers           | Unit + containerized integration tests              |
+| Testing        | Vitest 4.1.0 + Testcontainers         | Unit + containerized integration tests              |
 | Security       | sanitize-html + @grammyjs/ratelimiter | XSS protection + rate limiting                      |
 | Frontend       | Next.js + Tailwind CSS                | Dashboard + Mini App                                |
 | Versioning     | Changesets                            | Automated semantic releases                         |
