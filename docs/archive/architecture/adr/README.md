@@ -42,3 +42,4 @@
 | 036 | [EventBus Typed Publish Contracts](ADR-036-eventbus-typed-publish-contracts.md)     | Accepted |
 | 037 | [AI SDK v6 Upgrade](ADR-037-ai-sdk-v6-upgrade.md)                                   | Accepted |
 | 038 | [Starlight over Docusaurus](ADR-038-starlight-over-docusaurus.md)                   | Accepted |
+| 039 | [Native RAG over External Framework](ADR-039-native-rag-over-external-framework.md) | Accepted |
