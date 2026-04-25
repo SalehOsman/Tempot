@@ -30,11 +30,24 @@ export class ProfileMenuFactory {
     return keyboard;
   }
 
-  static createStats(_user: UserProfile): InlineKeyboard {
+  static createStats(user: UserProfile): { keyboard: InlineKeyboard; message: string } {
     const keyboard = new InlineKeyboard();
+
+    const formattedDate = user.createdAt.toLocaleDateString('ar-EG');
+    const formattedTasks = user.completedTasks?.toLocaleString('ar-EG') || '0';
+
+    const message = `
+📊 إحصائياتك
+
+📨 الرسائل: ${user.messageCount || 0}
+✅ المهام المكتملة: ${formattedTasks}
+⏱️ الوقت النشط: ${user.activeTime || '0 ساعة'}
+🌟 التقييم: ${user.rating || 'N/A'}
+📅 انضم: ${formattedDate}
+`;
 
     keyboard.text('🔙 العودة', 'profile:view');
 
-    return keyboard;
+    return { keyboard, message };
   }
 }

@@ -106,12 +106,18 @@ importers:
       '@tempot/i18n-core':
         specifier: workspace:*
         version: link:../../packages/i18n-core
+      '@tempot/input-engine':
+        specifier: workspace:*
+        version: link:../../packages/input-engine
       '@tempot/logger':
         specifier: workspace:*
         version: link:../../packages/logger
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/regional-engine':
+        specifier: workspace:*
+        version: link:../../packages/regional-engine
       '@tempot/sentry':
         specifier: workspace:*
         version: link:../../packages/sentry

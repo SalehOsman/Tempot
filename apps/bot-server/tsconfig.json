@@ -6,6 +6,6 @@
     "composite": true,
     "noEmit": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "modules/**/*"],
   "exclude": ["tests", "vitest.config.ts", "dist"]
 }

@@ -32,7 +32,9 @@
     "@tempot/database": "workspace:*",
     "@tempot/module-registry": "workspace:*",
     "@tempot/sentry": "workspace:*",
-    "@tempot/ux-helpers": "workspace:*"
+    "@tempot/ux-helpers": "workspace:*",
+    "@tempot/regional-engine": "workspace:*",
+    "@tempot/input-engine": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
