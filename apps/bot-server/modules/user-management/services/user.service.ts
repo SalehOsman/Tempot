@@ -1,7 +1,7 @@
 import { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { UserRepository } from '../repositories/user.repository';
-import { UserProfile } from '../types/user.types';
+import { UserRepository } from '../repositories/user.repository.js';
+import { UserProfile } from '../types/index.js';
 
 export class UserService {
   private static cache = new Map<string, { user: UserProfile; expiresAt: number }>();

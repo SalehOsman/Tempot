@@ -1,5 +1,5 @@
 import { InlineKeyboard } from 'grammy';
-import { UserProfile } from '../types/user.types';
+import { UserProfile } from '../types/index.js';
 
 export class MainMenuFactory {
   static create(user: UserProfile): InlineKeyboard {

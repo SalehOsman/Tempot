@@ -1,6 +1,7 @@
 import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
-import { UserProfile, UserSearchResult } from '../types/user.types';
+import { Result } from 'neverthrow';
+import { UserProfile, UserSearchResult } from '../types/index.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
