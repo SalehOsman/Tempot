@@ -23,7 +23,8 @@
     "docker:logs": "docker compose logs -f",
     "docker:reset": "docker compose down -v && docker compose up -d",
     "cms:check": "pnpm --filter @tempot/i18n-core cms:check",
-    "spec:validate": "tsx scripts/spec-validate/index.ts",
+    "spec:validate": "tsx scripts/spec-validate/index.ts --all",
+    "spec:validate:one": "tsx scripts/spec-validate/index.ts",
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "changeset:version": "changeset version"

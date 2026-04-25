@@ -624,7 +624,7 @@ Multiple packages may be in specification simultaneously.
 | Handoff Gate        | Before brainstorming | spec.md + plan.md + tasks.md + data-model.md + research.md exist |
 | TDD Gate            | During execution     | Every code change has a failing test first                       |
 | Review Gate         | After code review    | Zero CRITICAL issues                                             |
-| Reconciliation Gate | Before merge         | `pnpm spec:validate` passes with zero CRITICAL issues            |
+| Reconciliation Gate | Before merge         | `pnpm spec:validate` passes with zero CRITICAL issues (see Rule XC for deferred package exceptions) |
 | Merge Gate          | Before finish        | All tests pass, all acceptance criteria met                      |
 
 ### LXXXVII. Hotfix Track
@@ -645,9 +645,34 @@ Packages built before this methodology was ratified (database, shared, logger, e
 
 `docs/archive/ROADMAP.md` is the single source of truth for project progress. Updated after every branch merge.
 
+### XC. Deferred Package Exception
+
+Packages formally marked as **"Not started / Deferred"** in `docs/archive/ROADMAP.md` are exempt from the Reconciliation Gate (`pnpm spec:validate` CRITICAL requirement) until they enter active execution.
+
+**Deferred packages as of 2026-04-25:**
+
+| Spec | Package         | Reason for deferral                                                        |
+| ---- | --------------- | -------------------------------------------------------------------------- |
+| 008  | cms-engine      | Optional — built only when a business module requires CMS                  |
+| 013  | notifier        | Optional — built only when a business module requires notifications        |
+| 014  | search-engine   | Optional — built only when a business module requires search               |
+| 016  | document-engine | Optional — built only when a business module requires document generation  |
+| 017  | import-engine   | Optional — built only when a business module requires CSV/Excel import     |
+
+**Rules for deferred packages:**
+
+1. `spec.md` and `plan.md` MUST exist — they are forward design artifacts.
+2. `tasks.md`, `data-model.md`, `research.md` are NOT required until active execution begins.
+3. `FILE_REFERENCES` failures against non-existent source files are expected and informational only.
+4. `spec:validate` CRITICAL failures from deferred packages do NOT block the Reconciliation Gate.
+5. Once a deferred package enters active execution (decision recorded in ROADMAP.md with date), it immediately falls under the full SpecKit workflow (Rules LXXIX–LXXXIX) with no exceptions.
+
+**Condition to activate:** SUPER_ADMIN decision recorded as a ROADMAP.md dated update.
+
 ---
 
-**Version**: 2.3.1 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-23
+**Version**: 2.4.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-25
+**Amendment 2.4.0**: Added Rule XC — Deferred Package Exception. Formalizes the distinction between roadmap-deferred packages (informational spec:validate failures) and active packages (full compliance required). Resolves methodology ambiguity identified in project audit 2026-04-24. Total: 90 rules (+ 1 reserved).
 **Amendment 2.3.1**: Fixed 7 broken documentation paths — all `docs/` references updated to `docs/archive/` to match actual file locations (Rule L, XLIV, LXXI, LXXIX–LXXXIX section header, LXXXIII table, LXXXIX).
 **Amendment 2.3.0**: Phase 1A.2 documentation cleanup — removed phantom `pnpm generate:module` references (Rule XLVI rewritten), clarified rate limiting layers (Rule XXIX), fixed grammY Test reference (Rule XXXV), marked Docusaurus as planned (Rule LXII), removed session-manager from pre-methodology list (Rule LXXXVIII), updated Rule L wording. Total: 88 rules (+ 1 reserved).
 **Amendment 2.2.0**: Renumbered Development Methodology from L–LX to LXXIX–LXXXIX, eliminating duplicate numbering with Governance/Observability sections. Added reserved placeholders at L and LI. Total: 87 rules (+ 2 reserved).

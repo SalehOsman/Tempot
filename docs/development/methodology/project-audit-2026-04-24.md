@@ -139,7 +139,7 @@ The architecture and intent are strong; the next quality leap is operational con
 | Item | Description | Status |
 |------|-------------|--------|
 | P0-1 | Fix broken links in README.md, CONTRIBUTING.md, ROADMAP.md | ✅ Done 2026-04-25 |
-| P0-2a | Add `tsx` as explicit devDependency | ✅ Done 2026-04-25 |
-| P0-2b | Fix Prisma build issues | ⏳ Pending |
+| P0-2a | Add `tsx` as explicit devDependency + fix `spec:validate` script | ✅ Done 2026-04-25 |
+| P0-2b | Prisma build issues | ✅ Done — `pnpm build` passes 18/18 packages |
 | P0-2c | Fix workspace test resolution | ⏳ Pending |
-| P0-3 | Methodology exception note for deferred packages | ⏳ Pending |
+| P0-3 | Methodology exception note for deferred packages | ✅ Done 2026-04-25 — Constitution Rule XC added (v2.4.0) |
