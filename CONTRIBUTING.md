@@ -151,4 +151,4 @@ For critical production bugs (P0/P1) only:
 
 ## Questions?
 
-Open a GitHub Discussion or review the [Architecture Spec](docs/tempot_v11_final.md) and [Workflow Guide](docs/developer/workflow-guide.md).
+Open a GitHub Discussion or review the [Architecture Spec (Document v11)](docs/archive/tempot_v11_final.md) and [Workflow Guide](docs/archive/developer/workflow-guide.md).

@@ -5,7 +5,7 @@
 
 ## Phase 0 — Workspace ✅ Done
 
-Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Spec v11.0.
+Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Architecture Spec document v11.0.
 
 ## Phase 1 — Core Bedrock Packages
 
@@ -98,7 +98,7 @@ Not started. Depends on Phase 3.
 | 2   | mini-apps | Next.js           | User-facing mini applications with secure `initData` binding       |
 | 3   | docs      | Starlight (Astro) | Engineering documentation platform — ADR-038                       |
 
-> Design details: `docs/architecture/DASHBOARD-MINIAPP-DESIGN.md` (Architecture Spec Section 12)
+> Design details: `docs/archive/tempot_v11_final.md` (Architecture Spec document v11, Section 12)
 
 ## Phase 5 — Enterprise Infrastructure
 

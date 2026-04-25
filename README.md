@@ -149,7 +149,7 @@ Key principles:
 - All caching goes through the unified cache-manager wrapper
 - All queues use the centralized factory for graceful shutdown management
 
-Full architecture documentation: [docs/tempot_v11_final.md](docs/tempot_v11_final.md) (29 sections, comprehensive specification)
+Full architecture documentation: [Architecture Specification (document version v11)](docs/archive/tempot_v11_final.md) (29 sections, comprehensive specification; this is the document iteration, not the product version)
 
 ---
 
@@ -179,25 +179,25 @@ Every technology choice is documented in an Architectural Decision Record with f
 | Frontend       | Next.js + Tailwind CSS                | Dashboard + Mini App                                |
 | Versioning     | Changesets                            | Automated semantic releases                         |
 
-Tempot leverages 17 official and community grammY plugins across its packages — from auto-retry and rate limiting to interactive menus and streaming. See the full plugin map in [docs/developer/ecosystem-reference.md](docs/developer/ecosystem-reference.md).
+Tempot leverages 17 official and community grammY plugins across its packages — from auto-retry and rate limiting to interactive menus and streaming. See the full plugin map in [docs/archive/developer/ecosystem-reference.md](docs/archive/developer/ecosystem-reference.md).
 
 ---
 
 ## Documentation
 
-| Document                                                     | Description                                                                |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| [Architecture Specification](docs/tempot_v11_final.md)       | Complete system design — 29 sections covering every aspect of Tempot       |
-| [Ecosystem Reference](docs/developer/ecosystem-reference.md) | All external libraries and plugins mapped to their target packages         |
-| [UX Style Guide](docs/guides/UX-STYLE-GUIDE.md)              | Standardized UX rules for bot, dashboard, and mini-app                     |
-| [ADR Index](docs/architecture/adr/)                          | 31 Architectural Decision Records documenting every major technical choice |
-| [Developer Workflow](docs/developer/workflow-guide.md)       | Step-by-step guide for contributors                                        |
+| Document                                                                      | Description                                                                |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [Architecture Specification (Document v11)](docs/archive/tempot_v11_final.md) | Complete system design — 29 sections covering every aspect of Tempot       |
+| [Ecosystem Reference](docs/archive/developer/ecosystem-reference.md)          | All external libraries and plugins mapped to their target packages         |
+| [UX Style Guide](docs/archive/guides/UX-STYLE-GUIDE.md)                      | Standardized UX rules for bot, dashboard, and mini-app                     |
+| [ADR Index](docs/archive/adr/)                                                | 31 Architectural Decision Records documenting every major technical choice |
+| [Developer Workflow](docs/archive/developer/workflow-guide.md)                | Step-by-step guide for contributors                                        |
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Before starting, please read the [Developer Workflow Guide](docs/developer/workflow-guide.md) to understand the project's development process.
+Contributions are welcome. Before starting, please read the [Developer Workflow Guide](docs/archive/developer/workflow-guide.md) to understand the project's development process.
 
 Key guidelines:
 
