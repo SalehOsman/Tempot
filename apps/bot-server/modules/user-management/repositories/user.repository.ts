@@ -1,6 +1,6 @@
 import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
-import { Result } from 'neverthrow';
+import { ok, err, type Result } from 'neverthrow';
 import { UserProfile, UserSearchResult } from '../types/index.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
@@ -12,9 +12,17 @@ export class UserRepository extends BaseRepository<UserProfile> {
   }
 
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
-    return this.findFirst({
-      where: { telegramId },
-    });
+    const result = await this.findMany({ telegramId });
+    if (result.isErr()) {
+      return result;
+    }
+
+    const user = result.value[0];
+    if (!user) {
+      return err(new AppError('user-management.user_not_found'));
+    }
+
+    return ok(user);
   }
 
   async search(
@@ -29,44 +37,63 @@ export class UserRepository extends BaseRepository<UserProfile> {
       ],
     };
 
-    const [users, totalCount] = await Promise.all([
-      this.findMany({
-        where,
-        skip: page * pageSize,
-        take: pageSize,
-      }),
-      this.count({ where }),
-    ]);
+    const usersResult = await this.findMany({
+      where,
+      skip: page * pageSize,
+      take: pageSize,
+    });
 
-    if (users.isErr()) {
-      return users;
+    if (usersResult.isErr()) {
+      return usersResult;
     }
 
-    if (totalCount.isErr()) {
-      return totalCount;
+    const users = usersResult.value;
+
+    // Get total count by fetching all matching records
+    const allUsersResult = await this.findMany({ where });
+    if (allUsersResult.isErr()) {
+      return allUsersResult;
     }
 
-    return Result.ok({
-      users: users.value,
-      totalCount: totalCount.value,
+    const totalCount = allUsersResult.value.length;
+
+    return ok({
+      users,
+      totalCount,
       page,
       pageSize,
     });
   }
 
   async updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
-    return this.update(userId, { username: newUsername });
+    const result = await this.update(userId, { username: newUsername });
+    if (result.isErr()) {
+      return result;
+    }
+    return ok(undefined);
   }
 
   async updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
-    return this.update(userId, { email: newEmail });
+    const result = await this.update(userId, { email: newEmail });
+    if (result.isErr()) {
+      return result;
+    }
+    return ok(undefined);
   }
 
   async updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
-    return this.update(userId, { language: newLanguage });
+    const result = await this.update(userId, { language: newLanguage });
+    if (result.isErr()) {
+      return result;
+    }
+    return ok(undefined);
   }
 
   async updateRole(userId: string, newRole: string): Promise<Result<void, AppError>> {
-    return this.update(userId, { role: newRole });
+    const result = await this.update(userId, { role: newRole });
+    if (result.isErr()) {
+      return result;
+    }
+    return ok(undefined);
   }
 }
