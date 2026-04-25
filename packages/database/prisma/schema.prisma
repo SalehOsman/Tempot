@@ -14,15 +14,15 @@ datasource db {
 // until Prisma supports native mixins or global fields.
 
 model User {
-  id   String @id @default(cuid())
-  name String
+  id        String   @id @default(cuid())
+  name      String
 
   // Audit fields
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   createdBy String?
   updatedBy String?
-  isDeleted Boolean   @default(false)
+  isDeleted Boolean  @default(false)
   deletedAt DateTime?
   deletedBy String?
 
@@ -46,23 +46,23 @@ model AuditLog {
 }
 
 model Session {
-  id                 String  @id // Composite of userId:chatId
+  id                 String   @id // Composite of userId:chatId
   userId             String
   chatId             String
-  role               String  @default("GUEST")
-  status             String  @default("ACTIVE")
-  language           String  @default("ar-EG")
+  role               String   @default("GUEST")
+  status             String   @default("ACTIVE")
+  language           String   @default("ar-EG")
   activeConversation String?
   metadata           Json?
-  schemaVersion      Int     @default(1)
-  version            Int     @default(1)
+  schemaVersion      Int      @default(1)
+  version            Int      @default(1)
 
   // Audit fields
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   createdBy String?
   updatedBy String?
-  isDeleted Boolean   @default(false)
+  isDeleted Boolean  @default(false)
   deletedAt DateTime?
   deletedBy String?
 
