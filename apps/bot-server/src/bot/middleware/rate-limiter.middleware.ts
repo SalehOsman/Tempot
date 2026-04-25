@@ -19,16 +19,6 @@ const SCOPE_CONFIGS: Record<UpdateScope, ScopeConfig> = {
   message: { points: 30, duration: 60 },
 };
 
-// TODO: ai_request scope (20/hour, { points: 20, duration: 3600 }) — consumed by ai-core module when available
-
-// TODO: denied_access scope (5/10min, { points: 5, duration: 600 } → temporary ban + alert) — consumed by auth middleware
-
-// TODO: global scope — single RateLimiterMemory shared across all users,
-//       enforced before per-user checks. Requires spec decision on global limits.
-
-// TODO: per_group scope — keyed by group chat ID instead of user ID,
-//       applied to group contexts. Requires UpdateScope extension + classifyUpdate changes.
-
 function classifyUpdate(ctx: Context): UpdateScope {
   const msg = ctx.message;
   if (msg?.text?.startsWith('/')) return 'command';
@@ -40,11 +30,16 @@ function classifyUpdate(ctx: Context): UpdateScope {
  * Creates rate limiter middleware with differentiated per-scope
  * limits using rate-limiter-flexible directly (D19 in spec.md).
  *
+ * Active scopes:
  * - command: 10 requests per 60 seconds
  * - upload:  5 requests per 600 seconds
  * - message: 30 requests per 60 seconds
- * - ai_request: 20 per hour (TODO — consumed by ai-core)
- * - denied_access: 5 per 10 minutes (TODO — consumed by auth middleware)
+ *
+ * Planned scopes (see specs/020-bot-server/research.md):
+ * - ai_request: 20 per hour — consumed by ai-core module
+ * - denied_access: 5 per 10 min → temporary ban + alert — consumed by auth middleware
+ * - global: single limiter shared across all users
+ * - per_group: keyed by group chat ID instead of user ID
  */
 export function createRateLimiterMiddleware(
   deps: RateLimiterDeps,
