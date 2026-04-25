@@ -64,8 +64,13 @@
 **Files to create**:
 - `apps/bot-server/modules/user-management/menus/main-menu.factory.ts`
 
+**Packages used**:
+- **@tempot/ux-helpers**: createInlineKeyboard() for keyboard creation
+- **@tempot/auth-core**: RoleEnum for role checking
+
 **Implementation**:
 - Create main menu Inline Keyboard based on user role
+- Use `createInlineKeyboard()` from @tempot/ux-helpers
 - 2-3 buttons per row for readability
 - Max 12 buttons per keyboard
 - Emoji icons for visual clarity
@@ -73,6 +78,7 @@
 
 **Acceptance criteria**:
 - [ ] MainMenuFactory.create() exists
+- [ ] Uses createInlineKeyboard() from @tempot/ux-helpers
 - [ ] Creates Inline Keyboard with proper structure
 - [ ] 2-3 buttons per row
 - [ ] Max 12 buttons
@@ -91,16 +97,26 @@
 **Files to create**:
 - `apps/bot-server/modules/user-management/menus/profile-menu.factory.ts`
 
+**Packages used**:
+- **@tempot/ux-helpers**: createInlineKeyboard(), formatSuccess(), formatError()
+- **@tempot/regional-engine**: formatDate(), formatNumber() for stats display
+- **@tempot/i18n-core**: t() for all text
+
 **Implementation**:
-- Create profile view Inline Keyboard
-- Create profile edit Inline Keyboard
-- Create profile stats Inline Keyboard
+- Create profile view Inline Keyboard using createInlineKeyboard()
+- Create profile edit Inline Keyboard using createInlineKeyboard()
+- Create profile stats Inline Keyboard using createInlineKeyboard()
+- Use formatDate() from @tempot/regional-engine for date display
+- Use formatNumber() from @tempot/regional-engine for number display
 - Back button on all screens
 
 **Acceptance criteria**:
 - [ ] ProfileMenuFactory.createView() exists
 - [ ] ProfileMenuFactory.createEdit() exists
 - [ ] ProfileMenuFactory.createStats() exists
+- [ ] Uses createInlineKeyboard() from @tempot/ux-helpers
+- [ ] Uses formatDate() from @tempot/regional-engine
+- [ ] Uses formatNumber() from @tempot/regional-engine
 - [ ] All keyboards have back buttons
 - [ ] 2-3 buttons per row
 - [ ] Max 12 buttons
@@ -117,11 +133,16 @@
 **Files to create**:
 - `apps/bot-server/modules/user-management/menus/users-menu.factory.ts`
 
+**Packages used**:
+- **@tempot/ux-helpers**: createInlineKeyboard(), createConfirmation(), formatSuccess(), formatError()
+- **@tempot/auth-core**: RoleEnum for role options
+- **@tempot/i18n-core**: t() for all text
+
 **Implementation**:
-- Create users list Inline Keyboard
-- Create search results Inline Keyboard
-- Create role change Inline Keyboard
-- Create confirmation Inline Keyboard
+- Create users list Inline Keyboard using createInlineKeyboard()
+- Create search results Inline Keyboard using createInlineKeyboard()
+- Create role change Inline Keyboard using createInlineKeyboard()
+- Create confirmation Inline Keyboard using createConfirmation()
 - Back button on all screens
 
 **Acceptance criteria**:
@@ -129,6 +150,8 @@
 - [ ] UsersMenuFactory.createSearchResults() exists
 - [ ] UsersMenuFactory.createRoleChange() exists
 - [ ] UsersMenuFactory.createConfirm() exists
+- [ ] Uses createInlineKeyboard() from @tempot/ux-helpers
+- [ ] Uses createConfirmation() from @tempot/ux-helpers
 - [ ] All keyboards have back buttons
 - [ ] 2-3 buttons per row
 - [ ] Max 12 buttons
@@ -245,21 +268,28 @@
 **Files to create**:
 - `apps/bot-server/modules/user-management/handlers/text.handler.ts`
 
+**Packages used**:
+- **@tempot/input-engine**: Dynamic form schema for profile editing
+- **@tempot/ux-helpers**: formatSuccess(), formatError(), formatWarning()
+- **@tempot/i18n-core**: t() for all text
+
 **Implementation**:
-- Handle text input for form fields
-- Handle name update
-- Handle email update
-- Handle language update
-- Handle user search query
-- Validate all inputs
+- Create profile edit schema using InputEngine
+- Handle text input for form fields via InputEngine
+- Handle name update via InputEngine (ShortText field)
+- Handle email update via InputEngine (Email field)
+- Handle language update via InputEngine (SingleChoice field)
+- Handle user search query (manual implementation)
+- Validate all inputs via InputEngine
 
 **Acceptance criteria**:
 - [ ] handleTextInput() exists
-- [ ] Handles name update
-- [ ] Handles email update
-- [ ] Handles language update
+- [ ] Uses InputEngine for profile editing
+- [ ] Handles name update via InputEngine
+- [ ] Handles email update via InputEngine
+- [ ] Handles language update via InputEngine
 - [ ] Handles user search query
-- [ ] Validates all inputs
+- [ ] Validates all inputs via InputEngine
 - [ ] Handles invalid inputs gracefully
 
 ---

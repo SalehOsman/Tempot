@@ -563,6 +563,9 @@ Follow TDD methodology with comprehensive testing:
 5. **Input Validation**: Use Zod for schema validation with Arabic error messages
 6. **Error Handling**: Use Result pattern with clear Arabic error messages
 7. **Testing Strategy**: TDD methodology with unit, integration, and E2E tests
+8. **UX Helpers**: Use @tempot/ux-helpers for Inline Keyboards, status messages, confirmation dialogs
+9. **Regional Engine**: Use @tempot/regional-engine for date/number formatting in Arabic
+10. **Input Engine**: Use @tempot/input-engine for dynamic forms (profile editing)
 
 ### Decisions Made
 
@@ -573,6 +576,9 @@ Follow TDD methodology with comprehensive testing:
 5. Use Zod for input validation
 6. Use Result pattern for error handling
 7. Follow TDD methodology with comprehensive testing
+8. Use @tempot/ux-helpers for Inline Keyboards and status messages
+9. Use @tempot/regional-engine for date/number formatting
+10. Use @tempot/input-engine for dynamic forms
 
 ### No Further Research Required
 
@@ -593,3 +599,7 @@ All research topics resolved. No new technologies, no architectural decisions, n
 - ADR-017: Search Implementation Strategy
 - ADR-018: Input Validation Strategy
 - Constitution Rules: XXI, XXVII, XXXIV, XXXVII, XXXVIII, XLV, XLVI
+- @tempot/ux-helpers: Standardised Telegram UX components
+- @tempot/regional-engine: Timezone, currency, number formatting
+- @tempot/input-engine: Dynamic form engine built on grammY Conversations + Zod
+- @tempot/auth-core: CASL-based authorization core

@@ -21,7 +21,10 @@ This is a **user management module** that prioritizes **Inline Keyboard interact
 
 - **No new dependencies**
 - **Existing tools**: grammY, Vitest, Testcontainers
-- **Existing packages**: session-manager, database, event-bus, i18n-core, shared
+- **Existing packages**:
+  - **Core**: session-manager, database, event-bus, i18n-core, shared
+  - **Presentation**: ux-helpers, regional-engine, input-engine
+  - **Authorization**: auth-core
 
 ---
 

@@ -157,11 +157,18 @@ As a user, I want consistent navigation with back buttons so that I can easily r
 
 ## Dependencies
 
+### Core Dependencies
 - **@tempot/session-manager**: Session state management for navigation
 - **@tempot/database**: User repository and data access
 - **@tempot/event-bus**: Event publishing for user changes
 - **@tempot/i18n-core**: Translations for all UI text
 - **@tempot/shared**: Result pattern, AppError, cache wrapper
+
+### Presentation Layer Dependencies
+- **@tempot/ux-helpers**: Inline keyboards, status messages, confirmation dialogs
+- **@tempot/regional-engine**: Date/number formatting in Arabic
+- **@tempot/input-engine**: Dynamic forms for profile editing
+- **@tempot/auth-core**: Authorization, RoleEnum, AbilityFactory
 
 ---
 
