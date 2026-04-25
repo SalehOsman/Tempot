@@ -107,7 +107,7 @@ Tempot is a pnpm monorepo with modular, independently versioned packages.
 | `@tempot/cms-engine`      | Dynamic translation management                           | Planned  |
 | `@tempot/notifier`        | Multi-channel notifications via BullMQ                   | Planned  |
 | `@tempot/document-engine` | PDF, Excel, Word generation                              | Planned  |
-| `@tempot/input-engine`    | Dynamic form generation with Zod validation              | Planned  |
+| `@tempot/input-engine`    | Dynamic form generation with Zod validation              | Stable   |
 | `@tempot/search-engine`   | Full-text + semantic search with pgvector                | Planned  |
 | `@tempot/import-engine`   | CSV, Excel import — event-driven processing              | Planned  |
 | `@tempot/module-registry` | Module auto-discovery and validation                     | Stable   |
@@ -117,8 +117,6 @@ Tempot is a pnpm monorepo with modular, independently versioned packages.
 | App          | Description                    | Status  |
 | ------------ | ------------------------------ | ------- |
 | `bot-server` | grammY bot + Hono API server   | Stable  |
-| `dashboard`  | Next.js admin panel            | Planned |
-| `mini-app`   | Telegram Mini App frontend     | Planned |
 | `docs`       | Engineering documentation site | Stable  |
 
 ---

@@ -48,6 +48,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
     - module-registry: Planned → Stable
     - bot-server: Planned → Stable
     - docs: Planned → Stable
+    - input-engine: Planned → Stable
+  - Removed non-existent apps from README.md
+    - dashboard: Removed (not implemented)
+    - mini-app: Removed (not implemented)
   - Added README.md to apps/docs/
   - Completed test-module spec artifacts (plan.md, tasks.md, data-model.md, research.md)
   - Removed @ts-expect-error from session.provider.test.ts
