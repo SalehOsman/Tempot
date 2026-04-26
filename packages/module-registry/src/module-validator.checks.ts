@@ -120,12 +120,26 @@ export async function checkSpecGate(
 }
 
 /**
+ * Normalises a package name to its directory name.
+ * '@tempot/database' → 'database', 'database' → 'database'
+ */
+function pkgToDirName(pkg: string): string {
+  // Strip npm scope prefix (e.g. '@tempot/')
+  const slashIdx = pkg.lastIndexOf('/');
+  return slashIdx >= 0 ? pkg.slice(slashIdx + 1) : pkg;
+}
+
+/**
  * Checks if a package is available: exists in packageDirs AND
  * not disabled via toggle guard env var (spec D12).
  */
 function isPackageAvailable(pkg: string, packageDirs: string[]): boolean {
-  if (!packageDirs.includes(pkg)) return false;
-  const guard = TOGGLE_GUARD_PACKAGES[pkg];
+  const dirName = pkgToDirName(pkg);
+  // packageDirs contains full directory names like '@tempot+database@file+packages+database_...'
+  // We need to check if any directory contains the package name
+  const found = packageDirs.some((dir) => dir.includes(dirName));
+  if (!found) return false;
+  const guard = TOGGLE_GUARD_PACKAGES[dirName];
   if (guard && process.env[guard.envVar] === 'false') return false;
   return true;
 }

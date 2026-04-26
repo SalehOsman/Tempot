@@ -1,7 +1,6 @@
 import { glob } from 'glob';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import i18next from 'i18next';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
@@ -18,25 +17,31 @@ import { AppError } from '@tempot/shared';
  */
 export async function loadModuleLocales(): Promise<Result<void, AppError>> {
   try {
-    // Resolve project root from this file's location
-    // packages/i18n-core/src/ → ../../../
-    const thisFile = fileURLToPath(import.meta.url);
-    const projectRoot = path.resolve(path.dirname(thisFile), '..', '..', '..');
-    const globPattern = path
+    // Use process.cwd() to get the correct project root in Docker and development
+    const projectRoot = process.cwd();
+    const modulePattern = path
       .join(projectRoot, 'modules', '*', 'locales', '*.json')
       .replace(/\\/g, '/');
+    const appPattern = path
+      .join(projectRoot, 'apps', '*', 'locales', '*.json')
+      .replace(/\\/g, '/');
 
-    const localeFiles = await glob(globPattern);
+    const moduleFiles = await glob(modulePattern);
+    const appFiles = await glob(appPattern);
+    const localeFiles = [...moduleFiles, ...appFiles];
 
     for (const file of localeFiles) {
       // Normalize path to handle Windows backslashes
       const normalizedPath = file.replace(/\\/g, '/');
       const parts = normalizedPath.split('/');
 
-      // Find the 'modules' segment to extract module name and lang
+      // Find the 'modules' or 'apps' segment to extract name and lang
       const modulesIdx = parts.indexOf('modules');
-      if (modulesIdx >= 0 && parts.length > modulesIdx + 3) {
-        const langFile = parts[modulesIdx + 3];
+      const appsIdx = parts.indexOf('apps');
+      const segmentIdx = modulesIdx >= 0 ? modulesIdx : appsIdx >= 0 ? appsIdx : -1;
+
+      if (segmentIdx >= 0 && parts.length > segmentIdx + 3) {
+        const langFile = parts[segmentIdx + 3];
         const lang = path.basename(langFile, '.json');
 
         const contentStr = await fs.readFile(file, 'utf-8');

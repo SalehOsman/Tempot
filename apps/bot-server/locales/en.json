@@ -1,0 +1,10 @@
+{
+  "bot-server.rate_limit_exceeded": "⚠️ You have exceeded the rate limit. Please wait a moment before trying again.",
+  "bot-server.rate_limit_reply_failed": "❌ Failed to send rate limit warning",
+  "bot-server.startup.database_unreachable": "❌ Cannot connect to database",
+  "bot-server.startup.event_bus_failed": "❌ Failed to start EventBus",
+  "bot-server.startup.cache_failed": "❌ Failed to start Cache Service",
+  "bot-server.startup.module_load_failed": "❌ Failed to load modules",
+  "bot-server.startup.i18n_load_failed": "❌ Failed to load translations",
+  "bot-server.startup.sentry_init_failed": "❌ Failed to initialize Sentry"
+}

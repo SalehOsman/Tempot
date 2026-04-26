@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import fs from 'node:fs/promises';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
@@ -66,14 +66,9 @@ export function buildSessionProvider(
   });
 }
 
-// apps/bot-server/src/startup/ → ../../../../ (project root)
-const PROJECT_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-  '..',
-  '..',
-);
+// In Docker, process.cwd() is /app, which is the correct root
+// In development, process.cwd() is also the project root
+const ROOT_DIR = process.cwd();
 
 export function buildModuleRegistry(
   log: typeof import('@tempot/logger').logger,
@@ -93,10 +88,25 @@ export function buildModuleRegistry(
     },
   });
 
+  // In production (Docker), packages are in node_modules/.pnpm
+  // In development, packages are in packages/
+  const packagesDir =
+    process.env['NODE_ENV'] === 'production'
+      ? path.resolve(ROOT_DIR, 'node_modules/.pnpm')
+      : path.resolve(ROOT_DIR, 'packages');
+
   const validator = new ModuleValidator({
-    specsDir: path.resolve(PROJECT_ROOT, 'specs'),
-    packagesDir: path.resolve(PROJECT_ROOT, 'packages'),
-    listDir: async (p: string) => fs.readdir(p),
+    specsDir: path.resolve(ROOT_DIR, 'specs'),
+    packagesDir,
+    listDir: async (p: string) => {
+      try {
+        const result = await fs.readdir(p);
+        return result;
+      } catch (error) {
+        log.error({ msg: 'listDir_failed', path: p, error: String(error) });
+        throw error;
+      }
+    },
     pathExists: async (p: string) =>
       fs
         .access(p)

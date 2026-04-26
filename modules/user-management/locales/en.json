@@ -1,0 +1,78 @@
+{
+  "user-management": {
+    "common": {
+      "undefined": "Not set"
+    },
+    "errors": {
+      "no_user": "❌ Could not identify you. Please try again.",
+      "register_first": "❌ Your account was not found. Please contact the administrator.",
+      "no_active_state": "⚠️ No active operation. Please use the buttons to navigate."
+    },
+    "menu": {
+      "main": "👋 Welcome to Tempot",
+      "welcome": "👋 Hello <b>{{name}}</b>!\n\n🎯 Role: {{role}}\n🌍 Language: {{language}}\n\nChoose from the menu below:",
+      "back": "🔙 Back",
+      "help": "❓ Help"
+    },
+    "profile": {
+      "view": "👤 Your Profile",
+      "edit": "✏️ Edit Profile",
+      "stats": "📊 Your Statistics",
+      "view_message": "👤 <b>Your Profile</b>\n\n👤 Name: {{username}}\n📧 Email: {{email}}\n🌍 Language: {{language}}\n🎯 Role: {{role}}\n📅 Registered: {{createdAt}}",
+      "field": {
+        "name": "Name",
+        "email": "Email",
+        "language": "Language",
+        "role": "Role"
+      },
+      "updated": "✅ {{field}} updated successfully to: <b>{{value}}</b>",
+      "update_error": "❌ An error occurred while updating. Please try again.",
+      "error": "❌ Error updating profile",
+      "not_found": "❌ Profile not found"
+    },
+    "users": {
+      "list": "👥 User Management",
+      "list_header": "👥 <b>Users List</b> ({{count}} users)",
+      "more": "... and {{count}} more",
+      "search": "🔍 Search Users",
+      "view": "👤 User Details",
+      "fetch_error": "❌ Could not load users list. Please try again later.",
+      "role": {
+        "change": "🎯 Change Role",
+        "confirm": "⚠️ Confirm Role Change",
+        "success": "✅ Role updated successfully",
+        "error": "❌ Error updating role"
+      },
+      "not_found": "❌ No users found",
+      "unauthorized": "⚠️ You don't have permission to access this feature"
+    },
+    "validation": {
+      "name": {
+        "required": "❌ Name cannot be empty",
+        "too_long": "❌ Name is too long (max 50 characters)",
+        "invalid": "❌ Name contains invalid characters"
+      },
+      "email": {
+        "invalid": "❌ Invalid email address",
+        "too_long": "❌ Email is too long (max 255 characters)"
+      },
+      "language": {
+        "invalid": "❌ Invalid language. Valid options: {{valid}}"
+      },
+      "role": {
+        "invalid": "❌ Invalid role. Valid options: {{valid}}"
+      }
+    },
+    "role": {
+      "GUEST": "Guest",
+      "USER": "User",
+      "MODERATOR": "Moderator",
+      "ADMIN": "Admin",
+      "SUPER_ADMIN": "Super Admin"
+    },
+    "language": {
+      "ar": "Arabic",
+      "en": "English"
+    }
+  }
+}

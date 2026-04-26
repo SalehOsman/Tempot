@@ -13,19 +13,38 @@ datasource db {
 // These should be copied to every model that needs audit/soft-delete
 // until Prisma supports native mixins or global fields.
 
-model User {
-  id        String   @id @default(cuid())
-  name      String
+// User Management Module - User Profile
+model UserProfile {
+  id          String   @id @default(cuid())
+  telegramId  BigInt   @unique
+  username    String?
+  email       String?
+  language    String   @default("ar")
+  role        String   @default("USER")
+
+  // Additional identity fields
+  nationalId  String?  @unique
+  mobileNumber String?
+  birthDate   DateTime?
+  gender      String?  // 'male' | 'female'
+  governorate String?
+  countryCode String?  @default("+20")
 
   // Audit fields
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String?
-  updatedBy String?
-  isDeleted Boolean  @default(false)
-  deletedAt DateTime?
-  deletedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+  deletedBy   String?
 
+  @@index([telegramId])
+  @@index([username])
+  @@index([email])
+  @@index([role])
+  @@index([nationalId])
+  @@index([mobileNumber])
   @@index([isDeleted])
 }
 

@@ -1,0 +1,10 @@
+{
+  "bot-server.rate_limit_exceeded": "⚠️ لقد تجاوزت الحد المسموح به من الطلبات. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.",
+  "bot-server.rate_limit_reply_failed": "❌ فشل في إرسال رسالة تحذير تجاوز الحد",
+  "bot-server.startup.database_unreachable": "❌ لا يمكن الاتصال بقاعدة البيانات",
+  "bot-server.startup.event_bus_failed": "❌ فشل في بدء EventBus",
+  "bot-server.startup.cache_failed": "❌ فشل في بدء Cache Service",
+  "bot-server.startup.module_load_failed": "❌ فشل في تحميل الموديولات",
+  "bot-server.startup.i18n_load_failed": "❌ فشل في تحميل الترجمات",
+  "bot-server.startup.sentry_init_failed": "❌ فشل في بدء Sentry"
+}

@@ -85,9 +85,7 @@ function buildSettingsService(
 }
 
 function modulesDir(): string {
-  const thisFile = fileURLToPath(import.meta.url);
-  // apps/bot-server/src/startup/ → ../../../../modules
-  return path.resolve(path.dirname(thisFile), '..', '..', '..', '..', 'modules');
+  return path.resolve(process.cwd(), 'modules');
 }
 
 export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {

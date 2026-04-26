@@ -1,0 +1,39 @@
+{
+  "name": "@tempot/user-management",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tempot/module-registry": "workspace:*"
+  },
+  "peerDependencies": {
+    "grammy": "^1.41.1",
+    "@casl/ability": "^6.7.3",
+    "neverthrow": "^8.2.0",
+    "@tempot/shared": "workspace:*",
+    "@tempot/logger": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
+    "@tempot/auth-core": "workspace:*",
+    "@tempot/session-manager": "workspace:*",
+    "@tempot/settings": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/database": "workspace:*",
+    "@tempot/ux-helpers": "workspace:*",
+    "@tempot/regional-engine": "workspace:*",
+    "@tempot/input-engine": "workspace:*",
+    "@tempot/national-id-parser": "workspace:*"
+  },
+  "devDependencies": {
+    "grammy": "^1.41.1",
+    "@casl/ability": "^6.7.3",
+    "neverthrow": "^8.2.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}

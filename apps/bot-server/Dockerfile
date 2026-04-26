@@ -42,13 +42,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # (1) Generate Prisma Client so tsc can resolve the generated types at build time
 RUN pnpm --filter @tempot/database exec prisma generate
 
-# Build all workspace dependencies then bot-server
-RUN pnpm --filter bot-server... build
+# Build all workspace packages (dependencies + bot-server)
+RUN pnpm build
 
 # Build modules — they are standalone workspace packages (modules/*) that are
 # NOT dependencies of bot-server (dynamically loaded), so they need a separate
 # build step. Each module's tsc outputs to its own dist/ directory.
-RUN pnpm --filter "@tempot/*-module" build
+# Filter matches all packages in the modules/ directory
+RUN pnpm --filter "./modules/*" build
 
 # Deploy bot-server as an isolated production bundle.
 # Creates a fresh pnpm virtual store in /app/out — the .prisma/client binary
@@ -63,24 +64,36 @@ RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 #     /app/out's symlinks, placing .prisma/client at the right hash-keyed path.
 RUN set -e; \
     \
-    DB_PKG=$(find /app/out/node_modules/.pnpm -maxdepth 6 -type d \
-      -path "*/node_modules/@tempot/database" 2>/dev/null | head -n1); \
-    [ -n "$DB_PKG" ] || { \
-      echo "ERROR: @tempot/database not found in /app/out/node_modules/.pnpm"; \
-      exit 1; \
-    }; \
+    echo "==> Searching for @tempot/database in /app/out..."; \
+    DB_PKG=$(find /app/out/node_modules -type d -name "database" 2>/dev/null | grep "@tempot" | head -n1); \
     \
-    PRISMA=$(find /app/out/node_modules/.pnpm -name "index.js" \
-      -path "*/node_modules/prisma/build/index.js" 2>/dev/null | head -n1); \
-    [ -n "$PRISMA" ] || { \
-      echo "ERROR: prisma CLI not found in /app/out — is 'prisma' a prod dep?"; \
-      exit 1; \
-    }; \
+    if [ -z "$DB_PKG" ]; then \
+      echo "WARNING: @tempot/database not found in /app/out/node_modules, trying alternative..."; \
+      DB_PKG=$(find /app/out -type d -name "database" 2>/dev/null | grep "@tempot" | head -n1); \
+    fi; \
     \
-    echo "==> @tempot/database : $DB_PKG"; \
-    echo "==> prisma CLI       : $PRISMA"; \
-    cd "$DB_PKG" && node "$PRISMA" generate; \
-    echo "==> Prisma Client generated into /app/out successfully"
+    if [ -z "$DB_PKG" ]; then \
+      echo "ERROR: @tempot/database package directory not found"; \
+      echo "Available packages in /app/out:"; \
+      find /app/out/node_modules -name "package.json" -path "*/@tempot/*" 2>/dev/null | head -5 || true; \
+      exit 1; \
+    fi; \
+    \
+    echo "==> @tempot/database found: $DB_PKG"; \
+    \
+    PRISMA=$(find /app/out/node_modules -name "prisma" -type d 2>/dev/null | head -n1); \
+    \
+    if [ -z "$PRISMA" ]; then \
+      echo "WARNING: prisma CLI not found in /app/out, trying global..."; \
+      PRISMA="/app/node_modules/prisma"; \
+    fi; \
+    \
+    echo "==> prisma CLI: $PRISMA"; \
+    \
+    cd "$DB_PKG" && npx prisma generate || \
+    (echo "ERROR: prisma generate failed" && exit 1); \
+    \
+    echo "==> Prisma Client generated successfully"
 
 # ---------------------------------------------------------------------------
 # Stage: runner — minimal production image
@@ -89,8 +102,21 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# /app/out now contains both the app and the correctly placed .prisma/client
-COPY --from=builder /app/out ./
+# Copy built files from bot-server
+COPY --from=builder /app/apps/bot-server/dist ./dist
+
+# Copy dependencies from pnpm deploy
+COPY --from=builder /app/out/node_modules ./node_modules
+
+# Copy module dependencies from builder (required for user-management module)
+# These are peer dependencies of modules but not direct deps of bot-server
+COPY --from=builder /app/node_modules/.pnpm/@tempot+database* ./node_modules/.pnpm/
+COPY --from=builder /app/node_modules/.pnpm/@tempot+auth-core* ./node_modules/.pnpm/
+COPY --from=builder /app/node_modules/.pnpm/@tempot+regional-engine* ./node_modules/.pnpm/
+COPY --from=builder /app/node_modules/.pnpm/@tempot+input-engine* ./node_modules/.pnpm/
+
+# Copy Prisma schema files (needed for runtime database operations)
+COPY --from=builder /app/packages/database/prisma ./prisma-schemas/database/
 
 # Copy modules from workspace root (modules/*). Each module contains both
 # source .ts files (for validator MANDATORY_PATHS checks) and compiled dist/
@@ -99,7 +125,10 @@ COPY --from=builder /app/modules ./modules
 
 # Copy specs/ so the ModuleValidator spec-gate check (specsDir = /app/specs) passes.
 # Without this, every module fails validation with "No spec directory found".
-COPY specs ./specs
+COPY --from=builder /app/specs ./specs
+
+# Copy bot-server locale files for core messages like rate_limit_exceeded
+COPY --from=builder /app/apps/bot-server/locales ./apps/bot-server/locales
 
 # Create non-root user (Constitution Rule X)
 RUN addgroup --system --gid 1001 nodejs && \
