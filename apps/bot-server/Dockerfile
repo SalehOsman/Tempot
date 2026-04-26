@@ -42,14 +42,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # (1) Generate Prisma Client so tsc can resolve the generated types at build time
 RUN pnpm --filter @tempot/database exec prisma generate
 
-# Build all workspace packages (dependencies + bot-server)
+# Build all workspace packages (dependencies + bot-server + modules)
+# pnpm build runs --recursive across the entire workspace, including modules/*
 RUN pnpm build
-
-# Build modules — they are standalone workspace packages (modules/*) that are
-# NOT dependencies of bot-server (dynamically loaded), so they need a separate
-# build step. Each module's tsc outputs to its own dist/ directory.
-# Filter matches all packages in the modules/ directory
-RUN pnpm --filter "./modules/*" build
 
 # Deploy bot-server as an isolated production bundle.
 # Creates a fresh pnpm virtual store in /app/out — the .prisma/client binary

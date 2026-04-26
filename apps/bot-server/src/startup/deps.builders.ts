@@ -10,6 +10,17 @@ import { SessionProvider, SessionRepository } from '@tempot/session-manager';
 import { ModuleRegistry, ModuleDiscovery, ModuleValidator } from '@tempot/module-registry';
 import { buildCacheAdapter } from './cache.adapter.js';
 
+type LoggerLike = typeof import('@tempot/logger').logger;
+
+function toRegistryLogger(log: LoggerLike) {
+  return {
+    info: (data: Record<string, unknown>) => log.info(data),
+    warn: (data: Record<string, unknown>) => log.warn(data),
+    debug: (data: Record<string, unknown>) => log.debug(data),
+    error: (data: Record<string, unknown>) => log.error(data),
+  };
+}
+
 export async function buildEventBus(
   log: typeof import('@tempot/logger').logger,
   shutdownManager: ShutdownManager,
@@ -17,10 +28,7 @@ export async function buildEventBus(
 ): Promise<Result<EventBusOrchestrator, AppError>> {
   const eventBus = new EventBusOrchestrator({
     redis: redisConfig,
-    logger: {
-      info: (data: Record<string, unknown>) => log.info(data),
-      error: (data: Record<string, unknown>) => log.error(data),
-    },
+    logger: toRegistryLogger(log),
     shutdownManager,
   });
   const busInitResult = await eventBus.init();
@@ -80,12 +88,7 @@ export function buildModuleRegistry(
     loadConfig: async (p: string) => import(pathToFileURL(p).href),
     listDir: async (p: string) => fs.readdir(p),
     isDirectory: async (p: string) => (await fs.stat(p)).isDirectory(),
-    logger: {
-      info: (data: Record<string, unknown>) => log.info(data),
-      warn: (data: Record<string, unknown>) => log.warn(data),
-      debug: (data: Record<string, unknown>) => log.debug(data),
-      error: (data: Record<string, unknown>) => log.error(data),
-    },
+    logger: toRegistryLogger(log),
   });
 
   // In production (Docker), packages are in node_modules/.pnpm
@@ -112,12 +115,7 @@ export function buildModuleRegistry(
         .access(p)
         .then(() => true)
         .catch(() => false),
-    logger: {
-      info: (data: Record<string, unknown>) => log.info(data),
-      warn: (data: Record<string, unknown>) => log.warn(data),
-      debug: (data: Record<string, unknown>) => log.debug(data),
-      error: (data: Record<string, unknown>) => log.error(data),
-    },
+    logger: toRegistryLogger(log),
   });
 
   return new ModuleRegistry({
@@ -129,11 +127,6 @@ export function buildModuleRegistry(
         return ok(undefined);
       },
     },
-    logger: {
-      info: (data: Record<string, unknown>) => log.info(data),
-      warn: (data: Record<string, unknown>) => log.warn(data),
-      debug: (data: Record<string, unknown>) => log.debug(data),
-      error: (data: Record<string, unknown>) => log.error(data),
-    },
+    logger: toRegistryLogger(log),
   });
 }
