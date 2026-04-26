@@ -114,7 +114,16 @@ describe('createErrorBoundary', () => {
 
     await boundary(botError as never);
 
-    expect(sentryReporter.reportWithReference).toHaveBeenCalledWith(error, 'ERR-20260405-ABCD');
+    // The error is converted to AppError before reporting
+    expect(sentryReporter.reportWithReference).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'bot-server.unhandled_error',
+        details: expect.objectContaining({
+          error: 'sentry test',
+        }),
+      }),
+      'ERR-20260405-ABCD',
+    );
   });
 
   it('skips Sentry when disabled', async () => {
