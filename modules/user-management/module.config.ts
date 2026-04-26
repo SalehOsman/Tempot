@@ -27,7 +27,7 @@ const config: ModuleConfig = {
   },
 
   requires: {
-    packages: ['@tempot/database', '@tempot/auth-core'],
+    packages: ['@tempot/database', '@tempot/auth-core', '@tempot/national-id-parser'],
     optional: ['@tempot/input-engine', '@tempot/regional-engine'],
   },
 };

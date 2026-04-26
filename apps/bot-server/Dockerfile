@@ -108,12 +108,9 @@ COPY --from=builder /app/apps/bot-server/dist ./dist
 # Copy dependencies from pnpm deploy
 COPY --from=builder /app/out/node_modules ./node_modules
 
-# Copy module dependencies from builder (required for user-management module)
-# These are peer dependencies of modules but not direct deps of bot-server
-COPY --from=builder /app/node_modules/.pnpm/@tempot+database* ./node_modules/.pnpm/
-COPY --from=builder /app/node_modules/.pnpm/@tempot+auth-core* ./node_modules/.pnpm/
-COPY --from=builder /app/node_modules/.pnpm/@tempot+regional-engine* ./node_modules/.pnpm/
-COPY --from=builder /app/node_modules/.pnpm/@tempot+input-engine* ./node_modules/.pnpm/
+# Copy all @tempot/* packages — modules declare their needs in module.config.ts requires
+# This wildcard handles any current or future @tempot package automatically
+COPY --from=builder /app/node_modules/.pnpm/@tempot+* ./node_modules/.pnpm/
 
 # Copy Prisma schema files (needed for runtime database operations)
 COPY --from=builder /app/packages/database/prisma ./prisma-schemas/database/
