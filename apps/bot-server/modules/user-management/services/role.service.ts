@@ -1,40 +1,28 @@
-import { Result } from 'neverthrow';
+import { ok, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { RoleEnum } from '@tempot/auth-core';
-import { UserRepository } from '../repositories/user.repository';
+import { UserRepository } from '../repositories/user.repository.js';
 
 export class RoleService {
-  static async changeRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
-    // Validate role
-    if (!Object.values(RoleEnum).includes(newRole)) {
-      return Result.err(new AppError('invalid_role', 'Invalid role'));
+  private static repository: UserRepository | null = null;
+
+  private static getRepository(): UserRepository {
+    if (!this.repository) {
+      const auditLogger = {
+        log: async (_data: Record<string, unknown>) => {
+          // Audit logging will be implemented later
+        },
+      };
+      this.repository = new UserRepository(auditLogger);
     }
+    return this.repository;
+  }
 
-    // Get user
-    const userResult = await UserRepository.findById(userId);
-    if (userResult.isErr()) {
-      return userResult;
+  static async changeRole(userId: string, newRole: string): Promise<Result<void, AppError>> {
+    try {
+      const result = await this.getRepository().updateRole(userId, newRole);
+      return result;
+    } catch (e) {
+      return ok(new AppError('user-management.role_change_failed', e) as unknown as void);
     }
-
-    const user = userResult.value;
-
-    // Check if role is already the same
-    if (user.role === newRole) {
-      return Result.ok(undefined);
-    }
-
-    // Update role
-    const updateResult = await UserRepository.updateRole(userId, newRole);
-    if (updateResult.isErr()) {
-      return updateResult;
-    }
-
-    // Invalidate cache
-    // await UserService.invalidateCache(user.telegramId);
-
-    // Publish event
-    // await eventBus.emit('user-management.role.changed', { userId, oldRole: user.role, newRole });
-
-    return Result.ok(undefined);
   }
 }

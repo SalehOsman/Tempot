@@ -3,26 +3,34 @@ import { defineAbility } from '@casl/ability';
 import { RoleEnum } from '@tempot/auth-core';
 
 export const userManagementConfig: ModuleConfig = {
-  id: 'user-management',
   name: 'User Management',
   version: '1.0.0',
-  description: 'User profile management and administration via Inline Keyboards',
+  requiredRole: 'USER',
 
   features: {
+    hasDatabase: true,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasImport: false,
+    hasAI: false,
     hasInputEngine: true,
     hasSearch: false,
-    hasAI: false,
+    hasDynamicCMS: false,
+    hasRegional: true,
   },
 
-  commands: ['start', 'profile', 'users'],
+  commands: [
+    { command: 'start', description: 'Show main menu' },
+    { command: 'profile', description: 'View profile' },
+    { command: 'users', description: 'Manage users' },
+  ],
 
-  callbacks: ['profile:*', 'users:*', 'menu:*', 'settings:*'],
-
-  permissions: {
-    'users:manage': ['ADMIN', 'SUPER_ADMIN'],
-    'users:view': ['ADMIN', 'SUPER_ADMIN'],
-    'profile:edit': ['USER', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'],
-    'profile:view': ['GUEST', 'USER', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'],
+  isActive: true,
+  isCore: false,
+  requires: {
+    packages: ['@tempot/database', '@tempot/auth-core'],
+    optional: ['@tempot/input-engine', '@tempot/regional-engine'],
   },
 };
 
@@ -36,14 +44,6 @@ export const userManagementAbilities = (user: { id: string; role: RoleEnum }) =>
     if (user.role === RoleEnum.ADMIN) {
       can('manage', 'users');
       can('read', 'all');
-      return;
-    }
-
-    if (user.role === RoleEnum.MODERATOR) {
-      can('read', 'users');
-      can('update', 'users');
-      can('read', 'own');
-      can('update', 'own');
       return;
     }
 

@@ -1,11 +1,11 @@
 import { Bot } from 'grammy';
-import { userManagementConfig } from './module.config';
-import { userManagementAbilities } from './abilities';
-import { startCommand } from './commands/start.command';
-import { profileCommand } from './commands/profile.command';
-import { usersCommand } from './commands/users.command';
-import { handleCallbackQuery } from './handlers/callback.handler';
-import { handleTextInput } from './handlers/text.handler';
+import { userManagementConfig } from './module.config.js';
+import { userManagementAbilities } from './abilities.js';
+import { startCommand } from './commands/start.command.js';
+import { profileCommand } from './commands/profile.command.js';
+import { usersCommand } from './commands/users.command.js';
+import { handleCallbackQuery } from './handlers/callback.handler.js';
+import { handleTextInput } from './handlers/text.handler.js';
 
 export class UserManagementModule {
   constructor(private bot: Bot) {

@@ -27,14 +27,6 @@ export const userManagementAbilities: AbilityDefinition = (user: SessionUser) =>
     return build();
   }
 
-  if (user.role === RoleEnum.MODERATOR) {
-    can('read', 'users');
-    can('update', 'users');
-    can('read', 'own');
-    can('update', 'own');
-    return build();
-  }
-
   if (user.role === RoleEnum.USER) {
     can('read', 'own');
     can('update', 'own');
