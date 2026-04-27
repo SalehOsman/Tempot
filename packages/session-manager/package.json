@@ -24,7 +24,7 @@
     "@prisma/client": "^7.8.0",
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
-    "bullmq": "5.71.0",
+    "bullmq": "5.76.2",
     "neverthrow": "8.2.0"
   },
   "devDependencies": {
