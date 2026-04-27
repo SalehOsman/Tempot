@@ -32,6 +32,11 @@ pnpm --filter @tempot/docs build      # Build for production
 pnpm --filter @tempot/docs preview    # Preview production build
 ```
 
+`build` removes the generated API reference directory before running Astro so
+TypeDoc pages are recreated without duplicate Starlight IDs. Set `DOCS_SITE` to
+the deployed documentation URL when building outside the default GitHub Pages
+target.
+
 ## Status
 
 ✅ **Implemented** — Phase 2

@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { createStarlightTypeDocPlugin } from 'starlight-typedoc';
+import process from 'node:process';
 
 /** Packages with public exports that need TypeDoc-generated API reference pages */
 const typedocPackages = [
@@ -21,6 +22,8 @@ const typedocPackages = [
   'sentry',
 ];
 
+const site = process.env.DOCS_SITE ?? 'https://salehosman.github.io/Tempot';
+
 /**
  * Create a [plugin, sidebarGroup] tuple for each package.
  * Each plugin outputs to `reference/{name}/` and has its own sidebar section.
@@ -40,6 +43,7 @@ const packagePlugins = typedocPackages.map((name) => {
 });
 
 export default defineConfig({
+  site,
   integrations: [
     starlight({
       title: 'Tempot Documentation',
