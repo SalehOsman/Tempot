@@ -1,63 +1,79 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { profileCommand } from '../../commands/profile.command.js';
-import { UserService } from '../../services/user.service.js';
+import type { Context } from 'grammy';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { registerDeps } from '../../deps.context.js';
 import { ProfileMenuFactory } from '../../menus/profile-menu.factory.js';
-import { Context } from 'grammy';
+import { getUserService } from '../../services/user-service.context.js';
+import { profileCommand } from '../../commands/profile.command.js';
 
-// Mock UserService
-vi.mock('../../services/user.service.js', () => ({
-  UserService: {
-    getByTelegramId: vi.fn(),
-  },
+vi.mock('../../services/user-service.context.js', () => ({
+  getUserService: vi.fn(),
 }));
 
-// Mock ProfileMenuFactory
 vi.mock('../../menus/profile-menu.factory.js', () => ({
   ProfileMenuFactory: {
     createView: vi.fn(),
   },
 }));
 
+function createLogger() {
+  const logger = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn(),
+  };
+  logger.child.mockReturnValue(logger);
+  return logger;
+}
+
+function createContext(from: Context['from'] | null = { id: 123456789, first_name: 'Test User' }) {
+  return {
+    from,
+    reply: vi.fn(),
+  } as unknown as Context;
+}
+
 describe('profileCommand', () => {
-  let mockCtx: Context;
+  const t = vi.fn((key: string, options?: Record<string, unknown>) =>
+    options?.['username'] ? `${key}:${String(options['username'])}` : key,
+  );
 
   beforeEach(() => {
-    mockCtx = {
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
     vi.clearAllMocks();
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t },
+      eventBus: { publish: vi.fn() },
+      sessionProvider: { getSession: vi.fn() },
+      settings: { get: vi.fn() },
+      config: {} as never,
+    });
   });
 
-  it('should reply with error if user is not identified', async () => {
-    mockCtx = {
-      from: undefined,
-      reply: vi.fn(),
-    } as unknown as Context;
+  it('should reply with an i18n error when user is not identified', async () => {
+    const ctx = createContext(null);
 
-    await profileCommand(mockCtx);
+    await profileCommand(ctx);
 
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ Error: Could not identify user');
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.errors.no_user');
   });
 
-  it('should reply with error if user profile does not exist', async () => {
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => true,
-      value: undefined,
+  it('should reply with profile not found when profile does not exist', async () => {
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => true,
+        error: { code: 'USER_NOT_FOUND' },
+      }),
     } as never);
+    const ctx = createContext();
 
-    await profileCommand(mockCtx);
+    await profileCommand(ctx);
 
-    expect(UserService.getByTelegramId).toHaveBeenCalledWith('123456789');
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ الملف الشخصي غير موجود');
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.profile.not_found');
   });
 
-  it('should reply with profile message and menu if user exists', async () => {
+  it('should reply with profile message and menu when user exists', async () => {
     const mockUser = {
       id: '1',
       username: 'testuser',
@@ -68,39 +84,22 @@ describe('profileCommand', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    const mockKeyboard = {
-      text: vi.fn(),
-      row: vi.fn(),
-    };
-
-    vi.mocked(ProfileMenuFactory.createView).mockReturnValue(mockKeyboard as never);
-
-    await profileCommand(mockCtx);
-
-    expect(UserService.getByTelegramId).toHaveBeenCalledWith('123456789');
-    expect(ProfileMenuFactory.createView).toHaveBeenCalledWith(mockUser);
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('👤 ملفك الشخصي'),
-      expect.objectContaining({
-        parse_mode: 'HTML',
-        reply_markup: mockKeyboard,
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
       }),
-    );
-  });
+    } as never);
+    const keyboard = { inline_keyboard: [] };
+    vi.mocked(ProfileMenuFactory.createView).mockReturnValue(keyboard as never);
+    const ctx = createContext();
 
-  it('should reply with error message on exception', async () => {
-    vi.mocked(UserService.getByTelegramId).mockRejectedValue(new Error('Database error'));
+    await profileCommand(ctx);
 
-    await profileCommand(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      '❌ حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.',
-    );
+    expect(ProfileMenuFactory.createView).toHaveBeenCalledWith(mockUser);
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.profile.view_message:testuser', {
+      parse_mode: 'HTML',
+      reply_markup: keyboard,
+    });
   });
 });

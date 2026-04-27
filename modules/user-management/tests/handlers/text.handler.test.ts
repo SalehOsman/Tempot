@@ -1,88 +1,109 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleTextInput, setUserState } from '../../handlers/text.handler.js';
-import { UserService } from '../../services/user.service.js';
-import { Context } from 'grammy';
+import type { Context } from 'grammy';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { registerDeps } from '../../deps.context.js';
+import { handleTextInput } from '../../handlers/text.handler.js';
+import { handleEditName } from '../../handlers/text.editors.js';
+import { clearUserInputState, getUserInputState } from '../../handlers/user-state.service.js';
+import { getUserService } from '../../services/user-service.context.js';
 
-// Mock UserService
-vi.mock('../../services/user.service.js', () => ({
-  UserService: {
-    getByTelegramId: vi.fn(),
-    updateUsername: vi.fn(),
-    updateEmail: vi.fn(),
-    updateLanguage: vi.fn(),
-  },
+vi.mock('../../services/user-service.context.js', () => ({
+  getUserService: vi.fn(),
 }));
 
+vi.mock('../../handlers/user-state.service.js', () => ({
+  getUserInputState: vi.fn(),
+  clearUserInputState: vi.fn(),
+}));
+
+vi.mock('../../handlers/text.editors.js', () => ({
+  handleEditName: vi.fn(),
+  handleEditEmail: vi.fn(),
+  handleEditLanguage: vi.fn(),
+  handleEditRole: vi.fn(),
+}));
+
+vi.mock('../../handlers/text-egyptian.editors.js', () => ({
+  handleEditNationalId: vi.fn(),
+  handleEditMobile: vi.fn(),
+  handleEditBirthDate: vi.fn(),
+  handleEditGender: vi.fn(),
+  handleEditGovernorate: vi.fn(),
+  handleEditCountryCode: vi.fn(),
+}));
+
+function createLogger() {
+  const logger = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn(),
+  };
+  logger.child.mockReturnValue(logger);
+  return logger;
+}
+
+function createContext(text = 'test input', from: Context['from'] = { id: 123456789 }) {
+  return {
+    message: text === '' ? { text: '' } : { text },
+    from,
+    chat: { id: 987654321 },
+    reply: vi.fn(),
+  } as unknown as Context;
+}
+
 describe('handleTextInput', () => {
-  let mockCtx: Context;
-
   beforeEach(() => {
-    mockCtx = {
-      message: {
-        text: 'test input',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
     vi.clearAllMocks();
-    // Clear user states
-    setUserState('123456789', null);
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t: vi.fn((key: string) => key) },
+      eventBus: { publish: vi.fn() },
+      sessionProvider: { getSession: vi.fn() },
+      settings: { get: vi.fn() },
+      config: {} as never,
+    });
   });
 
-  it('should reply with error if message is invalid', async () => {
-    mockCtx = {
+  it('should ignore invalid messages', async () => {
+    const ctx = {
       message: undefined,
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
+      from: { id: 123456789 },
       reply: vi.fn(),
     } as unknown as Context;
 
-    await handleTextInput(mockCtx);
+    await handleTextInput(ctx);
 
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ Error: Invalid message');
+    expect(ctx.reply).not.toHaveBeenCalled();
+    expect(getUserInputState).not.toHaveBeenCalled();
   });
 
-  it('should reply with error if user is not identified', async () => {
-    mockCtx = {
-      message: {
-        text: 'test input',
-      },
-      from: undefined,
-      reply: vi.fn(),
-    } as unknown as Context;
+  it('should ignore messages when no pending state exists', async () => {
+    vi.mocked(getUserInputState).mockResolvedValue(null);
+    const ctx = createContext();
 
-    await handleTextInput(mockCtx);
+    await handleTextInput(ctx);
 
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ Error: Could not identify user');
+    expect(ctx.reply).not.toHaveBeenCalled();
+    expect(getUserInputState).toHaveBeenCalledWith('123456789', '987654321');
   });
 
-  it('should reply with error if no active state', async () => {
-    await handleTextInput(mockCtx);
+  it('should reply with profile not found when user lookup fails', async () => {
+    vi.mocked(getUserInputState).mockResolvedValue({ action: 'edit_name', timestamp: Date.now() });
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => true,
+      }),
+    } as never);
+    const ctx = createContext();
 
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      '❌ لا يوجد إجراء نشط. يرجى استخدام الأزرار للتنقل.',
-    );
+    await handleTextInput(ctx);
+
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.profile.not_found');
+    expect(clearUserInputState).not.toHaveBeenCalled();
   });
 
-  it('should reply with error if state is expired', async () => {
-    setUserState('123456789', 'edit_name');
-    // Wait 6 minutes
-    await new Promise((resolve) => setTimeout(resolve, 6 * 60 * 1000));
-
-    await handleTextInput(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith('⏱️ انتهت صلاحية الإجراء. يرجى المحاولة مرة أخرى.');
-  });
-
-  it('should update name successfully', async () => {
+  it('should dispatch edit action and clear pending state', async () => {
     const mockUser = {
       id: '1',
       username: 'testuser',
@@ -93,246 +114,18 @@ describe('handleTextInput', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
+    vi.mocked(getUserInputState).mockResolvedValue({ action: 'edit_name', timestamp: Date.now() });
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
+      }),
     } as never);
+    const ctx = createContext('New Name');
 
-    vi.mocked(UserService.updateUsername).mockResolvedValue({
-      isErr: () => false,
-      value: undefined,
-    } as never);
+    await handleTextInput(ctx);
 
-    setUserState('123456789', 'edit_name');
-
-    await handleTextInput(mockCtx);
-
-    expect(UserService.updateUsername).toHaveBeenCalledWith('1', 'test input');
-    expect(mockCtx.reply).toHaveBeenCalledWith(expect.stringContaining('✅ تم تحديث الاسم بنجاح!'));
-  });
-
-  it('should reject empty name', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    setUserState('123456789', 'edit_name');
-    mockCtx = {
-      message: {
-        text: '',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ الاسم لا يمكن أن يكون فارغاً');
-  });
-
-  it('should reject name that is too long', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    setUserState('123456789', 'edit_name');
-    mockCtx = {
-      message: {
-        text: 'a'.repeat(51),
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ الاسم طويل جداً (حد أقصى 50 حرف)');
-  });
-
-  it('should update email successfully', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    vi.mocked(UserService.updateEmail).mockResolvedValue({
-      isErr: () => false,
-      value: undefined,
-    } as never);
-
-    setUserState('123456789', 'edit_email');
-    mockCtx = {
-      message: {
-        text: 'newemail@example.com',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(UserService.updateEmail).toHaveBeenCalledWith('1', 'newemail@example.com');
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('✅ تم تحديث البريد الإلكتروني بنجاح!'),
-    );
-  });
-
-  it('should reject invalid email', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    setUserState('123456789', 'edit_email');
-    mockCtx = {
-      message: {
-        text: 'invalid-email',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ البريد الإلكتروني غير صالح');
-  });
-
-  it('should update language successfully', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    vi.mocked(UserService.updateLanguage).mockResolvedValue({
-      isErr: () => false,
-      value: undefined,
-    } as never);
-
-    setUserState('123456789', 'edit_language');
-    mockCtx = {
-      message: {
-        text: 'en',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(UserService.updateLanguage).toHaveBeenCalledWith('1', 'en');
-    expect(mockCtx.reply).toHaveBeenCalledWith(expect.stringContaining('✅ تم تحديث اللغة بنجاح!'));
-  });
-
-  it('should reject invalid language', async () => {
-    const mockUser = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      language: 'ar',
-      role: 'USER',
-      telegramId: '123456789',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    setUserState('123456789', 'edit_language');
-    mockCtx = {
-      message: {
-        text: 'fr',
-      },
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
-    await handleTextInput(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ اللغة غير صالحة. اللغات المتاحة: ar, en');
+    expect(handleEditName).toHaveBeenCalledWith(ctx, mockUser, 'New Name');
+    expect(clearUserInputState).toHaveBeenCalledWith('123456789', '987654321');
   });
 });

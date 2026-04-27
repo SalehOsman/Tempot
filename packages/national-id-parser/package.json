@@ -2,7 +2,7 @@
   "name": "@tempot/national-id-parser",
   "version": "0.1.0",
   "type": "module",
-  "description": "استخراج والتحقق من البيانات من الرقم القومي المصري",
+  "description": "Egyptian national ID parsing and validation helpers",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -32,8 +32,7 @@
   "author": "Tempot Team",
   "license": "MIT",
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
   }
 }

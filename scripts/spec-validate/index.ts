@@ -14,10 +14,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as process from 'node:process';
+import { pathToFileURL } from 'node:url';
 
 import type { PackageReport } from './types.js';
-import { SPECS_DIR } from './types.js';
-import { stderr } from './file-reader.js';
+import { PROJECT_ROOT, SPECS_DIR } from './types.js';
+import { specDirToPackageName, stderr } from './file-reader.js';
 import {
   checkArtifactExistence,
   checkErrorCodeParity,
@@ -27,7 +28,7 @@ import {
   checkScCoverage,
 } from './checks.js';
 
-function validatePackage(specDir: string): PackageReport {
+export function validatePackage(specDir: string): PackageReport {
   const checks = [
     checkArtifactExistence(specDir),
     checkFrCoverage(specDir),
@@ -65,16 +66,34 @@ function formatHumanReadable(report: PackageReport): string {
   return lines.join('\n') + '\n';
 }
 
-function discoverSpecDirs(): string[] {
+export function discoverSpecDirs(): string[] {
   if (!fs.existsSync(SPECS_DIR)) return [];
+  const deferredPackages = readRoadmapDeferredPackages();
   return fs
     .readdirSync(SPECS_DIR, { withFileTypes: true })
     .filter((e) => e.isDirectory() && /^\d{3}-/.test(e.name))
+    .filter((e) => !deferredPackages.has(specDirToPackageName(e.name)))
     .map((e) => e.name)
     .sort();
 }
 
-function computeExitCode(reports: PackageReport[]): number {
+function readRoadmapDeferredPackages(): Set<string> {
+  const roadmapPath = path.join(PROJECT_ROOT, 'docs', 'archive', 'ROADMAP.md');
+  const deferredPackages = new Set<string>();
+  if (!fs.existsSync(roadmapPath)) return deferredPackages;
+
+  const roadmap = fs.readFileSync(roadmapPath, 'utf8');
+  for (const line of roadmap.split('\n')) {
+    const row = line.match(/^\|\s*\d+\s*\|\s*([^|]+?)\s*\|.*\|\s*([^|]*Not started[^|]*)\|/i);
+    if (row?.[1] !== undefined) {
+      deferredPackages.add(row[1].trim());
+    }
+  }
+
+  return deferredPackages;
+}
+
+export function computeExitCode(reports: PackageReport[]): number {
   const hasCritical = reports.some((r) => r.summary.critical > 0);
   if (hasCritical) return 2;
   const hasWarnings = reports.some((r) => r.summary.high > 0 || r.summary.medium > 0);
@@ -130,4 +149,6 @@ function main(): void {
   process.exit(computeExitCode(reports));
 }
 
-main();
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

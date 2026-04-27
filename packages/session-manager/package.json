@@ -21,18 +21,18 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@prisma/client": "^7.5.0",
+    "@prisma/client": "^7.8.0",
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
     "bullmq": "5.71.0",
     "neverthrow": "8.2.0"
   },
   "devDependencies": {
-    "vitest": "4.1.0",
-    "typescript": "5.9.3",
-    "@testcontainers/redis": "11.13.0",
+    "@testcontainers/redis": "11.14.0",
     "@types/node": "^20.0.0",
-    "ioredis": "5.10.1"
+    "ioredis": "5.10.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
   },
   "files": [
     "dist"

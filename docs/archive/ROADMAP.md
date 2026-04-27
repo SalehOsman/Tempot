@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-25 (Fixed Prisma Studio connection issue)
+> Last updated: 2026-04-27 (Reconciled Phase 3 user-management status and spec validation)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -24,7 +24,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Archi
 | --- | --------------- | ---- | ------- | ---- | ------- | ----- | ------ | -------- | --------- | ------- | ------ | ----- | --------------------------------------- |
 | 1   | shared          | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps (pre-methodology)           |
 | 2   | logger          | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
-| 3   | database        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ✅\*    | ✅     | ✅    | ✅ Complete (PENDING-DOCKER int. tests) |
+| 3   | database        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ✅\*    | ✅     | ✅    | ✅ Complete                             |
 | 4   | event-bus       | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
 | 5   | auth-core       | ✅   | ⚠️      | ✅   | ❌      | ❌    | ✅     | ❌       | ✅        | ✅\*    | ❌     | ✅\*  | Built, gaps                             |
 | 6   | session-manager | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
@@ -70,7 +70,7 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Archi
 2. ~~Phase 2B: bot-server reconstruction~~ — ✅ Complete (131 tests, merged to main)
 3. ~~Phase 2C: Application wiring~~ — ✅ Complete (deps.factory.ts, all stubs replaced, merged 2026-04-06)
 4. ~~Phase 2D: Integration testing~~ — ✅ Complete (Validate module-registry + bot-server work together end-to-end)
-5. Phase 3: First test module (person-registration)
+5. ~~Phase 3: First business module~~ — ✅ `user-management` implemented (spec #025)
 
 ## Phase 2 — Module Infrastructure
 
@@ -86,7 +86,13 @@ Planned scope:
 
 ## Phase 3 — Business Modules
 
-Not started. Depends on Phase 2.
+Started. The first business module has been implemented on main.
+
+| #   | Module          | Spec | Status                                      |
+| --- | --------------- | ---- | ------------------------------------------- |
+| 1   | user-management | #025 | ✅ Implemented; governance hardening active |
+
+Next Phase 3 focus: stabilize user-management documentation, package checklist compliance, i18n-only enforcement, and performance benchmark coverage before starting the next business module.
 
 ## Phase 4 — Additional Frontends
 

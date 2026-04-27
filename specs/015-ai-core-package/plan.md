@@ -1312,7 +1312,7 @@ export class RAGPipeline {
 
 ### FR Covered: FR-003, D3, Edge Cases (Module Tool Versioning)
 
-### File: `src/tools/tool-registry.ts`
+### File: `src/tools/tool.registry.ts`
 
 In-memory tool registry. Tools discovered via event bus subscription.
 
@@ -1374,14 +1374,14 @@ export class ToolRegistry {
 
 ### FR Covered: FR-004, D4, SC-005
 
-### File: `src/tools/casl-tool-filter.ts`
+### File: `src/tools/casl-tool.filter.ts`
 
 Filters registered tools based on user's CASL abilities before passing to the AI model.
 
 ```typescript
 import type { AITool } from '../ai-core.types.js';
 import type { AIAbilityChecker } from '../ai-core.contracts.js';
-import type { ToolRegistry } from './tool-registry.js';
+import type { ToolRegistry } from './tool.registry.js';
 
 export class CASLToolFilter {
   constructor(private readonly toolRegistry: ToolRegistry) {}
@@ -1406,7 +1406,7 @@ export class CASLToolFilter {
 
 ### FR Covered: FR-012, D1
 
-### File: `src/prompts/role-system-prompts.ts`
+### File: `src/prompts/role-system.prompts.ts`
 
 Per-role system prompts managed via i18n. Constrains the model to bot-related tasks only.
 
@@ -1556,7 +1556,7 @@ export class ConfirmationEngine {
 
 ### FR Covered: FR-006, D8, Edge Cases (Failed Intent / Ambiguous Query)
 
-### File: `src/router/intent-router.ts`
+### File: `src/router/intent.router.ts`
 
 Uses AI SDK v6 tool calling and multi-step agent loops for intent routing.
 
@@ -1567,7 +1567,7 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { AITool } from '../ai-core.types.js';
 import type { ResilienceService } from '../resilience/resilience.service.js';
-import type { CASLToolFilter } from '../tools/casl-tool-filter.js';
+import type { CASLToolFilter } from '../tools/casl-tool.filter.js';
 import type { ConfirmationEngine } from '../confirmation/confirmation.engine.js';
 import type { RAGPipeline, RAGContext } from '../rag/rag-pipeline.service.js';
 import type { AuditService } from '../audit/audit.service.js';
@@ -1832,13 +1832,13 @@ export class ConversationMemory {
 
 ### FR Covered: FR-014, Edge Cases (Failed Intent / Ambiguous Query)
 
-### File: `src/suggestions/alternative-suggestions.ts`
+### File: `src/suggestions/alternative.suggestions.ts`
 
 Generates "هل تقصد...؟" suggestions when intent cannot be resolved.
 
 ```typescript
 import type { AITool } from '../ai-core.types.js';
-import type { ToolRegistry } from '../tools/tool-registry.js';
+import type { ToolRegistry } from '../tools/tool.registry.js';
 
 export class AlternativeSuggestions {
   constructor(private readonly toolRegistry: ToolRegistry) {}
@@ -1873,7 +1873,7 @@ export class AlternativeSuggestions {
 
 ### FR Covered: FR-015, D2, Edge Cases (Concurrent AI Sessions)
 
-### File: `src/ui/telegram-assistant-ui.ts`
+### File: `src/ui/telegram-assistant.ui.ts`
 
 Provides `/ai` command and inline button. Uses grammY conversation for multi-turn interaction.
 
@@ -1883,7 +1883,7 @@ Provides `/ai` command and inline button. Uses grammY conversation for multi-tur
 // This file orchestrates the AI conversation flow in Telegram
 // It depends on grammY's conversation API and @tempot/session-manager
 
-import type { IntentRouter } from '../router/intent-router.js';
+import type { IntentRouter } from '../router/intent.router.js';
 import type { RateLimiterService } from '../rate-limiter/rate-limiter.service.js';
 import type { ConversationMemory } from '../memory/conversation-memory.service.js';
 import type { ConfirmationEngine } from '../confirmation/confirmation.engine.js';
@@ -1908,8 +1908,8 @@ export interface TelegramAssistantDeps {
 
 ### Files
 
-- `src/cli/dev-assistant.ts` — `pnpm ai:dev "question"` handler
-- `src/cli/module-reviewer.ts` — `pnpm ai:review --module {name}` handler
+- `src/cli/dev.assistant.ts` — `pnpm ai:dev "question"` handler
+- `src/cli/module.reviewer.ts` — `pnpm ai:review --module {name}` handler
 
 > **Implementation Note**: CLI tools reuse `AIProviderFactory`, `EmbeddingService`, and `RAGPipeline` but run outside the Telegram context. They read `developer-docs` content from the vector store. Exact CLI integration depends on the project's script runner configuration.
 
@@ -2034,12 +2034,12 @@ export function guardEnabled<T>(
 | `ai-cache.middleware.test.ts`       | Cache hit/miss, key computation, TTL expiry                         | Cached result returned on hit, doGenerate called on miss          |
 | `content-ingestion.service.test.ts` | Chunking, PII sanitization, embed + store flow                      | Correct chunks, PII replaced, events emitted                      |
 | `rag-pipeline.service.test.ts`      | Content type filtering, confidence threshold, user-memory isolation | Only allowed types returned, below-threshold excluded             |
-| `tool-registry.test.ts`             | Register, get, update version, event-driven discovery               | Tools stored, version updates logged, event handler works         |
-| `casl-tool-filter.test.ts`          | Filter by CASL abilities                                            | Only permitted tools returned                                     |
+| `tool.registry.test.ts`             | Register, get, update version, event-driven discovery               | Tools stored, version updates logged, event handler works         |
+| `casl-tool.filter.test.ts`          | Filter by CASL abilities                                            | Only permitted tools returned                                     |
 | `confirmation.engine.test.ts`       | Create, confirm, cancel, expiry, escalated code                     | Expired returns err, wrong code rejected, TTL enforced            |
-| `intent-router.test.ts`             | Message routing, tool calling, RAG integration, error handling      | Model called with filtered tools + RAG context                    |
+| `intent.router.test.ts`             | Message routing, tool calling, RAG integration, error handling      | Model called with filtered tools + RAG context                    |
 | `conversation-memory.test.ts`       | Summarize + store, retrieve past context, user isolation            | Summary embedded, user memories only returned                     |
-| `alternative-suggestions.test.ts`   | Keyword matching, max suggestions, empty results                    | Correct suggestions returned, max enforced                        |
+| `alternative.suggestions.test.ts`   | Keyword matching, max suggestions, empty results                    | Correct suggestions returned, max enforced                        |
 
 ### Integration Tests (deferred)
 

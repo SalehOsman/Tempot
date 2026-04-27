@@ -1,47 +1,47 @@
 # User Management Module
 
-> إدارة المستخدمين والملفات الشخصية
+Profile and administrator user-management workflows for Tempot.
 
 ## Purpose
 
-إدارة المستخدمين والملفات الشخصية عبر واجهة سهلة تعتمد على الأزرار.
+The module provides inline-keyboard-first profile management, administrator user search, and role management. Commands remain available as shortcuts, but the primary UX surface is button-driven navigation.
 
 ## Features
 
-- ✅ عرض الملف الشخصي
-- ✅ تعديل الملف الشخصي
-- ✅ إدارة المستخدمين (للمسؤولين)
-- ✅ تغيير الأدوار (للمسؤولين)
-- ✅ البحث عن المستخدمين (للمسؤولين)
+- Profile viewing
+- Profile editing
+- Administrator user management
+- Role changes with authorization checks
+- User search for administrators
 
 ## UI/UX
 
-- **Primary**: Inline Keyboards (90%)
-- **Secondary**: Commands (10%)
-- **Navigation**: Hierarchical menu system with back buttons
+- **Primary**: Inline Keyboards
+- **Secondary**: command shortcuts
+- **Navigation**: hierarchical menu screens with back actions
 
 ## Commands
 
 | Command | Description | Access |
-|---------|-------------|--------|
-| `/start` | عرض القائمة الرئيسية | All |
-| `/profile` | اختصار للملف الشخصي | All |
-| `/users` | اختصار لإدارة المستخدمين | Admin+ |
+| ------- | ----------- | ------ |
+| `/start` | Show the main menu | All users |
+| `/profile` | Open the profile shortcut | All users |
+| `/users` | Open user management | Admin and above |
 
 ## Dependencies
 
 | Package | Purpose |
-|---------|---------|
-| @tempot/session-manager | Session management |
-| @tempot/database | User repository |
-| @tempot/event-bus | Event publishing |
-| @tempot/i18n-core | Translations |
-| @tempot/shared | Result pattern, AppError |
-| @tempot/ux-helpers | Inline keyboards, status messages |
-| @tempot/regional-engine | Date/number formatting |
-| @tempot/input-engine | Dynamic forms |
-| @tempot/auth-core | Authorization |
+| ------- | ------- |
+| `@tempot/session-manager` | Session management |
+| `@tempot/database` | User repositories |
+| `@tempot/event-bus` | Event publishing |
+| `@tempot/i18n-core` | Translations |
+| `@tempot/shared` | Result pattern and application errors |
+| `@tempot/ux-helpers` | Inline keyboards and status messages |
+| `@tempot/regional-engine` | Regional formatting |
+| `@tempot/input-engine` | Dynamic forms |
+| `@tempot/auth-core` | Authorization |
 
 ## Status
 
-✅ **Implemented** — Phase 1
+Implemented. Current hardening focus: package checklist compliance, documentation parity, and benchmark coverage.

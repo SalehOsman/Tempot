@@ -22,7 +22,7 @@
     "neverthrow": "8.2.0"
   },
   "devDependencies": {
-    "@testcontainers/redis": "^10.0.0",
+    "@testcontainers/redis": "^11.14.0",
     "@types/node": "^20.19.37",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

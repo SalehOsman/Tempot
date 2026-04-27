@@ -1,65 +1,81 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { startCommand } from '../../commands/start.command.js';
-import { UserService } from '../../services/user.service.js';
+import type { Context } from 'grammy';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { registerDeps } from '../../deps.context.js';
 import { MainMenuFactory } from '../../menus/main-menu.factory.js';
-import { Context } from 'grammy';
+import { getUserService } from '../../services/user-service.context.js';
+import { startCommand } from '../../commands/start.command.js';
 
-// Mock UserService
-vi.mock('../../services/user.service.js', () => ({
-  UserService: {
-    getByTelegramId: vi.fn(),
-  },
+vi.mock('../../services/user-service.context.js', () => ({
+  getUserService: vi.fn(),
 }));
 
-// Mock MainMenuFactory
 vi.mock('../../menus/main-menu.factory.js', () => ({
   MainMenuFactory: {
     create: vi.fn(),
   },
 }));
 
+function createLogger() {
+  const logger = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn(),
+  };
+  logger.child.mockReturnValue(logger);
+  return logger;
+}
+
+function createContext(from: Context['from'] | null = { id: 123456789, first_name: 'Test User' }) {
+  return {
+    from,
+    reply: vi.fn(),
+  } as unknown as Context;
+}
+
 describe('startCommand', () => {
-  let mockCtx: Context;
+  const publish = vi.fn();
+  const t = vi.fn((key: string, options?: Record<string, unknown>) =>
+    options?.['name'] ? `${key}:${String(options['name'])}` : key,
+  );
 
   beforeEach(() => {
-    mockCtx = {
-      from: {
-        id: 123456789,
-        first_name: 'Test User',
-        username: 'testuser',
-      },
-      reply: vi.fn(),
-    } as unknown as Context;
-
     vi.clearAllMocks();
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t },
+      eventBus: { publish },
+      sessionProvider: { getSession: vi.fn() },
+      settings: { get: vi.fn() },
+      config: {} as never,
+    });
+    publish.mockResolvedValue({ isOk: () => true });
   });
 
-  it('should reply with error if user is not identified', async () => {
-    mockCtx = {
-      from: undefined,
-      reply: vi.fn(),
-    } as unknown as Context;
+  it('should reply with an i18n error when user is not identified', async () => {
+    const ctx = createContext(null);
 
-    await startCommand(mockCtx);
+    await startCommand(ctx);
 
-    expect(mockCtx.reply).toHaveBeenCalledWith('❌ Error: Could not identify user');
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.errors.no_user');
   });
 
-  it('should reply with registration message if user does not exist', async () => {
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => true,
-      value: undefined,
+  it('should reply with registration prompt when user does not exist', async () => {
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => true,
+        error: { code: 'USER_NOT_FOUND' },
+      }),
     } as never);
+    const ctx = createContext();
 
-    await startCommand(mockCtx);
+    await startCommand(ctx);
 
-    expect(UserService.getByTelegramId).toHaveBeenCalledWith('123456789');
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      '👋 مرحباً بك في Tempot\n\n⚠️ يرجى التسجيل أولاً باستخدام /register',
-    );
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.errors.register_first');
   });
 
-  it('should reply with welcome message and menu if user exists', async () => {
+  it('should reply with welcome message and menu when user exists', async () => {
     const mockUser = {
       id: '1',
       username: 'testuser',
@@ -70,39 +86,27 @@ describe('startCommand', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    vi.mocked(UserService.getByTelegramId).mockResolvedValue({
-      isErr: () => false,
-      value: mockUser,
-    } as never);
-
-    const mockKeyboard = {
-      text: vi.fn(),
-      row: vi.fn(),
-    };
-
-    vi.mocked(MainMenuFactory.create).mockReturnValue(mockKeyboard as never);
-
-    await startCommand(mockCtx);
-
-    expect(UserService.getByTelegramId).toHaveBeenCalledWith('123456789');
-    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser);
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('👋 مرحباً testuser!'),
-      expect.objectContaining({
-        parse_mode: 'HTML',
-        reply_markup: mockKeyboard,
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
       }),
-    );
-  });
+    } as never);
+    const keyboard = { inline_keyboard: [] };
+    vi.mocked(MainMenuFactory.create).mockReturnValue(keyboard as never);
+    const ctx = createContext();
 
-  it('should reply with error message on exception', async () => {
-    vi.mocked(UserService.getByTelegramId).mockRejectedValue(new Error('Database error'));
+    await startCommand(ctx);
 
-    await startCommand(mockCtx);
-
-    expect(mockCtx.reply).toHaveBeenCalledWith(
-      '❌ حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.',
-    );
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser);
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.menu.welcome:testuser', {
+      parse_mode: 'HTML',
+      reply_markup: keyboard,
+    });
+    expect(publish).toHaveBeenCalledWith('user-management.user.started', {
+      userId: '1',
+      telegramId: '123456789',
+      role: 'USER',
+    });
   });
 });

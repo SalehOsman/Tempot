@@ -4,6 +4,13 @@
   "private": true,
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
@@ -15,7 +22,7 @@
   "peerDependencies": {
     "grammy": "^1.41.1",
     "@casl/ability": "^6.7.3",
-    "neverthrow": "^8.2.0",
+    "neverthrow": "8.2.0",
     "@tempot/shared": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@tempot/event-bus": "workspace:*",
@@ -32,7 +39,7 @@
   "devDependencies": {
     "grammy": "^1.41.1",
     "@casl/ability": "^6.7.3",
-    "neverthrow": "^8.2.0",
+    "neverthrow": "8.2.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
   }

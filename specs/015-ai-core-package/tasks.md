@@ -359,9 +359,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/tools/tool-registry.ts`
+- `packages/ai-core/src/tools/tool.registry.ts`
 
-**Test file:** `packages/ai-core/tests/unit/tool-registry.test.ts`
+**Test file:** `packages/ai-core/tests/unit/tool.registry.test.ts`
 
 **Acceptance criteria:**
 
@@ -387,9 +387,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/tools/casl-tool-filter.ts`
+- `packages/ai-core/src/tools/casl-tool.filter.ts`
 
-**Test file:** `packages/ai-core/tests/unit/casl-tool-filter.test.ts`
+**Test file:** `packages/ai-core/tests/unit/casl-tool.filter.test.ts`
 
 **Acceptance criteria:**
 
@@ -413,9 +413,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/prompts/role-system-prompts.ts`
+- `packages/ai-core/src/prompts/role-system.prompts.ts`
 
-**Test file:** `packages/ai-core/tests/unit/role-system-prompts.test.ts`
+**Test file:** `packages/ai-core/tests/unit/role-system.prompts.test.ts`
 
 **Acceptance criteria:**
 
@@ -474,9 +474,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/router/intent-router.ts`
+- `packages/ai-core/src/router/intent.router.ts`
 
-**Test file:** `packages/ai-core/tests/unit/intent-router.test.ts`
+**Test file:** `packages/ai-core/tests/unit/intent.router.test.ts`
 
 **Acceptance criteria:**
 
@@ -540,9 +540,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/suggestions/alternative-suggestions.ts`
+- `packages/ai-core/src/suggestions/alternative.suggestions.ts`
 
-**Test file:** `packages/ai-core/tests/unit/alternative-suggestions.test.ts`
+**Test file:** `packages/ai-core/tests/unit/alternative.suggestions.test.ts`
 
 **Acceptance criteria:**
 
@@ -567,9 +567,9 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/ui/telegram-assistant-ui.ts`
+- `packages/ai-core/src/ui/telegram-assistant.ui.ts`
 
-**Test file:** `packages/ai-core/tests/unit/telegram-assistant-ui.test.ts`
+**Test file:** `packages/ai-core/tests/unit/telegram-assistant.ui.test.ts`
 
 **Acceptance criteria:**
 
@@ -594,10 +594,10 @@
 
 **Files to create:**
 
-- `packages/ai-core/src/cli/dev-assistant.ts`
-- `packages/ai-core/src/cli/module-reviewer.ts`
+- `packages/ai-core/src/cli/dev.assistant.ts`
+- `packages/ai-core/src/cli/module.reviewer.ts`
 
-**Test file:** `packages/ai-core/tests/unit/dev-assistant.test.ts`
+**Test file:** `packages/ai-core/tests/unit/dev.assistant.test.ts`
 
 **Acceptance criteria:**
 

@@ -1,8 +1,14 @@
-/**
- * الأنواع والواجهات لاستخراج بيانات الرقم القومي المصري
- */
-
 export type Gender = 'male' | 'female';
+
+export type NationalIdValidationErrorCode =
+  | 'nationalId.validation.empty'
+  | 'nationalId.validation.invalidLength'
+  | 'nationalId.validation.nonNumeric'
+  | 'nationalId.validation.invalidCentury'
+  | 'nationalId.validation.invalidYear'
+  | 'nationalId.validation.invalidMonth'
+  | 'nationalId.validation.invalidDay'
+  | 'nationalId.validation.invalidGovernorate';
 
 export interface NationalIdData {
   gender: Gender;
@@ -14,7 +20,7 @@ export interface NationalIdData {
 
 export interface ValidationResult {
   isValid: boolean;
-  errors: string[];
+  errors: NationalIdValidationErrorCode[];
 }
 
 export interface ExtractedData {

@@ -527,6 +527,27 @@
 
 ---
 
+## Task 18A: Performance Benchmark - Inline Keyboard Latency
+
+**Priority:** P1 (NFR validation)
+**Estimated time:** 0.5 days
+**NFR:** Response Time < 500ms for Inline Keyboard interactions
+
+**Files to create**:
+- `modules/user-management/tests/integration/inline-keyboard-latency.test.ts`
+
+**Benchmark scope**:
+- Profile menu rendering latency
+- User search result keyboard rendering latency
+- Role confirmation keyboard rendering latency
+
+**Acceptance criteria**:
+- [ ] Benchmark test exists for Inline Keyboard interactions
+- [ ] Average interaction response time is < 500ms
+- [ ] Regression threshold is documented in the test
+
+---
+
 ## Task 19: Verification & Validation
 
 **Priority:** P0 (quality gate)

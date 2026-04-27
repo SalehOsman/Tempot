@@ -1,56 +1,43 @@
-/**
- * منطق استخراج البيانات من الرقم القومي المصري
- */
+import type { Gender, NationalIdData } from './types.js';
+import { isValidNationalId } from './validators.js';
 
-import type { NationalIdData, Gender } from './types.js';
-
-const GOVERNORATE_CODES: Record<string, string> = {
-  '01': 'القاهرة',
-  '02': 'الإسكندرية',
-  '03': 'بورسعيد',
-  '04': 'السويس',
-  '05': 'دمياط',
-  '06': 'الدقهلية',
-  '07': 'الشرقية',
-  '08': 'المنوفية',
-  '09': 'الغربية',
-  '10': 'الجيزة',
-  '11': 'الإسماعيلية',
-  '12': 'بني سويف',
-  '13': 'الفيوم',
-  '14': 'المنيا',
-  '15': 'أسيوط',
-  '16': 'سوهاج',
-  '17': 'قنا',
-  '18': 'أسوان',
-  '19': 'الأقصر',
-  '20': 'البحر الأحمر',
-  '21': 'الوادي الجديد',
-  '22': 'مطروح',
-  '23': 'شمال سيناء',
-  '24': 'جنوب سيناء',
-  '25': 'القليوبية',
-  '26': 'كفر الشيخ',
-  '27': 'الغربية',
-  '28': 'البحيرة',
-  '29': 'الإسماعيلية',
-  '30': 'الجيزة',
+const GOVERNORATE_KEYS: Record<string, string> = {
+  '01': 'eg.governorates.cairo',
+  '02': 'eg.governorates.alexandria',
+  '03': 'eg.governorates.portSaid',
+  '04': 'eg.governorates.suez',
+  '05': 'eg.governorates.damietta',
+  '06': 'eg.governorates.dakahlia',
+  '07': 'eg.governorates.sharqia',
+  '08': 'eg.governorates.monufia',
+  '09': 'eg.governorates.gharbia',
+  '10': 'eg.governorates.giza',
+  '11': 'eg.governorates.ismailia',
+  '12': 'eg.governorates.beniSuef',
+  '13': 'eg.governorates.faiyum',
+  '14': 'eg.governorates.minya',
+  '15': 'eg.governorates.asyut',
+  '16': 'eg.governorates.sohag',
+  '17': 'eg.governorates.qena',
+  '18': 'eg.governorates.aswan',
+  '19': 'eg.governorates.luxor',
+  '20': 'eg.governorates.redSea',
+  '21': 'eg.governorates.newValley',
+  '22': 'eg.governorates.matrouh',
+  '23': 'eg.governorates.northSinai',
+  '24': 'eg.governorates.southSinai',
+  '25': 'eg.governorates.qalyubia',
+  '26': 'eg.governorates.kafrElSheikh',
+  '27': 'eg.governorates.gharbia',
+  '28': 'eg.governorates.beheira',
+  '29': 'eg.governorates.ismailia',
+  '30': 'eg.governorates.giza',
 };
 
-/**
- * استخراج البيانات من الرقم القومي المصري
- *
- * @param nationalId - الرقم القومي المصري (14 رقم)
- * @returns البيانات المستخرجة مع صحة الرقم
- */
 export function parseNationalId(nationalId: string): NationalIdData {
   const cleaned = nationalId.replace(/[\s-]/g, '');
 
-  if (cleaned.length !== 14) {
-    return createInvalidResult();
-  }
-
-  if (!/^\d{14}$/.test(cleaned)) {
+  if (!isValidNationalId(cleaned)) {
     return createInvalidResult();
   }
 
@@ -72,7 +59,7 @@ export function parseNationalId(nationalId: string): NationalIdData {
     }
 
     const governorateCode = cleaned.substring(7, 9);
-    const governorate = GOVERNORATE_CODES[governorateCode] || '';
+    const governorate = GOVERNORATE_KEYS[governorateCode] || '';
 
     const genderDigit = parseInt(cleaned[12], 10);
     const gender = parseGender(genderDigit);
@@ -89,12 +76,6 @@ export function parseNationalId(nationalId: string): NationalIdData {
   }
 }
 
-/**
- * استخراج البيانات فقط (بدون التحقق)
- *
- * @param nationalId - الرقم القومي المصري
- * @returns البيانات المستخرجة أو null إذا كان الرقم غير صالح
- */
 export function extractNationalIdData(nationalId: string): {
   gender: Gender;
   birthDate: Date;
@@ -113,12 +94,6 @@ export function extractNationalIdData(nationalId: string): {
   };
 }
 
-/**
- * تنسيق الرقم القومي (مع شرطات)
- *
- * @param nationalId - الرقم القومي المصري
- * @returns الرقم القومي منسقاً (مثال: 2800901-0100332)
- */
 export function formatNationalId(nationalId: string): string {
   const cleaned = nationalId.replace(/[\s-]/g, '');
   if (cleaned.length !== 14) {
@@ -127,34 +102,19 @@ export function formatNationalId(nationalId: string): string {
   return `${cleaned.substring(0, 7)}-${cleaned.substring(7)}`;
 }
 
-/**
- * الحصول على اسم المحافظة من الكود
- *
- * @param code - كود المحافظة (2 رقم)
- * @returns اسم المحافظة أو سلسلة فارغة إذا لم يتم العثور
- */
 export function getGovernorateName(code: string): string {
   const paddedCode = code.padStart(2, '0');
-  return GOVERNORATE_CODES[paddedCode] || '';
+  return GOVERNORATE_KEYS[paddedCode] || '';
 }
 
-/**
- * تحديد الجنس من آخر رقم في الرقم التسلسلي (فردي=ذكر، زوجي=أنثى)
- */
 function parseGender(sequentialLastDigit: number): Gender {
   return sequentialLastDigit % 2 === 1 ? 'male' : 'female';
 }
 
-/**
- * تحديد السنة الكاملة من أول رقمين
- */
 function parseYear(centuryCode: string, yearCode: string): string {
   return centuryCode === '2' ? `19${yearCode}` : `20${yearCode}`;
 }
 
-/**
- * إنشاء نتيجة غير صالحة
- */
 function createInvalidResult(): NationalIdData {
   return {
     gender: 'male',

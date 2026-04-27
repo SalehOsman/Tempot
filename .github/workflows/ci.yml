@@ -129,7 +129,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=high
-        continue-on-error: true
 
   changeset-check:
     name: Changeset Status

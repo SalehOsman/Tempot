@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  parseNationalId,
   extractNationalIdData,
   formatNationalId,
   getGovernorateName,
-  validateNationalId,
   isValidNationalId,
-} from '../src/index.js';
+  parseNationalId,
+  validateNationalId,
+} from '../../src/index.js';
 
 describe('@tempot/national-id-parser', () => {
   describe('parseNationalId', () => {
@@ -15,15 +15,15 @@ describe('@tempot/national-id-parser', () => {
 
       expect(result.isValid).toBe(true);
       expect(result.gender).toBe('male');
-      expect(result.governorate).toBe('القاهرة');
+      expect(result.governorate).toBe('eg.governorates.cairo');
       expect(result.governorateCode).toBe('01');
       expect(result.birthDate.getFullYear()).toBe(1980);
-      expect(result.birthDate.getMonth()).toBe(8); // September (0-indexed)
+      expect(result.birthDate.getMonth()).toBe(8);
       expect(result.birthDate.getDate()).toBe(1);
     });
 
     it('should handle female national ID', () => {
-      const result = parseNationalId('29009010100332');
+      const result = parseNationalId('28009010100222');
 
       expect(result.isValid).toBe(true);
       expect(result.gender).toBe('female');
@@ -60,7 +60,7 @@ describe('@tempot/national-id-parser', () => {
 
       expect(result).not.toBeNull();
       expect(result?.gender).toBe('male');
-      expect(result?.governorate).toBe('القاهرة');
+      expect(result?.governorate).toBe('eg.governorates.cairo');
       expect(result?.birthDate.getFullYear()).toBe(1980);
     });
 
@@ -92,16 +92,16 @@ describe('@tempot/national-id-parser', () => {
   });
 
   describe('getGovernorateName', () => {
-    it('should return governorate name for valid code', () => {
+    it('should return governorate i18n key for valid code', () => {
       const result = getGovernorateName('01');
 
-      expect(result).toBe('القاهرة');
+      expect(result).toBe('eg.governorates.cairo');
     });
 
     it('should handle single digit code', () => {
       const result = getGovernorateName('1');
 
-      expect(result).toBe('القاهرة');
+      expect(result).toBe('eg.governorates.cairo');
     });
 
     it('should return empty string for invalid code', () => {
@@ -123,48 +123,49 @@ describe('@tempot/national-id-parser', () => {
       const result = validateNationalId('');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('الرقم القومي فارغ');
+      expect(result.errors).toContain('nationalId.validation.empty');
     });
 
     it('should reject invalid length', () => {
       const result = validateNationalId('123');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('الرقم القومي يجب أن يكون 14 رقم');
+      expect(result.errors).toContain('nationalId.validation.invalidLength');
     });
 
     it('should reject non-numeric input', () => {
       const result = validateNationalId('abc12345678901');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('الرقم القومي يحتوي على أحرف غير صالحة');
+      expect(result.errors).toContain('nationalId.validation.nonNumeric');
     });
 
-    it('should reject invalid gender code', () => {
-      const result = validateNationalId('38009010100332');
+    it('should reject invalid century code', () => {
+      const result = validateNationalId('18009010100332');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('أول رقم غير صالح (يجب أن يكون 1 أو 2)');
+      expect(result.errors).toContain('nationalId.validation.invalidCentury');
     });
 
     it('should reject invalid month', () => {
-      const result = validateNationalId('28009015100332');
+      const result = validateNationalId('28013010100332');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('شهر الميلاد غير صالح');
+      expect(result.errors).toContain('nationalId.validation.invalidMonth');
     });
 
     it('should reject invalid day', () => {
-      const result = validateNationalId('28009010100332');
+      const result = validateNationalId('28009320100332');
 
-      expect(result.isValid).toBe(true); // Valid day
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain('nationalId.validation.invalidDay');
     });
 
     it('should reject invalid governorate code', () => {
-      const result = validateNationalId('28009010100999');
+      const result = validateNationalId('28009019900332');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('كود المحافظة غير صالح');
+      expect(result.errors).toContain('nationalId.validation.invalidGovernorate');
     });
   });
 

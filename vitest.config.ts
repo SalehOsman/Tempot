@@ -10,7 +10,11 @@ export default defineConfig({
       defineProject({
         test: {
           name: 'unit',
-          include: ['packages/*/tests/unit/**/*.test.ts', 'modules/*/tests/unit/**/*.test.ts'],
+          include: [
+            'packages/*/tests/unit/**/*.test.ts',
+            'modules/*/tests/unit/**/*.test.ts',
+            'scripts/*/tests/unit/**/*.test.ts',
+          ],
           exclude: baseExclude,
           environment: 'node',
         },
