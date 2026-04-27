@@ -91,12 +91,9 @@ export function buildModuleRegistry(
     logger: toRegistryLogger(log),
   });
 
-  // In production (Docker), packages are in node_modules/.pnpm
-  // In development, packages are in packages/
-  const packagesDir =
-    process.env['NODE_ENV'] === 'production'
-      ? path.resolve(ROOT_DIR, 'node_modules/.pnpm')
-      : path.resolve(ROOT_DIR, 'packages');
+  // Workspace packages live in packages/ in both dev and production (Docker).
+  // The Dockerfile copies packages/ from builder; pnpm never stores them in .pnpm.
+  const packagesDir = path.resolve(ROOT_DIR, 'packages');
 
   const validator = new ModuleValidator({
     specsDir: path.resolve(ROOT_DIR, 'specs'),

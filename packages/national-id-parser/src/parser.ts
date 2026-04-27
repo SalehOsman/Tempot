@@ -55,9 +55,6 @@ export function parseNationalId(nationalId: string): NationalIdData {
   }
 
   try {
-    const genderCode = cleaned[0];
-    const gender = parseGender(genderCode);
-
     const centuryCode = cleaned[0];
     const yearCode = cleaned.substring(1, 3);
     const fullYear = parseYear(centuryCode, yearCode);
@@ -76,6 +73,9 @@ export function parseNationalId(nationalId: string): NationalIdData {
 
     const governorateCode = cleaned.substring(7, 9);
     const governorate = GOVERNORATE_CODES[governorateCode] || '';
+
+    const genderDigit = parseInt(cleaned[12], 10);
+    const gender = parseGender(genderDigit);
 
     return {
       gender,
@@ -139,10 +139,10 @@ export function getGovernorateName(code: string): string {
 }
 
 /**
- * تحديد الجنس من أول رقم
+ * تحديد الجنس من آخر رقم في الرقم التسلسلي (فردي=ذكر، زوجي=أنثى)
  */
-function parseGender(code: string): Gender {
-  return code === '1' ? 'male' : code === '2' ? 'female' : 'male';
+function parseGender(sequentialLastDigit: number): Gender {
+  return sequentialLastDigit % 2 === 1 ? 'male' : 'female';
 }
 
 /**

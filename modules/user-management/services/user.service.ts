@@ -49,7 +49,11 @@ export class UserService {
     return ok(result.value);
   }
 
-  async searchUsers(query: string, page: number = 0, pageSize: number = 10): Promise<Result<UserProfile[], AppError>> {
+  async searchUsers(
+    query: string,
+    page: number = 0,
+    pageSize: number = 10,
+  ): Promise<Result<UserProfile[], AppError>> {
     const result = await this.repository.search(query, page, pageSize);
     return result.map((r) => r.users);
   }
@@ -78,40 +82,63 @@ export class UserService {
 
   // ─── Update — الحقول المصرية ─────────────────────────────────────────────────
 
-  async updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
+  async updateNationalId(
+    userId: string,
+    nationalId: string,
+    countryCode?: string,
+  ): Promise<
+    Result<{ extracted: boolean; data?: ReturnType<typeof extractNationalIdData> }, AppError>
+  > {
     this.invalidateCacheByUserId(userId);
 
-    // استخراج البيانات تلقائياً من الرقم القومي المصري
-    const extractedData = extractNationalIdData(nationalId);
+    const isEgyptian = !countryCode || countryCode === '+20';
+    const extractedData = isEgyptian ? extractNationalIdData(nationalId) : null;
 
     if (extractedData) {
-      // تحديث الحقول المستخرجة تلقائياً
       const updates: Promise<Result<void, AppError>>[] = [
         this.repository.updateNationalId(userId, nationalId),
       ];
-
-      if (extractedData.gender) {
+      if (extractedData.gender)
         updates.push(this.repository.updateGender(userId, extractedData.gender));
-      }
-
-      if (extractedData.birthDate) {
+      if (extractedData.birthDate)
         updates.push(this.repository.updateBirthDate(userId, extractedData.birthDate));
-      }
-
-      if (extractedData.governorate) {
+      if (extractedData.governorate)
         updates.push(this.repository.updateGovernorate(userId, extractedData.governorate));
-      }
 
-      // تنفيذ جميع التحديثات
       const results = await Promise.all(updates);
       const firstError = results.find((r) => r.isErr());
-      if (firstError) return firstError as Result<void, AppError>;
+      if (firstError) return firstError as Result<never, AppError>;
 
-      return ok(undefined);
+      return ok({ extracted: true, data: extractedData });
     }
 
-    // إذا لم يتمكن من استخراج البيانات، احفظ الرقم القومي فقط
-    return this.repository.updateNationalId(userId, nationalId);
+    const result = await this.repository.updateNationalId(userId, nationalId);
+    if (result.isErr()) return result as Result<never, AppError>;
+    return ok({ extracted: false });
+  }
+
+  async extractFromExistingNationalId(
+    userId: string,
+    nationalId: string,
+  ): Promise<Result<ReturnType<typeof extractNationalIdData>, AppError>> {
+    const extractedData = extractNationalIdData(nationalId);
+    if (!extractedData) return ok(null);
+
+    this.invalidateCacheByUserId(userId);
+
+    const updates: Promise<Result<void, AppError>>[] = [];
+    if (extractedData.gender)
+      updates.push(this.repository.updateGender(userId, extractedData.gender));
+    if (extractedData.birthDate)
+      updates.push(this.repository.updateBirthDate(userId, extractedData.birthDate));
+    if (extractedData.governorate)
+      updates.push(this.repository.updateGovernorate(userId, extractedData.governorate));
+
+    const results = await Promise.all(updates);
+    const firstError = results.find((r) => r.isErr());
+    if (firstError) return firstError as Result<never, AppError>;
+
+    return ok(extractedData);
   }
 
   async updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {

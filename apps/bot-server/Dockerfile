@@ -103,9 +103,19 @@ COPY --from=builder /app/apps/bot-server/dist ./dist
 # Copy dependencies from pnpm deploy
 COPY --from=builder /app/out/node_modules ./node_modules
 
-# Copy all @tempot/* packages — modules declare their needs in module.config.ts requires
-# This wildcard handles any current or future @tempot package automatically
-COPY --from=builder /app/node_modules/.pnpm/@tempot+* ./node_modules/.pnpm/
+# Copy all built workspace packages (for module-specific dependencies).
+# Modules declare needs in module.config.ts requires; the validator checks packages/.
+COPY --from=builder /app/packages ./packages
+
+# Create node_modules symlinks for workspace packages not already provided by
+# pnpm deploy. Packages that pnpm deploy already placed (database, auth-core, etc.)
+# are skipped — only module-specific packages (e.g. national-id-parser) get linked.
+RUN mkdir -p node_modules/@tempot && \
+    for dir in packages/*/; do \
+      name=$(basename "$dir"); \
+      [ ! -e "node_modules/@tempot/$name" ] && [ -d "$dir" ] && \
+        ln -sf "../../packages/$name" "node_modules/@tempot/$name" || true; \
+    done
 
 # Copy Prisma schema files (needed for runtime database operations)
 COPY --from=builder /app/packages/database/prisma ./prisma-schemas/database/

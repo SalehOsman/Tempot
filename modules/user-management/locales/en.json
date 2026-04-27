@@ -18,17 +18,27 @@
       "view": "👤 Your Profile",
       "edit": "✏️ Edit Profile",
       "stats": "📊 Your Statistics",
-      "view_message": "👤 <b>Your Profile</b>\n\n👤 Name: {{username}}\n📧 Email: {{email}}\n🌍 Language: {{language}}\n🎯 Role: {{role}}\n📅 Registered: {{createdAt}}",
+      "view_message": "👤 <b>Your Profile</b>\n\n👤 Name: {{username}}\n📧 Email: {{email}}\n🌍 Language: {{language}}\n🎯 Role: {{role}}\n\n━━━ Personal Data ━━━\n🪪 National ID: {{nationalId}}\n� Mobile: {{mobile}}\n🎂 Birth Date: {{birthDate}}\n📆 Age: {{age}}\n👤 Gender: {{gender}}\n🗺️ Governorate: {{governorate}}\n🌍 Country Code: {{countryCode}}\n\n�📅 Registered: {{createdAt}}",
+      "age_value": "{{age}} years",
+      "auto_extracted": "✅ Your data was automatically extracted from the national ID (gender, birth date, governorate)",
+      "national_id_extracted": "✅ National ID saved and data extracted automatically:\n👤 Gender: {{gender}}\n🎂 Birth Date: {{birthDate}}\n🗺️ Governorate: {{governorate}}",
       "field": {
         "name": "Name",
         "email": "Email",
         "language": "Language",
-        "role": "Role"
+        "role": "Role",
+        "national_id": "National ID",
+        "mobile": "Mobile",
+        "birth_date": "Birth Date",
+        "gender": "Gender",
+        "governorate": "Governorate",
+        "country_code": "Country Code"
       },
       "updated": "✅ {{field}} updated successfully to: <b>{{value}}</b>",
       "update_error": "❌ An error occurred while updating. Please try again.",
       "error": "❌ Error updating profile",
-      "not_found": "❌ Profile not found"
+      "not_found": "❌ Profile not found",
+      "national_id_saved_only": "✅ National ID saved"
     },
     "users": {
       "list": "👥 User Management",
@@ -69,6 +79,10 @@
       "MODERATOR": "Moderator",
       "ADMIN": "Admin",
       "SUPER_ADMIN": "Super Admin"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
     },
     "language": {
       "ar": "Arabic",
