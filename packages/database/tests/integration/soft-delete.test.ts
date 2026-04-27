@@ -7,6 +7,12 @@ describe('Soft Delete Extension', () => {
   // The extended prisma client from src/prisma/client (with soft-delete extensions).
   // Typed as PrismaClient since $extends() produces a structurally compatible supertype.
   let prisma: PrismaClient;
+  let telegramIdSequence = 9_000_000_000_000n;
+
+  function userProfileData(username: string) {
+    telegramIdSequence += 1n;
+    return { telegramId: telegramIdSequence, username };
+  }
 
   beforeAll(async () => {
     await testDb.start();
@@ -28,13 +34,13 @@ describe('Soft Delete Extension', () => {
   });
 
   it('should set isDeleted to true instead of removing the record', async () => {
-    const user = await prisma.user.create({
-      data: { name: 'Test Soft Delete' },
+    const user = await prisma.userProfile.create({
+      data: userProfileData('test-soft-delete'),
     });
 
-    await prisma.user.delete({ where: { id: user.id } });
+    await prisma.userProfile.delete({ where: { id: user.id } });
 
-    const dbUser = await testDb.prisma.user.findUnique({ where: { id: user.id } });
+    const dbUser = await testDb.prisma.userProfile.findUnique({ where: { id: user.id } });
 
     expect(dbUser).toBeDefined();
     expect(dbUser?.isDeleted).toBe(true);
@@ -42,16 +48,16 @@ describe('Soft Delete Extension', () => {
   });
 
   it('should propagate deletedBy through the soft-delete extension', async () => {
-    const user = await prisma.user.create({
-      data: { name: 'Test DeletedBy' },
+    const user = await prisma.userProfile.create({
+      data: userProfileData('test-deleted-by'),
     });
 
-    await prisma.user.delete({
+    await prisma.userProfile.delete({
       where: { id: user.id },
       data: { deletedBy: 'user-123' },
     } as Record<string, unknown>);
 
-    const dbUser = await testDb.prisma.user.findUnique({ where: { id: user.id } });
+    const dbUser = await testDb.prisma.userProfile.findUnique({ where: { id: user.id } });
 
     expect(dbUser).toBeDefined();
     expect(dbUser?.isDeleted).toBe(true);
@@ -59,21 +65,25 @@ describe('Soft Delete Extension', () => {
   });
 
   it('should filter out deleted records in findMany', async () => {
-    await prisma.user.create({ data: { name: 'Active User' } });
-    const deletedUser = await prisma.user.create({ data: { name: 'Deleted User' } });
-    await prisma.user.delete({ where: { id: deletedUser.id } });
+    await prisma.userProfile.create({ data: userProfileData('active-user') });
+    const deletedUser = await prisma.userProfile.create({ data: userProfileData('deleted-user') });
+    await prisma.userProfile.delete({ where: { id: deletedUser.id } });
 
-    const activeUsers = await prisma.user.findMany();
-    expect(activeUsers.some((u: { name: string }) => u.name === 'Active User')).toBe(true);
-    expect(activeUsers.some((u: { name: string }) => u.name === 'Deleted User')).toBe(false);
+    const activeUsers = await prisma.userProfile.findMany();
+    expect(activeUsers.some((u: { username: string | null }) => u.username === 'active-user')).toBe(
+      true,
+    );
+    expect(
+      activeUsers.some((u: { username: string | null }) => u.username === 'deleted-user'),
+    ).toBe(false);
   });
 
   it('should return null when finding a deleted record via findUnique', async () => {
-    const user = await prisma.user.create({ data: { name: 'Unique Soft Delete' } });
-    await prisma.user.delete({ where: { id: user.id } });
+    const user = await prisma.userProfile.create({ data: userProfileData('unique-soft-delete') });
+    await prisma.userProfile.delete({ where: { id: user.id } });
 
     // This should return null if the extension is working correctly
-    const found = await prisma.user.findUnique({ where: { id: user.id } });
+    const found = await prisma.userProfile.findUnique({ where: { id: user.id } });
     expect(found).toBeNull();
   });
 });

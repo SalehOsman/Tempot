@@ -13,7 +13,8 @@ const __dirname = path.dirname(__filename);
 
 interface UserEntity {
   id: string;
-  name: string;
+  telegramId: bigint;
+  username?: string | null;
   createdBy?: string;
   updatedBy?: string;
 }
@@ -26,13 +27,19 @@ class UserRepo extends BaseRepository<UserEntity> {
   // TransactionClient doesn't expose model accessors in its type,
   // but they exist at runtime. Cast through Record to access.
   protected get model(): PrismaModelDelegate {
-    return (this.db as unknown as Record<string, PrismaModelDelegate>).user;
+    return (this.db as unknown as Record<string, PrismaModelDelegate>).userProfile;
   }
 }
 
 describe('BaseRepository Transaction Support', () => {
   const testDb = new TestDB();
   const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+  let telegramIdSequence = 9_100_000_000_000n;
+
+  function userProfileData(username: string) {
+    telegramIdSequence += 1n;
+    return { telegramId: telegramIdSequence, username };
+  }
 
   beforeAll(async () => {
     await testDb.start();
@@ -52,7 +59,7 @@ describe('BaseRepository Transaction Support', () => {
     const repo = new UserRepo(auditLogger);
 
     const result = await TransactionManager.run(async (tx) => {
-      const createResult = await repo.withTransaction(tx).create({ name: 'RollbackMe' });
+      const createResult = await repo.withTransaction(tx).create(userProfileData('rollback-me'));
       expect(createResult.isOk()).toBe(true);
 
       // Force rollback
@@ -62,7 +69,7 @@ describe('BaseRepository Transaction Support', () => {
     expect(result.isErr()).toBe(true);
 
     // Check database directly via testDb (bypassing extensions/transactions)
-    const user = await testDb.prisma.user.findFirst({ where: { name: 'RollbackMe' } });
+    const user = await testDb.prisma.userProfile.findFirst({ where: { username: 'rollback-me' } });
     expect(user).toBeNull();
   });
 
@@ -70,13 +77,13 @@ describe('BaseRepository Transaction Support', () => {
     const repo = new UserRepo(auditLogger);
 
     const result = await TransactionManager.run(async (tx) => {
-      return await repo.withTransaction(tx).create({ name: 'CommitMe' });
+      return await repo.withTransaction(tx).create(userProfileData('commit-me'));
     });
 
     expect(result.isOk()).toBe(true);
 
-    const user = await testDb.prisma.user.findFirst({ where: { name: 'CommitMe' } });
+    const user = await testDb.prisma.userProfile.findFirst({ where: { username: 'commit-me' } });
     expect(user).toBeDefined();
-    expect(user?.name).toBe('CommitMe');
+    expect(user?.username).toBe('commit-me');
   });
 });
