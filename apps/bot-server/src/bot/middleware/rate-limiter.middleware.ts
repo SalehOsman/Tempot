@@ -65,12 +65,14 @@ export function createRateLimiterMiddleware(
       await limiter.consume(String(userId));
       await next();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const errorDetails = error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        cause: error.cause,
-      } : { error };
+      const errorDetails =
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              cause: error.cause,
+            }
+          : { error };
       logger.warn({
         msg: 'bot-server.rate_limited',
         userId,

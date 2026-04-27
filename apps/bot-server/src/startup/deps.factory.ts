@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 

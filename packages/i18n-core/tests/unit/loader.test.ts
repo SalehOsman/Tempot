@@ -27,15 +27,15 @@ describe('Modular Locale Loader', () => {
   });
 
   it('should load JSON files from module directories', async () => {
-    vi.mocked(glob).mockResolvedValue([
-      'modules/auth/locales/ar.json',
-      'modules/auth/locales/en.json',
-    ]);
+    vi.mocked(glob)
+      .mockResolvedValueOnce(['modules/auth/locales/ar.json', 'modules/auth/locales/en.json'])
+      .mockResolvedValueOnce([]);
 
     const result = await loadModuleLocales();
 
     expect(result.isOk()).toBe(true);
     expect(glob).toHaveBeenCalledWith(expect.stringContaining('modules/*/locales/*.json'));
+    expect(glob).toHaveBeenCalledWith(expect.stringContaining('apps/*/locales/*.json'));
     expect(i18next.addResourceBundle).toHaveBeenCalledTimes(2);
     expect(i18next.addResourceBundle).toHaveBeenCalledWith(
       'ar',
