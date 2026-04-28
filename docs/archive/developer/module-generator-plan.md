@@ -1,6 +1,6 @@
 # Tempot Module Generator Plan
 
-**Status**: Draft execution artifact for spec #026
+**Status**: Initial internal generator implemented for spec #026
 **Purpose**: Define a governed generator for new business modules.
 
 ## Command Shape
@@ -34,6 +34,7 @@ modules/{module-name}/
 |-- repositories/
 |-- events/
 |-- contracts/
+|-- shared/
 |-- types/
 |-- locales/
 |   |-- ar.json
@@ -42,6 +43,27 @@ modules/{module-name}/
 ```
 
 Generate optional folders only when selected by flags.
+
+## Implemented Initial Mode
+
+The initial internal command is available through the root workspace script:
+
+```powershell
+pnpm tempot module create <module-name>
+```
+
+It currently generates the minimal inactive module skeleton:
+
+- `package.json` with `main`, `types`, `exports`, `build`, and `test`.
+- `tsconfig.json` using the repository base TypeScript config.
+- `vitest.config.ts` for package-level tests.
+- `.gitignore` for build output.
+- `index.ts`, `module.config.ts`, and `abilities.ts`.
+- `features/index.ts` and `shared/index.ts` required by module validation.
+- `locales/ar.json` and `locales/en.json` starter resources.
+- `tests/module.config.test.ts`.
+
+The command accepts only kebab-case names such as `person-registration` and refuses to overwrite an existing `modules/{module-name}` directory.
 
 ## Required Defaults
 

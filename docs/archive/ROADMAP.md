@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-28 (Started spec #026 execution with Tempot Doctor quick mode)
+> Last updated: 2026-04-28 (Started spec #026 execution with Tempot Doctor and Module Generator initial modes)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -49,8 +49,11 @@ Execution artifacts created in the architecture hardening branch:
 Initial execution artifacts:
 
 - Developer doctor quick mode: `pnpm tempot doctor --quick`
+- Module generator initial mode: `pnpm tempot module create <module-name>`
 - Implementation plan: `docs/archive/superpowers/plans/2026-04-28-tempot-doctor-quick.md`
+- Implementation plan: `docs/archive/superpowers/plans/2026-04-28-module-generator-initial.md`
 - Tests: `scripts/tempot/tests/unit/doctor.test.ts`
+- Tests: `scripts/tempot/tests/unit/module-generator.test.ts`
 
 ## Phase 1 — Core Bedrock Packages
 
