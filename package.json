@@ -6,6 +6,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter bot-server dev",
+    "tempot": "tsx scripts/tempot/index.ts",
     "dev:tunnel": "pnpm --filter bot-server dev:tunnel",
     "webhook:set": "pnpm --filter bot-server webhook:set",
     "webhook:info": "pnpm --filter bot-server webhook:info",
@@ -55,6 +56,7 @@
     "@tempot/logger": "workspace:*",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
+    "@types/node": "22.19.17",
     "@vitest/coverage-v8": "^4.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.0.0",

@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-28 (Added architecture isolation, SaaS readiness, and Telegram Managed Bots strategy track)
+> Last updated: 2026-04-28 (Started spec #026 execution with Tempot Doctor quick mode)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -45,6 +45,12 @@ Execution artifacts created in the architecture hardening branch:
 - Developer experience: `docs/archive/developer/template-usability-roadmap.md`, `docs/archive/developer/module-generator-plan.md`, `docs/archive/developer/local-developer-doctor.md`, `docs/archive/developer/quick-path-first-module.md`
 - Agent guidance: `docs/archive/developer/agent-skills-guide.md`
 - Security and operations: `docs/archive/security/security-baseline.md`, `docs/archive/architecture/observability-dashboard.md`
+
+Initial execution artifacts:
+
+- Developer doctor quick mode: `pnpm tempot doctor --quick`
+- Implementation plan: `docs/archive/superpowers/plans/2026-04-28-tempot-doctor-quick.md`
+- Tests: `scripts/tempot/tests/unit/doctor.test.ts`
 
 ## Phase 1 — Core Bedrock Packages
 
@@ -110,7 +116,7 @@ Execution artifacts created in the architecture hardening branch:
 3. ~~Phase 2C: Application wiring~~ — ✅ Complete (deps.factory.ts, all stubs replaced, merged 2026-04-06)
 4. ~~Phase 2D: Integration testing~~ — ✅ Complete (Validate module-registry + bot-server work together end-to-end)
 5. ~~Phase 3: First business module~~ — ✅ `user-management` implemented (spec #025)
-6. Phase 3A: Architecture isolation and SaaS readiness — Active (spec #026)
+6. Phase 3A: Architecture isolation and SaaS readiness — Active (spec #026; first DX tool slice implemented with `pnpm tempot doctor --quick`)
 7. Phase 3B: Next business module — Starts after spec #026 review and boundary hardening decisions
 
 ## Phase 2 — Module Infrastructure

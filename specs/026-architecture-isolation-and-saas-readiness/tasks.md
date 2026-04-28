@@ -99,6 +99,18 @@
 - [x] T041 Run `git diff --check` to catch whitespace and formatting issues.
 - [x] T042 Confirm no production code was changed in this planning phase unless explicitly authorized by the Project Manager.
 
+## Phase 9: Initial Code-Facing Execution - Developer Doctor Quick Mode
+
+**Goal**: Turn the planned local developer doctor into the first governed DX tooling slice without expanding into integration or webhook checks.
+
+**Independent Test**: `pnpm tempot doctor --quick` reports Node.js, pnpm, Git branch, and install state with deterministic pass/fail output and no secret values.
+
+- [x] T043 [US4] Create `docs/archive/superpowers/plans/2026-04-28-tempot-doctor-quick.md` as the Superpowers execution plan for the first doctor slice.
+- [x] T044 [US4] Add unit coverage in `scripts/tempot/tests/unit/doctor.test.ts` for quick-mode report generation, output rendering, argument parsing, and pnpm user-agent version detection.
+- [x] T045 [US4] Implement `scripts/tempot/doctor.checks.ts`, `scripts/tempot/doctor.presenter.ts`, and `scripts/tempot/index.ts` for `pnpm tempot doctor --quick`.
+- [x] T046 [US4] Add the root `tempot` script to `package.json`.
+- [x] T047 [US4] Update `docs/archive/developer/local-developer-doctor.md` and `docs/archive/ROADMAP.md` to reflect the implemented quick mode.
+
 ## Dependencies
 
 - Phase 1 must complete before all other phases.
@@ -131,7 +143,7 @@
 | FR-012 | T015, T019, T022, T026 |
 | FR-013 | T031 |
 | FR-014 | T032 |
-| FR-015 | T033 |
+| FR-015 | T033, T043, T044, T045, T046, T047 |
 | FR-016 | T035 |
 | FR-017 | T036 |
 | FR-018 | T037 |
@@ -149,7 +161,7 @@
 | SC-004 | T012, T016, T020, T023 |
 | SC-005 | T023, T024, T034, T039 |
 | SC-006 | T039, T040 |
-| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038 |
+| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047 |
 | SC-008 | T027, T028, T029, T030 |
 
 ## Parallel Execution Examples

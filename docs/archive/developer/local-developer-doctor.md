@@ -1,13 +1,32 @@
 # Local Developer Doctor
 
-**Status**: Draft execution artifact for spec #026
-**Purpose**: Define a local diagnostic command for Tempot contributors.
+**Status**: Initial quick mode implemented for spec #026
+**Purpose**: Define and track the local diagnostic command for Tempot contributors.
 
 ## Command Shape
 
 ```powershell
-pnpm tempot doctor
+pnpm tempot doctor --quick
 ```
+
+`pnpm tempot doctor` currently defaults to quick mode.
+
+## Implemented Quick Mode
+
+Quick mode is available through the root workspace script:
+
+```powershell
+pnpm tempot doctor --quick
+```
+
+It checks:
+
+- Node.js version against the repository baseline.
+- pnpm version against the repository baseline.
+- Current Git branch visibility.
+- Local install state through `pnpm-lock.yaml` and `node_modules`.
+
+Blocking failures exit with code `1`; a ready quick check exits with code `0`.
 
 ## Checks
 
@@ -39,7 +58,7 @@ The doctor should print:
 
 | Mode | Purpose |
 | --- | --- |
-| `--quick` | Node, pnpm, Git, install state |
+| `--quick` | Node, pnpm, Git, install state (implemented) |
 | `--ci` | CI parity gates |
 | `--integration` | Docker, PostgreSQL, Redis |
 | `--webhook` | Local bot webhook readiness |
