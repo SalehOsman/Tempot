@@ -40,20 +40,20 @@ Document and prepare the next strategic project track: harden architecture bound
 
 ```text
 specs/026-architecture-isolation-and-saas-readiness/
-â”œâ”€â”€ spec.md
-â”œâ”€â”€ plan.md
-â”œâ”€â”€ research.md
-â”œâ”€â”€ data-model.md
-â”œâ”€â”€ quickstart.md
-â”œâ”€â”€ contracts/
-â”‚   â”œâ”€â”€ boundary-contract.md
-â”‚   â”œâ”€â”€ saas-readiness-contract.md
-â”‚   â”œâ”€â”€ telegram-managed-bots-contract.md
-â”‚   â””â”€â”€ dx-security-contract.md
-â”œâ”€â”€ checklists/
-â”‚   â”œâ”€â”€ requirements.md
-â”‚   â””â”€â”€ dx-security-review-findings.md
-â””â”€â”€ tasks.md
+|-- spec.md
+|-- plan.md
+|-- research.md
+|-- data-model.md
+|-- quickstart.md
+|-- contracts/
+|   |-- boundary-contract.md
+|   |-- saas-readiness-contract.md
+|   |-- telegram-managed-bots-contract.md
+|   `-- dx-security-contract.md
+|-- checklists/
+|   |-- requirements.md
+|   `-- dx-security-review-findings.md
+`-- tasks.md
 ```
 
 ### Source Code (repository root)
