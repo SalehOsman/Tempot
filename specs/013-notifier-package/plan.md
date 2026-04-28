@@ -2,281 +2,132 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational notifier package for centralized, scheduled, and bulk notifications using BullMQ as per Architecture Spec v11 Blueprint.
+**Goal:** Build `@tempot/notifier` as Tempot's optional, queue-backed Telegram notification package with clean adapter boundaries for future channels.
 
-**Architecture:** A unified `NotifierService` that acts as a producer, adding notification jobs to a BullMQ `notifications` queue. A specialized `NotificationWorker` consumes these jobs, enforces Telegram's rate limits (30 msg/sec), handles localized templates via `i18n-core`, and updates user statuses upon failure (e.g., if blocked).
+**Architecture:** The package exposes a small `NotifierService` public API. The service validates template-key requests, resolves recipients through injected ports, applies a Telegram-safe rate policy, and enqueues one delivery job per recipient. A worker processor renders templates, calls an injected delivery adapter, records audit attempts, and publishes notification events.
 
-**Tech Stack:** TypeScript, BullMQ, @tempot/shared (QueueFactory), @tempot/i18n-core, grammY, Prisma (Postgres).
-
----
-
-### Task 1: Notification Types and Job Schema (FR-002)
-
-**Files:**
-
-- Create: `packages/notifier/src/types/notification.types.ts`
-- Test: `packages/notifier/tests/unit/job-schema.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { NotificationType } from '../src/types/notification.types';
-
-describe('Notification Types', () => {
-  it('should support mandatory notification categories', () => {
-    const types: NotificationType[] = [
-      'INDIVIDUAL',
-      'GROUP',
-      'ROLE_BASED',
-      'BROADCAST',
-      'SCHEDULED',
-    ];
-    expect(types).toContain('BROADCAST');
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm test packages/notifier/tests/unit/job-schema.test.ts`
-Expected: FAIL (NotificationType not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-export type NotificationType = 'INDIVIDUAL' | 'GROUP' | 'ROLE_BASED' | 'BROADCAST' | 'SCHEDULED';
-
-export interface NotificationJobData {
-  userId?: string;
-  role?: string;
-  templateKey: string;
-  templateData?: Record<string, any>;
-  type: NotificationType;
-  scheduleAt?: Date;
-  isSilent?: boolean;
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/notifier/tests/unit/job-schema.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/notifier/src/types/notification.types.ts
-git commit -m "feat(notifier): define notification types and job data schema (FR-002)"
-```
+**Tech Stack:** TypeScript strict mode, neverthrow, BullMQ via `@tempot/shared` QueueFactory, structural ports for i18n/event/audit/delivery integration, Vitest.
 
 ---
 
-### Task 2: Notifier Service (Producer) (FR-001)
+## Reactivation Decision
 
-**Files:**
+`notifier` was deferred under Constitution Rule XC. It is now activated because Tempot needs a central alerting path for operator notifications, user-management workflows, future dashboard actions, document/import completion alerts, and SaaS-readiness operations.
 
-- Create: `packages/notifier/src/notifier.service.ts`
-- Test: `packages/notifier/tests/unit/notifier-service.test.ts`
+## Constitution Check
 
-- [ ] **Step 1: Write the failing test**
+- Rule XXI: All public fallible APIs return `Result` or `AsyncResult`.
+- Rule XX: Queue usage goes through `@tempot/shared` QueueFactory.
+- Rule XV: Cross-module effects happen through event bus events, not direct imports.
+- Rule XXXIX: Public API accepts i18n template keys and variables, not raw user-facing text.
+- Rule LXXI-LXXVIII: Package creation checklist is mandatory before merge.
 
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { NotifierService } from '../src/notifier.service';
+## Package Boundary
 
-describe('NotifierService', () => {
-  it('should add a job to the queue with correct delay for scheduled alerts', async () => {
-    const queue = { add: vi.fn() };
-    const service = new NotifierService(queue as any);
-    const futureDate = new Date(Date.now() + 60000);
+`@tempot/notifier` may depend on:
 
-    await service.schedule('user1', 'reminders.appointment', {}, futureDate);
-    expect(queue.add).toHaveBeenCalledWith(
-      'notification',
-      expect.any(Object),
-      expect.objectContaining({
-        delay: expect.any(Number),
-      }),
-    );
-  });
-});
+- `@tempot/shared` for `AppError`, `AsyncResult`, and QueueFactory.
+- `bullmq` for queue and worker types/implementation.
+- `neverthrow` for `ok`/`err`.
+
+The package MUST NOT depend directly on `apps/bot-server`, `modules/user-management`, Prisma delegates, or grammY bot lifecycle. The app injects ports.
+
+## File Structure
+
+```text
+packages/notifier/
+  .gitignore
+  package.json
+  tsconfig.json
+  vitest.config.ts
+  README.md
+  src/
+    index.ts
+    notifier.errors.ts
+    notifier.types.ts
+    notifier.ports.ts
+    notification.rate-policy.ts
+    notification.queue.ts
+    notification.service.ts
+    notification.processor.ts
+    notification.worker.ts
+    telegram.delivery.adapter.ts
+  tests/
+    unit/
+      notification.rate-policy.test.ts
+      notification.service.test.ts
+      notification.processor.test.ts
+      notification.queue.test.ts
+      telegram.delivery.adapter.test.ts
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+## Implementation Phases
 
-Run: `pnpm test packages/notifier/tests/unit/notifier-service.test.ts`
-Expected: FAIL (NotifierService not defined)
+### Phase 1 - Specification and Package Foundation
 
-- [ ] **Step 3: Write minimal implementation**
+1. Update `ROADMAP.md` to mark `notifier` active.
+2. Add `research.md`, `data-model.md`, `tasks.md`, and `checklists/requirements.md`.
+3. Create checklist-compliant package infrastructure.
+4. Run `pnpm module:checklist` after package infrastructure exists.
 
-```typescript
-import { Queue } from 'bullmq';
-import { NotificationJobData } from './types/notification.types';
+### Phase 2 - Contracts and Validation
 
-export class NotifierService {
-  constructor(private queue: Queue) {}
+1. Define error codes in `notifier.errors.ts`.
+2. Define notification targets, payloads, recipients, jobs, attempts, delivery receipts, and events in `notifier.types.ts`.
+3. Define ports for recipients, queue, template renderer, delivery adapter, audit sink, event publisher, and logger in `notifier.ports.ts`.
+4. Write and run failing unit tests before implementation.
 
-  async sendIndividual(userId: string, templateKey: string, data?: any): Promise<void> {
-    await this.queue.add('notification', {
-      userId,
-      templateKey,
-      templateData: data,
-      type: 'INDIVIDUAL',
-    });
-  }
+### Phase 3 - Queue Producer
 
-  async schedule(userId: string, templateKey: string, data: any, at: Date): Promise<void> {
-    const delay = at.getTime() - Date.now();
-    await this.queue.add(
-      'notification',
-      { userId, templateKey, templateData: data, type: 'SCHEDULED' },
-      { delay },
-    );
-  }
-}
-```
+1. Implement `NotificationRatePolicy`.
+2. Implement `NotificationQueue` around a BullMQ-compatible queue object.
+3. Implement `NotifierService` with:
+   - `sendToUser`
+   - `sendToUsers`
+   - `sendToRole`
+   - `broadcast`
+   - `schedule`
+4. Keep role and broadcast recipient lookup behind `RecipientResolver`.
 
-- [ ] **Step 4: Run test to verify it passes**
+### Phase 4 - Delivery Processor and Worker
 
-Run: `pnpm test packages/notifier/tests/unit/notifier-service.test.ts`
-Expected: PASS
+1. Implement `NotificationProcessor`.
+2. Implement `TelegramDeliveryAdapter` against a structural Telegram API interface.
+3. Implement `createNotificationWorker` with BullMQ limiter `{ max: 30, duration: 1000 }`.
+4. Ensure retryable failures are rethrown from the worker function after processor returns an error.
 
-- [ ] **Step 5: Commit**
+### Phase 5 - Verification and Documentation
 
-```bash
-git add packages/notifier/src/notifier.service.ts
-git commit -m "feat(notifier): implement NotifierService as a job producer (FR-001)"
-```
+1. Update `packages/notifier/README.md` with actual API and integration guidance.
+2. Run package-level tests and build.
+3. Run workspace gates:
+   - `pnpm spec:validate`
+   - `pnpm cms:check`
+   - `pnpm lint`
+   - `pnpm --filter @tempot/notifier test`
+   - `pnpm --filter @tempot/notifier build`
+   - `pnpm build`
+   - `pnpm test:unit`
+   - `pnpm test:integration`
+   - `pnpm boundary:audit`
+   - `pnpm module:checklist`
+   - `pnpm audit --audit-level=high`
+   - `git diff --check`
 
----
+## Risks and Mitigations
 
-### Task 3: Notification Worker (Consumer) (FR-004, FR-006)
+| Risk | Mitigation |
+| ---- | ---------- |
+| Direct Telegram coupling leaks into modules | Only expose `NotifierService`; app injects delivery adapter |
+| Role/broadcast depends on user-management internals | Use `RecipientResolver` port |
+| i18n rule violation | Accept only `templateKey` and variables in public APIs |
+| Rate limits exceeded during bulk sends | Apply enqueue-time rate offsets and worker limiter |
+| Audit failure masks delivery success | Model audit as a sink result and preserve delivery event semantics |
+| Optional package breaks disabled installs | Keep notifier out of app wiring until enabled by `TEMPOT_NOTIFIER` |
 
-**Files:**
+## Out of Scope
 
-- Create: `packages/notifier/src/workers/notification.worker.ts`
-- Test: `packages/notifier/tests/integration/notification-worker.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { NotificationWorker } from '../src/workers/notification.worker';
-
-describe('NotificationWorker', () => {
-  it('should attempt to send localized message via grammY', async () => {
-    // Requires mock Bot and i18n
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm test packages/notifier/tests/integration/notification-worker.test.ts`
-Expected: FAIL (NotificationWorker not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-import { Worker, Job } from 'bullmq';
-import { Bot } from 'grammy';
-import { t } from '@tempot/i18n-core';
-
-export class NotificationWorker {
-  constructor(
-    private bot: Bot,
-    private redisConnection: any,
-  ) {
-    new Worker('notifications', this.process.bind(this), { connection: this.redisConnection });
-  }
-
-  async process(job: Job) {
-    const { userId, templateKey, templateData, isSilent } = job.data;
-
-    try {
-      const message = t(templateKey, templateData); // Uses current session lang if available, or default
-      await this.bot.api.sendMessage(userId, message, { disable_notification: isSilent });
-    } catch (error: any) {
-      if (error.description?.includes('bot was blocked')) {
-        await this.handleUserBlock(userId);
-      }
-      throw error; // Let BullMQ retry for other errors (e.g., 429)
-    }
-  }
-
-  private async handleUserBlock(userId: string) {
-    // Update user status in DB to SUSPENDED
-    console.warn(`User ${userId} blocked the bot. Suspending account.`);
-  }
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/notifier/tests/integration/notification-worker.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/notifier/src/workers/notification.worker.ts
-git commit -m "feat(notifier): implement NotificationWorker with rate-limiting and block handling (FR-004)"
-```
-
----
-
-### Task 4: Bulk Broadcast Logic (FR-002, FR-004)
-
-**Files:**
-
-- Modify: `packages/notifier/src/notifier.service.ts`
-- Test: `packages/notifier/tests/unit/broadcast.test.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { NotifierService } from '../src/notifier.service';
-
-describe('Broadcast Notification', () => {
-  it('should chunk large recipient lists to avoid rate limits', async () => {
-    const queue = { addBulk: vi.fn() };
-    const service = new NotifierService(queue as any);
-    await service.broadcast('news.update', { users: Array(100).fill('id') });
-    expect(queue.addBulk).toHaveBeenCalled();
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm test packages/notifier/tests/unit/broadcast.test.ts`
-Expected: FAIL (broadcast not defined)
-
-- [ ] **Step 3: Write minimal implementation**
-
-```typescript
-// Inside NotifierService
-async broadcast(templateKey: string, options: { users: string[] }) {
-  const jobs = options.users.map(userId => ({
-    name: 'notification',
-    data: { userId, templateKey, type: 'BROADCAST' }
-  }));
-
-  // BullMQ addBulk handles large lists efficiently
-  await this.queue.addBulk(jobs);
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm test packages/notifier/tests/unit/broadcast.test.ts`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/notifier/src/notifier.service.ts
-git commit -m "feat(notifier): implement bulk broadcast support using BullMQ addBulk (FR-002)"
-```
+- Email, SMS, WhatsApp, or payment notifications.
+- Dashboard UI for composing broadcasts.
+- Database schema for notification history. Audit is handled through the injected sink.
+- Direct user status mutation on blocked bot. The package emits `notification.user.blocked`; the owning module/app decides remediation.

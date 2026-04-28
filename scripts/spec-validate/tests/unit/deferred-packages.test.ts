@@ -6,7 +6,7 @@ describe('spec-validate deferred packages', () => {
     const packageNames = discoverSpecDirs();
 
     expect(packageNames).not.toContain('008-cms-engine-package');
-    expect(packageNames).not.toContain('013-notifier-package');
+    expect(packageNames).toContain('013-notifier-package');
     expect(packageNames).not.toContain('014-search-engine-package');
     expect(packageNames).not.toContain('016-document-engine-package');
     expect(packageNames).not.toContain('017-import-engine-package');
