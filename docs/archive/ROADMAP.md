@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-28 (Spec #026 Phase 3A closed; import audit and module checklist are now blocking CI methodology gates)
+> Last updated: 2026-04-29 (notifier package reactivated from Rule XC deferred status for implementation)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -93,7 +93,7 @@ Initial execution artifacts:
 | 11  | input-engine    | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete (Phase 1 + Phase 2 merged)  |
 | 12  | ux-helpers      | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete                             |
 | 13  | sentry          | —    | —       | —    | —       | —     | —      | —        | —         | ✅\*    | —      | ✅\*  | Built (infra, pre-methodology)          |
-| 14  | notifier        | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
+| 14  | notifier        | ✅   | ✅      | ✅   | ❌      | ✅    | ❌     | ✅       | ❌        | ❌      | ❌     | ❌    | Active - implementation branch started |
 | 15  | search-engine   | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
 | 16  | ai-core         | ✅   | ✅      | ✅   | ✅      | ✅    | ✅     | ✅       | ✅        | ✅      | ✅     | ✅    | ✅ Complete (Phase 2 merged)            |
 | 17  | document-engine | ✅   | ⚠️      | ✅   | ❌      | ❌    | ❌     | ❌       | ✅        | ❌      | ❌     | ❌    | Not started                             |
@@ -120,7 +120,7 @@ Initial execution artifacts:
 
 ### Next Action
 
-**Phase 1 status:** 14 packages built and merged (shared, logger, database, event-bus, auth-core, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, input-engine, ai-core, sentry, settings). 5 packages remaining but **deferred** (cms-engine, notifier, search-engine, document-engine, import-engine) — these are optional packages that will be built only when a business module needs them.
+**Phase 1 status:** 14 packages built and merged (shared, logger, database, event-bus, auth-core, session-manager, i18n-core, regional-engine, storage-engine, ux-helpers, input-engine, ai-core, sentry, settings). `notifier` has been activated from the deferred set on 2026-04-29. 4 packages remain deferred (cms-engine, search-engine, document-engine, import-engine) and will be built only when a business module needs them.
 
 **Next steps (in order):**
 
@@ -131,6 +131,7 @@ Initial execution artifacts:
 5. ~~Phase 3: First business module~~ — ✅ `user-management` implemented (spec #025)
 6. ~~Phase 3A: Architecture isolation and SaaS readiness~~ - Complete (spec #026; DX tooling, closeout, import audit, and module checklist gates implemented)
 7. Phase 3B: Next business module - Ready for owner decision after Phase 3A merge
+8. Phase 3B foundation: `notifier` package implementation - Active on `codex/notifier-package`
 
 ## Phase 2 — Module Infrastructure
 
