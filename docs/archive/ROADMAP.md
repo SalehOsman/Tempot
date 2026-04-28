@@ -28,6 +28,8 @@ Scope:
 3. Keep Tempot Core as the current product while documenting a future Tempot Cloud SaaS path.
 4. Treat Telegram Managed Bots as a positive optional capability, isolated behind a future adapter/service boundary.
 5. Improve template usability through module checklists, onboarding guidance, and documentation cleanup.
+6. Define explicit DX tooling targets: official CLI, governed module generator, local developer doctor, quick path, and internal template marketplace.
+7. Define explicit security and operations targets: blocking audit policy, secret scanning, dependency review, token rotation guidance, and observability dashboard scope.
 
 Artifacts:
 

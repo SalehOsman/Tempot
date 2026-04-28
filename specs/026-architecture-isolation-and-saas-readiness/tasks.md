@@ -73,12 +73,31 @@
 - [ ] T025 [US4] Identify documentation drift and cleanup candidates in `docs/archive/developer/documentation-cleanup-plan.md`.
 - [ ] T026 [US4] Update `docs/archive/ROADMAP.md` with template usability milestones and documentation cleanup targets.
 
-## Phase 7: Validation and Reconciliation
+## Phase 7: User Story 5 - Close Review Findings and Define Professional Baselines (P2)
 
-- [ ] T027 Run `pnpm spec:validate` and fix all CRITICAL issues related to spec #026.
-- [ ] T028 Run a manual SpecKit analyze pass across `spec.md`, `plan.md`, and `tasks.md`; resolve inconsistencies before implementation.
-- [ ] T029 Run `git diff --check` to catch whitespace and formatting issues.
-- [ ] T030 Confirm no production code was changed in this planning phase unless explicitly authorized by the Project Manager.
+**Goal**: Known review findings and approved quality proposals are explicitly tracked before production code changes begin.
+
+**Independent Test**: The remediation and baseline documents map every listed review finding and every approved DX/security proposal to a future implementation or governance task.
+
+- [ ] T027 [US5] Create `docs/archive/architecture/review-findings-remediation.md` mapping the five known review findings to resolved, planned, or deferred status with validation expectations.
+- [ ] T028 [US5] Extend `docs/archive/architecture/boundaries/ci-enforcement-plan.md` with a blocking security audit policy that addresses the current `continue-on-error` concern in `.github/workflows/ci.yml`.
+- [ ] T029 [US5] Add an i18n remediation item for `packages/national-id-parser/src/validators.ts` to `docs/archive/architecture/review-findings-remediation.md`, including translation-key expectations.
+- [ ] T030 [US5] Add a package checklist remediation item for `modules/user-management/package.json`, `modules/user-management/vitest.config.ts`, and `modules/user-management/.gitignore` to `docs/archive/architecture/review-findings-remediation.md`.
+- [ ] T031 [US5] Extend `docs/archive/developer/template-usability-roadmap.md` with the official CLI options `create-tempot-bot` and `pnpm tempot init`.
+- [ ] T032 [US5] Create `docs/archive/developer/module-generator-plan.md` defining generated module source, tests, i18n resources, events, contracts, package exports, and validation commands.
+- [ ] T033 [US5] Create `docs/archive/developer/local-developer-doctor.md` defining checks for Node.js, pnpm, Docker, environment variables, PostgreSQL, Redis, Prisma, and local webhook readiness.
+- [ ] T034 [US5] Create `docs/archive/developer/quick-path-first-module.md` defining the 15-minute path to build the first real Tempot module.
+- [ ] T035 [US5] Extend `docs/archive/architecture/saas-readiness.md` with future admin dashboard scope for modules, settings, users, bots, and tenant administration.
+- [ ] T036 [US5] Create `docs/archive/architecture/template-marketplace.md` defining an internal marketplace for activatable bot feature templates.
+- [ ] T037 [US5] Create `docs/archive/architecture/observability-dashboard.md` defining dashboard scope for logs, audit events, errors, queues, and sessions.
+- [ ] T038 [US5] Create `docs/archive/security/security-baseline.md` covering secret scanning, dependency review, token rotation guidance, and managed-bot token handling.
+
+## Phase 8: Validation and Reconciliation
+
+- [ ] T039 Run `pnpm spec:validate` and fix all CRITICAL issues related to spec #026.
+- [ ] T040 Run a manual SpecKit analyze pass across `spec.md`, `plan.md`, and `tasks.md`; resolve inconsistencies before implementation.
+- [ ] T041 Run `git diff --check` to catch whitespace and formatting issues.
+- [ ] T042 Confirm no production code was changed in this planning phase unless explicitly authorized by the Project Manager.
 
 ## Dependencies
 
@@ -86,7 +105,13 @@
 - ADR tasks T008-T010 must complete before SaaS and Telegram architecture documents are finalized.
 - Boundary inventory T005 and dependency rules T006 must complete before audit report T011.
 - Roadmap updates T015, T019, T022, and T026 should be reconciled into one coherent edit.
-- Validation T027-T030 must complete before review or merge.
+- T027 must exist before review finding implementation begins.
+- T031-T034 depend on T023.
+- T035 depends on T016.
+- T036 depends on T023 and T007.
+- T037 depends on T011 and T016.
+- T038 depends on T020 and T021 for managed-bot token handling context.
+- Validation T039-T042 must complete before review or merge.
 
 ## Requirement Traceability
 
@@ -102,8 +127,17 @@
 | FR-008 | T003, T009, T020 |
 | FR-009 | T009, T021, T022 |
 | FR-010 | T023, T024, T025 |
-| FR-011 | T014, T027, T028, T029 |
+| FR-011 | T014, T028, T039, T040, T041 |
 | FR-012 | T015, T019, T022, T026 |
+| FR-013 | T031 |
+| FR-014 | T032 |
+| FR-015 | T033 |
+| FR-016 | T035 |
+| FR-017 | T036 |
+| FR-018 | T037 |
+| FR-019 | T028, T038 |
+| FR-020 | T034 |
+| FR-021 | T027, T028, T029, T030 |
 
 ## Success Criteria Traceability
 
@@ -111,16 +145,19 @@
 | --- | --- |
 | SC-001 | T005, T011 |
 | SC-002 | T008, T009, T016, T020 |
-| SC-003 | T001-T030 |
+| SC-003 | T001-T042 |
 | SC-004 | T012, T016, T020, T023 |
-| SC-005 | T023, T024, T027 |
-| SC-006 | T027, T028 |
+| SC-005 | T023, T024, T034, T039 |
+| SC-006 | T039, T040 |
+| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038 |
+| SC-008 | T027, T028, T029, T030 |
 
 ## Parallel Execution Examples
 
 - T005, T006, and T007 can be drafted in parallel after T004.
 - T016 and T020 can proceed in parallel after ADR drafts exist.
 - T023, T024, and T025 can proceed in parallel after boundary rules are stable.
+- T032, T033, T034, T036, T037, and T038 can proceed in parallel after T023 and the strategic ADRs are stable.
 
 ## Implementation Strategy
 
@@ -129,4 +166,5 @@
 3. Audit current repository structure against the rules.
 4. Add SaaS and Telegram strategy documents as future-facing architecture.
 5. Update the roadmap as the single source of truth.
-6. Validate SpecKit and repository hygiene before requesting review.
+6. Add explicit DX, security, observability, and review-finding baselines.
+7. Validate SpecKit and repository hygiene before requesting review.

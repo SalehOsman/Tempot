@@ -101,13 +101,41 @@
 - Create: `docs/archive/developer/template-usability-roadmap.md`
 - Create: `docs/archive/developer/new-module-checklist.md`
 - Create: `docs/archive/developer/documentation-cleanup-plan.md`
+- Create: `docs/archive/developer/module-generator-plan.md`
+- Create: `docs/archive/developer/local-developer-doctor.md`
+- Create: `docs/archive/developer/quick-path-first-module.md`
 
 - [ ] Document future scaffolding goals for packages, modules, apps, and tests.
 - [ ] Define a new module checklist aligned with SpecKit, Superpowers, module-registry, package exports, i18n, and tests.
 - [ ] Identify stale documentation, duplicated methodology docs, and cleanup actions.
+- [ ] Define official CLI options: `create-tempot-bot` and `pnpm tempot init`.
+- [ ] Define the governed module generator output: module source, tests, i18n resources, events, contracts, exports, and validation commands.
+- [ ] Define local developer doctor checks: Node.js, pnpm, Docker, environment variables, PostgreSQL, Redis, Prisma, and webhook readiness.
+- [ ] Define the 15-minute quick path for building the first real module.
 - [ ] Keep docs cleanup separate from production code changes.
 
-## Phase 8: Roadmap and Validation
+## Phase 8: Review Findings, Security, Observability, and Marketplace
+
+**Files:**
+
+- Create: `docs/archive/architecture/review-findings-remediation.md`
+- Create: `docs/archive/architecture/template-marketplace.md`
+- Create: `docs/archive/architecture/observability-dashboard.md`
+- Create: `docs/archive/security/security-baseline.md`
+- Modify: `docs/archive/architecture/boundaries/ci-enforcement-plan.md`
+- Modify: `docs/archive/architecture/saas-readiness.md`
+
+- [ ] Map review finding 1 to spec validation closure and future validation commands.
+- [ ] Map review finding 2 to roadmap drift closure and roadmap update policy.
+- [ ] Map review finding 3 to a blocking security audit policy for `.github/workflows/ci.yml`.
+- [ ] Map review finding 4 to an i18n remediation path for `packages/national-id-parser/src/validators.ts`.
+- [ ] Map review finding 5 to a package checklist remediation path for `modules/user-management/package.json`, `modules/user-management/vitest.config.ts`, and `modules/user-management/.gitignore`.
+- [ ] Define secret scanning, dependency review, and token rotation guidance.
+- [ ] Define observability dashboard scope for logs, audit events, errors, queues, and sessions.
+- [ ] Define internal template marketplace scope for activatable bot feature templates.
+- [ ] Define future admin dashboard scope for modules, settings, users, bots, and tenant administration.
+
+## Phase 9: Roadmap and Validation
 
 **Files:**
 
@@ -116,7 +144,9 @@
 - [ ] Add the architecture hardening track as the active roadmap item.
 - [ ] Add SaaS readiness as a future productization track, not an immediate rewrite.
 - [ ] Add Telegram Managed Bots as a monitored optional capability.
+- [ ] Add DX, security baseline, observability dashboard, and template marketplace milestones.
 - [ ] Run `pnpm spec:validate`.
+- [ ] Run a SpecKit analyze pass across `spec.md`, `plan.md`, and `tasks.md`.
 - [ ] Run `git diff --check`.
 - [ ] Request review before any merge to `main`.
 
@@ -125,5 +155,7 @@
 - Spec #026 has `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`, and `tasks.md`.
 - The Superpowers execution plan exists under `docs/archive/superpowers/plans/`.
 - Roadmap reflects architecture hardening before the next business module.
+- Approved DX/security proposals are explicit in tasks and roadmap-linked documents.
+- Known review findings are explicit in remediation tasks.
 - No production code changed during this planning phase.
 - `pnpm spec:validate` reports zero CRITICAL issues.

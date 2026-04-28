@@ -68,12 +68,29 @@ As a future Tempot adopter, I want the project to provide clear setup, module cr
 1. **Given** a new developer, **When** they read the usability roadmap, **Then** they can identify the intended CLI, module generator, doctor command, examples, and documentation improvements.
 2. **Given** a new module proposal, **When** the quality checklist is applied, **Then** it covers specification, boundaries, tests, i18n, observability, and documentation readiness.
 
+---
+
+### User Story 5 - Close Review Findings and Define Professional Baselines (Priority: P2)
+
+As the project owner, I want known review findings and quality proposals to be explicitly mapped into the plan so future execution does not depend on implicit interpretation.
+
+**Why this priority**: Review findings contain concrete governance, security, i18n, and package hygiene gaps. They must be tracked beside the broader architecture plan before production code changes begin.
+
+**Independent Test**: A reviewer can inspect the review-findings remediation plan and confirm that each known finding and each approved quality proposal has an owner artifact, execution task, and validation path.
+
+**Acceptance Scenarios**:
+
+1. **Given** the current review findings, **When** the remediation plan is reviewed, **Then** each finding is mapped to a specific document or future implementation task.
+2. **Given** the approved DX proposals, **When** the template usability roadmap is reviewed, **Then** it explicitly names the official CLI, module generator, developer doctor, marketplace, and quick-path documentation.
+3. **Given** the approved security and observability proposals, **When** the architecture plan is reviewed, **Then** it includes secret scanning, dependency review, token rotation guidance, and observability dashboard planning.
+
 ### Edge Cases
 
 - A package may be intentionally shared infrastructure. The boundary model must distinguish shared dependencies from accidental coupling.
 - A future SaaS feature may require global changes. The plan must allow documented contract changes while preventing undocumented cross-cutting edits.
 - Telegram capabilities may change again. The feature must record the current assessment as a dated decision and keep future Telegram platform changes as separate research items.
 - Documentation-only planning must not be mistaken for production implementation readiness. The Handoff Gate still requires tasks, analysis, validation, and owner approval.
+- Review findings may already be partially fixed on main. The plan must distinguish completed findings from remaining enforcement or documentation work.
 
 ## Requirements _(mandatory)_
 
@@ -91,6 +108,15 @@ As a future Tempot adopter, I want the project to provide clear setup, module cr
 - **FR-010**: The feature MUST propose template usability improvements, including setup diagnostics, module generation, examples, and contributor-facing guidance.
 - **FR-011**: The feature MUST include validation tasks for CI and governance gates so architectural drift can be detected before merge.
 - **FR-012**: The feature MUST update roadmap-level planning artifacts to reflect architecture isolation, SaaS readiness, and Telegram Managed Bots as approved strategic tracks.
+- **FR-013**: The feature MUST explicitly evaluate an official Tempot CLI entrypoint such as `create-tempot-bot` or `pnpm tempot init`.
+- **FR-014**: The feature MUST define a governed module generator that creates module source, tests, i18n resources, events, and contracts.
+- **FR-015**: The feature MUST define a local developer doctor that checks Node.js, pnpm, Docker, environment variables, database connectivity, and Redis connectivity.
+- **FR-016**: The feature MUST define the future admin dashboard scope for modules, settings, users, and bots without forcing immediate SaaS implementation.
+- **FR-017**: The feature MUST define a future internal template marketplace for activatable bot feature templates.
+- **FR-018**: The feature MUST define a future observability dashboard scope for logs, audit events, errors, queues, and sessions.
+- **FR-019**: The feature MUST define a stronger security baseline covering secret scanning, dependency review, and token rotation guidance.
+- **FR-020**: The feature MUST define a "quick path" documentation target for building the first real module in about 15 minutes.
+- **FR-021**: The feature MUST explicitly track remediation for known review findings covering spec validation, roadmap drift, non-blocking security audit, hardcoded user-facing text, and module package checklist gaps.
 
 ### Key Entities
 
@@ -103,6 +129,9 @@ As a future Tempot adopter, I want the project to provide clear setup, module cr
 - **Tenant Scope**: A future ownership boundary for SaaS customers, organizations, or workspaces.
 - **Bot Scope**: A runtime boundary representing one Telegram bot instance or managed bot.
 - **Telegram Managed Bot Opportunity**: A dated assessment of Telegram's capability for manager bots to create and manage other bots.
+- **Developer Tooling Surface**: Future CLI, generator, doctor, and quick-path documentation used to make Tempot easier to adopt.
+- **Security Baseline**: A documented set of security gates and operational guides required before expanding SaaS or managed-bot functionality.
+- **Review Finding**: A concrete issue from project review that must be classified as resolved, planned, or deferred with rationale.
 
 ## Success Criteria _(mandatory)_
 
@@ -114,6 +143,8 @@ As a future Tempot adopter, I want the project to provide clear setup, module cr
 - **SC-004**: The resulting task list separates the MVP boundary-hardening work from later SaaS and Telegram Managed Bots work.
 - **SC-005**: A future contributor can use the quickstart to run the planned validation gates and understand the expected pass/fail outcomes in under 15 minutes.
 - **SC-006**: SpecKit validation reports zero critical issues for this active feature before implementation begins.
+- **SC-007**: All approved DX proposals are explicitly represented in tasks or roadmap-linked documents.
+- **SC-008**: All known review findings are explicitly represented in remediation tasks with validation expectations.
 
 ## Assumptions
 

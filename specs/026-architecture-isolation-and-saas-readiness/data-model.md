@@ -90,6 +90,41 @@ Records Telegram platform capability assessment.
 | `recommendedTiming` | Now, after hardening, deferred, or rejected | Must include rationale |
 | `securityNotes` | Token, ownership, and audit risks | Required |
 
+## DeveloperToolingSurface
+
+Defines future tooling that makes Tempot easier to adopt without weakening project rules.
+
+| Field | Description | Validation |
+| --- | --- | --- |
+| `name` | CLI, module generator, local doctor, quick path, or marketplace | Must be one of the approved tooling surfaces |
+| `entrypoint` | Command or document entrypoint such as `create-tempot-bot`, `pnpm tempot init`, or a guide path | Must be explicit |
+| `generatedArtifacts` | Files or checks produced by the tooling | Required for generators and doctors |
+| `governanceRules` | SpecKit, Superpowers, i18n, events, contracts, and test expectations | Must reference project methodology |
+| `implementationTiming` | Current planning, next execution slice, or future product track | Must align with roadmap |
+
+## SecurityBaseline
+
+Defines security controls required before expanding SaaS or managed-bot capabilities.
+
+| Field | Description | Validation |
+| --- | --- | --- |
+| `control` | Secret scanning, dependency review, audit blocking, or token rotation | Must be specific |
+| `scope` | CI, developer workflow, documentation, runtime, or managed-bot operations | Must be explicit |
+| `enforcement` | Blocking, report-only, manual review, or future automation | Must include rationale |
+| `ownerArtifact` | Document, workflow, checklist, or package responsible for the control | Required |
+
+## ReviewFinding
+
+Tracks concrete review items so they do not disappear into broad architecture language.
+
+| Field | Description | Validation |
+| --- | --- | --- |
+| `id` | Stable review finding identifier | Must be unique |
+| `priority` | P1, P2, P3 | Must match review severity |
+| `sourcePath` | File or workflow associated with the finding | Required where applicable |
+| `status` | Resolved, planned, deferred, or rejected | Must include rationale |
+| `validation` | Command, checklist, or review action that proves closure | Required |
+
 ## State Transitions
 
 ### Boundary Hardening
@@ -108,4 +143,16 @@ Strategic Concept -> Readiness Model -> Future Spec -> Approved Implementation -
 
 ```text
 Platform Update -> Product Assessment -> Future Spec -> Security Design -> Optional Managed Bot Capability
+```
+
+### Developer Tooling
+
+```text
+Proposal -> Roadmap Item -> Tooling Spec -> Test-First Implementation -> Validated Developer Workflow
+```
+
+### Security and Review Findings
+
+```text
+Review Finding -> Remediation Plan -> Implementation Task -> Validation Gate -> Closed Finding
 ```

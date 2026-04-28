@@ -74,3 +74,27 @@
 - **Rely on local checks only**: Rejected because local checks are easy to skip.
 - **Full build only**: Rejected because build success does not prove boundaries, specification parity, or security posture.
 - **Manual merge discipline only**: Rejected because the project goal is professional repeatability.
+
+## Decision 7: Developer Tooling Must Be Planned as First-Class Architecture
+
+**Decision**: Treat the official CLI, governed module generator, local developer doctor, internal template marketplace, and 15-minute first-module guide as first-class roadmap items.
+
+**Rationale**: Tempot should be usable as a professional template, not just a codebase. These tools reduce onboarding friction while encoding the project rules for tests, i18n, events, contracts, exports, and validation.
+
+**Alternatives considered**:
+
+- **Documentation-only onboarding**: Rejected because contributors can still create inconsistent modules manually.
+- **Generator before boundary hardening**: Rejected because it would automate the wrong structure if boundaries are not finalized first.
+- **Ad hoc scripts**: Rejected because the project needs a stable public developer surface.
+
+## Decision 8: Security and Observability Baselines Must Precede SaaS Expansion
+
+**Decision**: Define security and observability baselines before implementing Tempot Cloud or Telegram Managed Bots.
+
+**Rationale**: SaaS and managed-bot capabilities increase token, tenant, audit, and operational risk. Secret scanning, dependency review, token rotation guidance, and observability dashboards are prerequisites for safe expansion.
+
+**Alternatives considered**:
+
+- **Delay security baseline until SaaS implementation**: Rejected because it would allow risky architectural choices to become embedded.
+- **Rely only on package audit**: Rejected because audit does not cover secret leaks, token rotation, operational visibility, or review policy.
+- **Build observability later without a plan**: Rejected because observability surfaces affect logging, audit, queue, session, and error contracts.
