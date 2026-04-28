@@ -1,6 +1,6 @@
 # Tasks: Notifier Package
 
-**Input**: `spec.md`, `plan.md`, `research.md`, `data-model.md`  
+**Input**: `spec.md`, `plan.md`, `research.md`, `data-model.md`
 **Prerequisites**: Package checklist, TDD, current Tempot CI gates
 
 ## Phase 1: Reactivation and Package Foundation
