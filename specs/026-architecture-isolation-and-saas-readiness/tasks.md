@@ -135,6 +135,17 @@
 - [x] T056 [US4] Extend `scripts/tempot/index.ts` and `scripts/tempot/doctor.presenter.ts` to route `pnpm tempot init`.
 - [x] T057 [US4] Update `docs/archive/developer/template-usability-roadmap.md`, `docs/archive/developer/quick-path-first-module.md`, and `docs/archive/ROADMAP.md` to reflect the implemented initial init mode.
 
+## Phase 12: Fourth Code-Facing Execution - CI Tempot CLI Smoke Checks
+
+**Goal**: Keep the new internal Tempot CLI from drifting silently by making CI execute the supported setup smoke commands.
+
+**Independent Test**: The methodology workflow includes `pnpm tempot init` and `pnpm tempot doctor --quick`, and a unit test fails if either smoke check is removed.
+
+- [x] T058 [US1] Create `docs/archive/superpowers/plans/2026-04-28-ci-tempot-cli-smoke.md` as the Superpowers execution plan for the CI smoke-check slice.
+- [x] T059 [US1] Add unit coverage in `scripts/ci/tests/unit/ci-workflow.test.ts` for Tempot CLI smoke checks in `.github/workflows/ci.yml`.
+- [x] T060 [US1] Extend `.github/workflows/ci.yml` methodology gates to run `pnpm tempot init` and `pnpm tempot doctor --quick`.
+- [x] T061 [US1] Update `docs/archive/architecture/boundaries/ci-enforcement-plan.md` and `docs/archive/ROADMAP.md` to reflect the implemented CI smoke checks.
+
 ## Dependencies
 
 - Phase 1 must complete before all other phases.
@@ -150,6 +161,7 @@
 - Validation T039-T042 must complete before review or merge.
 - T048-T052 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
 - T053-T057 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
+- T058-T061 depend on T043-T057 because the CI smoke checks execute the Tempot CLI commands introduced by those slices.
 
 ## Requirement Traceability
 
@@ -178,6 +190,7 @@
 | FR-021 | T027, T028, T029, T030 |
 | FR-014 implementation slice | T048, T049, T050, T051, T052 |
 | FR-013 implementation slice | T053, T054, T055, T056, T057 |
+| FR-011 implementation slice | T058, T059, T060, T061 |
 
 ## Success Criteria Traceability
 
@@ -188,8 +201,8 @@
 | SC-003 | T001-T042 |
 | SC-004 | T012, T016, T020, T023 |
 | SC-005 | T023, T024, T034, T039 |
-| SC-006 | T039, T040 |
-| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057 |
+| SC-006 | T039, T040, T058, T059, T060, T061 |
+| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061 |
 | SC-008 | T027, T028, T029, T030 |
 
 ## Parallel Execution Examples

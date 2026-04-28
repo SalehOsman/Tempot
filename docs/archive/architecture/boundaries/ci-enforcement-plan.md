@@ -9,6 +9,8 @@
 | --- | --- | --- |
 | `pnpm spec:validate` | Blocking | Spec artifact and reconciliation validation |
 | `pnpm cms:check` | Blocking | i18n parity and hardcoded user-facing text guard |
+| `pnpm tempot init` | Blocking | Internal CLI initialization smoke check |
+| `pnpm tempot doctor --quick` | Blocking | Internal CLI local readiness smoke check |
 | `git diff --check` | Blocking | Whitespace and clean diff guard |
 | `pnpm lint` | Blocking | TypeScript, style, and boundary-related lint rules |
 | `pnpm test:unit` | Blocking | Unit behavior |
