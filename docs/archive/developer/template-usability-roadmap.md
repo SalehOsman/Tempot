@@ -14,7 +14,7 @@
 
 | Track | Target | Notes |
 | --- | --- | --- |
-| Official CLI | `create-tempot-bot` or `pnpm tempot init` | Evaluate both; pick one primary entrypoint |
+| Official CLI | `pnpm tempot init` now, `create-tempot-bot` later | Internal entrypoint implemented first; public package remains future work |
 | Module generator | `pnpm tempot module create <name>` | Must generate tests, locales, events, contracts, exports |
 | Developer doctor | `pnpm tempot doctor` | Validate Node, pnpm, Docker, env, DB, Redis, Prisma, webhook readiness |
 | Quick path | `docs/archive/developer/quick-path-first-module.md` | 15-minute guided module build |
@@ -31,6 +31,12 @@
 
 Start with `pnpm tempot init` for local DX, then wrap it with `create-tempot-bot` when publishing the template externally.
 
+Implemented initial mode:
+
+- `pnpm tempot init` creates `.env` from `.env.example` when `.env` is missing.
+- Existing `.env` files are preserved.
+- Output lists the next local commands without printing secret values.
+
 ## Adoption Milestones
 
 1. Document module boundary rules.
@@ -38,7 +44,7 @@ Start with `pnpm tempot init` for local DX, then wrap it with `create-tempot-bot
 3. Add module generator plan.
 4. Add developer doctor plan.
 5. Add quick path guide.
-6. Implement CLI in a future code feature with tests.
+6. Implement CLI in staged code features with tests. Initial modes now cover `init`, `doctor --quick`, and `module create`.
 7. Add marketplace and dashboard plans after boundary enforcement is stable.
 
 ## Quality Rules

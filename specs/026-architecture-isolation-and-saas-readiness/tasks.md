@@ -123,6 +123,18 @@
 - [x] T051 [US4] Extend `scripts/tempot/index.ts` and `scripts/tempot/doctor.presenter.ts` to route `pnpm tempot module create <module-name>`.
 - [x] T052 [US4] Update `docs/archive/developer/module-generator-plan.md` and `docs/archive/ROADMAP.md` to reflect the implemented initial module generator mode.
 
+## Phase 11: Third Code-Facing Execution - Tempot Init Initial Mode
+
+**Goal**: Turn the planned internal CLI entrypoint into a safe local initialization slice before any public `create-tempot-bot` packaging work.
+
+**Independent Test**: `pnpm tempot init` creates `.env` from `.env.example` when missing, preserves an existing `.env`, reports a blocking failure when run outside the repository root, and never prints secret values.
+
+- [x] T053 [US4] Create `docs/archive/superpowers/plans/2026-04-28-tempot-init-initial.md` as the Superpowers execution plan for the first init slice.
+- [x] T054 [US4] Add unit coverage in `scripts/tempot/tests/unit/init.test.ts` for command parsing, `.env` creation, overwrite protection, missing `.env.example`, and output rendering.
+- [x] T055 [US4] Implement `scripts/tempot/init.types.ts`, `scripts/tempot/init.writer.ts`, and `scripts/tempot/init.presenter.ts`.
+- [x] T056 [US4] Extend `scripts/tempot/index.ts` and `scripts/tempot/doctor.presenter.ts` to route `pnpm tempot init`.
+- [x] T057 [US4] Update `docs/archive/developer/template-usability-roadmap.md`, `docs/archive/developer/quick-path-first-module.md`, and `docs/archive/ROADMAP.md` to reflect the implemented initial init mode.
+
 ## Dependencies
 
 - Phase 1 must complete before all other phases.
@@ -137,6 +149,7 @@
 - T038 depends on T020 and T021 for managed-bot token handling context.
 - Validation T039-T042 must complete before review or merge.
 - T048-T052 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
+- T053-T057 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
 
 ## Requirement Traceability
 
@@ -164,6 +177,7 @@
 | FR-020 | T034 |
 | FR-021 | T027, T028, T029, T030 |
 | FR-014 implementation slice | T048, T049, T050, T051, T052 |
+| FR-013 implementation slice | T053, T054, T055, T056, T057 |
 
 ## Success Criteria Traceability
 
@@ -175,7 +189,7 @@
 | SC-004 | T012, T016, T020, T023 |
 | SC-005 | T023, T024, T034, T039 |
 | SC-006 | T039, T040 |
-| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052 |
+| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057 |
 | SC-008 | T027, T028, T029, T030 |
 
 ## Parallel Execution Examples

@@ -2,6 +2,7 @@ import type { DoctorCheck, DoctorReport } from './doctor.checks.js';
 
 export type TempotCommand =
   | { readonly command: 'doctor'; readonly mode: 'quick' }
+  | { readonly command: 'init' }
   | { readonly command: 'module-create'; readonly moduleName: string }
   | { readonly command: 'unknown'; readonly mode: 'help' };
 
@@ -10,6 +11,10 @@ export function parseTempotArgs(args: readonly string[]): TempotCommand {
 
   if (command === 'doctor' && (mode === undefined || mode === '--quick')) {
     return { command: 'doctor', mode: 'quick' };
+  }
+
+  if (command === 'init' && mode === undefined) {
+    return { command: 'init' };
   }
 
   if (command === 'module' && mode === 'create' && moduleName !== undefined) {
@@ -34,10 +39,12 @@ export function renderHelp(): string {
     'Tempot CLI',
     '',
     'Usage:',
+    '  pnpm tempot init',
     '  pnpm tempot doctor --quick',
     '  pnpm tempot module create <module-name>',
     '',
     'Available commands:',
+    '  init              Create local starter files without overwriting existing files.',
     '  doctor --quick    Check Node.js, pnpm, Git, and install state.',
     '  module create     Create a governed inactive module skeleton.',
     '',

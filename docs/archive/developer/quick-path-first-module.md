@@ -5,6 +5,7 @@
 
 ## Prerequisites
 
+- `pnpm tempot init` has been run from the repository root.
 - `pnpm tempot doctor --quick` passes.
 - SpecKit feature exists for the module.
 - Current branch or worktree is not `main`.
@@ -24,6 +25,7 @@
 ## Expected Commands
 
 ```powershell
+pnpm tempot init
 pnpm tempot doctor --quick
 pnpm tempot module create example-module
 pnpm --filter @tempot/example-module test
@@ -44,4 +46,4 @@ git diff --check
 
 ## Notes
 
-This guide is a target state. Until the CLI and generator are implemented, use `docs/archive/developer/new-module-checklist.md` manually.
+This guide now has the first CLI support in place through `pnpm tempot init`, `pnpm tempot doctor --quick`, and `pnpm tempot module create <module-name>`. Continue using `docs/archive/developer/new-module-checklist.md` for module-specific review until deeper module validation commands are implemented.

@@ -1,5 +1,7 @@
 import { collectQuickDoctorInput, createQuickDoctorReport } from './doctor.checks.js';
 import { parseTempotArgs, renderDoctorReport, renderHelp } from './doctor.presenter.js';
+import { renderInitResult } from './init.presenter.js';
+import { initializeTempotProject } from './init.writer.js';
 import { renderModuleCreateResult } from './module-generator.presenter.js';
 import { createModule } from './module-generator.writer.js';
 
@@ -8,6 +10,11 @@ async function run(): Promise<void> {
 
   if (parsed.command === 'doctor') {
     runDoctor();
+    return;
+  }
+
+  if (parsed.command === 'init') {
+    await runInit();
     return;
   }
 
@@ -25,6 +32,19 @@ function runDoctor(): void {
 
   process.stdout.write(renderDoctorReport(report));
   process.exitCode = report.hasBlockingFailure ? 1 : 0;
+}
+
+async function runInit(): Promise<void> {
+  const result = await initializeTempotProject({ cwd: process.cwd() });
+  const output = renderInitResult(result);
+
+  if (result.ok) {
+    process.stdout.write(output);
+    return;
+  }
+
+  process.stderr.write(output);
+  process.exitCode = 1;
 }
 
 async function runModuleCreate(moduleName: string): Promise<void> {
