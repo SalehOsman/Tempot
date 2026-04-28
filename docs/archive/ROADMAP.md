@@ -36,6 +36,16 @@ Artifacts:
 - SpecKit: `specs/026-architecture-isolation-and-saas-readiness/`
 - Superpowers plan: `docs/archive/superpowers/plans/2026-04-28-architecture-isolation-and-saas-readiness.md`
 
+Execution artifacts created in the architecture hardening branch:
+
+- Boundary governance: `docs/archive/architecture/boundaries/`
+- Strategic ADRs: `docs/archive/architecture/adr/ADR-040-tempot-core-cloud-boundary.md`, `docs/archive/architecture/adr/ADR-041-telegram-managed-bots-strategy.md`
+- SaaS readiness: `docs/archive/architecture/saas-readiness.md`, `docs/archive/architecture/saas-migration-map.md`
+- Telegram Managed Bots: `docs/archive/architecture/telegram-managed-bots-assessment.md`, `docs/archive/architecture/telegram-managed-bots-integration-boundary.md`
+- Developer experience: `docs/archive/developer/template-usability-roadmap.md`, `docs/archive/developer/module-generator-plan.md`, `docs/archive/developer/local-developer-doctor.md`, `docs/archive/developer/quick-path-first-module.md`
+- Agent guidance: `docs/archive/developer/agent-skills-guide.md`
+- Security and operations: `docs/archive/security/security-baseline.md`, `docs/archive/architecture/observability-dashboard.md`
+
 ## Phase 1 — Core Bedrock Packages
 
 ### Status Key
