@@ -48,9 +48,11 @@ specs/026-architecture-isolation-and-saas-readiness/
 â”œâ”€â”€ contracts/
 â”‚   â”œâ”€â”€ boundary-contract.md
 â”‚   â”œâ”€â”€ saas-readiness-contract.md
-â”‚   â””â”€â”€ telegram-managed-bots-contract.md
+â”‚   â”œâ”€â”€ telegram-managed-bots-contract.md
+â”‚   â””â”€â”€ dx-security-contract.md
 â”œâ”€â”€ checklists/
-â”‚   â””â”€â”€ requirements.md
+â”‚   â”œâ”€â”€ requirements.md
+â”‚   â””â”€â”€ dx-security-review-findings.md
 â””â”€â”€ tasks.md
 ```
 

@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "cms:check": "npx tsx scripts/cms-check.ts"
+    "cms:check": "pnpm --dir ../.. --filter @tempot/shared build && npx tsx scripts/cms-check.ts"
   },
   "dependencies": {
     "@tempot/shared": "workspace:*",

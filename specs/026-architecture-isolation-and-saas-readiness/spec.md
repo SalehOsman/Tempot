@@ -142,7 +142,7 @@ As the project owner, I want known review findings and quality proposals to be e
 - **SC-003**: At least 90% of proposed tasks are scoped to documentation, analysis, or enforcement and do not require feature rewrites before the project owner approves implementation.
 - **SC-004**: The resulting task list separates the MVP boundary-hardening work from later SaaS and Telegram Managed Bots work.
 - **SC-005**: A future contributor can use the quickstart to run the planned validation gates and understand the expected pass/fail outcomes in under 15 minutes.
-- **SC-006**: SpecKit validation reports zero critical issues for this active feature before implementation begins.
+- **SC-006**: SpecKit validation reports zero critical issues for this active feature before the next execution branch begins.
 - **SC-007**: All approved DX proposals are explicitly represented in tasks or roadmap-linked documents.
 - **SC-008**: All known review findings are explicitly represented in remediation tasks with validation expectations.
 

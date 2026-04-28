@@ -15,7 +15,7 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm execution remains on branch `codex/architecture-saas-readiness-plan` before editing tracked files.
+- [ ] T001 Create or switch to a dedicated execution branch/worktree from `main` before editing tracked files; never execute this feature directly on `main`.
 - [ ] T002 [P] Review `docs/archive/tempot_v11_final.md`, `.specify/memory/constitution.md`, and `docs/archive/developer/workflow-guide.md` for existing boundary and methodology language.
 - [ ] T003 [P] Review Telegram Managed Bots documentation from `https://core.telegram.org/bots/features#managed-bots` and record only stable product implications in `docs/archive/architecture/telegram-managed-bots-assessment.md`.
 - [ ] T004 Create `docs/archive/architecture/boundaries/` for boundary inventory, rules, audit output, and remediation planning.
