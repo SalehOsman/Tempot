@@ -1,23 +1,29 @@
 import { InlineKeyboard } from 'grammy';
 import { UserProfile } from '../types/index.js';
+import type { ModuleI18n } from '../types/module-deps.types.js';
 
 export class MainMenuFactory {
-  static create(user: UserProfile): InlineKeyboard {
+  static create(user: UserProfile, i18n: ModuleI18n): InlineKeyboard {
     const keyboard = new InlineKeyboard();
 
-    // Row 1: Quick Actions
-    keyboard.text('👤 ملفي', 'profile:view').text('⚙️ إعدادات', 'settings:view').row();
+    keyboard
+      .text(i18n.t('user-management.menu.button.profile'), 'profile:view')
+      .text(i18n.t('user-management.menu.button.settings'), 'settings:view')
+      .row();
 
-    // Row 2: Secondary Actions
-    keyboard.text('🔔 إشعارات', 'notifications:view').text('📨 رسائل', 'messages:view').row();
+    keyboard
+      .text(i18n.t('user-management.menu.button.notifications'), 'notifications:view')
+      .text(i18n.t('user-management.menu.button.messages'), 'messages:view')
+      .row();
 
-    // Row 3: Admin Actions (if admin)
     if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
-      keyboard.text('👥 مستخدمين', 'users:list').text('📊 إحصائيات', 'stats:view').row();
+      keyboard
+        .text(i18n.t('user-management.menu.button.users'), 'users:list')
+        .text(i18n.t('user-management.menu.button.stats'), 'stats:view')
+        .row();
     }
 
-    // Row 4: Help
-    keyboard.text('❓ مساعدة', 'help:view');
+    keyboard.text(i18n.t('user-management.menu.button.help'), 'help:view');
 
     return keyboard;
   }

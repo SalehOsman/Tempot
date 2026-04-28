@@ -1,27 +1,59 @@
 {
   "user-management": {
     "common": {
-      "undefined": "Not set"
+      "undefined": "Not set",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel"
     },
     "errors": {
-      "no_user": "❌ Could not identify you. Please try again.",
-      "register_first": "❌ Your account was not found. Please contact the administrator.",
-      "no_active_state": "⚠️ No active operation. Please use the buttons to navigate."
+      "no_user": "Could not identify you. Please try again.",
+      "register_first": "Your account was not found. Please contact the administrator.",
+      "no_active_state": "No active operation. Please use the buttons to navigate.",
+      "invalid_callback": "Invalid callback query.",
+      "callback_failed": "An error occurred while processing your request.",
+      "unknown_action": "Unknown action."
     },
     "menu": {
-      "main": "👋 Welcome to Tempot",
-      "welcome": "👋 Hello <b>{{name}}</b>!\n\n🎯 Role: {{role}}\n🌍 Language: {{language}}\n\nChoose from the menu below:",
-      "back": "🔙 Back",
-      "help": "❓ Help"
+      "main": "Welcome to Tempot",
+      "welcome": "Hello <b>{{name}}</b>!\n\nRole: {{role}}\nLanguage: {{language}}\n\nChoose from the menu below:",
+      "back": "Back",
+      "help": "Help",
+      "button": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "notifications": "Notifications",
+        "messages": "Messages",
+        "users": "Users",
+        "stats": "Stats",
+        "help": "Help"
+      }
     },
     "profile": {
-      "view": "👤 Your Profile",
-      "edit": "✏️ Edit Profile",
-      "stats": "📊 Your Statistics",
-      "view_message": "👤 <b>Your Profile</b>\n\n👤 Name: {{username}}\n📧 Email: {{email}}\n🌍 Language: {{language}}\n🎯 Role: {{role}}\n\n━━━ Personal Data ━━━\n🪪 National ID: {{nationalId}}\n� Mobile: {{mobile}}\n🎂 Birth Date: {{birthDate}}\n📆 Age: {{age}}\n👤 Gender: {{gender}}\n🗺️ Governorate: {{governorate}}\n🌍 Country Code: {{countryCode}}\n\n�📅 Registered: {{createdAt}}",
+      "view": "Your Profile",
+      "edit_prompt": "<b>Edit Profile</b>\n\nChoose the field you want to update:",
+      "edit_personal_prompt": "<b>Personal Data</b>\n\nChoose the field you want to update:",
+      "view_message": "<b>Your Profile</b>\n\nName: {{username}}\nEmail: {{email}}\nLanguage: {{language}}\nRole: {{role}}\n\nPersonal Data\nNational ID: {{nationalId}}\nMobile: {{mobile}}\nBirth Date: {{birthDate}}\nAge: {{age}}\nGender: {{gender}}\nGovernorate: {{governorate}}\nCountry Code: {{countryCode}}\n\nRegistered: {{createdAt}}",
+      "stats_message": "<b>Your Statistics</b>\n\nRegistered: {{createdAt}}\nMessages: {{messageCount}}\nCompleted tasks: {{completedTasks}}\nActive time: {{activeTime}}\nRating: {{rating}}",
+      "zero_active_time": "0 hours",
       "age_value": "{{age}} years",
-      "auto_extracted": "✅ Your data was automatically extracted from the national ID (gender, birth date, governorate)",
-      "national_id_extracted": "✅ National ID saved and data extracted automatically:\n👤 Gender: {{gender}}\n🎂 Birth Date: {{birthDate}}\n🗺️ Governorate: {{governorate}}",
+      "auto_extracted": "Your data was automatically extracted from the national ID.",
+      "national_id_extracted": "National ID saved and data extracted automatically:\nGender: {{gender}}\nBirth Date: {{birthDate}}\nGovernorate: {{governorate}}",
+      "button": {
+        "edit": "Edit",
+        "stats": "Stats",
+        "name": "Name",
+        "email": "Email",
+        "language": "Language",
+        "role": "Role",
+        "personal": "Personal Data",
+        "national_id": "National ID",
+        "mobile": "Mobile",
+        "birth_date": "Birth Date",
+        "gender": "Gender",
+        "governorate": "Governorate",
+        "country_code": "Country Code"
+      },
       "field": {
         "name": "Name",
         "email": "Email",
@@ -34,43 +66,87 @@
         "governorate": "Governorate",
         "country_code": "Country Code"
       },
-      "updated": "✅ {{field}} updated successfully to: <b>{{value}}</b>",
-      "update_error": "❌ An error occurred while updating. Please try again.",
-      "error": "❌ Error updating profile",
-      "not_found": "❌ Profile not found",
-      "national_id_saved_only": "✅ National ID saved"
+      "prompt": {
+        "name": "Enter the new name:\n\n<i>Maximum 50 characters</i>",
+        "email": "Enter the new email address:\n\n<i>Example: name@example.com</i>",
+        "language": "Enter the new language:\n\n<i>ar - Arabic\nen - English</i>",
+        "role": "Enter the new role:\n\n<i>USER / ADMIN / SUPER_ADMIN</i>",
+        "national_id": "Enter the national ID:\n\n<i>14 digits. Example: 29901011234567</i>",
+        "mobile": "Enter the mobile number:\n\n<i>Example: 01012345678 or +201012345678</i>",
+        "birth_date": "Enter the birth date:\n\n<i>Format: YYYY-MM-DD or DD/MM/YYYY\nExample: 1990-01-15</i>",
+        "gender": "Enter the gender:\n\n<i>male / female / m / f</i>",
+        "governorate": "Enter the governorate:\n\n<i>Example: Cairo, Alexandria, Giza</i>",
+        "country_code": "Enter the country code:\n\n<i>Example: +20 for Egypt, +966 for Saudi Arabia, +971 for UAE</i>",
+        "generic": "Enter the new value:"
+      },
+      "updated": "{{field}} updated successfully to: <b>{{value}}</b>",
+      "update_error": "An error occurred while updating. Please try again.",
+      "error": "Error updating profile",
+      "not_found": "Profile not found",
+      "national_id_saved_only": "National ID saved"
     },
     "users": {
-      "list": "👥 User Management",
-      "list_header": "👥 <b>Users List</b> ({{count}} users)",
+      "list": "User Management",
+      "list_header": "<b>Users List</b> ({{count}} users)",
       "more": "... and {{count}} more",
-      "search": "🔍 Search Users",
-      "view": "👤 User Details",
-      "fetch_error": "❌ Could not load users list. Please try again later.",
-      "role": {
-        "change": "🎯 Change Role",
-        "confirm": "⚠️ Confirm Role Change",
-        "success": "✅ Role updated successfully",
-        "error": "❌ Error updating role"
+      "search": "Search Users",
+      "view": "User Details",
+      "fetch_error": "Could not load users list. Please try again later.",
+      "not_found": "No users found",
+      "unauthorized": "You do not have permission to access this feature.",
+      "search_pending": "Search is under development.",
+      "view_pending": "User {{id}} details are under development.",
+      "role_pending": "Changing user {{id}} role to {{role}} is under development.",
+      "button": {
+        "search": "Search",
+        "list": "List",
+        "user": "{{name}}",
+        "role_user": "User",
+        "role_moderator": "Moderator",
+        "role_admin": "Admin",
+        "role_super_admin": "Super Admin"
       },
-      "not_found": "❌ No users found",
-      "unauthorized": "⚠️ You don't have permission to access this feature"
+      "role": {
+        "change": "Change Role",
+        "confirm": "Confirm Role Change",
+        "success": "Role updated successfully",
+        "error": "Error updating role"
+      }
     },
     "validation": {
       "name": {
-        "required": "❌ Name cannot be empty",
-        "too_long": "❌ Name is too long (max 50 characters)",
-        "invalid": "❌ Name contains invalid characters"
+        "required": "Name cannot be empty",
+        "too_long": "Name is too long (max 50 characters)",
+        "invalid": "Name contains invalid characters"
       },
       "email": {
-        "invalid": "❌ Invalid email address",
-        "too_long": "❌ Email is too long (max 255 characters)"
+        "invalid": "Invalid email address",
+        "too_long": "Email is too long (max 255 characters)"
       },
       "language": {
-        "invalid": "❌ Invalid language. Valid options: {{valid}}"
+        "invalid": "Invalid language. Valid options: {{valid}}"
       },
       "role": {
-        "invalid": "❌ Invalid role. Valid options: {{valid}}"
+        "invalid": "Invalid role. Valid options: {{valid}}"
+      },
+      "national_id": {
+        "invalid": "Invalid national ID.\n\nIt must be 14 digits and start with 1, 2, or 3.\n<i>Example: 29901011234567</i>"
+      },
+      "mobile": {
+        "invalid": "Invalid mobile number.\n\nEnter a valid Egyptian mobile number.\n<i>Example: 01012345678</i>"
+      },
+      "birth_date": {
+        "invalid": "Invalid birth date.\n\nUse YYYY-MM-DD or DD/MM/YYYY.\n<i>Example: 1990-01-15</i>",
+        "out_of_range": "Birth date is outside the allowed range (10-120 years)."
+      },
+      "gender": {
+        "invalid": "Invalid gender. Enter male, female, m, or f."
+      },
+      "governorate": {
+        "invalid": "Invalid governorate name (2-50 characters)."
+      },
+      "country_code": {
+        "invalid": "Invalid country code.\n\nIt must start with + followed by 1-4 digits.\n<i>Example: +20</i>"
       }
     },
     "role": {

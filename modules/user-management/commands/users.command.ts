@@ -59,7 +59,9 @@ function formatUsersList(users: UserProfile[], i18n: ReturnType<typeof getI18n>)
       ? `\n${i18n.t('user-management.users.more', { count: users.length - 5 })}`
       : '';
 
-  return i18n.t('user-management.users.list_header', { count: users.length }) + '\n\n' + rows + extra;
+  return (
+    i18n.t('user-management.users.list_header', { count: users.length }) + '\n\n' + rows + extra
+  );
 }
 
 export async function usersCommand(ctx: Context): Promise<void> {
@@ -87,7 +89,7 @@ export async function usersCommand(ctx: Context): Promise<void> {
   }
 
   const users = usersResult.value;
-  const keyboard = UsersMenuFactory.createList();
+  const keyboard = UsersMenuFactory.createList(i18n);
   const message = formatUsersList(users, i18n);
 
   await ctx.reply(message, { parse_mode: 'HTML', reply_markup: keyboard });

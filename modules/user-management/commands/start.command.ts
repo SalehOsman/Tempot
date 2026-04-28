@@ -35,7 +35,7 @@ export async function startCommand(ctx: Context): Promise<void> {
   }
 
   const user = userResult.value;
-  const keyboard = MainMenuFactory.create(user);
+  const keyboard = MainMenuFactory.create(user, i18n);
 
   const displayName = user.username ?? telegramUser.first_name;
 

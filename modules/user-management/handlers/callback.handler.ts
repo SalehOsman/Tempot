@@ -7,8 +7,6 @@ import { handleUsersAction } from './users.callback.handler.js';
 import { handleProfileAction } from './profile.callback.handler.js';
 import { safeEditMessageText } from './callback-shared.handler.js';
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
-
 function parseCallbackData(data: string): { action: string; params: string[] } {
   const [action, ...params] = data.split(':');
   return { action, params };
@@ -20,20 +18,19 @@ async function fetchUser(telegramId: string): Promise<UserProfile | null> {
   return userResult.value;
 }
 
-// ─── Entry point ──────────────────────────────────────────────────────────────
-
 async function handleCallbackQuery(ctx: Context): Promise<void> {
   const log = getLogger().child({ handler: 'callback' });
+  const i18n = getI18n();
   try {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery?.data) {
-      await ctx.answerCallbackQuery('❌ Invalid callback query');
+      await ctx.answerCallbackQuery(i18n.t('user-management.errors.invalid_callback'));
       return;
     }
 
     const telegramUser = ctx.from;
     if (!telegramUser) {
-      await ctx.answerCallbackQuery('❌ Could not identify user');
+      await ctx.answerCallbackQuery(i18n.t('user-management.errors.no_user'));
       return;
     }
 
@@ -44,14 +41,14 @@ async function handleCallbackQuery(ctx: Context): Promise<void> {
 
     const user = await fetchUser(telegramId);
     if (!user) {
-      await ctx.answerCallbackQuery('❌ الملف الشخصي غير موجود');
+      await ctx.answerCallbackQuery(i18n.t('user-management.profile.not_found'));
       return;
     }
 
     await dispatchCallbackAction(ctx, user, { action, params });
   } catch (error) {
     log.error({ msg: 'callback_error', error: String(error) });
-    await ctx.answerCallbackQuery('❌ حدث خطأ أثناء معالجة طلبك');
+    await ctx.answerCallbackQuery(i18n.t('user-management.errors.callback_failed'));
   }
 }
 
@@ -60,6 +57,7 @@ async function dispatchCallbackAction(
   user: UserProfile,
   payload: { action: string; params: string[] },
 ): Promise<void> {
+  const i18n = getI18n();
   const { action, params } = payload;
   switch (action) {
     case 'menu':
@@ -72,11 +70,9 @@ async function dispatchCallbackAction(
       await handleUsersAction(ctx, user, params);
       break;
     default:
-      await ctx.answerCallbackQuery('❌ إجراء غير معروف');
+      await ctx.answerCallbackQuery(i18n.t('user-management.errors.unknown_action'));
   }
 }
-
-// ─── Menu ─────────────────────────────────────────────────────────────────────
 
 async function handleMenuAction(ctx: Context, user: UserProfile, params: string[]): Promise<void> {
   const i18n = getI18n();
@@ -88,10 +84,10 @@ async function handleMenuAction(ctx: Context, user: UserProfile, params: string[
     });
     await safeEditMessageText(ctx, msg, {
       parse_mode: 'HTML',
-      reply_markup: MainMenuFactory.create(user),
+      reply_markup: MainMenuFactory.create(user, i18n),
     });
   } else {
-    await ctx.answerCallbackQuery('❌ إجراء غير معروف');
+    await ctx.answerCallbackQuery(i18n.t('user-management.errors.unknown_action'));
   }
 }
 

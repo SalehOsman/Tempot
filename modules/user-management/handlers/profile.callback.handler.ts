@@ -37,7 +37,7 @@ async function promptInput(ctx: Context, action: string, backCallback: string): 
   await setUserInputState(telegramId, chatId, action as Parameters<typeof setUserInputState>[2]);
 
   const promptText = i18n.t(PROMPT_KEYS[action] ?? 'user-management.profile.prompt.generic');
-  const keyboard = new InlineKeyboard().text('❌ إلغاء', backCallback);
+  const keyboard = new InlineKeyboard().text(i18n.t('user-management.common.cancel'), backCallback);
 
   await safeEditMessageText(ctx, promptText, { parse_mode: 'HTML', reply_markup: keyboard });
 }
@@ -47,6 +47,7 @@ export async function handleProfileAction(
   user: UserProfile,
   params: string[],
 ): Promise<void> {
+  const i18n = getI18n();
   const subAction = params.join(':');
 
   if (BASIC_PROMPTS.includes(subAction)) {
@@ -73,7 +74,7 @@ export async function handleProfileAction(
       await handleProfileEditPersonal(ctx, user);
       break;
     default:
-      await ctx.answerCallbackQuery('❌ إجراء غير معروف');
+      await ctx.answerCallbackQuery(i18n.t('user-management.errors.unknown_action'));
   }
 }
 
@@ -81,30 +82,28 @@ async function handleProfileView(ctx: Context, user: UserProfile): Promise<void>
   const i18n = getI18n();
   await safeEditMessageText(ctx, buildProfileMessage(user, i18n), {
     parse_mode: 'HTML',
-    reply_markup: ProfileMenuFactory.createView(user),
+    reply_markup: ProfileMenuFactory.createView(user, i18n),
   });
 }
 
 async function handleProfileEdit(ctx: Context, _user: UserProfile): Promise<void> {
   const i18n = getI18n();
-  const msg = i18n.t('user-management.profile.edit_prompt');
-  await safeEditMessageText(ctx, msg, {
+  await safeEditMessageText(ctx, i18n.t('user-management.profile.edit_prompt'), {
     parse_mode: 'HTML',
-    reply_markup: ProfileMenuFactory.createEdit(),
+    reply_markup: ProfileMenuFactory.createEdit(i18n),
   });
 }
 
 async function handleProfileEditPersonal(ctx: Context, _user: UserProfile): Promise<void> {
   const i18n = getI18n();
-  const msg = i18n.t('user-management.profile.edit_personal_prompt');
-  await safeEditMessageText(ctx, msg, {
+  await safeEditMessageText(ctx, i18n.t('user-management.profile.edit_personal_prompt'), {
     parse_mode: 'HTML',
-    reply_markup: ProfileMenuFactory.createEditPersonal(),
+    reply_markup: ProfileMenuFactory.createEditPersonal(i18n),
   });
 }
 
 async function handleProfileStats(ctx: Context, user: UserProfile): Promise<void> {
-  const result = ProfileMenuFactory.createStats(user);
+  const result = ProfileMenuFactory.createStats(user, getI18n());
   await safeEditMessageText(ctx, result.message, {
     parse_mode: 'HTML',
     reply_markup: result.keyboard,

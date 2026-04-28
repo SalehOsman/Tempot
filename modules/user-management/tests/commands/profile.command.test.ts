@@ -96,7 +96,7 @@ describe('profileCommand', () => {
 
     await profileCommand(ctx);
 
-    expect(ProfileMenuFactory.createView).toHaveBeenCalledWith(mockUser);
+    expect(ProfileMenuFactory.createView).toHaveBeenCalledWith(mockUser, { t });
     expect(ctx.reply).toHaveBeenCalledWith('user-management.profile.view_message:testuser', {
       parse_mode: 'HTML',
       reply_markup: keyboard,

@@ -1,63 +1,60 @@
 import { InlineKeyboard } from 'grammy';
 import type { UserProfile } from '../types/index.js';
+import type { ModuleI18n } from '../types/module-deps.types.js';
 
 export class ProfileMenuFactory {
-
-  /** عرض الملف الشخصي — كل الحقول */
-  static createView(_user: UserProfile): InlineKeyboard {
+  static createView(_user: UserProfile, i18n: ModuleI18n): InlineKeyboard {
     return new InlineKeyboard()
-      .text('✏️ تعديل', 'profile:edit')
+      .text(i18n.t('user-management.profile.button.edit'), 'profile:edit')
       .row()
-      .text('📊 إحصائيات', 'profile:stats')
+      .text(i18n.t('user-management.profile.button.stats'), 'profile:stats')
       .row()
-      .text('🔙 العودة', 'menu:main');
+      .text(i18n.t('user-management.menu.back'), 'menu:main');
   }
 
-  /** قائمة التعديل — الحقول الأساسية */
-  static createEdit(): InlineKeyboard {
+  static createEdit(i18n: ModuleI18n): InlineKeyboard {
     return new InlineKeyboard()
-      .text('👤 الاسم', 'profile:edit:name')
-      .text('📧 البريد', 'profile:edit:email')
+      .text(i18n.t('user-management.profile.button.name'), 'profile:edit:name')
+      .text(i18n.t('user-management.profile.button.email'), 'profile:edit:email')
       .row()
-      .text('🌐 اللغة', 'profile:edit:language')
-      .text('🎯 الدور', 'profile:edit:role')
+      .text(i18n.t('user-management.profile.button.language'), 'profile:edit:language')
+      .text(i18n.t('user-management.profile.button.role'), 'profile:edit:role')
       .row()
-      .text('📋 البيانات الشخصية', 'profile:edit:personal')
+      .text(i18n.t('user-management.profile.button.personal'), 'profile:edit:personal')
       .row()
-      .text('🔙 العودة', 'profile:view');
+      .text(i18n.t('user-management.menu.back'), 'profile:view');
   }
 
-  /** قائمة التعديل — البيانات الشخصية المصرية */
-  static createEditPersonal(): InlineKeyboard {
+  static createEditPersonal(i18n: ModuleI18n): InlineKeyboard {
     return new InlineKeyboard()
-      .text('🪪 رقم الهوية', 'profile:edit:national_id')
+      .text(i18n.t('user-management.profile.button.national_id'), 'profile:edit:national_id')
       .row()
-      .text('📱 رقم الجوال', 'profile:edit:mobile')
+      .text(i18n.t('user-management.profile.button.mobile'), 'profile:edit:mobile')
       .row()
-      .text('🎂 تاريخ الميلاد', 'profile:edit:birth_date')
+      .text(i18n.t('user-management.profile.button.birth_date'), 'profile:edit:birth_date')
       .row()
-      .text('👤 الجنس', 'profile:edit:gender')
+      .text(i18n.t('user-management.profile.button.gender'), 'profile:edit:gender')
       .row()
-      .text('🗺️ المحافظة', 'profile:edit:governorate')
+      .text(i18n.t('user-management.profile.button.governorate'), 'profile:edit:governorate')
       .row()
-      .text('🌍 رمز الدولة', 'profile:edit:country_code')
+      .text(i18n.t('user-management.profile.button.country_code'), 'profile:edit:country_code')
       .row()
-      .text('🔙 العودة', 'profile:edit');
+      .text(i18n.t('user-management.menu.back'), 'profile:edit');
   }
 
-  static createStats(user: UserProfile): { keyboard: InlineKeyboard; message: string } {
-    const keyboard = new InlineKeyboard().text('🔙 العودة', 'profile:view');
+  static createStats(
+    user: UserProfile,
+    i18n: ModuleI18n,
+  ): { keyboard: InlineKeyboard; message: string } {
+    const keyboard = new InlineKeyboard().text(i18n.t('user-management.menu.back'), 'profile:view');
 
-    const formattedDate = user.createdAt.toLocaleDateString('ar-EG');
-    const message = `
-📊 إحصائياتك
-
-📅 تاريخ التسجيل: ${formattedDate}
-📨 الرسائل: ${user.messageCount ?? 0}
-✅ المهام المكتملة: ${user.completedTasks?.toLocaleString('ar-EG') ?? '0'}
-⏱️ الوقت النشط: ${user.activeTime ?? '0 ساعة'}
-🌟 التقييم: ${user.rating ?? 'N/A'}
-    `.trim();
+    const message = i18n.t('user-management.profile.stats_message', {
+      createdAt: user.createdAt.toLocaleDateString('ar-EG'),
+      messageCount: user.messageCount ?? 0,
+      completedTasks: user.completedTasks?.toLocaleString('ar-EG') ?? '0',
+      activeTime: user.activeTime ?? i18n.t('user-management.profile.zero_active_time'),
+      rating: user.rating ?? 'N/A',
+    });
 
     return { keyboard, message };
   }

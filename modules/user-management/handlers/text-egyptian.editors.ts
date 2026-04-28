@@ -4,6 +4,9 @@ import { getUserService } from '../services/user-service.context.js';
 import type { UserProfile } from '../types/index.js';
 import { replyUpdated, replyError } from './text.editors.js';
 
+const ARABIC_MALE = '\u0630\u0643\u0631';
+const ARABIC_FEMALE = '\u0623\u0646\u062b\u0649';
+
 export async function handleEditNationalId(
   ctx: Context,
   user: UserProfile,
@@ -25,12 +28,12 @@ export async function handleEditNationalId(
   log.info({ msg: 'national_id_updated', userId: user.id, extracted: result.value.extracted });
 
   if (result.value.extracted && result.value.data) {
-    const d = result.value.data;
+    const data = result.value.data;
     await ctx.reply(
       i18n.t('user-management.profile.national_id_extracted', {
-        gender: i18n.t(`user-management.gender.${d.gender}`),
-        birthDate: d.birthDate.toLocaleDateString('ar-EG'),
-        governorate: d.governorate,
+        gender: i18n.t(`user-management.gender.${data.gender}`),
+        birthDate: data.birthDate.toLocaleDateString('ar-EG'),
+        governorate: data.governorate,
       }),
       { parse_mode: 'HTML' },
     );
@@ -76,8 +79,8 @@ export async function handleEditBirthDate(
   if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
     date = new Date(text);
   } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
-    const [d, m, y] = text.split('/');
-    date = new Date(`${y}-${m}-${d}`);
+    const [day, month, year] = text.split('/');
+    date = new Date(`${year}-${month}-${day}`);
   }
 
   if (!date || isNaN(date.getTime())) {
@@ -109,19 +112,14 @@ export async function handleEditGender(
 ): Promise<void> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
-  const VALID_GENDERS = ['male', 'female', 'ذكر', 'أنثى', 'm', 'f'] as const;
   const input = text.toLowerCase().trim();
 
   let gender: 'male' | 'female' | null = null;
-  if (['male', 'ذكر', 'm'].includes(input)) gender = 'male';
-  else if (['female', 'أنثى', 'f'].includes(input)) gender = 'female';
+  if (['male', ARABIC_MALE, 'm'].includes(input)) gender = 'male';
+  else if (['female', ARABIC_FEMALE, 'f'].includes(input)) gender = 'female';
 
   if (!gender) {
-    await ctx.reply(
-      i18n.t('user-management.validation.gender.invalid', {
-        valid: VALID_GENDERS.slice(0, 4).join(' / '),
-      }),
-    );
+    await ctx.reply(i18n.t('user-management.validation.gender.invalid'));
     return;
   }
 
@@ -134,37 +132,6 @@ export async function handleEditGender(
   log.info({ msg: 'gender_updated', userId: user.id });
   await replyUpdated(ctx, 'gender', i18n.t(`user-management.gender.${gender}`));
 }
-
-const EGYPTIAN_GOVERNORATES = [
-  'القاهرة',
-  'الجيزة',
-  'الإسكندرية',
-  'الدقهلية',
-  'البحر الأحمر',
-  'البحيرة',
-  'الفيوم',
-  'الغربية',
-  'الإسماعيلية',
-  'المنوفية',
-  'المنيا',
-  'القليوبية',
-  'الوادي الجديد',
-  'السويس',
-  'أسوان',
-  'أسيوط',
-  'بني سويف',
-  'بورسعيد',
-  'دمياط',
-  'جنوب سيناء',
-  'شمال سيناء',
-  'سوهاج',
-  'قنا',
-  'كفر الشيخ',
-  'مطروح',
-  'الأقصر',
-  'الشرقية',
-  'السادات',
-];
 
 export async function handleEditGovernorate(
   ctx: Context,
@@ -188,10 +155,6 @@ export async function handleEditGovernorate(
 
   log.info({ msg: 'governorate_updated', userId: user.id });
   await replyUpdated(ctx, 'governorate', input);
-
-  if (!EGYPTIAN_GOVERNORATES.includes(input)) {
-    await ctx.reply(i18n.t('user-management.validation.governorate.hint'));
-  }
 }
 
 export async function handleEditCountryCode(

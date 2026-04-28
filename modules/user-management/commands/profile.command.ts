@@ -94,7 +94,7 @@ export async function profileCommand(ctx: Context): Promise<void> {
 
   await ctx.reply(buildProfileMessage(user, i18n), {
     parse_mode: 'HTML',
-    reply_markup: ProfileMenuFactory.createView(user),
+    reply_markup: ProfileMenuFactory.createView(user, i18n),
   });
 }
 

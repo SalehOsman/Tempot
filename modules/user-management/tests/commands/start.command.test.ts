@@ -98,7 +98,7 @@ describe('startCommand', () => {
 
     await startCommand(ctx);
 
-    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser);
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t });
     expect(ctx.reply).toHaveBeenCalledWith('user-management.menu.welcome:testuser', {
       parse_mode: 'HTML',
       reply_markup: keyboard,

@@ -1,16 +1,22 @@
-/**
- * Text Input Handler — يعالج الـ input النصي من المستخدم
- *
- * الحقول المدعومة:
- *   name | email | language | role
- *   national_id | mobile | birth_date | gender | governorate | country_code
- */
-
 import type { Context } from 'grammy';
 import { getI18n, getLogger } from '../deps.context.js';
 import type { UserProfile } from '../types/index.js';
 import { getUserService } from '../services/user-service.context.js';
 import { getUserInputState, clearUserInputState } from './user-state.service.js';
+import {
+  handleEditName,
+  handleEditEmail,
+  handleEditLanguage,
+  handleEditRole,
+} from './text.editors.js';
+import {
+  handleEditNationalId,
+  handleEditMobile,
+  handleEditBirthDate,
+  handleEditGender,
+  handleEditGovernorate,
+  handleEditCountryCode,
+} from './text-egyptian.editors.js';
 
 interface DispatchPayload {
   action: string;
@@ -63,8 +69,6 @@ export async function handleTextInput(ctx: Context): Promise<void> {
 
   const message = ctx.message;
   if (!message?.text) return;
-
-  // تجاهل الأوامر
   if (message.text.startsWith('/')) return;
 
   const text = message.text.trim();
@@ -75,8 +79,7 @@ export async function handleTextInput(ctx: Context): Promise<void> {
   const chatId = ctx.chat?.id.toString() ?? telegramId;
 
   const state = await getUserInputState(telegramId, chatId);
-
-  if (!state) return; // لا توجد حالة انتظار — تجاهل بصمت
+  if (!state) return;
 
   const userResult = await getUserService().getByTelegramId(telegramId);
   if (userResult.isErr()) {
@@ -85,27 +88,6 @@ export async function handleTextInput(ctx: Context): Promise<void> {
     return;
   }
 
-  const user = userResult.value;
-
-  await dispatchTextAction(ctx, user, { action: state.action, text });
-
+  await dispatchTextAction(ctx, userResult.value, { action: state.action, text });
   await clearUserInputState(telegramId, chatId);
 }
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-import {
-  handleEditName,
-  handleEditEmail,
-  handleEditLanguage,
-  handleEditRole,
-} from './text.editors.js';
-
-import {
-  handleEditNationalId,
-  handleEditMobile,
-  handleEditBirthDate,
-  handleEditGender,
-  handleEditGovernorate,
-  handleEditCountryCode,
-} from './text-egyptian.editors.js';
