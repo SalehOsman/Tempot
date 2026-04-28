@@ -1,6 +1,6 @@
 # Boundary and Methodology CI Enforcement Plan
 
-**Status**: Draft execution artifact for spec #026
+**Status**: Implemented execution artifact for spec #026
 **Purpose**: Define how CI should prevent architecture and methodology drift before merge.
 
 ## Current Gates
@@ -9,6 +9,8 @@
 | --- | --- | --- |
 | `pnpm spec:validate` | Blocking | Spec artifact and reconciliation validation |
 | `pnpm cms:check` | Blocking | i18n parity and hardcoded user-facing text guard |
+| `pnpm boundary:audit` | Blocking | Tracked import boundary audit for modules, module package names, packages, apps, and deep package imports |
+| `pnpm module:checklist` | Blocking | Module package metadata and local governance file validation |
 | `pnpm tempot init` | Blocking | Internal CLI initialization smoke check |
 | `pnpm tempot doctor --quick` | Blocking | Internal CLI local readiness smoke check |
 | `git diff --check` | Blocking | Whitespace and clean diff guard |
@@ -21,8 +23,8 @@
 
 | Gate | Phase | Failure mode | Notes |
 | --- | --- | --- | --- |
-| Tracked import audit | Report-only, then blocking | Module-to-module, package-to-app, deep package imports | Must use `git ls-files` |
-| Package checklist validator | Report-only, then blocking | Missing package/module metadata | Must exclude Rule XC deferred packages |
+| Tracked import audit extensions | Future | New package-to-package edges and JSON output | Base hard-fail rules are blocking now |
+| Package checklist validator extensions | Future | Full package checklist for active packages | Module metadata baseline is blocking now |
 | Docker build validation | Report-only initially | Deployment drift | Run after dependency and docs stack stabilize |
 | Spec-to-roadmap drift check | Report-only initially | Active feature not reflected in roadmap | Can become blocking after false positives are removed |
 | Agent skill validation | Blocking when `.agents/skills/**` changes | Invalid `SKILL.md` or `openai.yaml` | Use `quick_validate.py` |
@@ -58,12 +60,12 @@ Report-only candidates:
 
 ## Rollout
 
-1. Land documentation and governance baseline.
-2. Add an import audit script with fixtures.
-3. Run the script in CI as non-blocking report output.
-4. Fix or document findings.
-5. Promote stable violations to blocking.
-6. Add package checklist validation after module generator rules are finalized.
+1. Land documentation and governance baseline. Done.
+2. Add an import audit script with fixtures. Done.
+3. Run the script in CI as a blocking methodology gate. Done.
+4. Add module package checklist validation. Done.
+5. Add JSON output and package-wide checklist validation after false-positive risks are understood.
+6. Add Docker build validation after deployment packaging stabilizes.
 
 ## Required Output
 

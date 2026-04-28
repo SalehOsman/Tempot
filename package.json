@@ -17,6 +17,8 @@
     "test:integration": "vitest run --reporter=verbose --project=integration",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
+    "boundary:audit": "tsx scripts/ci/import-boundary-audit.cli.ts",
+    "module:checklist": "tsx scripts/ci/module-package-checklist-audit.ts",
     "format": "prettier --write .",
     "prepare": "husky",
     "docker:dev": "docker compose up -d",

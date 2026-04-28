@@ -12,4 +12,11 @@ describe('CI workflow quality gates', () => {
     expect(workflow).toContain('pnpm tempot init');
     expect(workflow).toContain('pnpm tempot doctor --quick');
   });
+
+  it('should run architecture governance checks in methodology gates', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+
+    expect(workflow).toContain('pnpm boundary:audit');
+    expect(workflow).toContain('pnpm module:checklist');
+  });
 });

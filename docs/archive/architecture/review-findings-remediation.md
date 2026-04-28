@@ -1,6 +1,6 @@
 # Review Findings Remediation
 
-**Status**: Draft execution artifact for spec #026
+**Status**: Closed baseline artifact for spec #026
 **Purpose**: Track known review findings and whether they are resolved, planned, or deferred.
 
 ## Findings
@@ -11,15 +11,15 @@
 | Roadmap was stale | Resolved | Roadmap updated on 2026-04-28 with Spec #026 active track | Update after every merge |
 | Security audit was non-blocking | Resolved | CI runs `pnpm audit --audit-level=high` without `continue-on-error` | Require dated exceptions only |
 | Arabic user-facing strings in `national-id-parser` source | Resolved | Validators return i18n keys | Keep `cms:check` blocking |
-| `user-management` package checklist gaps | Resolved | Package has `types`, `exports`, `vitest.config.ts`, and `.gitignore` | Add module checklist validation later |
+| `user-management` package checklist gaps | Resolved | Package has `types`, `exports`, `vitest.config.ts`, and `.gitignore` | `pnpm module:checklist` is now blocking |
 
 ## Professional Baseline Items
 
 | Proposal | Status | Owner artifact |
 | --- | --- | --- |
-| Official CLI | Planned | `template-usability-roadmap.md` |
-| Module generator | Planned | `module-generator-plan.md` |
-| Local developer doctor | Planned | `local-developer-doctor.md` |
+| Official CLI | Initial slice implemented | `template-usability-roadmap.md` |
+| Module generator | Initial slice implemented | `module-generator-plan.md` |
+| Local developer doctor | Initial slice implemented | `local-developer-doctor.md` |
 | Admin dashboard | Planned future | `saas-readiness.md` |
 | Template marketplace | Planned future | `template-marketplace.md` |
 | Observability dashboard | Planned future | `observability-dashboard.md` |
@@ -33,3 +33,4 @@
 - Security exceptions must be documented and dated.
 - Future checklist automation must respect deferred packages.
 - Documentation drift must be reconciled through roadmap updates and `pnpm spec:validate`.
+- Import and module checklist regressions must be caught by `pnpm boundary:audit` and `pnpm module:checklist`.

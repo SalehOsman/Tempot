@@ -1,6 +1,6 @@
 # Boundary Remediation Plan
 
-**Status**: Draft execution artifact for spec #026
+**Status**: Closed baseline artifact for spec #026
 **Purpose**: Resolve boundary drift in staged, low-risk slices.
 
 ## Principles
@@ -15,10 +15,10 @@
 
 | Item | Source finding | Priority | Scope | Validation |
 | --- | --- | --- | --- | --- |
-| REM-001 | BND-001 | P1 | Add tracked-file import audit script | Script fixture tests and CI report-only run |
+| REM-001 | BND-001 | P1 | Add tracked-file import audit script | ✅ `pnpm boundary:audit` with unit tests and CI blocking gate |
 | REM-002 | BND-002 | P2 | Update architecture docs for `national-id-parser` and `.agents/skills` | `pnpm spec:validate`, docs review |
 | REM-003 | BND-003 | P2 | Add deferred package policy note to validators and guides | Deferred package check stays non-critical |
-| REM-004 | BND-004 | P1 | Ensure audit tools use `git ls-files` only | Test with worktree containing `node_modules` |
+| REM-004 | BND-004 | P1 | Ensure audit tools use `git ls-files` only | ✅ `scripts/ci/import-boundary-audit.ts` uses `git ls-files` |
 | REM-005 | BND-005 | P2 | Keep app composition root documented | Boundary guide review |
 | REM-006 | BND-006 | P3 | Add module-internal relative import guidance | Module boundary guide review |
 | REM-007 | BND-007 | P3 | Document docs app ingestion exception | CI enforcement plan review |
@@ -26,10 +26,9 @@
 ## Proposed Execution Order
 
 1. Add a documentation-only governance baseline.
-2. Add report-only import audit.
-3. Add package/module checklist validation.
-4. Promote module-to-module and deep package imports to hard CI failures.
-5. Review package-to-package edges manually before hard blocking.
+2. Add blocking import audit.
+3. Add blocking module checklist validation.
+4. Review package-to-package edges manually before hard blocking.
 
 ## Blast Radius Controls
 
@@ -45,4 +44,6 @@
 - Audit report exists.
 - Report-only enforcement plan exists.
 - Roadmap reflects the architecture hardening track.
+- CI blocks tracked import violations.
+- CI blocks active module package checklist regressions.
 - `pnpm spec:validate` and `git diff --check` pass.

@@ -54,6 +54,8 @@ Create only when needed:
 - [ ] Module unit tests pass.
 - [ ] Relevant integration tests pass when database or Redis behavior changes.
 - [ ] `pnpm cms:check` passes when locales change.
+- [ ] `pnpm boundary:audit` passes.
+- [ ] `pnpm module:checklist` passes.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm spec:validate` passes.
 - [ ] `git diff --check` passes.

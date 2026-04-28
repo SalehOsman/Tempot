@@ -32,6 +32,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm spec:validate
       - run: pnpm cms:check
+      - run: pnpm boundary:audit
+      - run: pnpm module:checklist
       - name: Run Tempot CLI smoke checks
         run: |
           pnpm tempot init

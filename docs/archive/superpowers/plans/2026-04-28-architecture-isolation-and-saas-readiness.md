@@ -4,7 +4,7 @@
 
 **Goal:** Raise Tempot's architecture discipline by documenting and enforcing clean boundaries, defining a safe SaaS evolution path, and positioning Telegram Managed Bots as an optional future capability.
 
-**Architecture:** This plan is a governance and architecture hardening track. It creates boundary maps, ADRs, audit reports, roadmap updates, and future CI enforcement plans before any production code is changed.
+**Architecture:** This plan is a governance and architecture hardening track. It created boundary maps, ADRs, audit reports, roadmap updates, DX tooling, and blocking CI governance gates before the next business module.
 
 **Tech Stack:** SpecKit, Superpowers, TypeScript monorepo governance, ESLint boundaries, Vitest, GitHub Actions, Telegram Bot Platform.
 
@@ -150,6 +150,23 @@
 - [ ] Run `git diff --check`.
 - [ ] Request review before any merge to `main`.
 
+## Phase 10: Closeout Hardening
+
+**Files:**
+
+- Create: `scripts/ci/import-boundary-audit.ts`
+- Create: `scripts/ci/module-package-checklist-audit.ts`
+- Modify: `.github/workflows/ci.yml`
+- Modify: `package.json`
+- Modify: `specs/026-architecture-isolation-and-saas-readiness/checklists/closeout.md`
+- Modify: `docs/archive/ROADMAP.md`
+
+- [x] Add tracked import audit with unit coverage.
+- [x] Add module package checklist audit with unit coverage.
+- [x] Promote both audits to blocking methodology CI gates.
+- [x] Close spec #026 with a dedicated closeout checklist.
+- [x] Update roadmap to mark Phase 3A complete and Phase 3B ready for owner decision.
+
 ## Completion Criteria
 
 - Spec #026 has `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`, and `tasks.md`.
@@ -157,5 +174,5 @@
 - Roadmap reflects architecture hardening before the next business module.
 - Approved DX/security proposals are explicit in tasks and roadmap-linked documents.
 - Known review findings are explicit in remediation tasks.
-- No production code changed during this planning phase.
+- Production runtime behavior is unchanged; code-facing changes are limited to repository tooling, CI gates, and module metadata governance.
 - `pnpm spec:validate` reports zero CRITICAL issues.

@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-28 (Spec #026 DX tooling now includes Tempot init, Doctor quick mode, Module Generator initial mode, and CI smoke checks)
+> Last updated: 2026-04-28 (Spec #026 Phase 3A closed; import audit and module checklist are now blocking CI methodology gates)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -17,9 +17,9 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Archi
 
 ## Current Strategic Track
 
-**Active workstream:** Spec #026 — Architecture Isolation and SaaS Readiness.
+**Recently completed workstream:** Spec #026 - Architecture Isolation and SaaS Readiness.
 
-This track runs before the next business module. Its purpose is to raise Tempot from a working bot framework into a stricter professional foundation where packages, modules, apps, and future SaaS layers have explicit boundaries.
+This track ran before the next business module. Its purpose was to raise Tempot from a working bot framework into a stricter professional foundation where packages, modules, apps, and future SaaS layers have explicit boundaries.
 
 Scope:
 
@@ -52,11 +52,15 @@ Initial execution artifacts:
 - Developer doctor quick mode: `pnpm tempot doctor --quick`
 - Module generator initial mode: `pnpm tempot module create <module-name>`
 - CI smoke checks: methodology job now runs `pnpm tempot init` and `pnpm tempot doctor --quick`
+- CI boundary checks: methodology job now runs `pnpm boundary:audit` and `pnpm module:checklist`
+- Closeout checklist: `specs/026-architecture-isolation-and-saas-readiness/checklists/closeout.md`
 - Implementation plan: `docs/archive/superpowers/plans/2026-04-28-tempot-doctor-quick.md`
 - Implementation plan: `docs/archive/superpowers/plans/2026-04-28-module-generator-initial.md`
 - Implementation plan: `docs/archive/superpowers/plans/2026-04-28-tempot-init-initial.md`
 - Implementation plan: `docs/archive/superpowers/plans/2026-04-28-ci-tempot-cli-smoke.md`
 - Tests: `scripts/ci/tests/unit/ci-workflow.test.ts`
+- Tests: `scripts/ci/tests/unit/import-boundary-audit.test.ts`
+- Tests: `scripts/ci/tests/unit/module-package-checklist-audit.test.ts`
 - Tests: `scripts/tempot/tests/unit/init.test.ts`
 - Tests: `scripts/tempot/tests/unit/doctor.test.ts`
 - Tests: `scripts/tempot/tests/unit/module-generator.test.ts`
@@ -125,8 +129,8 @@ Initial execution artifacts:
 3. ~~Phase 2C: Application wiring~~ — ✅ Complete (deps.factory.ts, all stubs replaced, merged 2026-04-06)
 4. ~~Phase 2D: Integration testing~~ — ✅ Complete (Validate module-registry + bot-server work together end-to-end)
 5. ~~Phase 3: First business module~~ — ✅ `user-management` implemented (spec #025)
-6. Phase 3A: Architecture isolation and SaaS readiness — Active (spec #026; first DX tool slice implemented with `pnpm tempot doctor --quick`)
-7. Phase 3B: Next business module — Starts after spec #026 review and boundary hardening decisions
+6. ~~Phase 3A: Architecture isolation and SaaS readiness~~ - Complete (spec #026; DX tooling, closeout, import audit, and module checklist gates implemented)
+7. Phase 3B: Next business module - Ready for owner decision after Phase 3A merge
 
 ## Phase 2 — Module Infrastructure
 
@@ -146,9 +150,9 @@ Started. The first business module has been implemented on main.
 
 | #   | Module          | Spec | Status                                      |
 | --- | --------------- | ---- | ------------------------------------------- |
-| 1   | user-management | #025 | ✅ Implemented; governance hardening active |
+| 1   | user-management | #025 | Implemented; governance hardening baseline complete |
 
-Next Phase 3 focus: complete spec #026 architecture isolation and SaaS readiness before starting the next business module. User-management stabilization remains part of the boundary hardening audit.
+Next Phase 3 focus: choose the next business module under the Phase 3B gate. The module must start with SpecKit artifacts, Superpowers execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
 
 ## Phase 4 — Additional Frontends
 

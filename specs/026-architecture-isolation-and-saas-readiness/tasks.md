@@ -146,6 +146,23 @@
 - [x] T060 [US1] Extend `.github/workflows/ci.yml` methodology gates to run `pnpm tempot init` and `pnpm tempot doctor --quick`.
 - [x] T061 [US1] Update `docs/archive/architecture/boundaries/ci-enforcement-plan.md` and `docs/archive/ROADMAP.md` to reflect the implemented CI smoke checks.
 
+## Phase 13: Closeout and Blocking Governance Hardening
+
+**Goal**: Close spec #026 formally and convert the most important remediation items into blocking CI checks before the next business module starts.
+
+**Independent Test**: CI runs tracked import and module package checklist audits, and the closeout checklist proves spec #026 has no unresolved critical drift.
+
+- [x] T062 [US1] Add unit coverage in `scripts/ci/tests/unit/import-boundary-audit.test.ts` for module-to-module, package-to-app, package-to-module, and deep package import violations.
+- [x] T063 [US1] Implement `scripts/ci/import-boundary-audit.ts`, `scripts/ci/import-boundary-audit.cli.ts`, and `scripts/ci/tracked-source-files.ts` using `git ls-files` tracked TypeScript input and TypeScript AST import extraction.
+- [x] T064 [US1] Add `pnpm boundary:audit` to `package.json`.
+- [x] T065 [US5] Add unit coverage in `scripts/ci/tests/unit/module-package-checklist-audit.test.ts` for module package metadata and local governance files.
+- [x] T066 [US5] Implement `scripts/ci/module-package-checklist-audit.ts`.
+- [x] T067 [US5] Add `pnpm module:checklist` to `package.json` and align `modules/test-module` package metadata with the same baseline.
+- [x] T068 [US1] Extend `.github/workflows/ci.yml` methodology gates and `scripts/ci/tests/unit/ci-workflow.test.ts` to require `pnpm boundary:audit` and `pnpm module:checklist`.
+- [x] T069 [US5] Add `specs/026-architecture-isolation-and-saas-readiness/checklists/closeout.md` with the final closeout evidence.
+- [x] T070 [US5] Update `specs/026-architecture-isolation-and-saas-readiness/plan.md` and related architecture remediation docs to reflect implemented governance gates.
+- [x] T071 [US5] Update `docs/archive/ROADMAP.md` to mark Phase 3A complete and record the next transition decision.
+
 ## Dependencies
 
 - Phase 1 must complete before all other phases.
@@ -162,6 +179,9 @@
 - T048-T052 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
 - T053-T057 depend on T043-T047 because they extend the root Tempot CLI introduced by the developer doctor slice.
 - T058-T061 depend on T043-T057 because the CI smoke checks execute the Tempot CLI commands introduced by those slices.
+- T062-T064 depend on T014 and T058-T061 because import audit enforcement extends the existing methodology gate.
+- T065-T068 depend on T030 and T048-T052 because module checklist enforcement follows the module generator baseline.
+- T069-T071 depend on T062-T068 because closeout must reflect the final implemented governance state.
 
 ## Requirement Traceability
 
@@ -177,7 +197,7 @@
 | FR-008 | T003, T009, T020 |
 | FR-009 | T009, T021, T022 |
 | FR-010 | T023, T024, T025 |
-| FR-011 | T014, T028, T039, T040, T041 |
+| FR-011 | T014, T028, T039, T040, T041, T062, T063, T064, T068 |
 | FR-012 | T015, T019, T022, T026 |
 | FR-013 | T031 |
 | FR-014 | T032 |
@@ -187,10 +207,12 @@
 | FR-018 | T037 |
 | FR-019 | T028, T038 |
 | FR-020 | T034 |
-| FR-021 | T027, T028, T029, T030 |
+| FR-021 | T027, T028, T029, T030, T065, T066, T067, T069, T070 |
 | FR-014 implementation slice | T048, T049, T050, T051, T052 |
 | FR-013 implementation slice | T053, T054, T055, T056, T057 |
 | FR-011 implementation slice | T058, T059, T060, T061 |
+| FR-011 governance enforcement slice | T062, T063, T064, T068 |
+| FR-021 remediation enforcement slice | T065, T066, T067, T069, T070, T071 |
 
 ## Success Criteria Traceability
 
@@ -201,9 +223,9 @@
 | SC-003 | T001-T042 |
 | SC-004 | T012, T016, T020, T023 |
 | SC-005 | T023, T024, T034, T039 |
-| SC-006 | T039, T040, T058, T059, T060, T061 |
-| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061 |
-| SC-008 | T027, T028, T029, T030 |
+| SC-006 | T039, T040, T058, T059, T060, T061, T068, T069, T071 |
+| SC-007 | T031, T032, T033, T034, T035, T036, T037, T038, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T068 |
+| SC-008 | T027, T028, T029, T030, T065, T066, T067, T069, T070 |
 
 ## Parallel Execution Examples
 
