@@ -1,7 +1,7 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-28 (Raised runtime baseline to Node.js 22.12+ for Astro 6 documentation security updates)
+> Last updated: 2026-04-28 (Added architecture isolation, SaaS readiness, and Telegram Managed Bots strategy track)
 
 ## Phase 0 — Workspace ✅ Done
 
@@ -14,6 +14,27 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Archi
 | Runtime | Node.js 22.12+ | Required by Astro 6 and used by CI through Node 24 |
 | Package manager | pnpm 10+ | CI pins pnpm 10 |
 | Documentation | Astro 6 + Starlight 0.38 | Security-maintained docs runtime |
+
+## Current Strategic Track
+
+**Active workstream:** Spec #026 — Architecture Isolation and SaaS Readiness.
+
+This track runs before the next business module. Its purpose is to raise Tempot from a working bot framework into a stricter professional foundation where packages, modules, apps, and future SaaS layers have explicit boundaries.
+
+Scope:
+
+1. Document and audit current architecture boundaries.
+2. Define a staged remediation plan for boundary drift before adding more business modules.
+3. Keep Tempot Core as the current product while documenting a future Tempot Cloud SaaS path.
+4. Treat Telegram Managed Bots as a positive optional capability, isolated behind a future adapter/service boundary.
+5. Improve template usability through module checklists, onboarding guidance, and documentation cleanup.
+6. Define explicit DX tooling targets: official CLI, governed module generator, local developer doctor, quick path, and internal template marketplace.
+7. Define explicit security and operations targets: blocking audit policy, secret scanning, dependency review, token rotation guidance, and observability dashboard scope.
+
+Artifacts:
+
+- SpecKit: `specs/026-architecture-isolation-and-saas-readiness/`
+- Superpowers plan: `docs/archive/superpowers/plans/2026-04-28-architecture-isolation-and-saas-readiness.md`
 
 ## Phase 1 — Core Bedrock Packages
 
@@ -79,6 +100,8 @@ Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Archi
 3. ~~Phase 2C: Application wiring~~ — ✅ Complete (deps.factory.ts, all stubs replaced, merged 2026-04-06)
 4. ~~Phase 2D: Integration testing~~ — ✅ Complete (Validate module-registry + bot-server work together end-to-end)
 5. ~~Phase 3: First business module~~ — ✅ `user-management` implemented (spec #025)
+6. Phase 3A: Architecture isolation and SaaS readiness — Active (spec #026)
+7. Phase 3B: Next business module — Starts after spec #026 review and boundary hardening decisions
 
 ## Phase 2 — Module Infrastructure
 
@@ -100,7 +123,7 @@ Started. The first business module has been implemented on main.
 | --- | --------------- | ---- | ------------------------------------------- |
 | 1   | user-management | #025 | ✅ Implemented; governance hardening active |
 
-Next Phase 3 focus: stabilize user-management documentation, package checklist compliance, i18n-only enforcement, and performance benchmark coverage before starting the next business module.
+Next Phase 3 focus: complete spec #026 architecture isolation and SaaS readiness before starting the next business module. User-management stabilization remains part of the boundary hardening audit.
 
 ## Phase 4 — Additional Frontends
 
