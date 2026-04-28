@@ -1,7 +1,7 @@
-# Contract: Telegram Managed Bots Opportunity
+﻿# Contract: Telegram Managed Bots Opportunity
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
-**Date**: 2026-04-28  
+**Feature**: 026-architecture-isolation-and-saas-readiness
+**Date**: 2026-04-28
 **Source**: https://core.telegram.org/bots/features#managed-bots
 
 ## Product Position

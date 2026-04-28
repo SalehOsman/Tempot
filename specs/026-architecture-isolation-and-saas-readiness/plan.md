@@ -1,6 +1,6 @@
-# Implementation Plan: Architecture Isolation and SaaS Readiness
+﻿# Implementation Plan: Architecture Isolation and SaaS Readiness
 
-**Branch**: `026-architecture-isolation-and-saas-readiness` | **Date**: 2026-04-28 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `026-architecture-isolation-and-saas-readiness` | **Date**: 2026-04-28 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `specs/026-architecture-isolation-and-saas-readiness/spec.md`
 
 ## Summary
@@ -9,14 +9,14 @@ Document and prepare the next strategic project track: harden architecture bound
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3, Node.js 22.12+ for project validation  
+**Language/Version**: TypeScript 5.9.3, Node.js 22.12+ for project validation
 **Primary Dependencies**: Existing monorepo tooling, ESLint boundaries, Vitest, SpecKit, Superpowers, GitHub Actions, future Tempot CLI/tooling surfaces
-**Storage**: Documentation artifacts first; no production database changes in the initial slice  
-**Testing**: `pnpm spec:validate`, `pnpm lint`, future boundary validation checks, CI status checks  
-**Target Platform**: Tempot monorepo and GitHub Actions  
-**Project Type**: Documentation, architecture governance, and future enforcement planning  
-**Performance Goals**: Boundary validation should complete quickly enough for pull-request use; final threshold to be defined during enforcement implementation  
-**Constraints**: No production code implementation before the owner approves the execution plan; no direct module-to-module dependencies; no deep package imports; preserve current bot framework progress  
+**Storage**: Documentation artifacts first; no production database changes in the initial slice
+**Testing**: `pnpm spec:validate`, `pnpm lint`, future boundary validation checks, CI status checks
+**Target Platform**: Tempot monorepo and GitHub Actions
+**Project Type**: Documentation, architecture governance, and future enforcement planning
+**Performance Goals**: Boundary validation should complete quickly enough for pull-request use; final threshold to be defined during enforcement implementation
+**Constraints**: No production code implementation before the owner approves the execution plan; no direct module-to-module dependencies; no deep package imports; preserve current bot framework progress
 **Scale/Scope**: 2 apps, 15+ packages, active modules, deferred packages, future SaaS and managed-bot tracks, developer tooling, security baseline, and observability planning
 
 ## Constitution Check
@@ -40,33 +40,33 @@ Document and prepare the next strategic project track: harden architecture bound
 
 ```text
 specs/026-architecture-isolation-and-saas-readiness/
-├── spec.md
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   ├── boundary-contract.md
-│   ├── saas-readiness-contract.md
-│   └── telegram-managed-bots-contract.md
-├── checklists/
-│   └── requirements.md
-└── tasks.md
+â”œâ”€â”€ spec.md
+â”œâ”€â”€ plan.md
+â”œâ”€â”€ research.md
+â”œâ”€â”€ data-model.md
+â”œâ”€â”€ quickstart.md
+â”œâ”€â”€ contracts/
+â”‚   â”œâ”€â”€ boundary-contract.md
+â”‚   â”œâ”€â”€ saas-readiness-contract.md
+â”‚   â””â”€â”€ telegram-managed-bots-contract.md
+â”œâ”€â”€ checklists/
+â”‚   â””â”€â”€ requirements.md
+â””â”€â”€ tasks.md
 ```
 
 ### Source Code (repository root)
 
 ```text
 docs/archive/
-├── ROADMAP.md
-├── developer/
-│   └── workflow-guide.md
-└── superpowers/
-    └── plans/
-        └── 2026-04-28-architecture-isolation-and-saas-readiness.md
+â”œâ”€â”€ ROADMAP.md
+â”œâ”€â”€ developer/
+â”‚   â””â”€â”€ workflow-guide.md
+â””â”€â”€ superpowers/
+    â””â”€â”€ plans/
+        â””â”€â”€ 2026-04-28-architecture-isolation-and-saas-readiness.md
 
 .github/workflows/
-└── ci.yml
+â””â”€â”€ ci.yml
 
 eslint.config.js
 package.json

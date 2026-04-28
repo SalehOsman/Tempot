@@ -1,4 +1,4 @@
-# Tasks: Architecture Isolation and SaaS Readiness
+﻿# Tasks: Architecture Isolation and SaaS Readiness
 
 **Input**: Design documents from `specs/026-architecture-isolation-and-saas-readiness/`
 **Prerequisites**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`

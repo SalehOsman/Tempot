@@ -1,6 +1,6 @@
-# Quickstart: Architecture Isolation and SaaS Readiness
+﻿# Quickstart: Architecture Isolation and SaaS Readiness
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
+**Feature**: 026-architecture-isolation-and-saas-readiness
 **Audience**: Project owner, technical advisor, executor
 
 ## Goal

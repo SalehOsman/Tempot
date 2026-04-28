@@ -1,8 +1,8 @@
-# Feature Specification: Architecture Isolation and SaaS Readiness
+﻿# Feature Specification: Architecture Isolation and SaaS Readiness
 
-**Feature Branch**: `026-architecture-isolation-and-saas-readiness`  
-**Created**: 2026-04-28  
-**Status**: Draft  
+**Feature Branch**: `026-architecture-isolation-and-saas-readiness`
+**Created**: 2026-04-28
+**Status**: Draft
 **Input**: User description: "Improve Tempot so it remains a professional, well-isolated bot framework while preparing it to become the core of a future SaaS platform, taking Telegram Managed Bots and other new Telegram bot platform capabilities into account."
 
 ## User Scenarios & Testing _(mandatory)_

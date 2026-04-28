@@ -1,6 +1,6 @@
-# Research: Architecture Isolation and SaaS Readiness
+﻿# Research: Architecture Isolation and SaaS Readiness
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
+**Feature**: 026-architecture-isolation-and-saas-readiness
 **Date**: 2026-04-28
 
 ## Decision 1: Continue Tempot Core Before Building Tempot Cloud

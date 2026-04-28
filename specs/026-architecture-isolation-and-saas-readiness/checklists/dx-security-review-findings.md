@@ -1,4 +1,4 @@
-# Checklist: DX, Security, and Review Findings Coverage
+﻿# Checklist: DX, Security, and Review Findings Coverage
 
 **Purpose**: Confirm approved quality proposals and known review findings are explicit in spec #026 before implementation.
 **Created**: 2026-04-28

@@ -1,6 +1,6 @@
-# Contract: Tempot Core and Tempot Cloud Readiness
+﻿# Contract: Tempot Core and Tempot Cloud Readiness
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
+**Feature**: 026-architecture-isolation-and-saas-readiness
 **Date**: 2026-04-28
 
 This contract defines the product-layer boundary between the current framework and the future SaaS product.

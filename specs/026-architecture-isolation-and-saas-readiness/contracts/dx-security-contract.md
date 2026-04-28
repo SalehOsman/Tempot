@@ -1,4 +1,4 @@
-# Contract: Developer Experience and Security Baseline
+﻿# Contract: Developer Experience and Security Baseline
 
 **Feature**: 026-architecture-isolation-and-saas-readiness
 **Date**: 2026-04-28

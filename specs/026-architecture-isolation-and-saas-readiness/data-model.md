@@ -1,6 +1,6 @@
-# Data Model: Architecture Isolation and SaaS Readiness
+﻿# Data Model: Architecture Isolation and SaaS Readiness
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
+**Feature**: 026-architecture-isolation-and-saas-readiness
 **Date**: 2026-04-28
 
 This data model documents planning and governance entities. It does not require production database tables during the first implementation slice.

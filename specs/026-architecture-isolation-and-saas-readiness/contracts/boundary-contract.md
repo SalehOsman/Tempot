@@ -1,6 +1,6 @@
-# Contract: Architecture Boundary Governance
+﻿# Contract: Architecture Boundary Governance
 
-**Feature**: 026-architecture-isolation-and-saas-readiness  
+**Feature**: 026-architecture-isolation-and-saas-readiness
 **Date**: 2026-04-28
 
 This contract defines the expected governance outputs for architecture isolation. It is a documentation and validation contract, not a runtime API.
