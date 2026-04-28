@@ -5,7 +5,7 @@
 We evaluated the [RAG-Anything](https://github.com/HKUDS/RAG-Anything) framework by HKUDS for potential inclusion in the `@tempot/ai-core` and `@tempot/search-engine` packages. RAG-Anything is an excellent all-in-one multimodal document processing framework that introduces advanced paradigms such as Adaptive Content Decomposition, Multimodal Knowledge Graph + Vector Fusion, and Modality-Aware Retrieval.
 
 However, integrating RAG-Anything directly as a project dependency violates several core constraints established in the Constitution:
-1. **Language Compatibility (Rule III & XLV):** RAG-Anything is a Python library, whereas Tempot is a strict TypeScript monorepo running on Node.js 20+.
+1. **Language Compatibility (Rule III & XLV):** RAG-Anything is a Python library, whereas Tempot is a strict TypeScript monorepo running on Node.js 22.12+.
 2. **AI Provider Abstraction (Rule XVI & ADR-016):** Tempot exclusively uses the `Vercel AI SDK` for provider-agnostic AI integration. RAG-Anything relies on its own internal wrappers.
 3. **Single Source of Truth (Rule XIV & ADR-017):** Tempot uses PostgreSQL with `pgvector` and Drizzle ORM for embeddings. RAG-Anything introduces isolated data silos (e.g., local files or external graph databases).
 4. **System Dependencies:** RAG-Anything introduces heavy OS-level dependencies (LibreOffice, MinerU, OpenCV) that bloat the Docker container environment.

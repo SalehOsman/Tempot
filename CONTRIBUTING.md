@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Tempot. This document outlines th
 
 Before contributing, ensure you have:
 
-- Node.js v20+
+- Node.js v22.12+
 - pnpm v10+
 - Docker & Docker Compose
 - One of: Claude Code (Pro/Max) or Gemini CLI

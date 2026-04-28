@@ -1,11 +1,19 @@
 # Tempot — Roadmap
 
 > **The single source of truth** for project status. Updated after every merge. (Rule LXXXIX)
-> Last updated: 2026-04-27 (Reconciled Phase 3 user-management status and spec validation)
+> Last updated: 2026-04-28 (Raised runtime baseline to Node.js 22.12+ for Astro 6 documentation security updates)
 
 ## Phase 0 — Workspace ✅ Done
 
 Monorepo, TypeScript Strict, ESLint, Prettier, Husky, Constitution v2.0.0, Architecture Spec document v11.0.
+
+## Current Technical Baseline
+
+| Area | Baseline | Notes |
+| ---- | -------- | ----- |
+| Runtime | Node.js 22.12+ | Required by Astro 6 and used by CI through Node 24 |
+| Package manager | pnpm 10+ | CI pins pnpm 10 |
+| Documentation | Astro 6 + Starlight 0.38 | Security-maintained docs runtime |
 
 ## Phase 1 — Core Bedrock Packages
 

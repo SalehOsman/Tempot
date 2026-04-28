@@ -264,7 +264,7 @@ External libraries must meet ALL criteria:
 - 500+ GitHub stars
 - Active development within last 6 months
 - TypeScript compatible
-- Node.js 20+ compatible
+- Node.js 22.12+ compatible
 
 ADR required for any substitution from the tech stack defined in `tempot_v11_final.md` Section 2.
 
@@ -382,7 +382,7 @@ Every package, module, and architectural decision documented from day one. No un
 
 ### LXII. Documentation Tools
 
-- Starlight (Astro) for developer docs + end-user guide (planned — not yet set up) — 📐 ADR-038
+- Starlight (Astro) for developer docs + end-user guide (active under `apps/docs`) — 📐 ADR-038
 - starlight-typedoc for monorepo API reference (one instance per package)
 - JSDoc/TSDoc for all public APIs
 - TypeDoc for auto-generated API reference
@@ -671,7 +671,8 @@ Packages formally marked as **"Not started / Deferred"** in `docs/archive/ROADMA
 
 ---
 
-**Version**: 2.4.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-25
+**Version**: 2.4.1 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-28
+**Amendment 2.4.1**: Raised the project runtime baseline to Node.js 22.12+ to support Astro 6/Starlight security updates and corrected Rule LXII to mark the documentation site as active under `apps/docs`.
 **Amendment 2.4.0**: Added Rule XC — Deferred Package Exception. Formalizes the distinction between roadmap-deferred packages (informational spec:validate failures) and active packages (full compliance required). Resolves methodology ambiguity identified in project audit 2026-04-24. Total: 90 rules (+ 1 reserved).
 **Amendment 2.3.1**: Fixed 7 broken documentation paths — all `docs/` references updated to `docs/archive/` to match actual file locations (Rule L, XLIV, LXXI, LXXIX–LXXXIX section header, LXXXIII table, LXXXIX).
 **Amendment 2.3.0**: Phase 1A.2 documentation cleanup — removed phantom `pnpm generate:module` references (Rule XLVI rewritten), clarified rate limiting layers (Rule XXIX), fixed grammY Test reference (Rule XXXV), marked Docusaurus as planned (Rule LXII), removed session-manager from pre-methodology list (Rule LXXXVIII), updated Rule L wording. Total: 88 rules (+ 1 reserved).

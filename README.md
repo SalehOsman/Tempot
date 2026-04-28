@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Mode-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.12+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![grammY](https://img.shields.io/badge/grammY-1.x-009DC4?logo=telegram&logoColor=white)](https://grammy.dev/)
 [![Hono](https://img.shields.io/badge/Hono-4.x-E36002?logo=hono&logoColor=white)](https://hono.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-7.x-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
@@ -49,7 +49,7 @@ Tempot gives you everything you need to build complex, production-ready Telegram
 
 ### Prerequisites
 
-- Node.js v20+
+- Node.js v22.12+
 - pnpm v10+ (`corepack enable pnpm`)
 - Docker (for PostgreSQL + Redis)
 
@@ -157,7 +157,7 @@ Every technology choice is documented in an Architectural Decision Record with f
 
 | Category       | Technology                            | Purpose                                             |
 | -------------- | ------------------------------------- | --------------------------------------------------- |
-| Runtime        | Node.js 20+                           | ESM, native TypeScript support                      |
+| Runtime        | Node.js 22.12+                        | ESM, native TypeScript support                      |
 | Language       | TypeScript 5.9 Strict                 | Full type safety, zero `any`                        |
 | Bot Engine     | grammY 1.x                            | Modern, TypeScript-first Telegram framework         |
 | Web Server     | Hono 4.x                              | Ultrafast, Edge-compatible, 15+ built-in middleware |

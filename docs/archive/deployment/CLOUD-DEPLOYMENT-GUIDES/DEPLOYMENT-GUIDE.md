@@ -217,8 +217,8 @@ Full control with managed database and Redis.
 4. SSH into Droplet:
 
 ```bash
-# Install Node.js 20
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+# Install Node.js 22
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 
 # Install pnpm

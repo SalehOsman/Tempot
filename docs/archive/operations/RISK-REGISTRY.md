@@ -168,7 +168,7 @@
 
 - **Probability:** Medium
 - **Impact:** Medium (container escape or privilege escalation)
-- **Mitigation:** `ankane/pgvector:latest` and `redis:7-alpine` use minimal base images; production images built from `node:20-alpine`; regular `docker pull` to get latest patches
+- **Mitigation:** `ankane/pgvector:latest` and `redis:7-alpine` use minimal base images; production images built from `node:22-alpine`; regular `docker pull` to get latest patches
 
 ### RISK-023 — Configuration Drift Between Environments
 

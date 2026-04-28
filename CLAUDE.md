@@ -16,7 +16,7 @@ Non-compliance is a critical violation.
 
 ## Constitution (Highest Authority)
 
-Read `.specify/memory/constitution.md` before any decision. It contains 88 rules governing every aspect of development.
+Read `.specify/memory/constitution.md` before any decision. It contains 90 rules governing every aspect of development.
 
 ## Architecture Spec
 
@@ -89,7 +89,7 @@ These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `
 
 | Component        | Technology                            | Version       |
 | ---------------- | ------------------------------------- | ------------- |
-| Runtime          | Node.js                               | 20+           |
+| Runtime          | Node.js                               | 22.12+        |
 | Language         | TypeScript Strict Mode                | 5.9.3         |
 | Bot Engine       | grammY                                | ^1.41.1       |
 | Web Server       | Hono                                  | 4.x           |

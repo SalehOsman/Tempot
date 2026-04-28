@@ -116,7 +116,7 @@ Before implementation starts, these must exist and be consistent:
 
 | Component | Technology |
 | --- | --- |
-| Runtime | Node.js 20+ |
+| Runtime | Node.js 22.12+ |
 | Language | TypeScript 5.9.3 strict mode |
 | Bot Engine | grammY 1.41.x |
 | Web Server | Hono 4.x |

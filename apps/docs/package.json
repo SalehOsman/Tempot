@@ -16,18 +16,18 @@
     "docs:validate": "tsx scripts/validate-frontmatter.ts"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.34.8",
+    "@astrojs/starlight": "^0.38.4",
     "@tempot/ai-core": "workspace:*",
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
-    "astro": "^5.18.1",
+    "astro": "^6.1.9",
     "starlight-typedoc": "^0.21.5",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^11.14.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.19.17",
     "cheerio": "^1.0.0",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",

@@ -4,15 +4,15 @@ set -euo pipefail
 echo "=== Tempot Dev Environment Setup ==="
 echo ""
 
-# 1. Check Node.js 20+
+# 1. Check Node.js 22.12+
 echo "Checking Node.js..."
 if ! command -v node &>/dev/null; then
-  echo "ERROR: Node.js is not installed. Please install Node.js 20+."
+  echo "ERROR: Node.js is not installed. Please install Node.js 22.12+."
   exit 1
 fi
-NODE_MAJOR=$(node -e "console.log(process.version.split('.')[0].slice(1))")
-if [ "$NODE_MAJOR" -lt 20 ]; then
-  echo "ERROR: Node.js 20+ is required (found v$NODE_MAJOR)."
+NODE_OK=$(node -e "const [major, minor] = process.versions.node.split('.').map(Number); console.log(major > 22 || (major === 22 && minor >= 12) ? 'yes' : 'no')")
+if [ "$NODE_OK" != "yes" ]; then
+  echo "ERROR: Node.js 22.12+ is required (found $(node --version))."
   exit 1
 fi
 echo "  Node.js $(node --version) OK"

@@ -79,7 +79,7 @@ WARN  Request took 11142ms: https://registry.npmjs.org/@rolldown%2Fbinding-darwi
 
 #### Stage 1: Base Image
 ```
-#6 [base 1/2] FROM docker.io/library/node:20-alpine@sha256:...
+#6 [base 1/2] FROM docker.io/library/node:22-alpine@sha256:...
 #6 CACHED
 ```
 ✅ **Status**: Good - Uses cached base image
@@ -145,7 +145,7 @@ WARN  Request took 11142ms: https://registry.npmjs.org/@rolldown%2Fbinding-darwi
 
 ```dockerfile
 # Current Dockerfile (apps/bot-server/Dockerfile)
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 RUN corepack enable
 
 WORKDIR /app
@@ -158,7 +158,7 @@ RUN pnpm --filter bot-server... build
 RUN pnpm --filter "@tempot/*-module" build
 RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/out ./
 COPY --from=builder /app/modules ./modules
@@ -208,7 +208,7 @@ pnpm-lock.yaml
 
 ##### 2. Optimize Dockerfile
 ```dockerfile
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 RUN corepack enable
 
 WORKDIR /app
@@ -227,7 +227,7 @@ RUN pnpm --filter @tempot/database exec prisma generate
 RUN pnpm --filter bot-server... build
 RUN pnpm --filter "@tempot/*-module" build
 
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist

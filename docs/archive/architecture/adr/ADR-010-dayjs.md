@@ -25,6 +25,6 @@ Use **dayjs v1.x** with `timezone` and `utc` plugins.
 
 **Luxon:** Larger than dayjs, different API style, less community adoption.
 
-**Native Temporal API:** Still in Stage 3 proposal, not yet stable in Node.js 20.
+**Native Temporal API:** Still not a portability-safe baseline for the supported Node.js 22.12+ runtime.
 
 **date-fns:** Function-based (not chainable), larger when using timezone support.

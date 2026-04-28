@@ -17,10 +17,12 @@ Phase 2 — Documentation System (spec #021)
 
 ## Dependencies
 
+Requires Node.js 22.12+ because Astro 6 is the documentation runtime.
+
 | Package                | Purpose                           |
 | ---------------------- | --------------------------------- |
-| Astro                  | Static site generator             |
-| Starlight              | Documentation theme              |
+| Astro 6                | Static site generator             |
+| Starlight 0.38         | Documentation theme              |
 | starlight-typedoc      | TypeDoc integration               |
 | @tempot/shared         | Result pattern, AppError          |
 

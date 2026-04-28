@@ -6,7 +6,7 @@ This guide gets you to a running Tempot bot as fast as possible. For the full ar
 
 ## Prerequisites
 
-- Node.js v20+
+- Node.js v22.12+
 - pnpm v10+ (`corepack enable pnpm`)
 - Docker Desktop
 - A Telegram bot token from [@BotFather](https://t.me/BotFather)

@@ -15,7 +15,7 @@ difficulty: beginner
 
 Before you begin, make sure you have the following installed:
 
-- **Node.js** version 20 or later
+- **Node.js** version 22.12 or later
 - **pnpm** package manager
 - **PostgreSQL** version 16
 - **Redis** for sessions and queues
