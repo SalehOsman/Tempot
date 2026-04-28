@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Methodology Workflow"
+  short_description: "Follow SpecKit and Superpowers gates."
+  default_prompt: "Use this skill to plan or execute Tempot work through the approved SpecKit and Superpowers methodology."

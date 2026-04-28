@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Spec Kit Toolchain"
+  short_description: "Operate Spec Kit inside Tempot"
+  default_prompt: "Use $tempot-spec-kit-toolchain to create or validate Tempot SpecKit artifacts."

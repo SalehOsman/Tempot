@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Module Development"
+  short_description: "Build Tempot modules correctly."
+  default_prompt: "Use this skill before creating, changing, validating, or reviewing a Tempot business module."

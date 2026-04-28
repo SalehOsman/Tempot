@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Code Review"
+  short_description: "Review against Tempot rules."
+  default_prompt: "Use this skill to review Tempot code, docs, specs, CI, commits, branches, or PR changes."

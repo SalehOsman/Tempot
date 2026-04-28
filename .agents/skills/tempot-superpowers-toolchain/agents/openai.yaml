@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Superpowers Toolchain"
+  short_description: "Operate Superpowers inside Tempot"
+  default_prompt: "Use $tempot-superpowers-toolchain to execute Tempot work after SpecKit handoff."

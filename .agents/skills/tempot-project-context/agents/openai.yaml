@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot Project Context"
+  short_description: "Load Tempot authority context."
+  default_prompt: "Use this skill first when working in Tempot to establish role, constitution, roadmap, and architecture context."

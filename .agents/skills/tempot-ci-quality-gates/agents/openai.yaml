@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tempot CI Quality Gates"
+  short_description: "Run Tempot validation gates."
+  default_prompt: "Use this skill when CI fails, GitHub Actions change, or merge readiness must be proven."
