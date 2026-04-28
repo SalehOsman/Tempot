@@ -1,0 +1,118 @@
+# Implementation Plan: Architecture Isolation and SaaS Readiness
+
+**Branch**: `026-architecture-isolation-and-saas-readiness` | **Date**: 2026-04-28 | **Spec**: [spec.md](./spec.md)  
+**Input**: Feature specification from `specs/026-architecture-isolation-and-saas-readiness/spec.md`
+
+## Summary
+
+Document and prepare the next strategic project track: harden architecture boundaries, preserve Tempot Core as the current implementation priority, define Tempot Cloud as a future SaaS layer, and record Telegram Managed Bots as a positive future opportunity to integrate after boundary hardening.
+
+## Technical Context
+
+**Language/Version**: TypeScript 5.9.3, Node.js 22.12+ for project validation  
+**Primary Dependencies**: Existing monorepo tooling, ESLint boundaries, Vitest, SpecKit, Superpowers, GitHub Actions  
+**Storage**: Documentation artifacts first; no production database changes in the initial slice  
+**Testing**: `pnpm spec:validate`, `pnpm lint`, future boundary validation checks, CI status checks  
+**Target Platform**: Tempot monorepo and GitHub Actions  
+**Project Type**: Documentation, architecture governance, and future enforcement planning  
+**Performance Goals**: Boundary validation should complete quickly enough for pull-request use; final threshold to be defined during enforcement implementation  
+**Constraints**: No production code implementation before the owner approves the execution plan; no direct module-to-module dependencies; no deep package imports; preserve current bot framework progress  
+**Scale/Scope**: 2 apps, 15+ packages, active modules, deferred packages, future SaaS and managed-bot tracks
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Rule Area | Status | Notes |
+| --- | --- | --- |
+| Spec-driven development | PASS | This feature starts with SpecKit artifacts before implementation. |
+| Clean Architecture | PASS | The feature exists to strengthen apps/packages/modules boundaries. |
+| Event-driven communication | PASS | Future module interaction remains event-only. |
+| Documentation-first | PASS | The first slice is documentation, analysis, and governance. |
+| ADR timing | PASS | Future architectural decisions from this plan will require ADRs before implementation. |
+| Blast radius | PASS | Shared-code changes are explicitly deferred until impact analysis exists. |
+| Git workflow | PASS | Work is performed on a feature branch. |
+| Zero-defect gate | PASS | Validation tasks are required before merge. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/026-architecture-isolation-and-saas-readiness/
+├── spec.md
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── boundary-contract.md
+│   ├── saas-readiness-contract.md
+│   └── telegram-managed-bots-contract.md
+├── checklists/
+│   └── requirements.md
+└── tasks.md
+```
+
+### Source Code (repository root)
+
+```text
+docs/archive/
+├── ROADMAP.md
+├── developer/
+│   └── workflow-guide.md
+└── superpowers/
+    └── plans/
+        └── 2026-04-28-architecture-isolation-and-saas-readiness.md
+
+.github/workflows/
+└── ci.yml
+
+eslint.config.js
+package.json
+```
+
+**Structure Decision**: The first approved slice is documentation and governance. Production source changes are intentionally limited to future enforcement work after boundary inventory and owner approval.
+
+## Phase 0: Research
+
+Research outputs are captured in [research.md](./research.md).
+
+Resolved decisions:
+
+- Continue Tempot Core before building Tempot Cloud.
+- Start with architecture isolation hardening.
+- Treat Telegram Managed Bots as a positive future opportunity.
+- Keep Managed Bots behind a dedicated future boundary.
+- Build template usability improvements after boundary rules.
+- Treat governance and CI as part of architecture quality.
+
+## Phase 1: Design and Contracts
+
+Design outputs:
+
+- [data-model.md](./data-model.md)
+- [contracts/boundary-contract.md](./contracts/boundary-contract.md)
+- [contracts/saas-readiness-contract.md](./contracts/saas-readiness-contract.md)
+- [contracts/telegram-managed-bots-contract.md](./contracts/telegram-managed-bots-contract.md)
+- [quickstart.md](./quickstart.md)
+
+## Phase 2: Task Planning
+
+Task outputs:
+
+- [tasks.md](./tasks.md)
+- [Superpowers implementation plan](../../docs/archive/superpowers/plans/2026-04-28-architecture-isolation-and-saas-readiness.md)
+
+## Post-Design Constitution Check
+
+| Rule Area | Status | Notes |
+| --- | --- | --- |
+| Handoff artifacts | PASS | Spec, plan, research, data model, contracts, quickstart, checklist, and tasks are present. |
+| No production code before tests | PASS | No production source implementation is included in this planning slice. |
+| Documentation parity | PASS | Roadmap update is included as a planned execution task. |
+| Telegram platform changes | PASS | Managed Bots are documented as a future track, not an immediate bypass. |
+
+## Complexity Tracking
+
+No constitution violations are introduced by this plan.
