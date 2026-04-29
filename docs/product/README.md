@@ -1,3 +1,15 @@
+---
+title: Product Documentation
+description: Product-facing documentation entry point for Tempot.
+tags:
+  - overview
+  - documentation
+audience:
+  - bot-developer
+  - operator
+contentType: developer-docs
+---
+
 # Tempot Product Documentation
 
 This area is for product-facing and generated reference documentation.

@@ -1,11 +1,13 @@
 import { defineConfig, defineProject } from 'vitest/config';
 import { baseExclude } from './vitest.config.base';
 
+const testTimeout = 120_000;
+
 export default defineConfig({
   test: {
     globals: true,
-    testTimeout: 120_000,
-    hookTimeout: 120_000,
+    testTimeout,
+    hookTimeout: testTimeout,
     projects: [
       defineProject({
         test: {
@@ -17,6 +19,8 @@ export default defineConfig({
           ],
           exclude: baseExclude,
           environment: 'node',
+          testTimeout,
+          hookTimeout: testTimeout,
         },
       }),
       defineProject({
@@ -29,8 +33,8 @@ export default defineConfig({
           exclude: baseExclude,
           environment: 'node',
           fileParallelism: false,
-          testTimeout: 120_000,
-          hookTimeout: 120_000,
+          testTimeout,
+          hookTimeout: testTimeout,
         },
       }),
     ],
