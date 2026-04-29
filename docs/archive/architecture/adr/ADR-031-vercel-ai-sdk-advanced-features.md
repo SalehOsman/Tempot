@@ -37,7 +37,7 @@ Evaluate upgrading from AI SDK v4.x to v5.x during ai-core spec phase. The API h
 - `LanguageModelMiddleware` enables composable cross-cutting concerns (caching, circuit-breaker, logging) applied once at the registry level
 - Classification tasks use `Output.choice()` — type-safe, no manual parsing, provider-agnostic
 - Significantly less custom code to write, test, and maintain
-- ADR-016's promise of "switching providers requires only changing AI_PROVIDER" is fully realized through the registry pattern
+- ADR-016's promise of "switching providers requires only changing `TEMPOT_AI_PROVIDER`" is fully realized through the registry pattern
 
 ## Alternatives Rejected
 

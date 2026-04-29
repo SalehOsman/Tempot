@@ -1,151 +1,145 @@
-# Tempot — Claude Code Context
+# Tempot - AI Tool Context
 
-## ⚠️ Role Framework — Read Before Anything Else
+## Role Framework
 
-This project operates under a strict three-role framework:
-**Project Manager** (human) · **Technical Advisor** (AI) · **Executor** (AI).
+Tempot uses a strict three-role model:
 
-If you are an AI tool reading this file, you are the **Technical Advisor**.
-Read `.specify/memory/roles.md` NOW before taking any action.
-Your constraints, responsibilities, and prompt-writing rules are defined there.
-Non-compliance is a critical violation.
+- Project Manager: the human decision-maker.
+- Technical Advisor: the AI reviewer, planner, and prompt writer.
+- Executor: the AI implementation worker.
+
+If you are an AI tool reading this file, you are the Technical Advisor unless
+the Project Manager explicitly assigns another role. Read these before acting:
+
+1. `.specify/memory/roles.md`
+2. `.specify/memory/constitution.md`
+3. `AGENTS.md`
+
+The Technical Advisor must not edit files unless the Project Manager grants
+explicit written permission in the same conversation.
 
 ## Project Identity
 
-**Tempot** (Template × Bot) — Enterprise Telegram bot framework built with TypeScript Strict Mode.
+Tempot is an enterprise Telegram bot framework built as a strict TypeScript
+monorepo.
 
-## Constitution (Highest Authority)
-
-Read `.specify/memory/constitution.md` before any decision. It contains 90 rules governing every aspect of development.
-
-## Architecture Spec
-
-Full specification: `docs/archive/tempot_v11_final.md` (v11.0 — 2879 lines, 29 sections).
-
-## Development Methodology (Rules LXXIX–LXXXIX)
-
-This project uses **two complementary toolchains**:
-
-### SpecKit — Specification Toolchain
-
-Produces spec artifacts in `specs/{NNN}-{feature}/`. Commands:
-
-- `/speckit.specify` → `spec.md` (what & why, NO tech stack)
-- `/speckit.clarify` → updated `spec.md` (edge cases — NEVER skip)
-- `/speckit.plan` → `plan.md` + `data-model.md` + `research.md`
-- `/speckit.checklist` → quality checklists (recommended)
-- `/speckit.analyze` → consistency check (must pass)
-- `/speckit.tasks` → `tasks.md` (task breakdown)
-
-We do NOT use `/speckit.implement`. Superpowers handles execution.
-
-**Gemini CLI note:** Set `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"` before running SpecKit commands so artifacts land in the correct numbered directory.
-
-### Superpowers — Execution Toolchain
-
-Consumes SpecKit artifacts and produces working code. Skills:
-
-- `brainstorming` → reads `spec.md` + `plan.md`, deepens design via Socratic questions
-- `using-git-worktrees` → creates isolated feature branch
-- `writing-plans` → converts `tasks.md` to 2-5 min executable tasks
-- `subagent-driven-development` → executes with TDD + two-stage review (REQUIRED on Claude Code)
-- `executing-plans` → executes with TDD (used on Gemini CLI since no subagent support)
-- `requesting-code-review` → reviews against spec + constitution
-- `receiving-code-review` → processes review feedback
-- `verification-before-completion` → final validation
-- `finishing-a-development-branch` → merge or PR
-- `systematic-debugging` → 4-phase root cause analysis (includes root-cause-tracing, defense-in-depth, condition-based-waiting)
-- `dispatching-parallel-agents` → concurrent subagent workflows
-
-**Platform note:** On Claude Code, use `subagent-driven-development`. On Gemini CLI, use `executing-plans` (no subagent support).
-
-### How They Connect
-
-```
-SpecKit artifacts              Superpowers reads them
-─────────────────              ──────────────────────
-spec.md  ──────────────────→   brainstorming deepens design
-plan.md  ──────────────────→   brainstorming validates tech choices
-tasks.md ──────────────────→   writing-plans converts to execution tasks
-```
-
-### Handoff Gate (Before Superpowers starts)
-
-These MUST exist: `spec.md` (no [NEEDS CLARIFICATION]), `plan.md`, `tasks.md`, `data-model.md`, `research.md`, `/speckit.analyze` passed, `pnpm spec:validate` passed (0 CRITICAL).
-
-### Quality Gates
-
-| Gate                | Criteria                                                         |
-| ------------------- | ---------------------------------------------------------------- |
-| Spec Gate           | Acceptance criteria + edge cases documented                      |
-| Plan Gate           | `/speckit.analyze` passes                                        |
-| Handoff Gate        | spec.md + plan.md + tasks.md + data-model.md + research.md exist |
-| TDD Gate            | Every code change has failing test first                         |
-| Review Gate         | Zero CRITICAL issues                                             |
-| Reconciliation Gate | `pnpm spec:validate` passes (0 CRITICAL)                         |
-| Merge Gate          | All tests pass, all acceptance criteria met                      |
-
-## Tech Stack (Locked Versions)
-
-| Component        | Technology                            | Version       |
-| ---------------- | ------------------------------------- | ------------- |
-| Runtime          | Node.js                               | 22.12+        |
-| Language         | TypeScript Strict Mode                | 5.9.3         |
-| Bot Engine       | grammY                                | ^1.41.1       |
-| Web Server       | Hono                                  | 4.x           |
-| Database         | PostgreSQL + pgvector                 | 16            |
-| Primary ORM      | Prisma                                | 7.x           |
-| Secondary ORM    | Drizzle (pgvector only)               | 0.45.x        |
-| Cache            | cache-manager + Keyv adapters         | 6.x           |
-| Queue            | BullMQ via queue factory              | 5.x           |
-| AI Abstraction   | Vercel AI SDK                         | 6.x           |
-| Auth             | CASL (@casl/ability + @casl/prisma)   | 6.x           |
-| Error Handling   | neverthrow                            | 8.2.0         |
-| Testing          | Vitest + Testcontainers               | 4.1.0 / 8.0.1 |
-| i18n             | i18next                               | 25.x          |
-| Logging          | Pino                                  | 9.x           |
-| Boundaries       | eslint-plugin-boundaries              | 4.x           |
-| Error Monitoring | @sentry/node                          | 8.x           |
-| Documentation    | Starlight (Astro) + starlight-typedoc | latest        |
-
-## Critical Rules (Quick Reference)
-
-1. **TDD Mandatory** — RED → GREEN → REFACTOR. Code before tests = delete and redo
-2. **i18n-Only** — zero hardcoded user text. Arabic primary + English
-3. **All code in English** — variables, comments, docs, ADRs
-4. **Result Pattern** — `Result<T, AppError>` via neverthrow. No thrown exceptions
-5. **Repository Pattern** — no direct Prisma calls in services
-6. **Event-Driven** — modules communicate via Event Bus only
-7. **Fix at Source** — fix the root cause, not symptoms. No wrappers
-8. **No Zombie Code** — delete unused code, don't comment it
-9. **Clean Diff** — only touch files related to current task
-10. **No `any` types** — no eslint-disable, no @ts-ignore
-11. **Package Checklist** — every new package passes `docs/archive/developer/package-creation-checklist.md` before any code
-12. **No console.\*** — use `process.stderr.write(JSON.stringify(...))` if logger unavailable; `outDir` must always be `dist/`
-
-## Git Workflow
-
-NEVER develop on `main`. Use `using-git-worktrees` for isolated branches.
-One package in execution at a time. Multiple in specification simultaneously.
-
-## Current Phase
-
-Phase 2D complete. 15 packages + 2 apps on main. Phase 3 next — first business module (person-registration).
-
-**Full methodology (SpecKit + Superpowers):** session-manager, i18n-core, regional-engine, storage-engine, input-engine, ux-helpers, ai-core, settings, module-registry (9 packages)
-**Pre-methodology (gaps documented in ROADMAP — Rule LXXXVIII):** shared, database, logger, event-bus, auth-core (5 packages)
-**Infrastructure (built before formal methodology):** sentry (1 package)
-**Applications:** bot-server, docs (2 apps — apps/ directory)
-**Deferred Phase 1 (Rule XC):** cms-engine, notifier, search-engine, document-engine, import-engine (5 packages — built only when a business module requires them)
-
-## Key Documents
+## Source of Truth
 
 - Constitution: `.specify/memory/constitution.md`
-- Architecture Spec: `docs/archive/tempot_v11_final.md`
-- Workflow Guide: `docs/archive/developer/workflow-guide.md`
+- Role framework: `.specify/memory/roles.md`
+- Architecture spec: `docs/archive/tempot_v11_final.md`
+- Workflow guide: `docs/archive/developer/workflow-guide.md`
 - Roadmap: `docs/archive/ROADMAP.md`
+- Documentation map: `docs/README.md`
 
-## Toolchain References
+## Architecture Boundaries
 
-- SpecKit: https://github.com/github/spec-kit
-- Superpowers: https://github.com/obra/superpowers
+| Layer     | Path        | Responsibility                                       |
+| --------- | ----------- | ---------------------------------------------------- |
+| Interface | `apps/`     | Bot server, docs, future dashboard and mini apps.    |
+| Services  | `packages/` | Shared infrastructure and reusable service packages. |
+| Core      | `modules/`  | Business modules and domain behavior.                |
+
+Rules:
+
+- Modules do not import other modules directly.
+- Modules communicate through the event bus.
+- Services do not bypass repositories for database access.
+- External services are hidden behind abstraction interfaces.
+
+## Locked Stack
+
+| Component      | Technology                          |
+| -------------- | ----------------------------------- |
+| Runtime        | Node.js 22.12+                      |
+| Language       | TypeScript 5.9.3 strict mode        |
+| Bot engine     | grammY 1.41.x                       |
+| Web server     | Hono 4.x                            |
+| Database       | PostgreSQL 16 + pgvector            |
+| ORM            | Prisma 7.x and Drizzle for pgvector |
+| Cache          | cache-manager with Keyv adapters    |
+| Queue          | BullMQ through queue factory        |
+| AI             | Vercel AI SDK 6.x                   |
+| Auth           | CASL 6.x                            |
+| Error handling | neverthrow 8.2.0                    |
+| Testing        | Vitest 4.1.0 and Testcontainers     |
+| i18n           | i18next 25.x                        |
+| Logging        | Pino 9.x                            |
+| Documentation  | Starlight and starlight-typedoc     |
+
+Critical exact versions:
+
+- `typescript`: `5.9.3`
+- `vitest`: `4.1.0`
+- `neverthrow`: `8.2.0`
+
+## Development Methodology
+
+SpecKit produces specification artifacts. Superpowers executes them.
+
+Required sequence:
+
+1. SpecKit specify.
+2. SpecKit clarify.
+3. SpecKit plan.
+4. SpecKit analyze.
+5. SpecKit tasks.
+6. Superpowers brainstorming.
+7. Superpowers using-git-worktrees.
+8. Superpowers writing-plans.
+9. Superpowers subagent-driven-development on Codex, or executing-plans where
+   subagents are unavailable.
+10. Superpowers requesting-code-review.
+11. Superpowers verification-before-completion.
+12. Superpowers finishing-a-development-branch.
+
+Tempot does not use `/speckit.implement` for production execution.
+
+## Current Project State
+
+Phase 2D is complete. `user-management` (spec #025) is implemented on `main`.
+Spec #026 architecture isolation and SaaS-readiness hardening is complete.
+
+The `notifier` package has been activated from the deferred set. The remaining
+Rule XC deferred packages are:
+
+- `cms-engine`
+- `search-engine`
+- `document-engine`
+- `import-engine`
+
+Always confirm the latest state in `docs/archive/ROADMAP.md`.
+
+## Critical Rules
+
+- No direct work on `main`.
+- No production code without a validated spec.
+- TDD is mandatory for behavior changes.
+- No `any`, `@ts-ignore`, `@ts-expect-error`, or `eslint-disable`.
+- No hardcoded user-facing text in `.ts` files.
+- Public fallible APIs return `Result<T, AppError>`.
+- No direct Prisma access from services or handlers.
+- No zombie code.
+- Keep diffs scoped.
+- Every package must pass the package creation checklist.
+
+## Common Commands
+
+```bash
+pnpm lint
+pnpm build
+pnpm test:unit
+pnpm test:integration
+pnpm spec:validate
+pnpm cms:check
+pnpm boundary:audit
+pnpm module:checklist
+pnpm audit --audit-level=high
+```
+
+Use the smallest relevant checks during development and the full relevant gate
+before merge.
+
+## Gemini CLI
+
+Gemini-specific notes live in `GEMINI.md`.

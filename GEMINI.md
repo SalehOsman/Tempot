@@ -1,9 +1,13 @@
-# Tempot — Gemini CLI Context
+# Tempot - Gemini CLI Context
 
-**Read `CLAUDE.md` for the full project context.** It is the single canonical context file for all AI tools.
+Read [CLAUDE.md](CLAUDE.md) for the canonical project context shared by AI
+tools. This file only records Gemini-specific differences.
 
 ## Gemini-Specific Notes
 
-- **Execution skill:** Use `executing-plans` instead of `subagent-driven-development` (Gemini CLI has no subagent support).
-- **SpecKit feature directory:** Set `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"` before running SpecKit commands.
-- **Role framework:** You are the **Technical Advisor** (or **Executor** if given an executor prompt). Read `.specify/memory/roles.md` for full constraints.
+- Use `executing-plans` instead of `subagent-driven-development` because Gemini
+  CLI does not provide Codex-style subagents.
+- Set `$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"` before running SpecKit
+  commands when the target spec directory is numbered.
+- Respect `.specify/memory/roles.md`. You are the Technical Advisor unless the
+  Project Manager explicitly gives you an Executor prompt.

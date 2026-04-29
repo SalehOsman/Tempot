@@ -114,23 +114,23 @@ Before implementation starts, these must exist and be consistent:
 
 ## Locked Stack
 
-| Component | Technology |
-| --- | --- |
-| Runtime | Node.js 22.12+ |
-| Language | TypeScript 5.9.3 strict mode |
-| Bot Engine | grammY 1.41.x |
-| Web Server | Hono 4.x |
-| Database | PostgreSQL 16 + pgvector |
-| ORM | Prisma 7.x, Drizzle for pgvector |
-| Cache | cache-manager + Keyv adapters |
-| Queue | BullMQ through queue factory |
-| AI | Vercel AI SDK 6.x |
-| Auth | CASL 6.x |
-| Error Handling | neverthrow 8.2.0 |
-| Testing | Vitest 4.1.0 + Testcontainers |
-| i18n | i18next 25.x |
-| Logging | Pino 9.x |
-| Documentation | Starlight + starlight-typedoc |
+| Component      | Technology                       |
+| -------------- | -------------------------------- |
+| Runtime        | Node.js 22.12+                   |
+| Language       | TypeScript 5.9.3 strict mode     |
+| Bot Engine     | grammY 1.41.x                    |
+| Web Server     | Hono 4.x                         |
+| Database       | PostgreSQL 16 + pgvector         |
+| ORM            | Prisma 7.x, Drizzle for pgvector |
+| Cache          | cache-manager + Keyv adapters    |
+| Queue          | BullMQ through queue factory     |
+| AI             | Vercel AI SDK 6.x                |
+| Auth           | CASL 6.x                         |
+| Error Handling | neverthrow 8.2.0                 |
+| Testing        | Vitest 4.1.0 + Testcontainers    |
+| i18n           | i18next 25.x                     |
+| Logging        | Pino 9.x                         |
+| Documentation  | Starlight + starlight-typedoc    |
 
 Critical versions pinned exactly by constitution:
 
@@ -146,13 +146,15 @@ has been implemented on `main` with governance hardening active.
 Deferred packages under Rule XC:
 
 - `cms-engine`
-- `notifier`
 - `search-engine`
 - `document-engine`
 - `import-engine`
 
 Deferred packages are exempt from blocking `spec:validate` critical failures
 until the Roadmap records an activation decision.
+
+`notifier` has been activated from the deferred set. Confirm its current branch
+and implementation state in `docs/archive/ROADMAP.md`.
 
 ## Git Workflow
 

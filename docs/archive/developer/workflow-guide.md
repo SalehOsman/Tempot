@@ -1,316 +1,138 @@
-<div dir="rtl">
+# Tempot Workflow Guide
 
-# دليل المنهجية — SpecKit + Superpowers
+> Constitutional reference: Rules LXXIX-LXXXIX in
+> `.specify/memory/constitution.md`.
+>
+> Last reviewed: 2026-04-29.
 
-> **المرجع الدستوري:** المواد LXXIX–LXXXIX من `constitution.md`
-> **آخر تحديث:** 2026-03-25
-> **هذا هو الدليل العملي الوحيد. لا يوجد دليل آخر.**
+This is the practical workflow guide for Tempot. SpecKit defines what and why.
+Superpowers defines how the approved work is executed and verified.
 
----
+## Required First Step
 
-## الفكرة الأساسية
+Every AI agent must read these files before acting:
 
-SpecKit يكتب المواصفات. Superpowers ينفّذها. لا يتكرران — يتكاملان.
+1. `AGENTS.md`
+2. `.specify/memory/roles.md`
+3. `.specify/memory/constitution.md`
 
-```
-SpecKit يُنتج:                    Superpowers يستهلك:
-  spec.md (ماذا ولماذا)    ──→     brainstorming يقرأ ويعمّق
-  plan.md (كيف تقنياً)      ──→     brainstorming يتحقق ويسأل
-  tasks.md (المهام)         ──→     writing-plans يفصّل للدقائق
-                                    subagent-driven-development ينفّذ
-                                    requesting-code-review يراجع
-                                    finishing-a-development-branch يدمج
-```
+The active role is Technical Advisor unless the Project Manager explicitly gives
+an Executor prompt or grants direct editing permission.
 
----
+## Source Documents
 
-## الخطوة 0 — بروتوكول إنشاء الحزمة (إلزامي قبل أي شيء)
+| Topic             | Source                                                 |
+| ----------------- | ------------------------------------------------------ |
+| Role framework    | `.specify/memory/roles.md`                             |
+| Constitution      | `.specify/memory/constitution.md`                      |
+| Roadmap           | `docs/archive/ROADMAP.md`                              |
+| Architecture spec | `docs/archive/tempot_v11_final.md`                     |
+| Package checklist | `docs/archive/developer/package-creation-checklist.md` |
+| Module checklist  | `docs/archive/developer/new-module-checklist.md`       |
+| ADR index         | `docs/archive/architecture/adr/README.md`              |
 
-> **المرجع الدستوري:** المواد LXXI–LXXVIII
-> **قائمة التحقق:** `docs/developer/package-creation-checklist.md`
+## SpecKit Phase
 
-قبل البدء بأي مواصفات أو كود لحزمة جديدة، يجب أن تمر الحزمة بـ **10 نقاط إلزامية**.
-هذا البروتوكول يمنع تكرار مشاكل البنية الجوهرية (مثل حادثة 172 artifact في 2026-03-24).
+SpecKit creates feature artifacts under `specs/{NNN}-{feature-name}/`.
 
-### هيكل الحزمة الإلزامي
+| Step      | Command or skill                            | Output                                    |
+| --------- | ------------------------------------------- | ----------------------------------------- |
+| Specify   | `/speckit.specify` or `speckit-specify`     | `spec.md`                                 |
+| Clarify   | `/speckit.clarify` or `speckit-clarify`     | clarified `spec.md`                       |
+| Plan      | `/speckit.plan` or `speckit-plan`           | `plan.md`, `research.md`, `data-model.md` |
+| Checklist | `/speckit.checklist` or `speckit-checklist` | `checklists/*.md`                         |
+| Analyze   | `/speckit.analyze` or `speckit-analyze`     | consistency report                        |
+| Tasks     | `/speckit.tasks` or `speckit-tasks`         | `tasks.md`                                |
 
-كل حزمة جديدة يجب أن تحتوي على هذه الملفات قبل أي كود:
-
-```
-packages/{name}/
-├── src/
-│   └── index.ts
-├── tests/
-│   └── unit/
-├── .gitignore          ← يتضمن dist/, src/**/*.js, src/**/*.d.ts
-├── package.json        ← main/types→dist/, exports, build script, exact versions
-├── tsconfig.json       ← outDir: "dist", rootDir: "src" (أو "." إذا وُجد tests/)
-└── vitest.config.ts    ← vitest 4.1.0 exact
-```
-
-### قائمة التحقق السريعة (10 نقاط)
-
-افتح `docs/developer/package-creation-checklist.md` وتحقق من كل نقطة قبل كتابة
-أول سطر كود.
-
-### منهجية التنفيذ الإلزامية (Superpowers Sequence)
-
-كل حزمة جديدة تُنفَّذ **حصراً** عبر هذا التسلسل — لا اختصارات:
-
-| #   | الأداة                           | الهدف                         | المخرج                                    |
-| --- | -------------------------------- | ----------------------------- | ----------------------------------------- |
-| 1   | `brainstorming`                  | تعميق التصميم التقني          | `docs/superpowers/specs/{date}-{name}.md` |
-| 2   | `using-git-worktrees`            | بيئة عمل معزولة               | branch + worktree                         |
-| 3   | `writing-plans`                  | مهام 2-5 دقائق                | `docs/superpowers/plans/{date}-{name}.md` |
-| 4   | `subagent-driven-development`    | تنفيذ TDD                     | كود + اختبارات                            |
-| 5   | `requesting-code-review`         | مراجعة ضد spec + constitution | تقرير المراجعة                            |
-| 6   | `verification-before-completion` | التحقق النهائي                | تقرير التحقق                              |
-| 7   | `finishing-a-development-branch` | الدمج                         | merge إلى main                            |
-
-**تخطي أي خطوة = رفض الحزمة عند المراجعة.**
-
----
-
-## مرحلة المواصفات (SpecKit)
-
-### 1. كتابة المواصفات
+When using numbered spec directories, set:
 
 ```powershell
-$env:SPECIFY_FEATURE = "007-i18n-core-package"
+$env:SPECIFY_FEATURE = "{NNN}-{feature-name}"
 ```
 
-```
-/speckit.specify أريد بناء حزمة i18n-core التي توفر نظام ترجمة
-متعدد اللغات للبوت مع دعم Arabic كلغة أساسية
-```
+## Handoff Gate
 
-**قاعدة ذهبية:** اذكر "ماذا ولماذا" فقط. لا تذكر أي تقنية (لا Prisma ولا Redis ولا i18next).
+Superpowers execution starts only when all required artifacts exist:
 
-**المخرج:** `specs/007-i18n-core-package/spec.md`
+- `spec.md` with no `[NEEDS CLARIFICATION]`.
+- `plan.md`.
+- `tasks.md`.
+- `research.md`.
+- `data-model.md`.
+- `speckit-analyze` has no critical finding.
+- `pnpm spec:validate` has no critical finding, except for packages explicitly
+  deferred by Rule XC in the roadmap.
 
-### 2. التوضيح
+## Superpowers Phase
 
-```
-/speckit.clarify
-```
+| Step       | Skill                                                               | Purpose                                   |
+| ---------- | ------------------------------------------------------------------- | ----------------------------------------- |
+| Design     | `brainstorming`                                                     | Validate and deepen the design.           |
+| Isolation  | `using-git-worktrees`                                               | Create an isolated branch or worktree.    |
+| Plan       | `writing-plans`                                                     | Convert tasks into small execution steps. |
+| Execute    | `subagent-driven-development` on Codex, `executing-plans` elsewhere | Implement with TDD.                       |
+| Review     | `requesting-code-review`                                            | Review against spec and constitution.     |
+| Fix review | `receiving-code-review`                                             | Process findings rigorously.              |
+| Verify     | `verification-before-completion`                                    | Prove gates with fresh command output.    |
+| Finish     | `finishing-a-development-branch`                                    | Merge, PR, or cleanup decision.           |
 
-الـ AI يسألك أسئلة متتابعة عن الحالات الحدية والغموض. أجب بصراحة. إذا لا تعرف، قل "لا أعرف" وسيقترح خيارات.
+Tempot does not use `/speckit.implement` for production execution.
 
-**ممنوع التخطي.** هذه الخطوة تكشف المشاكل قبل كتابة سطر كود واحد.
+## Documentation Sync
 
-### 3. الخطة التقنية
+Rule L requires bidirectional code-documentation parity. Before completion,
+review whether the change affects:
 
-```
-/speckit.plan سنستخدم i18next 25.x مع TypeScript strict mode،
-الترجمات تُخزّن كـ JSON في packages/i18n-core/locales/،
-Arabic primary + English secondary
-```
+- SpecKit artifacts.
+- `docs/archive/ROADMAP.md`.
+- ADR files or ADR index.
+- Architecture docs.
+- Package or module README files.
+- Root AI context files such as `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`.
+- Changesets.
 
-**هنا فقط** تذكر الـ tech stack.
+Documentation-only changes must still be validated against current code and
+roadmap state.
 
-**المخرجات:** `plan.md` + `data-model.md` + `research.md`
-
-### 4. التحقق من الجودة (اختياري لكن موصى به)
-
-```
-/speckit.checklist
-```
-
-يولّد قوائم تحقق لمجالات محددة (UX, أمان, أداء). إذا وجدت `[Gap]`، أصلحه في `spec.md` ثم حدّث الخطة.
-
-### 5. فحص التناسق
-
-```
-/speckit.analyze
-```
-
-يفحص هل المواصفات والخطة والمهام متسقة. **يجب أن يمر بدون أخطاء حرجة.**
-
-### 6. تقسيم المهام
-
-```
-/speckit.tasks
-```
-
-**المخرج:** `tasks.md` — هذا هو العقد الذي يُسلّم لـ Superpowers.
-
----
-
-## بوابة التسليم
-
-قبل الانتقال لـ Superpowers، تحقق:
-
-- [ ] `spec.md` موجود ولا يحتوي `[NEEDS CLARIFICATION]`
-- [ ] `plan.md` موجود مع قرارات تقنية واضحة
-- [ ] `tasks.md` موجود مع مهام مرتبة
-- [ ] `data-model.md` موجود مع تعريفات الكيانات
-- [ ] `research.md` موجود مع نتائج البحث التقني
-- [ ] `/speckit.analyze` مرّ بدون أخطاء حرجة
-- [ ] `pnpm spec:validate` مرّ بدون أخطاء حرجة (CRITICAL)
-
-**أي خانة فارغة = لا تبدأ Superpowers.**
-
----
-
-## مرحلة التنفيذ (Superpowers)
-
-### 7. العصف الذهني
-
-```
-/brainstorming
-
-أريد تصميم حزمة i18n-core حسب المواصفات في
-specs/007-i18n-core-package/spec.md
-```
-
-Superpowers يقرأ `spec.md` + `plan.md` ثم يسأل أسئلة سقراطية **تقنية** — لا يعيد كتابة المواصفات بل يعمّقها على مستوى التنفيذ.
-
-**المخرج:** `docs/superpowers/specs/{date}-i18n-core-design.md`
-
-### 8. بيئة عمل معزولة
-
-Superpowers ينشئ git worktree تلقائياً بعد الموافقة على التصميم.
-
-### 9. خطة التنفيذ
-
-```
-/writing-plans
-```
-
-يقرأ `tasks.md` من SpecKit + design doc من الخطوة السابقة ويحولهما إلى مهام 2-5 دقائق مع مسارات ملفات وكود كامل.
-
-**المخرج:** `docs/superpowers/plans/{date}-i18n-core.md`
-
-### 10. التنفيذ
-
-**إذا كانت الأداة تدعم subagents:**
-
-```
-/subagent-driven-development
-```
-
-هذا هو الوضع المطلوب — يرسل subagent لكل مهمة مع مراجعة ثنائية (تطابق المواصفات ← جودة الكود).
-
-**إذا كانت الأداة لا تدعم subagents:**
-
-```
-/executing-plans
-```
-
-**TDD إلزامي في كل مهمة:**
-
-- 🔴 اكتب اختبار يفشل
-- 🟢 اكتب أقل كود لنجاحه
-- 🔵 حسّن بدون تغيير السلوك
-- ✅ commit
-
-### 11. مراجعة الكود
-
-```
-/requesting-code-review
-```
-
-المراجعة تفحص ضد `spec.md` والدستور. صفر مشاكل حرجة مطلوب.
-
-عند استلام ملاحظات: `/receiving-code-review` لمعالجتها منهجياً.
-
-### 12. التحقق النهائي
-
-```
-/verification-before-completion
-```
-
-كل الاختبارات + كل acceptance criteria + فحص regressions.
-
-### 12.3. مزامنة التوثيق (إلزامي — المادة L)
-
-الكود والتوثيق يجب أن يكونا متطابقين دائماً. بعد التحقق النهائي وقبل المصالحة:
-
-**أ. تحديث مخرجات SpecKit** — في `specs/{NNN}-{package-name}/`:
-
-- `data-model.md`: إذا تغيّرت كيانات أو واجهات أو أحداث أو type registries
-- `tasks.md`: إذا لم تعد acceptance criteria تطابق التنفيذ الفعلي
-- `research.md`: إذا اتُّخذ قرار تقني جديد أثناء التنفيذ (أضفه كـ Decision مرقّم)
-- `spec.md`: فقط إذا تغيّرت المتطلبات الوظيفية أو الحالات الحدية
-
-**ب. بوابة تناسق المواصفات** — تحقق من التناسق الداخلي بين المخرجات:
-
-```
-/speckit.analyze
-```
-
-أصلح أي تناقضات قبل المتابعة.
-
-**ج. بوابة المصالحة** — تحقق من تطابق المواصفات مع الكود:
+## Common Gates
 
 ```bash
-pnpm spec:validate {NNN}-{package-name}-package
+pnpm lint
+pnpm build
+pnpm test:unit
+pnpm test:integration
+pnpm spec:validate
+pnpm cms:check
+pnpm boundary:audit
+pnpm module:checklist
+pnpm audit --audit-level=high
 ```
 
-**د. توثيق المشروع** — حدّث كل ما ينطبق:
+Run the subset that matches the change while developing. Run the full relevant
+set before merge.
 
-- `docs/ROADMAP.md` — دائماً (المادة LXXXIX)
-- `docs/architecture/adr/README.md` — إذا أُنشئ ADR جديد
-- `CLAUDE.md` — إذا أُضيفت تبعية جديدة
-- `docs/tempot_v11_final.md` — إذا تغيّرت أنماط معمارية
+## Deferred Packages
 
-**هـ. Changeset:**
+Rule XC allows formally deferred packages to have incomplete reconciliation
+until the roadmap activates them. Once activated, the package immediately follows
+the full SpecKit and Superpowers workflow.
 
-```bash
-pnpm changeset
-```
+As of the current roadmap, `notifier` has been activated. The remaining deferred
+packages are:
 
-### 12.5. مصالحة المواصفات
+- `cms-engine`
+- `search-engine`
+- `document-engine`
+- `import-engine`
 
-```
-pnpm spec:validate {NNN}-{package-name}-package
-```
+## Hotfix Track
 
-يتحقق أن المواصفات متسقة مع الكود المُنفّذ. النتائج:
+Use the hotfix track only for P0/P1 production bugs:
 
-- **Exit 0**: مرّ — تابع للدمج.
-- **Exit 1**: تحذيرات (HIGH/MEDIUM) — أصلح أو سجّل مبرراً للتأجيل.
-- **Exit 2**: أخطاء حرجة (CRITICAL) — **ممنوع الدمج** حتى الإصلاح.
+1. Document the issue.
+2. Add or update the minimum failing test.
+3. Fix the root cause.
+4. Verify the fix.
+5. Update affected docs within the allowed hotfix window.
 
-### 13. الدمج
-
-```
-/finishing-a-development-branch
-```
-
-بعد الدمج: حدّث `docs/ROADMAP.md`.
-
----
-
-## أدوات إضافية أثناء التنفيذ
-
-| الموقف          | الأداة                                                            |
-| --------------- | ----------------------------------------------------------------- |
-| خطأ غامض        | `/systematic-debugging` — 4 مراحل: أدلة → فرضيات → اختبار → إصلاح |
-| تتبع عكسي للخطأ | `root-cause-tracing`                                              |
-| مشكلة توقيت     | `condition-based-waiting`                                         |
-| عمل متوازي      | `/dispatching-parallel-agents`                                    |
-
----
-
-## حل مشكلة SpecKit مع المجلدات المرقّمة
-
-SpecKit يبحث عن مجلد باسم الـ branch. المشروع يستخدم مجلدات مرقمة. الحل:
-
-```powershell
-$env:SPECIFY_FEATURE = "007-i18n-core-package"
-```
-
-هذا يُعيّن قبل أي أمر SpecKit ويوجهه للمجلد الصحيح.
-
----
-
-## ملاحظة عن `init-options.json`
-
-```json
-{ "ai": "gemini", "ai_skills": false, "speckit_version": "0.3.1" }
-```
-
-`ai_skills: false` يعني أن SpecKit لا يستخدم skills extensions. هذا مقصود — الـ skills تأتي من Superpowers وليس من SpecKit.
-
-</div>
+Hotfixes do not waive the Result pattern, i18n, repository, or clean-diff rules.

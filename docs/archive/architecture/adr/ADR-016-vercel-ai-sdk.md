@@ -13,11 +13,11 @@ Use **Vercel AI SDK v4.x** as the provider-agnostic abstraction layer. Gemini is
 
 ## Consequences
 
-- Switching AI providers requires changing only `AI_PROVIDER` in `.env` and the provider adapter
+- Switching AI providers requires changing only `TEMPOT_AI_PROVIDER` in `.env` and the provider adapter
 - All modules use the same AI interface regardless of the underlying provider
 - Circuit breaker, retry logic, and degradation modes are implemented once in ai-core
 - Vercel AI SDK supports streaming, structured output, and tool use across providers
-- `AI_PROVIDER=gemini|openai|cohere` with zero code changes in modules
+- `TEMPOT_AI_PROVIDER=gemini|openai` with zero code changes in modules
 
 ## Alternatives Rejected
 
