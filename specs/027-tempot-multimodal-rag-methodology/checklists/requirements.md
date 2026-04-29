@@ -1,7 +1,7 @@
 # Specification Quality Checklist: Tempot Multimodal RAG Methodology
 
-**Purpose**: Validate specification completeness and quality before implementation planning  
-**Created**: 2026-04-29  
+**Purpose**: Validate specification completeness and quality before implementation planning
+**Created**: 2026-04-29
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality

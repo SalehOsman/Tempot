@@ -1,6 +1,6 @@
 # Tasks: Tempot Multimodal RAG Methodology
 
-**Input**: Design documents from `specs/027-tempot-multimodal-rag-methodology/`  
+**Input**: Design documents from `specs/027-tempot-multimodal-rag-methodology/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
 **Scope**: This SpecKit feature establishes the methodology and implementation

@@ -1,6 +1,6 @@
 # Implementation Plan: Tempot Multimodal RAG Methodology
 
-**Branch**: `027-tempot-multimodal-rag-methodology` | **Date**: 2026-04-29 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `027-tempot-multimodal-rag-methodology` | **Date**: 2026-04-29 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `specs/027-tempot-multimodal-rag-methodology/spec.md`
 
 ## Summary
@@ -11,14 +11,14 @@ The first execution slice is reconciliation and hardening of the existing `ai-co
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: Vercel AI SDK 6.x, Drizzle, Prisma, pgvector, neverthrow, i18next, Event Bus  
-**Storage**: PostgreSQL 16 + pgvector, storage-engine references for files and media  
-**Testing**: Vitest 4.1.0, Testcontainers for integration, future RAG eval fixtures  
-**Target Platform**: Node.js 22.12+ monorepo packages and Telegram bot runtime  
-**Project Type**: Monorepo package architecture with apps, packages, modules, and specs  
-**Performance Goals**: Retrieval plan p95 under 500ms for indexed text MVP; full answer latency budget documented per provider  
-**Constraints**: Result pattern, i18n-only user text, event-driven integration, package boundary enforcement, no Python runtime dependency  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: Vercel AI SDK 6.x, Drizzle, Prisma, pgvector, neverthrow, i18next, Event Bus
+**Storage**: PostgreSQL 16 + pgvector, storage-engine references for files and media
+**Testing**: Vitest 4.1.0, Testcontainers for integration, future RAG eval fixtures
+**Target Platform**: Node.js 22.12+ monorepo packages and Telegram bot runtime
+**Project Type**: Monorepo package architecture with apps, packages, modules, and specs
+**Performance Goals**: Retrieval plan p95 under 500ms for indexed text MVP; full answer latency budget documented per provider
+**Constraints**: Result pattern, i18n-only user text, event-driven integration, package boundary enforcement, no Python runtime dependency
 **Scale/Scope**: Tempot Core first, SaaS-ready data scope with future `botId` and `tenantId`
 
 ## Constitution Check

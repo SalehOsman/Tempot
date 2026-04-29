@@ -1,6 +1,6 @@
 # Contract: Content Block Pipeline
 
-**Feature**: 027-tempot-multimodal-rag-methodology  
+**Feature**: 027-tempot-multimodal-rag-methodology
 **Date**: 2026-04-29
 
 This contract defines the public shape future packages use to hand normalized knowledge to RAG. It is a methodology contract, not a final TypeScript declaration.

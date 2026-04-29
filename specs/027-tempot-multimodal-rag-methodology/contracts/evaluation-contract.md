@@ -1,6 +1,6 @@
 # Contract: RAG Evaluation
 
-**Feature**: 027-tempot-multimodal-rag-methodology  
+**Feature**: 027-tempot-multimodal-rag-methodology
 **Date**: 2026-04-29
 
 RAG quality must be measurable before broad rollout.

@@ -1,6 +1,6 @@
 # Data Model: Tempot Multimodal RAG Methodology
 
-**Feature**: 027-tempot-multimodal-rag-methodology  
+**Feature**: 027-tempot-multimodal-rag-methodology
 **Date**: 2026-04-29
 
 This model is logical. Physical schema changes must be designed in the implementation phase after package ownership is confirmed.

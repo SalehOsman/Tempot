@@ -1,6 +1,6 @@
 # Contract: Hybrid Retrieval And Grounded Answer
 
-**Feature**: 027-tempot-multimodal-rag-methodology  
+**Feature**: 027-tempot-multimodal-rag-methodology
 **Date**: 2026-04-29
 
 This contract defines the expected behavior for retrieval planning and grounded answer generation.
