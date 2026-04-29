@@ -31,14 +31,19 @@ Recently completed:
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
+- Documentation entry points were restructured for root, product, development,
+  and archive documentation.
 
 Active or next work:
 
 1. Complete the activated `notifier` package workstream.
-2. Clean and restructure documentation entry points.
-3. Decide whether the next package should be `search-engine` or an AI foundation
-   reconciliation slice.
-4. Continue Phase 3B business module planning after package readiness decisions.
+2. Execute Spec #027: Tempot-native multimodal RAG methodology inspired by
+   RAG-Anything, without adopting its Python runtime.
+3. Reconcile and harden the current `ai-core` before activating additional RAG
+   packages.
+4. Decide whether `search-engine`, `document-engine`, or `import-engine` should
+   be activated after the RAG methodology gate.
+5. Continue Phase 3B business module planning after package readiness decisions.
 
 ## Phase Summary
 
@@ -118,6 +123,7 @@ Current active references:
 - Architecture spec: `docs/archive/tempot_v11_final.md`
 - ADR index: `docs/archive/architecture/adr/README.md`
 - Boundary audit: `docs/archive/architecture/boundaries/`
+- AI RAG methodology: `docs/archive/architecture/ai-rag-methodology.md`
 - SaaS readiness: `docs/archive/architecture/saas-readiness.md`
 - SaaS migration map: `docs/archive/architecture/saas-migration-map.md`
 - Telegram Managed Bots assessment:

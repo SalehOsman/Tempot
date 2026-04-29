@@ -1,6 +1,6 @@
 {
-  "feature": "026-architecture-isolation-and-saas-readiness",
-  "specPath": "specs/026-architecture-isolation-and-saas-readiness/spec.md",
-  "planPath": "specs/026-architecture-isolation-and-saas-readiness/plan.md",
-  "tasksPath": "specs/026-architecture-isolation-and-saas-readiness/tasks.md"
+  "feature": "027-tempot-multimodal-rag-methodology",
+  "specPath": "specs/027-tempot-multimodal-rag-methodology/spec.md",
+  "planPath": "specs/027-tempot-multimodal-rag-methodology/plan.md",
+  "tasksPath": "specs/027-tempot-multimodal-rag-methodology/tasks.md"
 }

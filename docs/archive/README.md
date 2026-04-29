@@ -13,6 +13,7 @@ stable paths:
 - `docs/archive/tempot_v11_final.md`
 - `docs/archive/developer/workflow-guide.md`
 - `docs/archive/developer/package-creation-checklist.md`
+- `docs/archive/architecture/ai-rag-methodology.md`
 - `docs/archive/architecture/adr/README.md`
 - `docs/archive/security/security-baseline.md`
 
