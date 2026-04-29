@@ -59,3 +59,10 @@ specs/029-ai-core-content-block-contracts/
 ## Complexity Tracking
 
 No constitution violations are expected. If any file exceeds the line limit, split types and validation before continuing.
+
+## Closeout
+
+This implementation slice is complete as of 2026-04-29 and was merged to `main`
+in commit `7ca5538`. The next slice is Spec #030, which builds retrieval
+planning and grounded answer states on top of the public content block
+contracts introduced here.

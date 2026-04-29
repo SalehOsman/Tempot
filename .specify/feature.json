@@ -1,6 +1,6 @@
 {
-  "feature": "029-ai-core-content-block-contracts",
-  "specPath": "specs/029-ai-core-content-block-contracts/spec.md",
-  "planPath": "specs/029-ai-core-content-block-contracts/plan.md",
-  "tasksPath": "specs/029-ai-core-content-block-contracts/tasks.md"
+  "feature": "030-ai-core-retrieval-planning-and-grounding",
+  "specPath": "specs/030-ai-core-retrieval-planning-and-grounding/spec.md",
+  "planPath": "specs/030-ai-core-retrieval-planning-and-grounding/plan.md",
+  "tasksPath": "specs/030-ai-core-retrieval-planning-and-grounding/tasks.md"
 }
