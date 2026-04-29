@@ -24,10 +24,15 @@ export const AI_ERRORS = {
   CONTENT_TYPE_INVALID: 'ai-core.content.type_invalid',
   CONTENT_CHUNK_FAILED: 'ai-core.content.chunk_failed',
   CONTENT_SANITIZE_FAILED: 'ai-core.content.sanitize_failed',
+  CONTENT_SOURCE_INVALID: 'ai-core.content_source.invalid',
+  CONTENT_BLOCK_INVALID: 'ai-core.content_block.invalid',
+  CONTENT_BLOCK_RAW_PII: 'ai-core.content_block.raw_pii',
+  CONTENT_BLOCK_NOT_EMBEDDABLE: 'ai-core.content_block.not_embeddable',
 
   // RAG errors
   RAG_NO_RESULTS: 'ai-core.rag.no_results',
   RAG_SEARCH_FAILED: 'ai-core.rag.search_failed',
+  RAG_GROUNDING_INVALID: 'ai-core.rag.grounding_invalid',
 
   // Tool errors
   TOOL_NOT_FOUND: 'ai-core.tool.not_found',

@@ -70,6 +70,26 @@ export { ContentIngestionService } from './content/content-ingestion.service.js'
 export type { ContentIngestionDeps, IngestOptions } from './content/content-ingestion.service.js';
 export { RAGPipeline } from './rag/rag-pipeline.service.js';
 export type { RAGContext, RetrieveOptions } from './rag/rag-pipeline.service.js';
+export {
+  validateContentBlock,
+  validateContentSource,
+  validateEmbeddableContentBlock,
+  validateGroundedAnswer,
+} from './rag/content-block.validation.js';
+export type {
+  BinaryReference,
+  ContentAccessPolicy,
+  ContentBlock,
+  ContentBlockEmbeddingPolicy,
+  ContentBlockType,
+  ContentSource,
+  ContentSourceKind,
+  EmbeddingState,
+  GroundedAnswer,
+  GroundedAnswerState,
+  GroundedAnswerUsage,
+  PIIState,
+} from './rag/content-block.types.js';
 export { ToolRegistry } from './tools/tool.registry.js';
 export { executeBatch } from './tools/batch-executor.js';
 export type { BatchExecutorDeps } from './tools/batch-executor.js';
