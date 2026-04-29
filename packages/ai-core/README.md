@@ -11,6 +11,7 @@ Provider-agnostic AI capabilities behind a unified interface:
 - `rate-limiter.service` — per-role rate limiting via rate-limiter-flexible + Redis
 - `embedding.service` — embed and search vectors via Drizzle + pgvector (3072-dim, halfvec HNSW)
 - `rag-pipeline.service` — role-based RAG with content type access matrix and post-filtering
+- `retrieval-plan.validation` — public retrieval planning and grounded answer state contracts
 - `intent.router` — multi-step agentic generation with tool use, CASL filtering, and confirmation gates
 - `confirmation.engine` — 5-minute TTL pending confirmations with 6-digit codes (Rule LXVII)
 - `audit.service` — fire-and-log pattern for AI action auditing
@@ -64,6 +65,7 @@ import {
   IntentRouter,
   ConfirmationEngine,
   TelegramAssistantUI,
+  validateRetrievalPlan,
 } from '@tempot/ai-core';
 
 // Create provider registry
@@ -82,6 +84,31 @@ const searchResult = await embeddingService.searchSimilar({
   query: 'how to use dashboard',
   contentTypes: ['ui-guide'],
   limit: 5,
+});
+
+// Validate retrieval plan contracts before execution
+const planResult = validateRetrievalPlan({
+  planId: 'plan-1',
+  requestId: 'request-1',
+  createdAt: new Date().toISOString(),
+  policy: { allowDegradedContext: false, requireAccessFilter: true },
+  steps: [
+    {
+      id: 'vector',
+      kind: 'vector',
+      outputRef: 'candidates',
+      required: true,
+      params: { limit: 20 },
+    },
+    {
+      id: 'access',
+      kind: 'access-filter',
+      inputRefs: ['candidates'],
+      outputRef: 'authorized',
+      required: true,
+      params: { policy: 'current-user' },
+    },
+  ],
 });
 ```
 
@@ -102,8 +129,8 @@ const searchResult = await embeddingService.searchSimilar({
 
 ## Status
 
-Complete and reconciled on 2026-04-29 for Spec #028.
+Complete baseline and active RAG contract expansion on 2026-04-29.
 
-- 30 source files under `src/`
-- 26 unit test files under `tests/unit/`
+- 36 source files under `src/`
+- 28 unit test files under `tests/unit/`
 - Public exports are maintained through `src/index.ts`

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `030-ai-core-retrieval-planning-and-grounding`
 **Created**: 2026-04-29
-**Status**: Approved for execution
+**Status**: Complete
 **Input**: Continue Spec #027 by adding retrieval planning and grounded answer state contracts to `ai-core` after Spec #029 introduced content block contracts.
 
 ## User Scenarios & Testing
@@ -98,3 +98,9 @@ As an operator, I want retrieval and answer contracts to expose measurable outco
 - Spec #029 content block contracts are the foundation for citations and retrieval outcomes.
 - This slice adds public contracts and validation first; wiring into the existing RAG pipeline can be a follow-on implementation step if needed.
 - Future `search-engine` activation depends on this contract but is not part of this slice.
+
+## Closeout
+
+- Completed on 2026-04-29.
+- Public retrieval planning and RAG answer state contracts were added to `@tempot/ai-core`.
+- Runtime pipeline wiring and RAG evaluation fixtures remain follow-on work.

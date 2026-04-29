@@ -68,3 +68,10 @@ No constitution violations are expected. If implementation requires database per
 - Spec #029 completed content block public contracts.
 - Spec #030 adds retrieval planning and answer state contracts.
 - Future specs may wire the contracts into runtime pipeline behavior and evaluation fixtures.
+
+## Closeout
+
+This implementation slice is complete as of 2026-04-29. It adds public
+retrieval request, retrieval plan, retrieval outcome, and RAG answer state
+contracts with validation helpers. No deferred package was activated and no
+database schema was changed.
