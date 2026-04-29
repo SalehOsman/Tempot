@@ -1,6 +1,6 @@
 {
-  "feature": "027-tempot-multimodal-rag-methodology",
-  "specPath": "specs/027-tempot-multimodal-rag-methodology/spec.md",
-  "planPath": "specs/027-tempot-multimodal-rag-methodology/plan.md",
-  "tasksPath": "specs/027-tempot-multimodal-rag-methodology/tasks.md"
+  "feature": "028-ai-core-rag-reconciliation",
+  "specPath": "specs/028-ai-core-rag-reconciliation/spec.md",
+  "planPath": "specs/028-ai-core-rag-reconciliation/plan.md",
+  "tasksPath": "specs/028-ai-core-rag-reconciliation/tasks.md"
 }

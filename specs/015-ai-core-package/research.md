@@ -100,8 +100,8 @@
 
 ### 17. Dead Code Removal (Post-Review)
 
-- **Decision:** Remove `PROVIDER_REFUSAL` error code and `AIDegradationMode` type during post-implementation review. Neither was referenced by any implementation code.
-- **Rationale:** `PROVIDER_REFUSAL` was defined in plan.md but never used in any service — no provider integration checks for content refusal. `AIDegradationMode` was a spec-level concept (`'graceful' | 'queue' | 'disable'`) that was superseded by cockatiel's built-in circuit breaker states and `ResilienceService` — modules don't need to declare a degradation mode because resilience is handled transparently. Removing dead code follows Rule XLIII (No Zombie Code).
+- **Decision:** Remove the unused provider-refusal error constant and explicit module-level degradation mode type during post-implementation review. Neither was referenced by any implementation code.
+- **Rationale:** The provider-refusal constant was defined in plan.md but never used in any service; no provider integration checks for content refusal. The explicit degradation mode type was superseded by cockatiel's built-in circuit breaker states and `ResilienceService`, so modules do not need to declare a separate degradation mode. Removing dead code follows Rule XLIII (No Zombie Code).
 - **Alternatives rejected:** Keep as placeholders for future use (violates Rule XLIII). Add implementation to use them (scope creep — no current requirement).
 
 ## Deferred Features

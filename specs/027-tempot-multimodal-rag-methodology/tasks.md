@@ -96,7 +96,7 @@ handoff. Production code changes belong in follow-on implementation specs.
 - [ ] T027 Run `pnpm lint`
 - [ ] T028 Run `git diff --check`
 - [ ] T029 Request review of `specs/027-tempot-multimodal-rag-methodology/spec.md`
-- [ ] T030 After approval, create follow-on implementation spec for current `ai-core` reconciliation
+- [x] T030 After approval, create follow-on implementation spec for current `ai-core` reconciliation: Spec #028 `ai-core-rag-reconciliation`
 
 ## Dependencies & Execution Order
 

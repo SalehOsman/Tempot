@@ -153,8 +153,7 @@ export type AIContentType =
 /** Write action confirmation level */
 export type ConfirmationLevel = 'none' | 'simple' | 'detailed' | 'escalated';
 
-/** AI degradation mode (from module.config.ts) */
-export type AIDegradationMode = 'graceful' | 'queue' | 'disable';
+/** Explicit module-level AI degradation mode was retired during reconciliation. */
 
 /** Configuration for ai-core */
 export interface AIConfig {
@@ -326,7 +325,7 @@ export const AI_ERRORS = {
   // Provider errors
   PROVIDER_UNAVAILABLE: 'ai-core.provider.unavailable',
   PROVIDER_AUTH_FAILED: 'ai-core.provider.auth_failed',
-  PROVIDER_REFUSAL: 'ai-core.provider.refusal',
+  // Dedicated provider safety refusal handling was retired during reconciliation.
   PROVIDER_TIMEOUT: 'ai-core.provider.timeout',
   PROVIDER_UNKNOWN: 'ai-core.provider.unknown',
 

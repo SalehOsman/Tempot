@@ -37,10 +37,10 @@ Recently completed:
 Active or next work:
 
 1. Complete the activated `notifier` package workstream.
-2. Execute Spec #027: Tempot-native multimodal RAG methodology inspired by
-   RAG-Anything, without adopting its Python runtime.
-3. Reconcile and harden the current `ai-core` before activating additional RAG
-   packages.
+2. Execute Spec #028: reconcile and harden the current `ai-core` package as
+   the first implementation slice from Spec #027.
+3. Use Spec #027 as the approved Tempot-native multimodal RAG methodology
+   inspired by RAG-Anything, without adopting its Python runtime.
 4. Decide whether `search-engine`, `document-engine`, or `import-engine` should
    be activated after the RAG methodology gate.
 5. Continue Phase 3B business module planning after package readiness decisions.

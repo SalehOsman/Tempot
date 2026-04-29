@@ -2,76 +2,33 @@ import { generateText, stepCountIs } from 'ai';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { AITool, AIConfig } from '../ai-core.types.js';
+import type { AITool } from '../ai-core.types.js';
 import { truncateToolOutput } from '../tools/output-limiter.util.js';
-import type { ResilienceService } from '../resilience/resilience.service.js';
-import type { CASLToolFilter } from '../tools/casl-tool.filter.js';
+import type { PendingConfirmation } from '../confirmation/confirmation.engine.js';
+import type { RAGContext } from '../rag/rag-pipeline.service.js';
+import {
+  CONFIRMATION_REQUIRED_RESPONSE_KEY,
+  createConfirmationRequiredStatus,
+} from './confirmation-routing.constants.js';
 import type {
-  ConfirmationEngine,
-  PendingConfirmation,
-} from '../confirmation/confirmation.engine.js';
-import type { RAGPipeline, RAGContext } from '../rag/rag-pipeline.service.js';
-import type { AuditService } from '../audit/audit.service.js';
-import type { AIAbilityChecker, AILogger, AIRegistry } from '../ai-core.contracts.js';
+  GenerationOutput,
+  IntentResult,
+  IntentRouterDeps,
+  RouteOptions,
+} from './intent-router.types.js';
 
-/** Maximum number of agent loop steps */
+export type { IntentResult, IntentRouterDeps, RouteOptions } from './intent-router.types.js';
+
 const MAX_AGENT_STEPS = 5;
 
-/** Parsed generation result (AI SDK v6 format) */
-interface GenerationOutput {
-  text: string;
-  totalUsage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
-  toolCalls: Array<{ toolName: string }>;
-}
-
-/** Intent routing result */
-export interface IntentResult {
-  response: string;
-  toolsCalled: string[];
-  tokenUsage: { input: number; output: number; total: number };
-  requiresConfirmation?: {
-    confirmationId: string;
-    level: string;
-    summary: string;
-    details?: string;
-    code?: string;
-  };
-}
-
-/** Dependencies for IntentRouter constructor (max-params=3 compliance) */
-export interface IntentRouterDeps {
-  registry: AIRegistry;
-  modelId: string;
-  resilience: ResilienceService;
-  caslFilter: CASLToolFilter;
-  confirmationEngine: ConfirmationEngine;
-  ragPipeline: RAGPipeline;
-  auditService: AuditService;
-  logger: AILogger;
-  config?: AIConfig;
-}
-
-/** Options for the route method (max-params=3 compliance) */
-export interface RouteOptions {
-  message: string;
-  userId: string;
-  userRole: string;
-  abilityChecker: AIAbilityChecker;
-  systemPrompt: string;
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
-}
-
 export class IntentRouter {
-  /** Holds a pending confirmation if a tool triggered one during generation */
   private pendingConfirmation: PendingConfirmation | null = null;
   constructor(private readonly deps: IntentRouterDeps) {}
 
-  /** Route a user message to appropriate tools or RAG */
   async route(options: RouteOptions): AsyncResult<IntentResult, AppError> {
     const { message, userId, abilityChecker, systemPrompt, conversationHistory } = options;
     const startTime = Date.now();
 
-    // Reset pending confirmation state
     this.pendingConfirmation = null;
 
     const allowedTools = this.deps.caslFilter.filterForUser(abilityChecker);
@@ -86,14 +43,11 @@ export class IntentRouter {
 
     const generationResult = await this.executeGeneration(messages, sdkTools);
 
-    // Check if a confirmation was triggered during tool execution
-    // Note: pendingConfirmation is set inside convertToSDKTools callbacks during generation,
-    // which TypeScript's CFA cannot track through async boundaries
     const confirmation = this.pendingConfirmation as PendingConfirmation | null;
     if (confirmation) {
       this.pendingConfirmation = null;
       return ok({
-        response: `Action "${confirmation.toolName}" requires confirmation before execution.`,
+        response: CONFIRMATION_REQUIRED_RESPONSE_KEY,
         toolsCalled: [],
         tokenUsage: { input: 0, output: 0, total: 0 },
         requiresConfirmation: {
@@ -198,10 +152,7 @@ export class IntentRouter {
     }
     messages.push({ role: 'system', content: system });
 
-    for (const msg of history) {
-      messages.push(msg);
-    }
-    messages.push({ role: 'user', content: currentMessage });
+    messages.push(...history, { role: 'user', content: currentMessage });
 
     return messages;
   }
@@ -225,7 +176,10 @@ export class IntentRouter {
             });
             if (confirmResult.isOk()) {
               this.pendingConfirmation = confirmResult.value;
-              return `Action "${tool.name}" requires confirmation before execution. Confirmation ID: ${confirmResult.value.id}`;
+              return createConfirmationRequiredStatus({
+                confirmationId: confirmResult.value.id,
+                toolName: tool.name,
+              });
             }
           }
 

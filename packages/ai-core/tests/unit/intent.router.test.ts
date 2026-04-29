@@ -570,7 +570,12 @@ describe('IntentRouter', () => {
           { execute: (params: unknown) => Promise<unknown> }
         >;
         if (tools['delete-user']) {
-          await tools['delete-user'].execute({ userId: 'target' });
+          const callbackResult = await tools['delete-user'].execute({ userId: 'target' });
+          expect(JSON.parse(callbackResult as string)).toEqual({
+            status: 'confirmation_required',
+            confirmationId: 'conf-123',
+            toolName: 'delete-user',
+          });
         }
         return {
           text: 'I will delete the user.',
@@ -583,6 +588,7 @@ describe('IntentRouter', () => {
 
       expect(result.isOk()).toBe(true);
       const value = result._unsafeUnwrap();
+      expect(value.response).toBe('ai-core.confirmation.required');
       expect(value.requiresConfirmation).toBeDefined();
       expect(value.requiresConfirmation!.confirmationId).toBe('conf-123');
       expect(value.requiresConfirmation!.level).toBe('simple');

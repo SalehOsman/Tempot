@@ -43,11 +43,15 @@ Phase 1 — Core Infrastructure
 ## Provider Configuration
 
 ```env
-AI_PROVIDER=gemini          # gemini | openai
+TEMPOT_AI=true
+TEMPOT_AI_PROVIDER=gemini          # gemini | openai
 AI_EMBEDDING_MODEL=gemini-embedding-2-preview
 AI_EMBEDDING_DIMENSIONS=3072
 GEMINI_API_KEY=AIza...
 ```
+
+Provider switching is configuration-only through `TEMPOT_AI_PROVIDER`. The
+package defaults to Gemini when the variable is omitted.
 
 ## API
 
@@ -98,4 +102,8 @@ const searchResult = await embeddingService.searchSimilar({
 
 ## Status
 
-✅ **Complete** — 20 source files, 179 tests, 65 named exports
+Complete and reconciled on 2026-04-29 for Spec #028.
+
+- 30 source files under `src/`
+- 26 unit test files under `tests/unit/`
+- Public exports are maintained through `src/index.ts`
