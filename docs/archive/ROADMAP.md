@@ -28,6 +28,8 @@ Recently completed:
 
 - Spec #025: `user-management` business module.
 - Spec #026: architecture isolation and SaaS-readiness hardening.
+- Spec #029: public `ai-core` content block contracts.
+- Spec #030: public `ai-core` retrieval planning and grounded answer contracts.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -37,8 +39,8 @@ Recently completed:
 Active or next work:
 
 1. Complete the activated `notifier` package workstream.
-2. Execute Spec #029: add public `ai-core` content block contracts as the next
-   implementation slice from Spec #027.
+2. Plan the next RAG slice: runtime retrieval plan wiring or evaluation fixtures
+   for `ai-core`.
 3. Use Spec #027 as the approved Tempot-native multimodal RAG methodology
    inspired by RAG-Anything, without adopting its Python runtime.
 4. Decide whether `search-engine`, `document-engine`, or `import-engine` should

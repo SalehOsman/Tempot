@@ -2,7 +2,7 @@
 
 **Feature Branch**: `029-ai-core-content-block-contracts`
 **Created**: 2026-04-29
-**Status**: Approved for execution
+**Status**: Complete
 **Input**: Execute the next implementation slice from Spec #027 by adding Tempot-native content block contracts to the existing `ai-core` package without activating deferred packages.
 
 ## User Scenarios & Testing
@@ -92,3 +92,9 @@ RAG answers must not be marked answered without citations to authorized content 
 - This slice defines contracts and validation only; it does not add physical tables or indexes.
 - Existing ingestion remains compatible and can adopt these contracts in a later slice.
 - Access policy evaluation remains owned by authorization and retrieval layers; this slice validates that policy references exist.
+
+## Closeout
+
+- Completed on 2026-04-29.
+- Merged to `main` in commit `7ca5538`.
+- Follow-on work continues in Spec #030: `ai-core-retrieval-planning-and-grounding`.

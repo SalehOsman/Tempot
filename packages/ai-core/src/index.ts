@@ -76,6 +76,12 @@ export {
   validateEmbeddableContentBlock,
   validateGroundedAnswer,
 } from './rag/content-block.validation.js';
+export {
+  validateRAGAnswerState,
+  validateRetrievalOutcome,
+  validateRetrievalPlan,
+  validateRetrievalRequest,
+} from './rag/retrieval-plan.validation.js';
 export type {
   BinaryReference,
   ContentAccessPolicy,
@@ -90,6 +96,22 @@ export type {
   GroundedAnswerUsage,
   PIIState,
 } from './rag/content-block.types.js';
+export type {
+  RAGAnswerCitation,
+  RAGAnswerState,
+  RAGAnswerStatus,
+  RAGAnswerUsage,
+  RetrievalOutcome,
+  RetrievalPlan,
+  RetrievalPlanPolicy,
+  RetrievalRejectedBlock,
+  RetrievalRejectedBlockReason,
+  RetrievalRequest,
+  RetrievalStageTiming,
+  RetrievalStep,
+  RetrievalStepKind,
+  RetrievalUserScope,
+} from './rag/retrieval-plan.types.js';
 export { ToolRegistry } from './tools/tool.registry.js';
 export { executeBatch } from './tools/batch-executor.js';
 export type { BatchExecutorDeps } from './tools/batch-executor.js';

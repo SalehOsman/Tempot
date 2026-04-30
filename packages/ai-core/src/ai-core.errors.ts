@@ -32,7 +32,13 @@ export const AI_ERRORS = {
   // RAG errors
   RAG_NO_RESULTS: 'ai-core.rag.no_results',
   RAG_SEARCH_FAILED: 'ai-core.rag.search_failed',
+  RAG_ANSWER_INVALID: 'ai-core.rag.answer_invalid',
   RAG_GROUNDING_INVALID: 'ai-core.rag.grounding_invalid',
+  RETRIEVAL_REQUEST_INVALID: 'ai-core.retrieval_request.invalid',
+  RETRIEVAL_PLAN_INVALID: 'ai-core.retrieval_plan.invalid',
+  RETRIEVAL_PLAN_ACCESS_FILTER_MISSING:
+    'ai-core.retrieval_plan.access_filter_missing',
+  RETRIEVAL_OUTCOME_INVALID: 'ai-core.retrieval_outcome.invalid',
 
   // Tool errors
   TOOL_NOT_FOUND: 'ai-core.tool.not_found',
