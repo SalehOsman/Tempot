@@ -36,32 +36,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ## [Unreleased]
 
-### Fixed
-
-- **Documentation**: Fixed documentation drift between README.md, CLAUDE.md, and ROADMAP.md
-  - Updated Vercel AI SDK version from 4.x to 6.x in README.md
-  - Updated neverthrow version to 8.2.0 in README.md
-  - Updated Vitest version to 4.1.0 in README.md
-  - Updated package statuses to match ROADMAP.md
-    - ux-helpers: Building → Stable
-    - ai-core: Planned → Stable
-    - module-registry: Planned → Stable
-    - bot-server: Planned → Stable
-    - docs: Planned → Stable
-    - input-engine: Planned → Stable
-  - Removed non-existent apps from README.md
-    - dashboard: Removed (not implemented)
-    - mini-app: Removed (not implemented)
-  - Added README.md to apps/docs/
-  - Completed test-module spec artifacts (plan.md, tasks.md, data-model.md, research.md)
-  - Removed @ts-expect-error from session.provider.test.ts
-
-Fixes: Rule L (Code-Documentation Parity) violations
-Fixes: Rule LX (Package README Requirement) violation
-Fixes: Rules LXXIX–LXXXII (Spec-Driven Development) violations
-Fixes: Rule I / LXX (TypeScript Strict Mode) violations
-
 ### Added
+
+- **@tempot/ai-core** (Spec #030) — Public retrieval planning and grounded answer
+  state contracts with validation helpers:
+  - `RetrievalRequest`, `RetrievalPlan`, `RetrievalStep`, `RetrievalOutcome`
+    types with Zod validation.
+  - `RAGAnswerState` supporting `answered`, `no-context`, `degraded`, and
+    `refused` states.
+  - `answered` state enforces at least one citation; non-answered states require
+    an i18n message key.
+  - All fallible validation helpers return `Result<T, AppError>`.
+  - Unit tests cover valid plans, missing access filter rejection, valid answer
+    states, and invalid grounded answer rejection.
+
+- **@tempot/notifier** (Spec #013) — Centralized notification package activated
+  from Rule XC deferred status on 2026-04-29 and completed 2026-04-30:
+  - `NotifierService` with `sendToUser`, `sendToUsers`, `sendToRole`,
+    `broadcast`, and `schedule` methods.
+  - Queue producer backed by `@tempot/shared` QueueFactory.
+  - Telegram delivery adapter with injected port boundaries.
+  - Rate policy enforcing Telegram's 30 messages per second limit.
+  - Worker factory with configurable BullMQ limiter.
+  - Delivery processor with audit recording and event publishing
+    (`notification.delivery.succeeded`, `notification.delivery.failed`,
+    `notification.user.blocked`, `notification.broadcast.queued`).
+  - All public fallible APIs return `Result<T, AppError>`.
+  - Full unit test coverage for service validation, queueing, rate offsets,
+    processor success and failure paths, and Telegram adapter mapping.
+  - Package is optional; safely disabled through `TEMPOT_NOTIFIER=false`.
 
 - Minimal `bot-server` for connection testing (grammY only, no DB required)
 - `docker-compose.yml` with PostgreSQL (pgvector) + Redis and health checks
@@ -86,6 +89,31 @@ Fixes: Rule I / LXX (TypeScript Strict Mode) violations
 - `docs/legal/LOCAL-REGULATIONS.md` — GDPR, Egypt, Saudi Arabia, UAE regulations
 - `docs/QUICK-START.md` — 10-minute getting started guide
 - README placeholder files for all 17 packages
+
+### Fixed
+
+- **Documentation**: Fixed documentation drift between README.md, CLAUDE.md, and ROADMAP.md
+  - Updated Vercel AI SDK version from 4.x to 6.x in README.md
+  - Updated neverthrow version to 8.2.0 in README.md
+  - Updated Vitest version to 4.1.0 in README.md
+  - Updated package statuses to match ROADMAP.md
+    - ux-helpers: Building → Stable
+    - ai-core: Planned → Stable
+    - module-registry: Planned → Stable
+    - bot-server: Planned → Stable
+    - docs: Planned → Stable
+    - input-engine: Planned → Stable
+  - Removed non-existent apps from README.md
+    - dashboard: Removed (not implemented)
+    - mini-app: Removed (not implemented)
+  - Added README.md to apps/docs/
+  - Completed test-module spec artifacts (plan.md, tasks.md, data-model.md, research.md)
+  - Removed @ts-expect-error from session.provider.test.ts
+
+Fixes: Rule L (Code-Documentation Parity) violations
+Fixes: Rule LX (Package README Requirement) violation
+Fixes: Rules LXXIX–LXXXII (Spec-Driven Development) violations
+Fixes: Rule I / LXX (TypeScript Strict Mode) violations
 
 ### Changed
 

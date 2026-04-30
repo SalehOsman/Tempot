@@ -1,6 +1,6 @@
 {
-  "feature": "030-ai-core-retrieval-planning-and-grounding",
-  "specPath": "specs/030-ai-core-retrieval-planning-and-grounding/spec.md",
-  "planPath": "specs/030-ai-core-retrieval-planning-and-grounding/plan.md",
-  "tasksPath": "specs/030-ai-core-retrieval-planning-and-grounding/tasks.md"
+  "feature": "031-ai-core-rag-runtime-wiring",
+  "specPath": "specs/031-ai-core-rag-runtime-wiring/spec.md",
+  "planPath": "specs/031-ai-core-rag-runtime-wiring/plan.md",
+  "tasksPath": "specs/031-ai-core-rag-runtime-wiring/tasks.md"
 }

@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-04-29.
+> Last updated: 2026-04-30.
 
 ## Current Technical Baseline
 
@@ -30,6 +30,8 @@ Recently completed:
 - Spec #026: architecture isolation and SaaS-readiness hardening.
 - Spec #029: public `ai-core` content block contracts.
 - Spec #030: public `ai-core` retrieval planning and grounded answer contracts.
+- Spec #013: `notifier` package — queue producer, delivery processor, worker
+  factory, Telegram adapter, rate policy, and full unit test coverage.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -38,14 +40,14 @@ Recently completed:
 
 Active or next work:
 
-1. Complete the activated `notifier` package workstream.
-2. Plan the next RAG slice: runtime retrieval plan wiring or evaluation fixtures
-   for `ai-core`.
-3. Use Spec #027 as the approved Tempot-native multimodal RAG methodology
-   inspired by RAG-Anything, without adopting its Python runtime.
-4. Decide whether `search-engine`, `document-engine`, or `import-engine` should
+1. **Spec #031** (`031-ai-core-rag-runtime-wiring`) — In progress. Wire
+   `RetrievalPlan` and `RAGAnswerState` contracts into `RAGPipeline` runtime
+   execution; add `retrieveWithPlan` and `buildAnswerState` methods while
+   preserving the existing `retrieve` interface for backward compatibility.
+2. After Spec #031: build RAG evaluation fixtures for `ai-core` (Spec #032).
+3. Decide whether `search-engine`, `document-engine`, or `import-engine` should
    be activated after the RAG methodology gate.
-5. Continue Phase 3B business module planning after package readiness decisions.
+4. Continue Phase 3B business module planning after package readiness decisions.
 
 ## Phase Summary
 
@@ -80,10 +82,7 @@ Active or next work:
 - `@tempot/sentry`
 - `@tempot/settings`
 - `@tempot/module-registry`
-
-### Active
-
-- `@tempot/notifier` - activated from Rule XC deferred status on 2026-04-29.
+- `@tempot/notifier` - completed 2026-04-30 (Spec #013).
 
 ### Deferred Under Rule XC
 
@@ -147,6 +146,7 @@ pnpm spec:validate
 pnpm cms:check
 pnpm boundary:audit
 pnpm module:checklist
+pnpm docs:freshness
 pnpm audit --audit-level=high
 ```
 
