@@ -65,6 +65,7 @@ import {
   IntentRouter,
   ConfirmationEngine,
   TelegramAssistantUI,
+  buildAnswerState,
   validateRetrievalPlan,
 } from '@tempot/ai-core';
 
@@ -85,6 +86,22 @@ const searchResult = await embeddingService.searchSimilar({
   contentTypes: ['ui-guide'],
   limit: 5,
 });
+
+// Execute the Spec #031 RAG runtime path with retrieval-plan wiring
+const pipeline = new RAGPipeline({ embeddingService, auditService });
+const retrievalResult = await pipeline.retrieveWithPlan({
+  requestId: 'request-1',
+  queryText: 'reset password',
+  locale: 'en',
+  allowedContentTypes: ['ui-guide', 'user-memory', 'custom-knowledge'],
+  userScope: { userId: 'user-1', role: 'admin' },
+  maxResults: 5,
+  confidenceThreshold: 0.7,
+});
+
+if (retrievalResult.isOk()) {
+  const answerState = buildAnswerState(retrievalResult.value);
+}
 
 // Validate retrieval plan contracts before execution
 const planResult = validateRetrievalPlan({

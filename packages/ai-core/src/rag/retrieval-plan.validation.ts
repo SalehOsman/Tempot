@@ -148,7 +148,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function hasAllowedContentTypes(request: RetrievalRequest): boolean {
-  return request.allowedContentTypes.length > 0 && request.allowedContentTypes.every((type) => !isBlank(type));
+  return request.allowedContentTypes.every((type) => !isBlank(type));
 }
 
 function hasUserScope(request: RetrievalRequest): boolean {
