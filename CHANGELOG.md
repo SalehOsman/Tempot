@@ -38,6 +38,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ### Added
 
+- **@tempot/ai-core** (Spec #031) - Runtime wiring for retrieval plans:
+  - `RAGPipeline.retrieveWithPlan` validates `RetrievalRequest`, builds the
+    default vector/access-filter/context-assembly plan, executes retrieval, and
+    returns a stage-timed `RetrievalOutcome`.
+  - `buildAnswerState` converts retrieval outcomes into `answered`,
+    `no-context`, or `degraded` `RAGAnswerState` values with citation and
+    i18n message-key guarantees.
+  - Optional `rag_search` audit logging is supported through `RAGPipelineDeps`;
+    audit failure does not propagate to callers.
+  - The legacy `retrieve(RetrieveOptions)` API remains backward compatible.
+
 - **@tempot/ai-core** (Spec #030) — Public retrieval planning and grounded answer
   state contracts with validation helpers:
   - `RetrievalRequest`, `RetrievalPlan`, `RetrievalStep`, `RetrievalOutcome`

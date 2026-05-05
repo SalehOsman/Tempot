@@ -1,6 +1,6 @@
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import type { AsyncResult } from '@tempot/shared';
+import type { AsyncResult, Result } from '@tempot/shared';
 import { randomUUID } from 'node:crypto';
 import type { EmbeddingService } from '../embedding/embedding.service.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
@@ -11,6 +11,17 @@ import type {
   RetrievalRequest,
   RetrievalStageTiming,
 } from './retrieval-plan.types.js';
+import {
+  validateRetrievalOutcome,
+  validateRetrievalPlan,
+} from './retrieval-plan.validation.js';
+
+interface OutcomeDraft {
+  planId: string;
+  selectedBlockIds: readonly string[];
+  rejectedBlocks: readonly RetrievalRejectedBlock[];
+  timings: readonly RetrievalStageTiming[];
+}
 
 /** i18n message keys — never hardcoded user-facing strings */
 export const RAG_MESSAGE_KEYS = {
@@ -28,6 +39,9 @@ export async function executeRetrievalPlan(
   request: RetrievalRequest,
   embeddingService: EmbeddingService,
 ): AsyncResult<RetrievalOutcome, AppError> {
+  const validPlan = validateRetrievalPlan(plan);
+  if (validPlan.isErr()) return err(validPlan.error);
+
   const timings: RetrievalStageTiming[] = [];
   const rejectedBlocks: RetrievalRejectedBlock[] = [];
   const selectedBlockIds: string[] = [];
@@ -71,14 +85,25 @@ export async function executeRetrievalPlan(
   const assemblyStart = Date.now();
   timings.push({ stage: 'context-assembly', durationMs: Date.now() - assemblyStart });
 
-  return ok({
-    outcomeId: randomUUID(),
+  return buildOutcome({
     planId: plan.planId,
     selectedBlockIds,
     rejectedBlocks,
     timings,
+  });
+}
+
+function buildOutcome(draft: OutcomeDraft): Result<RetrievalOutcome, AppError> {
+  const validOutcome = validateRetrievalOutcome({
+    outcomeId: randomUUID(),
+    planId: draft.planId,
+    selectedBlockIds: draft.selectedBlockIds,
+    rejectedBlocks: draft.rejectedBlocks,
+    timings: draft.timings,
     degraded: false,
   });
+  if (validOutcome.isErr()) return err(validOutcome.error);
+  return ok(validOutcome.value);
 }
 
 function isAuthorized(

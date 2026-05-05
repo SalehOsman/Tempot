@@ -68,8 +68,18 @@ export { AuditService } from './audit/audit.service.js';
 export type { AIAuditEntry } from './audit/audit.service.js';
 export { ContentIngestionService } from './content/content-ingestion.service.js';
 export type { ContentIngestionDeps, IngestOptions } from './content/content-ingestion.service.js';
-export { RAGPipeline } from './rag/rag-pipeline.service.js';
-export type { RAGContext, RetrieveOptions } from './rag/rag-pipeline.service.js';
+export { buildAnswerState, RAGPipeline } from './rag/rag-pipeline.service.js';
+export type {
+  RAGAuditService,
+  RAGContext,
+  RAGPipelineDeps,
+  RetrieveOptions,
+} from './rag/rag-pipeline.service.js';
+export { buildDefaultRetrievalPlan } from './rag/retrieval-plan.builder.js';
+export {
+  executeRetrievalPlan,
+  RAG_MESSAGE_KEYS,
+} from './rag/retrieval-plan.executor.js';
 export {
   validateContentBlock,
   validateContentSource,
