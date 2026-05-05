@@ -1,6 +1,7 @@
 {
-  "feature": "031-ai-core-rag-runtime-wiring",
-  "specPath": "specs/031-ai-core-rag-runtime-wiring/spec.md",
-  "planPath": "specs/031-ai-core-rag-runtime-wiring/plan.md",
-  "tasksPath": "specs/031-ai-core-rag-runtime-wiring/tasks.md"
+  "feature": "032-ai-core-rag-evaluation-fixtures",
+  "feature_directory": "specs/032-ai-core-rag-evaluation-fixtures",
+  "specPath": "specs/032-ai-core-rag-evaluation-fixtures/spec.md",
+  "planPath": "specs/032-ai-core-rag-evaluation-fixtures/plan.md",
+  "tasksPath": "specs/032-ai-core-rag-evaluation-fixtures/tasks.md"
 }

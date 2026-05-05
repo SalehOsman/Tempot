@@ -12,6 +12,7 @@ Provider-agnostic AI capabilities behind a unified interface:
 - `embedding.service` — embed and search vectors via Drizzle + pgvector (3072-dim, halfvec HNSW)
 - `rag-pipeline.service` — role-based RAG with content type access matrix and post-filtering
 - `retrieval-plan.validation` — public retrieval planning and grounded answer state contracts
+- RAG evaluation fixtures — deterministic test-only retrieval, citation, leakage, and no-context scoring cases
 - `intent.router` — multi-step agentic generation with tool use, CASL filtering, and confirmation gates
 - `confirmation.engine` — 5-minute TTL pending confirmations with 6-digit codes (Rule LXVII)
 - `audit.service` — fire-and-log pattern for AI action auditing
@@ -146,8 +147,8 @@ const planResult = validateRetrievalPlan({
 
 ## Status
 
-Complete baseline and active RAG contract expansion on 2026-04-29.
+Complete baseline and active RAG contract expansion on 2026-05-05.
 
 - 36 source files under `src/`
-- 28 unit test files under `tests/unit/`
+- 30 unit test files under `tests/unit/`
 - Public exports are maintained through `src/index.ts`

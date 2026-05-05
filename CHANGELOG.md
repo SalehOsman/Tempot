@@ -38,6 +38,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ### Added
 
+- **@tempot/ai-core** (Spec #032) - Test-only RAG evaluation fixtures and
+  scoring helpers for retrieval hit, citation coverage, unauthorized-source
+  leakage, and no-context correctness. The slice adds no CLI, evaluator service,
+  provider call, schema change, or runtime public API.
+
 - **@tempot/ai-core** (Spec #031) - Runtime wiring for retrieval plans:
   - `RAGPipeline.retrieveWithPlan` validates `RetrievalRequest`, builds the
     default vector/access-filter/context-assembly plan, executes retrieval, and

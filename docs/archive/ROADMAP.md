@@ -33,6 +33,8 @@ Recently completed:
 - Spec #031: `ai-core` RAG runtime wiring with `retrieveWithPlan`,
   `buildAnswerState`, access-filtered retrieval outcomes, stage timings, and
   optional `rag_search` audit logging.
+- Spec #032: `ai-core` RAG evaluation fixtures with deterministic retrieval hit,
+  citation coverage, unauthorized leakage, and no-context scoring tests.
 - Spec #013: `notifier` package — queue producer, delivery processor, worker
   factory, Telegram adapter, rate policy, and full unit test coverage.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
@@ -43,10 +45,11 @@ Recently completed:
 
 Active or next work:
 
-1. Build RAG evaluation fixtures for `ai-core` (Spec #032).
-2. Decide whether `search-engine`, `document-engine`, or `import-engine` should
+1. Decide whether `search-engine`, `document-engine`, or `import-engine` should
    be activated after the RAG methodology gate.
-3. Continue Phase 3B business module planning after package readiness decisions.
+2. Continue Phase 3B business module planning after package readiness decisions.
+3. Consider future RAG evaluation expansion for latency, token usage, and cost
+   only after a separate Product Manager decision.
 
 ## Phase Summary
 
