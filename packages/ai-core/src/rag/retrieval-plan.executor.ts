@@ -30,13 +30,13 @@ export async function executeRetrievalPlan(
 ): AsyncResult<RetrievalOutcome, AppError> {
   const timings: RetrievalStageTiming[] = [];
   const rejectedBlocks: RetrievalRejectedBlock[] = [];
-  let selectedBlockIds: string[] = [];
+  const selectedBlockIds: string[] = [];
 
   // Step: vector
   const vectorStart = Date.now();
   const searchResult = await embeddingService.searchSimilar({
     query: request.queryText ?? '',
-    contentTypes: request.allowedContentTypes as string[],
+    contentTypes: [...request.allowedContentTypes],
     limit: request.maxResults,
     confidenceThreshold: request.confidenceThreshold,
   });

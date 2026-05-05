@@ -4,12 +4,6 @@ import { BaseRepository, PrismaModelDelegate } from '../../src/base/base.reposit
 import { TransactionManager } from '../../src/manager/transaction.manager';
 import { AppError } from '@tempot/shared';
 import { err } from 'neverthrow';
-import { execSync } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 interface UserEntity {
   id: string;
@@ -43,12 +37,7 @@ describe('BaseRepository Transaction Support', () => {
 
   beforeAll(async () => {
     await testDb.start();
-
-    // Run schema push for integration tests
-    execSync('pnpm prisma db push --accept-data-loss', {
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      cwd: path.resolve(__dirname, '../../'),
-    });
+    testDb.applyPrismaSchema();
   }, 120_000);
 
   afterAll(async () => {

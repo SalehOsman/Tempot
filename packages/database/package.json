@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc",
     "db:merge": "tsx scripts/merge-schemas.ts",
-    "db:generate": "pnpm db:merge && prisma generate",
+    "db:generate": "corepack pnpm db:merge && prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",

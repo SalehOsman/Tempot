@@ -1,3 +1,5 @@
+import type { AIContentType } from '../ai-core.types.js';
+
 export type RetrievalStepKind =
   | 'vector'
   | 'lexical'
@@ -19,7 +21,7 @@ export interface RetrievalRequest {
   queryText?: string;
   queryBlockId?: string;
   locale: string;
-  allowedContentTypes: readonly string[];
+  allowedContentTypes: readonly AIContentType[];
   userScope: RetrievalUserScope;
   maxResults: number;
   confidenceThreshold: number;

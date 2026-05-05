@@ -4,7 +4,6 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { DrizzleVectorRepository } from '../../src/base/vector.repository';
 import { DB_CONFIG } from '../../src/database.config';
 import { Pool } from 'pg';
-
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 class TestVectorRepository extends DrizzleVectorRepository {}
@@ -16,23 +15,7 @@ describe('Vector Search', () => {
 
   beforeAll(async () => {
     await testDb.start();
-    const { execSync } = await import('child_process');
-    const path = await import('path');
-    // We need to push the drizzle schema
-    execSync('pnpm exec drizzle-kit push --force', {
-      env: process.env,
-      cwd: path.resolve(__dirname, '../../'),
-    });
-
-    // Create the halfvec expression index manually since drizzle-kit push
-    // may not handle expression indexes correctly
-    const setupPool = new Pool({ connectionString: process.env.DATABASE_URL });
-    await setupPool.query(`
-      DROP INDEX IF EXISTS embeddings_vector_hnsw_idx;
-      CREATE INDEX embeddings_vector_hnsw_idx ON embeddings
-        USING hnsw ((vector::halfvec(${DB_CONFIG.VECTOR_DIMENSIONS})) halfvec_cosine_ops);
-    `);
-    await setupPool.end();
+    await testDb.applyVectorSchema();
 
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db: NodePgDatabase = drizzle(pool);

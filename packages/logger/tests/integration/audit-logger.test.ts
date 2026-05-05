@@ -3,12 +3,6 @@ import { TestDB } from '@tempot/database/testing';
 import { AuditLogRepository, IAuditLogger } from '@tempot/database';
 import { AuditLogger, AuditLogEntry } from '../../src/audit/audit.logger.js';
 import { sessionContext } from '@tempot/shared';
-import { execSync } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 describe('AuditLogger Integration', () => {
   const testDb = new TestDB();
@@ -16,11 +10,7 @@ describe('AuditLogger Integration', () => {
 
   beforeAll(async () => {
     await testDb.start();
-    // Run schema push for integration tests
-    execSync('pnpm prisma db push --accept-data-loss', {
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      cwd: path.resolve(__dirname, '../../../../packages/database'),
-    });
+    testDb.applyPrismaSchema();
 
     const mockAuditLogger = {
       log: vi.fn().mockResolvedValue(undefined),

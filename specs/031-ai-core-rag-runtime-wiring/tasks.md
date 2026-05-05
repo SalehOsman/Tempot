@@ -101,3 +101,9 @@ The MVP is a `RAGPipeline` that accepts a `RetrievalRequest`, returns a `Retriev
 with access-filtered selected block ids and stage timings, and converts the outcome into a
 structured `RAGAnswerState`. The old `retrieve` method works without modification.
 No deferred packages are activated and no database schema is changed.
+
+## Coverage Notes
+
+- FR-003 is covered by T015 through the default plan builder with vector, access-filter, and context-assembly steps.
+- FR-013 is covered by T019 through GREEN verification that does not activate deferred packages or change schema files.
+- FR-014 is covered by T019 through changed-source size verification.

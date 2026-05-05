@@ -2,17 +2,11 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { ok } from 'neverthrow';
 import type { CacheService } from '@tempot/shared';
 import { TestDB } from '@tempot/database/testing';
-import { execSync } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { SettingsRepository } from '../../src/settings.repository.js';
 import { DynamicSettingsService } from '../../src/dynamic-settings.service.js';
 import { MaintenanceService } from '../../src/maintenance.service.js';
 import type { SettingsEventBus, SettingsLogger, StaticSettings } from '../../src/settings.types.js';
 import { DYNAMIC_SETTING_DEFAULTS } from '../../src/settings.types.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 function createInMemoryCache(): CacheService {
   const store = new Map<string, string>();
@@ -57,10 +51,7 @@ describe('Settings Integration', () => {
 
   beforeAll(async () => {
     await testDb.start();
-    execSync('pnpm prisma db push --accept-data-loss', {
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      cwd: path.resolve(__dirname, '../../../../packages/database'),
-    });
+    testDb.applyPrismaSchema();
 
     const repo = new SettingsRepository(testDb.prisma);
     const cache = createInMemoryCache();

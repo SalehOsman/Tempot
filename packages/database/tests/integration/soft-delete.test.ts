@@ -16,13 +16,7 @@ describe('Soft Delete Extension', () => {
 
   beforeAll(async () => {
     await testDb.start();
-    const { execSync } = await import('child_process');
-    const path = await import('path');
-    // We need to use prisma from the package under test
-    execSync('pnpm prisma db push --accept-data-loss', {
-      env: process.env,
-      cwd: path.resolve(__dirname, '../../'),
-    });
+    testDb.applyPrismaSchema();
 
     // Import prisma AFTER DATABASE_URL is set by testDb.start()
     const mod = await import('../../src/prisma/prisma.client.js');

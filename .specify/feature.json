@@ -1,6 +1,6 @@
 {
-  "feature": "031-ai-core-rag-runtime-wiring",
-  "specPath": "specs/031-ai-core-rag-runtime-wiring/spec.md",
-  "planPath": "specs/031-ai-core-rag-runtime-wiring/plan.md",
-  "tasksPath": "specs/031-ai-core-rag-runtime-wiring/tasks.md"
+  "feature": "034-integration-gate-repair",
+  "specPath": "specs/034-integration-gate-repair/spec.md",
+  "planPath": "specs/034-integration-gate-repair/plan.md",
+  "tasksPath": "specs/034-integration-gate-repair/tasks.md"
 }
