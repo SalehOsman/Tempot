@@ -1,76 +1,133 @@
-# Feature Specification: Import Engine (Bulk Data)
+# Feature Specification: Import Engine Package
 
-**Feature Branch**: `017-import-engine-package`  
-**Created**: 2026-03-19  
-**Status**: Draft  
-**Input**: User description: "Establish the functional import-engine package for bulk data processing and validation as per Architecture Spec v11 Blueprint."
+**Feature Branch**: `017-import-engine-package`
+**Created**: 2026-03-19
+**Repaired**: 2026-05-06
+**Status**: Active SpecKit Handoff
+**Input**: Activate `import-engine` as the second package in the deferred engine execution
+sequence, after `document-engine`.
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing
 
-### User Story 1 - Bulk Excel Import (Priority: P1)
+### User Story 1 - Validated bulk import (Priority: P1)
 
-As a system administrator, I want to upload an Excel file containing hundreds of records so that I can batch-insert data instead of adding items one by one.
+As a module developer, I want uploaded CSV and spreadsheet rows parsed, validated, and
+batched so destination modules can persist valid records efficiently.
 
-**Why this priority**: Essential for data migration and administrative efficiency.
+**Why this priority**: Bulk import is a core administrative workflow and must be reusable
+across modules.
 
-**Independent Test**: Uploading a test Excel file and verifying the records are processed and added to the database.
-
-**Acceptance Scenarios**:
-
-1. **Given** a valid Excel file and a Zod schema, **When** I upload it, **Then** the engine validates each row and adds them to the database in batches.
-2. **Given** a successful import, **When** finished, **Then** the user receives a summary report (total rows, success count, error count).
-
----
-
-### User Story 2 - Validation & Error Reporting (Priority: P1)
-
-As a user, I want to know exactly which rows failed in my import so that I can fix the errors and re-upload only the corrected data.
-
-**Why this priority**: Crucial for usability in bulk data operations (Section 19.3).
-
-**Independent Test**: Uploading a file with several invalid rows and verifying the system generates an "Error Report" file with specific error messages per row.
+**Independent Test**: Unit tests parse deterministic CSV and spreadsheet fixtures, validate
+rows with a typed schema adapter, and assert valid batches are emitted.
 
 **Acceptance Scenarios**:
 
-1. **Given** an Excel file with invalid data, **When** processed, **Then** the engine isolates failing rows and records the validation errors.
-2. **Given** failed rows, **When** the process is complete, **Then** the system uses `document-engine` to generate an Excel file containing only the failing rows and their error descriptions.
+1. **Given** a valid CSV import file, **When** processing runs, **Then** rows are parsed
+   incrementally and valid rows are emitted in configured batches.
+2. **Given** a valid spreadsheet import file, **When** processing runs, **Then** rows are
+   parsed and normalized into the same row contract as CSV.
+3. **Given** invalid rows, **When** validation runs, **Then** invalid rows are collected
+   with row numbers and validation message keys.
 
 ---
+
+### User Story 2 - Error report generation (Priority: P1)
+
+As an administrator, I want a downloadable error report containing only failed rows so I
+can correct and retry the import.
+
+**Why this priority**: Partial success without actionable row errors is not usable for
+large data imports.
+
+**Independent Test**: Integration-style unit tests use a fake document export adapter and
+verify invalid rows produce an error report request after processing.
+
+**Acceptance Scenarios**:
+
+1. **Given** invalid rows exist, **When** processing completes, **Then** the engine requests
+   a spreadsheet error report through the `document-engine` contract.
+2. **Given** no invalid rows exist, **When** processing completes, **Then** no error report
+   request is emitted.
+
+---
+
+### User Story 3 - Import lifecycle events (Priority: P2)
+
+As a bot workflow, I want import progress, completion, and failure events so users can be
+notified without the import package knowing bot UI details.
+
+**Why this priority**: Imports are asynchronous and need observable lifecycle state.
+
+**Independent Test**: Tests force success, partial success, and failure paths and assert
+typed lifecycle event payloads.
+
+**Acceptance Scenarios**:
+
+1. **Given** a received import file event, **When** the engine handles it, **Then** it
+   enqueues an import job through the queue abstraction.
+2. **Given** batches are emitted and processing finishes, **When** completion runs, **Then**
+   an import completion event includes totals and error report metadata.
+3. **Given** parsing or validation setup fails, **When** processing runs, **Then** a typed
+   failure event is emitted.
 
 ## Edge Cases
 
-- **Memory Overflow**: Importing a file with 100k rows (Answer: Process file in chunks/streams; never load the entire file into memory).
-- **Duplicate Data**: Handling records that already exist in the DB (Answer: The module's `importBatchReady` listener must define the "Upsert" logic).
-- **Partial Success**: The server crashes mid-import (Answer: Use BullMQ to track progress and allow resuming or clean restart).
+- Large files are processed incrementally and must not be fully loaded into memory by the
+  import workflow.
+- Duplicate handling is delegated to destination modules that consume batch events.
+- Failed rows must preserve source row numbers.
+- Error report generation requires `document-engine` contracts to exist first.
+- User-facing progress text is represented by i18n keys.
+- The package must not add a root CLI in the MVP; template generation can be a future DX
+  spec if needed.
 
-## Clarifications
-
-- **Technical Constraints**: `Zod` row validation. BullMQ batch processing.
-- **Constitution Rules**: Rule XV (Event-Driven). Rule XXXII (Redis persistence for job status). Section 19.3.
-- **Integration Points**: Uses `document-engine` for error reports and `storage-engine` for file retrieval.
-- **Edge Cases**: Memory overflow prevented by chunked processing. Duplicates are handled by the destination module's upsert logic. Partial success allows resuming via BullMQ.
-
-## Requirements _(mandatory)_
+## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST process all imports asynchronously via the `shared` queue factory.
-- **FR-002**: System MUST use `Zod` for row-level validation.
-- **FR-003**: System MUST communicate via `event-bus` (e.g., `import.file.received`, `import.batch.ready`).
-- **FR-004**: System MUST process records in configurable batches (e.g., 50 rows per batch).
-- **FR-005**: System MUST generate a detailed Excel error report for all failing rows.
-- **FR-006**: System MUST provide a template generation feature (`pnpm import:template {module}`).
-- **FR-007**: System MUST support `CSV` and `XLSX` formats.
+- **FR-001**: The package MUST define strict typed contracts for import requests, import
+  jobs, row results, batches, lifecycle events, and failure payloads.
+- **FR-002**: The package MUST support CSV and spreadsheet import formats.
+- **FR-003**: Row validation MUST use an injected schema adapter so tests and modules can
+  provide deterministic validation behavior.
+- **FR-004**: Fallible public APIs MUST return `Result<T, AppError>` or async Result
+  equivalents.
+- **FR-005**: Import requests MUST be accepted through event-bus subscription contracts.
+- **FR-006**: Import jobs MUST be queued through the shared queue factory abstraction.
+- **FR-007**: Valid rows MUST be emitted as `import.batch.ready` event payloads.
+- **FR-008**: Invalid rows MUST be collected with source row numbers and validation message
+  keys.
+- **FR-009**: Invalid rows MUST request a spreadsheet error report through the
+  `document-engine` contract.
+- **FR-010**: Completion and failure events MUST include totals, status, and optional error
+  report metadata.
+- **FR-011**: The implementation MUST satisfy the package creation checklist before code
+  is considered complete.
 
 ### Key Entities
 
-- **ImportProcess**: processId, userId, moduleId, status, totalRows, processedRows, successCount, errorCount, errorFileUrl.
+- **ImportRequest**: Event payload identifying file, module, format, locale, and validation
+  schema adapter.
+- **ImportJob**: Queue job payload used by the worker.
+- **ImportRowResult**: Per-row validation outcome.
+- **ImportBatchReady**: Event payload containing valid rows for destination modules.
+- **ImportProcessSummary**: Completion event payload with totals and error report metadata.
 
-## Success Criteria _(mandatory)_
+## Success Criteria
 
-### Measurable Outcomes
+- **SC-001**: Unit tests parse CSV and spreadsheet fixtures into the same row contract.
+- **SC-002**: Validation tests prove valid rows are batched and invalid rows preserve row
+  numbers.
+- **SC-003**: Error-report tests prove invalid rows request a document export and valid-only
+  imports do not.
+- **SC-004**: Lifecycle tests prove request, batch, completion, and failure events are
+  emitted through adapters.
+- **SC-005**: Package checklist, lint, build, unit tests, integration tests, and
+  `spec:validate` pass before merge.
 
-- **SC-001**: Import processing for 1,000 rows must complete in < 30 seconds (excluding AI/External API calls).
-- **SC-002**: Error report generation must be 100% accurate, mapping the correct error to the correct row.
-- **SC-003**: 100% of state changes must be recorded in the Audit Log.
-- **SC-004**: System successfully handles 5+ concurrent large imports without memory exhaustion.
+## Assumptions
+
+- `document-engine` has completed before this package enters active execution.
+- Destination modules own persistence and duplicate/upsert behavior.
+- Template-generation CLI work is out of scope for this MVP unless the Product Manager
+  opens a separate DX spec.
