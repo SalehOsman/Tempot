@@ -1,0 +1,10 @@
+dist/
+node_modules/
+coverage/
+*.tsbuildinfo
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+src/**/*.d.ts.map
+tests/**/*.js
+tests/**/*.d.ts

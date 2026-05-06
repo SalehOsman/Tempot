@@ -46,6 +46,9 @@ Recently completed:
 - Spec #014: `search-engine` package with typed relational search planning,
   cache-backed state snapshots, pagination metadata, and adapter-driven semantic
   planning.
+- Spec #008: `cms-engine` package with deterministic dynamic translation
+  override contracts, protected update validation, rollback contracts, and
+  optional AI-assisted draft review ports that are excluded from runtime lookup.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -95,6 +98,7 @@ Active or next work:
 - `@tempot/document-engine` - completed 2026-05-06 (Spec #016).
 - `@tempot/import-engine` - completed 2026-05-06 (Spec #017).
 - `@tempot/search-engine` - completed 2026-05-06 (Spec #014).
+- `@tempot/cms-engine` - completed 2026-05-06 (Spec #008 AI-ready MVP).
 
 ### Activated Package Execution Sequence
 
@@ -107,18 +111,11 @@ applies: only one package may be in active execution at a time.
 | 1     | document-engine | `016-document-engine-package`      | Implemented and merged                      |
 | 2     | import-engine   | `017-import-engine-package`        | Implemented and merged                      |
 | 3     | search-engine   | `014-search-engine-package`        | Implemented and merged                      |
+| 4     | cms-engine      | `008-cms-engine-package`           | Implemented and merged                      |
 
 ### Deferred Under Rule XC
 
-These packages are intentionally deferred until a business module or roadmap
-decision activates them:
-
-| #   | Package         | Spec state     | Status      |
-| --- | --------------- | -------------- | ----------- |
-| 8   | cms-engine      | Forward design | Not started |
-
-Deferred packages are exempt from blocking `pnpm spec:validate` critical
-failures until activation is recorded here.
+No package remains deferred under Rule XC after the Spec #008 activation.
 
 ## Application Status
 
