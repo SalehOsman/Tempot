@@ -60,11 +60,14 @@ Recently completed:
 
 Active or next work:
 
-1. Start the next Phase 3B core module from the module catalog, with
+1. Spec #037: module tooling foundation for `pnpm tempot module doctor`,
+   `module create --type`, `module create --blueprint basic`, and generated
+   `module.manifest.ts`.
+2. Start the next Phase 3B core module from the module catalog, with
    `template-management` as the recommended first product module.
-2. Decide whether `test-module` should be deleted or moved into non-production
+3. Decide whether `test-module` should be deleted or moved into non-production
    fixtures before the next production module merge.
-3. Consider future RAG evaluation expansion for latency, token usage, and cost
+4. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary

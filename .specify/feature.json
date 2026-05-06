@@ -1,7 +1,7 @@
 {
-  "feature": "036-module-development-platform",
-  "feature_directory": "specs/036-module-development-platform",
-  "specPath": "specs/036-module-development-platform/spec.md",
-  "planPath": "specs/036-module-development-platform/plan.md",
-  "tasksPath": "specs/036-module-development-platform/tasks.md"
+  "feature": "037-module-tooling-foundation",
+  "feature_directory": "specs/037-module-tooling-foundation",
+  "specPath": "specs/037-module-tooling-foundation/spec.md",
+  "planPath": "specs/037-module-tooling-foundation/plan.md",
+  "tasksPath": "specs/037-module-tooling-foundation/tasks.md"
 }
