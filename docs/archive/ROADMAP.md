@@ -40,6 +40,9 @@ Recently completed:
 - Spec #016: `document-engine` package with typed export contracts,
   deterministic PDF/XLSX generation, queue request handling, storage upload, and
   completion or failure events.
+- Spec #017: `import-engine` package with CSV and spreadsheet parsing, injected
+  schema validation, async queue workflow, valid-row batch events, invalid-row
+  report requests, and completion or failure events.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -48,11 +51,9 @@ Recently completed:
 
 Active or next work:
 
-1. Complete the `document-engine` merge gate.
-2. Implement `import-engine` after `document-engine` completes its merge gate.
-3. Implement `search-engine` after `import-engine` completes its merge gate.
-4. Continue Phase 3B business module planning after package readiness decisions.
-5. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. Implement `search-engine` after the `import-engine` merge lands.
+2. Continue Phase 3B business module planning after package readiness decisions.
+3. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -90,6 +91,7 @@ Active or next work:
 - `@tempot/module-registry`
 - `@tempot/notifier` - completed 2026-04-30 (Spec #013).
 - `@tempot/document-engine` - completed 2026-05-06 (Spec #016).
+- `@tempot/import-engine` - completed 2026-05-06 (Spec #017).
 
 ### Activated Package Execution Sequence
 
@@ -99,8 +101,8 @@ applies: only one package may be in active execution at a time.
 
 | Order | Package         | Spec directory                     | Status                                      |
 | ----- | --------------- | ---------------------------------- | ------------------------------------------- |
-| 1     | document-engine | `016-document-engine-package`      | Implemented; merge gate in progress         |
-| 2     | import-engine   | `017-import-engine-package`        | Activated; starts after document-engine     |
+| 1     | document-engine | `016-document-engine-package`      | Implemented and merged                      |
+| 2     | import-engine   | `017-import-engine-package`        | Implemented and merged                      |
 | 3     | search-engine   | `014-search-engine-package`        | Activated; starts after import-engine       |
 
 ### Deferred Under Rule XC
