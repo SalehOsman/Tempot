@@ -1,7 +1,7 @@
 {
-  "feature": "035-deferred-engine-activation",
-  "feature_directory": "specs/035-deferred-engine-activation",
-  "specPath": "specs/035-deferred-engine-activation/spec.md",
-  "planPath": "specs/035-deferred-engine-activation/plan.md",
-  "tasksPath": "specs/035-deferred-engine-activation/tasks.md"
+  "feature": "008-cms-engine-package",
+  "feature_directory": "specs/008-cms-engine-package",
+  "specPath": "specs/008-cms-engine-package/spec.md",
+  "planPath": "specs/008-cms-engine-package/plan.md",
+  "tasksPath": "specs/008-cms-engine-package/tasks.md"
 }
