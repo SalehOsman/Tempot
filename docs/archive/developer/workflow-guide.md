@@ -29,6 +29,7 @@ an Executor prompt or grants direct editing permission.
 | Architecture spec | `docs/archive/tempot_v11_final.md`                     |
 | Package checklist | `docs/archive/developer/package-creation-checklist.md` |
 | Module checklist  | `docs/archive/developer/new-module-checklist.md`       |
+| Module catalog    | `docs/archive/developer/module-development-catalog.md` |
 | ADR index         | `docs/archive/architecture/adr/README.md`              |
 
 ## SpecKit Phase
@@ -117,13 +118,7 @@ Rule XC allows formally deferred packages to have incomplete reconciliation
 until the roadmap activates them. Once activated, the package immediately follows
 the full SpecKit and Superpowers workflow.
 
-As of the current roadmap, `notifier` has been activated. The remaining deferred
-packages are:
-
-- `cms-engine`
-- `search-engine`
-- `document-engine`
-- `import-engine`
+As of the current roadmap, no package remains deferred under Rule XC.
 
 ## Hotfix Track
 

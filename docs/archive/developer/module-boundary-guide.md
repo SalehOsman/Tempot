@@ -1,7 +1,11 @@
 # Module Boundary Guide
 
-**Status**: Draft execution artifact for spec #026
+**Status**: Boundary guide aligned with Spec #036
 **Audience**: Developers and agents adding or modifying Tempot modules.
+
+For the full module methodology, package capability catalog, blueprints,
+capability packs, Module Doctor direction, and RAG assistant boundaries, read
+`docs/archive/developer/module-development-catalog.md`.
 
 ## Module Ownership
 
@@ -25,6 +29,8 @@ A module does not own:
 - Other modules.
 - Global settings infrastructure.
 - Cross-module orchestration outside events.
+- Shared package capabilities such as search, import, export, notifications,
+  CMS, settings, AI, storage, and queues.
 
 ## Allowed Dependencies
 
@@ -48,6 +54,7 @@ Modules must not:
 - Call Prisma directly from services.
 - Put user-facing text in TypeScript.
 - Add module behavior to `apps/bot-server` except registration/composition.
+- Reimplement package capabilities locally when an approved package exists.
 
 ## Module Change Checklist
 
@@ -59,7 +66,8 @@ Before editing a module:
 4. Add or update tests before behavior changes.
 5. Update locale files for user-facing text.
 6. Publish events instead of importing another module.
-7. Run the module test and relevant root gates.
+7. Select catalog capabilities before adding local abstractions.
+8. Run the module test and relevant root gates.
 
 ## New Module Checklist
 

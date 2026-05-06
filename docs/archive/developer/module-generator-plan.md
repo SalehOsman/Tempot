@@ -1,7 +1,11 @@
 # Tempot Module Generator Plan
 
-**Status**: Initial internal generator implemented for spec #026
+**Status**: Initial internal generator implemented for spec #026; blueprint
+direction documented by Spec #036
 **Purpose**: Define a governed generator for new business modules.
+
+The generator direction is governed by
+`docs/archive/developer/module-development-catalog.md`.
 
 ## Command Shape
 
@@ -79,12 +83,56 @@ The command accepts only kebab-case names such as `person-registration` and refu
 ## Generator Inputs
 
 - Module name.
+- Module type.
+- Blueprint selection.
+- Capability pack selection.
 - Display name translation keys.
 - Whether database repository is needed.
 - Whether auth abilities are needed.
 - Whether commands and menus are needed.
 - Whether events are published.
 - Whether input-engine forms are needed.
+
+## Blueprint Direction
+
+Future generator work should support blueprint presets:
+
+- `basic`
+- `crud`
+- `workflow`
+- `searchable`
+- `importable`
+- `exportable`
+- `notifiable`
+- `cms-enabled`
+- `ai-assisted`
+- `admin-managed`
+
+Blueprints define the initial module shape. Capability packs can then extend an
+existing module after the first merge.
+
+## Capability Pack Direction
+
+Future capability packs should add focused, reviewable slices:
+
+- Auth pack
+- Event pack
+- Repository pack
+- Search pack
+- Import pack
+- Export pack
+- Notification pack
+- CMS pack
+- AI pack
+
+Each pack must add tests, documentation, and validation gates with the files it
+introduces.
+
+## Manifest Direction
+
+Future generator work should accept or create `module.manifest.ts` as the
+declarative source for module metadata, capabilities, events, permissions,
+settings, CMS namespaces, and owned data.
 
 ## Validation After Generation
 
@@ -104,3 +152,5 @@ git diff --check
 - Do not bypass SpecKit artifacts.
 - Do not create modules without tests.
 - Do not activate deferred packages automatically.
+- Do not generate AI behavior that bypasses grounding, citations, audit, or
+  access policy.

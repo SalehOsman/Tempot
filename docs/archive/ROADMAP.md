@@ -49,6 +49,9 @@ Recently completed:
 - Spec #008: `cms-engine` package with deterministic dynamic translation
   override contracts, protected update validation, rollback contracts, and
   optional AI-assisted draft review ports that are excluded from runtime lookup.
+- Spec #036: module development platform documentation with the module catalog,
+  baseline module strategy, blueprints, capability packs, Module Doctor
+  direction, and Module Builder RAG Assistant plan.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -57,8 +60,11 @@ Recently completed:
 
 Active or next work:
 
-1. Continue Phase 3B business module planning after package readiness decisions.
-2. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. Start the next Phase 3B core module from the module catalog, with
+   `template-management` as the recommended first product module.
+2. Decide whether `test-module` should be deleted or moved into non-production
+   fixtures before the next production module merge.
+3. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -135,6 +141,18 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
 
+Baseline module strategy documented by Spec #036:
+
+| Module                | Type          | Status           |
+| --------------------- | ------------- | ---------------- |
+| `user-management`     | Core platform | Implemented      |
+| `template-management` | Product       | Recommended next |
+| `bot-management`      | Operational   | Planned baseline |
+| `content-management`  | Product       | Planned baseline |
+| `notification-center` | Operational   | Planned baseline |
+| `audit-viewer`        | Operational   | Planned baseline |
+| `settings-management` | Core platform | Planned baseline |
+
 ## Architecture and Governance Artifacts
 
 Current active references:
@@ -150,6 +168,8 @@ Current active references:
 - Template marketplace plan: `docs/archive/architecture/template-marketplace.md`
 - Documentation cleanup plan:
   `docs/archive/developer/documentation-cleanup-plan.md`
+- Module development catalog:
+  `docs/archive/developer/module-development-catalog.md`
 
 ## Quality Gates Before Merge
 
