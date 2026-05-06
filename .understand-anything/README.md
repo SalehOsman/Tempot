@@ -57,5 +57,6 @@ Use the full dashboard URL printed by Vite, including the `?token=...` query str
 Refresh the graph after broad architecture, package, or module changes.
 The graph should not include local worktrees, generated docs reference output, or the `.understand-anything/` directory itself.
 
-Before committing `knowledge-graph.json`, verify that `meta.json` points at the current `HEAD`.
-If it is stale, regenerate the graph first and review generated documentation before promoting it to official docs.
+Before committing `knowledge-graph.json`, verify that `meta.json` points at the source commit used to generate the graph.
+After committing graph-only changes, the repository `HEAD` will naturally move ahead by one commit.
+Regenerate the graph when code, package, module, SpecKit, or architecture documentation changes after the recorded source commit.

@@ -81,14 +81,16 @@ Refresh the graph after:
 - roadmap phase transitions;
 - broad refactors.
 
-Check freshness before treating generated output as current:
+Check the source commit before treating generated output as current:
 
 ```powershell
 git rev-parse HEAD
 Get-Content .understand-anything\meta.json
 ```
 
-The graph is stale when `meta.json.gitCommitHash` differs from `HEAD`.
+`meta.json.gitCommitHash` is the source commit used to build the graph. After committing graph-only
+artifacts, `HEAD` will naturally move ahead. Treat the graph as stale when code, package, module,
+SpecKit, or architecture documentation files changed after the recorded source commit.
 
 Before using generated onboarding output as official docs, review it manually against:
 
