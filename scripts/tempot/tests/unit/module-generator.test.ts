@@ -13,6 +13,44 @@ describe('Tempot module generator', () => {
     expect(parseTempotArgs(['module', 'create', 'person-registration'])).toEqual({
       command: 'module-create',
       moduleName: 'person-registration',
+      moduleType: 'product',
+      blueprint: 'basic',
+    });
+  });
+
+  it('should parse module create type and basic blueprint flags', () => {
+    expect(
+      parseTempotArgs([
+        'module',
+        'create',
+        'person-registration',
+        '--type',
+        'core-platform',
+        '--blueprint',
+        'basic',
+      ]),
+    ).toEqual({
+      command: 'module-create',
+      moduleName: 'person-registration',
+      moduleType: 'core-platform',
+      blueprint: 'basic',
+    });
+
+    expect(
+      parseTempotArgs([
+        'module',
+        'create',
+        'person-registration',
+        '--blueprint',
+        'basic',
+        '--type',
+        'operational',
+      ]),
+    ).toEqual({
+      command: 'module-create',
+      moduleName: 'person-registration',
+      moduleType: 'operational',
+      blueprint: 'basic',
     });
   });
 
@@ -39,9 +77,11 @@ describe('Tempot module generator', () => {
       'locales/ar.json',
       'locales/en.json',
       'module.config.ts',
+      'module.manifest.ts',
       'package.json',
       'shared/index.ts',
       'tests/module.config.test.ts',
+      'tests/module.manifest.test.ts',
       'tsconfig.json',
       'vitest.config.ts',
     ]);
@@ -54,6 +94,44 @@ describe('Tempot module generator', () => {
     const moduleConfig = files.find((file) => file.path === 'module.config.ts');
     expect(moduleConfig?.content).toContain("name: 'person-registration'");
     expect(moduleConfig?.content).toContain('isActive: false');
+
+    const moduleManifest = files.find((file) => file.path === 'module.manifest.ts');
+    expect(moduleManifest?.content).toContain("name: 'person-registration'");
+    expect(moduleManifest?.content).toContain("type: 'product'");
+    expect(moduleManifest?.content).toContain("blueprint: 'basic'");
+  });
+
+  it('should reject unsupported module types and blueprint values', async () => {
+    const cwd = await mkdtemp(join(tmpdir(), 'tempot-generator-invalid-'));
+
+    try {
+      await expect(
+        createModule({
+          cwd,
+          moduleName: 'person-registration',
+          moduleType: 'unsupported',
+          blueprint: 'crud',
+        }),
+      ).resolves.toEqual({
+        ok: false,
+        error:
+          'Unsupported module type: unsupported. Supported values: core-platform, operational, product, integration, example.',
+      });
+
+      await expect(
+        createModule({
+          cwd,
+          moduleName: 'person-registration',
+          moduleType: 'product',
+          blueprint: 'crud',
+        }),
+      ).resolves.toEqual({
+        ok: false,
+        error: 'Unsupported module blueprint: crud. Supported values: basic.',
+      });
+    } finally {
+      await rm(cwd, { recursive: true, force: true });
+    }
   });
 
   it('should write a module skeleton without overwriting existing modules', async () => {
@@ -68,9 +146,14 @@ describe('Tempot module generator', () => {
       }
 
       expect(first.createdFiles).toContain('modules/person-registration/package.json');
+      expect(first.createdFiles).toContain('modules/person-registration/module.manifest.ts');
 
       const packageFile = await readFile(
         join(cwd, 'modules', 'person-registration', 'package.json'),
+        'utf8',
+      );
+      const manifestFile = await readFile(
+        join(cwd, 'modules', 'person-registration', 'module.manifest.ts'),
         'utf8',
       );
       const localeFile = await readFile(
@@ -79,6 +162,7 @@ describe('Tempot module generator', () => {
       );
 
       expect(packageFile).toContain('@tempot/person-registration');
+      expect(manifestFile).toContain("name: 'person-registration'");
       expect(localeFile).toContain('"person-registration"');
 
       const second = await createModule({ cwd, moduleName: 'person-registration' });

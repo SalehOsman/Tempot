@@ -62,7 +62,7 @@ Active or next work:
 
 1. Spec #037: module tooling foundation for `pnpm tempot module doctor`,
    `module create --type`, `module create --blueprint basic`, and generated
-   `module.manifest.ts`.
+   `module.manifest.ts` is implemented locally with final gates passing.
 2. Start the next Phase 3B core module from the module catalog, with
    `template-management` as the recommended first product module.
 3. Decide whether `test-module` should be deleted or moved into non-production

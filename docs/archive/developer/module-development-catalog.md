@@ -1,6 +1,6 @@
 # Module Development Catalog
 
-**Status**: Authoritative developer catalog for Spec #036
+**Status**: Authoritative developer catalog for Specs #036 and #037
 **Audience**: Developers and agents creating, reviewing, or extending Tempot modules.
 
 ## Purpose
@@ -83,8 +83,9 @@ README.
 
 ## Module Manifest
 
-Each new module should be designed around a future `module.manifest.ts` contract.
-The manifest is the declarative source for module metadata and generator output.
+Each generated module now includes a starter `module.manifest.ts` contract from
+the `basic` blueprint. The manifest is the declarative source for module
+metadata and generator output.
 
 Expected manifest concerns:
 
@@ -221,17 +222,24 @@ Evaluation requirements:
 
 ## Module Doctor
 
-`pnpm tempot module doctor <module-name>` is a proposed future command. It should
-report module readiness instead of only failing late in CI.
+`pnpm tempot module doctor <module-name>` is available as the first readiness
+slice. It reports module readiness instead of only failing late in CI.
 
-Recommended checks:
+Implemented checks:
 
-- package metadata and exports
+- module directory exists
+- required files: `package.json`, `module.config.ts`, `module.manifest.ts`,
+  `locales/ar.json`, and `locales/en.json`
+- package metadata: `main`, `types`, root export, `build`, and `test`
+- locale key parity between Arabic and English files
+- no direct imports from another `modules/*` module
+
+Recommended future checks:
+
 - `module.config.ts` validity
-- `module.manifest.ts` validity when introduced
-- locale parity and placeholder parity
+- `module.manifest.ts` schema validity
+- locale placeholder parity
 - no hardcoded user-facing text in TypeScript
-- no direct module imports
 - no app imports from module code
 - no direct Prisma access in services or handlers
 - Result pattern on fallible public APIs

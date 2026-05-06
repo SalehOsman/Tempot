@@ -1,6 +1,10 @@
-import type { GeneratedModuleFile } from './module-generator.types.js';
+import type { GeneratedModuleFile, ModuleTemplateOptions } from './module-generator.types.js';
+import { moduleManifestTestTs, moduleManifestTs } from './module-generator.manifest-templates.js';
 
-export function buildModuleFiles(moduleName: string): readonly GeneratedModuleFile[] {
+export function buildModuleFiles(
+  moduleName: string,
+  options: ModuleTemplateOptions = { moduleType: 'product', blueprint: 'basic' },
+): readonly GeneratedModuleFile[] {
   return [
     { path: 'package.json', content: packageJson(moduleName) },
     { path: 'tsconfig.json', content: tsconfigJson() },
@@ -8,12 +12,14 @@ export function buildModuleFiles(moduleName: string): readonly GeneratedModuleFi
     { path: '.gitignore', content: gitignore() },
     { path: 'index.ts', content: indexTs(moduleName) },
     { path: 'module.config.ts', content: moduleConfigTs(moduleName) },
+    { path: 'module.manifest.ts', content: moduleManifestTs(moduleName, options) },
     { path: 'abilities.ts', content: abilitiesTs(moduleName) },
     { path: 'features/index.ts', content: emptyBarrel() },
     { path: 'shared/index.ts', content: emptyBarrel() },
     { path: 'locales/ar.json', content: localeJson(moduleName, 'ar') },
     { path: 'locales/en.json', content: localeJson(moduleName, 'en') },
     { path: 'tests/module.config.test.ts', content: moduleConfigTestTs(moduleName) },
+    { path: 'tests/module.manifest.test.ts', content: moduleManifestTestTs(moduleName, options) },
   ];
 }
 
@@ -69,6 +75,7 @@ function tsconfigJson(): string {
       },
       include: [
         'module.config.ts',
+        'module.manifest.ts',
         'index.ts',
         'abilities.ts',
         'features/**/*.ts',

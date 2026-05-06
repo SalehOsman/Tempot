@@ -1,6 +1,6 @@
 # New Module Checklist
 
-**Status**: Module creation checklist aligned with Spec #036
+**Status**: Module creation checklist aligned with Specs #036 and #037
 **Audience**: Developers and agents creating Tempot business modules.
 
 Use this checklist with
@@ -27,7 +27,7 @@ and the future Module Builder RAG Assistant.
 - [ ] `.gitignore`.
 - [ ] `index.ts`.
 - [ ] `module.config.ts`.
-- [ ] `module.manifest.ts` when manifest support is introduced.
+- [ ] `module.manifest.ts`.
 - [ ] `abilities.ts` when authorization is needed.
 - [ ] `locales/ar.json`.
 - [ ] `locales/en.json`.
@@ -69,7 +69,7 @@ Create only when needed:
 - [ ] `pnpm cms:check` passes when locales change.
 - [ ] `pnpm boundary:audit` passes.
 - [ ] `pnpm module:checklist` passes.
-- [ ] Future `pnpm tempot module doctor {module-name}` passes when available.
+- [ ] `pnpm tempot module doctor {module-name}` passes.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm spec:validate` passes.
 - [ ] `git diff --check` passes.

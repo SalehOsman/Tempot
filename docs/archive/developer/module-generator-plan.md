@@ -1,7 +1,7 @@
 # Tempot Module Generator Plan
 
-**Status**: Initial internal generator implemented for spec #026; blueprint
-direction documented by Spec #036
+**Status**: Internal generator active; blueprint and manifest foundation
+implemented by Spec #037
 **Purpose**: Define a governed generator for new business modules.
 
 The generator direction is governed by
@@ -13,6 +13,8 @@ Initial internal target:
 
 ```powershell
 pnpm tempot module create <module-name>
+pnpm tempot module create <module-name> --type <type> --blueprint basic
+pnpm tempot module doctor <module-name>
 ```
 
 Future public wrapper:
@@ -31,6 +33,7 @@ modules/{module-name}/
 |-- .gitignore
 |-- index.ts
 |-- module.config.ts
+|-- module.manifest.ts
 |-- abilities.ts
 |-- commands/
 |-- handlers/
@@ -48,12 +51,13 @@ modules/{module-name}/
 
 Generate optional folders only when selected by flags.
 
-## Implemented Initial Mode
+## Implemented Mode
 
 The initial internal command is available through the root workspace script:
 
 ```powershell
 pnpm tempot module create <module-name>
+pnpm tempot module create <module-name> --type <type> --blueprint basic
 ```
 
 It currently generates the minimal inactive module skeleton:
@@ -63,11 +67,25 @@ It currently generates the minimal inactive module skeleton:
 - `vitest.config.ts` for package-level tests.
 - `.gitignore` for build output.
 - `index.ts`, `module.config.ts`, and `abilities.ts`.
+- `module.manifest.ts` with module name, type, blueprint, inactive status,
+  empty capabilities, empty commands, and empty event lists.
 - `features/index.ts` and `shared/index.ts` required by module validation.
 - `locales/ar.json` and `locales/en.json` starter resources.
-- `tests/module.config.test.ts`.
+- `tests/module.config.test.ts` and `tests/module.manifest.test.ts`.
 
-The command accepts only kebab-case names such as `person-registration` and refuses to overwrite an existing `modules/{module-name}` directory.
+The command accepts only kebab-case names such as `person-registration`, refuses
+to overwrite an existing `modules/{module-name}` directory, accepts module types
+`core-platform`, `operational`, `product`, `integration`, and `example`, and
+supports only the `basic` blueprint in this slice.
+
+The module readiness command is also available:
+
+```powershell
+pnpm tempot module doctor <module-name>
+```
+
+It checks module directory existence, required files, package metadata, locale
+key parity, and direct imports from another module.
 
 ## Required Defaults
 
@@ -82,9 +100,9 @@ The command accepts only kebab-case names such as `person-registration` and refu
 
 ## Generator Inputs
 
-- Module name.
-- Module type.
-- Blueprint selection.
+- Module name through `<module-name>`.
+- Module type through `--type <type>`, defaulting to `product`.
+- Blueprint selection through `--blueprint basic`, defaulting to `basic`.
 - Capability pack selection.
 - Display name translation keys.
 - Whether database repository is needed.
@@ -130,9 +148,9 @@ introduces.
 
 ## Manifest Direction
 
-Future generator work should accept or create `module.manifest.ts` as the
-declarative source for module metadata, capabilities, events, permissions,
-settings, CMS namespaces, and owned data.
+The generator creates `module.manifest.ts` as the starter declarative source for
+module metadata. Future work should extend the manifest toward capabilities,
+events, permissions, settings, CMS namespaces, and owned data.
 
 ## Validation After Generation
 

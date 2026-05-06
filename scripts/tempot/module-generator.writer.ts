@@ -2,14 +2,24 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { buildModuleFiles } from './module-generator.templates.js';
-import type { ModuleCreateInput, ModuleCreateResult } from './module-generator.types.js';
-import { validateModuleName } from './module-generator.validation.js';
+import type {
+  ModuleCreateInput,
+  ModuleCreateResult,
+  ModuleTemplateOptions,
+} from './module-generator.types.js';
+import { validateModuleName, validateModuleOptions } from './module-generator.validation.js';
 
 export async function createModule(input: ModuleCreateInput): Promise<ModuleCreateResult> {
   const validation = validateModuleName(input.moduleName);
 
   if (!validation.ok) {
     return { ok: false, error: validation.error };
+  }
+
+  const options = validateModuleOptions(input.moduleType, input.blueprint);
+
+  if (!options.ok) {
+    return { ok: false, error: options.error };
   }
 
   const relativeModulePath = `modules/${validation.moduleName}`;
@@ -20,7 +30,7 @@ export async function createModule(input: ModuleCreateInput): Promise<ModuleCrea
   }
 
   try {
-    const createdFiles = await writeModuleFiles(input.cwd, validation.moduleName);
+    const createdFiles = await writeModuleFiles(input.cwd, validation.moduleName, options);
 
     return { ok: true, moduleName: validation.moduleName, createdFiles };
   } catch (error) {
@@ -28,10 +38,14 @@ export async function createModule(input: ModuleCreateInput): Promise<ModuleCrea
   }
 }
 
-async function writeModuleFiles(cwd: string, moduleName: string): Promise<readonly string[]> {
+async function writeModuleFiles(
+  cwd: string,
+  moduleName: string,
+  options: ModuleTemplateOptions,
+): Promise<readonly string[]> {
   const createdFiles: string[] = [];
 
-  for (const file of buildModuleFiles(moduleName)) {
+  for (const file of buildModuleFiles(moduleName, options)) {
     const relativeFilePath = `modules/${moduleName}/${file.path}`;
     const target = join(cwd, relativeFilePath);
 
