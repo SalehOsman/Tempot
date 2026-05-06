@@ -1,76 +1,120 @@
-# Feature Specification: Document Engine (PDF & Excel)
+# Feature Specification: Document Engine Package
 
-**Feature Branch**: `016-document-engine-package`  
-**Created**: 2026-03-19  
-**Status**: Draft  
-**Input**: User description: "Establish the functional document-engine package for generating localized PDF and Excel documents as per Architecture Spec v11 Blueprint."
+**Feature Branch**: `016-document-engine-package`
+**Created**: 2026-03-19
+**Repaired**: 2026-05-06
+**Status**: Active SpecKit Handoff
+**Input**: Activate `document-engine` as the first package in the deferred engine
+execution sequence.
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing
 
-### User Story 1 - Localized PDF Invoice (Priority: P1)
+### User Story 1 - Localized document generation (Priority: P1)
 
-As a user, I want to download my invoice as a PDF in Arabic so that I have a professional and readable document for my records.
+As a module developer, I want to request PDF and spreadsheet exports with locale-aware
+labels and RTL layout metadata so business modules can provide professional downloads.
 
-**Why this priority**: Core business requirement for many bot types (e-commerce, services).
+**Why this priority**: Export capability is foundational for reports, invoices, and import
+error reports.
 
-**Independent Test**: Requesting a PDF export and verifying the generated file has correct Arabic text, RTL alignment, and matches the provided data.
-
-**Acceptance Scenarios**:
-
-1. **Given** an export request for an invoice, **When** processing, **Then** the engine uses `pdfmake` to generate a PDF with correct RTL layout and embedded Arabic fonts.
-2. **Given** a generated PDF, **When** uploaded to the `storage-engine`, **Then** the user receives a download link via the bot.
-
----
-
-### User Story 2 - Bulk Data Export to Excel (Priority: P1)
-
-As a system administrator, I want to export my user list or sales data to Excel so that I can perform further analysis in external tools.
-
-**Why this priority**: Essential for administrative reporting and data portability.
-
-**Independent Test**: Exporting 1,000 records to Excel and verifying the file structure and data integrity.
+**Independent Test**: Unit tests generate deterministic PDF and spreadsheet buffers from
+fixture templates and assert content type, non-empty output, locale metadata, and RTL
+configuration.
 
 **Acceptance Scenarios**:
 
-1. **Given** a large dataset, **When** I request an Excel export, **Then** the system processes the request in the background via BullMQ.
-2. **Given** an Excel file, **When** opened, **Then** it contains correct headers, RTL alignment for Arabic columns, and formatted data.
+1. **Given** a PDF export request with Arabic locale metadata, **When** generation runs,
+   **Then** the generated document uses configured RTL layout and font metadata.
+2. **Given** a spreadsheet export request, **When** generation runs, **Then** the workbook
+   contains configured headers, rows, and RTL worksheet metadata.
 
 ---
+
+### User Story 2 - Asynchronous export workflow (Priority: P1)
+
+As a bot workflow, I want document exports processed through the shared queue factory so
+large exports do not block request handling.
+
+**Why this priority**: Export jobs may be slow and must not run inline in bot handlers.
+
+**Independent Test**: Integration-style unit tests with fake queue, event bus, and storage
+adapters verify request handling, job enqueueing, processing, upload, and completion
+events.
+
+**Acceptance Scenarios**:
+
+1. **Given** a `document.export.requested` event, **When** the engine handles it, **Then**
+   it enqueues an export job through the queue abstraction.
+2. **Given** a completed export buffer, **When** processing finishes, **Then** the file is
+   uploaded through the storage adapter and a completion event is emitted.
+
+---
+
+### User Story 3 - Failure reporting (Priority: P2)
+
+As a module developer, I want failed exports to emit structured failure events so callers
+can notify users without parsing thrown errors.
+
+**Why this priority**: Long-running jobs need reliable failure semantics.
+
+**Independent Test**: Tests force generator and storage failures and assert that typed
+failure results and failure events are produced.
+
+**Acceptance Scenarios**:
+
+1. **Given** a generator failure, **When** processing runs, **Then** the worker returns a
+   typed `AppError` and emits a failure event.
+2. **Given** a storage upload failure, **When** processing runs, **Then** no completion
+   event is emitted and a failure event includes the export identifier.
 
 ## Edge Cases
 
-- **Large Document Generation**: Generating a 100-page PDF or 10k-row Excel (Answer: MUST be handled asynchronously via the queue factory to prevent server timeout).
-- **Special Characters**: Handling emojis or unusual symbols in PDF (Answer: Ensure the selected fonts and `pdfmake` configuration support extended character sets).
-- **Storage Cleanup**: Cleaning up old generated documents (Answer: `storage-engine` should handle automatic expiry for temporary export files).
+- Large exports are queued and processed asynchronously.
+- Missing templates or unsupported formats return typed errors.
+- User-facing status text is represented by i18n keys.
+- Temporary file expiry is delegated to `storage-engine` policy.
+- The package communicates with other packages through the event bus and injected adapters.
+- New document-generation dependencies must be verified before manifest changes.
 
-## Clarifications
-
-- **Technical Constraints**: `pdfmake` (0.2.x) and `ExcelJS` (4.x) with RTL.
-- **Constitution Rules**: Rule XV (Event-Driven Only). Rule XXXIX (i18n-Only). Rule XX (Queue Factory Only).
-- **Integration Points**: Triggered via `event-bus`. Uploads results to `storage-engine`.
-- **Edge Cases**: Large documents (10k+ rows) are generated asynchronously. Fonts must support full Arabic character sets. Old generated files are cleaned by `storage-engine`.
-
-## Requirements _(mandatory)_
+## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST use `pdfmake` (0.2.x) for PDF generation (ADR-009).
-- **FR-002**: System MUST use `ExcelJS` (4.x) for Excel generation with RTL support.
-- **FR-003**: System MUST communicate ONLY via `event-bus` (e.g., `document.export.requested`).
-- **FR-004**: System MUST process all exports asynchronously via the `shared` queue factory.
-- **FR-005**: System MUST support full i18n and RTL layout for all generated documents.
-- **FR-006**: System MUST automatically upload generated files to the `storage-engine`.
-- **FR-007**: System MUST notify the requesting user/module via `document.export.completed`.
+- **FR-001**: The package MUST provide strict typed contracts for export requests, export
+  jobs, export results, and document templates.
+- **FR-002**: The package MUST support PDF and spreadsheet export formats.
+- **FR-003**: Fallible public APIs MUST return `Result<T, AppError>` or async Result
+  equivalents.
+- **FR-004**: Export requests MUST be accepted through event-bus subscription contracts.
+- **FR-005**: Export jobs MUST be queued through the shared queue factory abstraction.
+- **FR-006**: Generated files MUST be uploaded through a storage adapter.
+- **FR-007**: Successful exports MUST emit `document.export.completed` event payloads.
+- **FR-008**: Failed exports MUST emit `document.export.failed` event payloads.
+- **FR-009**: Generated document labels and status metadata MUST use i18n keys.
+- **FR-010**: RTL layout metadata MUST be supported for Arabic document generation.
+- **FR-011**: The implementation MUST satisfy the package creation checklist before code
+  is considered complete.
 
 ### Key Entities
 
-- **ExportJob**: jobId, userId, format (PDF/Excel), status, fileUrl, errorReason.
+- **DocumentExportRequest**: Event payload requested by modules.
+- **DocumentExportJob**: Queue job payload used by the worker.
+- **DocumentTemplate**: Template metadata and field definitions for generated output.
+- **DocumentExportResult**: Successful file metadata returned after storage upload.
+- **DocumentExportFailure**: Failure event payload containing export identity and error
+  code.
 
-## Success Criteria _(mandatory)_
+## Success Criteria
 
-### Measurable Outcomes
+- **SC-001**: Unit tests generate deterministic PDF and spreadsheet buffers from fixtures.
+- **SC-002**: Queue tests prove export requests are enqueued through the queue abstraction.
+- **SC-003**: Storage tests prove generated files are uploaded through the storage adapter.
+- **SC-004**: Failure tests prove generator and upload failures emit failure events.
+- **SC-005**: Package checklist, lint, build, unit tests, integration tests, and
+  `spec:validate` pass before merge.
 
-- **SC-001**: PDF generation for a standard 1-page document must take < 2 seconds.
-- **SC-002**: Excel export for 1,000 records must complete in < 5 seconds.
-- **SC-003**: 100% of documents must be correctly localized and RTL-aligned for Arabic.
-- **SC-004**: System successfully handles 10+ concurrent export requests via the background queue.
+## Assumptions
+
+- `document-engine` is implemented before `import-engine`.
+- Package implementation may require document-generation dependencies, but dependency
+  changes must be justified in research before manifest edits.

@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-05.
+> Last updated: 2026-05-06.
 
 ## Current Technical Baseline
 
@@ -45,10 +45,14 @@ Recently completed:
 
 Active or next work:
 
-1. Decide whether `search-engine`, `document-engine`, or `import-engine` should
-   be activated after the RAG methodology gate.
-2. Continue Phase 3B business module planning after package readiness decisions.
-3. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. Spec #035: deferred engine activation and SpecKit handoff repair for
+   `document-engine`, `import-engine`, and `search-engine`.
+2. Implement `document-engine` on a package-specific branch after Spec #035
+   passes handoff validation.
+3. Implement `import-engine` after `document-engine` completes its merge gate.
+4. Implement `search-engine` after `import-engine` completes its merge gate.
+5. Continue Phase 3B business module planning after package readiness decisions.
+6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -86,6 +90,18 @@ Active or next work:
 - `@tempot/module-registry`
 - `@tempot/notifier` - completed 2026-04-30 (Spec #013).
 
+### Activated Package Execution Sequence
+
+Product Manager decision recorded 2026-05-06: activate the following packages
+for SpecKit repair and sequential Superpowers implementation. Rule LXXXV still
+applies: only one package may be in active execution at a time.
+
+| Order | Package         | Spec directory                     | Status                                      |
+| ----- | --------------- | ---------------------------------- | ------------------------------------------- |
+| 1     | document-engine | `016-document-engine-package`      | Activated; SpecKit handoff repair in #035   |
+| 2     | import-engine   | `017-import-engine-package`        | Activated; starts after document-engine     |
+| 3     | search-engine   | `014-search-engine-package`        | Activated; starts after import-engine       |
+
 ### Deferred Under Rule XC
 
 These packages are intentionally deferred until a business module or roadmap
@@ -94,9 +110,6 @@ decision activates them:
 | #   | Package         | Spec state     | Status      |
 | --- | --------------- | -------------- | ----------- |
 | 8   | cms-engine      | Forward design | Not started |
-| 15  | search-engine   | Forward design | Not started |
-| 17  | document-engine | Forward design | Not started |
-| 19  | import-engine   | Forward design | Not started |
 
 Deferred packages are exempt from blocking `pnpm spec:validate` critical
 failures until activation is recorded here.

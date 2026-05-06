@@ -1,7 +1,7 @@
 {
-  "feature": "032-ai-core-rag-evaluation-fixtures",
-  "feature_directory": "specs/032-ai-core-rag-evaluation-fixtures",
-  "specPath": "specs/032-ai-core-rag-evaluation-fixtures/spec.md",
-  "planPath": "specs/032-ai-core-rag-evaluation-fixtures/plan.md",
-  "tasksPath": "specs/032-ai-core-rag-evaluation-fixtures/tasks.md"
+  "feature": "035-deferred-engine-activation",
+  "feature_directory": "specs/035-deferred-engine-activation",
+  "specPath": "specs/035-deferred-engine-activation/spec.md",
+  "planPath": "specs/035-deferred-engine-activation/plan.md",
+  "tasksPath": "specs/035-deferred-engine-activation/tasks.md"
 }
