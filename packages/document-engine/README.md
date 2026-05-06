@@ -1,59 +1,100 @@
 # @tempot/document-engine
 
-> Async PDF and Excel generation via BullMQ. Communicates exclusively via Event Bus.
-
-## Purpose
-
-Generates PDF and Excel documents asynchronously:
-
-- PDF via `pdfmake` with full RTL + Arabic font support
-- Excel via `ExcelJS` with RTL worksheet settings
-- Communicates via Event Bus only — modules never import document-engine directly
-- File upload to `@tempot/storage-engine` after generation
-- CASL permission check before generating
-
-Disabled by default. Enable with `TEMPOT_DOCUMENTS=true`.
-
-## Phase
-
-Phase 4 — Advanced Engines
-
-## Dependencies
-
-| Package                  | Purpose                           |
-| ------------------------ | --------------------------------- |
-| `pdfmake` 0.2.x          | PDF generation with RTL — ADR-009 |
-| `ExcelJS` 4.x            | Excel generation with RTL         |
-| `@tempot/shared`         | queue factory (BullMQ)            |
-| `@tempot/storage-engine` | Upload generated files            |
-| `@tempot/event-bus`      | Receive requests, emit completion |
-| `@tempot/auth-core`      | CASL permission check             |
-| `@tempot/i18n-core`      | Document headers and labels       |
-
-## Event Flow (never import directly)
-
-```typescript
-// In a module — emit request
-await eventBus.emit('document.export.requested', {
-  type: 'pdf', // 'pdf' | 'excel'
-  moduleId: 'invoices',
-  templateId: 'invoice-report',
-  data: { invoices, dateRange },
-  requestedBy: userId,
-  locale: 'ar',
-});
-
-// document-engine listens, generates, uploads, emits result
-// Listen for completion in your module
-eventBus.on('document.export.completed', async ({ fileUrl, requestedBy }) => {
-  await notifier.send(requestedBy, 'document.ready', { url: fileUrl });
-});
-```
-
-## ADRs
-
-- ADR-009 — pdfmake for PDF generation
+Document export package for Tempot. It accepts event-driven export requests, queues
+document jobs through injected ports, generates PDF or spreadsheet buffers, uploads
+files through a storage adapter, and publishes completion or failure events.
 
 ## Status
 
-⏳ **Not yet implemented** — Phase 4
+Active implementation package. It follows the shared package toggle convention:
+enabled by default and disabled with `TEMPOT_DOCUMENT_ENGINE=false`.
+
+## Scope
+
+Implemented now:
+
+- PDF export contract and deterministic PDF buffer generation
+- Spreadsheet export contract and deterministic XLSX buffer generation
+- RTL layout metadata for Arabic-oriented templates
+- Queue request handling through an injected queue port
+- Storage upload through an injected storage port
+- Completion and failure event publishing through an injected event port
+
+Deferred:
+
+- Rich document layout templates
+- External PDF or spreadsheet rendering libraries
+- Long-term export history database tables
+- Direct Telegram file delivery
+
+## Architecture
+
+The package is intentionally port-based:
+
+```text
+Module/App
+  -> document.export.requested event
+    -> DocumentExportRequestHandler
+      -> DocumentExportQueue
+        -> DocumentExportProcessor
+          -> DocumentGenerator
+          -> DocumentStoragePort
+          -> DocumentEventPublisher
+```
+
+The package does not own storage, event bus, Redis, or worker lifecycle. Application
+composition injects those adapters.
+
+## Public API
+
+```typescript
+import {
+  DocumentExportProcessor,
+  DocumentExportRequestHandler,
+  createDefaultDocumentGenerators,
+} from '@tempot/document-engine';
+
+const generators = createDefaultDocumentGenerators();
+const handler = new DocumentExportRequestHandler({ queue });
+
+await handler.handle({
+  exportId: 'export-1',
+  requestedBy: 'user-1',
+  moduleId: 'reports',
+  format: 'pdf',
+  templateId: 'report.summary',
+  locale: 'ar-EG',
+  payload: { rows: [] },
+});
+
+const processor = new DocumentExportProcessor({
+  generators,
+  storage,
+  events,
+});
+```
+
+## Events
+
+- `document.export.requested`
+- `document.export.completed`
+- `document.export.failed`
+
+## Error Codes
+
+- `document_engine.unsupported_format`
+- `document_engine.generation_failed`
+- `document_engine.storage_upload_failed`
+- `document_engine.queue_enqueue_failed`
+- `document_engine.event_publish_failed`
+
+## Validation
+
+```bash
+pnpm --filter @tempot/document-engine test
+pnpm --filter @tempot/document-engine build
+pnpm lint
+pnpm spec:validate
+pnpm boundary:audit
+pnpm module:checklist
+```

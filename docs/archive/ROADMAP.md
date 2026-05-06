@@ -37,6 +37,9 @@ Recently completed:
   citation coverage, unauthorized leakage, and no-context scoring tests.
 - Spec #013: `notifier` package — queue producer, delivery processor, worker
   factory, Telegram adapter, rate policy, and full unit test coverage.
+- Spec #016: `document-engine` package with typed export contracts,
+  deterministic PDF/XLSX generation, queue request handling, storage upload, and
+  completion or failure events.
 - DX foundations: `pnpm tempot init`, `pnpm tempot doctor --quick`, and
   `pnpm tempot module create <module-name>`.
 - Governance checks: boundary audit and module checklist audit.
@@ -45,14 +48,11 @@ Recently completed:
 
 Active or next work:
 
-1. Spec #035: deferred engine activation and SpecKit handoff repair for
-   `document-engine`, `import-engine`, and `search-engine`.
-2. Implement `document-engine` on a package-specific branch after Spec #035
-   passes handoff validation.
-3. Implement `import-engine` after `document-engine` completes its merge gate.
-4. Implement `search-engine` after `import-engine` completes its merge gate.
-5. Continue Phase 3B business module planning after package readiness decisions.
-6. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. Complete the `document-engine` merge gate.
+2. Implement `import-engine` after `document-engine` completes its merge gate.
+3. Implement `search-engine` after `import-engine` completes its merge gate.
+4. Continue Phase 3B business module planning after package readiness decisions.
+5. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -89,6 +89,7 @@ Active or next work:
 - `@tempot/settings`
 - `@tempot/module-registry`
 - `@tempot/notifier` - completed 2026-04-30 (Spec #013).
+- `@tempot/document-engine` - completed 2026-05-06 (Spec #016).
 
 ### Activated Package Execution Sequence
 
@@ -98,7 +99,7 @@ applies: only one package may be in active execution at a time.
 
 | Order | Package         | Spec directory                     | Status                                      |
 | ----- | --------------- | ---------------------------------- | ------------------------------------------- |
-| 1     | document-engine | `016-document-engine-package`      | Activated; SpecKit handoff repair in #035   |
+| 1     | document-engine | `016-document-engine-package`      | Implemented; merge gate in progress         |
 | 2     | import-engine   | `017-import-engine-package`        | Activated; starts after document-engine     |
 | 3     | search-engine   | `014-search-engine-package`        | Activated; starts after import-engine       |
 
