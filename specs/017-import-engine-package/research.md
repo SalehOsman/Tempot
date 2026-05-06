@@ -26,6 +26,16 @@ types.
 The old forward design included a template command. That is useful, but it is a DX feature
 and should be specified separately so the package MVP stays focused.
 
+### D5: Use deterministic in-package CSV and XLSX readers for the MVP
+
+The implementation branch verified current parser candidates before manifest edits.
+`csv-parse` and `fast-csv` satisfy the dependency rule, but the spreadsheet candidates
+`xlsx` and `exceljs` do not satisfy the required six-month repository push activity.
+`zod` is already present in the workspace and satisfies the dependency rule, but the
+package design intentionally uses an injected schema adapter instead of coupling every
+consumer to one validation library. The MVP therefore adds no parser runtime dependency
+and implements deterministic CSV and stored-XLSX worksheet readers inside the package.
+
 ## Alternatives Rejected
 
 ### Direct database writes from `import-engine`
@@ -40,7 +50,18 @@ Rejected because large import files must be processed incrementally.
 
 Rejected because `document-engine` owns document export behavior.
 
+### Adding SheetJS `xlsx` during MVP implementation
+
+Rejected because current repository push activity did not satisfy the project dependency
+rule during implementation verification.
+
+### Coupling validation directly to Zod
+
+Rejected because Spec #017 requires injected schema adapters so modules can own their
+validation library and versioning choices.
+
 ## Dependency Notes
 
-The implementation branch must verify parser dependencies against the current lockfile,
-TypeScript types, streaming behavior, and package licensing before manifest changes.
+Dependency verification completed in the implementation branch. The MVP package manifest
+does not add parser, validation, or direct document-engine runtime dependencies beyond
+`@tempot/shared` and `neverthrow`; document report integration remains a port contract.
