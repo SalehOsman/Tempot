@@ -13,13 +13,16 @@ contentType: developer-docs
 template: splash
 ---
 
-Welcome to Tempot Documentation.
+# Tempot Documentation
 
 Tempot is an enterprise Telegram bot framework built with TypeScript.
 
 ## Sections
 
-- **Tutorials** — Step-by-step guides to build your first bot
-- **Guides** — Practical how-to guides for specific tasks
-- **Concepts** — Understand the architecture and design
-- **User Guide** — Comprehensive end-user documentation
+- **Start Here** - project orientation and source-of-truth map.
+- **Governance** - constitution, roles, SpecKit, Superpowers, and roadmap.
+- **Architecture** - system layers, ADRs, package boundaries, and graph context.
+- **Development** - contributor workflow, quality gates, and documentation policy.
+- **Modules** - module methodology, baseline modules, and tooling.
+- **AI Context** - Understand Anything graph and onboarding guidance.
+- **API Reference** - generated TypeDoc pages for public package exports.

@@ -54,26 +54,53 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: 'الدروس التعليمية',
+          label: 'Start Here',
+          autogenerate: { directory: 'start-here' },
+        },
+        {
+          label: 'Governance',
+          autogenerate: { directory: 'governance' },
+        },
+        {
+          label: 'Architecture',
+          autogenerate: { directory: 'architecture' },
+        },
+        {
+          label: 'Development',
+          autogenerate: { directory: 'development' },
+        },
+        {
+          label: 'Modules',
+          autogenerate: { directory: 'modules' },
+        },
+        {
+          label: 'Packages',
+          autogenerate: { directory: 'packages' },
+        },
+        {
+          label: 'Operations',
+          autogenerate: { directory: 'operations' },
+        },
+        {
+          label: 'AI Context',
+          autogenerate: { directory: 'ai-context' },
+        },
+        {
+          label: 'Tutorials',
           autogenerate: { directory: 'tutorials' },
-          translations: { en: 'Tutorials' },
         },
         {
-          label: 'الأدلة الإرشادية',
+          label: 'Guides',
           autogenerate: { directory: 'guides' },
-          translations: { en: 'Guides' },
         },
         {
-          label: 'المفاهيم',
+          label: 'Concepts',
           autogenerate: { directory: 'concepts' },
-          translations: { en: 'Concepts' },
         },
         {
-          label: 'دليل المستخدم',
+          label: 'User Guide',
           autogenerate: { directory: 'user-guide' },
-          translations: { en: 'User Guide' },
         },
-        // API Reference — one sidebar group per package
         ...packagePlugins.map((p) => p.sidebar),
       ],
       plugins: packagePlugins.map((p) => p.instance),
