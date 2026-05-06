@@ -5,26 +5,30 @@ point instead of browsing `docs/archive/` directly.
 
 ## Active Documentation Areas
 
-| Area               | Path                                       | Purpose                                                                      |
-| ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------- |
-| Product docs       | `docs/product/`                            | User-facing and generated package reference docs.                            |
-| Development docs   | `docs/development/`                        | Current contributor workflow, audits, retrospectives, and methodology notes. |
-| Operational guides | `docs/guides/` and `docs/troubleshooting/` | Focused guides for running and fixing the project.                           |
-| Prompts            | `docs/prompt/`                             | Human-reviewed prompt templates and review prompts.                          |
-| Historical archive | `docs/archive/`                            | Older architecture, ADR, planning, and execution artifacts.                  |
+| Area               | Path                                             | Purpose                                                                      |
+| ------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Product docs       | `docs/product/`                                  | User-facing and generated package reference docs.                            |
+| Development docs   | `docs/development/`                              | Current contributor workflow, audits, retrospectives, and methodology notes. |
+| Operational guides | `docs/guides/` and `docs/troubleshooting/`       | Focused guides for running and fixing the project.                           |
+| Prompts            | `docs/prompt/`                                   | Human-reviewed prompt templates and review prompts.                          |
+| AI context graph   | `.understand-anything/` and `docs/ONBOARDING.md` | Official AI onboarding aid and architecture relationship snapshot.           |
+| Historical archive | `docs/archive/`                                  | Older architecture, ADR, planning, and execution artifacts.                  |
 
 ## Current Sources of Truth
 
-| Topic                      | Source                                                 |
-| -------------------------- | ------------------------------------------------------ |
-| Project status             | `docs/archive/ROADMAP.md`                              |
-| Constitution               | `.specify/memory/constitution.md`                      |
-| AI/tool role framework     | `.specify/memory/roles.md`                             |
-| Architecture specification | `docs/archive/tempot_v11_final.md`                     |
-| Development workflow       | `docs/archive/developer/workflow-guide.md`             |
-| Package checklist          | `docs/archive/developer/package-creation-checklist.md` |
-| ADR index                  | `docs/archive/architecture/adr/README.md`              |
-| Security baseline          | `docs/archive/security/security-baseline.md`           |
+| Topic                          | Source                                                     |
+| ------------------------------ | ---------------------------------------------------------- |
+| Project status                 | `docs/archive/ROADMAP.md`                                  |
+| Constitution                   | `.specify/memory/constitution.md`                          |
+| AI/tool role framework         | `.specify/memory/roles.md`                                 |
+| Architecture specification     | `docs/archive/tempot_v11_final.md`                         |
+| Development workflow           | `docs/archive/developer/workflow-guide.md`                 |
+| AI onboarding context          | `docs/ONBOARDING.md`                                       |
+| Architecture knowledge graph   | `docs/archive/developer/project-knowledge-graph.md`        |
+| Documentation restructure plan | `docs/archive/developer/documentation-restructure-plan.md` |
+| Package checklist              | `docs/archive/developer/package-creation-checklist.md`     |
+| ADR index                      | `docs/archive/architecture/adr/README.md`                  |
+| Security baseline              | `docs/archive/security/security-baseline.md`               |
 
 ## Archive Policy
 
@@ -38,6 +42,11 @@ explicitly references them as current.
 
 - Developer-facing documentation is written in English.
 - Links must point to real repository paths.
+- The Understand Anything knowledge graph is an official AI context aid, not a
+  higher authority than the constitution, SpecKit artifacts, roadmap, ADRs, or
+  source code.
+- Regenerate the knowledge graph after broad package, module, SpecKit,
+  architecture, or documentation structure changes.
 - Current documentation must not reference removed package names, old tool names,
   or deprecated environment variables as active guidance.
 - Historical documents may preserve older context, but they must not be used as

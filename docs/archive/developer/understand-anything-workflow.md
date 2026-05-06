@@ -3,6 +3,29 @@
 Understand Anything is an optional architecture-discovery aid for Tempot documentation.
 It does not replace SpecKit, the constitution, ADRs, or the roadmap.
 
+## Official Adoption
+
+Tempot adopts the Understand Anything graph as an official AI onboarding and
+project-context aid.
+
+The graph is approved for helping AI tools and developers understand:
+
+- applications, packages, modules, and documentation entry points;
+- package and concept dependencies;
+- module structure and Event Bus relationship points;
+- SpecKit feature relationships and active source documents.
+
+The graph is not a source of governance authority. The hierarchy remains:
+
+1. `.specify/memory/constitution.md`
+2. `.specify/memory/roles.md`
+3. SpecKit artifacts under `specs/`
+4. `docs/archive/ROADMAP.md`
+5. ADRs, architecture docs, source code, and generated graph snapshots
+
+When the graph conflicts with a higher source, the higher source wins and the
+graph must be regenerated or corrected.
+
 ## Purpose
 
 Use it to:

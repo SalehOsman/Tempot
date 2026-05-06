@@ -57,6 +57,9 @@ Recently completed:
 - Governance checks: boundary audit and module checklist audit.
 - Documentation entry points were restructured for root, product, development,
   and archive documentation.
+- Understand Anything is adopted as an official AI onboarding and architecture
+  knowledge-graph aid, with generated context in `docs/ONBOARDING.md` and
+  `docs/archive/developer/project-knowledge-graph.md`.
 
 Active or next work:
 
@@ -69,6 +72,9 @@ Active or next work:
    fixtures before the next production module merge.
 4. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
+5. Start a SpecKit documentation platform restructure to promote active content
+   into Starlight, repair documentation navigation, and automate documentation
+   quality checks.
 
 ## Phase Summary
 
@@ -115,12 +121,12 @@ Product Manager decision recorded 2026-05-06: activate the following packages
 for SpecKit repair and sequential Superpowers implementation. Rule LXXXV still
 applies: only one package may be in active execution at a time.
 
-| Order | Package         | Spec directory                     | Status                                      |
-| ----- | --------------- | ---------------------------------- | ------------------------------------------- |
-| 1     | document-engine | `016-document-engine-package`      | Implemented and merged                      |
-| 2     | import-engine   | `017-import-engine-package`        | Implemented and merged                      |
-| 3     | search-engine   | `014-search-engine-package`        | Implemented and merged                      |
-| 4     | cms-engine      | `008-cms-engine-package`           | Implemented and merged                      |
+| Order | Package         | Spec directory                | Status                 |
+| ----- | --------------- | ----------------------------- | ---------------------- |
+| 1     | document-engine | `016-document-engine-package` | Implemented and merged |
+| 2     | import-engine   | `017-import-engine-package`   | Implemented and merged |
+| 3     | search-engine   | `014-search-engine-package`   | Implemented and merged |
+| 4     | cms-engine      | `008-cms-engine-package`      | Implemented and merged |
 
 ### Deferred Under Rule XC
 
@@ -171,6 +177,10 @@ Current active references:
 - Template marketplace plan: `docs/archive/architecture/template-marketplace.md`
 - Documentation cleanup plan:
   `docs/archive/developer/documentation-cleanup-plan.md`
+- Documentation restructure plan:
+  `docs/archive/developer/documentation-restructure-plan.md`
+- Project knowledge graph:
+  `docs/archive/developer/project-knowledge-graph.md`
 - Module development catalog:
   `docs/archive/developer/module-development-catalog.md`
 

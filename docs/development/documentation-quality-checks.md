@@ -86,3 +86,6 @@ Treat these files as blocking quality targets:
 - `docs/archive/ROADMAP.md`
 - `docs/archive/developer/workflow-guide.md`
 - `docs/archive/developer/documentation-cleanup-plan.md`
+- `docs/archive/developer/documentation-restructure-plan.md`
+- `docs/archive/developer/project-knowledge-graph.md`
+- `docs/archive/developer/understand-anything-workflow.md`

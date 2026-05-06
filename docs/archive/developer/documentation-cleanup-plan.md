@@ -55,6 +55,17 @@ Recommended future checks:
 These checks should exclude historical archive snapshots unless the file is
 listed as an active source of truth.
 
+## Phase 5: Documentation Platform Restructure
+
+The cleanup phase is not enough to make Tempot documentation professional at
+product scale. The next documentation effort should follow
+`docs/archive/developer/documentation-restructure-plan.md`.
+
+That plan keeps Starlight and starlight-typedoc as the documentation platform,
+promotes active guides into the published docs app, preserves historical
+artifacts as archive records, and makes the Understand Anything graph the
+official AI onboarding context layer.
+
 ## Out of Scope for This Phase
 
 - TypeScript source changes.

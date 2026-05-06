@@ -11,19 +11,24 @@ constitution, SpecKit artifacts, and AI agent context files.
 3. Read `docs/archive/developer/workflow-guide.md`.
 4. Check `docs/archive/ROADMAP.md` for the active phase.
 5. Use the relevant package or module checklist before editing code.
+6. Use `docs/ONBOARDING.md` and the Understand Anything graph for fast project
+   context before deeper source review.
 
 ## Current Guides
 
-| Guide                   | Path                                                   |
-| ----------------------- | ------------------------------------------------------ |
-| Workflow guide          | `docs/archive/developer/workflow-guide.md`             |
-| Package checklist       | `docs/archive/developer/package-creation-checklist.md` |
-| Module checklist        | `docs/archive/developer/new-module-checklist.md`       |
-| Module boundary guide   | `docs/archive/developer/module-boundary-guide.md`      |
-| Agent skills guide      | `docs/archive/developer/agent-skills-guide.md`         |
-| Local developer doctor  | `docs/archive/developer/local-developer-doctor.md`     |
-| First module quick path | `docs/archive/developer/quick-path-first-module.md`    |
-| Documentation checks    | `docs/development/documentation-quality-checks.md`     |
+| Guide                          | Path                                                       |
+| ------------------------------ | ---------------------------------------------------------- |
+| Workflow guide                 | `docs/archive/developer/workflow-guide.md`                 |
+| Package checklist              | `docs/archive/developer/package-creation-checklist.md`     |
+| Module checklist               | `docs/archive/developer/new-module-checklist.md`           |
+| Module boundary guide          | `docs/archive/developer/module-boundary-guide.md`          |
+| Agent skills guide             | `docs/archive/developer/agent-skills-guide.md`             |
+| Local developer doctor         | `docs/archive/developer/local-developer-doctor.md`         |
+| First module quick path        | `docs/archive/developer/quick-path-first-module.md`        |
+| Project knowledge graph        | `docs/archive/developer/project-knowledge-graph.md`        |
+| Understand Anything workflow   | `docs/archive/developer/understand-anything-workflow.md`   |
+| Documentation restructure plan | `docs/archive/developer/documentation-restructure-plan.md` |
+| Documentation checks           | `docs/development/documentation-quality-checks.md`         |
 
 ## Quality Gates
 
@@ -51,3 +56,5 @@ Documentation changes must preserve code-documentation parity:
 - Update ADR indexes when an ADR is added or superseded.
 - Keep historical files stable unless a cleanup task explicitly targets them.
 - Do not edit generated API reference pages by hand.
+- Keep the AI context graph synchronized when broad architecture, package,
+  module, or documentation structure changes are merged.

@@ -4,14 +4,24 @@ Tempot is an enterprise Telegram bot framework built as a strict TypeScript mono
 
 ## Project At A Glance
 
-| Area | Value |
-|---|---|
-| Runtime | Node.js 22.12+ |
-| Language | TypeScript strict mode |
-| Main interfaces | Telegram bot server, documentation app |
+| Area               | Value                                                              |
+| ------------------ | ------------------------------------------------------------------ |
+| Runtime            | Node.js 22.12+                                                     |
+| Language           | TypeScript strict mode                                             |
+| Main interfaces    | Telegram bot server, documentation app                             |
 | Architecture style | apps -> packages -> modules with event-driven module communication |
-| Graph snapshot | 1127 nodes, 1911 relationships |
-| Graph commit | e2e727df0b40c4130b441dd8d80b2fc96742402c |
+| Graph snapshot     | 1127 nodes, 1911 relationships                                     |
+| Graph commit       | e2e727df0b40c4130b441dd8d80b2fc96742402c                           |
+
+## AI Context Status
+
+This guide and `.understand-anything/knowledge-graph.json` are official Tempot
+AI onboarding aids. They are intended to give AI tools and developers fast
+project context before deeper source review.
+
+They do not replace the constitution, role framework, SpecKit artifacts,
+roadmap, ADRs, or source code. When this guide or the graph conflicts with an
+authoritative source, update the guide or graph.
 
 ## Read These First
 
@@ -49,33 +59,33 @@ Tempot is an enterprise Telegram bot framework built as a strict TypeScript mono
 
 ## Relationship Map
 
-| Workspace | Kind | Detected package and concept dependencies |
-| --- | --- | --- |
-| bot-server | apps | Strict TypeScript, auth-core, database, event-bus, i18n-core, logger, module-registry, sentry, session-manager, settings, shared |
-| docs | apps | Strict TypeScript, ai-core, shared |
-| ai-core | packages | Strict TypeScript, database, shared |
-| auth-core | packages | Strict TypeScript, shared |
-| cms-engine | packages | Strict TypeScript, shared |
-| database | packages | Strict TypeScript, shared |
-| document-engine | packages | Strict TypeScript, shared |
-| event-bus | packages | Strict TypeScript, shared |
-| i18n-core | packages | Strict TypeScript, shared |
-| import-engine | packages | Strict TypeScript, shared |
-| input-engine | packages | Strict TypeScript, shared |
-| logger | packages | Strict TypeScript, database, shared |
-| module-registry | packages | Strict TypeScript, shared |
-| national-id-parser | packages | Strict TypeScript |
-| notifier | packages | Strict TypeScript, shared |
-| regional-engine | packages | Strict TypeScript, shared |
-| search-engine | packages | Strict TypeScript, shared |
-| sentry | packages | Strict TypeScript, shared |
-| session-manager | packages | Strict TypeScript, database, shared |
-| settings | packages | Strict TypeScript, shared |
-| shared | packages | Strict TypeScript |
-| storage-engine | packages | Strict TypeScript, database, shared |
-| ux-helpers | packages | Strict TypeScript, i18n-core, logger, shared |
-| test-module | modules | Event-driven modules, Strict TypeScript, module-registry |
-| user-management | modules | Event-driven modules, Strict TypeScript, auth-core, database, module-registry, national-id-parser, shared |
+| Workspace          | Kind     | Detected package and concept dependencies                                                                                        |
+| ------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| bot-server         | apps     | Strict TypeScript, auth-core, database, event-bus, i18n-core, logger, module-registry, sentry, session-manager, settings, shared |
+| docs               | apps     | Strict TypeScript, ai-core, shared                                                                                               |
+| ai-core            | packages | Strict TypeScript, database, shared                                                                                              |
+| auth-core          | packages | Strict TypeScript, shared                                                                                                        |
+| cms-engine         | packages | Strict TypeScript, shared                                                                                                        |
+| database           | packages | Strict TypeScript, shared                                                                                                        |
+| document-engine    | packages | Strict TypeScript, shared                                                                                                        |
+| event-bus          | packages | Strict TypeScript, shared                                                                                                        |
+| i18n-core          | packages | Strict TypeScript, shared                                                                                                        |
+| import-engine      | packages | Strict TypeScript, shared                                                                                                        |
+| input-engine       | packages | Strict TypeScript, shared                                                                                                        |
+| logger             | packages | Strict TypeScript, database, shared                                                                                              |
+| module-registry    | packages | Strict TypeScript, shared                                                                                                        |
+| national-id-parser | packages | Strict TypeScript                                                                                                                |
+| notifier           | packages | Strict TypeScript, shared                                                                                                        |
+| regional-engine    | packages | Strict TypeScript, shared                                                                                                        |
+| search-engine      | packages | Strict TypeScript, shared                                                                                                        |
+| sentry             | packages | Strict TypeScript, shared                                                                                                        |
+| session-manager    | packages | Strict TypeScript, database, shared                                                                                              |
+| settings           | packages | Strict TypeScript, shared                                                                                                        |
+| shared             | packages | Strict TypeScript                                                                                                                |
+| storage-engine     | packages | Strict TypeScript, database, shared                                                                                              |
+| ux-helpers         | packages | Strict TypeScript, i18n-core, logger, shared                                                                                     |
+| test-module        | modules  | Event-driven modules, Strict TypeScript, module-registry                                                                         |
+| user-management    | modules  | Event-driven modules, Strict TypeScript, auth-core, database, module-registry, national-id-parser, shared                        |
 
 ## Module Development Rules
 

@@ -2,6 +2,15 @@
 
 This directory stores the Understand Anything project graph for Tempot.
 
+## Project Status
+
+The knowledge graph is an official Tempot AI onboarding and project-context aid.
+It helps AI tools and developers understand repository structure, relationships,
+and navigation paths before deeper source review.
+
+It is not a governance source of truth. The constitution, role framework,
+SpecKit artifacts, roadmap, ADRs, and source code remain authoritative.
+
 ## What Is Tracked
 
 - `knowledge-graph.json`: the dashboard graph.
