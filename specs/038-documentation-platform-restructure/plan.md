@@ -16,11 +16,13 @@ Tempot currently has:
 - `apps/docs` using Astro, Starlight, starlight-typedoc, and TypeDoc.
 - Repository documentation split between `docs/README.md`,
   `docs/development/`, `docs/product/`, and `docs/archive/`.
-- Active compatibility documents still under `docs/archive/`.
+- Active guidance promoted to canonical `docs/` locations, with legacy
+  `docs/archive/...` paths retained as compatibility pointers where older
+  artifacts still reference them.
 - Generated API reference under the Starlight content tree.
 - Understand Anything graph files under `.understand-anything/`.
 - A documented restructure plan at
-  `docs/archive/developer/documentation-restructure-plan.md`.
+  `docs/developer/documentation-restructure-plan.md`.
 
 ## Proposed Design
 
@@ -36,9 +38,10 @@ Use a two-layer documentation system:
 
 ### Compatibility Strategy
 
-Do not move authoritative compatibility-path files in the first slice. Add
-published Starlight pages and repository map updates that point to those files
-instead.
+Promote active guidance to canonical `docs/` locations only when the active
+reference sweep is completed in the same slice. Keep legacy `docs/archive/...`
+paths available as compatibility pointers so historical SpecKit artifacts,
+execution logs, prompts, and external references do not break.
 
 ### Generated Content Strategy
 
@@ -50,7 +53,7 @@ them to the generated reference set.
 
 Treat `.understand-anything/knowledge-graph.json`, `.understand-anything/meta.json`,
 `docs/ONBOARDING.md`, and
-`docs/archive/developer/project-knowledge-graph.md` as governed AI context
+`docs/developer/project-knowledge-graph.md` as governed AI context
 artifacts. Add quality checks and refresh policy before making graph updates a
 CI gate.
 
@@ -70,11 +73,11 @@ CI gate.
 - `docs/ONBOARDING.md`
 - `docs/development/README.md`
 - `docs/development/documentation-quality-checks.md`
-- `docs/archive/ROADMAP.md`
-- `docs/archive/developer/documentation-cleanup-plan.md`
-- `docs/archive/developer/documentation-restructure-plan.md`
-- `docs/archive/developer/project-knowledge-graph.md`
-- `docs/archive/developer/understand-anything-workflow.md`
+- `docs/ROADMAP.md`
+- `docs/developer/documentation-cleanup-plan.md`
+- `docs/developer/documentation-restructure-plan.md`
+- `docs/developer/project-knowledge-graph.md`
+- `docs/developer/understand-anything-workflow.md`
 - `.understand-anything/README.md`
 - `apps/docs/astro.config.mjs`
 - `apps/docs/src/content/docs/`
@@ -90,10 +93,11 @@ CI gate.
 Create this SpecKit feature, record the AI graph adoption decision, and document
 the professional restructure plan.
 
-### Slice 2: Starlight Entry Points
+### Slice 2: Starlight Entry Points And Canonical Paths
 
 Add or update published Start Here, Governance, Development, Architecture, and
-AI Context pages. Prefer pointer pages over moving active compatibility files.
+AI Context pages. Promote active guidance to canonical paths only with an active
+reference sweep and archive compatibility pointers.
 
 ### Slice 3: Navigation and Encoding Repair
 
@@ -126,8 +130,8 @@ generated reference behavior.
 
 ## Risks
 
-- Moving active archive files can break existing references. Mitigation: pointer
-  pages first.
+- Moving active archive files can break existing references. Mitigation:
+  canonical path updates plus archive compatibility pointers.
 - Generated TypeDoc updates can create large diffs. Mitigation: isolate
   generated reference changes and verify reproducibility.
 - Arabic and English published content can drift. Mitigation: classify pages

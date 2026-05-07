@@ -6,7 +6,7 @@ Read and comply with these before any action:
 
 - Constitution: `.specify/memory/constitution.md`
 - Roles: `.specify/memory/roles.md`
-- Workflow: `docs/archive/developer/workflow-guide.md`
+- Workflow: `docs/developer/workflow-guide.md`
 
 ## Toolchain
 
@@ -239,13 +239,13 @@ Before starting the main workflow, perform these cleanup tasks:
    - Exit 2: BLOCKED — fix all CRITICAL issues
 
    **D. Project Documentation** — Update ALL that apply:
-   - `docs/archive/ROADMAP.md` — **REQUIRED** (Rule LXXXIX):
+   - `docs/ROADMAP.md` — **REQUIRED** (Rule LXXXIX):
      - Update Phase 2B: bot-server status to "✅ Complete (wired + merged)"
      - Update Phase 2C: integration status
      - Update "Last updated" date
      - Update "Next steps" section
    - `CLAUDE.md` — No changes expected (no new dependencies added)
-   - `docs/archive/architecture/adr/README.md` — Only if a new ADR was created
+   - `docs/architecture/adr/README.md` — Only if a new ADR was created
 
    **E. Changeset** — Create a changeset:
 

@@ -18,25 +18,25 @@ point instead of browsing `docs/archive/` directly.
 
 | Topic                          | Source                                                     |
 | ------------------------------ | ---------------------------------------------------------- |
-| Project status                 | `docs/archive/ROADMAP.md`                                  |
+| Project status                 | `docs/ROADMAP.md`                                  |
 | Constitution                   | `.specify/memory/constitution.md`                          |
 | AI/tool role framework         | `.specify/memory/roles.md`                                 |
-| Architecture specification     | `docs/archive/tempot_v11_final.md`                         |
-| Development workflow           | `docs/archive/developer/workflow-guide.md`                 |
+| Architecture specification     | `docs/architecture/tempot_v11_final.md`                         |
+| Development workflow           | `docs/developer/workflow-guide.md`                 |
 | AI onboarding context          | `docs/ONBOARDING.md`                                       |
-| Architecture knowledge graph   | `docs/archive/developer/project-knowledge-graph.md`        |
-| Documentation restructure plan | `docs/archive/developer/documentation-restructure-plan.md` |
-| Package checklist              | `docs/archive/developer/package-creation-checklist.md`     |
-| ADR index                      | `docs/archive/architecture/adr/README.md`                  |
-| Security baseline              | `docs/archive/security/security-baseline.md`               |
+| Architecture knowledge graph   | `docs/developer/project-knowledge-graph.md`        |
+| Documentation restructure plan | `docs/developer/documentation-restructure-plan.md` |
+| Package checklist              | `docs/developer/package-creation-checklist.md`     |
+| ADR index                      | `docs/architecture/adr/README.md`                  |
+| Security baseline              | `docs/security/security-baseline.md`               |
 
 ## Archive Policy
 
-`docs/archive/` contains both historical records and several canonical files
-that still keep their original paths for compatibility. Treat the files listed
-above as active. Treat old Superpowers plans, old project readiness notes, and
-pre-methodology execution artifacts as historical unless another active document
-explicitly references them as current.
+`docs/archive/` contains historical records and compatibility pointers for
+documents that moved to canonical `docs/` locations. Treat the files listed
+above as active sources of truth. Treat old Superpowers plans, old project
+readiness notes, and pre-methodology execution artifacts as historical unless
+another active document explicitly references them as current.
 
 ## Documentation Quality Rules
 

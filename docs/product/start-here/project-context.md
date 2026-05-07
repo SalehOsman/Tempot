@@ -25,8 +25,8 @@ opening detailed archive or SpecKit files.
 2. `.specify/memory/constitution.md` for non-negotiable engineering rules.
 3. `.specify/memory/roles.md` for Project Manager, Technical Advisor, and
    Executor responsibilities.
-4. `docs/archive/ROADMAP.md` for current status and next work.
-5. `docs/archive/developer/workflow-guide.md` for the SpecKit plus Superpowers
+4. `docs/ROADMAP.md` for current status and next work.
+5. `docs/developer/workflow-guide.md` for the SpecKit plus Superpowers
    delivery workflow.
 
 ## Current Documentation Layers

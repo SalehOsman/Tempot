@@ -21,7 +21,7 @@ documentation site.
 The accepted architecture decision is:
 
 ```text
-docs/archive/architecture/adr/ADR-038-starlight-over-docusaurus.md
+docs/architecture/adr/ADR-038-starlight-over-docusaurus.md
 ```
 
 ## Structure
@@ -32,7 +32,7 @@ of truth. Do not manually edit generated TypeDoc reference pages.
 The restructure plan is maintained at:
 
 ```text
-docs/archive/developer/documentation-restructure-plan.md
+docs/developer/documentation-restructure-plan.md
 ```
 
 ## Validation
@@ -48,3 +48,49 @@ pnpm --filter docs build
 
 Also run graph quality validation after changes to `.understand-anything/` or AI
 onboarding documents.
+
+## Active Documentation Hygiene Checks
+
+Before merging documentation changes, verify the following for all active
+published pages and entry points:
+
+### Frontmatter Validation
+
+Active Starlight pages must have valid frontmatter including `title`,
+`description`, `tags`, `audience`, `contentType`, and `difficulty` fields.
+Generated TypeDoc pages are excluded from manual frontmatter review.
+
+### Freshness Check
+
+Active entry points and source-of-truth documents must not reference:
+
+- Removed package names or old tool names.
+- Deprecated environment variable names.
+- Incorrect phase statuses that conflict with the current Roadmap.
+
+### Internal Link Validation
+
+Active documentation links must point to real repository paths. Verify that
+paths referenced in `docs/README.md`, `docs/development/README.md`, and
+Starlight pointer pages exist in the current tree.
+
+### Mojibake Scan
+
+Active documentation files and Starlight configuration labels must not contain
+encoding damage. Common mojibake markers include corrupted Arabic characters and
+garbled UTF-8 sequences in navigation labels.
+
+### Exclusions
+
+Historical archive files under `docs/archive/superpowers/` are excluded from
+hygiene checks unless they are listed as active source documents in the archive
+inventory.
+
+## RAG Ingestion
+
+Documentation ingestion into `@tempot/ai-core` for retrieval-augmented
+generation is intentionally deferred. It will be implemented as a separate
+SpecKit feature with its own spec, plan, and acceptance criteria.
+
+Do not implement RAG ingestion as part of the documentation platform restructure.
+See `specs/038-documentation-platform-restructure/research.md` for the rationale.

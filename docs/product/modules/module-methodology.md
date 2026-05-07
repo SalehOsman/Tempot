@@ -20,7 +20,7 @@ communicate through the Event Bus instead of direct module imports.
 The active module methodology is documented at:
 
 ```text
-docs/archive/developer/module-development-catalog.md
+docs/developer/module-development-catalog.md
 ```
 
 ## Start With SpecKit

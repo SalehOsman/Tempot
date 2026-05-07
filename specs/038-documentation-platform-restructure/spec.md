@@ -20,8 +20,8 @@ reference, historical archive, and generated AI context.
 ## Goals
 
 - Make `apps/docs` the primary published documentation portal.
-- Preserve authoritative source paths for the constitution, roles, SpecKit,
-  roadmap, ADRs, and compatibility documents.
+- Preserve compatibility access for the constitution, roles, SpecKit, roadmap,
+  ADRs, and migrated active documents.
 - Promote active developer and architecture guidance into an organized
   Starlight navigation model.
 - Adopt the Understand Anything graph as a governed AI onboarding aid.
@@ -105,8 +105,8 @@ the documented policy.
 
 ## Edge Cases
 
-- A file under `docs/archive/` is still authoritative because existing context
-  files reference its stable path.
+- A file under `docs/archive/` may still be referenced by historical artifacts,
+  so the legacy path remains available as a compatibility pointer.
 - A historical file contains stale or superseded guidance that must not be
   promoted without review.
 - A generated TypeDoc page changes when the docs build runs.
@@ -130,11 +130,12 @@ the documented policy.
 - **FR-005**: Active Starlight labels and active documentation entry points MUST
   avoid mojibake and stale active paths.
 - **FR-006**: Active developer and architecture guides MUST be promoted or
-  mirrored into the published documentation site without breaking compatibility
+  mirrored into canonical documentation locations without breaking compatibility
   paths.
-- **FR-007**: Compatibility-path archive documents MUST remain available when
-  they are referenced by the constitution, role framework, roadmap, SpecKit
-  artifacts, or AI context files.
+- **FR-007**: Compatibility-path archive documents MUST remain available as
+  retained documents or pointer files when they are referenced by the
+  constitution, role framework, roadmap, SpecKit artifacts, historical logs, or
+  AI context files.
 - **FR-008**: Generated TypeDoc reference MUST remain reproducible from source
   and MUST NOT be manually edited.
 - **FR-009**: Completed public packages MUST be reviewed for API reference
@@ -183,8 +184,9 @@ the documented policy.
 - ADR-038 remains accepted, so Starlight continues as the documentation
   platform.
 - The first implementation slice should be documentation-only.
-- Existing archive paths must not be removed until active references are updated
-  in a separate controlled batch.
+- Existing archive paths must not be removed; migrated active documents require
+  compatibility pointers until a separate controlled batch proves no active or
+  historical references need them.
 - Generated API reference pages are reproducible and should stay isolated from
   manual authoring.
 - RAG ingestion is valuable but must not be bundled into this restructure.

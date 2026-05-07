@@ -17,10 +17,10 @@
 | Official CLI | `pnpm tempot init` now, `create-tempot-bot` later | Internal entrypoint implemented first; public package remains future work |
 | Module generator | `pnpm tempot module create <name>` | Must generate tests, locales, events, contracts, exports |
 | Developer doctor | `pnpm tempot doctor` | Validate Node, pnpm, Docker, env, DB, Redis, Prisma, webhook readiness |
-| Quick path | `docs/archive/developer/quick-path-first-module.md` | 15-minute guided module build |
+| Quick path | `docs/developer/quick-path-first-module.md` | 15-minute guided module build |
 | Example modules | `modules/examples/*` or docs examples | Must not pollute active module registry |
-| Agent skills guide | `docs/archive/developer/agent-skills-guide.md` | Human guide for `.agents/skills` |
-| Documentation cleanup | `docs/archive/developer/documentation-cleanup-plan.md` | Remove drift and duplicate methodology docs |
+| Agent skills guide | `docs/developer/agent-skills-guide.md` | Human guide for `.agents/skills` |
+| Documentation cleanup | `docs/developer/documentation-cleanup-plan.md` | Remove drift and duplicate methodology docs |
 
 ## CLI Options
 

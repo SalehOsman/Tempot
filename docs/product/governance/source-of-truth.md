@@ -23,8 +23,8 @@ they do not replace the source documents.
 | 1        | `.specify/memory/constitution.md` | Highest engineering authority                   |
 | 2        | `.specify/memory/roles.md`        | AI and human role framework                     |
 | 3        | `specs/`                          | Feature requirements and implementation handoff |
-| 4        | `docs/archive/ROADMAP.md`         | Current project status and next work            |
-| 5        | `docs/archive/architecture/adr/`  | Accepted architecture decisions                 |
+| 4        | `docs/ROADMAP.md`         | Current project status and next work            |
+| 5        | `docs/architecture/adr/`  | Accepted architecture decisions                 |
 | 6        | Source code                       | Implemented behavior                            |
 | 7        | `.understand-anything/`           | Generated AI context snapshot                   |
 
@@ -37,7 +37,7 @@ execution.
 The active workflow guide remains:
 
 ```text
-docs/archive/developer/workflow-guide.md
+docs/developer/workflow-guide.md
 ```
 
 ## Documentation Sync

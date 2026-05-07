@@ -19,7 +19,7 @@
       AI context entry points - covers FR-001, FR-002, FR-003, SC-001, SC-002
 - [x] T006 [US1] Add or update Starlight Start Here pages that point to active
       repository sources - covers FR-004, FR-006, FR-007, SC-001, SC-003
-- [ ] T007 [US1] Review active archive compatibility paths and document which
+- [x] T007 [US1] Review active archive compatibility paths and document which
       files remain authoritative - covers FR-003, FR-007, SC-001
 
 ## User Story 2: Publish Professional Documentation Navigation
@@ -41,15 +41,15 @@
 
 ## User Story 3: Keep Generated and AI Context Governed
 
-- [ ] T013 [US3] Review completed public packages for TypeDoc inclusion and
+- [x] T013 [US3] Review completed public packages for TypeDoc inclusion and
       update docs configuration only for ready packages - covers FR-008, FR-009,
       SC-004
-- [ ] T014 [US3] Add or document graph quality validation with meaningful node
+- [x] T014 [US3] Add or document graph quality validation with meaningful node
       and edge thresholds - covers FR-010, FR-011, SC-006
-- [ ] T015 [US3] Add active documentation hygiene checks for frontmatter,
+- [x] T015 [US3] Add active documentation hygiene checks for frontmatter,
       freshness, links, and mojibake - covers FR-005, FR-010, SC-004, SC-005,
       SC-007
-- [ ] T016 [US3] Keep documentation RAG ingestion scoped to a future SpecKit
+- [x] T016 [US3] Keep documentation RAG ingestion scoped to a future SpecKit
       feature - covers FR-012, SC-003
 
 ## Verification
@@ -64,7 +64,7 @@
       configuration, or TypeDoc changes - covers SC-004
 - [x] T021 Run graph quality validation after graph or AI context changes -
       covers SC-006
-- [ ] T022 Run `git diff --check` before commit - covers SC-007
+- [x] T022 Run `git diff --check` before commit - covers SC-007
 
 ## Dependencies
 
@@ -80,6 +80,7 @@
 ## Notes
 
 - Do not edit generated TypeDoc pages manually.
-- Do not move compatibility-path archive files until references are inventoried.
+- Do not remove compatibility-path archive pointers until references are
+  inventoried and migrated in a later controlled batch.
 - Do not implement documentation RAG ingestion in this spec.
 - Each implementation slice should commit separately and rerun relevant gates.

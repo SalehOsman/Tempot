@@ -72,7 +72,7 @@ Fields:
 - `graphPath`: `.understand-anything/knowledge-graph.json`.
 - `metaPath`: `.understand-anything/meta.json`.
 - `onboardingPath`: `docs/ONBOARDING.md`.
-- `summaryPath`: `docs/archive/developer/project-knowledge-graph.md`.
+- `summaryPath`: `docs/developer/project-knowledge-graph.md`.
 - `sourceCommit`: commit used to generate the graph.
 - `nodeCount`: generated graph node count.
 - `edgeCount`: generated graph edge count.

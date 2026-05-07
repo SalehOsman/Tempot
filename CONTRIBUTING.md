@@ -8,8 +8,8 @@ quality gates.
 
 - [Project constitution](.specify/memory/constitution.md)
 - [Role framework](.specify/memory/roles.md)
-- [Workflow guide](docs/archive/developer/workflow-guide.md)
-- [Roadmap](docs/archive/ROADMAP.md)
+- [Workflow guide](docs/developer/workflow-guide.md)
+- [Roadmap](docs/ROADMAP.md)
 - [Documentation map](docs/README.md)
 
 ## Prerequisites

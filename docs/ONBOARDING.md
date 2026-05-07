@@ -27,9 +27,9 @@ authoritative source, update the guide or graph.
 
 1. `.specify/memory/constitution.md` - highest engineering authority.
 2. `.specify/memory/roles.md` - Project Manager, Technical Advisor, and Executor responsibilities.
-3. `docs/archive/ROADMAP.md` - current delivery state and next phases.
-4. `docs/archive/developer/workflow-guide.md` - SpecKit plus Superpowers workflow.
-5. `docs/archive/developer/module-development-catalog.md` - module creation methodology.
+3. `docs/ROADMAP.md` - current delivery state and next phases.
+4. `docs/developer/workflow-guide.md` - SpecKit plus Superpowers workflow.
+5. `docs/developer/module-development-catalog.md` - module creation methodology.
 
 ## Architecture Layers
 
@@ -117,7 +117,7 @@ pnpm cms:check
 
 Read the constitution, role framework, roadmap, and methodology before making implementation decisions.
 
-Key graph nodes: `document:.specify/memory/constitution.md`, `document:.specify/memory/roles.md`, `document:docs/archive/ROADMAP.md`, `concept:speckit-superpowers`.
+Key graph nodes: `document:.specify/memory/constitution.md`, `document:.specify/memory/roles.md`, `document:docs/ROADMAP.md`, `concept:speckit-superpowers`.
 
 ### 2. Understand Runtime Entry Points
 
@@ -141,7 +141,7 @@ Key graph nodes: `module:user-management`, `module:test-module`, `concept:event-
 
 Use the module catalog, generator plan, checklist, and CLI doctor before building new modules.
 
-Key graph nodes: `document:docs/archive/developer/module-development-catalog.md`, `concept:module-tooling`, `article:specs/037-module-tooling-foundation`.
+Key graph nodes: `document:docs/developer/module-development-catalog.md`, `concept:module-tooling`, `article:specs/037-module-tooling-foundation`.
 
 ## Practical First Tasks
 

@@ -5,7 +5,7 @@ implemented by Spec #037
 **Purpose**: Define a governed generator for new business modules.
 
 The generator direction is governed by
-`docs/archive/developer/module-development-catalog.md`.
+`docs/developer/module-development-catalog.md`.
 
 ## Command Shape
 

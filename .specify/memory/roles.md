@@ -55,7 +55,7 @@ Version: 1.2.0
       - Creating changesets via `pnpm changeset` (Rule LXI)
       - Updating ADR README index if a new ADR was created (Rule XLIV)
       - Updating context file (`CLAUDE.md`) tech stack if a new dependency was added
-      - Updating architecture spec (`docs/tempot_v11_final.md`) if architectural patterns changed
+      - Updating architecture spec (`docs/architecture/tempot_v11_final.md`) if architectural patterns changed
         No prompt is complete without this phase. Omitting it is a violation of Rule L.
 
 - **STRICT CONSTRAINTS — NO EXCEPTIONS:**

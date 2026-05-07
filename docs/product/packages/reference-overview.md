@@ -32,7 +32,7 @@ coverage.
 Use the package checklist before creating or changing packages:
 
 ```text
-docs/archive/developer/package-creation-checklist.md
+docs/developer/package-creation-checklist.md
 ```
 
 Package work must follow SpecKit artifacts, Superpowers execution, TypeScript

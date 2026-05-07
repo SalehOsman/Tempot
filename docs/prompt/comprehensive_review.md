@@ -253,7 +253,7 @@ sanitizer → rate-limiter → maintenance → auth → scoped-users → validat
 
 ## الجزء الرابع: الخطوات القادمة المقترحة
 
-وفقاً للـ [ROADMAP.md](file:///f:/Tempot/docs/archive/ROADMAP.md)، الخطوات بالترتيب:
+وفقاً للـ [ROADMAP.md](file:///f:/Tempot/docs/ROADMAP.md)، الخطوات بالترتيب:
 
 ### الأولوية القصوى — Phase 2B
 

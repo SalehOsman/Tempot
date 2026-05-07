@@ -20,6 +20,11 @@ const typedocPackages = [
   'module-registry',
   'regional-engine',
   'sentry',
+  'cms-engine',
+  'document-engine',
+  'import-engine',
+  'notifier',
+  'search-engine',
 ];
 
 const site = process.env.DOCS_SITE ?? 'https://salehosman.github.io/Tempot';

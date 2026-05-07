@@ -3730,37 +3730,37 @@
       "complexity": "simple"
     },
     {
-      "id": "document:docs/archive/developer/module-development-catalog.md",
+      "id": "document:docs/developer/module-development-catalog.md",
       "type": "document",
       "name": "module-development-catalog.md",
-      "filePath": "docs/archive/developer/module-development-catalog.md",
+      "filePath": "docs/developer/module-development-catalog.md",
       "summary": "Developer catalog for creating modules.",
       "tags": ["documentation", "governance"],
       "complexity": "moderate"
     },
     {
-      "id": "document:docs/archive/developer/understand-anything-workflow.md",
+      "id": "document:docs/developer/understand-anything-workflow.md",
       "type": "document",
       "name": "understand-anything-workflow.md",
-      "filePath": "docs/archive/developer/understand-anything-workflow.md",
+      "filePath": "docs/developer/understand-anything-workflow.md",
       "summary": "Understand Anything workflow and repository hygiene.",
       "tags": ["documentation", "governance"],
       "complexity": "moderate"
     },
     {
-      "id": "document:docs/archive/ROADMAP.md",
+      "id": "document:docs/ROADMAP.md",
       "type": "document",
       "name": "ROADMAP.md",
-      "filePath": "docs/archive/ROADMAP.md",
+      "filePath": "docs/ROADMAP.md",
       "summary": "Current roadmap and activation decisions.",
       "tags": ["documentation", "governance"],
       "complexity": "moderate"
     },
     {
-      "id": "document:docs/archive/tempot_v11_final.md",
+      "id": "document:docs/architecture/tempot_v11_final.md",
       "type": "document",
       "name": "tempot_v11_final.md",
-      "filePath": "docs/archive/tempot_v11_final.md",
+      "filePath": "docs/architecture/tempot_v11_final.md",
       "summary": "Architecture source document for Tempot.",
       "tags": ["documentation", "governance"],
       "complexity": "moderate"
@@ -25186,10 +25186,10 @@
       "nodeIds": [
         "document:.specify/memory/constitution.md",
         "document:.specify/memory/roles.md",
-        "document:docs/archive/ROADMAP.md",
-        "document:docs/archive/tempot_v11_final.md",
-        "document:docs/archive/developer/module-development-catalog.md",
-        "document:docs/archive/developer/understand-anything-workflow.md",
+        "document:docs/ROADMAP.md",
+        "document:docs/architecture/tempot_v11_final.md",
+        "document:docs/developer/module-development-catalog.md",
+        "document:docs/developer/understand-anything-workflow.md",
         "concept:strict-typescript",
         "concept:event-driven-modules",
         "concept:result-pattern",
@@ -25550,7 +25550,7 @@
       "nodeIds": [
         "document:.specify/memory/constitution.md",
         "document:.specify/memory/roles.md",
-        "document:docs/archive/ROADMAP.md",
+        "document:docs/ROADMAP.md",
         "concept:speckit-superpowers"
       ]
     },
@@ -25585,7 +25585,7 @@
       "title": "Follow The Module Tooling Path",
       "description": "Use the module catalog, generator plan, checklist, and CLI doctor before building new modules.",
       "nodeIds": [
-        "document:docs/archive/developer/module-development-catalog.md",
+        "document:docs/developer/module-development-catalog.md",
         "concept:module-tooling",
         "article:specs/037-module-tooling-foundation"
       ]

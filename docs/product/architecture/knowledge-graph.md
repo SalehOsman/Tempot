@@ -25,7 +25,7 @@ and event-like relationship points.
 The current graph summary is maintained at:
 
 ```text
-docs/archive/developer/project-knowledge-graph.md
+docs/developer/project-knowledge-graph.md
 ```
 
 The machine-readable graph is stored at:

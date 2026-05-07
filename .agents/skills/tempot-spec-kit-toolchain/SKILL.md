@@ -18,7 +18,7 @@ Read only the sources needed for the task:
 - `.specify/memory/constitution.md`
 - `.specify/memory/roles.md`
 - `.specify/feature.json` when detecting the active feature
-- `docs/archive/developer/workflow-guide.md`
+- `docs/developer/workflow-guide.md`
 - The active `specs/{NNN}-{feature}/` artifacts
 
 ## Tempot Command Flow

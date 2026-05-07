@@ -27,9 +27,9 @@ monorepo.
 
 - Constitution: `.specify/memory/constitution.md`
 - Role framework: `.specify/memory/roles.md`
-- Architecture spec: `docs/archive/tempot_v11_final.md`
-- Workflow guide: `docs/archive/developer/workflow-guide.md`
-- Roadmap: `docs/archive/ROADMAP.md`
+- Architecture spec: `docs/architecture/tempot_v11_final.md`
+- Workflow guide: `docs/developer/workflow-guide.md`
+- Roadmap: `docs/ROADMAP.md`
 - Documentation map: `docs/README.md`
 
 ## Architecture Boundaries
@@ -108,7 +108,7 @@ Rule XC deferred packages are:
 - `document-engine`
 - `import-engine`
 
-Always confirm the latest state in `docs/archive/ROADMAP.md`.
+Always confirm the latest state in `docs/ROADMAP.md`.
 
 ## Critical Rules
 

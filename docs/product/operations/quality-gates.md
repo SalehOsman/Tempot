@@ -38,8 +38,18 @@ pnpm --filter docs docs:validate
 pnpm --filter docs build
 ```
 
-Also run graph quality validation when `.understand-anything/` or
-`docs/ONBOARDING.md` changes.
+## Graph Quality Gate
+
+After changes to `.understand-anything/` or `docs/ONBOARDING.md`, verify graph
+quality meets the documented thresholds:
+
+| Metric | Minimum |
+| ------ | ------- |
+| Node count | >= 500 |
+| Edge count | >= 800 |
+| Source commit recorded | Required |
+
+See the AI Context section for the full quality policy.
 
 ## Source Documents
 
@@ -47,6 +57,6 @@ The active gate map is maintained in:
 
 ```text
 docs/development/documentation-quality-checks.md
-docs/archive/developer/workflow-guide.md
-docs/archive/ROADMAP.md
+docs/developer/workflow-guide.md
+docs/ROADMAP.md
 ```
