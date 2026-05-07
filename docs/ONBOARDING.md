@@ -11,7 +11,7 @@ Tempot is an enterprise Telegram bot framework built as a strict TypeScript mono
 | Main interfaces    | Telegram bot server, documentation app                             |
 | Architecture style | apps -> packages -> modules with event-driven module communication |
 | Graph snapshot     | 1127 nodes, 1911 relationships                                     |
-| Graph commit       | e2e727df0b40c4130b441dd8d80b2fc96742402c                           |
+| Graph commit       | 690f7297f2cf05c36b14695ef7b24c168c65a649                           |
 
 ## AI Context Status
 

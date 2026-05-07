@@ -17,8 +17,8 @@ map or its generation process.
 
 | Metric       | Value                                    |
 | ------------ | ---------------------------------------- |
-| Generated at | 2026-05-06T21:47:28.215Z                 |
-| Git commit   | e2e727df0b40c4130b441dd8d80b2fc96742402c |
+| Generated at | 2026-05-07T09:40:21.742Z |
+| Git commit   | 690f7297f2cf05c36b14695ef7b24c168c65a649 |
 | Nodes        | 1127                                     |
 | Edges        | 1911                                     |
 | Layers       | 5                                        |
