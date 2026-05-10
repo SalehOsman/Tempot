@@ -35,7 +35,15 @@
   "type": "module",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "@prisma/engines",
+      "cpu-features",
+      "esbuild",
+      "msgpackr-extract",
+      "prisma",
+      "protobufjs",
+      "sharp",
+      "ssh2",
+      "unrs-resolver"
     ],
     "overrides": {
       "vitest>vite": "^8.0.8",
