@@ -3,4 +3,12 @@ packages:
   - 'packages/*'
   - 'modules/*'
 allowBuilds:
+  '@prisma/engines': true
+  cpu-features: true
   esbuild: true
+  msgpackr-extract: true
+  prisma: true
+  protobufjs: true
+  sharp: true
+  ssh2: true
+  unrs-resolver: true
