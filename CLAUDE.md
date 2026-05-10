@@ -100,13 +100,12 @@ Tempot does not use `/speckit.implement` for production execution.
 Phase 2D is complete. `user-management` (spec #025) is implemented on `main`.
 Spec #026 architecture isolation and SaaS-readiness hardening is complete.
 
-The `notifier` package has been activated from the deferred set. The remaining
-Rule XC deferred packages are:
+All formerly deferred packages have been activated and implemented. No package
+remains deferred under Rule XC after the Spec #008 activation (2026-05-06).
 
-- `cms-engine`
-- `search-engine`
-- `document-engine`
-- `import-engine`
+Specs #037 (module tooling foundation) and #038 (documentation platform
+restructure) are complete and merged. The `test-module` diagnostic scaffold
+has been removed.
 
 Always confirm the latest state in `docs/ROADMAP.md`.
 

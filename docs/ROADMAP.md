@@ -3,14 +3,14 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-06.
+> Last updated: 2026-05-10.
 
 ## Current Technical Baseline
 
 | Area            | Baseline                            |
 | --------------- | ----------------------------------- |
 | Runtime         | Node.js 22.12+                      |
-| Package manager | pnpm 10+                            |
+| Package manager | pnpm 11+                            |
 | Language        | TypeScript 5.9.3 strict mode        |
 | Bot engine      | grammY 1.41.x                       |
 | Web server      | Hono 4.x                            |
@@ -60,28 +60,28 @@ Recently completed:
 - Understand Anything is adopted as an official AI onboarding and architecture
   knowledge-graph aid, with generated context in `docs/ONBOARDING.md` and
   `docs/developer/project-knowledge-graph.md`.
+- Spec #037: module tooling foundation for `pnpm tempot module doctor`,
+  `module create --type`, `module create --blueprint basic`, and generated
+  `module.manifest.ts`.
+- Spec #038: documentation platform restructure — Starlight navigation,
+  content promotion, and documentation quality automation.
+- The `test-module` diagnostic scaffold has been removed.
+- CI pipeline aligned to pnpm 11 and high-severity audit vulnerabilities
+  resolved via dependency overrides.
 
 Active or next work:
 
-1. Spec #037: module tooling foundation for `pnpm tempot module doctor`,
-   `module create --type`, `module create --blueprint basic`, and generated
-   `module.manifest.ts` is implemented locally with final gates passing.
-2. Start the next Phase 3B core module from the module catalog, with
+1. Start the next Phase 3B core module from the module catalog, with
    `template-management` as the recommended first product module.
-3. Decide whether `test-module` should be deleted or moved into non-production
-   fixtures before the next production module merge.
-4. Consider future RAG evaluation expansion for latency, token usage, and cost
+2. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-5. Start a SpecKit documentation platform restructure to promote active content
-   into Starlight, repair documentation navigation, and automate documentation
-   quality checks.
 
 ## Phase Summary
 
 | Phase    | Scope                                               | Status                                          |
 | -------- | --------------------------------------------------- | ----------------------------------------------- |
 | Phase 0  | Workspace and monorepo foundation                   | Complete                                        |
-| Phase 1  | Core bedrock packages                               | Mostly complete; deferred package policy active |
+| Phase 1  | Core bedrock packages                               | Complete; all 22 packages implemented           |
 | Phase 2  | Module infrastructure and bot-server reconstruction | Complete                                        |
 | Phase 3  | Business modules                                    | Started; `user-management` implemented          |
 | Phase 3A | Architecture isolation and SaaS readiness           | Complete                                        |

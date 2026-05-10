@@ -143,18 +143,14 @@ Critical versions pinned exactly by constitution:
 Phase 2D is complete. Phase 3 has started, and `user-management` (spec #025)
 has been implemented on `main` with governance hardening active.
 
-Deferred packages under Rule XC:
+All formerly deferred packages have been activated and implemented. No package
+remains deferred under Rule XC after the Spec #008 activation (2026-05-06).
 
-- `cms-engine`
-- `search-engine`
-- `document-engine`
-- `import-engine`
+Specs #037 (module tooling foundation) and #038 (documentation platform
+restructure) are complete and merged. The `test-module` diagnostic scaffold
+has been removed.
 
-Deferred packages are exempt from blocking `spec:validate` critical failures
-until the Roadmap records an activation decision.
-
-`notifier` has been activated from the deferred set. Confirm its current branch
-and implementation state in `docs/ROADMAP.md`.
+Confirm the latest state in `docs/ROADMAP.md`.
 
 ## Git Workflow
 
