@@ -17,7 +17,7 @@ Read only the sources needed for the task:
 - Local Superpowers skills in `C:\Users\saleh\.codex\superpowers\skills\`
 - `.specify/memory/constitution.md`
 - `.specify/memory/roles.md`
-- `docs/archive/developer/workflow-guide.md`
+- `docs/developer/workflow-guide.md`
 - The active `specs/{NNN}-{feature}/spec.md`, `plan.md`, and `tasks.md`
 
 ## Execution Flow

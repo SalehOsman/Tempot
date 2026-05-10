@@ -19,10 +19,10 @@ Before taking action, read these files in order:
 
 Then read only task-relevant documents:
 
-- Project status: `docs/archive/ROADMAP.md`
-- Architecture: `docs/archive/tempot_v11_final.md`
-- Workflow: `docs/archive/developer/workflow-guide.md`
-- Package checklist: `docs/archive/developer/package-creation-checklist.md`
+- Project status: `docs/ROADMAP.md`
+- Architecture: `docs/architecture/tempot_v11_final.md`
+- Workflow: `docs/developer/workflow-guide.md`
+- Package checklist: `docs/developer/package-creation-checklist.md`
 - Active feature: `.specify/feature.json` and the matching `specs/{NNN}-{feature}/`
 
 ## Role Handling

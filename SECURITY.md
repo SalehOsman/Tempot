@@ -71,5 +71,5 @@ sanitize-html -> grammY rate limiter -> CASL check -> Zod validation -> business
 
 GitHub Actions run linting, type checks, unit tests, integration tests, and
 dependency audit jobs. See `.github/workflows/ci.yml` and
-[docs/archive/security/security-baseline.md](docs/archive/security/security-baseline.md)
+[docs/security/security-baseline.md](docs/security/security-baseline.md)
 for the current security baseline.

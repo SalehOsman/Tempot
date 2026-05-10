@@ -78,9 +78,9 @@ export function discoverSpecDirs(): string[] {
 }
 
 function readRoadmapDeferredPackages(): Set<string> {
-  const roadmapPath = path.join(PROJECT_ROOT, 'docs', 'archive', 'ROADMAP.md');
+  const roadmapPath = resolveRoadmapPath();
   const deferredPackages = new Set<string>();
-  if (!fs.existsSync(roadmapPath)) return deferredPackages;
+  if (roadmapPath === null) return deferredPackages;
 
   const roadmap = fs.readFileSync(roadmapPath, 'utf8');
   for (const line of roadmap.split('\n')) {
@@ -91,6 +91,14 @@ function readRoadmapDeferredPackages(): Set<string> {
   }
 
   return deferredPackages;
+}
+
+export function resolveRoadmapPath(): string | null {
+  const candidates = [
+    path.join(PROJECT_ROOT, 'docs', 'ROADMAP.md'),
+    path.join(PROJECT_ROOT, 'docs', 'archive', 'ROADMAP.md'),
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate)) ?? null;
 }
 
 export function computeExitCode(reports: PackageReport[]): number {

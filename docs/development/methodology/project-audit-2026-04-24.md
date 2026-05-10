@@ -7,7 +7,7 @@ This audit was performed from **actual repository artifacts** (code, tests, spec
 Evidence sources reviewed:
 
 - Governance and process rules (`.specify/memory/constitution.md`, `CONTRIBUTING.md`)
-- Delivery status (`docs/archive/ROADMAP.md`, `specs/*`)
+- Delivery status (`docs/ROADMAP.md`, `specs/*`)
 - Runtime/build/test setup (`package.json`, workspace config, Vitest, package manifests)
 - Package implementation reality (`packages/*`, `apps/*`, `modules/*`)
 - Documentation structure and language coverage (`docs/product/*`, `docs/archive/*`, root docs)
@@ -92,7 +92,7 @@ Given the project's Arabic-first positioning, this is a high-impact documentatio
 
 **Status: Generally coherent with implementation reality**
 
-`docs/archive/ROADMAP.md` correctly marks several packages as deferred/not started and documents phase status, which matches package-level implementation gaps.
+`docs/ROADMAP.md` correctly marks several packages as deferred/not started and documents phase status, which matches package-level implementation gaps.
 
 ## 5) What Is Working Well
 

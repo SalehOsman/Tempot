@@ -105,7 +105,7 @@
 - `[MODIFY] apps/bot-server/src/index.ts` — استبدال stubs بـ real deps
 - `[NEW] apps/bot-server/src/startup/deps.factory.ts` — factory function للـ dependencies
 - `[MODIFY] apps/bot-server/tests/integration/startup-sequence.test.ts` — real integration tests
-- `[MODIFY] docs/archive/ROADMAP.md` — تحديث Phase 2C status
+- `[MODIFY] docs/ROADMAP.md` — تحديث Phase 2C status
 
 ---
 

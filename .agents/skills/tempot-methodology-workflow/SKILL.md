@@ -15,7 +15,7 @@ Read:
 
 - `.specify/memory/constitution.md`
 - `.specify/memory/roles.md`
-- `docs/archive/developer/workflow-guide.md`
+- `docs/developer/workflow-guide.md`
 - `.specify/feature.json` when an active feature exists
 - `specs/{NNN}-{feature}/spec.md`
 - `specs/{NNN}-{feature}/plan.md`
@@ -54,7 +54,7 @@ Default to a feature branch or worktree. Direct work on `main` requires explicit
 For every change, identify affected documentation:
 
 - SpecKit artifacts
-- `docs/archive/ROADMAP.md`
+- `docs/ROADMAP.md`
 - ADR index and new ADRs
 - architecture docs
 - package or module README files

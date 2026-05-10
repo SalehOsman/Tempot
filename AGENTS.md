@@ -26,9 +26,9 @@ TypeScript strict mode.
 
 - Constitution: `.specify/memory/constitution.md`
 - Role framework: `.specify/memory/roles.md`
-- Architecture spec: `docs/archive/tempot_v11_final.md`
-- Workflow guide: `docs/archive/developer/workflow-guide.md`
-- Roadmap: `docs/archive/ROADMAP.md`
+- Architecture spec: `docs/architecture/tempot_v11_final.md`
+- Workflow guide: `docs/developer/workflow-guide.md`
+- Roadmap: `docs/ROADMAP.md`
 
 The constitution is the highest authority. As of constitution v2.4.0, the
 project has 90 numbered rules including Rule XC for deferred packages.
@@ -84,7 +84,7 @@ Before implementation starts, these must exist and be consistent:
 - `research.md`
 - `/speckit.analyze` or `$speckit-analyze` passed with zero critical issues
 - `pnpm spec:validate` passed with zero critical issues, except packages
-  explicitly deferred by Rule XC in `docs/archive/ROADMAP.md`
+  explicitly deferred by Rule XC in `docs/ROADMAP.md`
 
 ## Quality Gates
 
@@ -154,7 +154,7 @@ Deferred packages are exempt from blocking `spec:validate` critical failures
 until the Roadmap records an activation decision.
 
 `notifier` has been activated from the deferred set. Confirm its current branch
-and implementation state in `docs/archive/ROADMAP.md`.
+and implementation state in `docs/ROADMAP.md`.
 
 ## Git Workflow
 

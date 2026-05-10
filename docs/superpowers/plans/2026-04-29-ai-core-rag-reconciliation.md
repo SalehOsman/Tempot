@@ -18,7 +18,7 @@
 - Modify: `specs/015-ai-core-package/spec.md`
 - Modify: `specs/015-ai-core-package/tasks.md`
 - Modify: `specs/027-tempot-multimodal-rag-methodology/tasks.md`
-- Modify: `docs/archive/ROADMAP.md`
+- Modify: `docs/ROADMAP.md`
 
 ## Task 1: Confirmation Output TDD
 
@@ -81,5 +81,5 @@ Point the active RAG workstream to Spec #028 and mark the follow-on spec task co
 - [ ] Search for stale active guidance:
 
 ```powershell
-git grep -n "AI_PROVIDER\|PROVIDER_REFUSAL\|AIDegradationMode" -- packages/ai-core specs/015-ai-core-package specs/028-ai-core-rag-reconciliation docs/archive/ROADMAP.md
+git grep -n "AI_PROVIDER\|PROVIDER_REFUSAL\|AIDegradationMode" -- packages/ai-core specs/015-ai-core-package specs/028-ai-core-rag-reconciliation docs/ROADMAP.md
 ```

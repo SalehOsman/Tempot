@@ -14,8 +14,8 @@ Use this skill when working on `modules/`. Modules contain business logic and mu
 Read:
 
 - `.specify/memory/constitution.md`
-- `docs/archive/developer/package-creation-checklist.md`
-- `docs/archive/developer/workflow-guide.md`
+- `docs/developer/package-creation-checklist.md`
+- `docs/developer/workflow-guide.md`
 - the relevant module directory
 - the relevant `specs/{NNN}-{feature}/` artifacts
 - `packages/module-registry` patterns

@@ -1,5 +1,7 @@
-# Architecture Decision Records (ADRs)
+﻿# Moved Document
 
-> **This index has moved.** The canonical ADR index is at [`docs/archive/architecture/adr/README.md`](../architecture/adr/README.md).
->
-> ADR files live in `docs/archive/architecture/adr/`. This file exists only as a redirect.
+This compatibility path is retained for historical links.
+
+Canonical source: [docs/architecture/adr/README.md](../../architecture/adr/README.md)
+
+Use the canonical source for current guidance. Do not add new content here.

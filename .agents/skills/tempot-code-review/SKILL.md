@@ -15,7 +15,7 @@ Read the changed files and the rules they touch. For broad reviews, read:
 
 - `.specify/memory/constitution.md`
 - `.specify/memory/roles.md`
-- `docs/archive/ROADMAP.md`
+- `docs/ROADMAP.md`
 - relevant `specs/{NNN}-{feature}/` artifacts
 - relevant package or module README/checklist files
 

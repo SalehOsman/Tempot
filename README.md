@@ -23,7 +23,7 @@ also been completed. `notifier` is the currently activated deferred package;
 `cms-engine`, `search-engine`, `document-engine`, and `import-engine` remain
 deferred until the roadmap records an activation decision.
 
-Use [docs/archive/ROADMAP.md](docs/archive/ROADMAP.md) as the single source of
+Use [docs/ROADMAP.md](docs/ROADMAP.md) as the single source of
 truth for project status.
 
 ## Requirements
@@ -91,10 +91,10 @@ Start here:
 
 - [Documentation Map](docs/README.md)
 - [Development Guide](docs/development/README.md)
-- [Workflow Guide](docs/archive/developer/workflow-guide.md)
-- [Roadmap](docs/archive/ROADMAP.md)
-- [Architecture Spec](docs/archive/tempot_v11_final.md)
-- [ADR Index](docs/archive/architecture/adr/README.md)
+- [Workflow Guide](docs/developer/workflow-guide.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Architecture Spec](docs/architecture/tempot_v11_final.md)
+- [ADR Index](docs/architecture/adr/README.md)
 
 ## Quality Gates
 
@@ -113,7 +113,7 @@ pnpm audit --audit-level=high
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and
-[docs/archive/developer/workflow-guide.md](docs/archive/developer/workflow-guide.md)
+[docs/developer/workflow-guide.md](docs/developer/workflow-guide.md)
 before starting. Every production change follows SpecKit plus Superpowers and
 must respect the project constitution.
 

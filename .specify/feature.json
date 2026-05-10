@@ -1,7 +1,7 @@
 {
-  "feature": "037-module-tooling-foundation",
-  "feature_directory": "specs/037-module-tooling-foundation",
-  "specPath": "specs/037-module-tooling-foundation/spec.md",
-  "planPath": "specs/037-module-tooling-foundation/plan.md",
-  "tasksPath": "specs/037-module-tooling-foundation/tasks.md"
+  "feature": "038-documentation-platform-restructure",
+  "feature_directory": "specs/038-documentation-platform-restructure",
+  "specPath": "specs/038-documentation-platform-restructure/spec.md",
+  "planPath": "specs/038-documentation-platform-restructure/plan.md",
+  "tasksPath": "specs/038-documentation-platform-restructure/tasks.md"
 }
