@@ -56,6 +56,33 @@ commands, messages, input forms, permissions, and settings. A governed lifecycle
 | `@tempot/settings` | Configurable pagination and rate limits |
 | `@tempot/module-registry` | Module config and toggle registration |
 
+## Architecture
+
+```
+modules/template-management/
+├── types/              # TypeScript interfaces and enums
+├── contracts/          # Zod schemas, lifecycle transitions
+├── events/             # Event names and payload interfaces
+├── repositories/       # Prisma-backed persistence (BaseRepository)
+├── services/           # Business logic layer
+├── menus/              # Inline keyboard factories
+├── commands/           # grammY command handlers
+├── handlers/           # Callback query and text handlers
+├── database/           # Prisma schema
+├── locales/            # i18n JSON (ar, en)
+└── tests/
+    ├── unit/           # Pure logic tests (47 passing)
+    └── integration/    # DB-backed tests (Testcontainers)
+```
+
+## Testing
+
+```bash
+pnpm --filter @tempot/template-management test      # unit tests
+pnpm --filter @tempot/template-management build     # type-check
+pnpm lint                                           # eslint
+```
+
 ## Spec
 
 See `specs/039-template-management/` for full SpecKit artifacts.
