@@ -71,9 +71,12 @@ Recently completed:
 
 Active or next work:
 
-1. Start the next Phase 3B core module from the module catalog, with
-   `template-management` as the recommended first product module.
-2. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. `template-management` (Spec #039) implemented: types, schemas, lifecycle,
+   repositories, services, menus, commands, handlers, 47 unit tests passing.
+   Integration tests scaffolded (require Testcontainers).
+2. Start the next Phase 3B module from the catalog (recommended:
+   `bot-management` or `content-management`).
+3. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -155,7 +158,7 @@ Baseline module strategy documented by Spec #036:
 | Module                | Type          | Status           |
 | --------------------- | ------------- | ---------------- |
 | `user-management`     | Core platform | Implemented      |
-| `template-management` | Product       | Recommended next |
+| `template-management` | Product       | Implemented      |
 | `bot-management`      | Operational   | Planned baseline |
 | `content-management`  | Product       | Planned baseline |
 | `notification-center` | Operational   | Planned baseline |
