@@ -1,0 +1,52 @@
+{
+  "name": "@tempot/template-management",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tempot/module-registry": "workspace:*"
+  },
+  "peerDependencies": {
+    "grammy": "^1.41.1",
+    "@casl/ability": "^6.7.3",
+    "neverthrow": "8.2.0",
+    "zod": "^3.25.17",
+    "@tempot/shared": "workspace:*",
+    "@tempot/logger": "workspace:*",
+    "@tempot/event-bus": "workspace:*",
+    "@tempot/auth-core": "workspace:*",
+    "@tempot/session-manager": "workspace:*",
+    "@tempot/settings": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/database": "workspace:*",
+    "@tempot/ux-helpers": "workspace:*",
+    "@tempot/regional-engine": "workspace:*",
+    "@tempot/input-engine": "workspace:*",
+    "@tempot/search-engine": "workspace:*",
+    "@tempot/import-engine": "workspace:*",
+    "@tempot/document-engine": "workspace:*",
+    "@tempot/cms-engine": "workspace:*",
+    "@tempot/notifier": "workspace:*"
+  },
+  "devDependencies": {
+    "grammy": "^1.41.1",
+    "@casl/ability": "^6.7.3",
+    "neverthrow": "8.2.0",
+    "zod": "^3.25.17",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
