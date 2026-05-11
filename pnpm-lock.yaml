@@ -218,6 +218,79 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
 
+  modules/template-management:
+    dependencies:
+      '@tempot/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
+      '@tempot/cms-engine':
+        specifier: workspace:*
+        version: link:../../packages/cms-engine
+      '@tempot/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@tempot/document-engine':
+        specifier: workspace:*
+        version: link:../../packages/document-engine
+      '@tempot/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      '@tempot/i18n-core':
+        specifier: workspace:*
+        version: link:../../packages/i18n-core
+      '@tempot/import-engine':
+        specifier: workspace:*
+        version: link:../../packages/import-engine
+      '@tempot/input-engine':
+        specifier: workspace:*
+        version: link:../../packages/input-engine
+      '@tempot/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@tempot/module-registry':
+        specifier: workspace:*
+        version: link:../../packages/module-registry
+      '@tempot/notifier':
+        specifier: workspace:*
+        version: link:../../packages/notifier
+      '@tempot/regional-engine':
+        specifier: workspace:*
+        version: link:../../packages/regional-engine
+      '@tempot/search-engine':
+        specifier: workspace:*
+        version: link:../../packages/search-engine
+      '@tempot/session-manager':
+        specifier: workspace:*
+        version: link:../../packages/session-manager
+      '@tempot/settings':
+        specifier: workspace:*
+        version: link:../../packages/settings
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
+    devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
+      grammy:
+        specifier: ^1.41.1
+        version: 1.41.1
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@7.3.3(@types/node@24.12.3)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+      zod:
+        specifier: ^3.25.17
+        version: 3.25.76
+
   modules/user-management:
     dependencies:
       '@tempot/auth-core':
