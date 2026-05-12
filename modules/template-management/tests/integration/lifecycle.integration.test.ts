@@ -16,10 +16,20 @@ describe('Lifecycle Integration', () => {
   const testDb = new TestDB();
   let repo: TemplateRepository;
   let lifecycleService: LifecycleService;
+  let categoryId: string;
 
   beforeAll(async () => {
     await testDb.start();
     testDb.applyPrismaSchema();
+    const category = await testDb.prisma.category.create({
+      data: {
+        nameAr: 'Lifecycle',
+        nameEn: 'Lifecycle',
+        slug: 'lifecycle',
+        depth: 0,
+      },
+    });
+    categoryId = category.id;
     repo = new TemplateRepository(mockAuditLogger, testDb.prisma);
     lifecycleService = new LifecycleService(repo, createMockEventBus());
   }, 120_000);
@@ -38,7 +48,7 @@ describe('Lifecycle Integration', () => {
         commands: [{ name: 'start', description: 'Start' }],
         messages: [{ key: 'welcome', defaultText: { ar: 'مرحبا' } }],
       },
-      categoryId: null,
+      categoryId,
       authorId: 'user-1',
       clonedFrom: null,
       language: 'ar',

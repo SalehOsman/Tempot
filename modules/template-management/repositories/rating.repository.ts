@@ -1,14 +1,14 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import type { TemplateRating } from '../types/category.types.js';
+import { ModuleBaseRepository } from './module-base.repository.js';
 
 export interface RatingStats {
   average: number;
   count: number;
 }
 
-export class RatingRepository extends BaseRepository<TemplateRating> {
+export class RatingRepository extends ModuleBaseRepository<TemplateRating> {
   protected moduleName = 'template-management';
   protected entityName = 'templateRating';
 

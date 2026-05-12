@@ -1,9 +1,9 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import type { TemplateSubscription } from '../types/category.types.js';
+import { ModuleBaseRepository } from './module-base.repository.js';
 
-export class SubscriptionRepository extends BaseRepository<TemplateSubscription> {
+export class SubscriptionRepository extends ModuleBaseRepository<TemplateSubscription> {
   protected moduleName = 'template-management';
   protected entityName = 'templateSubscription';
 
