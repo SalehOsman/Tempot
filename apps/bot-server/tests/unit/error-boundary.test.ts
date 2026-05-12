@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@tempot/shared', () => ({
-  generateErrorReference: vi.fn(() => 'ERR-20260405-ABCD'),
-}));
+vi.mock('@tempot/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tempot/shared')>();
+  return {
+    ...actual,
+    generateErrorReference: vi.fn(() => 'ERR-20260405-ABCD'),
+  };
+});
 
 import { createErrorBoundary } from '../../src/bot/error-boundary.js';
 import type { ErrorBoundaryDeps } from '../../src/bot/error-boundary.js';

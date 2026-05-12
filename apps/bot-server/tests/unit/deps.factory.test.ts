@@ -105,6 +105,7 @@ vi.mock('@tempot/settings', () => ({
 }));
 
 vi.mock('@tempot/i18n-core', () => ({
+  initI18n: vi.fn().mockResolvedValue(undefined),
   loadModuleLocales: vi.fn().mockResolvedValue(ok(undefined)),
   t: vi.fn().mockImplementation((key: string) => key),
 }));

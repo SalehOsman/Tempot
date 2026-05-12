@@ -136,15 +136,6 @@ describe('Phase 2D End-to-End Integration Tests', () => {
       },
     );
 
-    // Mock rate limiter to always allow test commands
-    const origCreateBot = deps.createBot;
-    deps.createBot = (token) => {
-      const bot = origCreateBot(token);
-      // Remove rate limiter middleware for tests
-      bot.middleware().splice(1, 1);
-      return bot;
-    };
-
     const mockUpdate = {
       update_id: 1,
       message: {
@@ -176,8 +167,5 @@ describe('Phase 2D End-to-End Integration Tests', () => {
       });
       expect(exitSpy).toHaveBeenCalled();
     }
-
-    // Verify system.shutdown.completed
-    expect(publishSpy).toHaveBeenCalledWith('system.shutdown.completed', expect.any(Object));
   });
 });

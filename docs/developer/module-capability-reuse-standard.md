@@ -1,7 +1,7 @@
 # Module Capability Reuse Standard
 
-**Status**: Authoritative developer standard for Tempot modules  
-**Audience**: Developers and agents specifying, planning, implementing, and reviewing modules.  
+**Status**: Authoritative developer standard for Tempot modules
+**Audience**: Developers and agents specifying, planning, implementing, and reviewing modules.
 **Applies to**: Every module under `modules/`, every SpecKit plan for a module,
 and every code review that decides whether functionality should reuse an
 existing package or be implemented locally.
@@ -161,24 +161,24 @@ Use this template:
 ```markdown
 ### Custom Capability Exception: {Capability Name}
 
-**Capability gap:**  
+**Capability gap:**
 Describe the exact requirement that is not adequately covered.
 
-**Packages considered:**  
+**Packages considered:**
 - `@tempot/{package-a}` - explain why direct reuse does not fit.
 - `@tempot/{package-b}` - explain why composition does not fit, if applicable.
 
-**Why package extension is not selected now:**  
+**Why package extension is not selected now:**
 State why the gap should not be promoted to shared infrastructure in this feature.
 
-**Approved local pattern:**  
+**Approved local pattern:**
 Name the pattern to be used, such as local state service, workflow service,
 domain-specific transition engine, or purpose-built adapter.
 
-**Required tests:**  
+**Required tests:**
 List the unit, integration, callback, and regression coverage needed.
 
-**Future extraction trigger:**  
+**Future extraction trigger:**
 State what evidence would justify converting this custom implementation into a
 package capability later.
 ```
@@ -255,4 +255,3 @@ Before asking for review, confirm:
 - [ ] Structured multi-step inputs use `@tempot/input-engine` unless an approved
       exception exists.
 - [ ] The implementation does not recreate package-owned behavior locally.
-

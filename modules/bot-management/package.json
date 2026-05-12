@@ -23,7 +23,7 @@
     "grammy": "^1.41.1",
     "@casl/ability": "^6.7.3",
     "neverthrow": "8.2.0",
-    "zod": "^3.25.17",
+    "zod": "^4.3.6",
     "@tempot/shared": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@tempot/event-bus": "workspace:*",
@@ -37,13 +37,16 @@
     "@tempot/import-engine": "workspace:*",
     "@tempot/document-engine": "workspace:*",
     "@tempot/storage-engine": "workspace:*",
-    "@tempot/notifier": "workspace:*"
+    "@tempot/notifier": "workspace:*",
+    "@tempot/input-engine": "workspace:*",
+    "@grammyjs/conversations": "^2.1.1"
   },
   "devDependencies": {
     "grammy": "^1.41.1",
+    "@grammyjs/conversations": "^2.1.1",
     "@casl/ability": "^6.7.3",
     "neverthrow": "8.2.0",
-    "zod": "^3.25.17",
+    "zod": "^4.3.6",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
   }

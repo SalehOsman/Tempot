@@ -1,12 +1,13 @@
-import type { Bot, Context } from 'grammy';
+import type { Bot, Context, MiddlewareFn } from 'grammy';
+import { createConversation } from '@grammyjs/conversations';
 import type { ModuleConfig } from '@tempot/module-registry';
 import { botManagementAbilities } from './abilities.js';
 import { registerDeps } from './deps.context.js';
 import { initBotService } from './services/bot-service.context.js';
 import { botsCommand } from './commands/bots.command.js';
-import { newBotCommand } from './commands/new-bot.command.js';
+import { BOT_REGISTRATION_FLOW_ID, newBotCommand } from './commands/new-bot.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
-import { handleTextInput } from './handlers/text.handler.js';
+import { runBotRegistrationConversation } from './flows/bot-registration.flow.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -48,7 +49,12 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   bot.command('bots', botsCommand);
   bot.command('new_bot', newBotCommand);
   bot.on('callback_query:data', handleCallbackQuery);
-  bot.on('message:text', handleTextInput);
+  bot.use(
+    createConversation<Context, Context>(
+      runBotRegistrationConversation,
+      BOT_REGISTRATION_FLOW_ID,
+    ) as unknown as MiddlewareFn<Context>,
+  );
 
   deps.logger.info({
     msg: 'bot-management handlers registered',

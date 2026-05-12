@@ -1,4 +1,5 @@
-import { Bot, type Context } from 'grammy';
+import { Bot, type Context, type MiddlewareFn } from 'grammy';
+import { conversations } from '@grammyjs/conversations';
 import { createSanitizerMiddleware } from './middleware/sanitizer.middleware.js';
 import { createRateLimiterMiddleware } from './middleware/rate-limiter.middleware.js';
 import {
@@ -36,6 +37,7 @@ export function createBot(token: string, deps: BotFactoryDeps): Bot<Context> {
   bot.use(createAuthMiddleware(deps));
   bot.use(createScopedUsersMiddleware(deps));
   bot.use(createValidationMiddleware());
+  bot.use(conversations<Context, Context>() as unknown as MiddlewareFn<Context>);
   // Handlers are registered by modules, not here
   bot.use(createAuditMiddleware(deps));
 
