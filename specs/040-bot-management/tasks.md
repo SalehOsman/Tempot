@@ -36,12 +36,12 @@
 
 - [x] T011 Create `modules/bot-management/database/schema.prisma` for ManagedBot, BotSettingsProfile, BotModuleEnablement, BotTemplateSource, BotLifecycleEvent, BotHealthSnapshot, BotProfileImport, and BotProfileExport. FR-001 FR-006 FR-007 FR-009 FR-014 FR-015 FR-020 FR-021
 - [x] T012 Create `modules/bot-management/repositories/bot.repository.ts` with create, find, update, archive, uniqueness, and pagination methods. FR-001 FR-011 FR-012 FR-020 SC-001 SC-004
-- [ ] T013 [P] Create `settings-profile.repository.ts` for per-bot settings persistence. FR-006
-- [ ] T014 [P] Create `module-enablement.repository.ts` for enabled, disabled, unavailable, and blocked module states. FR-007 FR-008 FR-022 SC-009
-- [ ] T015 [P] Create `lifecycle-event.repository.ts` for append-only lifecycle history. FR-004 FR-005 SC-007
-- [ ] T016 [P] Create `template-source.repository.ts` for template and version attribution. FR-009 FR-010 SC-005
-- [ ] T017 [P] Create `health-snapshot.repository.ts` for latest and historical health summaries. FR-013 FR-021
-- [ ] T018 [P] Create `import.repository.ts` and `export.repository.ts` for profile import/export requests. FR-014 FR-015 SC-008
+- [x] T013 [P] Create `settings-profile.repository.ts` for per-bot settings persistence. FR-006
+- [x] T014 [P] Create `module-enablement.repository.ts` for enabled, disabled, unavailable, and blocked module states. FR-007 FR-008 FR-022 SC-009
+- [x] T015 [P] Create `lifecycle-event.repository.ts` for append-only lifecycle history. FR-004 FR-005 SC-007
+- [x] T016 [P] Create `template-source.repository.ts` for template and version attribution. FR-009 FR-010 SC-005
+- [x] T017 [P] Create `health-snapshot.repository.ts` for latest and historical health summaries. FR-013 FR-021
+- [x] T018 [P] Create `import.repository.ts` and `export.repository.ts` for profile import/export requests. FR-014 FR-015 SC-008
 - [ ] T019 Add repository unit tests and integration test setup for all persistence paths. FR-001 FR-006 FR-007 FR-009 FR-014 FR-015 FR-020 FR-021 SC-001 SC-008
 
 ---
@@ -67,8 +67,8 @@ status, owner, locale, module summary, template source, and health summary.
 **Independent Test**: Exercise every valid and invalid transition and verify
 audit history and domain events.
 
-- [ ] T026 [P] [US2] Write failing unit tests for lifecycle guard behavior and reason requirements. FR-002 FR-003 FR-004 SC-002
-- [ ] T027 [US2] Implement `services/lifecycle.service.ts` with transition validation, reason checks, event publishing, and lifecycle history. FR-002 FR-003 FR-004 FR-005 FR-019 SC-002 SC-007
+- [x] T026 [P] [US2] Write failing unit tests for lifecycle guard behavior and reason requirements. FR-002 FR-003 FR-004 SC-002
+- [x] T027 [US2] Implement `services/lifecycle.service.ts` with transition validation, reason checks, event publishing, and lifecycle history. FR-002 FR-003 FR-004 FR-005 FR-019 SC-002 SC-007
 - [ ] T028 [P] [US2] Create `menus/lifecycle-menu.factory.ts` with state-aware transition buttons. FR-002 FR-004 FR-018 SC-006
 - [ ] T029 [US2] Wire lifecycle callbacks into `handlers/callback.handler.ts` and reason collection into `handlers/text.handler.ts`. FR-002 FR-003 FR-004 FR-018
 - [ ] T030 [US2] Add integration test for DRAFT -> CONFIGURED -> ACTIVE -> PAUSED -> ACTIVE -> MAINTENANCE -> ACTIVE -> ARCHIVED. FR-002 FR-003 FR-004 FR-005 SC-002 SC-007
@@ -81,8 +81,8 @@ audit history and domain events.
 **Independent Test**: Update settings, verify persistence, event emission, and
 invalid-value rejection.
 
-- [ ] T031 [P] [US3] Write failing unit tests for `settings-profile.service.ts`. FR-006 SC-007
-- [ ] T032 [US3] Implement `services/settings-profile.service.ts` using settings package contracts and repository persistence. FR-006 FR-019 SC-007
+- [x] T031 [P] [US3] Write failing unit tests for `settings-profile.service.ts`. FR-006 SC-007
+- [x] T032 [US3] Implement `services/settings-profile.service.ts` using settings package contracts and repository persistence. FR-006 FR-019 SC-007
 - [ ] T033 [P] [US3] Create `menus/settings-menu.factory.ts` for locale, region, timezone, notification, privacy, and feature toggle views. FR-006 FR-012 FR-018 SC-006
 - [ ] T034 [US3] Wire settings callbacks and text input validation into handlers. FR-006 FR-018
 - [ ] T035 [US3] Add integration test for settings update, invalid setting rejection, inherited defaults, and settings-changed event. FR-006 FR-019 SC-007
@@ -95,8 +95,8 @@ invalid-value rejection.
 **Independent Test**: Toggle implemented modules and verify blocked/unavailable
 states are represented and enforced.
 
-- [ ] T036 [P] [US4] Write failing unit tests for `module-enablement.service.ts`. FR-007 FR-008 FR-022 SC-009
-- [ ] T037 [US4] Implement `services/module-enablement.service.ts` using module registry metadata and persisted per-bot choices. FR-007 FR-008 FR-019 FR-022 SC-009
+- [x] T036 [P] [US4] Write failing unit tests for `module-enablement.service.ts`. FR-007 FR-008 FR-022 SC-009
+- [x] T037 [US4] Implement `services/module-enablement.service.ts` using module registry metadata and persisted per-bot choices. FR-007 FR-008 FR-019 FR-022 SC-009
 - [ ] T038 [P] [US4] Create `menus/module-enablements-menu.factory.ts` with implemented, unavailable, and blocked groupings. FR-007 FR-008 FR-012 FR-018 FR-022 SC-006 SC-009
 - [ ] T039 [US4] Wire module enablement callbacks into `handlers/callback.handler.ts`. FR-007 FR-008 FR-018 FR-022
 - [ ] T040 [US4] Add integration test for enable, disable, unavailable, blocked, and blocked-reason display flows. FR-007 FR-008 FR-022 SC-009
