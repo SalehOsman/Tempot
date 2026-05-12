@@ -92,6 +92,9 @@ importers:
       '@casl/ability':
         specifier: ^6.7.3
         version: 6.8.1
+      '@grammyjs/conversations':
+        specifier: ^2.1.1
+        version: 2.1.1(grammy@1.41.1)
       '@tempot/auth-core':
         specifier: workspace:*
         version: link:../../packages/auth-core
@@ -238,6 +241,9 @@ importers:
       '@tempot/import-engine':
         specifier: workspace:*
         version: link:../../packages/import-engine
+      '@tempot/input-engine':
+        specifier: workspace:*
+        version: link:../../packages/input-engine
       '@tempot/logger':
         specifier: workspace:*
         version: link:../../packages/logger
@@ -269,6 +275,9 @@ importers:
       '@casl/ability':
         specifier: ^6.7.3
         version: 6.8.1
+      '@grammyjs/conversations':
+        specifier: ^2.1.1
+        version: 2.1.1(grammy@1.41.1)
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
@@ -282,8 +291,8 @@ importers:
         specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@7.3.3(@types/node@24.12.3)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
       zod:
-        specifier: ^3.25.17
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.4.3
 
   modules/template-management:
     dependencies:

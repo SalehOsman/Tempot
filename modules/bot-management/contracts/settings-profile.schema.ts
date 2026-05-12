@@ -6,7 +6,7 @@ export const botSettingsProfileSchema = z.object({
   timezone: z.string().min(1).max(100),
   notificationsEnabled: z.boolean(),
   privacyMode: z.enum(['standard', 'strict']),
-  featureToggles: z.record(z.boolean()),
+  featureToggles: z.record(z.string(), z.boolean()),
 });
 
 export type BotSettingsProfileSchemaInput = z.infer<typeof botSettingsProfileSchema>;

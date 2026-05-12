@@ -30,6 +30,7 @@
     "@tempot/settings": "workspace:*",
     "@tempot/shared": "workspace:*",
     "@tempot/ux-helpers": "workspace:*",
+    "@grammyjs/conversations": "^2.1.1",
     "grammy": "^1.41.1",
     "hono": "^4.12.15",
     "neverthrow": "8.2.0",

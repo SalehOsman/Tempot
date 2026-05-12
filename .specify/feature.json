@@ -1,5 +1,5 @@
 {
-  "feature": "040-bot-management",
-  "feature_directory": "specs/040-bot-management",
-  "specPath": "specs/040-bot-management/spec.md"
+  "feature": "041-input-engine-inline-flow-standardization",
+  "feature_directory": "specs/041-input-engine-inline-flow-standardization",
+  "specPath": "specs/041-input-engine-inline-flow-standardization/spec.md"
 }

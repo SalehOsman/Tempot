@@ -116,7 +116,7 @@ export {
 export { handleConfirmationLoop } from './runner/confirmation.handler.js';
 
 // Phase 2 — Action Buttons
-export { ACTION_CALLBACKS } from './runner/action-buttons.builder.js';
+export { ACTION_CALLBACKS, buildActionButtons } from './runner/action-buttons.builder.js';
 export type { ActionButtonContext, ActionButtonRow } from './runner/action-buttons.builder.js';
 
 // Phase 2 — Progress
