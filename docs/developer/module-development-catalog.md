@@ -10,6 +10,10 @@ module creation into a governed workflow based on SpecKit artifacts, reusable
 package capabilities, generator blueprints, validation gates, and optional
 AI-assisted guidance.
 
+For mandatory package reuse rules, decision classifications, and the approved
+exception path for local custom behavior, read
+`docs/developer/module-capability-reuse-standard.md`.
+
 Tempot modules are product or domain capabilities under `modules/`. They may use
 packages, but they must not become shared infrastructure. Shared infrastructure
 belongs in `packages/`; runtime surfaces belong in `apps/`.
@@ -129,6 +133,7 @@ Tempot does not use `/speckit.implement` for production execution.
 
 | Need | Use | Rule |
 | --- | --- | --- |
+| Structured Telegram input flows | `@tempot/input-engine` | Use the package for multi-step create/edit flows before writing local state machines. |
 | Authorization | `@tempot/auth-core` | Define permissions in `abilities.ts`; do not duplicate RBAC logic. |
 | Cross-module communication | `@tempot/event-bus` | Publish and consume events; never import another module directly. |
 | Persistence | `@tempot/database` | Use repositories; services do not call Prisma directly. |
@@ -143,6 +148,10 @@ Tempot does not use `/speckit.implement` for production execution.
 | Files | `@tempot/storage-engine` | Use storage providers and attachment contracts. |
 | Telegram UX | `@tempot/ux-helpers` | Use common menus, pagination, callback, and message helpers. |
 | Module metadata | `@tempot/module-registry` | Register config and toggle behavior through public contracts. |
+
+All selections in this catalog must follow the mandatory classification model
+from `module-capability-reuse-standard.md`: `Reuse`, `Compose`,
+`Extend Package`, or `Custom Approved`.
 
 ## Blueprints
 

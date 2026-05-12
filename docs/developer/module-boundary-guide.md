@@ -6,6 +6,8 @@
 For the full module methodology, package capability catalog, blueprints,
 capability packs, Module Doctor direction, and RAG assistant boundaries, read
 `docs/developer/module-development-catalog.md`.
+For mandatory reuse decisions and the local-custom exception path, read
+`docs/developer/module-capability-reuse-standard.md`.
 
 ## Module Ownership
 
@@ -55,6 +57,8 @@ Modules must not:
 - Put user-facing text in TypeScript.
 - Add module behavior to `apps/bot-server` except registration/composition.
 - Reimplement package capabilities locally when an approved package exists.
+- Bypass the package reuse standard without a documented `Custom Approved`
+  rationale in the active feature plan.
 
 ## Module Change Checklist
 
@@ -67,7 +71,11 @@ Before editing a module:
 5. Update locale files for user-facing text.
 6. Publish events instead of importing another module.
 7. Select catalog capabilities before adding local abstractions.
-8. Run the module test and relevant root gates.
+8. Classify every meaningful capability as `Reuse`, `Compose`,
+   `Extend Package`, or `Custom Approved`.
+9. Use `@tempot/input-engine` for structured multi-step Telegram inputs unless
+   an approved exception exists.
+10. Run the module test and relevant root gates.
 
 ## New Module Checklist
 

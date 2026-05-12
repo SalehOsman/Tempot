@@ -7,6 +7,9 @@ Use this checklist with
 `docs/developer/module-development-catalog.md`. The catalog explains
 module types, package capabilities, blueprints, capability packs, Module Doctor,
 and the future Module Builder RAG Assistant.
+Use `docs/developer/module-capability-reuse-standard.md` as the mandatory
+decision standard for whether to reuse, compose, extend, or locally implement a
+capability.
 
 ## Before Creation
 
@@ -18,6 +21,9 @@ and the future Module Builder RAG Assistant.
 - [ ] Module type is selected from the catalog.
 - [ ] Blueprint and capability packs are selected from the catalog.
 - [ ] Package capability usage is documented in `plan.md`.
+- [ ] `plan.md` contains a capability decision table using `Reuse`, `Compose`,
+      `Extend Package`, or `Custom Approved`.
+- [ ] Every `Custom Approved` capability has a completed exception rationale.
 
 ## Required Files
 
@@ -61,6 +67,12 @@ Create only when needed:
       when the AI pack is selected.
 - [ ] Search, import, export, notification, CMS, and settings behavior use the
       approved packages instead of local ad hoc implementations.
+- [ ] Structured multi-step Telegram forms use `@tempot/input-engine` unless an
+      approved custom exception is documented.
+- [ ] Telegram commands act as entry points for managed flows; inline menus are
+      the preferred navigation layer for interactive module behavior.
+- [ ] Local custom implementations do not duplicate capabilities already owned
+      by approved packages without documented justification.
 
 ## Validation
 

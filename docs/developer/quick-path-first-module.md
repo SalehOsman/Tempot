@@ -13,14 +13,16 @@
 ## Path
 
 1. Create or select the feature spec.
-2. Run the module generator.
-3. Review generated files.
-4. Add one command and one service method.
-5. Add Arabic and English locale keys.
-6. Add a unit test for the service.
-7. Add a command/handler test when Telegram behavior changes.
-8. Run module validation.
-9. Run root methodology gates.
+2. Record the capability decision table in `plan.md` using
+   `docs/developer/module-capability-reuse-standard.md`.
+3. Run the module generator.
+4. Review generated files.
+5. Add one command and one service method.
+6. Add Arabic and English locale keys.
+7. Add a unit test for the service.
+8. Add a command/handler test when Telegram behavior changes.
+9. Run module validation.
+10. Run root methodology gates.
 
 ## Expected Commands
 
@@ -43,6 +45,8 @@ git diff --check
 - Spec validation passes.
 - Module does not import another module.
 - Module can be disabled without breaking startup.
+- The module plan states which package capabilities are reused, composed,
+  extended, or approved for local custom implementation.
 
 ## Notes
 
