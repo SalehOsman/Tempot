@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-10.
+> Last updated: 2026-05-12.
 
 ## Current Technical Baseline
 
@@ -68,12 +68,15 @@ Recently completed:
 - The `test-module` diagnostic scaffold has been removed.
 - CI pipeline aligned to pnpm 11 and high-severity audit vulnerabilities
   resolved via dependency overrides.
+- Spec #039: `template-management` closure hardening completed with repository
+  contract fixes, module manifests for implemented modules, Module Doctor
+  readiness, and passing module unit and integration tests.
 
 Active or next work:
 
-1. `template-management` (Spec #039) implemented: types, schemas, lifecycle,
-   repositories, services, menus, commands, handlers, 47 unit tests passing.
-   Integration tests scaffolded (require Testcontainers).
+1. `template-management` (Spec #039) implemented and closure-hardened: types,
+   schemas, lifecycle, repositories, services, menus, commands, handlers,
+   module manifest, 48 unit tests passing, and 22 integration tests passing.
 2. Start the next Phase 3B module from the catalog (recommended:
    `bot-management` or `content-management`).
 3. Consider future RAG evaluation expansion for latency, token usage, and cost
@@ -84,11 +87,11 @@ Active or next work:
 | Phase    | Scope                                               | Status                                          |
 | -------- | --------------------------------------------------- | ----------------------------------------------- |
 | Phase 0  | Workspace and monorepo foundation                   | Complete                                        |
-| Phase 1  | Core bedrock packages                               | Complete; all 22 packages implemented           |
+| Phase 1  | Core bedrock packages                               | Complete; package inventory reconciled          |
 | Phase 2  | Module infrastructure and bot-server reconstruction | Complete                                        |
-| Phase 3  | Business modules                                    | Started; `user-management` implemented          |
+| Phase 3  | Business modules                                    | Started; `user-management` and `template-management` implemented |
 | Phase 3A | Architecture isolation and SaaS readiness           | Complete                                        |
-| Phase 3B | Next business module and supporting packages        | In planning                                     |
+| Phase 3B | Next business module and supporting packages        | Started; `template-management` closure complete |
 | Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
 | Phase 5  | Enterprise infrastructure                           | Not started                                     |
 | Phase 6  | Observability and developer experience expansion    | Partially started through DX tooling            |
@@ -112,6 +115,8 @@ Active or next work:
 - `@tempot/sentry`
 - `@tempot/settings`
 - `@tempot/module-registry`
+- `@tempot/national-id-parser` - Egyptian national ID parsing and validation
+  helpers used by `user-management`.
 - `@tempot/notifier` - completed 2026-04-30 (Spec #013).
 - `@tempot/document-engine` - completed 2026-05-06 (Spec #016).
 - `@tempot/import-engine` - completed 2026-05-06 (Spec #017).
@@ -146,9 +151,10 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 
 ## Business Modules
 
-| Module            | Spec | Status      |
-| ----------------- | ---- | ----------- |
-| `user-management` | #025 | Implemented |
+| Module                | Spec | Status      |
+| --------------------- | ---- | ----------- |
+| `user-management`     | #025 | Implemented |
+| `template-management` | #039 | Implemented |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.

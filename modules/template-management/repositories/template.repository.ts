@@ -11,6 +11,7 @@ import { ModuleBaseRepository } from './module-base.repository.js';
 export class TemplateRepository extends ModuleBaseRepository<Template> {
   protected moduleName = 'template-management';
   protected entityName = 'template';
+  protected override hasSoftDelete = true;
 
   protected get model() {
     return (this.db as Record<string, unknown>)['template'] as object;

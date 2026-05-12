@@ -60,7 +60,7 @@ export const TRANSITION_POLICIES: Record<string, TransitionPolicy> = {
   [`${TemplateStatus.PUBLISHED}->${TemplateStatus.ARCHIVED}`]: {
     requiredRole: 'USER',
     ownerOnly: true,
-    requiresReason: false,
+    requiresReason: true,
   },
   [`${TemplateStatus.ARCHIVED}->${TemplateStatus.DRAFT}`]: {
     requiredRole: 'USER',

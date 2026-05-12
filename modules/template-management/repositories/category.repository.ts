@@ -11,6 +11,7 @@ import { MAX_CATEGORY_DEPTH } from '../types/category.types.js';
 export class CategoryRepository extends ModuleBaseRepository<Category> {
   protected moduleName = 'template-management';
   protected entityName = 'category';
+  protected override hasSoftDelete = true;
 
   protected get model() {
     return (this.db as Record<string, unknown>)['category'] as object;

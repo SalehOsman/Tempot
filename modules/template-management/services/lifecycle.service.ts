@@ -70,7 +70,9 @@ export class LifecycleService {
     const userIdx = ROLE_HIERARCHY.indexOf(request.userRole);
     const reqIdx = ROLE_HIERARCHY.indexOf(policy.requiredRole);
     if (userIdx < reqIdx) return new AppError('template-management.unauthorized');
-    if (policy.ownerOnly && !request.isOwner)
+    const adminIdx = ROLE_HIERARCHY.indexOf('ADMIN');
+    const canManageAllTemplates = userIdx >= adminIdx;
+    if (policy.ownerOnly && !request.isOwner && !canManageAllTemplates)
       return new AppError('template-management.unauthorized');
     if (policy.requiresReason && !request.reason)
       return new AppError('template-management.reason_required');

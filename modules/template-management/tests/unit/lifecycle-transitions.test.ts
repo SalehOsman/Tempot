@@ -153,6 +153,12 @@ describe('getTransitionPolicy', () => {
     expect(policy?.requiresReason).toBe(true);
   });
 
+  it('returns policy for PUBLISHED -> ARCHIVED (archive requires reason)', () => {
+    const policy = getTransitionPolicy(TemplateStatus.PUBLISHED, TemplateStatus.ARCHIVED);
+    expect(policy).toBeDefined();
+    expect(policy?.requiresReason).toBe(true);
+  });
+
   it('returns undefined for invalid transition', () => {
     const policy = getTransitionPolicy(TemplateStatus.DRAFT, TemplateStatus.PUBLISHED);
     expect(policy).toBeUndefined();

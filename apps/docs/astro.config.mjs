@@ -18,6 +18,7 @@ const typedocPackages = [
   'input-engine',
   'settings',
   'module-registry',
+  'national-id-parser',
   'regional-engine',
   'sentry',
   'cms-engine',
