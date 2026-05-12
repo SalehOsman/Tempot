@@ -1,7 +1,5 @@
 {
-  "feature": "038-documentation-platform-restructure",
-  "feature_directory": "specs/038-documentation-platform-restructure",
-  "specPath": "specs/038-documentation-platform-restructure/spec.md",
-  "planPath": "specs/038-documentation-platform-restructure/plan.md",
-  "tasksPath": "specs/038-documentation-platform-restructure/tasks.md"
+  "feature": "040-bot-management",
+  "feature_directory": "specs/040-bot-management",
+  "specPath": "specs/040-bot-management/spec.md"
 }
