@@ -44,8 +44,19 @@ The module exposes these Telegram command shortcuts:
 /new_bot
 ```
 
+`/bots` opens the managed bot list backed by the module service and repository.
+`/new_bot` starts the Telegram registration flow and stores a redacted
+credential fingerprint instead of the raw token.
+
 ## Governance
 
-The module is governed by Spec #040. Current implementation is in the initial
-contracts checkpoint: module metadata, abilities, lifecycle contracts, event
-contracts, schemas, locale keys, and module documentation.
+The module is governed by Spec #040. Production completion is in progress on the
+`codex/bot-management-production` branch. Completed implementation now includes
+module metadata, contracts, Prisma schema references, the managed bot
+repository, registration service, list/detail menus, `/bots`, `/new_bot`,
+callback and text handlers, and targeted unit coverage for the registry slice.
+
+The module is not yet production complete. Remaining work includes all
+non-registry repositories, lifecycle services, settings profiles, per-bot module
+enablement, template provisioning, search, health, notifications, import/export,
+integration tests, and final merge gates.

@@ -77,8 +77,10 @@ Active or next work:
 1. `template-management` (Spec #039) implemented and closure-hardened: types,
    schemas, lifecycle, repositories, services, menus, commands, handlers,
    module manifest, 48 unit tests passing, and 22 integration tests passing.
-2. Start the next Phase 3B module from the catalog (recommended:
-   `bot-management` or `content-management`).
+2. `bot-management` (Spec #040) production completion is active: foundation is
+   merged, and the production branch is implementing persistence, Telegram
+   workflows, lifecycle governance, settings, module enablement, provisioning,
+   search, notifications, and import/export.
 3. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
@@ -165,7 +167,7 @@ Baseline module strategy documented by Spec #036:
 | --------------------- | ------------- | ---------------- |
 | `user-management`     | Core platform | Implemented      |
 | `template-management` | Product       | Implemented      |
-| `bot-management`      | Operational   | Planned baseline |
+| `bot-management`      | Operational   | Active production completion |
 | `content-management`  | Product       | Planned baseline |
 | `notification-center` | Operational   | Planned baseline |
 | `audit-viewer`        | Operational   | Planned baseline |

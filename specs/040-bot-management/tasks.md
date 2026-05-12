@@ -34,8 +34,8 @@
 
 **Purpose**: Add module-owned persistence through repositories.
 
-- [ ] T011 Create `modules/bot-management/database/schema.prisma` for ManagedBot, BotSettingsProfile, BotModuleEnablement, BotTemplateSource, BotLifecycleEvent, BotHealthSnapshot, BotProfileImport, and BotProfileExport. FR-001 FR-006 FR-007 FR-009 FR-014 FR-015 FR-020 FR-021
-- [ ] T012 Create `modules/bot-management/repositories/bot.repository.ts` with create, find, update, archive, uniqueness, and pagination methods. FR-001 FR-011 FR-012 FR-020 SC-001 SC-004
+- [x] T011 Create `modules/bot-management/database/schema.prisma` for ManagedBot, BotSettingsProfile, BotModuleEnablement, BotTemplateSource, BotLifecycleEvent, BotHealthSnapshot, BotProfileImport, and BotProfileExport. FR-001 FR-006 FR-007 FR-009 FR-014 FR-015 FR-020 FR-021
+- [x] T012 Create `modules/bot-management/repositories/bot.repository.ts` with create, find, update, archive, uniqueness, and pagination methods. FR-001 FR-011 FR-012 FR-020 SC-001 SC-004
 - [ ] T013 [P] Create `settings-profile.repository.ts` for per-bot settings persistence. FR-006
 - [ ] T014 [P] Create `module-enablement.repository.ts` for enabled, disabled, unavailable, and blocked module states. FR-007 FR-008 FR-022 SC-009
 - [ ] T015 [P] Create `lifecycle-event.repository.ts` for append-only lifecycle history. FR-004 FR-005 SC-007
@@ -52,11 +52,11 @@
 **Independent Test**: Register a bot and view its detail screen with identity,
 status, owner, locale, module summary, template source, and health summary.
 
-- [ ] T020 [P] [US1] Write failing unit tests for `bot.service.ts` registration, duplicate detection, redaction, and detail retrieval. FR-001 FR-016 FR-017 SC-001 SC-003
-- [ ] T021 [US1] Implement `modules/bot-management/services/bot.service.ts` with register, update, get detail, list, archive, and redacted credential output. FR-001 FR-016 FR-017 FR-020 SC-001 SC-003
-- [ ] T022 [P] [US1] Create `menus/bot-menu.factory.ts` and `menus/bot-detail.factory.ts`. FR-012 FR-018 SC-006
-- [ ] T023 [P] [US1] Create `/bots` and `/new_bot` shortcuts in `commands/bots.command.ts` and `commands/new-bot.command.ts`. FR-018 SC-006
-- [ ] T024 [US1] Create callback and text handler paths for registration and detail views in `handlers/callback.handler.ts` and `handlers/text.handler.ts`. FR-001 FR-012 FR-018
+- [x] T020 [P] [US1] Write failing unit tests for `bot.service.ts` registration, duplicate detection, redaction, and detail retrieval. FR-001 FR-016 FR-017 SC-001 SC-003
+- [x] T021 [US1] Implement `modules/bot-management/services/bot.service.ts` with register, update, get detail, list, archive, and redacted credential output. FR-001 FR-016 FR-017 FR-020 SC-001 SC-003
+- [x] T022 [P] [US1] Create `menus/bot-menu.factory.ts` and `menus/bot-detail.factory.ts`. FR-012 FR-018 SC-006
+- [x] T023 [P] [US1] Create `/bots` and `/new_bot` shortcuts in `commands/bots.command.ts` and `commands/new-bot.command.ts`. FR-018 SC-006
+- [x] T024 [US1] Create callback and text handler paths for registration and detail views in `handlers/callback.handler.ts` and `handlers/text.handler.ts`. FR-001 FR-012 FR-018
 - [ ] T025 [US1] Add integration test for registration, duplicate rejection, detail view data, and credential redaction. FR-001 FR-016 FR-017 SC-001 SC-003
 
 ---

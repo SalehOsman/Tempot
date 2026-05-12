@@ -1,0 +1,154 @@
+// bot-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/040-bot-management/data-model.md
+
+model ManagedBot {
+  id               String   @id @default(cuid())
+  displayName      String   @map("display_name") @db.VarChar(120)
+  telegramUsername String   @map("telegram_username") @db.VarChar(64)
+  tokenFingerprint String   @map("token_fingerprint") @db.VarChar(255)
+  tokenRedacted    String   @map("token_redacted") @db.VarChar(255)
+  ownerId          String   @map("owner_id")
+  runtimeMode      String   @map("runtime_mode") @db.VarChar(20)
+  status           String   @default("DRAFT") @db.VarChar(20)
+  defaultLocale    String   @default("ar-EG") @map("default_locale") @db.VarChar(10)
+  defaultCountry   String   @default("EG") @map("default_country") @db.VarChar(10)
+  timezone         String   @default("Africa/Cairo") @db.VarChar(100)
+  healthStatus     String   @default("unknown") @map("health_status") @db.VarChar(20)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  createdBy        String?  @map("created_by")
+  updatedBy        String?  @map("updated_by")
+  isDeleted        Boolean  @default(false) @map("is_deleted")
+  deletedAt        DateTime? @map("deleted_at")
+  deletedBy        String?  @map("deleted_by")
+
+  settingsProfile BotSettingsProfile?
+  moduleEnablements BotModuleEnablement[]
+  templateSource BotTemplateSource?
+  lifecycleEvents BotLifecycleEvent[]
+  healthSnapshots BotHealthSnapshot[]
+  exports BotProfileExport[]
+
+  @@unique([telegramUsername, isDeleted])
+  @@unique([tokenFingerprint, isDeleted])
+  @@index([status], map: "idx_managed_bots_status")
+  @@index([ownerId], map: "idx_managed_bots_owner")
+  @@index([runtimeMode], map: "idx_managed_bots_runtime")
+  @@index([isDeleted], map: "idx_managed_bots_deleted")
+  @@map("managed_bots")
+}
+
+model BotSettingsProfile {
+  id                   String   @id @default(cuid())
+  botId                String   @unique @map("bot_id")
+  locale               String   @db.VarChar(10)
+  country              String   @db.VarChar(10)
+  timezone             String   @db.VarChar(100)
+  notificationsEnabled Boolean  @default(true) @map("notifications_enabled")
+  privacyMode          String   @default("standard") @map("privacy_mode") @db.VarChar(20)
+  featureToggles       Json     @default("{}") @map("feature_toggles")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@map("bot_settings_profiles")
+}
+
+model BotModuleEnablement {
+  id            String   @id @default(cuid())
+  botId         String   @map("bot_id")
+  moduleName    String   @map("module_name") @db.VarChar(120)
+  state         String   @db.VarChar(20)
+  blockedReason String?  @map("blocked_reason")
+  enabledBy     String?  @map("enabled_by")
+  enabledAt     DateTime? @map("enabled_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@unique([botId, moduleName])
+  @@index([moduleName], map: "idx_bot_modules_name")
+  @@index([state], map: "idx_bot_modules_state")
+  @@map("bot_module_enablements")
+}
+
+model BotTemplateSource {
+  id                   String   @id @default(cuid())
+  botId                String   @unique @map("bot_id")
+  templateId           String   @map("template_id")
+  templateVersionId    String   @map("template_version_id")
+  templateNameSnapshot String   @map("template_name_snapshot") @db.VarChar(255)
+  provisionedBy        String   @map("provisioned_by")
+  provisionedAt        DateTime @default(now()) @map("provisioned_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([templateId], map: "idx_bot_template_source_template")
+  @@map("bot_template_sources")
+}
+
+model BotLifecycleEvent {
+  id         String   @id @default(cuid())
+  botId      String   @map("bot_id")
+  fromStatus String?  @map("from_status") @db.VarChar(20)
+  toStatus   String   @map("to_status") @db.VarChar(20)
+  actorId    String   @map("actor_id")
+  reason     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId], map: "idx_bot_lifecycle_bot")
+  @@index([toStatus], map: "idx_bot_lifecycle_status")
+  @@map("bot_lifecycle_events")
+}
+
+model BotHealthSnapshot {
+  id         String   @id @default(cuid())
+  botId      String   @map("bot_id")
+  status     String   @db.VarChar(20)
+  summaryKey String   @map("summary_key") @db.VarChar(255)
+  details    Json?
+  observedAt DateTime @default(now()) @map("observed_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId, observedAt], map: "idx_bot_health_bot_observed")
+  @@index([status], map: "idx_bot_health_status")
+  @@map("bot_health_snapshots")
+}
+
+model BotProfileExport {
+  id          String   @id @default(cuid())
+  botId       String   @map("bot_id")
+  requestedBy String   @map("requested_by")
+  format      String   @db.VarChar(20)
+  artifactId  String?  @map("artifact_id")
+  status      String   @default("PENDING") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId], map: "idx_bot_exports_bot")
+  @@index([status], map: "idx_bot_exports_status")
+  @@map("bot_profile_exports")
+}
+
+model BotProfileImport {
+  id                  String   @id @default(cuid())
+  requestedBy         String   @map("requested_by")
+  sourceArtifactId    String   @map("source_artifact_id")
+  createdBotId        String?  @map("created_bot_id")
+  status              String   @default("PENDING") @db.VarChar(20)
+  validationErrors    Json?    @map("validation_errors")
+  blockedRequirements Json?    @map("blocked_requirements")
+  createdAt           DateTime @default(now()) @map("created_at")
+  completedAt         DateTime? @map("completed_at")
+
+  @@index([createdBotId], map: "idx_bot_imports_created_bot")
+  @@index([status], map: "idx_bot_imports_status")
+  @@map("bot_profile_imports")
+}

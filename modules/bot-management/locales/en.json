@@ -8,7 +8,32 @@
       "title": "Bot Management",
       "list": "Managed Bots",
       "create": "New Bot",
-      "back": "Back"
+      "back": "Back",
+      "refresh": "Refresh",
+      "previous": "Previous",
+      "next": "Next",
+      "empty": "No managed bots found. Create the first bot profile.",
+      "list_title": "Managed Bots ({count})",
+      "row": "{index}. {name} (@{username}) - {status}",
+      "lifecycle": "Lifecycle",
+      "settings": "Settings",
+      "modules": "Modules"
+    },
+    "detail": {
+      "view": "Bot: {name}\nUsername: @{username}\nStatus: {status}\nRuntime: {runtimeMode}\nOwner: {ownerId}\nLocale: {locale}\nCountry: {country}\nTimezone: {timezone}\nHealth: {health}\nCredential: {credential}"
+    },
+    "create": {
+      "prompt": {
+        "display_name": "Send the bot display name.",
+        "telegram_username": "Send the Telegram bot username without @.",
+        "token": "Send the Telegram bot token. It will be fingerprinted and redacted."
+      }
+    },
+    "health": {
+      "unknown": "Unknown",
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unhealthy": "Unhealthy"
     },
     "status": {
       "DRAFT": "Draft",
@@ -37,7 +62,11 @@
       "unauthorized": "You are not authorized for this action",
       "invalid_transition": "This lifecycle transition is not allowed",
       "missing_reason": "A reason is required for this transition",
-      "credential_redacted": "Credential values are redacted"
+      "credential_redacted": "Credential values are redacted",
+      "list_failed": "Could not load managed bots",
+      "no_user": "Could not identify the Telegram user",
+      "duplicate_username": "A managed bot with this Telegram username already exists",
+      "create_failed": "Could not create the managed bot profile"
     }
   }
 }
