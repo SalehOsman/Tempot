@@ -1,0 +1,43 @@
+{
+  "bot-management": {
+    "commands": {
+      "bots": "إدارة البوتات",
+      "new_bot": "إنشاء ملف بوت جديد"
+    },
+    "menu": {
+      "title": "إدارة البوتات",
+      "list": "البوتات المُدارة",
+      "create": "بوت جديد",
+      "back": "رجوع"
+    },
+    "status": {
+      "DRAFT": "مسودة",
+      "CONFIGURED": "مُهيأ",
+      "ACTIVE": "نشط",
+      "PAUSED": "متوقف مؤقتًا",
+      "MAINTENANCE": "صيانة",
+      "ARCHIVED": "مؤرشف"
+    },
+    "actions": {
+      "activate": "تفعيل",
+      "pause": "إيقاف مؤقت",
+      "resume": "استئناف",
+      "maintenance": "صيانة",
+      "archive": "أرشفة",
+      "export": "تصدير",
+      "import": "استيراد"
+    },
+    "notification": {
+      "lifecycle_changed": "تم تغيير حالة البوت",
+      "health_changed": "تم تغيير صحة البوت",
+      "provisioned": "تم إنشاء ملف بوت من قالب"
+    },
+    "error": {
+      "not_found": "ملف البوت غير موجود",
+      "unauthorized": "لا تملك صلاحية تنفيذ هذا الإجراء",
+      "invalid_transition": "هذا الانتقال غير مسموح",
+      "missing_reason": "سبب الانتقال مطلوب",
+      "credential_redacted": "قيم الاعتماد مخفية"
+    }
+  }
+}
