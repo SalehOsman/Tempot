@@ -1,0 +1,43 @@
+{
+  "bot-management": {
+    "commands": {
+      "bots": "Manage bots",
+      "new_bot": "Create a new bot profile"
+    },
+    "menu": {
+      "title": "Bot Management",
+      "list": "Managed Bots",
+      "create": "New Bot",
+      "back": "Back"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "CONFIGURED": "Configured",
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "MAINTENANCE": "Maintenance",
+      "ARCHIVED": "Archived"
+    },
+    "actions": {
+      "activate": "Activate",
+      "pause": "Pause",
+      "resume": "Resume",
+      "maintenance": "Maintenance",
+      "archive": "Archive",
+      "export": "Export",
+      "import": "Import"
+    },
+    "notification": {
+      "lifecycle_changed": "Bot status changed",
+      "health_changed": "Bot health changed",
+      "provisioned": "Bot profile created from template"
+    },
+    "error": {
+      "not_found": "Bot profile not found",
+      "unauthorized": "You are not authorized for this action",
+      "invalid_transition": "This lifecycle transition is not allowed",
+      "missing_reason": "A reason is required for this transition",
+      "credential_redacted": "Credential values are redacted"
+    }
+  }
+}

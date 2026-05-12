@@ -10,10 +10,10 @@
 
 **Purpose**: Establish the module shell and SpecKit traceability.
 
-- [ ] T001 Create `modules/bot-management/package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `index.ts`, and `README.md`. FR-001 SC-010
-- [ ] T002 Create `modules/bot-management/module.config.ts` and `modules/bot-management/module.manifest.ts` with selected blueprints and capability declarations. FR-001 FR-018 SC-006 SC-010
-- [ ] T003 Create `modules/bot-management/locales/ar.json` and `modules/bot-management/locales/en.json` with parity for all planned menu, error, and status keys. FR-018 SC-003 SC-006
-- [ ] T004 Create initial Starlight module documentation placeholder in `docs/product/modules/bot-management.md`. FR-001 SC-010
+- [x] T001 Create `modules/bot-management/package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `index.ts`, and `README.md`. FR-001 SC-010
+- [x] T002 Create `modules/bot-management/module.config.ts` and `modules/bot-management/module.manifest.ts` with selected blueprints and capability declarations. FR-001 FR-018 SC-006 SC-010
+- [x] T003 Create `modules/bot-management/locales/ar.json` and `modules/bot-management/locales/en.json` with parity for all planned menu, error, and status keys. FR-018 SC-003 SC-006
+- [x] T004 Create initial Starlight module documentation placeholder in `docs/product/modules/bot-management.md`. FR-001 SC-010
 
 ---
 
@@ -21,12 +21,12 @@
 
 **Purpose**: Define stable types, schemas, events, permissions, and lifecycle rules before services.
 
-- [ ] T005 [P] Create bot domain types in `modules/bot-management/types/bot.types.ts`, `lifecycle.types.ts`, `settings.types.ts`, `module-enablement.types.ts`, `import-export.types.ts`, and `navigation.types.ts`. FR-001 FR-002 FR-006 FR-007 FR-014 FR-015 FR-021
-- [ ] T006 [P] Create validation schemas in `modules/bot-management/contracts/bot-profile.schema.ts`, `settings-profile.schema.ts`, `module-enablement.schema.ts`, and `import-export.schema.ts`. FR-001 FR-006 FR-007 FR-014 FR-015 FR-016
-- [ ] T007 Create lifecycle transition contract in `modules/bot-management/contracts/lifecycle-transitions.ts` with all valid transitions and reason requirements. FR-002 FR-003 FR-004 SC-002
-- [ ] T008 [P] Create event contracts in `modules/bot-management/events/event-names.ts` and `event-payloads.ts`. FR-005 FR-019 SC-007
-- [ ] T009 Create `modules/bot-management/abilities.ts` with GUEST, USER, ADMIN, and SUPER_ADMIN permissions. FR-017
-- [ ] T010 [P] Add unit tests for schemas, lifecycle transitions, event payload types, and abilities under `modules/bot-management/tests/unit/`. FR-002 FR-003 FR-004 FR-016 FR-017 FR-019 SC-002 SC-003
+- [x] T005 [P] Create bot domain types in `modules/bot-management/types/bot.types.ts`, `lifecycle.types.ts`, `settings.types.ts`, `module-enablement.types.ts`, `import-export.types.ts`, and `navigation.types.ts`. FR-001 FR-002 FR-006 FR-007 FR-014 FR-015 FR-021
+- [x] T006 [P] Create validation schemas in `modules/bot-management/contracts/bot-profile.schema.ts`, `settings-profile.schema.ts`, `module-enablement.schema.ts`, and `import-export.schema.ts`. FR-001 FR-006 FR-007 FR-014 FR-015 FR-016
+- [x] T007 Create lifecycle transition contract in `modules/bot-management/contracts/lifecycle-transitions.ts` with all valid transitions and reason requirements. FR-002 FR-003 FR-004 SC-002
+- [x] T008 [P] Create event contracts in `modules/bot-management/events/event-names.ts` and `event-payloads.ts`. FR-005 FR-019 SC-007
+- [x] T009 Create `modules/bot-management/abilities.ts` with GUEST, USER, ADMIN, and SUPER_ADMIN permissions. FR-017
+- [x] T010 [P] Add unit tests for schemas, lifecycle transitions, event payload types, and abilities under `modules/bot-management/tests/unit/`. FR-002 FR-003 FR-004 FR-016 FR-017 FR-019 SC-002 SC-003
 
 ---
 
