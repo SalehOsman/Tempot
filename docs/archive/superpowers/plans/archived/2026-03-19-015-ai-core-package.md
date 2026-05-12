@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational ai-core package as an abstraction layer for various AI providers (Gemini, OpenAI) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational ai-core package as an abstraction layer for various AI providers (Gemini, OpenAI) as per Architecture Spec Blueprint.
 
 **Architecture:** A provider-agnostic `AIService` that delegates to specialized drivers via the `Vercel AI SDK`. It provides high-level services for classification, extraction, and summarization. It leverages the centralized `DrizzleVectorRepository` from `@tempot/database` for vector storage, implements a `CircuitBreaker` for resilience, and uses `cache-manager` to automatically cache identical AI responses.
 

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the functional storage-engine package for unified file management and attachment tracking across multiple providers (S3, Drive, Local) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the functional storage-engine package for unified file management and attachment tracking across multiple providers (S3, Drive, Local) as per Architecture Spec Blueprint.
 
 **Architecture:** A provider-agnostic `StorageService` that delegates to specialized drivers (`LocalProvider`, `S3Provider`, `DriveProvider`) via a common `StorageProvider` interface. It automatically persists metadata to the `Attachment` table in PostgreSQL and integrates with `event-bus` for lifecycle events.
 

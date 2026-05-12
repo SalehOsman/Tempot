@@ -21,7 +21,7 @@ point instead of browsing `docs/archive/` directly.
 | Project status                 | `docs/ROADMAP.md`                                  |
 | Constitution                   | `.specify/memory/constitution.md`                          |
 | AI/tool role framework         | `.specify/memory/roles.md`                                 |
-| Architecture specification     | `docs/architecture/tempot_v11_final.md`                         |
+| Architecture specification     | `docs/architecture/tempot_architecture.md`                         |
 | Development workflow           | `docs/developer/workflow-guide.md`                 |
 | AI onboarding context          | `docs/ONBOARDING.md`                                       |
 | Architecture knowledge graph   | `docs/developer/project-knowledge-graph.md`        |

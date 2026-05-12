@@ -169,7 +169,7 @@ Baseline module strategy documented by Spec #036:
 
 Current active references:
 
-- Architecture spec: `docs/architecture/tempot_v11_final.md`
+- Architecture spec: `docs/architecture/tempot_architecture.md`
 - ADR index: `docs/architecture/adr/README.md`
 - Boundary audit: `docs/architecture/boundaries/`
 - AI RAG methodology: `docs/architecture/ai-rag-methodology.md`

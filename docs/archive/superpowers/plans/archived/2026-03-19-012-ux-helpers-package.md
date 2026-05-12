@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational ux-helpers package for standardized messages, buttons, and UI components as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational ux-helpers package for standardized messages, buttons, and UI components as per Architecture Spec Blueprint.
 
 **Architecture:** A collection of utility classes and factory functions that wrap `grammY` types to enforce design consistency. It includes a `MessageFactory` for status-based responses (Success, Error, etc.), a `KeyboardBuilder` that automates row/column layout based on label length, and specialized helpers for pagination, confirmations, and title formatting.
 

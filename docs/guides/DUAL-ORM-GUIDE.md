@@ -1,6 +1,6 @@
 # Dual ORM Guide — Prisma + Drizzle
 
-> Reference: Spec v11, Section 17.5 — ADR-017
+> Reference: Architecture Spec, Section 17.5 — ADR-017
 
 ---
 

@@ -38,10 +38,10 @@
   Documentation fixes:
   - Update AI SDK version references from 4.x to 6.x across CLAUDE.md, README.md, plan.md
   - Fix toggle default description (enabled by default, not disabled)
-  - Add ADR-037 references to README.md and tempot_v11_final.md
+  - Add ADR-037 references to README.md and tempot_architecture.md
   - Update spec.md HNSW index code to halfvec expression indexing
   - Remove @langfuse/otel references from plan.md
-  - Update tempot_v11_final.md §17: directory structure, remove cohere provider, dims 1536→3072, halfvec note
+  - Update tempot_architecture.md §17: directory structure, remove cohere provider, dims 1536→3072, halfvec note
 
 - 9c9b244: feat(bot-server): implement production bot-server application
 

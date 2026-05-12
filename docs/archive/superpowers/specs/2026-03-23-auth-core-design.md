@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-23
 **Package**: `@tempot/auth-core`
-**Context**: Foundational authorization package using CASL for RBAC and Scoped Authorization as per Architecture Spec v11 Blueprint. Designed for parallel execution by subagents.
+**Context**: Foundational authorization package using CASL for RBAC and Scoped Authorization as per Architecture Spec Blueprint. Designed for parallel execution by subagents.
 
 ## 1. Architectural Goals
 

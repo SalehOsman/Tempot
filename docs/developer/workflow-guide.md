@@ -26,7 +26,7 @@ an Executor prompt or grants direct editing permission.
 | Role framework    | `.specify/memory/roles.md`                             |
 | Constitution      | `.specify/memory/constitution.md`                      |
 | Roadmap           | `docs/ROADMAP.md`                              |
-| Architecture spec | `docs/architecture/tempot_v11_final.md`                     |
+| Architecture spec | `docs/architecture/tempot_architecture.md`                     |
 | Package checklist | `docs/developer/package-creation-checklist.md` |
 | Module checklist  | `docs/developer/new-module-checklist.md`       |
 | Module catalog    | `docs/developer/module-development-catalog.md` |

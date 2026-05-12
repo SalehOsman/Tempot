@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational input-engine package for dynamic multi-step conversations and form handling using grammY Conversations and Zod as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational input-engine package for dynamic multi-step conversations and form handling using grammY Conversations and Zod as per Architecture Spec Blueprint.
 
 **Architecture:** A high-level `FormRunner` that interprets a `Zod`-based `FormSchema`. It leverages `grammY Conversations` to manage the interaction state machine, uses `i18n-core` for all prompts, and implements `Partial Save` to Redis after each step. It explicitly uses `@tempot/session-manager` to access user context.
 

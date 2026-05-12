@@ -1,6 +1,6 @@
 # Local Data Protection Regulations
 
-> Reference: Spec v11, Section 31 — Privacy Module
+> Reference: Architecture Spec, Section 31 — Privacy Module
 
 ---
 

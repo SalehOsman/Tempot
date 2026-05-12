@@ -5,7 +5,7 @@
 **Updated**: 2026-04-05
 **Status**: Complete
 **Input**: User description: "Build the module-registry package that provides runtime auto-discovery and validation of business modules at bot startup. It scans the modules/ directory, loads each module's configuration, validates structure and configuration, enforces spec gate and dependency requirements, and provides the validated module registry to the bot server for command registration."
-**Architecture Reference**: Section 15 of `docs/tempot_v11_final.md` (Module System)
+**Architecture Reference**: Section 15 of `docs/tempot_architecture.md` (Module System)
 **ADR Reference**: None (no architectural alternatives — module system is defined in the architecture spec)
 
 ## User Scenarios & Testing _(mandatory)_

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational cms-engine package for dynamic translation management and UI-driven content overrides as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational cms-engine package for dynamic translation management and UI-driven content overrides as per Architecture Spec Blueprint.
 
 **Architecture:** Extends `i18n-core` with a multi-tier fallback strategy (Redis -> Postgres -> Static JSON). It uses a custom `i18next` backend to intercept translation requests, checks for database overrides, caches results in Redis, and listens for `event-bus` invalidation events to ensure real-time updates across all nodes. Includes startup sync from JSON and rollback capabilities.
 

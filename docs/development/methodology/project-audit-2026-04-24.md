@@ -71,8 +71,8 @@ Root docs still contain broken internal links due archive path migration.
 
 Broken links identified:
 
-- In `README.md`: links to `docs/tempot_v11_final.md`, `docs/developer/*`, `docs/architecture/adr/`, `docs/guides/UX-STYLE-GUIDE.md` (actual files now live under `docs/archive/*` for these items).
-- In `CONTRIBUTING.md`: links to `docs/tempot_v11_final.md` and `docs/developer/workflow-guide.md` are stale.
+- In `README.md`: links to `docs/tempot_architecture.md`, `docs/developer/*`, `docs/architecture/adr/`, `docs/guides/UX-STYLE-GUIDE.md` (actual files now live under `docs/archive/*` for these items).
+- In `CONTRIBUTING.md`: links to `docs/tempot_architecture.md` and `docs/developer/workflow-guide.md` are stale.
 
 This conflicts with the constitution's Code-Documentation Parity rule and causes onboarding friction.
 

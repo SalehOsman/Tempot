@@ -5,7 +5,7 @@
 
 ## Context
 
-The Tempot monorepo has 10+ packages organized in tiers. Without automated enforcement, developers could accidentally create domain-to-domain imports that violate the architectural boundaries defined in the v11 spec. Manual code review catches these violations but is error-prone and doesn't scale. The project constitution (Rule XV) requires event-driven communication between modules, which implies no direct imports between domain packages.
+The Tempot monorepo has 10+ packages organized in tiers. Without automated enforcement, developers could accidentally create domain-to-domain imports that violate the architectural boundaries defined in the architecture spec. Manual code review catches these violations but is error-prone and doesn't scale. The project constitution (Rule XV) requires event-driven communication between modules, which implies no direct imports between domain packages.
 
 ## Decision
 

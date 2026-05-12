@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational notifier package for centralized, scheduled, and bulk notifications using BullMQ as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational notifier package for centralized, scheduled, and bulk notifications using BullMQ as per Architecture Spec Blueprint.
 
 **Architecture:** A unified `NotifierService` that acts as a producer, adding notification jobs to a BullMQ `notifications` queue. A specialized `NotificationWorker` consumes these jobs, enforces Telegram's rate limits (30 msg/sec), handles localized templates via `i18n-core`, and updates user statuses upon failure (e.g., if blocked).
 

@@ -1,6 +1,6 @@
 # License Audit
 
-> Reference: Spec v11, Section 35
+> Reference: Architecture Spec, Section 35
 
 ---
 

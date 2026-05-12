@@ -1,6 +1,6 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
+import { ModuleBaseRepository } from './module-base.repository.js';
 import type {
   Category,
   CreateCategoryInput,
@@ -8,7 +8,7 @@ import type {
 } from '../types/category.types.js';
 import { MAX_CATEGORY_DEPTH } from '../types/category.types.js';
 
-export class CategoryRepository extends BaseRepository<Category> {
+export class CategoryRepository extends ModuleBaseRepository<Category> {
   protected moduleName = 'template-management';
   protected entityName = 'category';
 

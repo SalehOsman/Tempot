@@ -27,7 +27,7 @@ monorepo.
 
 - Constitution: `.specify/memory/constitution.md`
 - Role framework: `.specify/memory/roles.md`
-- Architecture spec: `docs/architecture/tempot_v11_final.md`
+- Architecture spec: `docs/architecture/tempot_architecture.md`
 - Workflow guide: `docs/developer/workflow-guide.md`
 - Roadmap: `docs/ROADMAP.md`
 - Documentation map: `docs/README.md`

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational search-engine package for advanced filtering and semantic search as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational search-engine package for advanced filtering and semantic search as per Architecture Spec Blueprint.
 
 **Architecture:** A unified `SearchService` that abstracts relational search (via a dynamic Prisma `where` builder) and semantic search (via `ai-core` embeddings and `pgvector`). It manages search state (pagination, filters) in Redis via `cache-manager` and provides a reusable `SearchMenu` component using `@grammyjs/menu` and a `SearchableList` field for the Input Engine.
 

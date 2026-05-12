@@ -120,4 +120,4 @@ Before using generated onboarding output as official docs, review it manually ag
 - `.specify/memory/constitution.md`
 - `.specify/memory/roles.md`
 - `docs/ROADMAP.md`
-- `docs/architecture/tempot_v11_final.md`
+- `docs/architecture/tempot_architecture.md`

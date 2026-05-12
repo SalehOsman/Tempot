@@ -3757,10 +3757,10 @@
       "complexity": "moderate"
     },
     {
-      "id": "document:docs/architecture/tempot_v11_final.md",
+      "id": "document:docs/architecture/tempot_architecture.md",
       "type": "document",
-      "name": "tempot_v11_final.md",
-      "filePath": "docs/architecture/tempot_v11_final.md",
+      "name": "tempot_architecture.md",
+      "filePath": "docs/architecture/tempot_architecture.md",
       "summary": "Architecture source document for Tempot.",
       "tags": ["documentation", "governance"],
       "complexity": "moderate"
@@ -25187,7 +25187,7 @@
         "document:.specify/memory/constitution.md",
         "document:.specify/memory/roles.md",
         "document:docs/ROADMAP.md",
-        "document:docs/architecture/tempot_v11_final.md",
+        "document:docs/architecture/tempot_architecture.md",
         "document:docs/developer/module-development-catalog.md",
         "document:docs/developer/understand-anything-workflow.md",
         "concept:strict-typescript",

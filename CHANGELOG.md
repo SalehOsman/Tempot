@@ -84,7 +84,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 - Minimal `bot-server` for connection testing (grammY only, no DB required)
 - `docker-compose.yml` with PostgreSQL (pgvector) + Redis and health checks
-- `.env.example` with all v11 Spec variables across 7 sections
+- `.env.example` with all Architecture Spec variables across 7 sections
 - `.gitattributes` for consistent LF line endings across platforms
 - `CONTRIBUTING.md` — mandatory 11-step contribution workflow
 - `SECURITY.md` — vulnerability reporting and security architecture
@@ -149,7 +149,7 @@ Fixes: Rule I / LXX (TypeScript Strict Mode) violations
 
 ---
 
-> **Note:** Tempot is currently in `v0.x.x` pre-release phase. The "v11" in `tempot_v11_final.md` refers to the 11th iteration of the Architecture Specification Document, not the software version.
+> **Note:** Tempot is currently in `v0.x.x` pre-release phase.
 
 ---
 

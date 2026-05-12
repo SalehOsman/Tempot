@@ -157,3 +157,141 @@ model Setting {
 //
 //   @@index([isDeleted])
 // }
+
+// From ..\..\modules\template-management\database\schema.prisma
+// template-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/039-template-management/data-model.md
+
+// Models for this module are merged into the root Prisma schema at build time.
+// This file serves as the module-level schema reference and validator gate.
+
+model Template {
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(255)
+  description    String   @db.Text
+  slug           String   @db.VarChar(255)
+  status         String   @default("DRAFT") @db.VarChar(20)
+  content        Json     @default("{}")
+  categoryId     String?  @map("category_id")
+  authorId       String   @map("author_id")
+  clonedFrom     String?  @map("cloned_from")
+  language       String   @default("ar") @db.VarChar(10)
+  usageCount     Int      @default(0) @map("usage_count")
+  ratingAvg      Decimal  @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount    Int      @default(0) @map("rating_count")
+  currentVersion String?  @map("current_version") @db.VarChar(20)
+  isOfficial     Boolean  @default(false) @map("is_official")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isDeleted      Boolean  @default(false) @map("is_deleted")
+  deletedAt      DateTime? @map("deleted_at")
+  deletedBy      String?  @map("deleted_by")
+
+  category      Category?          @relation(fields: [categoryId], references: [id])
+  sourceTemplate Template?         @relation("TemplateClone", fields: [clonedFrom], references: [id])
+  clones        Template[]         @relation("TemplateClone")
+  versions      TemplateVersion[]
+  tags          TemplateTag[]
+  ratings       TemplateRating[]
+  subscriptions TemplateSubscription[]
+
+  @@index([status], map: "idx_templates_status")
+  @@index([authorId], map: "idx_templates_author")
+  @@index([categoryId], map: "idx_templates_category")
+  @@index([slug], map: "idx_templates_slug")
+  @@index([ratingAvg(sort: Desc)], map: "idx_templates_rating")
+  @@index([usageCount(sort: Desc)], map: "idx_templates_usage")
+  @@map("templates")
+}
+
+model TemplateVersion {
+  id            String   @id @default(cuid())
+  templateId    String   @map("template_id")
+  version       String   @db.VarChar(20)
+  content       Json
+  metadata      Json
+  changeSummary String?  @map("change_summary") @db.Text
+  publishedBy   String   @map("published_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, version])
+  @@index([templateId], map: "idx_versions_template")
+  @@map("template_versions")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  nameAr    String   @map("name_ar") @db.VarChar(255)
+  nameEn    String   @map("name_en") @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  icon      String?  @db.VarChar(10)
+  parentId  String?  @map("parent_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  depth     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+  templates Template[]
+
+  @@index([parentId], map: "idx_categories_parent")
+  @@map("categories")
+}
+
+model Tag {
+  id         String   @id @default(cuid())
+  name       String   @unique @db.VarChar(100)
+  slug       String   @unique @db.VarChar(100)
+  usageCount Int      @default(0) @map("usage_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  templates TemplateTag[]
+
+  @@map("tags")
+}
+
+model TemplateTag {
+  templateId String @map("template_id")
+  tagId      String @map("tag_id")
+
+  template Template @relation(fields: [templateId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([templateId, tagId])
+  @@index([tagId], map: "idx_template_tags_tag")
+  @@map("template_tags")
+}
+
+model TemplateRating {
+  id         String   @id @default(cuid())
+  templateId String   @map("template_id")
+  userId     String   @map("user_id")
+  stars      Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, userId])
+  @@index([templateId], map: "idx_ratings_template")
+  @@map("template_ratings")
+}
+
+model TemplateSubscription {
+  id         String   @id @default(cuid())
+  templateId String   @map("template_id")
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, userId])
+  @@index([templateId], map: "idx_subscriptions_template")
+  @@index([userId], map: "idx_subscriptions_user")
+  @@map("template_subscriptions")
+}

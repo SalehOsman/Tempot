@@ -5,7 +5,7 @@
 **Updated**: 2026-04-05
 **Status**: Complete
 **Input**: User description: "Build the settings package that provides a hybrid configuration system — static .env settings for sensitive/structural config, dynamic database settings for runtime-changeable operational config."
-**Architecture Reference**: Section 11 of `docs/tempot_v11_final.md`
+**Architecture Reference**: Section 11 of `docs/tempot_architecture.md`
 **ADR Reference**: ADR-007 (Hybrid Settings Approach)
 
 ## User Scenarios & Testing _(mandatory)_

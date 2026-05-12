@@ -1,6 +1,6 @@
 # Testing Strategy — Extended Guide
 
-> Reference: Spec v11, Section 24 — Constitution Rules XXXIV–XXXVIII
+> Reference: Architecture Spec, Section 24 — Constitution Rules XXXIV–XXXVIII
 
 ---
 

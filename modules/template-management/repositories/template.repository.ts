@@ -1,4 +1,3 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import type {
@@ -7,8 +6,9 @@ import type {
   TemplateSearchResult,
 } from '../types/template.types.js';
 import { TemplateStatus } from '../types/template.types.js';
+import { ModuleBaseRepository } from './module-base.repository.js';
 
-export class TemplateRepository extends BaseRepository<Template> {
+export class TemplateRepository extends ModuleBaseRepository<Template> {
   protected moduleName = 'template-management';
   protected entityName = 'template';
 

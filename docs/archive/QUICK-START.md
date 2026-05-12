@@ -1,6 +1,6 @@
 # Quick Start — Get Running in 10 Minutes
 
-This guide gets you to a running Tempot bot as fast as possible. For the full architecture and methodology, see [tempot_v11_final.md](tempot_v11_final.md).
+This guide gets you to a running Tempot bot as fast as possible. For the full architecture and methodology, see [tempot_architecture.md](tempot_architecture.md).
 
 ---
 
@@ -112,8 +112,8 @@ pnpm docker:reset
 
 ## Next Steps
 
-- Read the [Architecture Spec](tempot_v11_final.md) — the authoritative reference
+- Read the [Architecture Spec](tempot_architecture.md) — the authoritative reference
 - Read the [Project Constitution](../.specify/memory/constitution.md) — project governing rules
 - Read the [Workflow Guide](developer/workflow-guide.md) — SpecKit + Superpowers methodology
 - Read the [Roadmap](ROADMAP.md) — current project status
-- Set up your AI development tool (Claude Code or Gemini CLI) per [Section 22.8](tempot_v11_final.md)
+- Set up your AI development tool (Claude Code or Gemini CLI) per [Section 22.8](tempot_architecture.md)

@@ -93,7 +93,7 @@ Start here:
 - [Development Guide](docs/development/README.md)
 - [Workflow Guide](docs/developer/workflow-guide.md)
 - [Roadmap](docs/ROADMAP.md)
-- [Architecture Spec](docs/architecture/tempot_v11_final.md)
+- [Architecture Spec](docs/architecture/tempot_architecture.md)
 - [ADR Index](docs/architecture/adr/README.md)
 
 ## Quality Gates

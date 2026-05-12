@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational session-manager package using a dual-layer strategy (Redis + Postgres) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational session-manager package using a dual-layer strategy (Redis + Postgres) as per Architecture Spec Blueprint.
 
 **Architecture:** Use cache-manager for Redis fast access (<2ms) and BullMQ + event-bus to asynchronously sync session states to Postgres. Utilize Optimistic Concurrency Control (OCC) to handle multiple rapid messages.
 

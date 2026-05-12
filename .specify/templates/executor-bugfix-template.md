@@ -142,7 +142,7 @@ Exit 0: continue. Exit 1: fix or justify. Exit 2: BLOCKED.
 - `docs/ROADMAP.md` — update "Last updated" date and "Next Action" section (Rule LXXXIX)
 - `docs/architecture/adr/README.md` — if a new ADR was created, add its row to the index
 - `CLAUDE.md` — if a new dependency was added, update the tech stack table
-- `docs/architecture/tempot_v11_final.md` — if the fix changed architectural patterns or documented guarantees
+- `docs/architecture/tempot_architecture.md` — if the fix changed architectural patterns or documented guarantees
 - `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
 
 **D. Changeset** — Create a changeset:

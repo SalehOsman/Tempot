@@ -30,7 +30,7 @@ path.
 | Area | Canonical Path |
 | ---- | -------------- |
 | Roadmap | `docs/ROADMAP.md` |
-| Architecture spec | `docs/architecture/tempot_v11_final.md` |
+| Architecture spec | `docs/architecture/tempot_architecture.md` |
 | ADR index and ADRs | `docs/architecture/adr/` |
 | Boundary architecture docs | `docs/architecture/boundaries/` |
 | Architecture methodology and SaaS docs | `docs/architecture/` |
@@ -49,7 +49,7 @@ The following legacy archive areas contain pointer files for migrated documents:
 | Legacy Area | Canonical Target |
 | ----------- | ---------------- |
 | `docs/archive/ROADMAP.md` | `docs/ROADMAP.md` |
-| `docs/archive/tempot_v11_final.md` | `docs/architecture/tempot_v11_final.md` |
+| `docs/archive/tempot_architecture.md` | `docs/architecture/tempot_architecture.md` |
 | `docs/archive/architecture/adr/` | `docs/architecture/adr/` |
 | `docs/archive/architecture/boundaries/` | `docs/architecture/boundaries/` |
 | `docs/archive/developer/` active guides | `docs/developer/` |

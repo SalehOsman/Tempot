@@ -1,6 +1,6 @@
 # Security Operations
 
-> Reference: Spec v11, Section 20 — SECURITY.md
+> Reference: Architecture Spec, Section 20 — SECURITY.md
 
 ---
 

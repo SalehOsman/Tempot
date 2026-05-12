@@ -1,6 +1,6 @@
 # Disaster Recovery Plan
 
-> Reference: Spec v11, Section 18 and 26
+> Reference: Architecture Spec, Section 18 and 26
 
 ---
 

@@ -4,7 +4,7 @@
 **Feature Branch**: `009-regional-engine-package`
 **Created**: 2026-03-25
 **Status**: Approved Design
-**Architecture Reference**: Section 11.3 of `docs/tempot_v11_final.md`
+**Architecture Reference**: Section 11.3 of `docs/tempot_architecture.md`
 **Spec Artifacts**: `specs/009-regional-engine-package/{spec,plan,tasks}.md`
 
 ---

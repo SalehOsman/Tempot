@@ -27,7 +27,7 @@
 أنا أعمل على مشروع Tempot — Enterprise Telegram bot framework بـ TypeScript Strict Mode.
 
 المرجع الأعلى: constitution.md في .specify/memory/ (87 قاعدة).
-المواصفات المعمارية: docs/tempot_v11_final.md (v11.0).
+المواصفات المعمارية: docs/tempot_architecture.md.
 خارطة الطريق: docs/ROADMAP.md
 
 المنهجية:

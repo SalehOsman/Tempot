@@ -4,8 +4,8 @@
 **Created**: 2026-03-19  
 **Updated**: 2026-03-25  
 **Status**: Complete  
-**Input**: User description: "Establish the functional regional-engine package for managing timezones, currencies, and geographical data as per Architecture Spec v11 Blueprint."  
-**Architecture Reference**: Section 11.3 of `docs/tempot_v11_final.md`
+**Input**: User description: "Establish the functional regional-engine package for managing timezones, currencies, and geographical data as per Architecture Spec Blueprint."
+**Architecture Reference**: Section 11.3 of `docs/tempot_architecture.md`
 
 ## User Scenarios & Testing _(mandatory)_
 

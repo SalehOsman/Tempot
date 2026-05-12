@@ -5,7 +5,7 @@
 **Updated**: 2026-04-05
 **Status**: Complete
 **Input**: User description: "Build the bot-server application — the main entry point that assembles all infrastructure packages and business modules into a running Telegram bot with an HTTP server."
-**Architecture Reference**: Sections 15.7, 20, 25.3, 25.4, 26.2, 28, 30 of `docs/tempot_v11_final.md`
+**Architecture Reference**: Sections 15.7, 20, 25.3, 25.4, 26.2, 28, 30 of `docs/tempot_architecture.md`
 **ADR Reference**: ADR-020 (input sanitization + bot-side rate limiting)
 
 ## User Scenarios & Testing _(mandatory)_

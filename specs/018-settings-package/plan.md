@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement the `@tempot/settings` package — a hybrid configuration system providing typed access to static environment variables (validated at startup) and dynamic database settings (CRUD with caching and event-driven updates), as specified in Architecture Spec v11 Section 11.1–11.2.
+**Goal:** Implement the `@tempot/settings` package — a hybrid configuration system providing typed access to static environment variables (validated at startup) and dynamic database settings (CRUD with caching and event-driven updates), as specified in Architecture Spec Section 11.1–11.2.
 
 **Architecture:** A `SettingsService` facade that composes two sub-services: `StaticSettingsLoader` (reads and validates `.env` via zod at startup) and `DynamicSettingsService` (CRUD operations on a `Setting` Prisma model with cache-manager caching via `@tempot/shared` CacheService and event emission via `@tempot/event-bus`). The package is non-optional — no toggle guard.
 

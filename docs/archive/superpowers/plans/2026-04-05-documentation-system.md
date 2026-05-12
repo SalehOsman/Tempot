@@ -72,7 +72,7 @@ docs/
 │   ├── README.md                 # Zero-deletion policy notice
 │   ├── QUICK-START.md
 │   ├── ROADMAP.md
-│   ├── tempot_v11_final.md
+│   ├── tempot_architecture.md
 │   ├── Tempot_Logo.png
 │   ├── Tempot_Logo_O.png
 │   ├── adr/
@@ -153,7 +153,7 @@ Create `docs/archive/` and `git mv` every top-level item in `docs/` to `docs/arc
 mkdir docs/archive
 git mv docs/QUICK-START.md docs/archive/QUICK-START.md
 git mv docs/ROADMAP.md docs/archive/ROADMAP.md
-git mv docs/tempot_v11_final.md docs/archive/tempot_v11_final.md
+git mv docs/tempot_architecture.md docs/archive/tempot_architecture.md
 git mv docs/Tempot_Logo.png docs/archive/Tempot_Logo.png
 git mv docs/Tempot_Logo_O.png docs/archive/Tempot_Logo_O.png
 git mv docs/adr docs/archive/adr

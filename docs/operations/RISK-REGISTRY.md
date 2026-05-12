@@ -1,6 +1,6 @@
 # Risk Registry
 
-> Reference: Spec v11, Section 26.3
+> Reference: Architecture Spec, Section 26.3
 > 24 identified risks with probability, impact, and mitigation plans.
 
 ---

@@ -4,7 +4,7 @@
 **Created**: 2026-04-05
 **Status**: Complete
 **Input**: User description: "Comprehensive documentation platform for Tempot using Starlight (Astro), serving 4 audiences with AI-generated content and RAG integration"
-**Architecture Reference**: Section 29 of `docs/tempot_v11_final.md`
+**Architecture Reference**: Section 29 of `docs/tempot_architecture.md`
 **ADR Reference**: ADR-038 (Starlight over Docusaurus for Documentation Platform)
 
 ---
@@ -176,7 +176,7 @@ Default re-indexing is incremental: file content hashes are stored alongside vec
 
 ### D11. Zero-Deletion Archive Policy
 
-All existing documentation in `docs/` (tempot_v11_final.md, ROADMAP.md, architecture/adr/, developer/) is moved to `docs/archive/` and preserved as read-only historical reference. Nothing is deleted — ever. A `docs/archive/README.md` explains that this is archived reference material. New documentation in `docs/product/` and `docs/development/` may reference archived content via relative links. ADRs in the archive remain as historical record; new ADRs are created in `docs/development/adr/`.
+All existing documentation in `docs/` (tempot_architecture.md, ROADMAP.md, architecture/adr/, developer/) is moved to `docs/archive/` and preserved as read-only historical reference. Nothing is deleted — ever. A `docs/archive/README.md` explains that this is archived reference material. New documentation in `docs/product/` and `docs/development/` may reference archived content via relative links. ADRs in the archive remain as historical record; new ADRs are created in `docs/development/adr/`.
 
 ### D12. Development vs Product Documentation Separation
 

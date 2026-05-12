@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational document-engine package for generating localized PDF and Excel documents (Arabic/RTL support) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational document-engine package for generating localized PDF and Excel documents (Arabic/RTL support) as per Architecture Spec Blueprint.
 
 **Architecture:** A decoupled service that listens for `document.export.requested` events, adds a job to a BullMQ `exports` queue, and uses specialized generators (`PDFGenerator` via `pdfmake`, `ExcelGenerator` via `ExcelJS`) to produce files. Results are automatically uploaded to the `storage-engine`, and a `document.export.completed` event is emitted.
 

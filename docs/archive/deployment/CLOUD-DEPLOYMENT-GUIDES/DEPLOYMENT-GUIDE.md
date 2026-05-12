@@ -1,6 +1,6 @@
 # Cloud Deployment Guide
 
-> Reference: Spec v11, Section 25
+> Reference: Architecture Spec, Section 25
 
 ---
 

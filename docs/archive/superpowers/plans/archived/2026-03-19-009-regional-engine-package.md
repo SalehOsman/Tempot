@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data (Arabic/Egypt primary) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational regional-engine package for managing localized timezones, currencies, and geographical data (Arabic/Egypt primary) as per Architecture Spec Blueprint.
 
 **Architecture:** A unified `RegionalService` that provides utilities for date/time manipulation (via `dayjs`), currency/number formatting (via `Intl` API), and geographical data retrieval (from bundled JSON or Redis). It integrates with `session-manager` to automatically determine user-specific regional settings, and provides a UI helper for geo-selection in the Input Engine.
 

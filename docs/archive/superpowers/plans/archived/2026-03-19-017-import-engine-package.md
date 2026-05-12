@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Establish the foundational import-engine package for bulk data processing and validation (Excel/CSV) as per Architecture Spec v11 Blueprint.
+**Goal:** Establish the foundational import-engine package for bulk data processing and validation (Excel/CSV) as per Architecture Spec Blueprint.
 
 **Architecture:** A decoupled service that listens for `import.file.received` events, adds a job to a BullMQ `imports` queue, and uses a `StreamingParser` (via `exceljs` or `csv-parse`) to process files in chunks. Each row is validated against a module-provided `Zod` schema. Valid rows are emitted as `import.batch.ready` events, while invalid rows are collected to generate an error report via `document-engine`.
 

@@ -46,7 +46,7 @@ export default defineConfig({
    ```bash
    git mv docs/QUICK-START.md docs/archive/QUICK-START.md
    git mv docs/ROADMAP.md docs/archive/ROADMAP.md
-   git mv docs/tempot_v11_final.md docs/archive/tempot_v11_final.md
+   git mv docs/tempot_architecture.md docs/archive/tempot_architecture.md
    git mv docs/Tempot_Logo.png docs/archive/Tempot_Logo.png
    git mv docs/Tempot_Logo_O.png docs/archive/Tempot_Logo_O.png
    git mv docs/adr docs/archive/adr
@@ -256,7 +256,7 @@ defineProject({
 
 | File                              | Old Reference                                  | New Reference                                                                 |
 | --------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| `CLAUDE.md`                       | `docs/tempot_v11_final.md`                     | `docs/archive/tempot_v11_final.md`                                            |
+| `CLAUDE.md`                       | `docs/tempot_architecture.md`                     | `docs/archive/tempot_architecture.md`                                            |
 | `CLAUDE.md`                       | `docs/developer/workflow-guide.md`             | `docs/archive/developer/workflow-guide.md`                                    |
 | `CLAUDE.md`                       | `docs/developer/package-creation-checklist.md` | `docs/archive/developer/package-creation-checklist.md`                        |
 | `CLAUDE.md`                       | `docs/ROADMAP.md`                              | `docs/archive/ROADMAP.md` + `docs/development/ROADMAP.md` (active)            |

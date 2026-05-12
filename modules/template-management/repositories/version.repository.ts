@@ -1,6 +1,6 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
+import { ModuleBaseRepository } from './module-base.repository.js';
 import type {
   TemplateVersion,
   TemplateContent,
@@ -16,7 +16,7 @@ export interface CreateVersionInput {
   publishedBy: string;
 }
 
-export class VersionRepository extends BaseRepository<TemplateVersion> {
+export class VersionRepository extends ModuleBaseRepository<TemplateVersion> {
   protected moduleName = 'template-management';
   protected entityName = 'templateVersion';
 

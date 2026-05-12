@@ -152,7 +152,7 @@ follow its instructions exactly.
    - `docs/ROADMAP.md` — ALWAYS (Rule LXXXIX). Update "Last updated" date and "Next Action" section
    - `docs/architecture/adr/README.md` — if any new ADR was created, add its row to the index table
    - `CLAUDE.md` — if any new dependency was added to the project, update the tech stack table
-   - `docs/architecture/tempot_v11_final.md` — if architectural patterns, guarantees, or ADR listings changed
+   - `docs/architecture/tempot_architecture.md` — if architectural patterns, guarantees, or ADR listings changed
    - `docs/developer/package-creation-checklist.md` — if a new quality gate was introduced
    - `docs/developer/workflow-guide.md` — if workflow steps changed
 

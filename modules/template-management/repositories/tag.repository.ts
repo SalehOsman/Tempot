@@ -1,9 +1,9 @@
-import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import type { Tag } from '../types/category.types.js';
+import { ModuleBaseRepository } from './module-base.repository.js';
 
-export class TagRepository extends BaseRepository<Tag> {
+export class TagRepository extends ModuleBaseRepository<Tag> {
   protected moduleName = 'template-management';
   protected entityName = 'tag';
 

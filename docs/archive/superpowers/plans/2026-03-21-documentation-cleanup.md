@@ -42,7 +42,7 @@ git commit -m "docs: add missing ADRs 026-029 and update index"
 - Modify: `README.md` (Documentation links)
 - Modify: `docs/guides/RTL-GUIDELINES.md` (Mark as deprecated/legacy)
 
-- [ ] **Step 1: Create unified UX guide with rules for Status Messages, Button Standards, RTL Pairing, and Edit Message Golden Rule. Use `docs/guides/RTL-GUIDELINES.md`, Constitution (LXIV-LXIX), and `tempot_v11_final.md` as sources.**
+- [ ] **Step 1: Create unified UX guide with rules for Status Messages, Button Standards, RTL Pairing, and Edit Message Golden Rule. Use `docs/guides/RTL-GUIDELINES.md`, Constitution (LXIV-LXIX), and `tempot_architecture.md` as sources.**
 - [ ] **Step 2: Update `docs/guides/RTL-GUIDELINES.md` to point to the new UX Style Guide and mark as legacy.**
 - [ ] **Step 3: Update `README.md` to link to the new UX Style Guide.**
 - [ ] **Step 4: Commit UX consolidation**
@@ -59,11 +59,11 @@ git commit -m "docs: consolidate UX/UI rules into unified style guide"
 **Files:**
 
 - Modify: `docs/developer/workflow-guide.md`
-- Modify: `docs/tempot_v11_final.md` (Arabic context preservation)
+- Modify: `docs/tempot_architecture.md` (Arabic context preservation)
 - Modify: `docs/guides/TESTING-STRATEGY-EXTENDED.md`
 
 - [ ] **Step 1: Search and replace `/speckit.tasks` and `/speckit.implement` with `superpowers` workflow references in `docs/`.**
-- [ ] **Step 2: In `docs/tempot_v11_final.md`, update Section 22 to the new 11-step lifecycle while preserving the Arabic language and context.**
+- [ ] **Step 2: In `docs/tempot_architecture.md`, update Section 22 to the new 11-step lifecycle while preserving the Arabic language and context.**
 - [ ] **Step 3: Verify no remaining matches in `docs/` using grep.**
 - [ ] **Step 4: Commit purge changes**
 

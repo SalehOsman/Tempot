@@ -20,7 +20,7 @@
 - Review: `specs/026-architecture-isolation-and-saas-readiness/data-model.md`
 - Review: `specs/026-architecture-isolation-and-saas-readiness/contracts/*.md`
 - Review: `.specify/memory/constitution.md`
-- Review: `docs/archive/tempot_v11_final.md`
+- Review: `docs/archive/tempot_architecture.md`
 
 - [ ] Confirm `pnpm spec:validate` is clean before implementation starts.
 - [ ] Confirm spec #026 has no `[NEEDS CLARIFICATION]` markers.

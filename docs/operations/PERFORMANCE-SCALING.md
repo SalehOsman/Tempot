@@ -1,6 +1,6 @@
 # Performance and Scaling Guide
 
-> Reference: Spec v11, Section 26.4
+> Reference: Architecture Spec, Section 26.4
 
 ---
 

@@ -6,7 +6,7 @@
 
 # Original RTL Guidelines — Arabic Right-to-Left Implementation
 
-> Reference: Spec v11, Section 13.2 — Constitution Rule XLII
+> Reference: Architecture Spec, Section 13.2 — Constitution Rule XLII
 
 ---
 

@@ -5,7 +5,7 @@
 
 ## Context
 
-ADR-016 chose Vercel AI SDK v4.x as the provider-agnostic abstraction layer. The initial ai-core architecture (per docs/tempot_v11_final.md) designs several custom abstractions: `AIProviderFactory` for provider management, manual `generateText()` + parsing for classification, and per-service caching/circuit-breaker logic.
+ADR-016 chose Vercel AI SDK v4.x as the provider-agnostic abstraction layer. The initial ai-core architecture (per docs/tempot_architecture.md) designs several custom abstractions: `AIProviderFactory` for provider management, manual `generateText()` + parsing for classification, and per-service caching/circuit-breaker logic.
 
 Research into the SDK's advanced features reveals that most of these custom abstractions duplicate built-in SDK capabilities.
 
@@ -41,7 +41,7 @@ Evaluate upgrading from AI SDK v4.x to v5.x during ai-core spec phase. The API h
 
 ## Alternatives Rejected
 
-**Hand-rolled AIProviderFactory (v11 architecture):** Duplicates `createProviderRegistry()` with inferior aliasing, no middleware support, and more custom code to maintain.
+**Hand-rolled AIProviderFactory (legacy architecture):** Duplicates `createProviderRegistry()` with inferior aliasing, no middleware support, and more custom code to maintain.
 
 **Per-service caching/circuit-breaker:** Duplicates `LanguageModelMiddleware` capabilities. Scatters cross-cutting concerns across every service instead of applying them once at the provider level.
 
