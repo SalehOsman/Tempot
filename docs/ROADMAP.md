@@ -71,16 +71,19 @@ Recently completed:
 - Spec #039: `template-management` closure hardening completed with repository
   contract fixes, module manifests for implemented modules, Module Doctor
   readiness, and passing module unit and integration tests.
+- Spec #041: conversation runtime integration plus the inline-first
+  `@tempot/input-engine` adoption standard for `bot-management` registration,
+  with the duplicate manual registration state path removed.
 
 Active or next work:
 
 1. `template-management` (Spec #039) implemented and closure-hardened: types,
    schemas, lifecycle, repositories, services, menus, commands, handlers,
    module manifest, 48 unit tests passing, and 22 integration tests passing.
-2. `bot-management` (Spec #040) production completion is active: foundation is
-   merged, and the production branch is implementing persistence, Telegram
-   workflows, lifecycle governance, settings, module enablement, provisioning,
-   search, notifications, and import/export.
+2. `bot-management` (Spec #040) production completion is active: foundation and
+   the Spec #041 inline-first registration standard are merged, while remaining
+   production work continues across lifecycle governance, settings, module
+   enablement, provisioning, search, notifications, and import/export.
 3. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
