@@ -28,7 +28,8 @@
         "display_name": "Send the bot display name.",
         "telegram_username": "Send the Telegram bot username without @.",
         "token": "Send the Telegram bot token. It will be fingerprinted and redacted."
-      }
+      },
+      "cancelled": "Bot creation cancelled. No bot profile was created."
     },
     "health": {
       "unknown": "Unknown",

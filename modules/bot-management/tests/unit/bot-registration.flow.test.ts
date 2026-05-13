@@ -23,6 +23,9 @@ vi.mock('@tempot/input-engine', () => ({
   FieldHandlerRegistry: class {
     register(): void {}
   },
+  INPUT_ENGINE_ERRORS: {
+    FORM_CANCELLED: 'input-engine.form.cancelled',
+  },
   ShortTextFieldHandler: class {},
   runForm: runFormMock,
 }));
@@ -154,7 +157,7 @@ describe('runBotRegistrationConversation', () => {
     await runBotRegistrationConversation({}, ctx as never);
 
     expect(registerMock).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('bot-management.error.create_failed');
+    expect(ctx.reply).toHaveBeenCalledWith('bot-management.create.cancelled');
   });
 
   it('renders reusable action buttons while waiting for text or callback input', async () => {

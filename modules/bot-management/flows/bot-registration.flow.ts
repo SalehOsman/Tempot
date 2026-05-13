@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   buildActionButtons,
   FieldHandlerRegistry,
+  INPUT_ENGINE_ERRORS,
   ShortTextFieldHandler,
   runForm,
   type FieldMetadata,
@@ -39,7 +40,11 @@ export async function runBotRegistrationConversation(
 
   const formResult = await runRegistrationForm({ conversation, ctx, telegramId, chatId });
   if (formResult.isErr()) {
-    await ctx.reply(i18n.t('bot-management.error.create_failed'));
+    const key =
+      formResult.error.code === INPUT_ENGINE_ERRORS.FORM_CANCELLED
+        ? 'bot-management.create.cancelled'
+        : 'bot-management.error.create_failed';
+    await ctx.reply(i18n.t(key));
     return;
   }
 
