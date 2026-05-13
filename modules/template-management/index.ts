@@ -6,7 +6,6 @@ import { templatesCommand } from './commands/templates.command.js';
 import { newTemplateCommand } from './commands/new-template.command.js';
 import { importTemplateCommand } from './commands/import-template.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
-import { handleTextInput } from './handlers/text.handler.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -48,7 +47,6 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   bot.command('new_template', newTemplateCommand);
   bot.command('import_template', importTemplateCommand);
   bot.on('callback_query:data', handleCallbackQuery);
-  bot.on('message:text', handleTextInput);
 
   deps.logger.info({
     msg: 'template-management handlers registered',

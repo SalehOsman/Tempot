@@ -62,10 +62,6 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
     return err(signalResult.error);
   }
 
-  if (config.botMode === 'polling') {
-    await bot.start();
-  }
-
   httpServer.listen(config.port);
   deps.logger.info({ msg: 'http_server_listening', port: config.port });
 
@@ -81,6 +77,10 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
     durationMs,
     modulesLoaded: loadedModules.length,
   });
+
+  if (config.botMode === 'polling') {
+    await bot.start();
+  }
 
   return ok(undefined);
 }

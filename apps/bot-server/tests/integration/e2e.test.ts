@@ -126,10 +126,13 @@ describe('Phase 2D End-to-End Integration Tests', () => {
         if (method === 'sendMessage') {
           replySpy(payload['chat_id'], payload['text'], payload);
           return {
-            message_id: 2,
-            date: Date.now() / 1000,
-            chat: payload['chat_id'],
-            text: payload['text'],
+            ok: true,
+            result: {
+              message_id: 2,
+              date: Date.now() / 1000,
+              chat: { id: payload['chat_id'], type: 'private' },
+              text: payload['text'],
+            },
           };
         }
         return prev(method, args[2], args[3] as never);

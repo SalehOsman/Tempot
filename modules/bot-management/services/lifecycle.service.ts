@@ -42,7 +42,7 @@ export class LifecycleService {
     const validation = this.validateTransition(fromStatus, input);
     if (validation.isErr()) return err(validation.error);
 
-    const updated = await this.botRepository.update(input.botId, { status: input.toStatus });
+    const updated = await this.botRepository.update(input.botId, this.createLifecycleUpdate(input));
     if (updated.isErr()) return err(updated.error);
 
     const history = await this.lifecycleRepository.append({
@@ -69,6 +69,19 @@ export class LifecycleService {
       return err(new AppError('bot-management.missing_reason'));
     }
     return ok(undefined);
+  }
+
+  private createLifecycleUpdate(input: LifecycleTransitionInput): Record<string, unknown> {
+    if (input.toStatus !== BotLifecycleStatus.ARCHIVED) {
+      return { status: input.toStatus };
+    }
+
+    return {
+      status: input.toStatus,
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy: input.actorId,
+    };
   }
 
   private async publishChange(

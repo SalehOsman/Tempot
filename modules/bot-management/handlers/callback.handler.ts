@@ -1,16 +1,26 @@
 import type { Context } from 'grammy';
 import { getI18n } from '../deps.context.js';
 import { getBotService } from '../services/bot-service.context.js';
+import { getLifecycleService } from '../services/lifecycle-service.context.js';
 import { createBotDetailMenu, createBotListMenu } from '../menus/bot-menu.factory.js';
+import {
+  createArchiveConfirmationMenu,
+  createLifecycleMenu,
+} from '../menus/lifecycle-menu.factory.js';
 import { formatBotDetailMessage, formatBotListMessage } from '../menus/bot-detail.factory.js';
 import { newBotCommand } from '../commands/new-bot.command.js';
+import { BotLifecycleStatus } from '../types/lifecycle.types.js';
+import {
+  BOT_LIFECYCLE_REASON_FLOW_ID,
+  type LifecycleReasonIntent,
+} from '../flows/lifecycle-reason.flow.js';
 
 export async function handleCallbackQuery(ctx: Context): Promise<void> {
   const data = ctx.callbackQuery?.data;
   if (!data?.startsWith('botmgmt:')) return;
 
   await ctx.answerCallbackQuery();
-  const [, action, value] = data.split(':');
+  const [, action, value, trailingValue] = data.split(':');
 
   if (action === 'create') {
     await newBotCommand(ctx);
@@ -22,6 +32,26 @@ export async function handleCallbackQuery(ctx: Context): Promise<void> {
   }
   if (action === 'list') {
     await showBotList(ctx, Number(value ?? 0));
+    return;
+  }
+  if (action === 'lifecycle' && value) {
+    await showLifecycleMenu(ctx, value);
+    return;
+  }
+  if (action === 'lifecycle-transition' && value && trailingValue) {
+    await applyDirectLifecycleTransition(ctx, value, trailingValue);
+    return;
+  }
+  if (action === 'lifecycle-reason' && value && trailingValue) {
+    await startLifecycleReasonFlow(ctx, value, trailingValue);
+    return;
+  }
+  if ((action === 'lifecycle-archive-confirm' || action === 'archive') && value) {
+    await showArchiveConfirmation(ctx, value);
+    return;
+  }
+  if (action === 'lifecycle-archive-start' && value) {
+    await startLifecycleReasonFlow(ctx, value, BotLifecycleStatus.ARCHIVED);
   }
 }
 
@@ -49,5 +79,75 @@ async function showBotDetail(ctx: Context, botId: string): Promise<void> {
 
   await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
     reply_markup: createBotDetailMenu(i18n.t, result.value),
+  });
+}
+
+async function showLifecycleMenu(ctx: Context, botId: string): Promise<void> {
+  const i18n = getI18n();
+  const result = await getBotService().getDetail(botId);
+  if (result.isErr()) {
+    await ctx.reply(i18n.t('bot-management.error.not_found'));
+    return;
+  }
+
+  await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
+    reply_markup: createLifecycleMenu(i18n.t, result.value),
+  });
+}
+
+async function applyDirectLifecycleTransition(
+  ctx: Context,
+  botId: string,
+  rawStatus: string,
+): Promise<void> {
+  const i18n = getI18n();
+  const toStatus = parseLifecycleStatus(rawStatus);
+  const actorId = ctx.from?.id.toString();
+  if (!toStatus || !actorId) {
+    await ctx.reply(i18n.t('bot-management.error.invalid_transition'));
+    return;
+  }
+
+  const result = await getLifecycleService().transition({ botId, toStatus, actorId });
+  if (result.isErr()) {
+    await ctx.reply(i18n.t(`bot-management.error.${result.error.code.split('.').at(-1)}`));
+    return;
+  }
+
+  await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
+    reply_markup: createBotDetailMenu(i18n.t, result.value),
+  });
+}
+
+function parseLifecycleStatus(value: string): BotLifecycleStatus | null {
+  return Object.values(BotLifecycleStatus).find((status) => status === value) ?? null;
+}
+
+interface ConversationStarterContext extends Context {
+  conversation?: {
+    enter: (flowId: string, intent: LifecycleReasonIntent) => Promise<void>;
+  };
+}
+
+async function startLifecycleReasonFlow(
+  ctx: Context,
+  botId: string,
+  rawStatus: string,
+): Promise<void> {
+  const i18n = getI18n();
+  const toStatus = parseLifecycleStatus(rawStatus);
+  const starter = ctx as ConversationStarterContext;
+  if (!toStatus || !starter.conversation) {
+    await ctx.reply(i18n.t('bot-management.error.invalid_transition'));
+    return;
+  }
+
+  await starter.conversation.enter(BOT_LIFECYCLE_REASON_FLOW_ID, { botId, toStatus });
+}
+
+async function showArchiveConfirmation(ctx: Context, botId: string): Promise<void> {
+  const i18n = getI18n();
+  await ctx.editMessageText(i18n.t('bot-management.lifecycle.archive_confirmation'), {
+    reply_markup: createArchiveConfirmationMenu(i18n.t, botId),
   });
 }

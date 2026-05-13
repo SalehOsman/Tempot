@@ -121,4 +121,26 @@ describe('LifecycleService', () => {
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe('bot-management.missing_reason');
   });
+
+  it('archives a bot with soft-delete metadata while preserving lifecycle history', async () => {
+    const history = lifecycleEvents();
+    const bus = eventBus();
+    const service = new LifecycleService(repository(bot(BotLifecycleStatus.ACTIVE)), history, bus);
+
+    const result = await service.transition({
+      botId: 'bot-1',
+      toStatus: BotLifecycleStatus.ARCHIVED,
+      actorId: 'admin-1',
+      reason: 'Retired',
+    });
+
+    expect(result.isOk()).toBe(true);
+    const archived = result._unsafeUnwrap();
+    expect(archived.status).toBe(BotLifecycleStatus.ARCHIVED);
+    expect(archived.isDeleted).toBe(true);
+    expect(archived.deletedBy).toBe('admin-1');
+    expect(archived.deletedAt).toBeInstanceOf(Date);
+    expect(history.records).toHaveLength(1);
+    expect(bus.events[0]?.event).toBe(BOT_MANAGEMENT_EVENTS.LIFECYCLE_CHANGED);
+  });
 });

@@ -1,5 +1,6 @@
 import { createHonoApp } from '../server/hono.factory.js';
 import { buildHealthProbes } from './health.probes.js';
+import { serve } from '@hono/node-server';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { CacheService } from '@tempot/shared';
 import type { SettingsService } from '@tempot/settings';
@@ -32,22 +33,29 @@ export function buildHttpServerFactory(
       logger: deps.log,
     });
 
+    let server: ReturnType<typeof serve> | undefined;
+
     return {
       listen: (port: number) => {
-        import('node:http')
-          .then(({ createServer }) => {
-            const server = createServer(async (req, res) => {
-              const response = await app.fetch(req as unknown as Request);
-              res.writeHead(response.status);
-              res.end(await response.text());
-            });
-            server.listen(port);
-          })
-          .catch((e: unknown) =>
-            deps.log.error({ msg: 'http_server_listen_failed', error: String(e) }),
-          );
+        server = serve({
+          fetch: app.fetch,
+          port,
+        });
       },
-      close: async () => {},
+      close: async () => {
+        if (!server) return;
+
+        await new Promise<void>((resolve, reject) => {
+          server?.close((error) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            resolve();
+          });
+        });
+      },
     };
   };
 }

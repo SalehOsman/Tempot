@@ -211,4 +211,18 @@ describe('createRateLimiterMiddleware', () => {
       }),
     );
   });
+
+  it('rethrows downstream handler errors instead of converting them into rate limits', async () => {
+    const logger = createMockLogger();
+    const middleware = createRateLimiterMiddleware({ t: mockT, logger });
+    const ctx = createMockContext({ message: { text: '/start' } });
+    next.mockRejectedValueOnce(new Error('downstream handler failed'));
+
+    await expect(middleware(ctx as never, next)).rejects.toThrow('downstream handler failed');
+
+    expect(ctx.reply).not.toHaveBeenCalled();
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'bot-server.rate_limited' }),
+    );
+  });
 });

@@ -1,4 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, describe, it, expect, vi, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { loadModuleLocales } from '../../src/i18n.loader.js';
 import i18next from 'i18next';
 import { glob } from 'glob';
@@ -24,6 +27,10 @@ vi.mock('node:fs/promises', () => ({
 describe('Modular Locale Loader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should load JSON files from module directories', async () => {
@@ -72,5 +79,27 @@ describe('Modular Locale Loader', () => {
 
     expect(result.isOk()).toBe(true);
     expect(i18next.addResourceBundle).not.toHaveBeenCalled();
+  });
+
+  it('should resolve locale globs from the repository root when cwd is a filtered package directory', async () => {
+    const repositoryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'tempot-i18n-root-'));
+    const filteredCwd = path.join(repositoryRoot, 'apps', 'bot-server');
+    fs.mkdirSync(path.join(repositoryRoot, 'modules'), { recursive: true });
+    fs.mkdirSync(path.join(repositoryRoot, 'packages'), { recursive: true });
+    fs.mkdirSync(filteredCwd, { recursive: true });
+    vi.spyOn(process, 'cwd').mockReturnValue(filteredCwd);
+    vi.mocked(glob).mockResolvedValue([]);
+
+    const result = await loadModuleLocales();
+
+    expect(result.isOk()).toBe(true);
+    expect(glob).toHaveBeenCalledWith(
+      path.join(repositoryRoot, 'modules', '*', 'locales', '*.json').replace(/\\/g, '/'),
+    );
+    expect(glob).toHaveBeenCalledWith(
+      path.join(repositoryRoot, 'apps', '*', 'locales', '*.json').replace(/\\/g, '/'),
+    );
+
+    fs.rmSync(repositoryRoot, { recursive: true, force: true });
   });
 });

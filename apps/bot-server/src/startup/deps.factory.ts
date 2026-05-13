@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 
@@ -24,6 +22,7 @@ import {
   buildModuleRegistry,
 } from './deps.builders.js';
 import { assembleOrchestratorDeps } from './deps.orchestrator.js';
+import { resolveRuntimeDirectory } from './runtime-paths.js';
 
 import { loadConfig } from './config.loader.js';
 import type { OrchestratorDeps } from './orchestrator.js';
@@ -85,7 +84,7 @@ function buildSettingsService(
 }
 
 function modulesDir(): string {
-  return path.resolve(process.cwd(), 'modules');
+  return resolveRuntimeDirectory('modules');
 }
 
 export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {

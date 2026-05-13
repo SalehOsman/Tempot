@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import fs from 'node:fs/promises';
 import { ok, err } from 'neverthrow';
@@ -9,6 +8,7 @@ import { EventBusOrchestrator } from '@tempot/event-bus';
 import { SessionProvider, SessionRepository } from '@tempot/session-manager';
 import { ModuleRegistry, ModuleDiscovery, ModuleValidator } from '@tempot/module-registry';
 import { buildCacheAdapter } from './cache.adapter.js';
+import { resolveRuntimeDirectory } from './runtime-paths.js';
 
 type LoggerLike = typeof import('@tempot/logger').logger;
 
@@ -74,10 +74,6 @@ export function buildSessionProvider(
   });
 }
 
-// In Docker, process.cwd() is /app, which is the correct root
-// In development, process.cwd() is also the project root
-const ROOT_DIR = process.cwd();
-
 export function buildModuleRegistry(
   log: typeof import('@tempot/logger').logger,
   eventBus: EventBusOrchestrator,
@@ -91,13 +87,9 @@ export function buildModuleRegistry(
     logger: toRegistryLogger(log),
   });
 
-  // Workspace packages live in packages/ in both dev and production (Docker).
-  // The Dockerfile copies packages/ from builder; pnpm never stores them in .pnpm.
-  const packagesDir = path.resolve(ROOT_DIR, 'packages');
-
   const validator = new ModuleValidator({
-    specsDir: path.resolve(ROOT_DIR, 'specs'),
-    packagesDir,
+    specsDir: resolveRuntimeDirectory('specs'),
+    packagesDir: resolveRuntimeDirectory('packages'),
     listDir: async (p: string) => {
       try {
         const result = await fs.readdir(p);
