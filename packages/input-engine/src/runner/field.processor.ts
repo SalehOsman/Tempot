@@ -11,6 +11,10 @@ import { extractCallbackData } from '../utils/callback-data.helper.js';
 
 const DEFAULT_MAX_RETRIES = 3;
 
+interface ReplyCapableContext {
+  reply: (text: string) => Promise<unknown>;
+}
+
 /** Internal context for processing a single field */
 export interface FieldContext {
   handler: FieldHandler;
@@ -124,8 +128,13 @@ async function sendValidationFeedback(input: FormRunnerInput, errorText: string)
   const conversation = input.conversation as {
     external?: <T>(fn: () => Promise<T>) => Promise<T>;
   };
-  const replyFn = (input.ctx as { reply?: (t: string) => Promise<unknown> }).reply;
-  if (conversation.external && replyFn) await conversation.external(() => replyFn(errorText));
+  const replyContext = input.ctx;
+  if (!conversation.external || !hasReply(replyContext)) return;
+  await conversation.external(() => replyContext.reply(errorText));
+}
+
+function hasReply(ctx: unknown): ctx is ReplyCapableContext {
+  return typeof (ctx as { reply?: unknown }).reply === 'function';
 }
 
 /** Process a single field: render, parse, validate with retry */

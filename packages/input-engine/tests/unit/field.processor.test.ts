@@ -246,6 +246,53 @@ describe('processField', () => {
       expect(conversation.insideExternal).toBe(false);
     });
 
+    it('preserves ctx.reply binding when sending validation feedback', async () => {
+      const replyContext = {
+        message: { text: 'bad-input' },
+        msg: { chat: { id: 12345 } },
+        replies: [] as string[],
+        async reply(this: { msg: unknown; replies: string[] }, text: string): Promise<unknown> {
+          if (!this.msg) throw new Error('missing reply binding');
+          this.replies.push(text);
+          return undefined;
+        },
+      };
+      const externalSpy = vi
+        .fn()
+        .mockImplementation(async <T>(fn: () => Promise<T>): Promise<T> => fn());
+
+      let callCount = 0;
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ message: { text: 'bad-input' } })),
+        parseResponse: vi.fn().mockImplementation(() => {
+          callCount++;
+          if (callCount <= 1) {
+            return err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED));
+          }
+          return ok('valid');
+        }),
+        validate: vi.fn().mockReturnValue(ok('valid')),
+      };
+
+      const deps = createMockDeps({
+        t: (key: string, params?: Record<string, unknown>) => `${key}:${JSON.stringify(params)}`,
+      });
+      const ctx = createFieldContext(handler, { maxRetries: 3 });
+      const input: FormRunnerInput = {
+        conversation: { external: externalSpy },
+        ctx: replyContext,
+        schema: z.object({ name: z.string() }),
+      };
+
+      const result = await processField(input, ctx, deps);
+
+      expect(result.isOk()).toBe(true);
+      expect(externalSpy).toHaveBeenCalledTimes(1);
+      expect(replyContext.replies).toHaveLength(1);
+      expect(replyContext.replies[0]).toContain('input-engine.errors');
+    });
+
     it('does not crash when conversation.external is unavailable', async () => {
       const handler: FieldHandler = {
         fieldType: 'ShortText',
