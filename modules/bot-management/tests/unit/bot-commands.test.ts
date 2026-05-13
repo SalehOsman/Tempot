@@ -46,7 +46,7 @@ describe('bot-management menus', () => {
     expect(callbacks).toContain('botmgmt:lifecycle:bot-1');
     expect(callbacks).toContain('botmgmt:settings:bot-1');
     expect(callbacks).toContain('botmgmt:modules:bot-1');
-    expect(callbacks).toContain('botmgmt:archive:bot-1');
+    expect(callbacks).not.toContain('botmgmt:archive:bot-1');
   });
 
   it('formats list and detail messages without raw credential data', () => {

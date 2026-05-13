@@ -35,7 +35,6 @@ export function createBotDetailMenu(
     .text(t('bot-management.menu.settings'), `botmgmt:settings:${bot.id}`)
     .row()
     .text(t('bot-management.menu.modules'), `botmgmt:modules:${bot.id}`)
-    .text(t('bot-management.actions.archive'), `botmgmt:archive:${bot.id}`)
     .row()
     .text(t('bot-management.menu.back'), 'botmgmt:list:0');
 }

@@ -24,17 +24,15 @@ function createDeps(): ModuleDeps {
     },
     config: {
       commands: [],
-      features: { hasInputEngine: true },
     } as ModuleDeps['config'],
   };
 }
 
-describe('bot-management runtime registration', () => {
-  it('registers callback handling without restoring the removed text-state handler', async () => {
+describe('template-management runtime registration', () => {
+  it('does not register a generic text handler that can swallow later module commands', async () => {
     const bot = {
       command: vi.fn(),
       on: vi.fn(),
-      use: vi.fn(),
     };
 
     await setup(bot as never, createDeps());
@@ -42,17 +40,5 @@ describe('bot-management runtime registration', () => {
     expect(bot.on).toHaveBeenCalledTimes(1);
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', expect.any(Function));
     expect(bot.on).not.toHaveBeenCalledWith('message:text', expect.any(Function));
-  });
-
-  it('registers both registration and lifecycle reason conversations', async () => {
-    const bot = {
-      command: vi.fn(),
-      on: vi.fn(),
-      use: vi.fn(),
-    };
-
-    await setup(bot as never, createDeps());
-
-    expect(bot.use).toHaveBeenCalledTimes(2);
   });
 });

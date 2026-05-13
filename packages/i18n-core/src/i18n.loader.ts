@@ -1,4 +1,5 @@
 import { glob } from 'glob';
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import i18next from 'i18next';
@@ -17,14 +18,11 @@ import { AppError } from '@tempot/shared';
  */
 export async function loadModuleLocales(): Promise<Result<void, AppError>> {
   try {
-    // Use process.cwd() to get the correct project root in Docker and development
-    const projectRoot = process.cwd();
+    const projectRoot = resolveLocaleProjectRoot(process.cwd());
     const modulePattern = path
       .join(projectRoot, 'modules', '*', 'locales', '*.json')
       .replace(/\\/g, '/');
-    const appPattern = path
-      .join(projectRoot, 'apps', '*', 'locales', '*.json')
-      .replace(/\\/g, '/');
+    const appPattern = path.join(projectRoot, 'apps', '*', 'locales', '*.json').replace(/\\/g, '/');
 
     const moduleFiles = await glob(modulePattern);
     const appFiles = await glob(appPattern);
@@ -57,4 +55,28 @@ export async function loadModuleLocales(): Promise<Result<void, AppError>> {
     const details = error instanceof Error ? error.message : String(error);
     return err(new AppError('i18n.locale_load_failed', details));
   }
+}
+
+function resolveLocaleProjectRoot(startDir: string): string {
+  let currentDir = startDir;
+
+  while (true) {
+    if (hasLocaleProjectLayout(currentDir)) {
+      return currentDir;
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      return startDir;
+    }
+
+    currentDir = parentDir;
+  }
+}
+
+function hasLocaleProjectLayout(directory: string): boolean {
+  return (
+    fsSync.existsSync(path.join(directory, 'modules')) &&
+    fsSync.existsSync(path.join(directory, 'packages'))
+  );
 }

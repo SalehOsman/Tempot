@@ -8,6 +8,7 @@ packages/*/node_modules
 dist
 apps/*/dist
 packages/*/dist
+**/*.tsbuildinfo
 coverage
 tests/__fixtures__
 postgres_data

@@ -214,6 +214,36 @@ describe('startApplication', () => {
     expect(mockBot.start).toHaveBeenCalled();
   });
 
+  it('starts the HTTP server and emits startup completion before polling settles', async () => {
+    let resolvePolling: (() => void) | undefined;
+    const pollingPromise = new Promise<void>((resolve) => {
+      resolvePolling = resolve;
+    });
+    const mockBot = { start: vi.fn().mockReturnValue(pollingPromise) };
+    const listen = vi.fn();
+
+    deps.createBot = vi.fn().mockReturnValue(mockBot);
+    deps.createHttpServer = vi.fn().mockReturnValue({
+      listen,
+      close: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const startupPromise = startApplication(deps);
+
+    await vi.waitFor(() => {
+      expect(listen).toHaveBeenCalledWith(3000);
+      expect(deps.eventBus.publish).toHaveBeenCalledWith(
+        'system.startup.completed',
+        expect.objectContaining({ mode: 'polling' }),
+      );
+    });
+
+    resolvePolling?.();
+    const result = await startupPromise;
+
+    expect(result.isOk()).toBe(true);
+  });
+
   it('does not call bot.start in webhook mode', async () => {
     deps.loadConfig = vi.fn().mockReturnValue(
       ok({

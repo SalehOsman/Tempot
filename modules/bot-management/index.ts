@@ -4,10 +4,15 @@ import type { ModuleConfig } from '@tempot/module-registry';
 import { botManagementAbilities } from './abilities.js';
 import { registerDeps } from './deps.context.js';
 import { initBotService } from './services/bot-service.context.js';
+import { initLifecycleService } from './services/lifecycle-service.context.js';
 import { botsCommand } from './commands/bots.command.js';
 import { BOT_REGISTRATION_FLOW_ID, newBotCommand } from './commands/new-bot.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
 import { runBotRegistrationConversation } from './flows/bot-registration.flow.js';
+import {
+  BOT_LIFECYCLE_REASON_FLOW_ID,
+  runLifecycleReasonConversation,
+} from './flows/lifecycle-reason.flow.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -45,6 +50,7 @@ export interface ModuleDeps {
 const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   registerDeps(deps);
   initBotService();
+  initLifecycleService();
 
   bot.command('bots', botsCommand);
   bot.command('new_bot', newBotCommand);
@@ -53,6 +59,12 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
     createConversation<Context, Context>(
       runBotRegistrationConversation,
       BOT_REGISTRATION_FLOW_ID,
+    ) as unknown as MiddlewareFn<Context>,
+  );
+  bot.use(
+    createConversation<Context, Context>(
+      runLifecycleReasonConversation,
+      BOT_LIFECYCLE_REASON_FLOW_ID,
     ) as unknown as MiddlewareFn<Context>,
   );
 

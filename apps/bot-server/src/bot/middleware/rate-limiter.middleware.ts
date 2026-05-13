@@ -63,7 +63,6 @@ export function createRateLimiterMiddleware(
 
     try {
       await limiter.consume(String(userId));
-      await next();
     } catch (error: unknown) {
       const errorDetails =
         error instanceof Error
@@ -89,6 +88,9 @@ export function createRateLimiterMiddleware(
           error: replyError instanceof Error ? replyError.message : 'Unknown error',
         });
       }
+      return;
     }
+
+    await next();
   };
 }

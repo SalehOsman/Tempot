@@ -1,5 +1,5 @@
 {
-  "feature": "041-input-engine-inline-flow-standardization",
-  "feature_directory": "specs/041-input-engine-inline-flow-standardization",
-  "specPath": "specs/041-input-engine-inline-flow-standardization/spec.md"
+  "feature": "042-bot-management-lifecycle-operations-hardening",
+  "feature_directory": "specs/042-bot-management-lifecycle-operations-hardening",
+  "specPath": "specs/042-bot-management-lifecycle-operations-hardening/spec.md"
 }

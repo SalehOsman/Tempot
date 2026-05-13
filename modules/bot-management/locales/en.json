@@ -44,13 +44,20 @@
       "ARCHIVED": "Archived"
     },
     "actions": {
+      "configure": "Configure",
       "activate": "Activate",
       "pause": "Pause",
       "resume": "Resume",
       "maintenance": "Maintenance",
       "archive": "Archive",
+      "confirm_archive": "Confirm archive",
       "export": "Export",
       "import": "Import"
+    },
+    "lifecycle": {
+      "archive_confirmation": "Archive this bot profile? A reason will be required before the change is recorded.",
+      "reason_prompt": "Send the operational reason for this lifecycle change.",
+      "reason_cancelled": "Lifecycle change cancelled. No bot state was changed."
     },
     "notification": {
       "lifecycle_changed": "Bot status changed",

@@ -34,6 +34,11 @@ services:
       - REDIS_PORT=6379
       - BOT_MODE=polling
       - SUPER_ADMIN_IDS=7594239391
+      - TEMPOT_INPUT=true
+      - TEMPOT_DYNAMIC_CMS=true
+      - TEMPOT_SEARCH=true
+      - TEMPOT_DOCUMENTS=true
+      - TEMPOT_IMPORT=true
       # Uncomment for webhook mode (production). Requires a public URL.
       # - BOT_MODE=webhook
       # - WEBHOOK_URL=${WEBHOOK_URL:-https://example.com/webhook}
