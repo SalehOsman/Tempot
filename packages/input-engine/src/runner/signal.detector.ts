@@ -2,18 +2,13 @@ import { AppError } from '@tempot/shared';
 import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { ACTION_CALLBACKS } from './action-buttons.builder.js';
 import { extractCallbackData } from '../utils/callback-data.helper.js';
+import { extractMessageText } from '../utils/message-text.helper.js';
 
 /** Detect cancel signal from user response */
 export function isCancelSignal(response: unknown): boolean {
   const data = extractCallbackData(response);
   if (data?.includes(ACTION_CALLBACKS.CANCEL)) return true;
-  if (response !== null && response !== undefined) {
-    const msg = response as Record<string, unknown>;
-    if (typeof msg['text'] === 'string' && msg['text'].trim().toLowerCase() === '/cancel') {
-      return true;
-    }
-  }
-  return false;
+  return extractMessageText(response)?.trim().toLowerCase() === '/cancel';
 }
 
 /** Detect keep-current signal from user response */

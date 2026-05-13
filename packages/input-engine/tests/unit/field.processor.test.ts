@@ -140,6 +140,31 @@ describe('processField', () => {
       expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
     });
 
+    it('cancels and acknowledges when render returns grammY callback context', async () => {
+      const answerCallbackQuery = vi.fn().mockResolvedValue(true);
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(
+          ok({
+            callbackQuery: { data: 'ie:test-form:1:__cancel__' },
+            answerCallbackQuery,
+          }),
+        ),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      const ctx = createFieldContext(handler, { allowCancel: true });
+      const input = createInput();
+      const result = await processField(input, ctx, deps);
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      expect(answerCallbackQuery).toHaveBeenCalledTimes(1);
+      expect(handler.parseResponse).not.toHaveBeenCalled();
+    });
+
     it('non-back callback data is processed normally (no false positive)', async () => {
       const handler: FieldHandler = {
         fieldType: 'ShortText',

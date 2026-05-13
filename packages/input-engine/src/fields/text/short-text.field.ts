@@ -5,6 +5,7 @@ import type { AsyncResult } from '@tempot/shared';
 import type { FieldHandler, RenderContext } from '../field.handler.js';
 import type { FieldMetadata } from '../../input-engine.types.js';
 import { INPUT_ENGINE_ERRORS } from '../../input-engine.errors.js';
+import { extractMessageText } from '../../utils/message-text.helper.js';
 
 const DEFAULT_MIN_LENGTH = 1;
 const DEFAULT_MAX_LENGTH = 255;
@@ -20,8 +21,8 @@ export class ShortTextFieldHandler implements FieldHandler {
   }
 
   parseResponse(message: unknown, _metadata: FieldMetadata): Result<unknown, AppError> {
-    const msg = message as { text?: string };
-    if (!msg.text) {
+    const text = extractMessageText(message);
+    if (!text) {
       return err(
         new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED, {
           fieldType: this.fieldType,
@@ -29,7 +30,7 @@ export class ShortTextFieldHandler implements FieldHandler {
         }),
       );
     }
-    return ok(msg.text.trim());
+    return ok(text.trim());
   }
 
   validate(value: unknown, _schema: unknown, metadata: FieldMetadata): Result<unknown, AppError> {

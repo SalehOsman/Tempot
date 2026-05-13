@@ -69,8 +69,25 @@ export function generateFormId(): string {
 /** Extract callback data string from a raw response object */
 export function extractCallbackData(response: unknown): string | undefined {
   if (response === null || response === undefined) return undefined;
-  const msg = response as Record<string, unknown>;
-  const cbQuery = msg['callback_query'] as Record<string, unknown> | undefined;
-  const data = cbQuery?.['data'];
+  const msg = asRecord(response);
+  if (!msg) return undefined;
+
+  const direct = readCallbackData(msg, 'callback_query') ?? readCallbackData(msg, 'callbackQuery');
+  if (direct) return direct;
+
+  const update = asRecord(msg['update']);
+  const data = update ? readCallbackData(update, 'callback_query') : undefined;
   return typeof data === 'string' ? data : undefined;
+}
+
+function readCallbackData(source: Record<string, unknown>, key: string): string | undefined {
+  const callbackQuery = asRecord(source[key]);
+  const data = callbackQuery?.['data'];
+  return typeof data === 'string' ? data : undefined;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === 'object'
+    ? (value as Record<string, unknown>)
+    : undefined;
 }

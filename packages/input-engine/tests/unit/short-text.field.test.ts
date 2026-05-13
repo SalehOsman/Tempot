@@ -29,6 +29,18 @@ describe('ShortTextFieldHandler', () => {
       expect(result._unsafeUnwrap()).toBe('hello');
     });
 
+    it('extracts and trims text from grammY message context', () => {
+      const result = handler.parseResponse({ message: { text: '  hello  ' } }, createMeta());
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toBe('hello');
+    });
+
+    it('extracts and trims text from grammY msg context', () => {
+      const result = handler.parseResponse({ msg: { text: '  hello  ' } }, createMeta());
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toBe('hello');
+    });
+
     it('returns err when no text in message', () => {
       const result = handler.parseResponse({}, createMeta());
       expect(result.isErr()).toBe(true);

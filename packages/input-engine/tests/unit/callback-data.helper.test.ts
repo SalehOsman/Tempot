@@ -66,6 +66,16 @@ describe('callback-data.utils', () => {
       expect(extractCallbackData(response)).toBe('ie:form1:0:value');
     });
 
+    it('extracts data from grammY callbackQuery context', () => {
+      const response = { callbackQuery: { data: 'ie:form1:0:__cancel__' } };
+      expect(extractCallbackData(response)).toBe('ie:form1:0:__cancel__');
+    });
+
+    it('extracts data from grammY update callback_query context', () => {
+      const response = { update: { callback_query: { data: 'ie:form1:0:__cancel__' } } };
+      expect(extractCallbackData(response)).toBe('ie:form1:0:__cancel__');
+    });
+
     it('returns undefined for null response', () => {
       expect(extractCallbackData(null)).toBeUndefined();
     });

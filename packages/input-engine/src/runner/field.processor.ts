@@ -8,6 +8,8 @@ import type { FormRunnerDeps, FormRunnerInput } from './form.runner.js';
 import { ACTION_CALLBACKS } from './action-buttons.builder.js';
 import { renderValidationError } from './validation-error.renderer.js';
 import { extractCallbackData } from '../utils/callback-data.helper.js';
+import { extractMessageText } from '../utils/message-text.helper.js';
+import { acknowledgeCallbackResponse } from './callback-response.acknowledger.js';
 
 const DEFAULT_MAX_RETRIES = 3;
 
@@ -74,13 +76,7 @@ async function resolveResponseCtx(
 function isCancelSignal(response: unknown): boolean {
   const data = extractCallbackData(response);
   if (data?.includes(ACTION_CALLBACKS.CANCEL)) return true;
-  if (response !== null && response !== undefined) {
-    const msg = response as Record<string, unknown>;
-    if (typeof msg['text'] === 'string' && msg['text'].trim().toLowerCase() === '/cancel') {
-      return true;
-    }
-  }
-  return false;
+  return extractMessageText(response)?.trim().toLowerCase() === '/cancel';
 }
 
 /** Detect keep-current signal from user response */
@@ -149,6 +145,8 @@ export async function processField(
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const rr = await resolveResponseCtx(input, ctx, deps);
     if (rr.isErr()) return err(rr.error);
+
+    await acknowledgeCallbackResponse(input, deps, rr.value);
 
     const cancelErr = checkCancelSignal(rr.value, ctx);
     if (cancelErr) return err(cancelErr);
