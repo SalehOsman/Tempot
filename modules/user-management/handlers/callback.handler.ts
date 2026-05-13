@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+import { Context, type NextFunction } from 'grammy';
 import { getUserService } from '../services/user-service.context.js';
 import { MainMenuFactory } from '../menus/main-menu.factory.js';
 import { getI18n, getLogger } from '../deps.context.js';
@@ -12,13 +12,19 @@ function parseCallbackData(data: string): { action: string; params: string[] } {
   return { action, params };
 }
 
+const noopNext: NextFunction = () => Promise.resolve();
+const USER_MANAGEMENT_ACTIONS = new Set(['menu', 'profile', 'users']);
+
 async function fetchUser(telegramId: string): Promise<UserProfile | null> {
   const userResult = await getUserService().getByTelegramId(telegramId);
   if (userResult.isErr()) return null;
   return userResult.value;
 }
 
-async function handleCallbackQuery(ctx: Context): Promise<void> {
+async function handleCallbackQuery(
+  ctx: Context,
+  next: NextFunction = noopNext,
+): Promise<void> {
   const log = getLogger().child({ handler: 'callback' });
   const i18n = getI18n();
   try {
@@ -36,6 +42,10 @@ async function handleCallbackQuery(ctx: Context): Promise<void> {
 
     const telegramId = telegramUser.id.toString();
     const { action, params } = parseCallbackData(callbackQuery.data);
+    if (!USER_MANAGEMENT_ACTIONS.has(action)) {
+      await next();
+      return;
+    }
 
     log.info({ msg: 'callback_received', telegramId, action, params });
 

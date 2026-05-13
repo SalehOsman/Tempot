@@ -2,6 +2,7 @@
   "bot-server.rate_limit_exceeded": "لقد تجاوزت الحد المسموح به من الطلبات. يرجى الانتظار قليلًا قبل المحاولة مرة أخرى.",
   "bot-server.rate_limit_reply_failed": "فشل في إرسال رسالة تحذير تجاوز الحد",
   "bot-server.error_message": "حدث خطأ غير متوقع. رمز المرجع: {{referenceCode}}",
+  "bot-server.callback_unhandled": "هذا الزر لم يعد متاحا. افتح القائمة مرة أخرى وحاول مجددا.",
   "bot-server.startup.database_unreachable": "لا يمكن الاتصال بقاعدة البيانات",
   "bot-server.startup.event_bus_failed": "فشل في بدء EventBus",
   "bot-server.startup.cache_failed": "فشل في بدء Cache Service",

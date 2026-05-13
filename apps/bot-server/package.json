@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file=../../.env src/index.ts",
+    "dev:watch": "tsx watch --include=../../modules/*/dist --include=../../packages/*/dist --include=../../modules/*/locales --include=../../apps/bot-server/locales --env-file=../../.env src/index.ts",
     "dev:tunnel": "cloudflared tunnel --url http://localhost:3000",
     "webhook:set": "tsx scripts/webhook-manager.ts set",
     "webhook:info": "tsx scripts/webhook-manager.ts info",

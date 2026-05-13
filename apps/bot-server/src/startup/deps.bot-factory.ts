@@ -3,6 +3,7 @@ import type { SessionProvider } from '@tempot/session-manager';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { SettingsService } from '@tempot/settings';
 import type { SentryReporter } from '@tempot/sentry';
+import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createMongoAbility } from '@casl/ability';
 
@@ -15,8 +16,18 @@ export interface BotFactoryDeps {
   t: (key: string) => string;
 }
 
+function buildCommandModuleMap(validatedModules: ValidatedModule[] = []): Record<string, string> {
+  const commandModuleMap: Record<string, string> = {};
+  for (const mod of validatedModules) {
+    for (const command of mod.config.commands) {
+      commandModuleMap[`/${command.command}`] = mod.config.name;
+    }
+  }
+  return commandModuleMap;
+}
+
 export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createBot'] {
-  return (token: string) =>
+  return (token: string, validatedModules?: ValidatedModule[]) =>
     createBot(token, {
       logger: deps.log,
       eventBus: {
@@ -42,7 +53,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
           ),
       ],
       commandScopeMap: new Map(),
-      commandModuleMap: {},
+      commandModuleMap: buildCommandModuleMap(validatedModules),
       auditLog: async () => {},
       sentryReporter: deps.sentryReporter,
     });

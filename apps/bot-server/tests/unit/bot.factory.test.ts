@@ -36,6 +36,6 @@ describe('createBot', () => {
 
     createBot('12345:testtoken', deps);
 
-    expect(useSpy).toHaveBeenCalledTimes(8);
+    expect(useSpy).toHaveBeenCalledTimes(9);
   });
 });

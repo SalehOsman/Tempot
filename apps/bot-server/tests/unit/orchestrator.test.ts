@@ -214,6 +214,34 @@ describe('startApplication', () => {
     expect(mockBot.start).toHaveBeenCalled();
   });
 
+  it('starts polling when startup completion event publishing is slow', async () => {
+    let resolvePublish: ((value: { isOk: () => boolean }) => void) | undefined;
+    deps.eventBus.publish = vi.fn().mockReturnValue(
+      new Promise((resolve) => {
+        resolvePublish = resolve;
+      }),
+    );
+    const mockBot = { start: vi.fn().mockResolvedValue(undefined) };
+    const listen = vi.fn();
+    deps.createBot = vi.fn().mockReturnValue(mockBot);
+    deps.createHttpServer = vi.fn().mockReturnValue({
+      listen,
+      close: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const startupPromise = startApplication(deps);
+
+    await vi.waitFor(() => {
+      expect(listen).toHaveBeenCalledWith(3000);
+      expect(mockBot.start).toHaveBeenCalled();
+    });
+
+    resolvePublish?.({ isOk: () => true });
+    const result = await startupPromise;
+
+    expect(result.isOk()).toBe(true);
+  });
+
   it('starts the HTTP server and emits startup completion before polling settles', async () => {
     let resolvePolling: (() => void) | undefined;
     const pollingPromise = new Promise<void>((resolve) => {
@@ -301,6 +329,7 @@ describe('startApplication', () => {
 
     await startApplication(deps);
 
+    expect(deps.createBot).toHaveBeenCalledWith('test-token', validatedModules);
     expect(deps.loadModuleHandlers).toHaveBeenCalledWith(expect.anything(), validatedModules);
   });
 

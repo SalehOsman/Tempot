@@ -21,16 +21,36 @@ an Executor prompt or grants direct editing permission.
 
 ## Source Documents
 
-| Topic             | Source                                                 |
-| ----------------- | ------------------------------------------------------ |
-| Role framework    | `.specify/memory/roles.md`                             |
-| Constitution      | `.specify/memory/constitution.md`                      |
+| Topic             | Source                                         |
+| ----------------- | ---------------------------------------------- |
+| Role framework    | `.specify/memory/roles.md`                     |
+| Constitution      | `.specify/memory/constitution.md`              |
 | Roadmap           | `docs/ROADMAP.md`                              |
-| Architecture spec | `docs/architecture/tempot_architecture.md`                     |
+| Architecture spec | `docs/architecture/tempot_architecture.md`     |
 | Package checklist | `docs/developer/package-creation-checklist.md` |
 | Module checklist  | `docs/developer/new-module-checklist.md`       |
 | Module catalog    | `docs/developer/module-development-catalog.md` |
 | ADR index         | `docs/architecture/adr/README.md`              |
+
+## Product Identity Guardrail
+
+Tempot Core is currently a production-grade Telegram bot framework and
+single-bot starter template. Every developer change should preserve that
+practical goal: a user can configure, extend, test, and deploy one Telegram bot
+without rebuilding the common platform capabilities.
+
+At the same time, Tempot Core must remain SaaS-ready. Developers must avoid
+design choices that hard-code a permanent single-bot future when a clean
+bot-scope boundary is already available. The rule is:
+
+1. Optimize the current implementation for the single-bot template experience.
+2. Keep contracts, settings, audit metadata, module enablement, and runtime
+   boundaries ready for future multi-bot management.
+3. Do not implement tenant, billing, dashboard, marketplace, or managed fleet
+   behavior unless a dedicated future spec explicitly activates it.
+
+`bot-management` should therefore be treated as a lightweight current registry
+and a future SaaS bridge, not as the center of the current product.
 
 ## SpecKit Phase
 
@@ -111,6 +131,23 @@ pnpm audit --audit-level=high
 
 Run the subset that matches the change while developing. Run the full relevant
 set before merge.
+
+## Local Bot Development Runtime
+
+Use the workspace bot development runtime when changing bot-server code, active
+runtime packages, or active Telegram modules:
+
+```bash
+pnpm dev:bot
+```
+
+The command first builds the active bot runtime packages and modules, then runs
+their TypeScript compilers in watch mode alongside `bot-server`. Module and
+package `dist` changes are included in the bot-server watcher, so source edits
+are compiled and then trigger a bot restart automatically.
+
+Use `pnpm --filter bot-server dev` only when changing bot-server code that does
+not depend on updated workspace package or module output.
 
 ## Deferred Packages
 

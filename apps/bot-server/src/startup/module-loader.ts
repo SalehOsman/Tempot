@@ -9,6 +9,7 @@ import type {
   ModuleSetupFn,
 } from '../bot-server.types.js';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
+import { createCallbackFallbackMiddleware } from '../bot/middleware/callback-fallback.middleware.js';
 
 export type ModuleImporter = (path: string) => Promise<{ default?: ModuleSetupFn }>;
 
@@ -43,6 +44,7 @@ export async function loadModuleHandlers(
     }
   }
 
+  bot.use(createCallbackFallbackMiddleware({ logger: deps.logger, t: deps.i18n.t }));
   return ok(loadedNames);
 }
 
@@ -115,7 +117,11 @@ function handleImportError(
       ),
     );
   }
-  logger.warn({ msg: 'Non-core module import failed, skipping', module: mod.config.name, ...details });
+  logger.warn({
+    msg: 'Non-core module import failed, skipping',
+    module: mod.config.name,
+    ...details,
+  });
   return Promise.resolve(ok(undefined));
 }
 
@@ -165,6 +171,10 @@ function handleSetupError(
       ),
     );
   }
-  logger.warn({ msg: 'Non-core module setup failed, skipping', module: mod.config.name, ...details });
+  logger.warn({
+    msg: 'Non-core module setup failed, skipping',
+    module: mod.config.name,
+    ...details,
+  });
   return Promise.resolve(ok(undefined));
 }

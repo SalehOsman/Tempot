@@ -3,6 +3,11 @@
 **Status**: Draft execution artifact for spec #026
 **Purpose**: Map current Tempot Core components to future Tempot Cloud concerns without requiring current rewrites.
 
+Tempot Core is a production-grade single Telegram bot template first. The SaaS
+migration path exists to keep today's template choices compatible with a future
+multi-bot product, not to move current development priority away from simple
+single-bot setup, extension, and deployment.
+
 ## Component Mapping
 
 | Current component | Current role | Future SaaS concern | Action now |
@@ -35,6 +40,18 @@
 4. Dashboard app planning.
 5. Tenant data model spec.
 6. Hosted deployment and operations spec.
+
+## Current Priority Boundary
+
+Until a future Product Manager decision activates Tempot Cloud work, developers
+should:
+
+- Keep `apps/bot-server` simple enough to operate one bot locally or in a
+  normal deployment.
+- Use packages and modules to make that bot easy to extend.
+- Preserve explicit bot-scope metadata where it already exists.
+- Avoid adding tenant, billing, hosted dashboard, or fleet-management logic to
+  current template workflows.
 
 ## Non-Goals
 

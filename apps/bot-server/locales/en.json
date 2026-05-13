@@ -2,6 +2,7 @@
   "bot-server.rate_limit_exceeded": "You have exceeded the rate limit. Please wait a moment before trying again.",
   "bot-server.rate_limit_reply_failed": "Failed to send rate limit warning",
   "bot-server.error_message": "An unexpected error occurred. Reference code: {{referenceCode}}",
+  "bot-server.callback_unhandled": "This button is no longer available. Open the menu again and try once more.",
   "bot-server.startup.database_unreachable": "Cannot connect to database",
   "bot-server.startup.event_bus_failed": "Failed to start EventBus",
   "bot-server.startup.cache_failed": "Failed to start Cache Service",

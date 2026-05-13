@@ -23,7 +23,7 @@ export interface OrchestratorDeps {
   validate: () => AsyncResult<ValidationResult>;
   loadModuleHandlers: (bot: BotLike, validated: ValidatedModule[]) => AsyncResult<string[]>;
   registerCommands: (bot: BotLike) => AsyncResult<void>;
-  createBot: (token: string) => BotLike;
+  createBot: (token: string, validatedModules?: ValidatedModule[]) => BotLike;
   createHttpServer: (bot: BotLike, config: BotServerConfig) => HttpServerLike;
   registerShutdownHooks: (httpServer: HttpServerLike, bot: BotLike) => Result<void, AppError>;
   setupSignalHandlers: () => Result<void, AppError>;
@@ -66,7 +66,7 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   deps.logger.info({ msg: 'http_server_listening', port: config.port });
 
   const durationMs = Date.now() - startTime;
-  await deps.eventBus.publish('system.startup.completed', {
+  publishStartupCompleted(deps, {
     durationMs,
     modulesLoaded: loadedModules.length,
     mode: config.botMode,
@@ -83,6 +83,31 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   }
 
   return ok(undefined);
+}
+
+function publishStartupCompleted(
+  deps: OrchestratorDeps,
+  payload: Record<string, unknown>,
+): void {
+  deps.eventBus
+    .publish('system.startup.completed', payload)
+    .then((result: unknown) => {
+      if (isFailedPublish(result)) {
+        deps.logger.warn({ msg: 'startup_completed_event_publish_failed' });
+      }
+    })
+    .catch((error: unknown) => {
+      deps.logger.warn({
+        msg: 'startup_completed_event_publish_failed',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
+}
+
+function isFailedPublish(value: unknown): boolean {
+  return typeof value === 'object' && value !== null && 'isOk' in value
+    ? !(value as { isOk: () => boolean }).isOk()
+    : false;
 }
 
 interface FatalStepsOutput {
@@ -129,7 +154,7 @@ async function runFatalSteps(
     return err(validationResult.error);
   }
 
-  const bot = deps.createBot(config.botToken);
+  const bot = deps.createBot(config.botToken, validationResult.value.validated);
 
   const handlersResult = await deps.loadModuleHandlers(bot, validationResult.value.validated);
   if (handlersResult.isErr()) {

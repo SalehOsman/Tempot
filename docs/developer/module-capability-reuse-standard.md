@@ -29,12 +29,12 @@ prevent avoidable duplication, inconsistent flows, and hidden maintenance cost.
 Every material capability in a module must be classified in planning and review
 as one of:
 
-| Classification | Meaning |
-| --- | --- |
-| `Reuse` | Use an approved package directly with no local replacement. |
-| `Compose` | Use one or more approved packages with module-owned schemas, adapters, data sources, or orchestration. |
-| `Extend Package` | Add or improve reusable package functionality because the gap belongs in shared infrastructure. |
-| `Custom Approved` | Implement locally because reuse or package extension is not appropriate for the current requirement. |
+| Classification    | Meaning                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `Reuse`           | Use an approved package directly with no local replacement.                                            |
+| `Compose`         | Use one or more approved packages with module-owned schemas, adapters, data sources, or orchestration. |
+| `Extend Package`  | Add or improve reusable package functionality because the gap belongs in shared infrastructure.        |
+| `Custom Approved` | Implement locally because reuse or package extension is not appropriate for the current requirement.   |
 
 `Custom Approved` is an exception path, not a convenience path.
 
@@ -65,11 +65,11 @@ a capability decision table.
 
 Recommended format:
 
-| Capability Need | Default Package | Decision | Rationale | Follow-up |
-| --- | --- | --- | --- | --- |
-| Multi-step bot creation flow | `@tempot/input-engine` | `Reuse` | Built for structured Telegram forms and validation. | None |
-| Admin list navigation | `@tempot/ux-helpers` | `Compose` | Module owns labels and callbacks; helpers own pagination patterns. | None |
-| Template-specific dependency graph | None | `Custom Approved` | Domain-specific orchestration, not a reusable package concern. | Revisit only if a second module needs the same graph behavior. |
+| Capability Need                    | Default Package        | Decision          | Rationale                                                          | Follow-up                                                      |
+| ---------------------------------- | ---------------------- | ----------------- | ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| Multi-step bot creation flow       | `@tempot/input-engine` | `Reuse`           | Built for structured Telegram forms and validation.                | None                                                           |
+| Admin list navigation              | `@tempot/ux-helpers`   | `Compose`         | Module owns labels and callbacks; helpers own pagination patterns. | None                                                           |
+| Template-specific dependency graph | None                   | `Custom Approved` | Domain-specific orchestration, not a reusable package concern.     | Revisit only if a second module needs the same graph behavior. |
 
 The table must be concrete. Entries such as "custom because easier" or "reuse
 later" are not valid.
@@ -89,25 +89,25 @@ Reviewers must ask:
 
 ## Package Capability Matrix
 
-| Need | Required Default | What the Module Should Not Rebuild |
-| --- | --- | --- |
-| Multi-step input flows, wizards, structured Telegram forms | `@tempot/input-engine` | Manual conversation state machines, ad hoc step maps, repeated validation loops, custom cancel/back/resume handling |
-| Telegram buttons, callback UX, pagination, confirmations, status messaging | `@tempot/ux-helpers` | Repeated button layout utilities, callback safety wrappers, pagination widgets, standard feedback messages, and ad hoc raw `InlineKeyboard` layouts when helpers already cover the requirement |
-| Authorization and role checks | `@tempot/auth-core` | Local role hierarchy, custom permission engines, duplicated RBAC rules |
-| Repository foundation and shared persistence patterns | `@tempot/database` | Direct Prisma usage in services, local transaction helpers that duplicate package behavior |
-| Cross-module events | `@tempot/event-bus` | Direct module imports, custom in-memory pub/sub between modules |
-| User-facing translation | `@tempot/i18n-core` | Hardcoded strings, local translation loaders |
-| Editable or protected content surfaces | `@tempot/cms-engine` | Local dynamic text registries, placeholder validation clones |
-| Runtime and module settings | `@tempot/settings` | Ad hoc config stores, local settings persistence abstractions |
-| Notifications and notification request workflows | `@tempot/notifier` | Direct notification delivery logic inside modules |
-| Search, filtering, query state, search-oriented pagination | `@tempot/search-engine` | Local generic filter engines, repeated search state implementations |
-| Import parsing, validation batches, invalid-row reporting | `@tempot/import-engine` | CSV/Excel parsers and repeated import job coordination |
-| Exports and generated documents | `@tempot/document-engine` | Local PDF/Excel generation pipelines for supported document outputs |
-| File storage and attachment handling | `@tempot/storage-engine` | Direct provider SDK usage or local upload/download abstractions |
-| AI provider usage, RAG, grounding, audit-oriented AI behavior | `@tempot/ai-core` | Direct provider orchestration, local RAG pipelines, ungrounded AI flows |
-| Module metadata, activation, command registration contracts | `@tempot/module-registry` | Local registry copies, duplicate enable/disable discovery logic |
-| Logging and audit-capable log surfaces | `@tempot/logger` | Ad hoc logger wrappers or production `console.*` calls |
-| Shared errors, `Result`, cache wrapper, queue factory, shutdown helpers | `@tempot/shared` | Local equivalents of existing foundational primitives |
+| Need                                                                       | Required Default                                           | What the Module Should Not Rebuild                                                                                                                                                             |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Multi-step input flows, wizards, structured Telegram forms                 | `@tempot/input-engine`                                     | Manual conversation state machines, ad hoc step maps, repeated validation loops, custom cancel/back/resume handling                                                                            |
+| Telegram buttons, callback UX, pagination, confirmations, status messaging | `@tempot/ux-helpers`                                       | Repeated button layout utilities, callback safety wrappers, pagination widgets, standard feedback messages, and ad hoc raw `InlineKeyboard` layouts when helpers already cover the requirement |
+| Authorization and role checks                                              | `@tempot/auth-core`                                        | Local role hierarchy, custom permission engines, duplicated RBAC rules                                                                                                                         |
+| Repository foundation and shared persistence patterns                      | `@tempot/database`                                         | Direct Prisma usage in services, local transaction helpers that duplicate package behavior                                                                                                     |
+| Cross-module events                                                        | `@tempot/event-bus`                                        | Direct module imports, custom in-memory pub/sub between modules                                                                                                                                |
+| User-facing translation                                                    | `@tempot/i18n-core`                                        | Hardcoded strings, local translation loaders                                                                                                                                                   |
+| Editable or protected content surfaces                                     | `@tempot/cms-engine`                                       | Local dynamic text registries, placeholder validation clones                                                                                                                                   |
+| Runtime and module settings                                                | `@tempot/settings`                                         | Ad hoc config stores, local settings persistence abstractions                                                                                                                                  |
+| Notifications and notification request workflows                           | `@tempot/notifier`                                         | Direct notification delivery logic inside modules                                                                                                                                              |
+| Search, filtering, query state, search-oriented pagination                 | `@tempot/search-engine`                                    | Local generic filter engines, repeated search state implementations                                                                                                                            |
+| Import parsing, validation batches, invalid-row reporting                  | `@tempot/import-engine`                                    | CSV/Excel parsers and repeated import job coordination                                                                                                                                         |
+| Exports and generated documents                                            | `@tempot/document-engine`                                  | Local PDF/Excel generation pipelines for supported document outputs                                                                                                                            |
+| File storage and attachment handling                                       | `@tempot/storage-engine`                                   | Direct provider SDK usage or local upload/download abstractions                                                                                                                                |
+| AI provider usage, RAG, grounding, audit-oriented AI behavior              | `@tempot/ai-core`                                          | Direct provider orchestration, local RAG pipelines, ungrounded AI flows                                                                                                                        |
+| Module metadata, activation, command registration contracts                | `@tempot/module-registry`                                  | Local registry copies, duplicate enable/disable discovery logic                                                                                                                                |
+| Runtime diagnostics, logging, and audit-capable log surfaces               | `@tempot/logger` plus bot-server interaction observability | Ad hoc logger wrappers, silent callback failures, or production `console.*` calls                                                                                                              |
+| Shared errors, `Result`, cache wrapper, queue factory, shutdown helpers    | `@tempot/shared`                                           | Local equivalents of existing foundational primitives                                                                                                                                          |
 
 ## Telegram Interaction Standard
 
@@ -136,6 +136,13 @@ For Telegram-facing modules, the preferred operating model is:
    - Direct `InlineKeyboard` or hand-built `inline_keyboard` payloads require a
      documented package-gap rationale when `@tempot/ux-helpers` can already
      express the interaction.
+7. **Callbacks must be observable and pass-through safe.**
+   - Module callback handlers must handle only their own callback namespace.
+   - Unrelated callback namespaces must call the next middleware so bot-server
+     can route them to the owning module or the shared callback fallback.
+   - No inline button may intentionally fail silently. Expected unsupported
+     actions must update the current message or answer the callback with a
+     localized response.
 
 `bot-management` is the initial operational reference for this rule. Its menu
 surfaces should be used as the concrete example when extending UX guidance to
@@ -151,6 +158,8 @@ Use `@tempot/input-engine` when the module needs:
 - searchable or paginated selection fields
 - dates, times, locations, geo selection, toggles, files, or smart extraction
 - cancellation, back navigation, confirmation, partial save, or resume
+- replay-safe flow diagnostics through the shared input-engine/conversation
+  integration
 
 Use `Custom Approved` only when:
 
@@ -176,6 +185,7 @@ Use this template:
 Describe the exact requirement that is not adequately covered.
 
 **Packages considered:**
+
 - `@tempot/{package-a}` - explain why direct reuse does not fit.
 - `@tempot/{package-b}` - explain why composition does not fit, if applicable.
 
@@ -214,32 +224,32 @@ Package extension work must receive its own:
 
 ### Example 1: Bot Registration Flow
 
-| Need | Decision |
-| --- | --- |
-| Collect display name, username, token, locale, timezone | `Reuse` `@tempot/input-engine` |
-| Confirmation summary before create | `Compose` `@tempot/input-engine` and `@tempot/ux-helpers` |
-| Persist resulting bot profile | `Reuse` repository pattern via `@tempot/database` |
+| Need                                                    | Decision                                                  |
+| ------------------------------------------------------- | --------------------------------------------------------- |
+| Collect display name, username, token, locale, timezone | `Reuse` `@tempot/input-engine`                            |
+| Confirmation summary before create                      | `Compose` `@tempot/input-engine` and `@tempot/ux-helpers` |
+| Persist resulting bot profile                           | `Reuse` repository pattern via `@tempot/database`         |
 
 Do not build a local `Map`-based form state service if `input-engine` covers the
 flow.
 
 ### Example 2: Admin Search Surface
 
-| Need | Decision |
-| --- | --- |
-| Search criteria input | `Reuse` or `Compose` `@tempot/input-engine` |
-| Query planning and filtering | `Reuse` `@tempot/search-engine` |
-| Paged result navigation | `Compose` `@tempot/ux-helpers` |
+| Need                         | Decision                                    |
+| ---------------------------- | ------------------------------------------- |
+| Search criteria input        | `Reuse` or `Compose` `@tempot/input-engine` |
+| Query planning and filtering | `Reuse` `@tempot/search-engine`             |
+| Paged result navigation      | `Compose` `@tempot/ux-helpers`              |
 
 Do not duplicate generic filter builders or pagination logic inside the module.
 
 ### Example 3: Domain-Specific Approval Workflow
 
-| Need | Decision |
-| --- | --- |
-| Record approval states and transitions | `Custom Approved` |
-| Publish state change events | `Reuse` `@tempot/event-bus` |
-| Notify administrators | `Reuse` `@tempot/notifier` |
+| Need                                   | Decision                    |
+| -------------------------------------- | --------------------------- |
+| Record approval states and transitions | `Custom Approved`           |
+| Publish state change events            | `Reuse` `@tempot/event-bus` |
+| Notify administrators                  | `Reuse` `@tempot/notifier`  |
 
 The approval transition engine may be local if it is unique to one domain, but
 notifications and events are still package-owned capabilities.
@@ -267,4 +277,8 @@ Before asking for review, confirm:
       documents the approved exception for raw keyboard construction.
 - [ ] Structured multi-step inputs use `@tempot/input-engine` unless an approved
       exception exists.
+- [ ] Callback handlers pass unrelated namespaces to the next middleware.
+- [ ] Callback acknowledgement is best-effort and cannot block the owning flow.
+- [ ] Buttons and flows rely on bot-server/input-engine diagnostics instead of
+      local ad hoc terminal output.
 - [ ] The implementation does not recreate package-owned behavior locally.

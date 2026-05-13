@@ -6,6 +6,8 @@
   },
   "scripts": {
     "dev": "corepack pnpm --filter bot-server dev",
+    "build:bot-runtime": "corepack pnpm --recursive --filter @tempot/input-engine --filter @tempot/ux-helpers --filter @tempot/bot-management --filter @tempot/template-management --filter @tempot/user-management build",
+    "dev:bot": "corepack pnpm build:bot-runtime && corepack pnpm --parallel --stream --filter @tempot/input-engine --filter @tempot/ux-helpers --filter @tempot/bot-management --filter @tempot/template-management --filter @tempot/user-management --filter bot-server dev:watch",
     "tempot": "tsx scripts/tempot/index.ts",
     "dev:tunnel": "corepack pnpm --filter bot-server dev:tunnel",
     "webhook:set": "corepack pnpm --filter bot-server webhook:set",

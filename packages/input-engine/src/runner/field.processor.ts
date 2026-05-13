@@ -5,17 +5,16 @@ import { INPUT_ENGINE_ERRORS } from '../input-engine.errors.js';
 import { FIELD_SKIPPED_SENTINEL, type FieldMetadata } from '../input-engine.types.js';
 import type { FieldHandler, RenderContext } from '../fields/field.handler.js';
 import type { FormRunnerDeps, FormRunnerInput } from './form.runner.js';
-import { ACTION_CALLBACKS } from './action-buttons.builder.js';
-import { renderValidationError } from './validation-error.renderer.js';
-import { extractCallbackData } from '../utils/callback-data.helper.js';
-import { extractMessageText } from '../utils/message-text.helper.js';
 import { acknowledgeCallbackResponse } from './callback-response.acknowledger.js';
+import {
+  logFieldMaxRetries,
+  logFieldStarted,
+  logFieldValidated,
+} from './field.lifecycle-logger.js';
+import { handleValidationFailure } from './field-validation.feedback.js';
+import { handleControlSignal } from './field-control-signal.handler.js';
 
 const DEFAULT_MAX_RETRIES = 3;
-
-interface ReplyCapableContext {
-  reply: (text: string) => Promise<unknown>;
-}
 
 /** Internal context for processing a single field */
 export interface FieldContext {
@@ -72,34 +71,6 @@ async function resolveResponseCtx(
   return ok(responseCtx);
 }
 
-/** Detect cancel signal from user response */
-function isCancelSignal(response: unknown): boolean {
-  const data = extractCallbackData(response);
-  if (data?.includes(ACTION_CALLBACKS.CANCEL)) return true;
-  return extractMessageText(response)?.trim().toLowerCase() === '/cancel';
-}
-
-/** Detect keep-current signal from user response */
-function isKeepCurrentSignal(response: unknown): boolean {
-  const data = extractCallbackData(response);
-  return data?.includes(ACTION_CALLBACKS.KEEP_CURRENT) === true;
-}
-
-/** Detect back navigation signal from user response */
-function isBackSignal(response: unknown): boolean {
-  const data = extractCallbackData(response);
-  return data?.includes(ACTION_CALLBACKS.BACK) === true;
-}
-
-/** Check for cancel signal and return cancel error if detected */
-function checkCancelSignal(response: unknown, ctx: FieldContext): AppError | undefined {
-  if (!ctx.allowCancel || !isCancelSignal(response)) return undefined;
-  return new AppError(INPUT_ENGINE_ERRORS.FORM_CANCELLED, {
-    reason: 'user_cancel',
-    fieldName: ctx.fieldName,
-  });
-}
-
 /** Try to parse and validate a user response; returns ok(value) or err */
 function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unknown, AppError> {
   const { metadata, fieldSchema } = ctx;
@@ -107,6 +78,21 @@ function tryParseAndValidate(response: unknown, ctx: FieldContext): Result<unkno
   if (pr.isErr()) return err(pr.error);
 
   return ctx.handler.validate(pr.value, fieldSchema, metadata);
+}
+
+async function maxRetriesError(
+  input: FormRunnerInput,
+  ctx: FieldContext,
+  deps: FormRunnerDeps,
+): AsyncResult<unknown, AppError> {
+  await logFieldMaxRetries({ input, deps, ctx });
+  return err(
+    new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
+      fieldName: ctx.fieldName,
+      fieldType: ctx.metadata.fieldType,
+      maxRetries: ctx.maxRetries,
+    }),
+  );
 }
 
 /** Run postProcess on validated value if handler supports it */
@@ -119,61 +105,46 @@ async function runPostProcess(
   return ctx.handler.postProcess(value, renderCtx, ctx.metadata);
 }
 
-/** Send validation feedback without losing grammY conversation method binding. */
-async function sendValidationFeedback(input: FormRunnerInput, errorText: string): Promise<void> {
-  const conversation = input.conversation as {
-    external?: <T>(fn: () => Promise<T>) => Promise<T>;
-  };
-  const replyContext = input.ctx;
-  if (!conversation.external || !hasReply(replyContext)) return;
-  await conversation.external(() => replyContext.reply(errorText));
-}
-
-function hasReply(ctx: unknown): ctx is ReplyCapableContext {
-  return typeof (ctx as { reply?: unknown }).reply === 'function';
-}
-
 /** Process a single field: render, parse, validate with retry */
 export async function processField(
   input: FormRunnerInput,
   ctx: FieldContext,
   deps: FormRunnerDeps,
 ): AsyncResult<unknown, AppError> {
-  const { metadata, maxRetries } = ctx;
+  const { maxRetries } = ctx;
   let retryCount = 0;
+
+  await logFieldStarted({ input, deps, ctx });
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const rr = await resolveResponseCtx(input, ctx, deps);
     if (rr.isErr()) return err(rr.error);
 
+    const controlResult = await handleControlSignal({
+      input,
+      ctx,
+      deps,
+      response: rr.value,
+      attempt: attempt + 1,
+    });
+    if (controlResult) return controlResult;
+
     await acknowledgeCallbackResponse(input, deps, rr.value);
-
-    const cancelErr = checkCancelSignal(rr.value, ctx);
-    if (cancelErr) return err(cancelErr);
-
-    if (isKeepCurrentSignal(rr.value) && ctx.previousValue !== undefined) {
-      ctx.retryCount = 0;
-      return ok(ctx.previousValue);
-    }
-
-    if (isBackSignal(rr.value)) {
-      return err(new AppError(INPUT_ENGINE_ERRORS.NAVIGATE_BACK, { fieldName: ctx.fieldName }));
-    }
 
     const vr = tryParseAndValidate(rr.value, ctx);
     if (vr.isErr()) {
       retryCount++;
-      const errorText = renderValidationError(
-        metadata,
-        { current: retryCount, max: maxRetries },
-        deps.t,
-      );
-      deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
-      await sendValidationFeedback(input, errorText);
+      await handleValidationFailure({
+        input,
+        ctx,
+        deps,
+        details: { retryCount, error: vr.error },
+      });
       continue;
     }
 
     ctx.retryCount = retryCount;
+    await logFieldValidated({ input, deps, ctx });
     const renderCtx = buildRenderCtx(input, ctx, deps);
     return runPostProcess(vr.value, ctx, renderCtx);
   }
@@ -182,13 +153,7 @@ export async function processField(
     ctx.retryCount = maxRetries;
     return ok(FIELD_SKIPPED_SENTINEL);
   }
-  return err(
-    new AppError(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES, {
-      fieldName: ctx.fieldName,
-      fieldType: metadata.fieldType,
-      maxRetries,
-    }),
-  );
+  return maxRetriesError(input, ctx, deps);
 }
 
 /** Params for building a field context */

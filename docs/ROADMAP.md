@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-12.
+> Last updated: 2026-05-14.
 
 ## Current Technical Baseline
 
@@ -21,8 +21,25 @@
 
 ## Current Strategic Track
 
-Tempot Core is active as the current product. The future Tempot Cloud SaaS path
-is documented but not yet implemented.
+Tempot Core is active as the current product. Its primary product identity is a
+production-grade Telegram bot framework and single-bot starter template: a
+developer should be able to configure, extend, and run one Telegram bot without
+building the platform foundations again.
+
+Tempot Cloud remains a future product track. Current work must keep the core
+template ready for eventual multi-bot and SaaS evolution, but it must not make
+future SaaS concerns more important than the immediate single-bot template
+experience.
+
+Current priority order:
+
+1. Make the single Telegram bot template easy to install, configure, extend,
+   test, and deploy.
+2. Keep packages, modules, settings, audit metadata, and runtime boundaries
+   scope-ready for future multi-bot operation.
+3. Defer hosted SaaS features, tenant billing, dashboards, and managed bot
+   fleet operations until a separate Product Manager decision activates that
+   track.
 
 Recently completed:
 
@@ -74,17 +91,24 @@ Recently completed:
 - Spec #041: conversation runtime integration plus the inline-first
   `@tempot/input-engine` adoption standard for `bot-management` registration,
   with the duplicate manual registration state path removed.
+- Spec #043: bot development runtime observability with `pnpm dev:bot`,
+  command and callback diagnostics, unhandled callback fallback, non-blocking
+  startup observability events, input-engine field lifecycle logs, and robust
+  inline back or cancel handling inside conversational flows.
 
 Active or next work:
 
-1. `template-management` (Spec #039) implemented and closure-hardened: types,
-   schemas, lifecycle, repositories, services, menus, commands, handlers,
-   module manifest, 48 unit tests passing, and 22 integration tests passing.
-2. `bot-management` (Spec #040) production completion is active: foundation and
-   the Spec #041 inline-first registration standard are merged, while remaining
-   production work continues across lifecycle governance, settings, module
-   enablement, provisioning, search, notifications, and import/export.
-3. Consider future RAG evaluation expansion for latency, token usage, and cost
+1. Start a focused single-bot template production-readiness slice. The target is
+   a developer path from clone, environment setup, Docker or local startup,
+   `/start`, module interaction, testing, and deployment guidance.
+2. Keep `template-management` useful as a product capability and developer
+   reference, but avoid marketplace or SaaS-only expansion until the single-bot
+   template experience is complete.
+3. `bot-management` (Spec #040) remains a future-facing operational module.
+   Keep it useful as a lightweight bot profile registry for the template, but
+   do not let multi-bot SaaS management displace the current single-bot
+   framework priority.
+4. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 
 ## Phase Summary
@@ -99,7 +123,7 @@ Active or next work:
 | Phase 3B | Next business module and supporting packages        | Started; `template-management` closure complete |
 | Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
 | Phase 5  | Enterprise infrastructure                           | Not started                                     |
-| Phase 6  | Observability and developer experience expansion    | Partially started through DX tooling            |
+| Phase 6  | Observability and developer experience expansion    | Active through DX tooling and bot runtime observability |
 
 ## Package Status
 
@@ -170,7 +194,7 @@ Baseline module strategy documented by Spec #036:
 | --------------------- | ------------- | ---------------- |
 | `user-management`     | Core platform | Implemented      |
 | `template-management` | Product       | Implemented      |
-| `bot-management`      | Operational   | Active production completion |
+| `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge |
 | `content-management`  | Product       | Planned baseline |
 | `notification-center` | Operational   | Planned baseline |
 | `audit-viewer`        | Operational   | Planned baseline |

@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "dev:watch": "tsc --watch --preserveWatchOutput",
     "test": "vitest run",
     "test:watch": "vitest"
   },

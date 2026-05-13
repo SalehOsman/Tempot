@@ -10,6 +10,12 @@ module creation into a governed workflow based on SpecKit artifacts, reusable
 package capabilities, generator blueprints, validation gates, and optional
 AI-assisted guidance.
 
+Tempot Core is currently a single Telegram bot template and framework. Module
+authors must optimize for that immediate use case while keeping module
+contracts, settings, events, and ownership metadata ready for future multi-bot
+SaaS management. A module should not introduce SaaS-only complexity unless a
+dedicated spec activates that track.
+
 For mandatory package reuse rules, decision classifications, and the approved
 exception path for local custom behavior, read
 `docs/developer/module-capability-reuse-standard.md`.
@@ -37,7 +43,7 @@ belongs in `packages/`; runtime surfaces belong in `apps/`.
 | --- | --- | --- | --- |
 | `user-management` | Core platform | Users, roles, profiles, and access-aware user flows. | `auth-core`, `database`, `i18n-core`, `ux-helpers` |
 | `template-management` | Product | Bot templates, categories, tags, publishing, and archiving. | `search-engine`, `import-engine`, `document-engine`, `cms-engine`, `notifier` |
-| `bot-management` | Operational platform | Bot settings, webhook metadata, runtime status, and future multi-bot readiness. | `settings`, `event-bus`, `logger`, `module-registry`, `ux-helpers`, `input-engine` |
+| `bot-management` | Operational platform | Lightweight bot profile registry now; future bridge for bot settings, runtime status, and multi-bot SaaS management. | `settings`, `event-bus`, `logger`, `module-registry`, `ux-helpers`, `input-engine` |
 | `content-management` | Product platform | Bot messages, content blocks, and editable text workflows above `cms-engine`. | `cms-engine`, `i18n-core`, `auth-core`, `logger` |
 | `notification-center` | Operational | Notification channels, preferences, delivery views, and notification events. | `notifier`, `settings`, `event-bus`, `logger` |
 | `audit-viewer` | Operational | Read-only audit and activity exploration for admins and dashboard users. | `logger`, `search-engine`, `auth-core` |

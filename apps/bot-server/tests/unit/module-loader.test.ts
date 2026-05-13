@@ -37,7 +37,7 @@ function createMockModule(
   };
 }
 
-const mockBot = {} as unknown;
+const mockBot = { use: vi.fn() } as unknown;
 const mockEventBus = { publish: vi.fn().mockResolvedValue({ isOk: () => true }) };
 const mockSessionProvider = { getSession: vi.fn().mockResolvedValue({}) };
 const mockI18n = { t: vi.fn().mockReturnValue('translated') };
@@ -72,6 +72,19 @@ describe('loadModuleHandlers', () => {
       expect(result.value).toEqual(['my-module']);
     }
     expect(setupFn).toHaveBeenCalledOnce();
+  });
+
+  it('registers callback fallback after module handlers are loaded', async () => {
+    const setupFn: ModuleSetupFn = vi.fn().mockImplementation(async () => {
+      expect((mockBot as { use: ReturnType<typeof vi.fn> }).use).not.toHaveBeenCalled();
+    });
+    const importer: ModuleImporter = vi.fn().mockResolvedValue({ default: setupFn });
+    const deps = createDeps(importer);
+
+    const result = await loadModuleHandlers(mockBot, [createMockModule()], deps);
+
+    expect(result.isOk()).toBe(true);
+    expect((mockBot as { use: ReturnType<typeof vi.fn> }).use).toHaveBeenCalledOnce();
   });
 
   it('core module failure (setup throws) returns err with CORE_MODULE_HANDLER_FAILED', async () => {

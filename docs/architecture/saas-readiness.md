@@ -7,10 +7,20 @@
 
 | Layer | Status | Responsibility |
 | --- | --- | --- |
-| Tempot Core | Current priority | Standalone Telegram bot framework, packages, modules, local deployment, module registry |
+| Tempot Core | Current priority | Production-grade single Telegram bot template and framework, packages, modules, local deployment, module registry |
 | Tempot Cloud | Future product track | Hosted SaaS, tenants, workspaces, billing, bot provisioning, dashboards, marketplace |
 
-Tempot Core must remain valuable without Tempot Cloud. SaaS readiness means Core avoids blocking decisions; it does not mean Core implements full tenancy now.
+Tempot Core must remain valuable without Tempot Cloud. The current product is a
+single-bot starter template first. SaaS readiness means Core avoids blocking
+future multi-bot decisions; it does not mean Core implements full tenancy,
+billing, hosted dashboards, or managed fleet operations now.
+
+Current development must apply a dual-track guardrail:
+
+- Build the immediate product as a simple, production-ready template for one
+  Telegram bot.
+- Preserve clean bot-scope boundaries so the same foundation can later become a
+  template for creating and managing many bots.
 
 ## Scope Concepts
 

@@ -165,6 +165,110 @@ describe('processField', () => {
       expect(handler.parseResponse).not.toHaveBeenCalled();
     });
 
+    it('continues processing back when callback acknowledgement does not resolve', async () => {
+      vi.useFakeTimers();
+      const answerCallbackQuery = vi.fn().mockReturnValue(new Promise(() => undefined));
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(
+          ok({
+            callbackQuery: { data: 'ie:test-form:1:__back__' },
+            answerCallbackQuery,
+          }),
+        ),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      const ctx = createFieldContext(handler);
+      const resultPromise = processField(createInput(), ctx, deps);
+
+      await vi.advanceTimersByTimeAsync(1_500);
+      const result = await resultPromise;
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.NAVIGATE_BACK);
+      expect(deps.logger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.callback_ack_timeout' }),
+      );
+      vi.useRealTimers();
+    });
+
+    it('continues processing cancel when callback acknowledgement does not resolve', async () => {
+      vi.useFakeTimers();
+      const answerCallbackQuery = vi.fn().mockReturnValue(new Promise(() => undefined));
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(
+          ok({
+            callbackQuery: { data: 'ie:test-form:1:__cancel__' },
+            answerCallbackQuery,
+          }),
+        ),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+
+      const deps = createMockDeps();
+      const ctx = createFieldContext(handler);
+      const resultPromise = processField(createInput(), ctx, deps);
+
+      await vi.advanceTimersByTimeAsync(1_500);
+      const result = await resultPromise;
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      expect(deps.logger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.callback_ack_timeout' }),
+      );
+      vi.useRealTimers();
+    });
+
+    it('does not overlap conversation.external work when callback acknowledgement times out', async () => {
+      vi.useFakeTimers();
+      let externalActive = false;
+      const external = vi.fn(
+        async <T>(task: () => Promise<T> | T): Promise<T> => {
+          if (externalActive) throw new Error('overlapping external work');
+          externalActive = true;
+          try {
+            return await task();
+          } finally {
+            externalActive = false;
+          }
+        },
+      );
+      const answerCallbackQuery = vi.fn().mockReturnValue(new Promise(() => undefined));
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(
+          ok({
+            callbackQuery: { data: 'ie:test-form:1:__cancel__' },
+            answerCallbackQuery,
+          }),
+        ),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+      const deps = createMockDeps();
+      const input: FormRunnerInput = {
+        conversation: { external },
+        ctx: { message: { text: 'mock-input' } },
+        schema: z.object({ name: z.string() }),
+      };
+      const resultPromise = processField(input, createFieldContext(handler), deps);
+
+      await vi.advanceTimersByTimeAsync(1_500);
+      const result = await resultPromise;
+
+      expect(result.isErr()).toBe(true);
+      expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FORM_CANCELLED);
+      expect(externalActive).toBe(false);
+      expect(external).toHaveBeenCalledTimes(2);
+      vi.useRealTimers();
+    });
+
     it('non-back callback data is processed normally (no false positive)', async () => {
       const handler: FieldHandler = {
         fieldType: 'ShortText',
@@ -220,7 +324,7 @@ describe('processField', () => {
       const result = await processField(input, ctx, deps);
 
       expect(result.isOk()).toBe(true);
-      expect(externalSpy).toHaveBeenCalledTimes(1);
+      expect(externalSpy).toHaveBeenCalledTimes(4);
       expect(replySpy).toHaveBeenCalledTimes(1);
       expect(replySpy).toHaveBeenCalledWith(expect.stringContaining('input-engine.errors'));
     });
@@ -266,7 +370,7 @@ describe('processField', () => {
       const result = await processField(input, ctx, deps);
 
       expect(result.isOk()).toBe(true);
-      expect(externalCalls).toHaveBeenCalledTimes(1);
+      expect(externalCalls).toHaveBeenCalledTimes(4);
       expect(replySpy).toHaveBeenCalledTimes(1);
       expect(conversation.insideExternal).toBe(false);
     });
@@ -313,7 +417,7 @@ describe('processField', () => {
       const result = await processField(input, ctx, deps);
 
       expect(result.isOk()).toBe(true);
-      expect(externalSpy).toHaveBeenCalledTimes(1);
+      expect(externalSpy).toHaveBeenCalledTimes(4);
       expect(replyContext.replies).toHaveLength(1);
       expect(replyContext.replies[0]).toContain('input-engine.errors');
     });
@@ -367,6 +471,137 @@ describe('processField', () => {
 
       expect(result.isErr()).toBe(true);
       expect(result._unsafeUnwrapErr().code).toBe(INPUT_ENGINE_ERRORS.FIELD_MAX_RETRIES);
+    });
+  });
+
+  describe('field lifecycle diagnostics', () => {
+    it('logs field start and validation success', async () => {
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ callback_query: { data: 'value' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('parsed')),
+        validate: vi.fn().mockReturnValue(ok('parsed')),
+      };
+      const deps = createMockDeps();
+      const result = await processField(createInput(), createFieldContext(handler), deps);
+
+      expect(result.isOk()).toBe(true);
+      expect(deps.logger.debug).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_started', fieldName: 'name' }),
+      );
+      expect(deps.logger.info).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_validated', fieldName: 'name' }),
+      );
+    });
+
+    it('runs lifecycle logs through conversation.external when available', async () => {
+      const externalSpy = vi
+        .fn()
+        .mockImplementation(async <T>(fn: () => T | Promise<T>): Promise<T> => fn());
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ callback_query: { data: 'value' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('parsed')),
+        validate: vi.fn().mockReturnValue(ok('parsed')),
+      };
+      const deps = createMockDeps();
+      const input: FormRunnerInput = {
+        conversation: { external: externalSpy },
+        ctx: { message: { text: 'mock-input' } },
+        schema: z.object({ name: z.string() }),
+      };
+
+      const result = await processField(input, createFieldContext(handler), deps);
+
+      expect(result.isOk()).toBe(true);
+      expect(externalSpy).toHaveBeenCalledTimes(2);
+      expect(deps.logger.debug).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_started', fieldName: 'name' }),
+      );
+      expect(deps.logger.info).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_validated', fieldName: 'name' }),
+      );
+    });
+
+    it('logs keep-current control action when previous value is reused', async () => {
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi
+          .fn()
+          .mockResolvedValue(ok({ callback_query: { data: 'ie:test-form:1:__keep_current__' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+      const deps = createMockDeps();
+      const ctx = createFieldContext(handler, { previousValue: 'previous' });
+
+      const result = await processField(createInput(), ctx, deps);
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toBe('previous');
+      expect(deps.logger.info).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_keep_current', fieldName: 'name' }),
+      );
+      expect(handler.parseResponse).not.toHaveBeenCalled();
+    });
+
+    it('logs cancel and back control actions', async () => {
+      const cancelHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi
+          .fn()
+          .mockResolvedValue(ok({ callback_query: { data: 'ie:test-form:1:__cancel__' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+      const backHandler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi
+          .fn()
+          .mockResolvedValue(ok({ callback_query: { data: 'ie:test-form:1:__back__' } })),
+        parseResponse: vi.fn().mockReturnValue(ok('value')),
+        validate: vi.fn().mockReturnValue(ok('value')),
+      };
+      const deps = createMockDeps();
+
+      await processField(createInput(), createFieldContext(cancelHandler), deps);
+      await processField(createInput(), createFieldContext(backHandler), deps);
+
+      expect(deps.logger.info).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_cancelled', fieldName: 'name' }),
+      );
+      expect(deps.logger.info).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_back', fieldName: 'name' }),
+      );
+    });
+
+    it('logs validation failure and max retries', async () => {
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ message: { text: 'bad' } })),
+        parseResponse: vi
+          .fn()
+          .mockReturnValue(err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED))),
+        validate: vi.fn().mockReturnValue(ok('unused')),
+      };
+      const deps = createMockDeps();
+      const result = await processField(
+        createInput(),
+        createFieldContext(handler, { maxRetries: 1 }),
+        deps,
+      );
+
+      expect(result.isErr()).toBe(true);
+      expect(deps.logger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'input-engine.field_validation_failed',
+          attempt: 1,
+          maxRetries: 1,
+        }),
+      );
+      expect(deps.logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'input-engine.field_max_retries', maxRetries: 1 }),
+      );
     });
   });
 });

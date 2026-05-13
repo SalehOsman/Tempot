@@ -13,10 +13,16 @@ import {
 } from './middleware/scoped-users.middleware.js';
 import { createValidationMiddleware } from './middleware/validation.middleware.js';
 import { createAuditMiddleware, type AuditDeps } from './middleware/audit.middleware.js';
+import { createInteractionObserverMiddleware } from './middleware/interaction-observer.middleware.js';
 import { createErrorBoundary, type ErrorBoundaryDeps } from './error-boundary.js';
+
+type BotFactoryLogger = ErrorBoundaryDeps['logger'] & {
+  info: (data: unknown) => void;
+};
 
 export interface BotFactoryDeps
   extends MaintenanceDeps, AuthDeps, ScopedUsersDeps, AuditDeps, ErrorBoundaryDeps {
+  logger: BotFactoryLogger;
   t: (key: string, options?: Record<string, unknown>) => string;
 }
 
@@ -37,6 +43,7 @@ export function createBot(token: string, deps: BotFactoryDeps): Bot<Context> {
   bot.use(createAuthMiddleware(deps));
   bot.use(createScopedUsersMiddleware(deps));
   bot.use(createValidationMiddleware());
+  bot.use(createInteractionObserverMiddleware(deps));
   bot.use(conversations<Context, Context>() as unknown as MiddlewareFn<Context>);
   // Handlers are registered by modules, not here
   bot.use(createAuditMiddleware(deps));
