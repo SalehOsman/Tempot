@@ -119,6 +119,15 @@ async function runPostProcess(
   return ctx.handler.postProcess(value, renderCtx, ctx.metadata);
 }
 
+/** Send validation feedback without losing grammY conversation method binding. */
+async function sendValidationFeedback(input: FormRunnerInput, errorText: string): Promise<void> {
+  const conversation = input.conversation as {
+    external?: <T>(fn: () => Promise<T>) => Promise<T>;
+  };
+  const replyFn = (input.ctx as { reply?: (t: string) => Promise<unknown> }).reply;
+  if (conversation.external && replyFn) await conversation.external(() => replyFn(errorText));
+}
+
 /** Process a single field: render, parse, validate with retry */
 export async function processField(
   input: FormRunnerInput,
@@ -153,10 +162,7 @@ export async function processField(
         deps.t,
       );
       deps.logger?.debug?.({ msg: 'Validation error', errorText, fieldName: ctx.fieldName });
-      const extFn = (input.conversation as { external?: <T>(fn: () => Promise<T>) => Promise<T> })
-        .external;
-      const replyFn = (input.ctx as { reply?: (t: string) => Promise<unknown> }).reply;
-      if (extFn && replyFn) await extFn(() => replyFn(errorText));
+      await sendValidationFeedback(input, errorText);
       continue;
     }
 

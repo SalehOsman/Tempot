@@ -200,6 +200,52 @@ describe('processField', () => {
       expect(replySpy).toHaveBeenCalledWith(expect.stringContaining('input-engine.errors'));
     });
 
+    it('preserves conversation.external binding when sending validation feedback', async () => {
+      const replySpy = vi.fn().mockResolvedValue(undefined);
+      const externalCalls = vi.fn();
+      const conversation = {
+        insideExternal: false,
+        async external<T>(this: { insideExternal: boolean }, fn: () => Promise<T>): Promise<T> {
+          externalCalls();
+          this.insideExternal = true;
+          const value = await fn();
+          this.insideExternal = false;
+          return value;
+        },
+      };
+
+      let callCount = 0;
+      const handler: FieldHandler = {
+        fieldType: 'ShortText',
+        render: vi.fn().mockResolvedValue(ok({ message: { text: 'bad-input' } })),
+        parseResponse: vi.fn().mockImplementation(() => {
+          callCount++;
+          if (callCount <= 1) {
+            return err(new AppError(INPUT_ENGINE_ERRORS.FIELD_PARSE_FAILED));
+          }
+          return ok('valid');
+        }),
+        validate: vi.fn().mockReturnValue(ok('valid')),
+      };
+
+      const deps = createMockDeps({
+        t: (key: string, params?: Record<string, unknown>) => `${key}:${JSON.stringify(params)}`,
+      });
+      const ctx = createFieldContext(handler, { maxRetries: 3 });
+      const input: FormRunnerInput = {
+        conversation,
+        ctx: { message: { text: 'bad-input' }, reply: replySpy },
+        schema: z.object({ name: z.string() }),
+      };
+
+      const result = await processField(input, ctx, deps);
+
+      expect(result.isOk()).toBe(true);
+      expect(externalCalls).toHaveBeenCalledTimes(1);
+      expect(replySpy).toHaveBeenCalledTimes(1);
+      expect(conversation.insideExternal).toBe(false);
+    });
+
     it('does not crash when conversation.external is unavailable', async () => {
       const handler: FieldHandler = {
         fieldType: 'ShortText',
