@@ -3,7 +3,18 @@ import { createLifecycleMenu } from '../../menus/lifecycle-menu.factory.js';
 import { BotHealthStatus, BotRuntimeMode, type ManagedBot } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 
-const t = (key: string) => key;
+const t = (key: string) => uxLabel(key);
+const uxLabel = (key: string) =>
+  ({
+    'bot-management.actions.configure': '⚙️ Configure',
+    'bot-management.actions.activate': '▶️ Activate',
+    'bot-management.actions.pause': '⏸️ Pause',
+    'bot-management.actions.resume': '▶️ Resume',
+    'bot-management.actions.maintenance': '⚙️ Maintenance',
+    'bot-management.actions.archive': '🗄️ Archive',
+    'bot-management.actions.confirm_archive': '🗄️ Confirm archive',
+    'bot-management.menu.back': '↩️ Back',
+  })[key] ?? key;
 
 function createBot(status: BotLifecycleStatus): ManagedBot {
   return {
@@ -47,7 +58,7 @@ describe('createLifecycleMenu', () => {
       .inline_keyboard.flat()
       .map((button) => button.text);
 
-    expect(labels[0]).toBe('bot-management.actions.activate');
+    expect(labels[0]).toBe('▶️ Activate');
   });
 
   it('shows active-state pause, maintenance, archive, and back actions', () => {
@@ -61,5 +72,25 @@ describe('createLifecycleMenu', () => {
 
   it('keeps archived bots navigable without exposing new lifecycle actions', () => {
     expect(callbacks(createBot(BotLifecycleStatus.ARCHIVED))).toEqual(['botmgmt:view:bot-1']);
+  });
+
+  it('uses operational icons and readable lifecycle rows on mobile', () => {
+    const menu = createLifecycleMenu(uxLabel, createBot(BotLifecycleStatus.ACTIVE));
+
+    expect(menu.inline_keyboard.map((row) => row.map((button) => button.text))).toEqual([
+      ['⏸️ Pause', '⚙️ Maintenance'],
+      ['🗄️ Archive'],
+      ['↩️ Back'],
+    ]);
+  });
+
+  it('keeps archive confirmation compact and explicit', async () => {
+    const { createArchiveConfirmationMenu } = await import('../../menus/lifecycle-menu.factory.js');
+    const menu = createArchiveConfirmationMenu(uxLabel, 'bot-1');
+
+    expect(menu.inline_keyboard.map((row) => row.map((button) => button.text))).toEqual([
+      ['🗄️ Confirm archive'],
+      ['↩️ Back'],
+    ]);
   });
 });

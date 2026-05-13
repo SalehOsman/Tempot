@@ -37,7 +37,7 @@ belongs in `packages/`; runtime surfaces belong in `apps/`.
 | --- | --- | --- | --- |
 | `user-management` | Core platform | Users, roles, profiles, and access-aware user flows. | `auth-core`, `database`, `i18n-core`, `ux-helpers` |
 | `template-management` | Product | Bot templates, categories, tags, publishing, and archiving. | `search-engine`, `import-engine`, `document-engine`, `cms-engine`, `notifier` |
-| `bot-management` | Operational platform | Bot settings, webhook metadata, runtime status, and future multi-bot readiness. | `settings`, `event-bus`, `logger`, `module-registry` |
+| `bot-management` | Operational platform | Bot settings, webhook metadata, runtime status, and future multi-bot readiness. | `settings`, `event-bus`, `logger`, `module-registry`, `ux-helpers`, `input-engine` |
 | `content-management` | Product platform | Bot messages, content blocks, and editable text workflows above `cms-engine`. | `cms-engine`, `i18n-core`, `auth-core`, `logger` |
 | `notification-center` | Operational | Notification channels, preferences, delivery views, and notification events. | `notifier`, `settings`, `event-bus`, `logger` |
 | `audit-viewer` | Operational | Read-only audit and activity exploration for admins and dashboard users. | `logger`, `search-engine`, `auth-core` |
@@ -146,7 +146,7 @@ Tempot does not use `/speckit.implement` for production execution.
 | Exports | `@tempot/document-engine` | Use export request contracts and storage upload flows. |
 | AI and RAG | `@tempot/ai-core` | Require audit, access policy, grounded answers, and no hallucinated authority. |
 | Files | `@tempot/storage-engine` | Use storage providers and attachment contracts. |
-| Telegram UX | `@tempot/ux-helpers` | Use common menus, pagination, callback, and message helpers. |
+| Telegram UX | `@tempot/ux-helpers` | Use common menus, pagination, callback, confirmation, and mobile-aware button helpers. Treat raw Telegram keyboard assembly as an exception path. |
 | Module metadata | `@tempot/module-registry` | Register config and toggle behavior through public contracts. |
 
 All selections in this catalog must follow the mandatory classification model
@@ -186,6 +186,23 @@ module after the initial module has merged.
 | Notification pack | Notification request events and preference checks. |
 | CMS pack | CMS key registry, placeholder tests, protected key policy. |
 | AI pack | Grounded retrieval source list, citations, no-context behavior, audit tests. |
+
+## Telegram UX Package Guidance
+
+Any Telegram-facing module should treat `@tempot/ux-helpers` as part of its
+default developer toolkit when it owns menus, buttons, confirmations, callback
+surfaces, or status messaging.
+
+Recommended baseline:
+
+- `@tempot/input-engine` for structured multi-step forms
+- `@tempot/ux-helpers` for inline menu construction, confirmations, callback UX,
+  and compact mobile-aware layouts
+- `@tempot/i18n-core` for all visible labels
+
+`bot-management` is the first operational reference module for this standard.
+New modules should follow the same package-first interaction model instead of
+rebuilding button layout and callback presentation locally.
 
 ## RAG Assistant
 

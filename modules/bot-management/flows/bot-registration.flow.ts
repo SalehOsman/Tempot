@@ -160,6 +160,8 @@ function createPromptKeyboard(
   metadata: FieldMetadata,
   t: (key: string, options?: Record<string, unknown>) => string,
 ): { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> } {
+  // This payload is a thin transport adapter over input-engine action rows,
+  // not a competing bot-management menu implementation.
   const rows = buildActionButtons(
     {
       formId: renderCtx.formId,

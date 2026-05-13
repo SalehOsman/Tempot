@@ -92,7 +92,7 @@ Reviewers must ask:
 | Need | Required Default | What the Module Should Not Rebuild |
 | --- | --- | --- |
 | Multi-step input flows, wizards, structured Telegram forms | `@tempot/input-engine` | Manual conversation state machines, ad hoc step maps, repeated validation loops, custom cancel/back/resume handling |
-| Telegram buttons, callback UX, pagination, confirmations, status messaging | `@tempot/ux-helpers` | Repeated button layout utilities, callback safety wrappers, pagination widgets, standard feedback messages |
+| Telegram buttons, callback UX, pagination, confirmations, status messaging | `@tempot/ux-helpers` | Repeated button layout utilities, callback safety wrappers, pagination widgets, standard feedback messages, and ad hoc raw `InlineKeyboard` layouts when helpers already cover the requirement |
 | Authorization and role checks | `@tempot/auth-core` | Local role hierarchy, custom permission engines, duplicated RBAC rules |
 | Repository foundation and shared persistence patterns | `@tempot/database` | Direct Prisma usage in services, local transaction helpers that duplicate package behavior |
 | Cross-module events | `@tempot/event-bus` | Direct module imports, custom in-memory pub/sub between modules |
@@ -120,6 +120,9 @@ For Telegram-facing modules, the preferred operating model is:
 2. **Inline menus are the primary navigation surface.**
    - Use inline buttons for browsing, selecting, confirming, paging, drilling
      into detail views, and returning to previous surfaces.
+   - Use `@tempot/ux-helpers` as the default presentation package for those
+     menus so label validation, compact rows, and standard interaction patterns
+     stay consistent across modules.
 3. **`@tempot/input-engine` is the default for structured data collection.**
    - Use it for create/edit forms, settings updates, search criteria forms, and
      other multi-field flows.
@@ -129,6 +132,14 @@ For Telegram-facing modules, the preferred operating model is:
      search queries, and other genuinely free-form data.
 5. **Module handlers orchestrate domain work.**
    - They should not recreate generic form orchestration or generic UX primitives.
+6. **Raw Telegram keyboard assembly is an exception path.**
+   - Direct `InlineKeyboard` or hand-built `inline_keyboard` payloads require a
+     documented package-gap rationale when `@tempot/ux-helpers` can already
+     express the interaction.
+
+`bot-management` is the initial operational reference for this rule. Its menu
+surfaces should be used as the concrete example when extending UX guidance to
+future Telegram-facing modules.
 
 ## Input Flow Guidance
 
@@ -252,6 +263,8 @@ Before asking for review, confirm:
 - [ ] `Custom Approved` choices have a completed exception template.
 - [ ] Package extension work is not hidden inside a module-only commit.
 - [ ] Telegram flows follow commands-as-entry-points and inline-first navigation.
+- [ ] Telegram-facing menus use `@tempot/ux-helpers` by default, or the plan
+      documents the approved exception for raw keyboard construction.
 - [ ] Structured multi-step inputs use `@tempot/input-engine` unless an approved
       exception exists.
 - [ ] The implementation does not recreate package-owned behavior locally.

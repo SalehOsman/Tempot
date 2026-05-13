@@ -38,8 +38,9 @@ const config: ModuleConfig = {
       '@tempot/document-engine',
       '@tempot/storage-engine',
       '@tempot/input-engine',
+      '@tempot/ux-helpers',
     ],
-    optional: ['@tempot/i18n-core', '@tempot/ux-helpers', '@tempot/logger'],
+    optional: ['@tempot/i18n-core', '@tempot/logger'],
   },
 };
 

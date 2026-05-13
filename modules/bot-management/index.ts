@@ -52,9 +52,6 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   initBotService();
   initLifecycleService();
 
-  bot.command('bots', botsCommand);
-  bot.command('new_bot', newBotCommand);
-  bot.on('callback_query:data', handleCallbackQuery);
   bot.use(
     createConversation<Context, Context>(
       runBotRegistrationConversation,
@@ -67,6 +64,9 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
       BOT_LIFECYCLE_REASON_FLOW_ID,
     ) as unknown as MiddlewareFn<Context>,
   );
+  bot.command('bots', botsCommand);
+  bot.command('new_bot', newBotCommand);
+  bot.on('callback_query:data', handleCallbackQuery);
 
   deps.logger.info({
     msg: 'bot-management handlers registered',

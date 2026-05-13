@@ -7,17 +7,18 @@
     "menu": {
       "title": "Bot Management",
       "list": "Managed Bots",
-      "create": "New Bot",
-      "back": "Back",
-      "refresh": "Refresh",
-      "previous": "Previous",
-      "next": "Next",
+      "create": "➕ New bot",
+      "back": "↩️ Back",
+      "refresh": "🔄 Refresh",
+      "previous": "⬅️ Previous",
+      "next": "➡️ Next",
       "empty": "No managed bots found. Create the first bot profile.",
       "list_title": "Managed Bots ({count})",
+      "bot_entry": "🤖 {name}",
       "row": "{index}. {name} (@{username}) - {status}",
-      "lifecycle": "Lifecycle",
-      "settings": "Settings",
-      "modules": "Modules"
+      "lifecycle": "🔁 Lifecycle",
+      "settings": "⚙️ Settings",
+      "modules": "📦 Modules"
     },
     "detail": {
       "view": "Bot: {name}\nUsername: @{username}\nStatus: {status}\nRuntime: {runtimeMode}\nOwner: {ownerId}\nLocale: {locale}\nCountry: {country}\nTimezone: {timezone}\nHealth: {health}\nCredential: {credential}"
@@ -44,13 +45,13 @@
       "ARCHIVED": "Archived"
     },
     "actions": {
-      "configure": "Configure",
-      "activate": "Activate",
-      "pause": "Pause",
-      "resume": "Resume",
-      "maintenance": "Maintenance",
-      "archive": "Archive",
-      "confirm_archive": "Confirm archive",
+      "configure": "⚙️ Configure",
+      "activate": "▶️ Activate",
+      "pause": "⏸️ Pause",
+      "resume": "▶️ Resume",
+      "maintenance": "⚙️ Maintenance",
+      "archive": "🗄️ Archive",
+      "confirm_archive": "🗄️ Confirm archive",
       "export": "Export",
       "import": "Import"
     },

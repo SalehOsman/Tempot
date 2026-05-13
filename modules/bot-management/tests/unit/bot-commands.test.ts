@@ -6,8 +6,27 @@ import { BotHealthStatus } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 import type { ManagedBot } from '../../types/bot.types.js';
 
-const t = (key: string, options?: Record<string, unknown>) =>
-  options ? `${key}:${JSON.stringify(options)}` : key;
+const t = (key: string, options?: Record<string, unknown>) => uxLabel(key, options);
+
+const uxLabel = (key: string, options?: Record<string, unknown>) => {
+  if (key === 'bot-management.menu.bot_entry') {
+    return `🤖 ${String(options?.name ?? '')}`;
+  }
+  if (options) return `${key}:${JSON.stringify(options)}`;
+
+  const labels: Record<string, string> = {
+    'bot-management.menu.previous': '⬅️ Previous',
+    'bot-management.menu.next': '➡️ Next',
+    'bot-management.menu.create': '➕ New bot',
+    'bot-management.menu.refresh': '🔄 Refresh',
+    'bot-management.menu.lifecycle': '🔁 Lifecycle',
+    'bot-management.menu.settings': '⚙️ Settings',
+    'bot-management.menu.modules': '📦 Modules',
+    'bot-management.menu.back': '↩️ Back',
+  };
+
+  return labels[key] ?? key;
+};
 
 const bot: ManagedBot = {
   id: 'bot-1',
@@ -47,6 +66,20 @@ describe('bot-management menus', () => {
     expect(callbacks).toContain('botmgmt:settings:bot-1');
     expect(callbacks).toContain('botmgmt:modules:bot-1');
     expect(callbacks).not.toContain('botmgmt:archive:bot-1');
+  });
+
+  it('uses icon-prefixed operational labels and mobile-friendly bot menu rows', () => {
+    const listMenu = createBotListMenu({ t: uxLabel, bots: [], page: 0, totalPages: 1 });
+    const detailMenu = createBotDetailMenu(uxLabel, bot);
+
+    expect(listMenu.inline_keyboard.map((row) => row.map((button) => button.text))).toEqual([
+      ['➕ New bot', '🔄 Refresh'],
+    ]);
+    expect(detailMenu.inline_keyboard.map((row) => row.map((button) => button.text))).toEqual([
+      ['🔁 Lifecycle', '⚙️ Settings'],
+      ['📦 Modules'],
+      ['↩️ Back'],
+    ]);
   });
 
   it('formats list and detail messages without raw credential data', () => {

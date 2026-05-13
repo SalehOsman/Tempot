@@ -1,4 +1,6 @@
 import type { Context } from 'grammy';
+import type { InlineKeyboard } from 'grammy';
+import { editOrSend } from '@tempot/ux-helpers';
 import { getI18n } from '../deps.context.js';
 import { getBotService } from '../services/bot-service.context.js';
 import { getLifecycleService } from '../services/lifecycle-service.context.js';
@@ -64,9 +66,11 @@ async function showBotList(ctx: Context, page: number): Promise<void> {
   }
 
   const totalPages = Math.max(1, Math.ceil(result.value.totalCount / result.value.pageSize));
-  await ctx.editMessageText(formatBotListMessage(i18n.t, result.value), {
-    reply_markup: createBotListMenu({ t: i18n.t, bots: result.value.bots, page, totalPages }),
-  });
+  await editCallbackMessage(
+    ctx,
+    formatBotListMessage(i18n.t, result.value),
+    createBotListMenu({ t: i18n.t, bots: result.value.bots, page, totalPages }),
+  );
 }
 
 async function showBotDetail(ctx: Context, botId: string): Promise<void> {
@@ -77,9 +81,11 @@ async function showBotDetail(ctx: Context, botId: string): Promise<void> {
     return;
   }
 
-  await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
-    reply_markup: createBotDetailMenu(i18n.t, result.value),
-  });
+  await editCallbackMessage(
+    ctx,
+    formatBotDetailMessage(i18n.t, result.value),
+    createBotDetailMenu(i18n.t, result.value),
+  );
 }
 
 async function showLifecycleMenu(ctx: Context, botId: string): Promise<void> {
@@ -90,9 +96,11 @@ async function showLifecycleMenu(ctx: Context, botId: string): Promise<void> {
     return;
   }
 
-  await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
-    reply_markup: createLifecycleMenu(i18n.t, result.value),
-  });
+  await editCallbackMessage(
+    ctx,
+    formatBotDetailMessage(i18n.t, result.value),
+    createLifecycleMenu(i18n.t, result.value),
+  );
 }
 
 async function applyDirectLifecycleTransition(
@@ -114,9 +122,11 @@ async function applyDirectLifecycleTransition(
     return;
   }
 
-  await ctx.editMessageText(formatBotDetailMessage(i18n.t, result.value), {
-    reply_markup: createBotDetailMenu(i18n.t, result.value),
-  });
+  await editCallbackMessage(
+    ctx,
+    formatBotDetailMessage(i18n.t, result.value),
+    createBotDetailMenu(i18n.t, result.value),
+  );
 }
 
 function parseLifecycleStatus(value: string): BotLifecycleStatus | null {
@@ -147,7 +157,22 @@ async function startLifecycleReasonFlow(
 
 async function showArchiveConfirmation(ctx: Context, botId: string): Promise<void> {
   const i18n = getI18n();
-  await ctx.editMessageText(i18n.t('bot-management.lifecycle.archive_confirmation'), {
-    reply_markup: createArchiveConfirmationMenu(i18n.t, botId),
+  await editCallbackMessage(
+    ctx,
+    i18n.t('bot-management.lifecycle.archive_confirmation'),
+    createArchiveConfirmationMenu(i18n.t, botId),
+  );
+}
+
+async function editCallbackMessage(
+  ctx: Context,
+  text: string,
+  keyboard: InlineKeyboard,
+): Promise<void> {
+  const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
+    text,
+    replyMarkup: keyboard,
   });
+
+  if (result.isErr()) throw result.error;
 }

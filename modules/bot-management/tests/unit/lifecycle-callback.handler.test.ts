@@ -5,8 +5,9 @@ import { AppError } from '@tempot/shared';
 import { BotHealthStatus, BotRuntimeMode, type ManagedBot } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 
-const { getDetailMock, transitionMock } = vi.hoisted(() => ({
+const { getDetailMock, listMock, transitionMock } = vi.hoisted(() => ({
   getDetailMock: vi.fn(),
+  listMock: vi.fn(),
   transitionMock: vi.fn(),
 }));
 
@@ -19,6 +20,7 @@ vi.mock('../../deps.context.js', () => ({
 vi.mock('../../services/bot-service.context.js', () => ({
   getBotService: () => ({
     getDetail: getDetailMock,
+    list: listMock,
   }),
 }));
 
@@ -70,7 +72,7 @@ function createBot(status: BotLifecycleStatus): ManagedBot {
 function createContext(data: string): Context {
   return {
     from: { id: 123 },
-    callbackQuery: { data },
+    callbackQuery: { data, message: { message_id: 10 } },
     conversation: {
       enter: vi.fn().mockResolvedValue(undefined),
     },
@@ -94,6 +96,24 @@ describe('handleCallbackQuery lifecycle controls', () => {
     expect(ctx.editMessageText).toHaveBeenCalledWith('bot detail', {
       reply_markup: { inline_keyboard: [['lifecycle-menu']] },
     });
+  });
+
+  it('treats unchanged list refresh edits as successful no-op callbacks', async () => {
+    const ctx = createContext('botmgmt:list:0');
+    listMock.mockResolvedValue(
+      ok({
+        bots: [],
+        totalCount: 0,
+        page: 0,
+        pageSize: 5,
+      }),
+    );
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    editMessageText.mockRejectedValue(new Error('Bad Request: message is not modified'));
+
+    await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
+
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('executes direct valid transitions through LifecycleService and redraws detail', async () => {

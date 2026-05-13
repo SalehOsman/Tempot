@@ -1,4 +1,5 @@
 import { InlineKeyboard } from 'grammy';
+import { createInlineKeyboard, type TempotInlineKeyboard } from '@tempot/ux-helpers';
 import {
   VALID_BOT_TRANSITIONS,
   requiresTransitionReason,
@@ -9,7 +10,7 @@ import { BotLifecycleStatus } from '../types/lifecycle.types.js';
 type Translate = (key: string, options?: Record<string, unknown>) => string;
 
 export function createLifecycleMenu(t: Translate, bot: ManagedBot): InlineKeyboard {
-  const keyboard = new InlineKeyboard();
+  const keyboard = createInlineKeyboard();
   const transitions = VALID_BOT_TRANSITIONS[bot.status];
 
   for (const transition of transitions) {
@@ -22,17 +23,27 @@ export function createLifecycleMenu(t: Translate, bot: ManagedBot): InlineKeyboa
     });
   }
 
-  return keyboard.text(t('bot-management.menu.back'), `botmgmt:view:${bot.id}`);
+  keyboard.row();
+  addButton(keyboard, t('bot-management.menu.back'), `botmgmt:view:${bot.id}`);
+  return keyboard.toGrammyKeyboard();
 }
 
 export function createArchiveConfirmationMenu(t: Translate, botId: string): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(t('bot-management.actions.confirm_archive'), `botmgmt:lifecycle-archive-start:${botId}`)
-    .text(t('bot-management.menu.back'), `botmgmt:lifecycle:${botId}`);
+  const keyboard = createInlineKeyboard();
+
+  addButton(
+    keyboard,
+    t('bot-management.actions.confirm_archive'),
+    `botmgmt:lifecycle-archive-start:${botId}`,
+  );
+  keyboard.row();
+  addButton(keyboard, t('bot-management.menu.back'), `botmgmt:lifecycle:${botId}`);
+
+  return keyboard.toGrammyKeyboard();
 }
 
 interface LifecycleActionInput {
-  keyboard: InlineKeyboard;
+  keyboard: TempotInlineKeyboard;
   t: Translate;
   botId: string;
   fromStatus: BotLifecycleStatus;
@@ -41,7 +52,9 @@ interface LifecycleActionInput {
 
 function appendLifecycleAction(input: LifecycleActionInput): void {
   if (input.toStatus === BotLifecycleStatus.ARCHIVED) {
-    input.keyboard.text(
+    input.keyboard.row();
+    addButton(
+      input.keyboard,
       input.t('bot-management.actions.archive'),
       `botmgmt:lifecycle-archive-confirm:${input.botId}`,
     );
@@ -52,7 +65,8 @@ function appendLifecycleAction(input: LifecycleActionInput): void {
     ? 'botmgmt:lifecycle-reason'
     : 'botmgmt:lifecycle-transition';
 
-  input.keyboard.text(
+  addButton(
+    input.keyboard,
     lifecycleActionLabel(input.t, input.fromStatus, input.toStatus),
     `${callbackPrefix}:${input.botId}:${input.toStatus}`,
   );
@@ -75,4 +89,14 @@ function lifecycleActionLabel(
     return t('bot-management.actions.pause');
   }
   return t('bot-management.actions.maintenance');
+}
+
+function addButton(
+  keyboard: TempotInlineKeyboard,
+  label: string,
+  callbackData: string,
+): TempotInlineKeyboard {
+  const result = keyboard.button({ label, callbackData });
+  if (result.isErr()) throw result.error;
+  return result.value;
 }

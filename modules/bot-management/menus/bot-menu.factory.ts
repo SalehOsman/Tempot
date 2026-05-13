@@ -1,4 +1,5 @@
 import { InlineKeyboard } from 'grammy';
+import { createInlineKeyboard, type TempotInlineKeyboard } from '@tempot/ux-helpers';
 import type { ManagedBot } from '../types/bot.types.js';
 
 export function createBotListMenu(input: {
@@ -8,33 +9,54 @@ export function createBotListMenu(input: {
   totalPages: number;
 }): InlineKeyboard {
   const { t, bots, page, totalPages } = input;
-  const keyboard = new InlineKeyboard();
+  const keyboard = createInlineKeyboard();
 
   for (const bot of bots) {
-    keyboard.text(bot.displayName, `botmgmt:view:${bot.id}`).row();
-  }
-
-  if (totalPages > 1) {
-    if (page > 0) keyboard.text(t('bot-management.menu.previous'), `botmgmt:list:${page - 1}`);
-    if (page < totalPages - 1)
-      keyboard.text(t('bot-management.menu.next'), `botmgmt:list:${page + 1}`);
+    addButton(
+      keyboard,
+      t('bot-management.menu.bot_entry', { name: bot.displayName }),
+      `botmgmt:view:${bot.id}`,
+    );
     keyboard.row();
   }
 
-  keyboard.text(t('bot-management.menu.create'), 'botmgmt:create');
-  keyboard.text(t('bot-management.menu.refresh'), `botmgmt:list:${page}`);
-  return keyboard;
+  if (totalPages > 1) {
+    if (page > 0) {
+      addButton(keyboard, t('bot-management.menu.previous'), `botmgmt:list:${page - 1}`);
+    }
+    if (page < totalPages - 1) {
+      addButton(keyboard, t('bot-management.menu.next'), `botmgmt:list:${page + 1}`);
+    }
+    keyboard.row();
+  }
+
+  addButton(keyboard, t('bot-management.menu.create'), 'botmgmt:create');
+  addButton(keyboard, t('bot-management.menu.refresh'), `botmgmt:list:${page}`);
+  return keyboard.toGrammyKeyboard();
 }
 
 export function createBotDetailMenu(
   t: (key: string, options?: Record<string, unknown>) => string,
   bot: ManagedBot,
 ): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(t('bot-management.menu.lifecycle'), `botmgmt:lifecycle:${bot.id}`)
-    .text(t('bot-management.menu.settings'), `botmgmt:settings:${bot.id}`)
-    .row()
-    .text(t('bot-management.menu.modules'), `botmgmt:modules:${bot.id}`)
-    .row()
-    .text(t('bot-management.menu.back'), 'botmgmt:list:0');
+  const keyboard = createInlineKeyboard();
+
+  addButton(keyboard, t('bot-management.menu.lifecycle'), `botmgmt:lifecycle:${bot.id}`);
+  addButton(keyboard, t('bot-management.menu.settings'), `botmgmt:settings:${bot.id}`);
+  keyboard.row();
+  addButton(keyboard, t('bot-management.menu.modules'), `botmgmt:modules:${bot.id}`);
+  keyboard.row();
+  addButton(keyboard, t('bot-management.menu.back'), 'botmgmt:list:0');
+
+  return keyboard.toGrammyKeyboard();
+}
+
+function addButton(
+  keyboard: TempotInlineKeyboard,
+  label: string,
+  callbackData: string,
+): TempotInlineKeyboard {
+  const result = keyboard.button({ label, callbackData });
+  if (result.isErr()) throw result.error;
+  return result.value;
 }

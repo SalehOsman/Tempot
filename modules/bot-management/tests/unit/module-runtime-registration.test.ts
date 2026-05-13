@@ -55,4 +55,19 @@ describe('bot-management runtime registration', () => {
 
     expect(bot.use).toHaveBeenCalledTimes(2);
   });
+
+  it('registers conversations before commands and callback handlers that enter them', async () => {
+    const bot = {
+      command: vi.fn(),
+      on: vi.fn(),
+      use: vi.fn(),
+    };
+
+    await setup(bot as never, createDeps());
+
+    expect(bot.use.mock.invocationCallOrder[1]).toBeLessThan(
+      bot.command.mock.invocationCallOrder[0],
+    );
+    expect(bot.use.mock.invocationCallOrder[1]).toBeLessThan(bot.on.mock.invocationCallOrder[0]);
+  });
 });
