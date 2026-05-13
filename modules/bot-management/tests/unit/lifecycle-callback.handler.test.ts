@@ -98,6 +98,20 @@ describe('handleCallbackQuery lifecycle controls', () => {
     });
   });
 
+  it('passes unrelated callback namespaces to later module handlers', async () => {
+    const ctx = createContext('tmpl:browse');
+    const next = vi.fn().mockResolvedValue(undefined);
+    const callbackHandler = handleCallbackQuery as unknown as (
+      inputCtx: Context,
+      nextHandler: () => Promise<void>,
+    ) => Promise<void>;
+
+    await callbackHandler(ctx, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(ctx.answerCallbackQuery).not.toHaveBeenCalled();
+  });
+
   it('treats unchanged list refresh edits as successful no-op callbacks', async () => {
     const ctx = createContext('botmgmt:list:0');
     listMock.mockResolvedValue(

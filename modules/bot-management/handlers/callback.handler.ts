@@ -1,4 +1,4 @@
-import type { Context } from 'grammy';
+import type { Context, NextFunction } from 'grammy';
 import type { InlineKeyboard } from 'grammy';
 import { editOrSend } from '@tempot/ux-helpers';
 import { getI18n } from '../deps.context.js';
@@ -17,9 +17,17 @@ import {
   type LifecycleReasonIntent,
 } from '../flows/lifecycle-reason.flow.js';
 
-export async function handleCallbackQuery(ctx: Context): Promise<void> {
+const noopNext: NextFunction = () => Promise.resolve();
+
+export async function handleCallbackQuery(
+  ctx: Context,
+  next: NextFunction = noopNext,
+): Promise<void> {
   const data = ctx.callbackQuery?.data;
-  if (!data?.startsWith('botmgmt:')) return;
+  if (!data?.startsWith('botmgmt:')) {
+    await next();
+    return;
+  }
 
   await ctx.answerCallbackQuery();
   const [, action, value, trailingValue] = data.split(':');
