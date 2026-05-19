@@ -19,8 +19,8 @@ WEBHOOK_SECRET_TOKEN=
 
 **السيناريو:** عند نشر التطبيق بـ webhook mode واستخدام `.env` مبني على `.env.example`، المتغير `WEBHOOK_SECRET` سيكون `undefined` لأن المستخدم ملأ `WEBHOOK_SECRET_TOKEN`.
 
-**التأثير:** 
-- `validateWebhookFields()` يُرجع `err(MISSING_WEBHOOK_SECRET)` 
+**التأثير:**
+- `validateWebhookFields()` يُرجع `err(MISSING_WEBHOOK_SECRET)`
 - التطبيق يرفض startup في webhook mode
 - Bot offline في Production
 
@@ -34,7 +34,7 @@ WEBHOOK_SECRET_TOKEN=
 
 **الدليل:**
 ```
-Error: Cannot find module './deps.context.js' 
+Error: Cannot find module './deps.context.js'
   imported from F:/Tempot/modules/template-management/index.ts
 
 Error: Cannot find module '../../services/version.service.js'

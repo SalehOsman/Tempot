@@ -147,7 +147,7 @@ healthcheck:
 // bot/middleware/rate-limiter.middleware.ts
 // ✅ Rate limiting مُطبق بالفعل مع scopes:
 // - command: 10/60s
-// - upload: 5/600s  
+// - upload: 5/600s
 // - message: 30/60s
 ```
 

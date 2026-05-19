@@ -12,3 +12,7 @@ allowBuilds:
   sharp: true
   ssh2: true
   unrs-resolver: true
+overrides:
+  # Security: CVE-2025-47935 (devalue DoS via sparse array deserialization)
+  # astro@6.3.3 (latest) pins devalue@5.8.0 exactly. Force >=5.8.1 patched version.
+  devalue: '>=5.8.1'

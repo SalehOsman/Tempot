@@ -39,7 +39,7 @@ async function runFatalSteps(config, deps): AsyncResult<FatalStepsOutput> {
   // Each step returns Result — failure stops the chain
   const dbResult = await deps.connectDatabase();
   if (dbResult.isErr()) return err(dbResult.error);
-  
+
   const bootstrapResult = await deps.bootstrapSuperAdmins(config.superAdminIds);
   if (bootstrapResult.isErr()) return err(bootstrapResult.error);
   // ...

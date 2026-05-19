@@ -43,7 +43,7 @@ it('registers a draft bot with a redacted credential and domain event', async ()
     token: '123456:abcdefghijklmnopqrstuvwxyz',
     ...
   });
-  
+
   expect(result.isOk()).toBe(true);
   expect(created.status).toBe(BotLifecycleStatus.DRAFT);
   expect(created.tokenRedacted).toBe('123456:...wxyz');
@@ -66,9 +66,9 @@ it('should dispatch edit action and clear pending state', async () => {
   vi.mocked(getUserService).mockReturnValue({
     getByTelegramId: vi.fn().mockResolvedValue({ isErr: () => false, value: mockUser }),
   });
-  
+
   await handleTextInput(ctx);
-  
+
   expect(handleEditName).toHaveBeenCalledWith(ctx, mockUser, 'New Name');
   expect(clearUserInputState).toHaveBeenCalledWith('123456789', '987654321');
 });
