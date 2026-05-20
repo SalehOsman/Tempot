@@ -38,7 +38,7 @@ function validateWebhookFields(
     return err(new AppError(BOT_SERVER_ERRORS.MISSING_WEBHOOK_URL));
   }
 
-  const webhookSecret = env['WEBHOOK_SECRET'];
+  const webhookSecret = env['WEBHOOK_SECRET_TOKEN'];
   if (!webhookSecret) {
     return err(new AppError(BOT_SERVER_ERRORS.MISSING_WEBHOOK_SECRET));
   }

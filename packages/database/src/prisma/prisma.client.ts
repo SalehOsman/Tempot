@@ -157,6 +157,17 @@ function buildExtendedClient(pool: Pool) {
   });
 }
 
+const DEFAULT_POOL_MAX = 20;
+const DEFAULT_POOL_IDLE_TIMEOUT_MS = 30_000;
+
+function resolvePoolMax(): number {
+  const raw = process.env.DATABASE_POOL_MAX;
+  if (!raw) return DEFAULT_POOL_MAX;
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) return DEFAULT_POOL_MAX;
+  return parsed;
+}
+
 /**
  * Internal function to initialize Prisma with the current DATABASE_URL.
  * Throws a fatal error at startup if DATABASE_URL is not configured.
@@ -170,7 +181,13 @@ function getPrismaClient(): ExtendedPrismaClient {
           'Copy .env.example to .env and configure it.',
       );
     }
-    const pool = new Pool({ connectionString });
+    // Bounded connection pool prevents exhaustion under load.
+    // Override via DATABASE_POOL_MAX env var when scaling beyond default.
+    const pool = new Pool({
+      connectionString,
+      max: resolvePoolMax(),
+      idleTimeoutMillis: DEFAULT_POOL_IDLE_TIMEOUT_MS,
+    });
     _prisma = buildExtendedClient(pool);
   }
   return _prisma;

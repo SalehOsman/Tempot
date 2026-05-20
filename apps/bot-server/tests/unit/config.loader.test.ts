@@ -7,7 +7,7 @@ const ENV_KEYS = [
   'BOT_MODE',
   'PORT',
   'WEBHOOK_URL',
-  'WEBHOOK_SECRET',
+  'WEBHOOK_SECRET_TOKEN',
   'SUPER_ADMIN_IDS',
 ];
 
@@ -66,7 +66,7 @@ describe('loadConfig', () => {
     process.env['BOT_TOKEN'] = 'test-token';
     process.env['BOT_MODE'] = 'webhook';
     process.env['WEBHOOK_URL'] = 'https://example.com/webhook';
-    process.env['WEBHOOK_SECRET'] = 'secret-value';
+    process.env['WEBHOOK_SECRET_TOKEN'] = 'secret-value';
 
     const result = loadConfig();
 
@@ -86,7 +86,7 @@ describe('loadConfig', () => {
   it('returns err with MISSING_WEBHOOK_URL when webhook mode lacks URL', () => {
     process.env['BOT_TOKEN'] = 'test-token';
     process.env['BOT_MODE'] = 'webhook';
-    process.env['WEBHOOK_SECRET'] = 'secret-value';
+    process.env['WEBHOOK_SECRET_TOKEN'] = 'secret-value';
 
     const result = loadConfig();
 

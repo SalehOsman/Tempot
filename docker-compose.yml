@@ -33,7 +33,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - BOT_MODE=polling
-      - SUPER_ADMIN_IDS=7594239391
+      # Provide via .env or shell: SUPER_ADMIN_IDS=<your_telegram_id>
+      - SUPER_ADMIN_IDS=${SUPER_ADMIN_IDS:-}
       - TEMPOT_INPUT=true
       - TEMPOT_DYNAMIC_CMS=true
       - TEMPOT_SEARCH=true
@@ -42,7 +43,7 @@ services:
       # Uncomment for webhook mode (production). Requires a public URL.
       # - BOT_MODE=webhook
       # - WEBHOOK_URL=${WEBHOOK_URL:-https://example.com/webhook}
-      # - WEBHOOK_SECRET=${WEBHOOK_SECRET:-local-dev-secret}
+      # - WEBHOOK_SECRET_TOKEN=${WEBHOOK_SECRET_TOKEN:-}
     ports:
       - '3000:3000'
     healthcheck:
