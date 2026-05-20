@@ -1,5 +1,6 @@
 import { okAsync, errAsync } from 'neverthrow';
 import { AsyncResult, ShutdownManager, AppError } from '@tempot/shared';
+import type { Redis } from 'ioredis';
 import { LocalEventBus } from './local/local.bus.js';
 import { RedisEventBus, RedisBusConfig } from './distributed/redis.bus.js';
 import { ConnectionWatcher } from './distributed/connection.watcher.js';
@@ -44,6 +45,10 @@ export class EventBusOrchestrator {
           code: 'event_bus.redis_unavailable',
           fallback: 'local',
           target: 'SUPER_ADMIN',
+        });
+        this.localBus.publish('system.alert.critical', {
+          message: 'Redis event bus degraded to local memory bus',
+          error: 'Redis connection lost',
         });
       } else {
         this.logger.info({ code: 'event_bus.redis_restored', mode: 'distributed' });
@@ -95,6 +100,10 @@ export class EventBusOrchestrator {
     }
 
     return this.redisBus.subscribe(eventName, handler);
+  }
+
+  public getRedisClient(): Redis {
+    return this.redisBus.pubClient;
   }
 
   async dispose(): AsyncResult<void> {

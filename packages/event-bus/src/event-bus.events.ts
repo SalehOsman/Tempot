@@ -110,6 +110,11 @@ export interface TempotEvents {
     fieldType: string;
     reason: 'user_skip' | 'max_retries_skip' | 'condition';
   };
+  // Auth events
+  'auth.user.permissions_invalidated': {
+    userId: string;
+    role?: string;
+  };
   // Settings events (DC-5: inline payloads, no imports)
   'settings.setting.updated': {
     key: string;

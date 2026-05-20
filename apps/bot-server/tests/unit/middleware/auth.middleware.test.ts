@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAuthMiddleware } from '../../../src/bot/middleware/auth.middleware.js';
 import type { AuthDeps } from '../../../src/bot/middleware/auth.middleware.js';
-import { RoleEnum } from '@tempot/auth-core';
+import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
 import { createMongoAbility } from '@casl/ability';
 import type { AbilityDefinition } from '@tempot/auth-core';
 
@@ -40,6 +40,7 @@ describe('createAuthMiddleware', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     next = vi.fn().mockResolvedValue(undefined);
+    AbilityFactory.clearCache();
   });
 
   const manageAllDefinition: AbilityDefinition = () =>
