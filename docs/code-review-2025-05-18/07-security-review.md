@@ -1,6 +1,8 @@
 # 7. تحليل الأمن — Security Review
 
-## نتائج Security Audit
+> 🔄 **تحديث 2026-05-20:** الثغرات Critical و High مُصلحة. راجع [18-status-update.md](./18-status-update.md).
+
+## نتائج Security Audit (التقرير الأصلي)
 
 ```
 pnpm audit --audit-level=high → 4 vulnerabilities
@@ -9,13 +11,20 @@ pnpm audit --audit-level=high → 4 vulnerabilities
 - 1 critical (sanitize-html)
 ```
 
+## نتائج Security Audit (الحالة الحالية)
+
+```
+pnpm audit --audit-level=high → 0 vulnerabilities (exit 0) ✅
+pnpm audit → 3 moderate (transitive dev deps only)
+```
+
 ## جدول الثغرات والمخاطر
 
 | الثغرة/الخطر | الخطورة | الدليل | التأثير | طريقة المعالجة |
 |---|---|---|---|---|
-| `sanitize-html ≤2.17.3` vulnerability | Critical | `pnpm audit` — used in bot-server sanitizer middleware | Potential XSS bypass in message sanitization | تحديث إلى ≥2.17.4 |
+| ~~`sanitize-html ≤2.17.3` vulnerability~~ ✅ **مُصلحة** | Critical | `pnpm audit` — used in bot-server sanitizer middleware | Potential XSS bypass in message sanitization | حُدِّثت إلى 2.17.5 (commit `dd912c7`) |
 | WEBHOOK_SECRET env mismatch | Critical | `config.loader.ts:41` reads `WEBHOOK_SECRET` vs `.env.example` defines `WEBHOOK_SECRET_TOKEN` | Webhook mode fails → bot offline OR webhook unprotected | توحيد اسم المتغير |
-| `devalue` vulnerability | High | Via astro in docs app only | Potential prototype pollution — docs app فقط (لا يؤثر على bot-server) | تحديث astro |
+| ~~`devalue` vulnerability~~ ✅ **مُصلحة** | High | Via astro in docs app only | Potential prototype pollution — docs app فقط (لا يؤثر على bot-server) | override إلى 5.8.1 عبر `pnpm-workspace.yaml` (commit `dd912c7`) |
 | SUPER_ADMIN_IDS hardcoded | Medium | `docker-compose.yml:36` — `SUPER_ADMIN_IDS=7594239391` | Information disclosure (Telegram user ID مكشوف في Git) | نقل إلى `${SUPER_ADMIN_IDS:-}` |
 | PostgreSQL password في docker-compose | Low | `docker-compose.yml:67` — `tempot_password` | Dev-only — مقبول مع توثيق | إضافة تعليق "dev only, override in production" |
 | Rate Limiter in-memory | Low | `rate-limiter.middleware.ts:48` | Bypass عند multi-instance | مقبول لـ single-instance حالياً |

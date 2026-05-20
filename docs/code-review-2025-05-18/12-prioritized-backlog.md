@@ -1,5 +1,7 @@
 # 12. قائمة المشاكل مرتبة حسب الأولوية — Technical Backlog
 
+> 🔄 **تحديث 2026-05-20:** بعض البنود أُغلقت. راجع [18-status-update.md](./18-status-update.md) للتفاصيل.
+
 ## تصنيف الجهد
 
 - **XS** — أقل من ساعة
@@ -13,9 +15,9 @@
 | الأولوية | المشكلة | النوع | الملف/المسار | التأثير | الحل | الجهد |
 |---|---|---|---|---|---|---|
 | P0 | WEBHOOK_SECRET env var mismatch | Bug | `apps/bot-server/src/startup/config.loader.ts:41` | Webhook mode لا يعمل | توحيد الاسم إلى `WEBHOOK_SECRET_TOKEN` | XS |
-| P0 | sanitize-html vulnerability (Critical) | أمني | `apps/bot-server/package.json` | XSS bypass محتمل | `pnpm up sanitize-html` | XS |
-| P1 | Template-management source مفقودة | تشغيلي | `modules/template-management/` | 4 tests فاشلة، CI fails | إنشاء deps.context.ts, version.service.ts, template-content.schema.ts | S |
-| P1 | devalue vulnerability (High) | أمني | `apps/docs` (via astro) | Prototype pollution في docs | تحديث astro dependency | XS |
+| P0 | ~~sanitize-html vulnerability (Critical)~~ ✅ **مُصلحة** | أمني | `apps/bot-server/package.json` | XSS bypass محتمل | `pnpm up sanitize-html` (commit `dd912c7`) | XS |
+| P1 | ~~Template-management source مفقودة~~ ✅ **مُستعادة** | تشغيلي | `modules/template-management/` | 4 tests فاشلة، CI fails | استُعيدت من Git HEAD | S |
+| P1 | ~~devalue vulnerability (High)~~ ✅ **مُصلحة** | أمني | `apps/docs` (via astro) | Prototype pollution في docs | override في `pnpm-workspace.yaml` (commit `dd912c7`) | XS |
 | P1 | SUPER_ADMIN_IDS hardcoded | أمني | `docker-compose.yml:36` | Information disclosure | `- SUPER_ADMIN_IDS=${SUPER_ADMIN_IDS:-}` | XS |
 | P2 | Dockerfile find command fragile | تشغيلي | `apps/bot-server/Dockerfile:60-91` | Build قد يفشل مع pnpm updates | استبدال بمسار ثابت أو env var | M |
 | P2 | No CD pipeline | تشغيلي | `.github/workflows/` | Deploy يدوي | إضافة Docker build + push workflow | M |

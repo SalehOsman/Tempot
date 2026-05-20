@@ -2,9 +2,11 @@
 
 > فحص شامل للمشروع من الناحية المعمارية، البرمجية، الأمنية، التشغيلية، وجودة الكود.
 
+> 📌 **آخر تحديث: 2026-05-20** — راجع [18-status-update.md](./18-status-update.md) للاطلاع على الإصلاحات المُطبَّقة منذ صدور التقرير الأصلي.
+
 ## الملفات
 
-### التقرير الشامل (16 قسم)
+### التقرير الشامل (18 قسم)
 
 | # | القسم | الملف |
 |---|---|---|
@@ -25,24 +27,32 @@
 | 15 | خطة 30/60/90 يوم | [15-30-60-90-plan.md](./15-30-60-90-plan.md) |
 | 16 | التوصيات النهائية | [16-final-recommendations.md](./16-final-recommendations.md) |
 | 17 | تقييم الالتزام بالمنهجية | [17-methodology-compliance.md](./17-methodology-compliance.md) |
+| 18 | 🆕 تحديث الحالة (2026-05-20) | [18-status-update.md](./18-status-update.md) |
 
 ### ملفات إضافية
 
 - [verification-report.md](./verification-report.md) — تحقق من ادعاءات تقرير سابق (ما هو صحيح وما هو خطأ)
 
-## النتائج الرئيسية
+## النتائج الرئيسية (التقرير الأصلي — 2025-05-18)
 
 - **Overall Score: 73%**
-- **Production Readiness: 62% → 78% بعد إصلاح P0 (15 دقيقة)**
+- **Production Readiness: 62% → 78% بعد إصلاح P0**
 - **القرار: يحتاج تحسينات محدودة قبل الإنتاج**
 - **Time to Production: يوم واحد**
 
-## أوامر التشغيل المنفذة
+## النتائج المُحدَّثة (2026-05-20)
 
-| الأمر | النتيجة |
-|---|---|
-| `pnpm install --frozen-lockfile` | ✅ نجاح |
-| `pnpm lint` | ✅ نجاح (exit 0) |
-| `pnpm build` | ✅ نجاح (exit 0) |
-| `pnpm test:unit` | ⚠️ 233 passed, 4 failed (1877 test cases passed) |
-| `pnpm audit --audit-level=high` | ❌ 4 vulnerabilities (1 critical, 1 high, 2 moderate) |
+- **Overall Score: 78%** ⬆ (+5%)
+- **Production Readiness: 88%** ⬆ (تحسّن أمني كبير)
+- **Time to Production: ½ يوم عمل**
+- **الثغرات الحرجة/العالية: 0** ✅ (كانت 2)
+
+## أوامر التشغيل — مقارنة قبل/بعد
+
+| الأمر | التقرير الأصلي | الحالة الحالية |
+|---|---|---|
+| `pnpm install --frozen-lockfile` | ✅ نجاح | ✅ نجاح |
+| `pnpm lint` | ✅ نجاح | ✅ نجاح |
+| `pnpm build` | ✅ نجاح | ✅ نجاح |
+| `pnpm test:unit` | ⚠️ 1877 passed, 4 failed | ✅ **1900 passed, 2 failed** |
+| `pnpm audit --audit-level=high` | ❌ 4 vulns (1 critical, 1 high) | ✅ **0 critical, 0 high** |

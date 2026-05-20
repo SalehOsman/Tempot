@@ -1,5 +1,7 @@
 # 6. تحليل الأخطاء والمخاطر البرمجية
 
+> 🔄 **تحديث 2026-05-20:** Bug #2 مُرتبط بالحذف المحلي (الملفات موجودة في Git). راجع [18-status-update.md](./18-status-update.md).
+
 ## Bugs فعلية مؤكدة
 
 ### Bug #1: WEBHOOK_SECRET env variable name mismatch (CRITICAL)
@@ -28,7 +30,10 @@ WEBHOOK_SECRET_TOKEN=
 
 ---
 
-### Bug #2: Template-management source files مفقودة (HIGH)
+### Bug #2: Template-management source files مفقودة (HIGH) ✅ **مُصلحة**
+
+> **التشخيص الفعلي:** الملفات كانت محذوفة محلياً فقط (لم تُحذف من Git). تمت استعادتها. Tests الآن: 1900/1902 تمر (بدل 1877/1881).
+
 
 **الوصف:** Tests تشير إلى ملفات source غير موجودة.
 
@@ -143,7 +148,7 @@ const pool = new Pool({ connectionString });
 
 | الحزمة | الخطر | الملاحظة |
 |---|---|---|
-| `sanitize-html ≤2.17.3` | Critical vulnerability | تحديث فوري مطلوب |
-| `devalue 5.6.3-5.8.0` | High vulnerability | Via astro — docs app فقط |
+| ~~`sanitize-html ≤2.17.3`~~ | ~~Critical vulnerability~~ | ✅ **مُصلحة** — حُدِّثت إلى 2.17.5 |
+| ~~`devalue 5.6.3-5.8.0`~~ | ~~High vulnerability~~ | ✅ **مُصلحة** — override إلى 5.8.1 |
 | `esbuild ≤0.24.2` | Moderate | Dev dependency via drizzle-kit |
 | `@hono/node-server <1.19.13` | Moderate | **محلول بالفعل** عبر pnpm override |
