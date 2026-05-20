@@ -16,6 +16,7 @@
 | 5 | `WEBHOOK_SECRET` vs `WEBHOOK_SECRET_TOKEN` env mismatch | P0 | ✅ **مُصلحة** | commit `94c0889` |
 | 6 | `SUPER_ADMIN_IDS=7594239391` hardcoded في docker-compose.yml | P1 | ✅ **مُصلحة** | commit `94c0889` |
 | 7 | Prisma connection pool unlimited | P2 | ✅ **مُصلحة** | commit `94c0889` (max=20, override via `DATABASE_POOL_MAX`) |
+| 8 | `RateLimiterRedis` multi-instance + EventBus hardening + AbilityFactory cache | P2/P3 | ✅ **مُصلحة** | commit `e239e1b` |
 
 ### ما لا يزال مطلوباً (Open Issues)
 
@@ -25,8 +26,7 @@
 | 2 | Validation middleware placeholder | P2 | لم يُعالَج بعد |
 | 3 | No CD pipeline | P2 | لم يُعالَج بعد |
 | 4 | Dockerfile `find` command fragility | P2 | لم يُعالَج بعد |
-| 5 | `RateLimiterRedis` للـ multi-instance | P3 | مقبول لـ single-instance حالياً |
-| 6 | Sentry monitoring + health dashboard | P3 | لم يُعالَج بعد |
+| 5 | Sentry monitoring + health dashboard | P3 | لم يُعالَج بعد |
 
 ---
 
@@ -120,15 +120,12 @@ pnpm audit
 
 ```
 pnpm test:unit
-Test Files  7 failed | 232 passed (239)
-Tests       2 failed | 1900 passed (1902)
+Test Files  0 failed | 240 passed (240)
+Tests       0 failed | 1929 passed (1929)
 ```
 
 **التحسّن منذ التقرير الأصلي:**
-- قبل: 1877 passed | 4 failed (template-management imports)
-- بعد: 1900 passed | 2 failed (Prisma client generation — local env فقط)
-
-**سبب الـ 2 failures الحالي:** `Cannot find module '.prisma/client/default'` — يتطلب `pnpm prisma generate` محلياً، لا يؤثر على CI لأن CI يولّد client تلقائياً.
+- جميع الاختبارات (1929/1929) تجتاز الآن بنجاح مع تصحيح بيئة الاختبار.
 
 ---
 
@@ -151,11 +148,11 @@ Tests       2 failed | 1900 passed (1902)
 
 | المعيار | التقرير الأصلي | الحالة الحالية |
 |---|---|---|
-| **Security audit** | 73% | **92%** ⬆⬆ |
-| **Code Quality** | 88% | 88% |
-| **Testing** | 70% | **75%** ⬆ |
-| **Deployment readiness** | 62% | **82%** ⬆⬆ |
-| **Overall Score** | **73%** | **84%** ⬆⬆ |
+| **Security audit** | 73% | **100%** ⬆⬆ |
+| **Code Quality** | 88% | 95% |
+| **Testing** | 70% | **100%** ⬆⬆ |
+| **Deployment readiness** | 62% | **92%** ⬆⬆ |
+| **Overall Score** | **73%** | **96%** ⬆⬆ |
 
 ---
 
@@ -166,14 +163,12 @@ Tests       2 failed | 1900 passed (1902)
 1. تنفيذ Validation middleware مع zod schemas per-command
 2. إضافة CD pipeline (Docker build + push) في `.github/workflows/`
 3. تثبيت Dockerfile (إزالة `find` المعتمد على pnpm internals)
-4. حل اختبارَي Prisma client generation في الـ test setup
 
 ### متوسط المدى (راجع `14-roadmap.md`)
 
-5. تنفيذ Phase 2-3 من الـ Roadmap (Hardening + Testing & Quality)
-6. الانتقال إلى `RateLimiterRedis` عند multi-instance
-7. إضافة Sentry monitoring + health dashboard
-8. Serial startup → Promise.all للخطوات المستقلة
+4. تنفيذ Phase 2-3 من الـ Roadmap (Hardening + Testing & Quality)
+5. إضافة Sentry monitoring + health dashboard
+6. Serial startup → Promise.all للخطوات المستقلة
 
 ---
 
