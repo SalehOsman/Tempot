@@ -1,5 +1,6 @@
 import { Bot, type Context, type MiddlewareFn } from 'grammy';
 import { conversations } from '@grammyjs/conversations';
+import type { Redis } from 'ioredis';
 import { createSanitizerMiddleware } from './middleware/sanitizer.middleware.js';
 import { createRateLimiterMiddleware } from './middleware/rate-limiter.middleware.js';
 import {
@@ -27,6 +28,7 @@ export interface BotFactoryDeps
   extends MaintenanceDeps, AuthDeps, ScopedUsersDeps, AuditDeps, ErrorBoundaryDeps, ValidationDeps {
   logger: BotFactoryLogger;
   t: (key: string, options?: Record<string, unknown>) => string;
+  redisClient?: Redis;
 }
 
 /**
@@ -41,7 +43,9 @@ export function createBot(token: string, deps: BotFactoryDeps): Bot<Context> {
   const bot = new Bot<Context>(token);
 
   bot.use(createSanitizerMiddleware());
-  bot.use(createRateLimiterMiddleware({ t: deps.t, logger: deps.logger }));
+  bot.use(
+    createRateLimiterMiddleware({ t: deps.t, logger: deps.logger, redisClient: deps.redisClient }),
+  );
   bot.use(createMaintenanceMiddleware(deps));
   bot.use(createAuthMiddleware(deps));
   bot.use(createScopedUsersMiddleware(deps));

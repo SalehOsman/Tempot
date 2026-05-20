@@ -43,6 +43,8 @@ vi.mock('@tempot/event-bus', () => ({
     return {
       init: vi.fn().mockResolvedValue(ok(undefined)),
       publish: vi.fn().mockResolvedValue(ok(undefined)),
+      subscribe: vi.fn().mockResolvedValue(ok(undefined)),
+      getRedisClient: vi.fn().mockReturnValue(undefined),
       dispose: vi.fn().mockResolvedValue(ok(undefined)),
     };
   }),

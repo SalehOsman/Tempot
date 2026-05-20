@@ -6,6 +6,7 @@ import type { SentryReporter } from '@tempot/sentry';
 import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createMongoAbility } from '@casl/ability';
+import { AbilityFactory } from '@tempot/auth-core';
 
 export interface BotFactoryDeps {
   log: typeof import('@tempot/logger').logger;
@@ -26,10 +27,46 @@ function buildCommandModuleMap(validatedModules: ValidatedModule[] = []): Record
   return commandModuleMap;
 }
 
+type BotInstance = ReturnType<typeof createBot>;
+
+function subscribeCriticalAlerts(deps: BotFactoryDeps, bot: BotInstance): void {
+  deps.eventBus.subscribe('system.alert.critical', (payload) => {
+    if (!(payload && typeof payload === 'object' && 'message' in payload)) return;
+    const staticResult = deps.settingsService.getStatic();
+    const superAdminIds = staticResult.isOk() ? staticResult.value.superAdminIds : [];
+    const alertMsg =
+      `⚠️ <b>[System Degradation Alert]</b>\n\n` +
+      `<b>Message:</b> ${payload.message}\n` +
+      `<b>Error:</b> ${(payload as { error?: string }).error ?? 'N/A'}`;
+    for (const adminId of superAdminIds) {
+      bot.api.sendMessage(adminId, alertMsg, { parse_mode: 'HTML' }).catch((err) => {
+        deps.log.error({
+          msg: 'failed_to_send_critical_alert_to_admin',
+          adminId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
+  });
+}
+
 export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createBot'] {
-  return (token: string, validatedModules?: ValidatedModule[]) =>
-    createBot(token, {
+  deps.eventBus.subscribe('auth.user.permissions_invalidated', (payload) => {
+    if (payload && typeof payload === 'object' && 'userId' in payload) {
+      AbilityFactory.invalidate(payload.userId as string, payload.role as string | undefined);
+      deps.log.info({
+        msg: 'casl_ability_cache_invalidated',
+        userId: payload.userId,
+        role: payload.role,
+      });
+    }
+  });
+
+  return (token: string, validatedModules?: ValidatedModule[]) => {
+    const redisClient = deps.eventBus.getRedisClient();
+    const bot = createBot(token, {
       logger: deps.log,
+      redisClient,
       eventBus: {
         publish: async (event: string, payload: unknown) => {
           await deps.eventBus.publish(event as never, payload as never);
@@ -57,4 +94,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
       auditLog: async () => {},
       sentryReporter: deps.sentryReporter,
     });
+    subscribeCriticalAlerts(deps, bot);
+    return bot;
+  };
 }
