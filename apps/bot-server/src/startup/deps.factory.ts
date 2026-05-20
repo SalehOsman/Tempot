@@ -91,14 +91,19 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const log = logger.child({ module: 'bot-server' });
   const shutdownManager = buildShutdownManager();
 
-  try {
-    await prisma.$connect();
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    return err(new AppError('bot-server.startup.database_unreachable', { error: msg }));
-  }
+  // Database connect, event-bus init, and i18n init are independent — run in parallel.
+  const [dbError, eventBusResult] = await Promise.all([
+    prisma
+      .$connect()
+      .then(() => null)
+      .catch((e: unknown) => (e instanceof Error ? e.message : String(e))),
+    buildEventBus(log, shutdownManager, redisConfig()),
+    initI18n(),
+  ]);
 
-  const eventBusResult = await buildEventBus(log, shutdownManager, redisConfig());
+  if (dbError !== null) {
+    return err(new AppError('bot-server.startup.database_unreachable', { error: dbError }));
+  }
   if (eventBusResult.isErr()) return err(eventBusResult.error);
   const eventBus = eventBusResult.value;
 
@@ -109,10 +114,6 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const sessionProvider = buildSessionProvider(log, eventBus, cache);
   const settingsService = buildSettingsService(cache, eventBus);
 
-  // Initialize i18next before loading module locale bundles.
-  // Without init(), addResourceBundle() silently discards all translations.
-  await initI18n();
-
   const i18nResult = await loadModuleLocales();
   if (i18nResult.isErr()) {
     log.warn({ msg: 'i18n_load_failed', error: i18nResult.error.code });
@@ -120,7 +121,10 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
 
   const registry = buildModuleRegistry(log, eventBus, modulesDir());
 
-  const sentryInitResult = initSentry();
+  const sentryInitResult = initSentry({
+    release: process.env['SENTRY_RELEASE'],
+    environment: process.env['SENTRY_ENVIRONMENT'] ?? 'production',
+  });
   const sentryReporter = sentryInitResult.isOk() ? new SentryReporter() : undefined;
 
   const deps = assembleOrchestratorDeps({

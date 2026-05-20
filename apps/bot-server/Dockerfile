@@ -53,42 +53,12 @@ RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 
 # (2) Re-generate Prisma Client inside /app/out's pnpm virtual store.
 #
-#     Strategy: find @tempot/database in /app/out's .pnpm dir (not the source
-#     workspace), cd into it, then invoke the prisma CLI found in /app/out's
-#     own node_modules. From that CWD, Node.js module resolution follows
-#     /app/out's symlinks, placing .prisma/client at the right hash-keyed path.
-RUN set -e; \
-    \
-    echo "==> Searching for @tempot/database in /app/out..."; \
-    DB_PKG=$(find /app/out/node_modules -type d -name "database" 2>/dev/null | grep "@tempot" | head -n1); \
-    \
-    if [ -z "$DB_PKG" ]; then \
-      echo "WARNING: @tempot/database not found in /app/out/node_modules, trying alternative..."; \
-      DB_PKG=$(find /app/out -type d -name "database" 2>/dev/null | grep "@tempot" | head -n1); \
-    fi; \
-    \
-    if [ -z "$DB_PKG" ]; then \
-      echo "ERROR: @tempot/database package directory not found"; \
-      echo "Available packages in /app/out:"; \
-      find /app/out/node_modules -name "package.json" -path "*/@tempot/*" 2>/dev/null | head -5 || true; \
-      exit 1; \
-    fi; \
-    \
-    echo "==> @tempot/database found: $DB_PKG"; \
-    \
-    PRISMA=$(find /app/out/node_modules -name "prisma" -type d 2>/dev/null | head -n1); \
-    \
-    if [ -z "$PRISMA" ]; then \
-      echo "WARNING: prisma CLI not found in /app/out, trying global..."; \
-      PRISMA="/app/node_modules/prisma"; \
-    fi; \
-    \
-    echo "==> prisma CLI: $PRISMA"; \
-    \
-    cd "$DB_PKG" && npx prisma generate || \
-    (echo "ERROR: prisma generate failed" && exit 1); \
-    \
-    echo "==> Prisma Client generated successfully"
+#     `pnpm deploy --legacy --prod` creates a flat node_modules layout.
+#     @tempot/database lands at the predictable path below, so no `find`
+#     is needed. We cd into it so Node.js module resolution follows
+#     /app/out's symlinks and places .prisma/client at the correct path.
+RUN cd /app/out/node_modules/@tempot/database \
+    && /app/out/node_modules/.bin/prisma generate
 
 # ---------------------------------------------------------------------------
 # Stage: runner — minimal production image
