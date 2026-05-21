@@ -6,7 +6,7 @@
   },
   "scripts": {
     "dev": "corepack pnpm --filter bot-server dev",
-    "build:bot-runtime": "corepack pnpm --recursive --filter @tempot/input-engine --filter @tempot/ux-helpers --filter @tempot/bot-management --filter @tempot/template-management --filter @tempot/user-management --filter @tempot/settings-management --filter @tempot/notification-center --filter @tempot/content-management --filter @tempot/audit-viewer --filter @tempot/help-center build",
+    "build:bot-runtime": "corepack pnpm --recursive --filter bot-server... --filter @tempot/input-engine... --filter @tempot/ux-helpers... --filter @tempot/bot-management... --filter @tempot/template-management... --filter @tempot/user-management... --filter @tempot/settings-management... --filter @tempot/notification-center... --filter @tempot/content-management... --filter @tempot/audit-viewer... --filter @tempot/help-center... build",
     "dev:bot": "corepack pnpm build:bot-runtime && corepack pnpm --parallel --stream --filter @tempot/input-engine --filter @tempot/ux-helpers --filter @tempot/bot-management --filter @tempot/template-management --filter @tempot/user-management --filter @tempot/settings-management --filter @tempot/notification-center --filter @tempot/content-management --filter @tempot/audit-viewer --filter @tempot/help-center --filter bot-server dev:watch",
     "tempot": "tsx scripts/tempot/index.ts",
     "dev:tunnel": "corepack pnpm --filter bot-server dev:tunnel",
@@ -35,32 +35,6 @@
     "changeset:version": "changeset version"
   },
   "type": "module",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "cpu-features",
-      "esbuild",
-      "msgpackr-extract",
-      "prisma",
-      "protobufjs",
-      "sharp",
-      "ssh2",
-      "unrs-resolver"
-    ],
-    "overrides": {
-      "vitest>vite": "^8.0.8",
-      "astro>vite": "^8.0.8",
-      "astro>esbuild": "^0.27.0",
-      "@esbuild-kit/core-utils>esbuild": "^0.25.12",
-      "@prisma/dev>@hono/node-server": "^1.19.13",
-      "dockerode>uuid": "^14.0.0",
-      "picomatch@2.3.1": "2.3.2",
-      "picomatch@4.0.3": "4.0.4",
-      "fast-xml-parser": ">=4.5.3",
-      "fast-xml-builder": ">=4.5.3",
-      "fast-uri": ">=3.1.2"
-    }
-  },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
     "@commitlint/cli": "^20.5.0",

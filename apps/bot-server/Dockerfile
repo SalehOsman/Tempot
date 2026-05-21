@@ -36,6 +36,10 @@ RUN corepack enable
 FROM base AS builder
 WORKDIR /app
 
+# Optional native bindings such as ssh2 and cpu-features compile during install.
+# Keep build tools in the builder stage only; the runner image stays minimal.
+RUN apk add --no-cache python3 make g++
+
 COPY . .
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
@@ -44,9 +48,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # (1) Generate Prisma Client so tsc can resolve the generated types at build time
 RUN pnpm --filter @tempot/database exec prisma generate
 
-# Build all workspace packages (dependencies + bot-server + modules)
-# pnpm build runs --recursive across the entire workspace, including modules/*
-RUN pnpm build
+# Build the bot runtime only. The docs app is intentionally excluded from the
+# bot image, because Starlight content links are local-development concerns.
+RUN pnpm build:bot-runtime
 
 # Deploy bot-server as an isolated production bundle.
 # Creates a fresh pnpm virtual store in /app/out — the .prisma/client binary
