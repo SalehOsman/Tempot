@@ -45,3 +45,4 @@
 | 039 | [Native RAG over External Framework](ADR-039-native-rag-over-external-framework.md) | Accepted |
 | 040 | [Tempot Core and Tempot Cloud Boundary](ADR-040-tempot-core-cloud-boundary.md)       | Accepted |
 | 041 | [Telegram Managed Bots Strategy](ADR-041-telegram-managed-bots-strategy.md)         | Accepted |
+| 042 | [Module-Owned Telegram Navigation](ADR-042-module-owned-navigation.md)              | Accepted |

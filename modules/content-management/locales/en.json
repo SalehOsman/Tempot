@@ -1,0 +1,18 @@
+{
+  "content-management": {
+    "commands": {
+      "messages": "Messages"
+    },
+    "menu": {
+      "button": "Messages",
+      "templates": "Templates",
+      "cms": "CMS",
+      "back": "Back"
+    },
+    "view": {
+      "title": "<b>Messages</b>\n\nManage reusable message content and CMS-backed copy.",
+      "templates": "<b>Message Templates</b>\n\nCreate and review reusable message templates.",
+      "cms": "<b>CMS Content</b>\n\nReview dynamic translation and content override status."
+    }
+  }
+}

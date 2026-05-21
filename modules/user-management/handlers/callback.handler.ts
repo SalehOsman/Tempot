@@ -1,7 +1,7 @@
 import { Context, type NextFunction } from 'grammy';
 import { getUserService } from '../services/user-service.context.js';
 import { MainMenuFactory } from '../menus/main-menu.factory.js';
-import { getI18n, getLogger } from '../deps.context.js';
+import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import type { UserProfile } from '../types/index.js';
 import { handleUsersAction } from './users.callback.handler.js';
 import { handleProfileAction } from './profile.callback.handler.js';
@@ -21,10 +21,7 @@ async function fetchUser(telegramId: string): Promise<UserProfile | null> {
   return userResult.value;
 }
 
-async function handleCallbackQuery(
-  ctx: Context,
-  next: NextFunction = noopNext,
-): Promise<void> {
+async function handleCallbackQuery(ctx: Context, next: NextFunction = noopNext): Promise<void> {
   const log = getLogger().child({ handler: 'callback' });
   const i18n = getI18n();
   try {
@@ -87,6 +84,7 @@ async function dispatchCallbackAction(
 async function handleMenuAction(ctx: Context, user: UserProfile, params: string[]): Promise<void> {
   const i18n = getI18n();
   if (params[0] === 'main') {
+    const menuEntries = getDeps().navigation?.getMainMenuItems(user.role) ?? [];
     const msg = i18n.t('user-management.menu.welcome', {
       name: user.username ?? user.telegramId,
       role: i18n.t(`user-management.role.${user.role}`),
@@ -94,7 +92,7 @@ async function handleMenuAction(ctx: Context, user: UserProfile, params: string[
     });
     await safeEditMessageText(ctx, msg, {
       parse_mode: 'HTML',
-      reply_markup: MainMenuFactory.create(user, i18n),
+      reply_markup: MainMenuFactory.create(user, i18n, menuEntries),
     });
   } else {
     await ctx.answerCallbackQuery(i18n.t('user-management.errors.unknown_action'));

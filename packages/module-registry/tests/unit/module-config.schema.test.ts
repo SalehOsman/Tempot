@@ -157,4 +157,48 @@ describe('moduleConfigSchema', () => {
     const result = moduleConfigSchema.safeParse(config);
     expect(result.success).toBe(true);
   });
+
+  it('should accept module-owned main menu navigation entries', () => {
+    const result = moduleConfigSchema.safeParse({
+      name: 'settings-management',
+      version: '0.1.0',
+      requiredRole: 'USER',
+      isActive: true,
+      isCore: false,
+      commands: [{ command: 'settings', description: 'settings-management.commands.settings' }],
+      features: {
+        hasDatabase: false,
+        hasNotifications: false,
+        hasAttachments: false,
+        hasExport: false,
+        hasAI: false,
+        hasInputEngine: false,
+        hasImport: false,
+        hasSearch: false,
+        hasDynamicCMS: false,
+        hasRegional: false,
+      },
+      requires: {
+        packages: ['@tempot/settings'],
+        optional: ['@tempot/ux-helpers'],
+      },
+      navigation: {
+        mainMenu: [
+          {
+            id: 'settings',
+            labelKey: 'settings-management.menu.button',
+            callbackData: 'settings:view',
+            requiredRole: 'USER',
+            row: 0,
+            order: 20,
+          },
+        ],
+      },
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.navigation?.mainMenu[0]?.callbackData).toBe('settings:view');
+    }
+  });
 });

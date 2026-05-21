@@ -1,7 +1,7 @@
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { ModuleConfig } from '@tempot/module-registry';
+import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import type { Bot, Context } from 'grammy';
 import type {
   ModuleLogger,
@@ -33,9 +33,10 @@ export async function loadModuleHandlers(
   deps: ModuleLoaderDeps,
 ): AsyncResult<string[]> {
   const loadedNames: string[] = [];
+  const navigation = createModuleNavigationProvider(modules.map((mod) => mod.config));
 
   for (const mod of modules) {
-    const result = await loadSingleModule(bot, mod, deps);
+    const result = await loadSingleModule({ bot, mod, deps, navigation });
     if (result.isErr()) {
       return err(result.error);
     }
@@ -48,11 +49,15 @@ export async function loadModuleHandlers(
   return ok(loadedNames);
 }
 
-async function loadSingleModule(
-  bot: Bot<Context>,
-  mod: ValidatedModuleInput,
-  deps: ModuleLoaderDeps,
-): AsyncResult<string | undefined> {
+interface LoadSingleModuleParams {
+  bot: Bot<Context>;
+  mod: ValidatedModuleInput;
+  deps: ModuleLoaderDeps;
+  navigation: ModuleDependencyContainer['navigation'];
+}
+
+async function loadSingleModule(params: LoadSingleModuleParams): AsyncResult<string | undefined> {
+  const { bot, mod, deps, navigation } = params;
   const childLogger = deps.logger.child({ module: mod.config.name });
 
   let imported: { default?: ModuleSetupFn };
@@ -66,7 +71,7 @@ async function loadSingleModule(
     return handleMissingExport(mod, childLogger);
   }
 
-  return executeSetup({ bot, mod, setupFn: imported.default, deps, childLogger });
+  return executeSetup({ bot, mod, setupFn: imported.default, deps, navigation, childLogger });
 }
 
 function handleMissingExport(
@@ -130,17 +135,19 @@ interface ExecuteSetupParams {
   mod: ValidatedModuleInput;
   setupFn: ModuleSetupFn;
   deps: ModuleLoaderDeps;
+  navigation: ModuleDependencyContainer['navigation'];
   childLogger: ModuleLogger;
 }
 
 async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | undefined> {
-  const { bot, mod, setupFn, deps, childLogger } = params;
+  const { bot, mod, setupFn, deps, navigation, childLogger } = params;
   const container: ModuleDependencyContainer = {
     logger: childLogger,
     eventBus: deps.eventBus,
     sessionProvider: deps.sessionProvider,
     i18n: deps.i18n,
     settings: deps.settings,
+    navigation,
     config: mod.config,
   };
 
@@ -177,4 +184,27 @@ function handleSetupError(
     ...details,
   });
   return Promise.resolve(ok(undefined));
+}
+
+const ROLE_LEVELS: Record<UserRole, number> = {
+  GUEST: 1,
+  USER: 2,
+  ADMIN: 3,
+  SUPER_ADMIN: 4,
+};
+
+function createModuleNavigationProvider(
+  configs: ModuleConfig[],
+): ModuleDependencyContainer['navigation'] {
+  const entries = configs.flatMap((config) => config.navigation?.mainMenu ?? []);
+  return {
+    getMainMenuItems: (role: UserRole) =>
+      entries
+        .filter((entry) => ROLE_LEVELS[role] >= ROLE_LEVELS[entry.requiredRole])
+        .sort(compareNavigationItems),
+  };
+}
+
+function compareNavigationItems(left: ModuleNavigationItem, right: ModuleNavigationItem): number {
+  return left.row - right.row || left.order - right.order || left.id.localeCompare(right.id);
 }

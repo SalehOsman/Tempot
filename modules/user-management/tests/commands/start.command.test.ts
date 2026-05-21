@@ -98,7 +98,7 @@ describe('startCommand', () => {
 
     await startCommand(ctx);
 
-    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t });
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t }, []);
     expect(ctx.reply).toHaveBeenCalledWith('user-management.menu.welcome:testuser', {
       parse_mode: 'HTML',
       reply_markup: keyboard,
@@ -108,5 +108,54 @@ describe('startCommand', () => {
       telegramId: '123456789',
       role: 'USER',
     });
+  });
+
+  it('should build the menu from active module navigation entries', async () => {
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      language: 'ar',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const navigationEntries = [
+      {
+        id: 'settings',
+        labelKey: 'settings-management.menu.button',
+        callbackData: 'settings:view',
+        requiredRole: 'USER',
+        row: 0,
+        order: 20,
+      },
+    ] as const;
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
+      }),
+    } as never);
+    const keyboard = { inline_keyboard: [] };
+    vi.mocked(MainMenuFactory.create).mockReturnValue(keyboard as never);
+    const navigation = {
+      getMainMenuItems: vi.fn().mockReturnValue(navigationEntries),
+    };
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t },
+      eventBus: { publish },
+      sessionProvider: { getSession: vi.fn() },
+      settings: { get: vi.fn() },
+      navigation,
+      config: {} as never,
+    });
+    const ctx = createContext();
+
+    await startCommand(ctx);
+
+    expect(navigation.getMainMenuItems).toHaveBeenCalledWith('USER');
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t }, navigationEntries);
   });
 });

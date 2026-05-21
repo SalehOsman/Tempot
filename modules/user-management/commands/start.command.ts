@@ -1,12 +1,3 @@
-/**
- * /start command — يستقبل المستخدم ويعرض القائمة الرئيسية
- *
- * إصلاحات مطبقة:
- * 1. كل النصوص من i18n — لا hardcoded عربي
- * 2. logger من deps.context — لا استيراد مباشر
- * 3. الأخطاء مُعالَجة بـ err codes واضحة
- */
-
 import type { Context } from 'grammy';
 import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
@@ -35,7 +26,8 @@ export async function startCommand(ctx: Context): Promise<void> {
   }
 
   const user = userResult.value;
-  const keyboard = MainMenuFactory.create(user, i18n);
+  const menuEntries = getDeps().navigation?.getMainMenuItems(user.role) ?? [];
+  const keyboard = MainMenuFactory.create(user, i18n, menuEntries);
 
   const displayName = user.username ?? telegramUser.first_name;
 

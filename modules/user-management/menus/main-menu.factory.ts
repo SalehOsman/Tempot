@@ -1,30 +1,43 @@
 import { InlineKeyboard } from 'grammy';
+import type { ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import { UserProfile } from '../types/index.js';
 import type { ModuleI18n } from '../types/module-deps.types.js';
 
+const ROLE_LEVELS: Record<UserRole, number> = {
+  GUEST: 1,
+  USER: 2,
+  ADMIN: 3,
+  SUPER_ADMIN: 4,
+};
+
 export class MainMenuFactory {
-  static create(user: UserProfile, i18n: ModuleI18n): InlineKeyboard {
+  static create(
+    user: UserProfile,
+    i18n: ModuleI18n,
+    entries: readonly ModuleNavigationItem[] = [],
+  ): InlineKeyboard {
     const keyboard = new InlineKeyboard();
+    let currentRow: number | null = null;
+    let hasButtons = false;
 
-    keyboard
-      .text(i18n.t('user-management.menu.button.profile'), 'profile:view')
-      .text(i18n.t('user-management.menu.button.settings'), 'settings:view')
-      .row();
-
-    keyboard
-      .text(i18n.t('user-management.menu.button.notifications'), 'notifications:view')
-      .text(i18n.t('user-management.menu.button.messages'), 'messages:view')
-      .row();
-
-    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
-      keyboard
-        .text(i18n.t('user-management.menu.button.users'), 'users:list')
-        .text(i18n.t('user-management.menu.button.stats'), 'stats:view')
-        .row();
+    for (const entry of this.visibleEntries(user.role, entries)) {
+      if (hasButtons && currentRow !== entry.row) {
+        keyboard.row();
+      }
+      keyboard.text(i18n.t(entry.labelKey), entry.callbackData);
+      currentRow = entry.row;
+      hasButtons = true;
     }
 
-    keyboard.text(i18n.t('user-management.menu.button.help'), 'help:view');
-
     return keyboard;
+  }
+
+  private static visibleEntries(
+    role: UserRole,
+    entries: readonly ModuleNavigationItem[],
+  ): readonly ModuleNavigationItem[] {
+    return entries
+      .filter((entry) => ROLE_LEVELS[role] >= ROLE_LEVELS[entry.requiredRole])
+      .sort((left, right) => left.row - right.row || left.order - right.order);
   }
 }

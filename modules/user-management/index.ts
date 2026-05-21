@@ -1,5 +1,5 @@
 import type { Bot, Context } from 'grammy';
-import type { ModuleConfig } from '@tempot/module-registry';
+import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import { registerDeps } from './deps.context.js';
 import { initUserService } from './services/user-service.context.js';
 import { userManagementAbilities } from './abilities.js';
@@ -33,20 +33,22 @@ export interface ModuleSettings {
   get: (key: string) => Promise<unknown>;
 }
 
+export interface ModuleNavigationProvider {
+  getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
+}
+
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
   sessionProvider: ModuleSessionProvider;
   i18n: ModuleI18n;
   settings: ModuleSettings;
+  navigation?: ModuleNavigationProvider;
   config: ModuleConfig;
 }
 
 const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
-  // ✅ يجب أن يكون أول شيء — يُهيئ deps.context لكل أجزاء الموديول
   registerDeps(deps);
-
-  // ✅ تهيئة UserService (يعتمد على getLogger من deps.context)
   initUserService();
 
   bot.command('start', startCommand);

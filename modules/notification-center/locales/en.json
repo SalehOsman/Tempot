@@ -1,0 +1,17 @@
+{
+  "notification-center": {
+    "commands": {
+      "notifications": "Notifications"
+    },
+    "menu": {
+      "button": "Notifications",
+      "test": "Test",
+      "preferences": "Preferences",
+      "back": "Back"
+    },
+    "view": {
+      "title": "<b>Notifications</b>\n\nReview delivery status and notification preferences.",
+      "preferences": "<b>Notification Preferences</b>\n\nManage delivery, quiet mode, and priority rules."
+    }
+  }
+}

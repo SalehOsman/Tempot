@@ -1,0 +1,18 @@
+{
+  "help-center": {
+    "commands": {
+      "help": "Help"
+    },
+    "menu": {
+      "button": "Help",
+      "commands": "Commands",
+      "support": "Support",
+      "back": "Back"
+    },
+    "view": {
+      "title": "<b>Help</b>\n\nFind available actions and support guidance for this bot.",
+      "commands": "<b>Commands</b>\n\nUse /start to open the main menu and module commands for direct access.",
+      "support": "<b>Support</b>\n\nContact an administrator if an expected feature is not available."
+    }
+  }
+}

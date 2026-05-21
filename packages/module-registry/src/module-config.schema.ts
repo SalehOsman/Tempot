@@ -27,6 +27,19 @@ const moduleRequirementsSchema = z.object({
   optional: z.array(z.string()),
 });
 
+const navigationItemSchema = z.object({
+  id: z.string().min(1),
+  labelKey: z.string().min(1),
+  callbackData: z.string().min(1),
+  requiredRole: userRoleSchema,
+  row: z.number().int().min(0),
+  order: z.number().int().min(0),
+});
+
+const moduleNavigationSchema = z.object({
+  mainMenu: z.array(navigationItemSchema),
+});
+
 export const moduleConfigSchema = z
   .object({
     name: z.string().min(1),
@@ -39,6 +52,7 @@ export const moduleConfigSchema = z
     aiDegradationMode: aiDegradationModeSchema.optional(),
     requires: moduleRequirementsSchema,
     scopedUsers: z.array(z.number()).optional(),
+    navigation: moduleNavigationSchema.optional(),
   })
   .refine((data) => !data.features.hasAI || data.aiDegradationMode !== undefined, {
     message: 'aiDegradationMode is required when hasAI is true',

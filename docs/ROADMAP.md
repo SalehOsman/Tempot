@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-14.
+> Last updated: 2026-05-21.
 
 ## Current Technical Baseline
 
@@ -95,6 +95,11 @@ Recently completed:
   command and callback diagnostics, unhandled callback fallback, non-blocking
   startup observability events, input-engine field lifecycle logs, and robust
   inline back or cancel handling inside conversational flows.
+- Spec #044: module-owned Telegram navigation foundation with validated
+  navigation contributions and `/start` menu rendering from active modules.
+- Specs #045-#049: baseline `settings-management`, `notification-center`,
+  `content-management`, `audit-viewer`, and `help-center` modules activated for
+  the main Telegram menu.
 
 Active or next work:
 
@@ -184,6 +189,11 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | --------------------- | ---- | ----------- |
 | `user-management`     | #025 | Implemented |
 | `template-management` | #039 | Implemented |
+| `settings-management` | #045 | Implemented |
+| `notification-center` | #046 | Implemented |
+| `content-management`  | #047 | Implemented |
+| `audit-viewer`        | #048 | Implemented |
+| `help-center`         | #049 | Implemented |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
@@ -195,10 +205,11 @@ Baseline module strategy documented by Spec #036:
 | `user-management`     | Core platform | Implemented      |
 | `template-management` | Product       | Implemented      |
 | `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge |
-| `content-management`  | Product       | Planned baseline |
-| `notification-center` | Operational   | Planned baseline |
-| `audit-viewer`        | Operational   | Planned baseline |
-| `settings-management` | Core platform | Planned baseline |
+| `content-management`  | Product       | Implemented baseline |
+| `notification-center` | Operational   | Implemented baseline |
+| `audit-viewer`        | Operational   | Implemented baseline |
+| `settings-management` | Core platform | Implemented baseline |
+| `help-center`         | Core platform | Implemented baseline |
 
 ## Architecture and Governance Artifacts
 

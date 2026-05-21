@@ -1,0 +1,20 @@
+{
+  "settings-management": {
+    "commands": {
+      "settings": "Settings"
+    },
+    "menu": {
+      "button": "Settings",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "regional": "Regional",
+      "back": "Back"
+    },
+    "view": {
+      "title": "<b>Settings</b>\n\nManage profile, notification, and regional preferences.",
+      "profile": "<b>Profile Settings</b>\n\nUse profile editing to update personal account fields.",
+      "notifications": "<b>Notification Settings</b>\n\nControl notification delivery preferences.",
+      "regional": "<b>Regional Settings</b>\n\nReview locale, timezone, and regional defaults."
+    }
+  }
+}

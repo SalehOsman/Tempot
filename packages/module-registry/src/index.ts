@@ -5,6 +5,8 @@ export type {
   ModuleCommand,
   ModuleFeatures,
   ModuleRequirements,
+  ModuleNavigationItem,
+  ModuleNavigationConfig,
   ModuleConfig,
   DiscoveredModule,
   ValidatedModule,

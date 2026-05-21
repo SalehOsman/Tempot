@@ -1,0 +1,18 @@
+{
+  "audit-viewer": {
+    "commands": {
+      "stats": "Stats"
+    },
+    "menu": {
+      "button": "Stats",
+      "modules": "Modules",
+      "runtime": "Runtime",
+      "back": "Back"
+    },
+    "view": {
+      "title": "<b>Statistics</b>\n\nReview operational health and module activity.",
+      "modules": "<b>Module Statistics</b>\n\nReview loaded module and capability status.",
+      "runtime": "<b>Runtime Statistics</b>\n\nReview bot runtime and startup health indicators."
+    }
+  }
+}

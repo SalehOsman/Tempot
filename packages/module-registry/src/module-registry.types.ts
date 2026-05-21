@@ -32,6 +32,21 @@ export interface ModuleRequirements {
   optional: string[];
 }
 
+/** Module-owned Telegram navigation item */
+export interface ModuleNavigationItem {
+  id: string;
+  labelKey: string;
+  callbackData: string;
+  requiredRole: UserRole;
+  row: number;
+  order: number;
+}
+
+/** Optional navigation contribution declared by a module */
+export interface ModuleNavigationConfig {
+  mainMenu: ModuleNavigationItem[];
+}
+
 /** Full module configuration — 22 mandatory fields (Section 15.3) */
 export interface ModuleConfig {
   name: string;
@@ -44,6 +59,7 @@ export interface ModuleConfig {
   aiDegradationMode?: AiDegradationMode;
   requires: ModuleRequirements;
   scopedUsers?: number[];
+  navigation?: ModuleNavigationConfig;
 }
 
 /** Feature flag to package name mapping (D5 in spec.md) */

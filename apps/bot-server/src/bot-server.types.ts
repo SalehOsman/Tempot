@@ -1,5 +1,5 @@
 import type { Bot, Context } from 'grammy';
-import type { ModuleConfig } from '@tempot/module-registry';
+import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 
 /** Operation mode for the bot */
 export type BotMode = 'polling' | 'webhook';
@@ -11,6 +11,7 @@ export interface ModuleDependencyContainer {
   sessionProvider: SessionProvider;
   i18n: I18nProvider;
   settings: SettingsProvider;
+  navigation: ModuleNavigationProvider;
   config: ModuleConfig;
 }
 
@@ -76,6 +77,11 @@ export interface I18nProvider {
 /** Settings provider interface for modules */
 export interface SettingsProvider {
   get: (key: string) => Promise<unknown>;
+}
+
+/** Active module navigation available to interface modules */
+export interface ModuleNavigationProvider {
+  getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
 }
 
 /** Probe function for a single health check subsystem */

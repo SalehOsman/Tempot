@@ -1,5 +1,5 @@
 {
-  "feature": "042-bot-management-lifecycle-operations-hardening",
-  "feature_directory": "specs/042-bot-management-lifecycle-operations-hardening",
-  "specPath": "specs/042-bot-management-lifecycle-operations-hardening/spec.md"
+  "feature": "044-module-navigation-foundation",
+  "feature_directory": "specs/044-module-navigation-foundation",
+  "specPath": "specs/044-module-navigation-foundation/spec.md"
 }

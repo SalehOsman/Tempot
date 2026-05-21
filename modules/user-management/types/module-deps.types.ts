@@ -1,10 +1,8 @@
 /**
- * ModuleDeps — واجهة الـ dependencies الممرّرة من bot-server
- *
- * تُطابق ModuleDependencyContainer من @tempot/bot-server-types لكنها
- * مُعرَّفة هنا لتجنب circular dependency.
+ * Module-local dependency contract matching the bot-server module container.
+ * It stays local to avoid coupling this module back to the app layer.
  */
-import type { ModuleConfig } from '@tempot/module-registry';
+import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 
 export interface ModuleLogger {
   info: (data: Record<string, unknown>) => void;
@@ -30,11 +28,16 @@ export interface ModuleSettings {
   get: (key: string) => Promise<unknown>;
 }
 
+export interface ModuleNavigationProvider {
+  getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
+}
+
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
   sessionProvider: ModuleSessionProvider;
   i18n: ModuleI18n;
   settings: ModuleSettings;
+  navigation?: ModuleNavigationProvider;
   config: ModuleConfig;
 }
