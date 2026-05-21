@@ -108,9 +108,17 @@ export abstract class BaseRepository<T extends { id: string }> {
 
   async findMany(where?: Record<string, unknown>): Promise<Result<T[], AppError>> {
     try {
-      const items = await this.delegate.findMany({
-        where: { isDeleted: false, ...where },
-      });
+      const isFindManyArgs =
+        where && ('where' in where || 'skip' in where || 'take' in where || 'orderBy' in where);
+      const nestedWhere = isFindManyArgs ? where['where'] : undefined;
+      const queryWhere =
+        typeof nestedWhere === 'object' && nestedWhere !== null && !Array.isArray(nestedWhere)
+          ? (nestedWhere as Record<string, unknown>)
+          : {};
+      const args = isFindManyArgs
+        ? { ...where, where: { isDeleted: false, ...queryWhere } }
+        : { where: { isDeleted: false, ...where } };
+      const items = await this.delegate.findMany(args);
       return ok(items as T[]);
     } catch (e) {
       return err(new AppError(`${this.moduleName}.find_many_failed`, e));

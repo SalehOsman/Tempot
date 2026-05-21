@@ -83,6 +83,27 @@ describe('BaseRepository', () => {
     });
   });
 
+  it('should pass Prisma findMany arguments without nesting them inside where', async () => {
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repo = new TestRepository(auditLogger);
+    repo.mockModel.findMany.mockResolvedValue([]);
+
+    const result = await repo.findMany({
+      where: { name: 'test' },
+      skip: 10,
+      take: 5,
+      orderBy: { name: 'asc' },
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(repo.mockModel.findMany).toHaveBeenCalledWith({
+      where: { isDeleted: false, name: 'test' },
+      skip: 10,
+      take: 5,
+      orderBy: { name: 'asc' },
+    });
+  });
+
   it('should return err on findMany failure', async () => {
     const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
     const repo = new TestRepository(auditLogger);
