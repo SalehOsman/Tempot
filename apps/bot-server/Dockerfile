@@ -26,6 +26,8 @@
 FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+# Prisma library engine requires openssl + libc compat on Alpine
+RUN apk add --no-cache openssl libc6-compat
 RUN corepack enable
 
 # ---------------------------------------------------------------------------
@@ -58,12 +60,17 @@ RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 #     is needed. We cd into it so Node.js module resolution follows
 #     /app/out's symlinks and places .prisma/client at the correct path.
 #
-#     NOTE: We invoke `node .../prisma/bin.js` instead of `.bin/prisma`
+#     We set PRISMA_SCHEMA_PATH explicitly so Prisma locates schema.prisma
+#     inside the deployed package (pnpm deploy copies the `prisma/` dir
+#     because it is listed in @tempot/database `files`).
+#
+#     We invoke `node .../prisma/bin.js` instead of `.bin/prisma`
 #     because pnpm deploy --legacy on Alpine does not always create .bin
 #     symlinks reliably (exit code 127). The bin.js entrypoint is always
 #     present when `prisma` is a production dependency.
 RUN cd /app/out/node_modules/@tempot/database \
-    && node /app/out/node_modules/prisma/bin.js generate
+    && PRISMA_SCHEMA_PATH=/app/out/node_modules/@tempot/database/prisma/schema.prisma \
+       node /app/out/node_modules/prisma/bin.js generate
 
 # ---------------------------------------------------------------------------
 # Stage: runner — minimal production image
