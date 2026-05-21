@@ -64,13 +64,11 @@ RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 #     inside the deployed package (pnpm deploy copies the `prisma/` dir
 #     because it is listed in @tempot/database `files`).
 #
-#     We invoke `node .../prisma/bin.js` instead of `.bin/prisma`
-#     because pnpm deploy --legacy on Alpine does not always create .bin
-#     symlinks reliably (exit code 127). The bin.js entrypoint is always
-#     present when `prisma` is a production dependency.
+#     pnpm deploy --legacy does not hoist prisma to /app/out/node_modules/prisma.
+#     The CLI is exposed through the deploy virtual store's internal .bin path.
 RUN cd /app/out/node_modules/@tempot/database \
     && PRISMA_SCHEMA_PATH=/app/out/node_modules/@tempot/database/prisma/schema.prisma \
-       node /app/out/node_modules/prisma/bin.js generate
+       /app/out/node_modules/.pnpm/node_modules/.bin/prisma generate
 
 # ---------------------------------------------------------------------------
 # Stage: runner — minimal production image
