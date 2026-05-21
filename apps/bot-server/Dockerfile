@@ -57,8 +57,13 @@ RUN pnpm deploy --filter bot-server --prod --legacy /app/out
 #     @tempot/database lands at the predictable path below, so no `find`
 #     is needed. We cd into it so Node.js module resolution follows
 #     /app/out's symlinks and places .prisma/client at the correct path.
+#
+#     NOTE: We invoke `node .../prisma/bin.js` instead of `.bin/prisma`
+#     because pnpm deploy --legacy on Alpine does not always create .bin
+#     symlinks reliably (exit code 127). The bin.js entrypoint is always
+#     present when `prisma` is a production dependency.
 RUN cd /app/out/node_modules/@tempot/database \
-    && /app/out/node_modules/.bin/prisma generate
+    && node /app/out/node_modules/prisma/bin.js generate
 
 # ---------------------------------------------------------------------------
 # Stage: runner — minimal production image
