@@ -7,6 +7,7 @@ import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createMongoAbility } from '@casl/ability';
 import { AbilityFactory } from '@tempot/auth-core';
+import { createAuditLogWriter } from './audit-log.writer.js';
 
 export interface BotFactoryDeps {
   log: typeof import('@tempot/logger').logger;
@@ -14,7 +15,7 @@ export interface BotFactoryDeps {
   sessionProvider: SessionProvider;
   settingsService: SettingsService;
   sentryReporter: SentryReporter | undefined;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }
 
 function buildCommandModuleMap(validatedModules: ValidatedModule[] = []): Record<string, string> {
@@ -64,6 +65,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
 
   return (token: string, validatedModules?: ValidatedModule[]) => {
     const redisClient = deps.eventBus.getRedisClient();
+    const auditLog = createAuditLogWriter(deps.log);
     const bot = createBot(token, {
       logger: deps.log,
       redisClient,
@@ -73,7 +75,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
           return { isOk: () => true };
         },
       },
-      t: (key: string) => deps.t(key),
+      t: (key: string, options?: Record<string, unknown>) => deps.t(key, options),
       getMaintenanceStatus: async () => {
         const result = await deps.settingsService.getMaintenanceStatus();
         return result.isOk() ? result.value : { enabled: false, isSuperAdmin: () => false };
@@ -91,7 +93,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
       ],
       commandScopeMap: new Map(),
       commandModuleMap: buildCommandModuleMap(validatedModules),
-      auditLog: async () => {},
+      auditLog,
       sentryReporter: deps.sentryReporter,
     });
     subscribeCriticalAlerts(deps, bot);

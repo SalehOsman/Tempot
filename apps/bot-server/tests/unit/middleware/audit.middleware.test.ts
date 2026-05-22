@@ -9,6 +9,8 @@ interface MockMessage {
 
 interface MockContext {
   message?: MockMessage;
+  callbackQuery?: { data?: string };
+  update?: { update_id: number };
   from: { id: number };
   chat: { id: number };
   reply: ReturnType<typeof vi.fn>;
@@ -158,5 +160,62 @@ describe('createAuditMiddleware', () => {
     await middleware(ctx as never, next);
 
     expect(mockAuditLog).toHaveBeenCalledWith(expect.objectContaining({ module: 'bot-server' }));
+  });
+
+  it('logs callback data as the audit action with trace metadata', async () => {
+    const mockAuditLog = vi.fn().mockResolvedValue(undefined);
+    const deps: AuditDeps = { auditLog: mockAuditLog };
+    const ctx = createMockContext({
+      message: undefined,
+      callbackQuery: { data: 'users:list' },
+      update: { update_id: 99 },
+    }) as MockContext & Record<string, unknown>;
+    ctx['interactionTrace'] = {
+      traceId: 'trace-1',
+      updateId: 99,
+      updateType: 'callback_query',
+      callbackData: 'users:list',
+      callbackNamespace: 'users',
+      module: 'user-management',
+      userId: 123,
+      chatId: 456,
+      responseCount: 0,
+      startedAt: 100,
+    };
+
+    const middleware = createAuditMiddleware(deps);
+
+    await middleware(ctx as never, next);
+
+    expect(mockAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'users:list',
+        module: 'user-management',
+        targetId: 'trace-1',
+        status: 'SUCCESS',
+        after: expect.objectContaining({
+          callbackData: 'users:list',
+          callbackNamespace: 'users',
+          traceId: 'trace-1',
+        }),
+      }),
+    );
+  });
+
+  it('logs audit persistence failures without blocking the interaction', async () => {
+    const mockAuditLog = vi.fn().mockRejectedValue(new Error('audit down'));
+    const logger = { warn: vi.fn() };
+    const deps: AuditDeps = { auditLog: mockAuditLog, logger };
+    const middleware = createAuditMiddleware(deps);
+    const ctx = createMockContext();
+
+    await expect(middleware(ctx as never, next)).resolves.toBeUndefined();
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'bot-server.audit_log_failed',
+        action: '/start',
+      }),
+    );
   });
 });

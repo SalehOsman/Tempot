@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-21.
+> Last updated: 2026-05-22.
 
 ## Current Technical Baseline
 
@@ -100,6 +100,9 @@ Recently completed:
 - Specs #045-#049: baseline `settings-management`, `notification-center`,
   `content-management`, `audit-viewer`, and `help-center` modules activated for
   the main Telegram menu.
+- Spec #050: bot interaction observability added trace IDs, callback response
+  logging, reference-code audit linkage, and an `audit-viewer` recent problems
+  page for administrative diagnosis.
 
 Active or next work:
 
@@ -128,7 +131,7 @@ Active or next work:
 | Phase 3B | Next business module and supporting packages        | Started; `template-management` closure complete |
 | Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
 | Phase 5  | Enterprise infrastructure                           | Not started                                     |
-| Phase 6  | Observability and developer experience expansion    | Active through DX tooling and bot runtime observability |
+| Phase 6  | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection |
 
 ## Package Status
 
@@ -207,7 +210,7 @@ Baseline module strategy documented by Spec #036:
 | `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge |
 | `content-management`  | Product       | Implemented baseline |
 | `notification-center` | Operational   | Implemented baseline |
-| `audit-viewer`        | Operational   | Implemented baseline |
+| `audit-viewer`        | Operational   | Implemented baseline plus recent bot problem inspection |
 | `settings-management` | Core platform | Implemented baseline |
 | `help-center`         | Core platform | Implemented baseline |
 

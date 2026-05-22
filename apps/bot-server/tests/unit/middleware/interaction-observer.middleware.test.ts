@@ -7,6 +7,7 @@ interface MockContext {
   callbackQuery?: { data?: string };
   from?: { id: number };
   chat?: { id: number };
+  reply?: ReturnType<typeof vi.fn>;
 }
 
 function createLogger() {
@@ -78,6 +79,43 @@ describe('createInteractionObserverMiddleware', () => {
         callbackData: 'bot-management:create',
         callbackNamespace: 'bot-management',
         module: 'bot-management',
+      }),
+    );
+  });
+
+  it('logs trace metadata and response attempts for callbacks', async () => {
+    const logger = createLogger();
+    const middleware = createInteractionObserverMiddleware({
+      logger,
+      traceIdFactory: () => 'trace-1',
+    });
+    const ctx: MockContext = {
+      update: { update_id: 14 },
+      callbackQuery: { data: 'settings:open' },
+      from: { id: 123 },
+      chat: { id: 456 },
+      reply: vi.fn().mockResolvedValue({ message_id: 99 }),
+    };
+
+    await middleware(ctx as never, async () => {
+      await ctx.reply?.('ok');
+    });
+
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'bot-server.interaction_response_sent',
+        traceId: 'trace-1',
+        responseType: 'reply',
+        responseCount: 1,
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'bot-server.interaction_handled',
+        traceId: 'trace-1',
+        module: 'settings-management',
+        responseCount: 1,
+        lastResponseType: 'reply',
       }),
     );
   });

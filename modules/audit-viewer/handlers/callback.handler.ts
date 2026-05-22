@@ -1,6 +1,8 @@
 import type { Context, NextFunction } from 'grammy';
 import { getDeps } from '../deps.context.js';
 import { createStatsMenu } from '../menus/stats-menu.factory.js';
+import { InteractionAuditRepository } from '../repositories/interaction-audit.repository.js';
+import { InteractionProblemService } from '../services/interaction-problem.service.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -21,9 +23,18 @@ export async function handleCallbackQuery(
 
 async function showStatsPage(ctx: Context, action: string): Promise<void> {
   const { i18n } = getDeps();
-  const key = action === 'view' ? 'audit-viewer.view.title' : `audit-viewer.view.${action}`;
-  await ctx.editMessageText(i18n.t(key), {
+  await ctx.editMessageText(await resolveStatsText(action), {
     parse_mode: 'HTML',
     reply_markup: createStatsMenu(i18n.t),
   });
+}
+
+async function resolveStatsText(action: string): Promise<string> {
+  const deps = getDeps();
+  if (action === 'problems') {
+    const repository = new InteractionAuditRepository({ auditLog: deps.auditLog });
+    return new InteractionProblemService(repository).renderRecentProblems(deps.i18n.t);
+  }
+  const key = action === 'view' ? 'audit-viewer.view.title' : `audit-viewer.view.${action}`;
+  return deps.i18n.t(key);
 }

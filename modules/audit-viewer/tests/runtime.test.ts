@@ -9,8 +9,14 @@ function createDeps(): ModuleDeps {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
     sessionProvider: { getSession: vi.fn() },
-    i18n: { t: (key: string) => key },
+    i18n: {
+      t: (key: string, options?: Record<string, unknown>) =>
+        key === 'audit-viewer.problems.item'
+          ? `${options?.['action']}|${options?.['module']}|${options?.['traceId']}`
+          : key,
+    },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
+    auditLog: { findMany: vi.fn().mockResolvedValue([]) },
     config: createConfig('audit-viewer'),
   };
 }
@@ -54,5 +60,32 @@ describe('audit-viewer runtime', () => {
     const ctx = { reply: vi.fn() } as unknown as Context;
     await statsCommand(ctx);
     expect(ctx.reply).toHaveBeenCalledWith('audit-viewer.view.title', expect.any(Object));
+  });
+
+  it('shows recent interaction problems from callback', async () => {
+    const deps = createDeps();
+    deps.auditLog.findMany = vi.fn().mockResolvedValue([
+      {
+        action: 'settings:open',
+        module: 'settings-management',
+        targetId: 'trace-1',
+        status: 'FAILURE',
+        timestamp: new Date('2026-05-22T01:00:00.000Z'),
+        after: { callbackData: 'settings:open' },
+      },
+    ]);
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'stats:problems' },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringContaining('settings:open|settings-management|trace-1'),
+      expect.any(Object),
+    );
   });
 });

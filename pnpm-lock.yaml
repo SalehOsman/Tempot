@@ -238,10 +238,16 @@ importers:
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
     devDependencies:
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3

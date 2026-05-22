@@ -11,6 +11,7 @@ export interface ModuleDependencyContainer {
   sessionProvider: SessionProvider;
   i18n: I18nProvider;
   settings: SettingsProvider;
+  auditLog: AuditLogProvider;
   navigation: ModuleNavigationProvider;
   config: ModuleConfig;
 }
@@ -77,6 +78,20 @@ export interface I18nProvider {
 /** Settings provider interface for modules */
 export interface SettingsProvider {
   get: (key: string) => Promise<unknown>;
+}
+
+/** Audit log reader exposed to operational modules. */
+export interface AuditLogProvider {
+  findMany: (args: Record<string, unknown>) => Promise<AuditLogProviderRecord[]>;
+}
+
+export interface AuditLogProviderRecord {
+  action: string;
+  module: string;
+  targetId?: string | null;
+  status: string;
+  timestamp: Date;
+  after?: unknown;
 }
 
 /** Active module navigation available to interface modules */

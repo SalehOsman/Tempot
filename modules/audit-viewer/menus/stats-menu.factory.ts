@@ -7,5 +7,7 @@ export function createStatsMenu(t: TranslationFn): InlineKeyboard {
     .text(t('audit-viewer.menu.modules'), 'stats:modules')
     .text(t('audit-viewer.menu.runtime'), 'stats:runtime')
     .row()
+    .text(t('audit-viewer.menu.problems'), 'stats:problems')
+    .row()
     .text(t('audit-viewer.menu.back'), 'menu:main');
 }

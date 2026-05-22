@@ -4,6 +4,7 @@ import { registerDeps } from './deps.context.js';
 import { auditViewerAbilities } from './abilities.js';
 import { statsCommand } from './commands/stats.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
+import type { AuditLogReader } from './repositories/interaction-audit.repository.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -23,6 +24,7 @@ export interface ModuleDeps {
   sessionProvider: { getSession: (userId: string, chatId: string) => Promise<unknown> };
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
   settings: { get: (key: string) => Promise<unknown> };
+  auditLog: AuditLogReader;
   config: ModuleConfig;
 }
 

@@ -18,6 +18,8 @@
     "commands/**/*.ts",
     "handlers/**/*.ts",
     "menus/**/*.ts",
+    "repositories/**/*.ts",
+    "services/**/*.ts",
     "features/**/*.ts",
     "shared/**/*.ts",
     "tests/**/*.ts"

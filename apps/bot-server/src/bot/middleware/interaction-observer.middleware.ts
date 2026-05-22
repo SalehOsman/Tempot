@@ -1,4 +1,16 @@
 import type { Context, NextFunction } from 'grammy';
+import { randomUUID } from 'node:crypto';
+import {
+  extractCallbackNamespace,
+  extractCommand,
+  resolveInteractionModule,
+  resolveUpdateType,
+} from '../interaction-routing.js';
+import {
+  setInteractionTrace,
+  toInteractionTraceLog,
+  type InteractionTrace,
+} from '../interaction-trace.js';
 
 interface ObserverLogger {
   info: (data: object) => void;
@@ -8,62 +20,25 @@ interface ObserverLogger {
 export interface InteractionObserverDeps {
   logger: ObserverLogger;
   commandModuleMap?: Record<string, string>;
+  traceIdFactory?: () => string;
 }
 
-interface InteractionMetadata {
-  updateId?: number;
-  updateType: string;
-  command?: string;
-  callbackData?: string;
-  callbackNamespace?: string;
-  module: string;
-  userId?: number;
-  chatId?: number;
-}
-
-const CALLBACK_NAMESPACE_MODULES: Record<string, string> = {
-  botmgmt: 'bot-management',
-  ie: 'input-engine',
-  tmpl: 'template-management',
-};
-
-function extractCommand(ctx: Context): string | undefined {
-  const text = ctx.message?.text;
-  if (!text?.startsWith('/')) return undefined;
-  return text.split(' ')[0];
-}
-
-function extractCallbackNamespace(callbackData: string | undefined): string | undefined {
-  if (!callbackData) return undefined;
-  const separatorIndex = callbackData.search(/[:.]/);
-  if (separatorIndex <= 0) return callbackData;
-  return callbackData.slice(0, separatorIndex);
-}
-
-function resolveModule(
-  command: string | undefined,
-  callbackNamespace: string | undefined,
-  commandModuleMap: Record<string, string> | undefined,
-): string {
-  if (command) return commandModuleMap?.[command] ?? 'bot-server';
-  if (callbackNamespace) return CALLBACK_NAMESPACE_MODULES[callbackNamespace] ?? callbackNamespace;
-  return 'bot-server';
-}
-
-function buildMetadata(ctx: Context, deps: InteractionObserverDeps): InteractionMetadata {
-  const command = extractCommand(ctx);
+function buildTrace(ctx: Context, deps: InteractionObserverDeps): InteractionTrace {
+  const command = extractCommand(ctx.message?.text);
   const callbackData = ctx.callbackQuery?.data;
   const callbackNamespace = extractCallbackNamespace(callbackData);
-  const updateType = command ? 'command' : ctx.callbackQuery ? 'callback_query' : 'message';
   return {
+    traceId: deps.traceIdFactory?.() ?? randomUUID(),
     updateId: ctx.update.update_id,
-    updateType,
+    updateType: resolveUpdateType(command, Boolean(ctx.callbackQuery)),
     command,
     callbackData,
     callbackNamespace,
-    module: resolveModule(command, callbackNamespace, deps.commandModuleMap),
+    module: resolveInteractionModule(command, callbackNamespace, deps.commandModuleMap),
     userId: ctx.from?.id,
     chatId: ctx.chat?.id,
+    responseCount: 0,
+    startedAt: Date.now(),
   };
 }
 
@@ -71,28 +46,118 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function logResponse(
+  deps: InteractionObserverDeps,
+  trace: InteractionTrace,
+  responseType: string,
+): void {
+  trace.responseCount += 1;
+  trace.lastResponseType = responseType;
+  deps.logger.info({
+    code: 'bot-server.interaction_response_sent',
+    ...toInteractionTraceLog(trace),
+    responseType,
+    status: 'responded',
+  });
+}
+
+interface ResponseFailure {
+  deps: InteractionObserverDeps;
+  trace: InteractionTrace;
+  responseType: string;
+  error: unknown;
+}
+
+function logResponseFailure(failure: ResponseFailure): void {
+  const { deps, trace, responseType, error } = failure;
+  deps.logger.error({
+    code: 'bot-server.interaction_response_failed',
+    ...toInteractionTraceLog(trace),
+    responseType,
+    status: 'failed',
+    error: errorMessage(error),
+  });
+}
+
+function observeResponses(
+  ctx: Context,
+  deps: InteractionObserverDeps,
+  trace: InteractionTrace,
+): void {
+  const partial = ctx as Partial<
+    Pick<Context, 'reply' | 'editMessageText' | 'answerCallbackQuery'>
+  >;
+
+  if (partial.reply) {
+    const originalReply = partial.reply.bind(ctx);
+    ctx.reply = (async (...args: Parameters<Context['reply']>) => {
+      try {
+        const result = await originalReply(...args);
+        logResponse(deps, trace, 'reply');
+        return result;
+      } catch (error: unknown) {
+        logResponseFailure({ deps, trace, responseType: 'reply', error });
+        throw error;
+      }
+    }) as Context['reply'];
+  }
+
+  if (partial.editMessageText) {
+    const originalEditMessageText = partial.editMessageText.bind(ctx);
+    ctx.editMessageText = (async (...args: Parameters<Context['editMessageText']>) => {
+      try {
+        const result = await originalEditMessageText(...args);
+        logResponse(deps, trace, 'editMessageText');
+        return result;
+      } catch (error: unknown) {
+        logResponseFailure({ deps, trace, responseType: 'editMessageText', error });
+        throw error;
+      }
+    }) as Context['editMessageText'];
+  }
+
+  if (partial.answerCallbackQuery) {
+    const originalAnswerCallbackQuery = partial.answerCallbackQuery.bind(ctx);
+    ctx.answerCallbackQuery = (async (...args: Parameters<Context['answerCallbackQuery']>) => {
+      try {
+        const result = await originalAnswerCallbackQuery(...args);
+        logResponse(deps, trace, 'answerCallbackQuery');
+        return result;
+      } catch (error: unknown) {
+        logResponseFailure({ deps, trace, responseType: 'answerCallbackQuery', error });
+        throw error;
+      }
+    }) as Context['answerCallbackQuery'];
+  }
+}
+
 export function createInteractionObserverMiddleware(
   deps: InteractionObserverDeps,
 ): (ctx: Context, next: NextFunction) => Promise<void> {
   return async (ctx: Context, next: NextFunction): Promise<void> => {
-    const metadata = buildMetadata(ctx, deps);
-    const start = Date.now();
-    deps.logger.info({ code: 'bot-server.interaction_received', ...metadata, status: 'received' });
+    const trace = buildTrace(ctx, deps);
+    setInteractionTrace(ctx, trace);
+    observeResponses(ctx, deps, trace);
+    deps.logger.info({
+      code: 'bot-server.interaction_received',
+      ...toInteractionTraceLog(trace),
+      status: 'received',
+    });
 
     try {
       await next();
       deps.logger.info({
         code: 'bot-server.interaction_handled',
-        ...metadata,
+        ...toInteractionTraceLog(trace),
         status: 'handled',
-        durationMs: Date.now() - start,
+        durationMs: Date.now() - trace.startedAt,
       });
     } catch (error: unknown) {
       deps.logger.error({
         code: 'bot-server.interaction_failed',
-        ...metadata,
+        ...toInteractionTraceLog(trace),
         status: 'failed',
-        durationMs: Date.now() - start,
+        durationMs: Date.now() - trace.startedAt,
         error: errorMessage(error),
       });
       throw error;

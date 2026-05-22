@@ -7,12 +7,19 @@
       "button": "Stats",
       "modules": "Modules",
       "runtime": "Runtime",
+      "problems": "Problems",
       "back": "Back"
     },
     "view": {
       "title": "<b>Statistics</b>\n\nReview operational health and module activity.",
       "modules": "<b>Module Statistics</b>\n\nReview loaded module and capability status.",
       "runtime": "<b>Runtime Statistics</b>\n\nReview bot runtime and startup health indicators."
+    },
+    "problems": {
+      "title": "<b>Recent Bot Problems</b>",
+      "empty": "<b>Recent Bot Problems</b>\n\nNo failed bot interactions were recorded recently.",
+      "error": "<b>Recent Bot Problems</b>\n\nUnable to load recent bot problems.",
+      "item": "<b>{{action}}</b>\nModule: {{module}}\nTrace: <code>{{traceId}}</code>\nReference: <code>{{referenceCode}}</code>\nError: <code>{{errorCode}}</code>"
     }
   }
 }

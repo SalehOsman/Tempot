@@ -21,6 +21,7 @@ function createMockDeps(overrides: Partial<ErrorBoundaryDeps> = {}): ErrorBounda
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
     },
+    auditLog: vi.fn().mockResolvedValue(undefined),
     t: vi.fn(
       (key: string, opts?: Record<string, unknown>) =>
         `translated:${key}:${opts ? JSON.stringify(opts) : ''}`,
@@ -35,7 +36,7 @@ interface MockBotError {
     from?: { id: number };
     chat?: { id: number };
     reply: ReturnType<typeof vi.fn>;
-  };
+  } & Record<string, unknown>;
 }
 
 function createMockBotError(error: Error): MockBotError {
@@ -105,6 +106,54 @@ describe('createErrorBoundary', () => {
       referenceCode: 'ERR-20260405-ABCD',
       errorCode: 'bot-server.unhandled_error',
     });
+  });
+
+  it('links unhandled errors to the current interaction trace', async () => {
+    const deps = createMockDeps();
+    const boundary = createErrorBoundary(deps);
+    const botError = createMockBotError(new Error('fail'));
+    botError.ctx['interactionTrace'] = {
+      traceId: 'trace-1',
+      updateId: 77,
+      updateType: 'callback_query',
+      callbackData: 'settings:open',
+      callbackNamespace: 'settings',
+      module: 'settings-management',
+      userId: 123,
+      chatId: 456,
+      responseCount: 0,
+      startedAt: 100,
+    };
+
+    await boundary(botError as never);
+
+    expect(deps.logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        traceId: 'trace-1',
+        callbackData: 'settings:open',
+        module: 'settings-management',
+      }),
+    );
+    expect(deps.eventBus.publish).toHaveBeenCalledWith(
+      'system.error',
+      expect.objectContaining({
+        referenceCode: 'ERR-20260405-ABCD',
+        traceId: 'trace-1',
+      }),
+    );
+    expect(deps.auditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'settings:open',
+        module: 'settings-management',
+        targetId: 'trace-1',
+        status: 'FAILURE',
+        after: expect.objectContaining({
+          referenceCode: 'ERR-20260405-ABCD',
+          errorCode: 'bot-server.unhandled_error',
+          callbackData: 'settings:open',
+        }),
+      }),
+    );
   });
 
   it('reports to Sentry when enabled', async () => {

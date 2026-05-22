@@ -1,6 +1,6 @@
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma } from '@tempot/database';
+import { prisma, type Prisma } from '@tempot/database';
 import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
@@ -9,6 +9,7 @@ import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
 import type { OrchestratorDeps } from './orchestrator.js';
+import type { AuditLogProviderRecord } from '../bot-server.types.js';
 
 import type { ShutdownManager, CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
@@ -53,6 +54,12 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
           const result = await opts.settingsService.getDynamic(key as never);
           return result.isOk() ? result.value : null;
         },
+      },
+      auditLog: {
+        findMany: async (args: Record<string, unknown>) =>
+          prisma.auditLog.findMany(args as Prisma.AuditLogFindManyArgs) as Promise<
+            AuditLogProviderRecord[]
+          >,
       },
       importer: async (p: string) => {
         const { pathToFileURL } = await import('node:url');
