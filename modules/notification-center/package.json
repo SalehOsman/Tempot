@@ -17,7 +17,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@tempot/module-registry": "workspace:*"
+    "@tempot/module-registry": "workspace:*",
+    "@tempot/ux-helpers": "workspace:*"
   },
   "peerDependencies": {
     "grammy": "^1.41.1"

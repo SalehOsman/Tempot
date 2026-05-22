@@ -76,9 +76,10 @@ describe('audit-viewer runtime', () => {
     ]);
     await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
     const ctx = {
-      callbackQuery: { data: 'stats:problems' },
+      callbackQuery: { data: 'stats:problems', message: { message_id: 10 } },
       answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
       editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
     } as unknown as Context;
 
     await handleCallbackQuery(ctx);
@@ -87,5 +88,19 @@ describe('audit-viewer runtime', () => {
       expect.stringContaining('settings:open|settings-management|trace-1'),
       expect.any(Object),
     );
+  });
+
+  it('treats unchanged statistics page edits as successful no-op callbacks', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'stats:view', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockRejectedValue(new Error('Bad Request: message is not modified')),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
+
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 });

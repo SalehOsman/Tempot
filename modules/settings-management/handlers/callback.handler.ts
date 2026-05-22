@@ -1,4 +1,5 @@
 import type { Context, NextFunction } from 'grammy';
+import { editOrSend } from '@tempot/ux-helpers';
 import { getDeps } from '../deps.context.js';
 import { createSettingsMenu } from '../menus/settings-menu.factory.js';
 
@@ -23,8 +24,11 @@ async function showSettingsPage(ctx: Context, action: string): Promise<void> {
   const { i18n } = getDeps();
   const key =
     action === 'view' ? 'settings-management.view.title' : `settings-management.view.${action}`;
-  await ctx.editMessageText(i18n.t(key), {
-    parse_mode: 'HTML',
-    reply_markup: createSettingsMenu(i18n.t),
+
+  const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
+    text: i18n.t(key),
+    parseMode: 'HTML',
+    replyMarkup: createSettingsMenu(i18n.t),
   });
+  if (result.isErr()) throw result.error;
 }

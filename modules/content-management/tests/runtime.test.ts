@@ -55,4 +55,18 @@ describe('content-management runtime', () => {
     await messagesCommand(ctx);
     expect(ctx.reply).toHaveBeenCalledWith('content-management.view.title', expect.any(Object));
   });
+
+  it('treats unchanged message page edits as successful no-op callbacks', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'messages:view', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockRejectedValue(new Error('Bad Request: message is not modified')),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
+
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
 });

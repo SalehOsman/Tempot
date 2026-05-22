@@ -1,4 +1,5 @@
 import type { Context, NextFunction } from 'grammy';
+import { editOrSend } from '@tempot/ux-helpers';
 import { getDeps } from '../deps.context.js';
 import { createStatsMenu } from '../menus/stats-menu.factory.js';
 import { InteractionAuditRepository } from '../repositories/interaction-audit.repository.js';
@@ -23,10 +24,12 @@ export async function handleCallbackQuery(
 
 async function showStatsPage(ctx: Context, action: string): Promise<void> {
   const { i18n } = getDeps();
-  await ctx.editMessageText(await resolveStatsText(action), {
-    parse_mode: 'HTML',
-    reply_markup: createStatsMenu(i18n.t),
+  const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
+    text: await resolveStatsText(action),
+    parseMode: 'HTML',
+    replyMarkup: createStatsMenu(i18n.t),
   });
+  if (result.isErr()) throw result.error;
 }
 
 async function resolveStatsText(action: string): Promise<string> {

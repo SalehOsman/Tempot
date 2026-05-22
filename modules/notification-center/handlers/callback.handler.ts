@@ -1,4 +1,5 @@
 import type { Context, NextFunction } from 'grammy';
+import { editOrSend } from '@tempot/ux-helpers';
 import { getDeps } from '../deps.context.js';
 import { createNotificationMenu } from '../menus/notification-menu.factory.js';
 
@@ -35,8 +36,11 @@ async function showNotificationPage(ctx: Context, action: string): Promise<void>
     action === 'view' || action === 'test'
       ? 'notification-center.view.title'
       : 'notification-center.view.preferences';
-  await ctx.editMessageText(i18n.t(key), {
-    parse_mode: 'HTML',
-    reply_markup: createNotificationMenu(i18n.t),
+
+  const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
+    text: i18n.t(key),
+    parseMode: 'HTML',
+    replyMarkup: createNotificationMenu(i18n.t),
   });
+  if (result.isErr()) throw result.error;
 }

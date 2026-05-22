@@ -60,7 +60,7 @@ describe('settings-management runtime', () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
     const next = vi.fn();
     const ctx = {
-      callbackQuery: { data: 'settings:view' },
+      callbackQuery: { data: 'settings:view', message: { message_id: 10 } },
       answerCallbackQuery: vi.fn(),
       editMessageText: vi.fn(),
     } as unknown as Context;
@@ -74,5 +74,19 @@ describe('settings-management runtime', () => {
       next,
     );
     expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('treats unchanged settings page edits as successful no-op callbacks', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'settings:regional', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockRejectedValue(new Error('Bad Request: message is not modified')),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
+
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 });

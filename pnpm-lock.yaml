@@ -241,6 +241,9 @@ importers:
       '@tempot/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
     devDependencies:
       grammy:
         specifier: ^1.41.1
@@ -333,6 +336,9 @@ importers:
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
     devDependencies:
       grammy:
         specifier: ^1.41.1
@@ -349,6 +355,9 @@ importers:
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
     devDependencies:
       grammy:
         specifier: ^1.41.1
@@ -365,6 +374,9 @@ importers:
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
     devDependencies:
       grammy:
         specifier: ^1.41.1
@@ -381,6 +393,9 @@ importers:
       '@tempot/module-registry':
         specifier: workspace:*
         version: link:../../packages/module-registry
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
     devDependencies:
       grammy:
         specifier: ^1.41.1

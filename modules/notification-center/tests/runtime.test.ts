@@ -60,15 +60,30 @@ describe('notification-center runtime', () => {
     const deps = createDeps();
     await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
     const ctx = {
-      callbackQuery: { data: 'notifications:test' },
+      callbackQuery: { data: 'notifications:test', message: { message_id: 10 } },
       from: { id: 123 },
       answerCallbackQuery: vi.fn(),
       editMessageText: vi.fn(),
+      reply: vi.fn(),
     } as unknown as Context;
     await handleCallbackQuery(ctx);
     expect(deps.eventBus.publish).toHaveBeenCalledWith(
       'notification-center.notification.test_requested',
       { telegramId: '123' },
     );
+  });
+
+  it('treats unchanged notification page edits as successful no-op callbacks', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'notifications:preferences', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockRejectedValue(new Error('Bad Request: message is not modified')),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
+
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 });
