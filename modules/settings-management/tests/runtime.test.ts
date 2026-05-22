@@ -4,6 +4,14 @@ import setup, { type ModuleDeps } from '../index.js';
 import { settingsCommand } from '../commands/settings.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+interface InlineCallbackButton {
+  readonly callback_data?: string;
+}
+
+interface InlineKeyboardMarkupLike {
+  readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
+}
+
 function createDeps(): ModuleDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
@@ -13,6 +21,13 @@ function createDeps(): ModuleDeps {
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     config: createConfig('settings-management'),
   };
+}
+
+function callbackDataFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) =>
+    row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
+  );
 }
 
 function createConfig(name: string): ModuleDeps['config'] {
@@ -88,5 +103,24 @@ describe('settings-management runtime', () => {
     await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
 
     expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('renders a regional submenu instead of the general settings menu', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'settings:regional', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('settings:regional:language');
+    expect(callbacks).toContain('settings:regional:timezone');
+    expect(callbacks).not.toContain('settings:regional');
   });
 });
