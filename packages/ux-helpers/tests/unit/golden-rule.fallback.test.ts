@@ -27,6 +27,7 @@ function createMockCtx(overrides?: {
 
   return {
     callbackQuery,
+    answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockImplementation(() => {
       if (overrides?.editError) throw overrides.editError;
       if (overrides?.editSuccess === false) throw new Error('failed');
@@ -53,6 +54,10 @@ describe('editOrSend', () => {
       parse_mode: undefined,
       reply_markup: undefined,
     });
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
+      text: undefined,
+      show_alert: undefined,
+    });
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
@@ -76,9 +81,16 @@ describe('editOrSend', () => {
     const error = new Error('Bad Request: message is not modified');
     const ctx = createMockCtx({ editError: error });
 
-    const result = await editOrSend(ctx, { text: 'Hello' });
+    const result = await editOrSend(ctx, {
+      text: 'Hello',
+      unchangedCallbackText: 'This screen is already open.',
+    });
 
     expect(result.isOk()).toBe(true);
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
+      text: 'This screen is already open.',
+      show_alert: undefined,
+    });
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 

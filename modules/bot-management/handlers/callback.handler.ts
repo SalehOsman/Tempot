@@ -1,6 +1,6 @@
 import type { Context, NextFunction } from 'grammy';
 import type { InlineKeyboard } from 'grammy';
-import { editOrSend } from '@tempot/ux-helpers';
+import { answerCallback, editOrSend } from '@tempot/ux-helpers';
 import { getI18n } from '../deps.context.js';
 import { getBotService } from '../services/bot-service.context.js';
 import { getLifecycleService } from '../services/lifecycle-service.context.js';
@@ -29,10 +29,10 @@ export async function handleCallbackQuery(
     return;
   }
 
-  await ctx.answerCallbackQuery();
   const [, action, value, trailingValue] = data.split(':');
 
   if (action === 'create') {
+    await acknowledgeCallback(ctx);
     await newBotCommand(ctx);
     return;
   }
@@ -69,7 +69,7 @@ async function showBotList(ctx: Context, page: number): Promise<void> {
   const i18n = getI18n();
   const result = await getBotService().list(page);
   if (result.isErr()) {
-    await ctx.reply(i18n.t('bot-management.error.list_failed'));
+    await replyWithCallback(ctx, i18n.t('bot-management.error.list_failed'));
     return;
   }
 
@@ -85,7 +85,7 @@ async function showBotDetail(ctx: Context, botId: string): Promise<void> {
   const i18n = getI18n();
   const result = await getBotService().getDetail(botId);
   if (result.isErr()) {
-    await ctx.reply(i18n.t('bot-management.error.not_found'));
+    await replyWithCallback(ctx, i18n.t('bot-management.error.not_found'));
     return;
   }
 
@@ -100,7 +100,7 @@ async function showLifecycleMenu(ctx: Context, botId: string): Promise<void> {
   const i18n = getI18n();
   const result = await getBotService().getDetail(botId);
   if (result.isErr()) {
-    await ctx.reply(i18n.t('bot-management.error.not_found'));
+    await replyWithCallback(ctx, i18n.t('bot-management.error.not_found'));
     return;
   }
 
@@ -120,13 +120,16 @@ async function applyDirectLifecycleTransition(
   const toStatus = parseLifecycleStatus(rawStatus);
   const actorId = ctx.from?.id.toString();
   if (!toStatus || !actorId) {
-    await ctx.reply(i18n.t('bot-management.error.invalid_transition'));
+    await replyWithCallback(ctx, i18n.t('bot-management.error.invalid_transition'));
     return;
   }
 
   const result = await getLifecycleService().transition({ botId, toStatus, actorId });
   if (result.isErr()) {
-    await ctx.reply(i18n.t(`bot-management.error.${result.error.code.split('.').at(-1)}`));
+    await replyWithCallback(
+      ctx,
+      i18n.t(`bot-management.error.${result.error.code.split('.').at(-1)}`),
+    );
     return;
   }
 
@@ -156,10 +159,11 @@ async function startLifecycleReasonFlow(
   const toStatus = parseLifecycleStatus(rawStatus);
   const starter = ctx as ConversationStarterContext;
   if (!toStatus || !starter.conversation) {
-    await ctx.reply(i18n.t('bot-management.error.invalid_transition'));
+    await replyWithCallback(ctx, i18n.t('bot-management.error.invalid_transition'));
     return;
   }
 
+  await acknowledgeCallback(ctx);
   await starter.conversation.enter(BOT_LIFECYCLE_REASON_FLOW_ID, { botId, toStatus });
 }
 
@@ -180,7 +184,18 @@ async function editCallbackMessage(
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text,
     replyMarkup: keyboard,
+    unchangedCallbackText: getI18n().t('bot-server.callback_unchanged'),
   });
 
   if (result.isErr()) throw result.error;
+}
+
+async function acknowledgeCallback(ctx: Context): Promise<void> {
+  const result = await answerCallback(ctx as unknown as Parameters<typeof answerCallback>[0]);
+  if (result.isErr()) throw result.error;
+}
+
+async function replyWithCallback(ctx: Context, text: string): Promise<void> {
+  await acknowledgeCallback(ctx);
+  await ctx.reply(text);
 }

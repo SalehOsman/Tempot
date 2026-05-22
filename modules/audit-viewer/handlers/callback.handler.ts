@@ -17,7 +17,6 @@ export async function handleCallbackQuery(
     return;
   }
 
-  await ctx.answerCallbackQuery();
   const action = data.split(':')[1] ?? 'view';
   await showStatsPage(ctx, action);
 }
@@ -28,6 +27,7 @@ async function showStatsPage(ctx: Context, action: string): Promise<void> {
     text: await resolveStatsText(action),
     parseMode: 'HTML',
     replyMarkup: createStatsMenu(i18n.t),
+    unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;
 }

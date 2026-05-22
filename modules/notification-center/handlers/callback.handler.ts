@@ -15,7 +15,6 @@ export async function handleCallbackQuery(
     return;
   }
 
-  await ctx.answerCallbackQuery();
   const action = data.split(':')[1] ?? 'view';
   if (action === 'test') {
     await publishTestRequest(ctx);
@@ -41,6 +40,7 @@ async function showNotificationPage(ctx: Context, action: string): Promise<void>
     text: i18n.t(key),
     parseMode: 'HTML',
     replyMarkup: createNotificationMenu(i18n.t),
+    unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;
 }

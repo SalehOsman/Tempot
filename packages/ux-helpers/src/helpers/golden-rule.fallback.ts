@@ -5,9 +5,14 @@ import { logger } from '@tempot/logger';
 import type { EditOrSendOptions } from '../ux.types.js';
 import { UX_ERRORS } from '../ux.errors.js';
 import { uxToggle } from '../ux.toggle.js';
+import { answerCallback } from './callback.handler.js';
 
 interface EditableContext {
   readonly callbackQuery?: { readonly message?: unknown };
+  answerCallbackQuery?(options: {
+    readonly text?: string;
+    readonly show_alert?: boolean;
+  }): Promise<unknown>;
   editMessageText(text: string, options: EditMessageOptions): Promise<unknown>;
   reply(text: string, options: ReplyOptions): Promise<unknown>;
 }
@@ -49,6 +54,11 @@ async function sendReply(
   }
 }
 
+async function answerIfNeeded(ctx: EditableContext, text?: string): AsyncResult<void, AppError> {
+  if (!ctx.callbackQuery || !ctx.answerCallbackQuery) return ok(undefined);
+  return answerCallback(ctx as Parameters<typeof answerCallback>[0], { text });
+}
+
 /** Edit message if possible, otherwise fall back to reply (Golden Rule) */
 export async function editOrSend(
   ctx: EditableContext,
@@ -66,15 +76,17 @@ export async function editOrSend(
       parse_mode: options.parseMode,
       reply_markup: options.replyMarkup,
     });
-    return ok(undefined);
+    return answerIfNeeded(ctx);
   } catch (error: unknown) {
     if (isNoOpError(error)) {
-      return ok(undefined);
+      return answerIfNeeded(ctx, options.unchangedCallbackText);
     }
 
     if (isFallbackError(error)) {
       logger.warn({ error }, 'Edit failed, falling back to reply');
-      return sendReply(ctx, options);
+      const replyResult = await sendReply(ctx, options);
+      if (replyResult.isErr()) return replyResult;
+      return answerIfNeeded(ctx);
     }
 
     return err(new AppError(UX_ERRORS.MESSAGE_EDIT_FAILED, { originalError: error }));

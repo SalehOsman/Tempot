@@ -120,6 +120,7 @@ export interface EditOrSendOptions {
   readonly text: string;
   readonly parseMode?: 'HTML' | 'MarkdownV2';
   readonly replyMarkup?: InlineKeyboard;
+  readonly unchangedCallbackText?: string;
 }
 
 // --- Answer Callback Query Types ---

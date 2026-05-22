@@ -1,5 +1,6 @@
 import { Context, InlineKeyboard } from 'grammy';
-import { getLogger } from '../deps.context.js';
+import { answerCallback } from '@tempot/ux-helpers';
+import { getI18n, getLogger } from '../deps.context.js';
 
 export async function safeEditMessageText(
   ctx: Context,
@@ -14,13 +15,20 @@ export async function safeEditMessageText(
 
   try {
     await ctx.editMessageText(text, options);
-    await ctx.answerCallbackQuery();
+    await acknowledgeCallback(ctx);
   } catch (error) {
     if (error instanceof Error && error.message.includes('message is not modified')) {
-      await ctx.answerCallbackQuery();
+      await acknowledgeCallback(ctx, getI18n().t('bot-server.callback_unchanged'));
       return;
     }
     log.error({ msg: 'editMessageText failed', error: String(error) });
     throw error;
   }
+}
+
+async function acknowledgeCallback(ctx: Context, text?: string): Promise<void> {
+  const result = await answerCallback(ctx as unknown as Parameters<typeof answerCallback>[0], {
+    text,
+  });
+  if (result.isErr()) throw result.error;
 }

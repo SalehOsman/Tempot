@@ -3,6 +3,7 @@ import { getUserService } from '../services/user-service.context.js';
 import { UsersMenuFactory } from '../menus/users-menu.factory.js';
 import { getI18n } from '../deps.context.js';
 import { UserProfile } from '../types/index.js';
+import { safeEditMessageText } from './callback-shared.handler.js';
 
 export async function handleUsersAction(
   ctx: Context,
@@ -52,13 +53,10 @@ async function handleUsersListAction(ctx: Context): Promise<void> {
   const listKeyboard = UsersMenuFactory.createList(i18n);
   const usersMessage = formatUsersList(users, i18n);
 
-  if (ctx.callbackQuery?.message) {
-    await ctx.editMessageText(usersMessage, {
-      parse_mode: 'HTML',
-      reply_markup: listKeyboard,
-    });
-  }
-  await ctx.answerCallbackQuery();
+  await safeEditMessageText(ctx, usersMessage, {
+    parse_mode: 'HTML',
+    reply_markup: listKeyboard,
+  });
 }
 
 function formatUsersList(users: UserProfile[], i18n: ReturnType<typeof getI18n>): string {

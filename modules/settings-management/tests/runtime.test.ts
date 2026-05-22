@@ -102,6 +102,10 @@ describe('settings-management runtime', () => {
 
     await expect(handleCallbackQuery(ctx)).resolves.toBeUndefined();
 
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
+      text: 'bot-server.callback_unchanged',
+      show_alert: undefined,
+    });
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
