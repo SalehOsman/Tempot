@@ -75,7 +75,8 @@
       "list_failed": "Could not load managed bots",
       "no_user": "Could not identify the Telegram user",
       "duplicate_username": "A managed bot with this Telegram username already exists",
-      "create_failed": "Could not create the managed bot profile"
+      "create_failed": "Could not create the managed bot profile",
+      "section_unavailable": "This bot management section is not available yet."
     }
   }
 }

@@ -4,6 +4,14 @@ import setup, { type ModuleDeps } from '../index.js';
 import { notificationsCommand } from '../commands/notifications.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+interface InlineCallbackButton {
+  readonly callback_data?: string;
+}
+
+interface InlineKeyboardMarkupLike {
+  readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
+}
+
 function createDeps(): ModuleDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
@@ -39,6 +47,13 @@ function createConfig(name: string): ModuleDeps['config'] {
   };
 }
 
+function callbackDataFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) =>
+    row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
+  );
+}
+
 describe('notification-center runtime', () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -71,6 +86,24 @@ describe('notification-center runtime', () => {
       'notification-center.notification.test_requested',
       { telegramId: '123' },
     );
+  });
+
+  it('renders preferences as a leaf page without repeating the selected callback action', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'notifications:preferences', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('notifications:view');
+    expect(callbacks).not.toContain('notifications:preferences');
   });
 
   it('treats unchanged notification page edits as successful no-op callbacks', async () => {

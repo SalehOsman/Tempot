@@ -8,9 +8,8 @@
 
 # =============================================================================
 # DEVELOPMENT SERVICES ONLY
-# Current: PostgreSQL (pgvector) + Redis
+# Current: bot-server + PostgreSQL (pgvector) + Redis
 #
-# TODO — Phase 5: Add bot-server service after Dockerfile is created
 # =============================================================================
 
 services:
@@ -46,6 +45,15 @@ services:
       # - WEBHOOK_SECRET_TOKEN=${WEBHOOK_SECRET_TOKEN:-}
     ports:
       - '3000:3000'
+    command:
+      - sh
+      - -lc
+      - >
+        (cd /app/node_modules/@tempot/database
+        && PRISMA_SCHEMA_PATH=/app/node_modules/@tempot/database/prisma/schema.prisma
+        /app/node_modules/.pnpm/node_modules/.bin/prisma migrate deploy
+        --schema /app/node_modules/@tempot/database/prisma/schema.prisma)
+        && node /app/dist/index.js
     healthcheck:
       test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/health']
       interval: 15s

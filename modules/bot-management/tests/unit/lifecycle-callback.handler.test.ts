@@ -213,6 +213,24 @@ describe('handleCallbackQuery lifecycle controls', () => {
     );
   });
 
+  it('does not leave settings detail callbacks without a response', async () => {
+    const ctx = createContext('botmgmt:settings:bot-1');
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledTimes(1);
+    expect(ctx.reply).toHaveBeenCalledWith('bot-management.error.section_unavailable');
+  });
+
+  it('does not leave module detail callbacks without a response', async () => {
+    const ctx = createContext('botmgmt:modules:bot-1');
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledTimes(1);
+    expect(ctx.reply).toHaveBeenCalledWith('bot-management.error.section_unavailable');
+  });
+
   it('starts the governed archive flow only after archive confirmation is approved', async () => {
     const ctx = createContext('botmgmt:lifecycle-archive-start:bot-1');
 
