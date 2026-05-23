@@ -12,6 +12,7 @@ export interface ModuleDependencyContainer {
   i18n: I18nProvider;
   settings: SettingsProvider;
   auditLog: AuditLogProvider;
+  interactionEvents: InteractionEventProvider;
   navigation: ModuleNavigationProvider;
   config: ModuleConfig;
 }
@@ -92,6 +93,35 @@ export interface AuditLogProviderRecord {
   status: string;
   timestamp: Date;
   after?: unknown;
+}
+
+/** Detailed interaction event reader exposed to operational modules. */
+export interface InteractionEventProvider {
+  findMany: (args: Record<string, unknown>) => Promise<InteractionEventProviderRecord[]>;
+}
+
+export interface InteractionEventProviderRecord {
+  traceId: string;
+  sequence: number;
+  updateId?: number | null;
+  updateType: string;
+  command?: string | null;
+  callbackData?: string | null;
+  callbackNamespace?: string | null;
+  module: string;
+  userId?: string | null;
+  chatId?: string | null;
+  stage: string;
+  status: string;
+  action?: string | null;
+  viewKey?: string | null;
+  responseType?: string | null;
+  reason?: string | null;
+  errorCode?: string | null;
+  referenceCode?: string | null;
+  metadata?: unknown;
+  occurredAt: Date;
+  createdAt: Date;
 }
 
 /** Active module navigation available to interface modules */

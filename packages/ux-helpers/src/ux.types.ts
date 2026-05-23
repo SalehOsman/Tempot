@@ -118,6 +118,7 @@ export interface ComposerBuilder {
 // --- Golden Rule Fallback Types ---
 export interface EditOrSendOptions {
   readonly text: string;
+  readonly viewKey?: string;
   readonly parseMode?: 'HTML' | 'MarkdownV2';
   readonly replyMarkup?: InlineKeyboard;
   readonly unchangedCallbackText?: string;

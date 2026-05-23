@@ -25,6 +25,7 @@
     "@tempot/event-bus": "workspace:*",
     "@tempot/i18n-core": "workspace:*",
     "@tempot/input-engine": "workspace:*",
+    "@tempot/interaction-observability": "workspace:*",
     "@tempot/logger": "workspace:*",
     "@tempot/module-registry": "workspace:*",
     "@tempot/regional-engine": "workspace:*",

@@ -17,6 +17,7 @@ function createDeps(): ModuleDeps {
     },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     auditLog: { findMany: vi.fn().mockResolvedValue([]) },
+    interactionEvents: { findMany: vi.fn().mockResolvedValue([]) },
     config: createConfig('audit-viewer'),
   };
 }

@@ -8,6 +8,7 @@
       "modules": "Modules",
       "runtime": "Runtime",
       "problems": "Problems",
+      "timeline": "Timeline",
       "back": "Back"
     },
     "view": {
@@ -20,6 +21,12 @@
       "empty": "<b>Recent Bot Problems</b>\n\nNo failed bot interactions were recorded recently.",
       "error": "<b>Recent Bot Problems</b>\n\nUnable to load recent bot problems.",
       "item": "<b>{{action}}</b>\nModule: {{module}}\nTrace: <code>{{traceId}}</code>\nReference: <code>{{referenceCode}}</code>\nError: <code>{{errorCode}}</code>"
+    },
+    "timeline": {
+      "title": "<b>Interaction Timeline</b>",
+      "empty": "<b>Interaction Timeline</b>\n\nNo interaction events were recorded recently.",
+      "error": "<b>Interaction Timeline</b>\n\nUnable to load interaction events.",
+      "item": "<b>{{module}}</b> / <code>{{action}}</code>\nTrace: <code>{{traceId}}</code> #{{sequence}}\nStage: <code>{{stage}}</code> | Status: <code>{{status}}</code>\nView: <code>{{viewKey}}</code>\nReason: <code>{{reason}}</code>\nTime: <code>{{occurredAt}}</code>"
     }
   }
 }
