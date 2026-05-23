@@ -5,6 +5,7 @@ import { auditViewerAbilities } from './abilities.js';
 import { statsCommand } from './commands/stats.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
 import type { AuditLogReader } from './repositories/interaction-audit.repository.js';
+import type { InteractionEventReader } from './repositories/interaction-event.repository.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -25,6 +26,7 @@ export interface ModuleDeps {
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
   settings: { get: (key: string) => Promise<unknown> };
   auditLog: AuditLogReader;
+  interactionEvents: InteractionEventReader;
   config: ModuleConfig;
 }
 

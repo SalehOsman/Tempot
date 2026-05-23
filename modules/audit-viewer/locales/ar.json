@@ -8,6 +8,7 @@
       "modules": "الموديولات",
       "runtime": "التشغيل",
       "problems": "المشاكل",
+      "timeline": "التتبع",
       "back": "العودة"
     },
     "view": {
@@ -20,6 +21,12 @@
       "empty": "<b>آخر مشاكل البوت</b>\n\nلا توجد تفاعلات فاشلة مسجلة مؤخرًا.",
       "error": "<b>آخر مشاكل البوت</b>\n\nتعذر تحميل آخر مشاكل البوت.",
       "item": "<b>{{action}}</b>\nالموديول: {{module}}\nالتتبع: <code>{{traceId}}</code>\nالمرجع: <code>{{referenceCode}}</code>\nالخطأ: <code>{{errorCode}}</code>"
+    },
+    "timeline": {
+      "title": "<b>تتبع التفاعلات</b>",
+      "empty": "<b>تتبع التفاعلات</b>\n\nلا توجد أحداث تفاعل مسجلة مؤخرًا.",
+      "error": "<b>تتبع التفاعلات</b>\n\nتعذر تحميل أحداث التفاعل.",
+      "item": "<b>{{module}}</b> / <code>{{action}}</code>\nالتتبع: <code>{{traceId}}</code> #{{sequence}}\nالمرحلة: <code>{{stage}}</code> | الحالة: <code>{{status}}</code>\nالشاشة: <code>{{viewKey}}</code>\nالسبب: <code>{{reason}}</code>\nالوقت: <code>{{occurredAt}}</code>"
     }
   }
 }

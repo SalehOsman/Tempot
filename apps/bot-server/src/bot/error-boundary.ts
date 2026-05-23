@@ -1,6 +1,6 @@
 import type { BotError, Context } from 'grammy';
 import { generateErrorReference, AppError } from '@tempot/shared';
-import { getInteractionTrace, toInteractionTraceLog } from './interaction-trace.js';
+import { getInteractionTrace, toInteractionTraceLog } from '@tempot/interaction-observability';
 import type { AuditEntry } from './middleware/audit.middleware.js';
 
 export interface ErrorBoundaryDeps {

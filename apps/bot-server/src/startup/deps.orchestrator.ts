@@ -9,7 +9,10 @@ import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
 import type { OrchestratorDeps } from './orchestrator.js';
-import type { AuditLogProviderRecord } from '../bot-server.types.js';
+import type {
+  AuditLogProviderRecord,
+  InteractionEventProviderRecord,
+} from '../bot-server.types.js';
 
 import type { ShutdownManager, CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
@@ -59,6 +62,12 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
         findMany: async (args: Record<string, unknown>) =>
           prisma.auditLog.findMany(args as Prisma.AuditLogFindManyArgs) as Promise<
             AuditLogProviderRecord[]
+          >,
+      },
+      interactionEvents: {
+        findMany: async (args: Record<string, unknown>) =>
+          prisma.interactionEvent.findMany(args as Prisma.InteractionEventFindManyArgs) as Promise<
+            InteractionEventProviderRecord[]
           >,
       },
       importer: async (p: string) => {

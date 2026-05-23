@@ -1,7 +1,12 @@
 import { InlineKeyboard } from 'grammy';
 
 type TranslationFn = (key: string) => string;
-export type SettingsMenuSurface = 'main' | 'profile' | 'notifications' | 'regional';
+export type SettingsMenuSurface =
+  | 'main'
+  | 'profile'
+  | 'notifications'
+  | 'regional'
+  | 'regional-leaf';
 
 export function createSettingsMenu(
   t: TranslationFn,
@@ -10,6 +15,7 @@ export function createSettingsMenu(
   if (surface === 'profile') return createProfileSettingsMenu(t);
   if (surface === 'notifications') return createNotificationSettingsMenu(t);
   if (surface === 'regional') return createRegionalSettingsMenu(t);
+  if (surface === 'regional-leaf') return createRegionalLeafMenu(t);
   return createMainSettingsMenu(t);
 }
 
@@ -46,6 +52,14 @@ function createRegionalSettingsMenu(t: TranslationFn): InlineKeyboard {
     .text(t('settings-management.menu.timezone'), 'settings:regional:timezone')
     .row()
     .text(t('settings-management.menu.defaults'), 'settings:regional:defaults')
+    .row()
+    .text(t('settings-management.menu.settings'), 'settings:view')
+    .text(t('settings-management.menu.back'), 'menu:main');
+}
+
+function createRegionalLeafMenu(t: TranslationFn): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t('settings-management.menu.regional'), 'settings:regional')
     .row()
     .text(t('settings-management.menu.settings'), 'settings:view')
     .text(t('settings-management.menu.back'), 'menu:main');

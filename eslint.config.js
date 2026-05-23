@@ -29,7 +29,7 @@ export default tseslint.config(
         // Tier 3: Cross-cutting — imports Tier 1 + Tier 2
         {
           type: 'cross-cutting',
-          pattern: ['packages/{i18n-core,auth-core}/**'],
+          pattern: ['packages/{i18n-core,auth-core,interaction-observability}/**'],
           capture: ['path'],
         },
         // Tier 4: Domain — imports Tier 1 + Tier 2 + Tier 3 (NOT other Tier 4)

@@ -119,6 +119,9 @@ importers:
       '@tempot/input-engine':
         specifier: workspace:*
         version: link:../../packages/input-engine
+      '@tempot/interaction-observability':
+        specifier: workspace:*
+        version: link:../../packages/interaction-observability
       '@tempot/logger':
         specifier: workspace:*
         version: link:../../packages/logger
@@ -820,6 +823,25 @@ importers:
         specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@7.3.3(@types/node@24.12.3)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
+  packages/interaction-observability:
+    dependencies:
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../shared
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.17
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(vite@7.3.3(@types/node@22.19.17)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
   packages/logger:
     dependencies:
       '@tempot/database':
@@ -1081,6 +1103,9 @@ importers:
       '@tempot/i18n-core':
         specifier: workspace:*
         version: link:../i18n-core
+      '@tempot/interaction-observability':
+        specifier: workspace:*
+        version: link:../interaction-observability
       '@tempot/logger':
         specifier: workspace:*
         version: link:../logger
