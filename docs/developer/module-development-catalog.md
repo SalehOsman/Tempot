@@ -19,6 +19,8 @@ dedicated spec activates that track.
 For mandatory package reuse rules, decision classifications, and the approved
 exception path for local custom behavior, read
 `docs/developer/module-capability-reuse-standard.md`.
+For Telegram-facing navigation and callback review, read
+`docs/developer/module-flow-governance.md`.
 
 Tempot modules are product or domain capabilities under `modules/`. They may use
 packages, but they must not become shared infrastructure. Shared infrastructure
@@ -111,6 +113,8 @@ Expected manifest concerns:
 
 The manifest should eventually generate or validate `abilities.ts`, event
 contracts, README sections, i18n namespaces, and module doctor checks.
+For Telegram-facing modules, the flow map documents command entry points,
+callback surfaces, visible actions, unavailable actions, and exit paths.
 
 ## Methodology
 
@@ -265,6 +269,8 @@ Implemented checks:
 - package metadata: `main`, `types`, root export, `build`, and `test`
 - locale key parity between Arabic and English files
 - no direct imports from another `modules/*` module
+- governed `module.flow.json` callback maps for modules that opt into flow
+  governance
 
 Recommended future checks:
 
@@ -278,6 +284,8 @@ Recommended future checks:
 - event contract documentation
 - tests mapped to SpecKit functional requirements
 - README completeness
+- no repeated leaf callback self-navigation
+- every visible callback has a handler, unavailable response, or omission rule
 
 ## Readiness Score
 

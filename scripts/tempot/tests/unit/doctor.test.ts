@@ -125,12 +125,14 @@ describe('Tempot module doctor', () => {
         'pass',
         'pass',
         'pass',
+        'warn',
       ]);
       expect(output).toContain('Tempot Module Doctor: person-registration');
       expect(output).toContain('[pass] Required files');
       expect(output).toContain('[pass] Package metadata');
       expect(output).toContain('[pass] Locale parity');
       expect(output).toContain('[pass] Module imports');
+      expect(output).toContain('[warn] Module flow map');
       expect(output).not.toContain('BOT_TOKEN');
       expect(output).not.toContain('TELEGRAM_TOKEN');
     } finally {
@@ -170,6 +172,7 @@ describe('Tempot module doctor', () => {
         'fail',
         'fail',
         'fail',
+        'warn',
       ]);
     } finally {
       await rm(cwd, { recursive: true, force: true });

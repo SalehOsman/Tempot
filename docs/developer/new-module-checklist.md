@@ -24,6 +24,8 @@ capability.
 - [ ] `plan.md` contains a capability decision table using `Reuse`, `Compose`,
       `Extend Package`, or `Custom Approved`.
 - [ ] Every `Custom Approved` capability has a completed exception rationale.
+- [ ] Telegram-facing modules have a flow map covering entry points, surfaces,
+      callbacks, unavailable actions, role rules, and exit paths.
 
 ## Required Files
 
@@ -71,6 +73,10 @@ Create only when needed:
       approved custom exception is documented.
 - [ ] Telegram commands act as entry points for managed flows; inline menus are
       the preferred navigation layer for interactive module behavior.
+- [ ] Leaf callback surfaces do not render the callback that opened them unless
+      it performs a documented state-changing action.
+- [ ] Every visible callback has a handler, explicit unavailable response, or
+      documented omission rule.
 - [ ] Local custom implementations do not duplicate capabilities already owned
       by approved packages without documented justification.
 
@@ -82,6 +88,7 @@ Create only when needed:
 - [ ] `pnpm boundary:audit` passes.
 - [ ] `pnpm module:checklist` passes.
 - [ ] `pnpm tempot module doctor {module-name}` passes.
+- [ ] Flow governance checks pass for any governed Telegram-facing module.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm spec:validate` passes.
 - [ ] `git diff --check` passes.
