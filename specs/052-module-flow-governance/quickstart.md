@@ -17,6 +17,13 @@ executed. It is not a substitute for the full gate list.
 Expected result: The Project Manager or Technical Advisor can understand the
 module's flow without reading implementation code.
 
+Current governed modules:
+
+- `help-center`: pilot module.
+- `settings-management`: first influential rollout module with nested settings,
+  regional leaf pages, and cross-module exits to profile and notification
+  surfaces.
+
 ## Scenario 2: Seed and Detect Flow Defects
 
 1. Use a test fixture or controlled module state with a missing visible callback

@@ -79,6 +79,7 @@ export interface I18nProvider {
 /** Settings provider interface for modules */
 export interface SettingsProvider {
   get: (key: string) => Promise<unknown>;
+  set: (key: string, value: unknown, updatedBy: string | null) => Promise<unknown>;
 }
 
 /** Audit log reader exposed to operational modules. */

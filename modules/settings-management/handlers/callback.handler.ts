@@ -7,7 +7,6 @@ const noopNext: NextFunction = () => Promise.resolve();
 const VIEW_KEYS: Readonly<Record<string, string>> = {
   view: 'settings-management.view.title',
   profile: 'settings-management.view.profile',
-  notifications: 'settings-management.view.notifications',
   regional: 'settings-management.view.regional',
   'regional:language': 'settings-management.view.regional_language',
   'regional:timezone': 'settings-management.view.regional_timezone',
@@ -45,7 +44,7 @@ async function showSettingsPage(ctx: Context, action: string): Promise<void> {
 function resolveMenuSurface(action: string): SettingsMenuSurface {
   const [section] = action.split(':');
   if (section === 'regional' && action !== 'regional') return 'regional-leaf';
-  if (section === 'profile' || section === 'notifications' || section === 'regional') {
+  if (section === 'profile' || section === 'regional') {
     return section;
   }
   return 'main';

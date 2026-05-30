@@ -1,0 +1,68 @@
+{
+  "moduleName": "notification-center",
+  "entryPoints": ["notifications"],
+  "surfaces": [
+    {
+      "surfaceId": "notifications.main",
+      "surfaceType": "parent",
+      "openedBy": "notifications:view",
+      "visibleActions": [
+        "notifications:preferences",
+        "notifications:test",
+        "notifications:activity",
+        "menu:main"
+      ]
+    },
+    {
+      "surfaceId": "notifications.preferences",
+      "surfaceType": "leaf",
+      "openedBy": "notifications:preferences",
+      "visibleActions": ["notifications:toggle", "notifications:view", "menu:main"]
+    },
+    {
+      "surfaceId": "notifications.activity",
+      "surfaceType": "leaf",
+      "openedBy": "notifications:activity",
+      "visibleActions": ["notifications:view", "menu:main"]
+    },
+    {
+      "surfaceId": "notifications.test_result",
+      "surfaceType": "result",
+      "openedBy": "notifications:test",
+      "visibleActions": ["notifications:test", "notifications:view", "menu:main"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "notifications:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "notification-center.menu.button"
+    },
+    {
+      "callbackData": "notifications:preferences",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "notification-center.menu.preferences"
+    },
+    {
+      "callbackData": "notifications:test",
+      "actionKind": "state_change",
+      "handlerStatus": "handled",
+      "labelKey": "notification-center.menu.test"
+    },
+    {
+      "callbackData": "notifications:activity",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "notification-center.menu.activity"
+    },
+    {
+      "callbackData": "notifications:toggle",
+      "actionKind": "state_change",
+      "handlerStatus": "handled",
+      "labelKey": "notification-center.menu.toggle"
+    }
+  ],
+  "exitPaths": ["menu:main"]
+}

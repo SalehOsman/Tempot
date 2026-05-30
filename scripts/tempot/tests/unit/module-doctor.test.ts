@@ -37,6 +37,32 @@ async function createModuleFixture(moduleName: string) {
 }
 
 describe('Tempot module doctor', () => {
+  it('should pass settings-management flow governance when its flow map is complete', async () => {
+    const report = await createModuleDoctorReport({
+      cwd: process.cwd(),
+      moduleName: 'settings-management',
+    });
+    const flowCheck = report.checks.find((check) => check.name === 'Module flow map');
+
+    expect(flowCheck?.status).toBe('pass');
+    expect(flowCheck?.summary).toBe(
+      'Module flow map callbacks, leaf surfaces, handlers, and labels are aligned.',
+    );
+  });
+
+  it('should pass notification-center flow governance when its flow map is complete', async () => {
+    const report = await createModuleDoctorReport({
+      cwd: process.cwd(),
+      moduleName: 'notification-center',
+    });
+    const flowCheck = report.checks.find((check) => check.name === 'Module flow map');
+
+    expect(flowCheck?.status).toBe('pass');
+    expect(flowCheck?.summary).toBe(
+      'Module flow map callbacks, leaf surfaces, handlers, and labels are aligned.',
+    );
+  });
+
   it('should detect repeated leaf callbacks and missing callback handlers', async () => {
     const { cwd, modulePath } = await createModuleFixture('demo-module');
 

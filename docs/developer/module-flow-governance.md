@@ -89,3 +89,13 @@ Apply this standard incrementally. Start with one pilot module, prove the flow
 map and readiness report, then roll out to other modules only after review.
 Do not recreate all modules from scratch unless a specific module is approved
 for replacement.
+
+Current governed modules:
+
+- `help-center`: pilot flow map and callback runtime tests.
+- `settings-management`: first influential rollout with nested settings,
+  regional leaf pages, and cross-module exits to profile and notification
+  surfaces.
+- `notification-center`: functional operational notification center with
+  preferences, recent activity, real test delivery, and governed result
+  surfaces.

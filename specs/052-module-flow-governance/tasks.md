@@ -105,6 +105,8 @@
 - [x] T032 [US5] Write failing pilot-module callback or flow tests for current governance defects - covers FR-002, FR-003, FR-011, SC-003
 - [x] T033 [US5] Harden only the selected pilot module's flow, callbacks, locales, and README according to findings - covers FR-011, FR-012, FR-013, SC-003, SC-007
 - [x] T034 [US5] Run the pilot readiness report and confirm critical findings are resolved without unrelated module rewrites - covers FR-012, FR-013, SC-007
+- [x] T034A [US5] Roll out flow governance to the first influential module, `settings-management`, with a passing module flow map and bot runtime callback tests - covers FR-002, FR-003, FR-011, FR-012, SC-003, SC-007
+- [x] T034B [US5] Roll out flow governance to `notification-center` with preferences, recent activity, real test delivery, and governed result surfaces - covers FR-002, FR-003, FR-011, FR-012, FR-013, SC-003, SC-007
 
 **Checkpoint**: US5 proves the incremental rollout model.
 

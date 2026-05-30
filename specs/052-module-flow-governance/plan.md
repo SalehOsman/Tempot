@@ -28,6 +28,11 @@ module with command and callback entry points that can validate flow maps,
 leaf-surface navigation, module doctor reporting, and bot-level runtime tests
 without broad module rewrites.
 
+**First Influential Rollout Module**: `settings-management`, selected after the
+pilot because it has user-visible nested settings surfaces, cross-module exits
+to profile and notification flows, and regional leaf pages that are suitable for
+incremental flow governance without broad rewrites.
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*

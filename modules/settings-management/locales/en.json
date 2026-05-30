@@ -18,7 +18,7 @@
       "back": "Back"
     },
     "view": {
-      "title": "<b>Settings</b>\n\nManage profile, notification, and regional preferences.",
+      "title": "<b>Settings</b>\n\nManage profile and regional preferences.",
       "profile": "<b>Profile Settings</b>\n\nOpen the profile page to update personal account fields.",
       "notifications": "<b>Notification Settings</b>\n\nControl notification delivery preferences and test notifications.",
       "regional": "<b>Regional Settings</b>\n\nChoose what to review from language, timezone, and regional defaults.",

@@ -23,6 +23,7 @@ export interface DynamicSettingDefinitions {
   backup_schedule: string;
   log_retention_days: number;
   dynamic_default_language: string;
+  notifications_enabled: boolean;
 }
 
 /** Type-safe dynamic setting key */
@@ -89,4 +90,5 @@ export const DYNAMIC_SETTING_DEFAULTS: { [K in DynamicSettingKey]: DynamicSettin
     backup_schedule: '',
     log_retention_days: 90,
     dynamic_default_language: '',
+    notifications_enabled: true,
   };
