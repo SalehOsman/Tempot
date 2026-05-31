@@ -7,7 +7,9 @@ import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createMongoAbility } from '@casl/ability';
 import { AbilityFactory } from '@tempot/auth-core';
+import { InteractionRecorder } from '@tempot/interaction-observability';
 import { createAuditLogWriter } from './audit-log.writer.js';
+import { createInteractionEventWriter } from './interaction-event.writer.js';
 
 export interface BotFactoryDeps {
   log: typeof import('@tempot/logger').logger;
@@ -29,6 +31,20 @@ function buildCommandModuleMap(validatedModules: ValidatedModule[] = []): Record
 }
 
 type BotInstance = ReturnType<typeof createBot>;
+type RuntimeBotDeps = Parameters<typeof createBot>[1];
+
+function subscribeAbilityInvalidation(deps: BotFactoryDeps): void {
+  deps.eventBus.subscribe('auth.user.permissions_invalidated', (payload) => {
+    if (payload && typeof payload === 'object' && 'userId' in payload) {
+      AbilityFactory.invalidate(payload.userId as string, payload.role as string | undefined);
+      deps.log.info({
+        msg: 'casl_ability_cache_invalidated',
+        userId: payload.userId,
+        role: payload.role,
+      });
+    }
+  });
+}
 
 function subscribeCriticalAlerts(deps: BotFactoryDeps, bot: BotInstance): void {
   deps.eventBus.subscribe('system.alert.critical', (payload) => {
@@ -52,51 +68,51 @@ function subscribeCriticalAlerts(deps: BotFactoryDeps, bot: BotInstance): void {
 }
 
 export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createBot'] {
-  deps.eventBus.subscribe('auth.user.permissions_invalidated', (payload) => {
-    if (payload && typeof payload === 'object' && 'userId' in payload) {
-      AbilityFactory.invalidate(payload.userId as string, payload.role as string | undefined);
-      deps.log.info({
-        msg: 'casl_ability_cache_invalidated',
-        userId: payload.userId,
-        role: payload.role,
-      });
-    }
-  });
+  subscribeAbilityInvalidation(deps);
 
   return (token: string, validatedModules?: ValidatedModule[]) => {
-    const redisClient = deps.eventBus.getRedisClient();
-    const auditLog = createAuditLogWriter(deps.log);
-    const bot = createBot(token, {
-      logger: deps.log,
-      redisClient,
-      eventBus: {
-        publish: async (event: string, payload: unknown) => {
-          await deps.eventBus.publish(event as never, payload as never);
-          return { isOk: () => true };
-        },
-      },
-      t: (key: string, options?: Record<string, unknown>) => deps.t(key, options),
-      getMaintenanceStatus: async () => {
-        const result = await deps.settingsService.getMaintenanceStatus();
-        return result.isOk() ? result.value : { enabled: false, isSuperAdmin: () => false };
-      },
-      getSessionUser: async (userId: number) => {
-        const result = await deps.sessionProvider.getSession(String(userId), String(userId));
-        if (result.isErr()) return null;
-        return { id: String(userId), role: result.value.role };
-      },
-      abilityDefinitions: [
-        (user: { id: string | number; role: string }) =>
-          createMongoAbility(
-            user.role === 'SUPER_ADMIN' ? [{ action: 'manage', subject: 'all' }] : [],
-          ),
-      ],
-      commandScopeMap: new Map(),
-      commandModuleMap: buildCommandModuleMap(validatedModules),
-      auditLog,
-      sentryReporter: deps.sentryReporter,
-    });
+    const bot = createBot(token, createRuntimeBotDeps(deps, validatedModules));
     subscribeCriticalAlerts(deps, bot);
     return bot;
+  };
+}
+
+function createRuntimeBotDeps(
+  deps: BotFactoryDeps,
+  validatedModules?: ValidatedModule[],
+): RuntimeBotDeps {
+  return {
+    logger: deps.log,
+    redisClient: deps.eventBus.getRedisClient(),
+    eventBus: {
+      publish: async (event: string, payload: unknown) => {
+        await deps.eventBus.publish(event as never, payload as never);
+        return { isOk: () => true };
+      },
+    },
+    t: (key: string, options?: Record<string, unknown>) => deps.t(key, options),
+    getMaintenanceStatus: async () => {
+      const result = await deps.settingsService.getMaintenanceStatus();
+      return result.isOk() ? result.value : { enabled: false, isSuperAdmin: () => false };
+    },
+    getSessionUser: async (userId: number) => {
+      const result = await deps.sessionProvider.getSession(String(userId), String(userId));
+      if (result.isErr()) return null;
+      return { id: String(userId), role: result.value.role };
+    },
+    abilityDefinitions: [
+      (user: { id: string | number; role: string }) =>
+        createMongoAbility(
+          user.role === 'SUPER_ADMIN' ? [{ action: 'manage', subject: 'all' }] : [],
+        ),
+    ],
+    commandScopeMap: new Map(),
+    commandModuleMap: buildCommandModuleMap(validatedModules),
+    auditLog: createAuditLogWriter(deps.log),
+    interactionRecorder: new InteractionRecorder({
+      sink: createInteractionEventWriter(deps.log),
+      logger: deps.log,
+    }),
+    sentryReporter: deps.sentryReporter,
   };
 }

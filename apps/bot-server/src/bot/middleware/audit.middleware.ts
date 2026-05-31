@@ -4,7 +4,7 @@ import {
   extractCommand,
   resolveInteractionModule,
 } from '../interaction-routing.js';
-import { getInteractionTrace, toInteractionTraceLog } from '../interaction-trace.js';
+import { getInteractionTrace, toInteractionTraceLog } from '@tempot/interaction-observability';
 
 export interface AuditEntry {
   action: string;

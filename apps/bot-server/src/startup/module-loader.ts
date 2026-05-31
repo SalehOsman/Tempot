@@ -20,6 +20,7 @@ interface ModuleLoaderDeps {
   i18n: ModuleDependencyContainer['i18n'];
   settings: ModuleDependencyContainer['settings'];
   auditLog: ModuleDependencyContainer['auditLog'];
+  interactionEvents: ModuleDependencyContainer['interactionEvents'];
   importer: ModuleImporter;
 }
 
@@ -149,6 +150,7 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
     i18n: deps.i18n,
     settings: deps.settings,
     auditLog: deps.auditLog,
+    interactionEvents: deps.interactionEvents,
     navigation,
     config: mod.config,
   };

@@ -9,7 +9,11 @@ import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
 import type { OrchestratorDeps } from './orchestrator.js';
-import type { AuditLogProviderRecord } from '../bot-server.types.js';
+import type {
+  AuditLogProviderRecord,
+  InteractionEventProviderRecord,
+  SettingsProvider,
+} from '../bot-server.types.js';
 
 import type { ShutdownManager, CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
@@ -32,6 +36,19 @@ export interface AssembleDepsOptions {
   t: typeof import('@tempot/i18n-core').t;
 }
 
+function buildSettingsProvider(settingsService: SettingsService): SettingsProvider {
+  return {
+    get: async (key: string) => {
+      const result = await settingsService.getDynamic(key as never);
+      return result.isOk() ? result.value : null;
+    },
+    set: async (key: string, value: unknown, updatedBy: string | null) => {
+      const result = await settingsService.setDynamic(key as never, value as never, updatedBy);
+      return result.isOk() ? undefined : null;
+    },
+  };
+}
+
 function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['loadModuleHandlers'] {
   return (bot, validated) =>
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
@@ -49,16 +66,17 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
         },
       },
       i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
-      settings: {
-        get: async (key: string) => {
-          const result = await opts.settingsService.getDynamic(key as never);
-          return result.isOk() ? result.value : null;
-        },
-      },
+      settings: buildSettingsProvider(opts.settingsService),
       auditLog: {
         findMany: async (args: Record<string, unknown>) =>
           prisma.auditLog.findMany(args as Prisma.AuditLogFindManyArgs) as Promise<
             AuditLogProviderRecord[]
+          >,
+      },
+      interactionEvents: {
+        findMany: async (args: Record<string, unknown>) =>
+          prisma.interactionEvent.findMany(args as Prisma.InteractionEventFindManyArgs) as Promise<
+            InteractionEventProviderRecord[]
           >,
       },
       importer: async (p: string) => {

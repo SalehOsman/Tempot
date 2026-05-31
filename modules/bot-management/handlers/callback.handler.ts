@@ -48,6 +48,10 @@ export async function handleCallbackQuery(
     await showLifecycleMenu(ctx, value);
     return;
   }
+  if ((action === 'settings' || action === 'modules') && value) {
+    await replyWithCallback(ctx, getI18n().t('bot-management.error.section_unavailable'));
+    return;
+  }
   if (action === 'lifecycle-transition' && value && trailingValue) {
     await applyDirectLifecycleTransition(ctx, value, trailingValue);
     return;

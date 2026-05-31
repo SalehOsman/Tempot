@@ -24,6 +24,7 @@
   "dependencies": {
     "grammy": "1.41.1",
     "neverthrow": "8.2.0",
+    "@tempot/interaction-observability": "workspace:*",
     "@tempot/shared": "workspace:*",
     "@tempot/i18n-core": "workspace:*",
     "@tempot/logger": "workspace:*"

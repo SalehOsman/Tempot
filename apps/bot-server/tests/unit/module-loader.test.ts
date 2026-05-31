@@ -43,6 +43,7 @@ const mockSessionProvider = { getSession: vi.fn().mockResolvedValue({}) };
 const mockI18n = { t: vi.fn().mockReturnValue('translated') };
 const mockSettings = { get: vi.fn().mockResolvedValue(null) };
 const mockAuditLog = { findMany: vi.fn().mockResolvedValue([]) };
+const mockInteractionEvents = { findMany: vi.fn().mockResolvedValue([]) };
 
 function createDeps(importer: ModuleImporter) {
   return {
@@ -52,6 +53,7 @@ function createDeps(importer: ModuleImporter) {
     i18n: mockI18n,
     settings: mockSettings,
     auditLog: mockAuditLog,
+    interactionEvents: mockInteractionEvents,
     importer,
   };
 }
@@ -178,6 +180,7 @@ describe('loadModuleHandlers', () => {
         i18n: mockI18n,
         settings: mockSettings,
         auditLog: mockAuditLog,
+        interactionEvents: mockInteractionEvents,
         config: mod.config,
       }),
     );

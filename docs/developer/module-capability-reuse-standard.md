@@ -143,6 +143,12 @@ For Telegram-facing modules, the preferred operating model is:
    - No inline button may intentionally fail silently. Expected unsupported
      actions must update the current message or answer the callback with a
      localized response.
+8. **Callback flow maps are reviewed before implementation.**
+   - Parent surfaces show child actions.
+   - Leaf surfaces show parent, back, or main actions.
+   - A leaf surface must not repeat its opening callback unless it performs a
+     documented state change.
+   - Every visible callback must be represented in the module flow map.
 
 `bot-management` is the initial operational reference for this rule. Its menu
 surfaces should be used as the concrete example when extending UX guidance to
@@ -281,4 +287,6 @@ Before asking for review, confirm:
 - [ ] Callback acknowledgement is best-effort and cannot block the owning flow.
 - [ ] Buttons and flows rely on bot-server/input-engine diagnostics instead of
       local ad hoc terminal output.
+- [ ] Governed Telegram flows have a reviewed flow map with no repeated leaf
+      self-navigation.
 - [ ] The implementation does not recreate package-owned behavior locally.

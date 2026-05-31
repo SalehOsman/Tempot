@@ -69,6 +69,13 @@ describe('settings-management runtime', () => {
     const ctx = { reply: vi.fn() } as unknown as Context;
     await settingsCommand(ctx);
     expect(ctx.reply).toHaveBeenCalledWith('settings-management.view.title', expect.any(Object));
+    const reply = ctx.reply as ReturnType<typeof vi.fn>;
+    const options = reply.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    expect(callbackDataFrom(options.reply_markup)).toEqual([
+      'settings:profile',
+      'settings:regional',
+      'menu:main',
+    ]);
   });
 
   it('handles settings view callbacks and passes unrelated callbacks', async () => {
@@ -126,5 +133,46 @@ describe('settings-management runtime', () => {
     expect(callbacks).toContain('settings:regional:language');
     expect(callbacks).toContain('settings:regional:timezone');
     expect(callbacks).not.toContain('settings:regional');
+  });
+
+  it('renders profile settings without repeating the selected callback action', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'settings:profile', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('profile:view');
+    expect(callbacks).toContain('settings:view');
+    expect(callbacks).not.toContain('settings:profile');
+  });
+
+  it('renders a regional leaf page without repeating the selected callback action', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'settings:regional:timezone', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    expect(editMessageText).toHaveBeenCalledWith(
+      'settings-management.view.regional_timezone',
+      expect.any(Object),
+    );
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('settings:regional');
+    expect(callbacks).not.toContain('settings:regional:timezone');
   });
 });

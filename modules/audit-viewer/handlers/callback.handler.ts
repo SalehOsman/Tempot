@@ -3,7 +3,9 @@ import { editOrSend } from '@tempot/ux-helpers';
 import { getDeps } from '../deps.context.js';
 import { createStatsMenu } from '../menus/stats-menu.factory.js';
 import { InteractionAuditRepository } from '../repositories/interaction-audit.repository.js';
+import { InteractionEventRepository } from '../repositories/interaction-event.repository.js';
 import { InteractionProblemService } from '../services/interaction-problem.service.js';
+import { InteractionTimelineService } from '../services/interaction-timeline.service.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -26,7 +28,7 @@ async function showStatsPage(ctx: Context, action: string): Promise<void> {
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: await resolveStatsText(action),
     parseMode: 'HTML',
-    replyMarkup: createStatsMenu(i18n.t),
+    replyMarkup: createStatsMenu(i18n.t, action === 'view' ? 'main' : 'leaf'),
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;
@@ -37,6 +39,12 @@ async function resolveStatsText(action: string): Promise<string> {
   if (action === 'problems') {
     const repository = new InteractionAuditRepository({ auditLog: deps.auditLog });
     return new InteractionProblemService(repository).renderRecentProblems(deps.i18n.t);
+  }
+  if (action === 'timeline') {
+    const repository = new InteractionEventRepository({
+      interactionEvents: deps.interactionEvents,
+    });
+    return new InteractionTimelineService(repository).renderRecentTimeline(deps.i18n.t);
   }
   const key = action === 'view' ? 'audit-viewer.view.title' : `audit-viewer.view.${action}`;
   return deps.i18n.t(key);

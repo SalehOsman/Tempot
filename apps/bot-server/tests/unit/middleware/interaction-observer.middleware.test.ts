@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { ok } from 'neverthrow';
 import { createInteractionObserverMiddleware } from '../../../src/bot/middleware/interaction-observer.middleware.js';
 
 interface MockContext {
@@ -116,6 +117,54 @@ describe('createInteractionObserverMiddleware', () => {
         module: 'settings-management',
         responseCount: 1,
         lastResponseType: 'reply',
+      }),
+    );
+  });
+
+  it('records received, response, and completion events when a recorder is injected', async () => {
+    const logger = createLogger();
+    const interactionRecorder = {
+      record: vi.fn().mockResolvedValue(ok(undefined)),
+    };
+    const middleware = createInteractionObserverMiddleware({
+      logger,
+      traceIdFactory: () => 'trace-2',
+      interactionRecorder,
+    });
+    const ctx: MockContext = {
+      update: { update_id: 15 },
+      callbackQuery: { data: 'settings:regional' },
+      from: { id: 123 },
+      chat: { id: 456 },
+      reply: vi.fn().mockResolvedValue({ message_id: 99 }),
+    };
+
+    await middleware(ctx as never, async () => {
+      await ctx.reply?.('ok');
+    });
+
+    expect(interactionRecorder.record).toHaveBeenCalledWith(
+      expect.objectContaining({ traceId: 'trace-2' }),
+      expect.objectContaining({
+        stage: 'received',
+        status: 'received',
+        action: 'settings:regional',
+      }),
+    );
+    expect(interactionRecorder.record).toHaveBeenCalledWith(
+      expect.objectContaining({ traceId: 'trace-2' }),
+      expect.objectContaining({
+        stage: 'reply_sent',
+        status: 'succeeded',
+        responseType: 'reply',
+      }),
+    );
+    expect(interactionRecorder.record).toHaveBeenCalledWith(
+      expect.objectContaining({ traceId: 'trace-2' }),
+      expect.objectContaining({
+        stage: 'completed',
+        status: 'completed',
+        action: 'settings:regional',
       }),
     );
   });

@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-22.
+> Last updated: 2026-05-27.
 
 ## Current Technical Baseline
 
@@ -103,6 +103,9 @@ Recently completed:
 - Spec #050: bot interaction observability added trace IDs, callback response
   logging, reference-code audit linkage, and an `audit-viewer` recent problems
   page for administrative diagnosis.
+- Spec #052: module flow governance introduced governed `module.flow.json`
+  maps, Module Doctor flow validation, documentation for reusable package
+  capability selection, and a `help-center` pilot with callback runtime tests.
 
 Active or next work:
 
@@ -118,6 +121,8 @@ Active or next work:
    framework priority.
 4. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
+5. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+   remaining active modules one module at a time.
 
 ## Phase Summary
 

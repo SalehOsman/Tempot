@@ -18,6 +18,7 @@ import {
 } from './middleware/validation.middleware.js';
 import { createAuditMiddleware, type AuditDeps } from './middleware/audit.middleware.js';
 import { createInteractionObserverMiddleware } from './middleware/interaction-observer.middleware.js';
+import type { InteractionObserverDeps } from './middleware/interaction-observer.types.js';
 import { createErrorBoundary, type ErrorBoundaryDeps } from './error-boundary.js';
 
 type BotFactoryLogger = ErrorBoundaryDeps['logger'] & {
@@ -25,7 +26,14 @@ type BotFactoryLogger = ErrorBoundaryDeps['logger'] & {
 };
 
 export interface BotFactoryDeps
-  extends MaintenanceDeps, AuthDeps, ScopedUsersDeps, AuditDeps, ErrorBoundaryDeps, ValidationDeps {
+  extends
+    MaintenanceDeps,
+    AuthDeps,
+    ScopedUsersDeps,
+    AuditDeps,
+    ErrorBoundaryDeps,
+    ValidationDeps,
+    InteractionObserverDeps {
   logger: BotFactoryLogger;
   t: (key: string, options?: Record<string, unknown>) => string;
   redisClient?: Redis;

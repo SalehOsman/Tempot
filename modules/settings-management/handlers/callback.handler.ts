@@ -7,7 +7,6 @@ const noopNext: NextFunction = () => Promise.resolve();
 const VIEW_KEYS: Readonly<Record<string, string>> = {
   view: 'settings-management.view.title',
   profile: 'settings-management.view.profile',
-  notifications: 'settings-management.view.notifications',
   regional: 'settings-management.view.regional',
   'regional:language': 'settings-management.view.regional_language',
   'regional:timezone': 'settings-management.view.regional_timezone',
@@ -34,6 +33,7 @@ async function showSettingsPage(ctx: Context, action: string): Promise<void> {
 
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: i18n.t(key),
+    viewKey: key,
     parseMode: 'HTML',
     replyMarkup: createSettingsMenu(i18n.t, resolveMenuSurface(action)),
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
@@ -43,7 +43,8 @@ async function showSettingsPage(ctx: Context, action: string): Promise<void> {
 
 function resolveMenuSurface(action: string): SettingsMenuSurface {
   const [section] = action.split(':');
-  if (section === 'profile' || section === 'notifications' || section === 'regional') {
+  if (section === 'regional' && action !== 'regional') return 'regional-leaf';
+  if (section === 'profile' || section === 'regional') {
     return section;
   }
   return 'main';

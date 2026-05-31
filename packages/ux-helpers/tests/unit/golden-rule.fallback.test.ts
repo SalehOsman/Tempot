@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UX_ERRORS } from '../../src/ux.errors.js';
+import { ok } from 'neverthrow';
+import {
+  InteractionRecorder,
+  createInteractionTrace,
+  setInteractionRecorder,
+  setInteractionTrace,
+} from '@tempot/interaction-observability';
 
 vi.mock('@tempot/logger', () => ({
   logger: {
@@ -92,6 +99,63 @@ describe('editOrSend', () => {
       show_alert: undefined,
     });
     expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('records view, edit attempt, no-op, and callback answer interaction events', async () => {
+    const error = new Error('Bad Request: message is not modified');
+    const ctx = createMockCtx({ editError: error });
+    const sink = { write: vi.fn().mockResolvedValue(ok(undefined)) };
+    const recorder = new InteractionRecorder({
+      sink,
+      logger: { warn: vi.fn(), debug: vi.fn() },
+    });
+    setInteractionTrace(
+      ctx,
+      createInteractionTrace({
+        traceId: 'trace-ux',
+        updateType: 'callback_query',
+        callbackData: 'settings:regional:timezone',
+        callbackNamespace: 'settings',
+        module: 'settings-management',
+        startedAt: 1_000,
+      }),
+    );
+    setInteractionRecorder(ctx, recorder);
+
+    const result = await editOrSend(ctx, {
+      text: 'Hello',
+      viewKey: 'settings-management.view.regional_timezone',
+      unchangedCallbackText: 'This screen is already open.',
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stage: 'view_rendered',
+        status: 'succeeded',
+        viewKey: 'settings-management.view.regional_timezone',
+      }),
+    );
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stage: 'edit_attempted',
+        status: 'attempted',
+        viewKey: 'settings-management.view.regional_timezone',
+      }),
+    );
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stage: 'edit_noop',
+        status: 'skipped',
+        reason: 'message_not_modified',
+      }),
+    );
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stage: 'callback_answered',
+        status: 'succeeded',
+      }),
+    );
   });
 
   it('should fallback to reply on "message to edit not found" and log warning', async () => {

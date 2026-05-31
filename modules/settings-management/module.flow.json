@@ -1,0 +1,87 @@
+{
+  "moduleName": "settings-management",
+  "entryPoints": ["settings"],
+  "surfaces": [
+    {
+      "surfaceId": "settings.main",
+      "surfaceType": "parent",
+      "openedBy": "settings:view",
+      "visibleActions": ["settings:profile", "settings:regional", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.profile",
+      "surfaceType": "leaf",
+      "openedBy": "settings:profile",
+      "visibleActions": ["profile:view", "settings:view", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.regional",
+      "surfaceType": "parent",
+      "openedBy": "settings:regional",
+      "visibleActions": [
+        "settings:regional:language",
+        "settings:regional:timezone",
+        "settings:regional:defaults",
+        "settings:view",
+        "menu:main"
+      ]
+    },
+    {
+      "surfaceId": "settings.regional.language",
+      "surfaceType": "leaf",
+      "openedBy": "settings:regional:language",
+      "visibleActions": ["settings:regional", "settings:view", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.regional.timezone",
+      "surfaceType": "leaf",
+      "openedBy": "settings:regional:timezone",
+      "visibleActions": ["settings:regional", "settings:view", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.regional.defaults",
+      "surfaceType": "leaf",
+      "openedBy": "settings:regional:defaults",
+      "visibleActions": ["settings:regional", "settings:view", "menu:main"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "settings:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.settings"
+    },
+    {
+      "callbackData": "settings:profile",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.profile"
+    },
+    {
+      "callbackData": "settings:regional",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.regional"
+    },
+    {
+      "callbackData": "settings:regional:language",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.language"
+    },
+    {
+      "callbackData": "settings:regional:timezone",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.timezone"
+    },
+    {
+      "callbackData": "settings:regional:defaults",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.defaults"
+    }
+  ],
+  "exitPaths": ["profile:view", "menu:main"]
+}

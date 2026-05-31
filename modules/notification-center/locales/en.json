@@ -6,12 +6,50 @@
     "menu": {
       "button": "Notifications",
       "test": "Test",
+      "activity": "Activity",
       "preferences": "Preferences",
+      "center": "Notifications",
+      "toggle": "Toggle Notifications",
+      "disable_notifications": "Disable Notifications",
+      "enable_notifications": "Enable Notifications",
+      "test_again": "Test Again",
       "back": "Back"
     },
     "view": {
       "title": "<b>Notifications</b>\n\nReview delivery status and notification preferences.",
-      "preferences": "<b>Notification Preferences</b>\n\nManage delivery, quiet mode, and priority rules."
+      "preferences": "<b>Notification Preferences</b>\n\nManage delivery, quiet mode, and priority rules.",
+      "preferences_disabled": "<b>Notification Preferences</b>\n\nDelivery is currently disabled. Persistent per-user changes are not available yet.",
+      "preferences_enabled": "<b>Notification Preferences</b>\n\nDelivery is currently enabled. Persistent per-user changes are not available yet.",
+      "preferences_unavailable": "<b>Notification Preferences</b>\n\nDelivery preferences are not stored for this account yet. No unsupported toggle actions are available.",
+      "activity": "<b>Notification Activity</b>\n\nReview recent notification activity.",
+      "activity_empty": "<b>Notification Activity</b>\n\nNo recent notification activity is available.",
+      "activity_item": "• {{action}}\n  Status: {{status}}\n  Time: <code>{{occurredAt}}</code>",
+      "activity_items": "<b>Notification Activity</b>\n\n{{items}}",
+      "test_disabled": "<b>Test Notification Blocked</b>\n\nNotification delivery is currently disabled. Enable notifications from Preferences before sending a test notification.",
+      "test_result": "<b>Test Notification Sent</b>\n\nReference: <code>{{reference}}</code>\nRequested at: {{requestedAt}}",
+      "test_requested": "<b>Notifications</b>\n\nA test notification request was sent.",
+      "activity_labels": {
+        "action": {
+          "activity": "Opened activity",
+          "preferences": "Opened preferences",
+          "test": "Sent test notification",
+          "toggle": "Changed notification delivery",
+          "unknown": "Notification action",
+          "view": "Opened notification center"
+        },
+        "status": {
+          "completed": "Completed",
+          "failed": "Failed",
+          "handled": "Handled",
+          "received": "Received",
+          "responded": "Responded",
+          "succeeded": "Succeeded",
+          "unknown": "Unknown"
+        }
+      }
+    },
+    "test": {
+      "delivery_message": "<b>Test notification received.</b> Reference: <code>{{reference}}</code>"
     }
   }
 }

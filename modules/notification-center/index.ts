@@ -17,12 +17,34 @@ export interface ModuleEventBus {
   publish: (event: string, payload: Record<string, unknown>) => Promise<{ isOk: () => boolean }>;
 }
 
+export interface NotificationInteractionRecord {
+  callbackData?: string | null;
+  status: string;
+  occurredAt: Date;
+  traceId?: string;
+}
+
+export interface NotificationAuditRecord {
+  action: string;
+  status: string;
+  timestamp: Date;
+}
+
+export interface NotificationActivityProvider<TRecord> {
+  findMany: (args: Record<string, unknown>) => Promise<TRecord[]>;
+}
+
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
   sessionProvider: { getSession: (userId: string, chatId: string) => Promise<unknown> };
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
-  settings: { get: (key: string) => Promise<unknown> };
+  settings: {
+    get: (key: string) => Promise<unknown>;
+    set: (key: string, value: unknown, updatedBy: string | null) => Promise<unknown>;
+  };
+  auditLog: NotificationActivityProvider<NotificationAuditRecord>;
+  interactionEvents: NotificationActivityProvider<NotificationInteractionRecord>;
   config: ModuleConfig;
 }
 
