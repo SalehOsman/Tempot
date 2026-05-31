@@ -6,17 +6,18 @@ import {
 import { SETTINGS_ERRORS } from '../../src/settings.errors.js';
 
 describe('Settings Type Definitions', () => {
-  it('should export DYNAMIC_SETTING_DEFAULTS with all 6 known keys', () => {
+  it('should export DYNAMIC_SETTING_DEFAULTS with all 7 known keys', () => {
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('join_mode', 'AUTO');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('maintenance_mode', false);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('approval_role', '');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('backup_schedule', '');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('log_retention_days', 90);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('dynamic_default_language', '');
+    expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('notifications_enabled', true);
   });
 
-  it('should have exactly 6 dynamic setting keys', () => {
-    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(6);
+  it('should have exactly 7 dynamic setting keys', () => {
+    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(7);
   });
 
   it('should enforce type safety — defaults match DynamicSettingDefinitions', () => {
@@ -26,9 +27,12 @@ describe('Settings Type Definitions', () => {
       DYNAMIC_SETTING_DEFAULTS.maintenance_mode;
     const logRetention: DynamicSettingDefinitions['log_retention_days'] =
       DYNAMIC_SETTING_DEFAULTS.log_retention_days;
+    const notificationsEnabled: DynamicSettingDefinitions['notifications_enabled'] =
+      DYNAMIC_SETTING_DEFAULTS.notifications_enabled;
     expect(joinMode).toBe('AUTO');
     expect(maintenanceMode).toBe(false);
     expect(logRetention).toBe(90);
+    expect(notificationsEnabled).toBe(true);
   });
 });
 
