@@ -58,6 +58,24 @@ describe('ProfileMenuFactory.createStats', () => {
 
     ProfileMenuFactory.createStats(createUser({ messageCount: undefined }), i18n);
 
-    expect(i18n.t).toHaveBeenCalledWith('user-management.profile.metric_unavailable');
+    expect(i18n.t).toHaveBeenCalledWith('user-management.profile.activity_unavailable');
+    expect(i18n.t).not.toHaveBeenCalledWith('user-management.profile.metric_unavailable');
+  });
+
+  it('renders activity metrics only when actual values are available', () => {
+    const i18n = createI18n();
+
+    const result = ProfileMenuFactory.createStats(
+      createUser({
+        messageCount: 0,
+        completedTasks: 3,
+        activeTime: '2 hours',
+        rating: '4.8/5',
+      }),
+      i18n,
+    );
+
+    expect(result.message).toContain('user-management.profile.activity_summary');
+    expect(result.message).not.toContain('user-management.profile.activity_unavailable');
   });
 });
