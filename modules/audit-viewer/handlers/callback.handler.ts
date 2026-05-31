@@ -28,7 +28,7 @@ async function showStatsPage(ctx: Context, action: string): Promise<void> {
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: await resolveStatsText(action),
     parseMode: 'HTML',
-    replyMarkup: createStatsMenu(i18n.t),
+    replyMarkup: createStatsMenu(i18n.t, action === 'view' ? 'main' : 'leaf'),
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;

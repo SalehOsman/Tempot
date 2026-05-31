@@ -27,7 +27,7 @@ async function showMessagePage(ctx: Context, action: string): Promise<void> {
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: i18n.t(key),
     parseMode: 'HTML',
-    replyMarkup: createMessageMenu(i18n.t),
+    replyMarkup: createMessageMenu(i18n.t, action === 'view' ? 'main' : 'leaf'),
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;

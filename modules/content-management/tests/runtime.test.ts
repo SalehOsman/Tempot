@@ -4,6 +4,14 @@ import setup, { type ModuleDeps } from '../index.js';
 import { messagesCommand } from '../commands/messages.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+interface InlineCallbackButton {
+  readonly callback_data?: string;
+}
+
+interface InlineKeyboardMarkupLike {
+  readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
+}
+
 function createDeps(): ModuleDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
@@ -39,6 +47,13 @@ function createConfig(name: string): ModuleDeps['config'] {
   };
 }
 
+function callbackDataFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) =>
+    row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
+  );
+}
+
 describe('content-management runtime', () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -54,6 +69,24 @@ describe('content-management runtime', () => {
     const ctx = { reply: vi.fn() } as unknown as Context;
     await messagesCommand(ctx);
     expect(ctx.reply).toHaveBeenCalledWith('content-management.view.title', expect.any(Object));
+  });
+
+  it('renders templates as a leaf page without repeating the selected callback action', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'messages:templates', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('messages:view');
+    expect(callbacks).not.toContain('messages:templates');
   });
 
   it('treats unchanged message page edits as successful no-op callbacks', async () => {

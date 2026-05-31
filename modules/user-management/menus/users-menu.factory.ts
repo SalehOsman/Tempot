@@ -8,7 +8,6 @@ export class UsersMenuFactory {
 
     keyboard
       .text(i18n.t('user-management.users.button.search'), 'users:search')
-      .text(i18n.t('user-management.users.button.list'), 'users:list')
       .row()
       .text(i18n.t('user-management.menu.back'), 'menu:main');
 
