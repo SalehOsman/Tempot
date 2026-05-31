@@ -175,22 +175,32 @@ describe('audit-viewer runtime', () => {
     );
   });
 
-  it('renders timeline as a leaf page without repeating the selected callback action', async () => {
+  it('renders every statistics detail page as a leaf without repeating the selected callback action', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
-    const ctx = {
-      callbackQuery: { data: 'stats:timeline', message: { message_id: 10 } },
-      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
-      editMessageText: vi.fn().mockResolvedValue(undefined),
-      reply: vi.fn().mockResolvedValue(undefined),
-    } as unknown as Context;
+    const detailCallbacks = [
+      'stats:modules',
+      'stats:runtime',
+      'stats:problems',
+      'stats:timeline',
+    ] as const;
 
-    await handleCallbackQuery(ctx);
+    for (const selectedCallback of detailCallbacks) {
+      const ctx = {
+        callbackQuery: { data: selectedCallback, message: { message_id: 10 } },
+        answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+        editMessageText: vi.fn().mockResolvedValue(undefined),
+        reply: vi.fn().mockResolvedValue(undefined),
+      } as unknown as Context;
 
-    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
-    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
-    const callbacks = callbackDataFrom(options.reply_markup);
-    expect(callbacks).toContain('stats:view');
-    expect(callbacks).not.toContain('stats:timeline');
+      await handleCallbackQuery(ctx);
+
+      const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+      const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+      const callbacks = callbackDataFrom(options.reply_markup);
+      expect(callbacks).toContain('stats:view');
+      expect(callbacks).toContain('menu:main');
+      expect(callbacks).not.toContain(selectedCallback);
+    }
   });
 
   it('treats unchanged statistics page edits as successful no-op callbacks', async () => {
