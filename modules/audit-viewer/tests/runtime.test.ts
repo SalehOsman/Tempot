@@ -202,6 +202,38 @@ describe('audit-viewer runtime', () => {
     );
   });
 
+  it('falls back to failed interaction events when audit log lookup is unavailable', async () => {
+    const deps = createDeps();
+    deps.auditLog.findMany = vi.fn().mockRejectedValue(new Error('audit log unavailable'));
+    deps.interactionEvents.findMany = vi.fn().mockResolvedValue([
+      {
+        traceId: 'trace-failed',
+        sequence: 3,
+        module: 'audit-viewer',
+        action: 'stats:problems',
+        stage: 'failed',
+        status: 'failed',
+        errorCode: 'audit-viewer.callback_failed',
+        referenceCode: 'ERR-20260531-0001',
+        createdAt: new Date('2026-05-31T15:24:32.000Z'),
+      },
+    ]);
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'stats:problems', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringContaining('stats:problems|audit-viewer|trace-failed'),
+      expect.any(Object),
+    );
+  });
+
   it('shows module statistics from live module configuration', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
     const ctx = {
