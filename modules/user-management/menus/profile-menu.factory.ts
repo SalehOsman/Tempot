@@ -85,10 +85,7 @@ function buildStatsViewModel(user: UserProfile, i18n: ModuleI18n): Record<string
     profileStatus: completionStatus(completedFields, totalFields, i18n),
     contactStatus: contactStatus(user, i18n),
     identityStatus: identityStatus(user, i18n),
-    messageCount: formatOptionalNumber(user.messageCount, i18n),
-    completedTasks: formatOptionalNumber(user.completedTasks, i18n),
-    activeTime: user.activeTime ?? i18n.t('user-management.profile.metric_unavailable'),
-    rating: user.rating ?? i18n.t('user-management.profile.metric_unavailable'),
+    activitySummary: activitySummary(user, i18n),
   };
 }
 
@@ -145,4 +142,26 @@ function identityStatus(user: UserProfile, i18n: ModuleI18n): string {
       ? 'user-management.profile.status.verified'
       : 'user-management.profile.status.needs_update';
   return i18n.t(key);
+}
+
+function activitySummary(user: UserProfile, i18n: ModuleI18n): string {
+  if (!hasActivityMetrics(user)) {
+    return i18n.t('user-management.profile.activity_unavailable');
+  }
+
+  return i18n.t('user-management.profile.activity_summary', {
+    messageCount: formatOptionalNumber(user.messageCount, i18n),
+    completedTasks: formatOptionalNumber(user.completedTasks, i18n),
+    activeTime: user.activeTime ?? i18n.t('user-management.profile.metric_unavailable'),
+    rating: user.rating ?? i18n.t('user-management.profile.metric_unavailable'),
+  });
+}
+
+function hasActivityMetrics(user: UserProfile): boolean {
+  return (
+    user.messageCount !== undefined ||
+    user.completedTasks !== undefined ||
+    hasValue(user.activeTime) ||
+    hasValue(user.rating)
+  );
 }

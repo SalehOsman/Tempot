@@ -34,7 +34,9 @@
       "edit_prompt": "<b>تعديل الملف الشخصي</b>\n\nاختر الحقل الذي تريد تعديله:",
       "edit_personal_prompt": "<b>البيانات الشخصية</b>\n\nاختر الحقل الذي تريد تعديله:",
       "view_message": "<b>ملفك الشخصي</b>\n\nالاسم: {{username}}\nالبريد: {{email}}\nاللغة: {{language}}\nالدور: {{role}}\n\nالبيانات الشخصية\nرقم الهوية: {{nationalId}}\nرقم الجوال: {{mobile}}\nتاريخ الميلاد: {{birthDate}}\nالعمر: {{age}}\nالجنس: {{gender}}\nالمحافظة: {{governorate}}\nرمز الدولة: {{countryCode}}\n\nتاريخ التسجيل: {{createdAt}}",
-      "stats_message": "<b>تقرير ملفك الشخصي</b>\n\n<b>الحساب</b>\nتاريخ التسجيل: {{createdAt}}\nآخر تحديث: {{updatedAt}}\nعمر الحساب: {{accountAgeDays}} يوم\nالدور: {{role}}\nاللغة: {{language}}\n\n<b>جودة الملف</b>\nنسبة الاكتمال: {{completionPercent}} ({{completedFields}}/{{totalFields}} حقول)\nحالة الملف: {{profileStatus}}\nحالة التواصل: {{contactStatus}}\nحالة الهوية: {{identityStatus}}\n\n<b>مقاييس النشاط</b>\nالرسائل: {{messageCount}}\nالمهام المكتملة: {{completedTasks}}\nالوقت النشط: {{activeTime}}\nالتقييم: {{rating}}",
+      "stats_message": "<b>تقرير ملفك الشخصي</b>\n\n<b>الحساب</b>\nتاريخ التسجيل: {{createdAt}}\nآخر تحديث: {{updatedAt}}\nعمر الحساب: {{accountAgeDays}} يوم\nالدور: {{role}}\nاللغة: {{language}}\n\n<b>جودة الملف</b>\nنسبة الاكتمال: {{completionPercent}} ({{completedFields}}/{{totalFields}} حقول)\nحالة الملف: {{profileStatus}}\nحالة التواصل: {{contactStatus}}\nحالة الهوية: {{identityStatus}}\n\n<b>مؤشرات النشاط</b>\n{{activitySummary}}",
+      "activity_summary": "الرسائل: {{messageCount}}\nالمهام المكتملة: {{completedTasks}}\nالوقت النشط: {{activeTime}}\nالتقييم: {{rating}}",
+      "activity_unavailable": "لم تسجل مؤشرات نشاط قابلة للعرض بعد.",
       "metric_unavailable": "غير متاح بعد",
       "status": {
         "complete": "مكتمل",
