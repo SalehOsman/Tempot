@@ -17,7 +17,10 @@ function createDeps(): ModuleDeps {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
     sessionProvider: { getSession: vi.fn() },
-    i18n: { t: (key: string) => key },
+    i18n: {
+      t: (key: string, options?: Record<string, unknown>) =>
+        options ? `${key}:${JSON.stringify(options)}` : key,
+    },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     navigation: { getMainMenuItems: vi.fn().mockReturnValue([]) },
     config: createConfig('help-center'),
@@ -31,7 +34,7 @@ function createConfig(name: string): ModuleDeps['config'] {
     requiredRole: 'USER',
     isActive: true,
     isCore: false,
-    commands: [],
+    commands: [{ command: 'help', description: 'help-center.commands.help' }],
     features: {
       hasDatabase: false,
       hasNotifications: false,
@@ -88,6 +91,71 @@ describe('help-center runtime', () => {
     const callbacks = callbackDataFrom(options.reply_markup);
     expect(callbacks).toContain('help:view');
     expect(callbacks).not.toContain('help:commands');
+  });
+
+  it('renders actionable help from available commands and navigation entries', async () => {
+    const deps = createDeps();
+    deps.navigation = {
+      getMainMenuItems: vi.fn().mockReturnValue([
+        {
+          id: 'settings',
+          labelKey: 'settings-management.menu.button',
+          callbackData: 'settings:view',
+          requiredRole: 'USER',
+          row: 0,
+          order: 20,
+        },
+        {
+          id: 'stats',
+          labelKey: 'audit-viewer.menu.button',
+          callbackData: 'stats:view',
+          requiredRole: 'ADMIN',
+          row: 2,
+          order: 20,
+        },
+      ]),
+    };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      from: { id: 123 },
+      chat: { id: 456 },
+      callbackQuery: { data: 'help:commands', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const renderedText = editMessageText.mock.calls[0]?.[0] as string;
+    expect(deps.navigation.getMainMenuItems).toHaveBeenCalledWith('USER');
+    expect(renderedText).toContain('help-center.view.command_item');
+    expect(renderedText).toContain('/help');
+    expect(renderedText).toContain('help-center.view.menu_item');
+    expect(renderedText).toContain('settings-management.menu.button');
+    expect(renderedText).toContain('settings:view');
+  });
+
+  it('renders actionable support context with user and chat identifiers', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      from: { id: 123 },
+      chat: { id: 456 },
+      callbackQuery: { data: 'help:support', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const renderedText = editMessageText.mock.calls[0]?.[0] as string;
+    expect(renderedText).toContain('help-center.view.support_context');
+    expect(renderedText).toContain('"userId":"123"');
+    expect(renderedText).toContain('"chatId":"456"');
+    expect(renderedText).toContain('help-center.view.support_steps');
   });
 
   it('treats unchanged help page edits as successful no-op callbacks', async () => {
