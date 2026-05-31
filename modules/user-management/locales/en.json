@@ -34,7 +34,14 @@
       "edit_prompt": "<b>Edit Profile</b>\n\nChoose the field you want to update:",
       "edit_personal_prompt": "<b>Personal Data</b>\n\nChoose the field you want to update:",
       "view_message": "<b>Your Profile</b>\n\nName: {{username}}\nEmail: {{email}}\nLanguage: {{language}}\nRole: {{role}}\n\nPersonal Data\nNational ID: {{nationalId}}\nMobile: {{mobile}}\nBirth Date: {{birthDate}}\nAge: {{age}}\nGender: {{gender}}\nGovernorate: {{governorate}}\nCountry Code: {{countryCode}}\n\nRegistered: {{createdAt}}",
-      "stats_message": "<b>Your Statistics</b>\n\nRegistered: {{createdAt}}\nMessages: {{messageCount}}\nCompleted tasks: {{completedTasks}}\nActive time: {{activeTime}}\nRating: {{rating}}",
+      "stats_message": "<b>Your Profile Report</b>\n\n<b>Account</b>\nRegistered: {{createdAt}}\nLast updated: {{updatedAt}}\nAccount age: {{accountAgeDays}} days\nRole: {{role}}\nLanguage: {{language}}\n\n<b>Profile Quality</b>\nCompletion: {{completionPercent}} ({{completedFields}}/{{totalFields}} fields)\nProfile status: {{profileStatus}}\nContact status: {{contactStatus}}\nIdentity status: {{identityStatus}}\n\n<b>Activity Metrics</b>\nMessages: {{messageCount}}\nCompleted tasks: {{completedTasks}}\nActive time: {{activeTime}}\nRating: {{rating}}",
+      "metric_unavailable": "Not available yet",
+      "status": {
+        "complete": "Complete",
+        "incomplete": "Needs update",
+        "verified": "Verified",
+        "needs_update": "Needs update"
+      },
       "zero_active_time": "0 hours",
       "age_value": "{{age}} years",
       "auto_extracted": "Your data was automatically extracted from the national ID.",

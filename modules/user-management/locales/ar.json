@@ -34,7 +34,14 @@
       "edit_prompt": "<b>تعديل الملف الشخصي</b>\n\nاختر الحقل الذي تريد تعديله:",
       "edit_personal_prompt": "<b>البيانات الشخصية</b>\n\nاختر الحقل الذي تريد تعديله:",
       "view_message": "<b>ملفك الشخصي</b>\n\nالاسم: {{username}}\nالبريد: {{email}}\nاللغة: {{language}}\nالدور: {{role}}\n\nالبيانات الشخصية\nرقم الهوية: {{nationalId}}\nرقم الجوال: {{mobile}}\nتاريخ الميلاد: {{birthDate}}\nالعمر: {{age}}\nالجنس: {{gender}}\nالمحافظة: {{governorate}}\nرمز الدولة: {{countryCode}}\n\nتاريخ التسجيل: {{createdAt}}",
-      "stats_message": "<b>إحصائياتك</b>\n\nتاريخ التسجيل: {{createdAt}}\nالرسائل: {{messageCount}}\nالمهام المكتملة: {{completedTasks}}\nالوقت النشط: {{activeTime}}\nالتقييم: {{rating}}",
+      "stats_message": "<b>تقرير ملفك الشخصي</b>\n\n<b>الحساب</b>\nتاريخ التسجيل: {{createdAt}}\nآخر تحديث: {{updatedAt}}\nعمر الحساب: {{accountAgeDays}} يوم\nالدور: {{role}}\nاللغة: {{language}}\n\n<b>جودة الملف</b>\nنسبة الاكتمال: {{completionPercent}} ({{completedFields}}/{{totalFields}} حقول)\nحالة الملف: {{profileStatus}}\nحالة التواصل: {{contactStatus}}\nحالة الهوية: {{identityStatus}}\n\n<b>مقاييس النشاط</b>\nالرسائل: {{messageCount}}\nالمهام المكتملة: {{completedTasks}}\nالوقت النشط: {{activeTime}}\nالتقييم: {{rating}}",
+      "metric_unavailable": "غير متاح بعد",
+      "status": {
+        "complete": "مكتمل",
+        "incomplete": "يحتاج تحديث",
+        "verified": "موثق",
+        "needs_update": "يحتاج تحديث"
+      },
       "zero_active_time": "0 ساعة",
       "age_value": "{{age}} سنة",
       "auto_extracted": "تم استخراج بياناتك تلقائيا من رقم الهوية.",
