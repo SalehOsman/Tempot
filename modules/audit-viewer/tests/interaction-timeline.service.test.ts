@@ -57,4 +57,34 @@ describe('InteractionTimelineService', () => {
 
     await expect(service.renderRecentTimeline(t)).resolves.toBe('audit-viewer.timeline.error');
   });
+
+  it('queries recent failed interaction events for problem fallback', async () => {
+    const interactionEvents = { findMany: vi.fn().mockResolvedValue([]) };
+    const repository = new InteractionEventRepository({ interactionEvents });
+
+    const result = await repository.findRecentFailures(5);
+
+    expect(result.isOk()).toBe(true);
+    expect(interactionEvents.findMany).toHaveBeenCalledWith({
+      where: {
+        module: {
+          in: [
+            'bot-server',
+            'settings-management',
+            'notification-center',
+            'content-management',
+            'audit-viewer',
+            'help-center',
+            'user-management',
+            'bot-management',
+            'template-management',
+            'input-engine',
+          ],
+        },
+        status: 'failed',
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    });
+  });
 });

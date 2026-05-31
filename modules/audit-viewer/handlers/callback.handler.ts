@@ -40,7 +40,12 @@ async function resolveStatsText(action: string): Promise<string> {
   const deps = getDeps();
   if (action === 'problems') {
     const repository = new InteractionAuditRepository({ auditLog: deps.auditLog });
-    return new InteractionProblemService(repository).renderRecentProblems(deps.i18n.t);
+    const fallbackRepository = new InteractionEventRepository({
+      interactionEvents: deps.interactionEvents,
+    });
+    return new InteractionProblemService(repository, fallbackRepository).renderRecentProblems(
+      deps.i18n.t,
+    );
   }
   if (action === 'timeline') {
     const repository = new InteractionEventRepository({

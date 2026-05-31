@@ -10,6 +10,8 @@ export interface InteractionTimelineItem {
   status: string;
   reason?: string;
   viewKey?: string;
+  referenceCode?: string;
+  errorCode?: string;
   occurredAt: string;
 }
 
@@ -22,6 +24,8 @@ interface InteractionEventRecord {
   status: string;
   reason?: string | null;
   viewKey?: string | null;
+  referenceCode?: string | null;
+  errorCode?: string | null;
   occurredAt?: Date;
   createdAt: Date;
 }
@@ -64,6 +68,22 @@ export class InteractionEventRepository {
       return err(new AppError('audit-viewer.interaction_timeline_query_failed', { error }));
     }
   }
+
+  async findRecentFailures(limit: number): Promise<Result<InteractionTimelineItem[], AppError>> {
+    try {
+      const records = await this.deps.interactionEvents.findMany({
+        where: {
+          module: { in: BOT_INTERACTION_MODULES },
+          status: 'failed',
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      });
+      return ok(records.map(toTimelineItem));
+    } catch (error: unknown) {
+      return err(new AppError('audit-viewer.interaction_failure_query_failed', { error }));
+    }
+  }
 }
 
 function toTimelineItem(record: InteractionEventRecord): InteractionTimelineItem {
@@ -76,6 +96,8 @@ function toTimelineItem(record: InteractionEventRecord): InteractionTimelineItem
     status: record.status,
     reason: record.reason ?? undefined,
     viewKey: record.viewKey ?? undefined,
+    referenceCode: record.referenceCode ?? undefined,
+    errorCode: record.errorCode ?? undefined,
     occurredAt: (record.occurredAt ?? record.createdAt).toISOString(),
   };
 }
