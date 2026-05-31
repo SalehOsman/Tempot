@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-27.
+> Last updated: 2026-05-31.
 
 ## Current Technical Baseline
 
@@ -106,6 +106,8 @@ Recently completed:
 - Spec #052: module flow governance introduced governed `module.flow.json`
   maps, Module Doctor flow validation, documentation for reusable package
   capability selection, and a `help-center` pilot with callback runtime tests.
+- Spec #052 rollout extended governed flow maps and runtime flow-map tests to
+  `settings-management`, `notification-center`, and `audit-viewer`.
 
 Active or next work:
 
@@ -122,7 +124,9 @@ Active or next work:
 4. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
 5. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
-   remaining active modules one module at a time.
+   remaining active modules one module at a time, starting with
+   `content-management`, `user-management`, `template-management`, and
+   `bot-management`.
 
 ## Phase Summary
 

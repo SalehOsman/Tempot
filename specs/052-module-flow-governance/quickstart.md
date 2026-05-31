@@ -23,6 +23,10 @@ Current governed modules:
 - `settings-management`: first influential rollout module with nested settings,
   regional leaf pages, and cross-module exits to profile and notification
   surfaces.
+- `notification-center`: operational notification rollout with preferences,
+  recent activity, test delivery, and governed result surfaces.
+- `audit-viewer`: diagnostics rollout with stats, module, runtime, recent
+  problems, and interaction timeline surfaces.
 
 ## Scenario 2: Seed and Detect Flow Defects
 
