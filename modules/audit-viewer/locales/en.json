@@ -9,12 +9,25 @@
       "runtime": "Runtime",
       "problems": "Problems",
       "timeline": "Timeline",
+      "stats_back": "Back to Stats",
       "back": "Back"
     },
     "view": {
       "title": "<b>Statistics</b>\n\nReview operational health and module activity.",
       "modules": "<b>Module Statistics</b>\n\nReview loaded module and capability status.",
       "runtime": "<b>Runtime Statistics</b>\n\nReview bot runtime and startup health indicators."
+    },
+    "status": {
+      "active": "active",
+      "inactive": "inactive"
+    },
+    "modules": {
+      "title": "<b>Module Statistics</b>",
+      "summary": "Module: <code>{{moduleName}}</code>\nStatus: <code>{{status}}</code>\nRequired role: <code>{{role}}</code>\nCommands: <code>{{commandCount}}</code>\nEnabled capabilities: <code>{{enabledFeatureCount}}</code>\nRequired packages: <code>{{requiredPackageCount}}</code>\nOptional packages: <code>{{optionalPackageCount}}</code>"
+    },
+    "runtime": {
+      "title": "<b>Runtime Statistics</b>",
+      "summary": "Node: <code>{{nodeVersion}}</code>\nPlatform: <code>{{platform}}</code>\nPID: <code>{{pid}}</code>\nUptime: <code>{{uptimeSeconds}}</code> seconds\nRSS memory: <code>{{rssMb}}</code> MB\nHeap used: <code>{{heapUsedMb}}</code> MB"
     },
     "problems": {
       "title": "<b>Recent Bot Problems</b>",

@@ -6,6 +6,8 @@ import { InteractionAuditRepository } from '../repositories/interaction-audit.re
 import { InteractionEventRepository } from '../repositories/interaction-event.repository.js';
 import { InteractionProblemService } from '../services/interaction-problem.service.js';
 import { InteractionTimelineService } from '../services/interaction-timeline.service.js';
+import { ModuleStatsService } from '../services/module-stats.service.js';
+import { RuntimeStatsService } from '../services/runtime-stats.service.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -45,6 +47,12 @@ async function resolveStatsText(action: string): Promise<string> {
       interactionEvents: deps.interactionEvents,
     });
     return new InteractionTimelineService(repository).renderRecentTimeline(deps.i18n.t);
+  }
+  if (action === 'modules') {
+    return new ModuleStatsService(deps.config).render(deps.i18n.t);
+  }
+  if (action === 'runtime') {
+    return new RuntimeStatsService().render(deps.i18n.t);
   }
   const key = action === 'view' ? 'audit-viewer.view.title' : `audit-viewer.view.${action}`;
   return deps.i18n.t(key);

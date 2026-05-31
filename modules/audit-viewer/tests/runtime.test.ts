@@ -9,6 +9,7 @@ import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
 interface InlineCallbackButton {
   readonly callback_data?: string;
+  readonly text: string;
 }
 
 interface InlineKeyboardMarkupLike {
@@ -44,10 +45,31 @@ function createDeps(): ModuleDeps {
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
     sessionProvider: { getSession: vi.fn() },
     i18n: {
-      t: (key: string, options?: Record<string, unknown>) =>
-        key === 'audit-viewer.problems.item'
-          ? `${options?.['action']}|${options?.['module']}|${options?.['traceId']}`
-          : key,
+      t: (key: string, options?: Record<string, unknown>) => {
+        if (key === 'audit-viewer.problems.item') {
+          return `${options?.['action']}|${options?.['module']}|${options?.['traceId']}`;
+        }
+        if (key === 'audit-viewer.modules.summary') {
+          return [
+            `module:${options?.['moduleName']}`,
+            `status:${options?.['status']}`,
+            `commands:${options?.['commandCount']}`,
+            `features:${options?.['enabledFeatureCount']}`,
+            `required:${options?.['requiredPackageCount']}`,
+          ].join('|');
+        }
+        if (key === 'audit-viewer.runtime.summary') {
+          return [
+            `node:${options?.['nodeVersion']}`,
+            `pid:${options?.['pid']}`,
+            `uptime:${options?.['uptimeSeconds']}`,
+            `rss:${options?.['rssMb']}`,
+          ].join('|');
+        }
+        if (key === 'audit-viewer.status.active') return 'active';
+        if (key === 'audit-viewer.status.inactive') return 'inactive';
+        return key;
+      },
     },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     auditLog: { findMany: vi.fn().mockResolvedValue([]) },
@@ -90,6 +112,11 @@ function callbackDataFrom(markup: unknown): string[] {
   return keyboard.inline_keyboard.flatMap((row) =>
     row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
   );
+}
+
+function buttonTextFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) => row.map((button) => button.text));
 }
 
 describe('audit-viewer runtime', () => {
@@ -175,6 +202,40 @@ describe('audit-viewer runtime', () => {
     );
   });
 
+  it('shows module statistics from live module configuration', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'stats:modules', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringContaining('module:audit-viewer|status:active|commands:0|features:0|required:0'),
+      expect.any(Object),
+    );
+  });
+
+  it('shows runtime statistics from the active Node process', async () => {
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
+    const ctx = {
+      callbackQuery: { data: 'stats:runtime', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringContaining(`node:${process.version}|pid:${process.pid}`),
+      expect.any(Object),
+    );
+  });
+
   it('renders every statistics detail page as a leaf without repeating the selected callback action', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
     const detailCallbacks = [
@@ -197,9 +258,12 @@ describe('audit-viewer runtime', () => {
       const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
       const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
       const callbacks = callbackDataFrom(options.reply_markup);
+      const labels = buttonTextFrom(options.reply_markup);
       expect(callbacks).toContain('stats:view');
       expect(callbacks).toContain('menu:main');
       expect(callbacks).not.toContain(selectedCallback);
+      expect(labels).toContain('audit-viewer.menu.stats_back');
+      expect(labels).not.toContain('audit-viewer.menu.button');
     }
   });
 

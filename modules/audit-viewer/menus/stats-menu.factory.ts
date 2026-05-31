@@ -24,7 +24,7 @@ function createStatsMainMenu(t: TranslationFn): InlineKeyboard {
 
 function createStatsLeafMenu(t: TranslationFn): InlineKeyboard {
   return new InlineKeyboard()
-    .text(t('audit-viewer.menu.button'), 'stats:view')
+    .text(t('audit-viewer.menu.stats_back'), 'stats:view')
     .row()
     .text(t('audit-viewer.menu.back'), 'menu:main');
 }
