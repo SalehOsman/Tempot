@@ -12,7 +12,18 @@
     "view": {
       "title": "<b>Help</b>\n\nFind available actions and support guidance for this bot.",
       "commands": "<b>Commands</b>\n\nUse /start to open the main menu and module commands for direct access.",
-      "support": "<b>Support</b>\n\nContact an administrator if an expected feature is not available."
+      "commands_title": "<b>Available Commands</b>",
+      "commands_intro": "Use commands for direct access, or use the menu buttons listed below.",
+      "command_item": "<code>{{command}}</code> — {{description}}",
+      "commands_empty": "No direct commands are currently registered for this module.",
+      "menu_title": "<b>Main Menu Actions</b>",
+      "menu_item": "{{label}} — callback <code>{{callbackData}}</code> — role <code>{{requiredRole}}</code>",
+      "menu_empty": "No menu actions are available for your current role.",
+      "support": "<b>Support</b>\n\nContact an administrator if an expected feature is not available.",
+      "support_title": "<b>Support</b>",
+      "support_intro": "Send the issue description, the button you pressed, and a screenshot of the latest bot message.",
+      "support_context": "User ID: <code>{{userId}}</code>\nChat ID: <code>{{chatId}}</code>",
+      "support_steps": "If the issue is about a failed action, include the error reference or the tracking ID from Statistics > Timeline."
     }
   }
 }
