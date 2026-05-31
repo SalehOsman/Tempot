@@ -1,6 +1,6 @@
-# Module Flow Governance
+﻿# Module Flow Governance
 
-**Status**: Active standard for Telegram-facing Tempot modules  
+**Status**: Active standard for Telegram-facing Tempot modules
 **Applies to**: Commands, inline menus, callback handlers, module manifests,
 module doctor checks, and module creation reviews.
 

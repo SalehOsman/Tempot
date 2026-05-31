@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Module Flow Governance
+﻿# Specification Quality Checklist: Module Flow Governance
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning  
-**Created**: 2026-05-26  
+**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Created**: 2026-05-26
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality

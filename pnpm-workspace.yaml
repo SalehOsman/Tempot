@@ -23,3 +23,5 @@ overrides:
   '@hono/node-server': '>=1.19.13'
   # Security: GHSA-jggg-4jg4-v7c6 — protobufjs DoS via unbounded recursion (<=7.5.7).
   protobufjs: '>=7.5.8'
+  # Security: GHSA-ph9p-34f9-6g65 - tmp path traversal via unsanitized prefix/postfix (<0.2.6).
+  tmp: '>=0.2.6'

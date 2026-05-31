@@ -1,4 +1,4 @@
-# Implementation Plan: Module Flow Governance
+﻿# Implementation Plan: Module Flow Governance
 
 **Branch**: `codex/052-module-flow-governance` | **Date**: 2026-05-26 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `specs/052-module-flow-governance/spec.md`
@@ -13,14 +13,14 @@ grounded module-building assistant that reinforces Tempot methodology.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: Existing Tempot CLI, module manifest contracts, module catalog, module doctor, package capability reuse standard, AI grounding contracts  
-**Storage**: Repository files and SpecKit artifacts; no database migration in the first governance slice  
-**Testing**: Vitest 4.1.0, targeted CLI/unit tests, seeded fixture modules, SpecKit validation, module checklist gates  
-**Target Platform**: Node.js 22.12+ local developer tooling and Telegram module review workflow  
-**Project Type**: TypeScript monorepo with apps, packages, modules, specs, and developer tooling  
-**Performance Goals**: Module readiness checks should remain fast enough for local use and CI preflight on one selected module  
-**Constraints**: No production module rewrite in the first slice; no bypass of SpecKit, TDD, review, i18n, or package reuse rules; no SaaS-only behavior  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: Existing Tempot CLI, module manifest contracts, module catalog, module doctor, package capability reuse standard, AI grounding contracts
+**Storage**: Repository files and SpecKit artifacts; no database migration in the first governance slice
+**Testing**: Vitest 4.1.0, targeted CLI/unit tests, seeded fixture modules, SpecKit validation, module checklist gates
+**Target Platform**: Node.js 22.12+ local developer tooling and Telegram module review workflow
+**Project Type**: TypeScript monorepo with apps, packages, modules, specs, and developer tooling
+**Performance Goals**: Module readiness checks should remain fast enough for local use and CI preflight on one selected module
+**Constraints**: No production module rewrite in the first slice; no bypass of SpecKit, TDD, review, i18n, or package reuse rules; no SaaS-only behavior
 **Scale/Scope**: One pilot module first, then incremental rollout across active modules after Project Manager approval
 
 **Pilot Module**: `help-center`, selected because it is a small Telegram-facing

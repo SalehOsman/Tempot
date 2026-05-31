@@ -1,8 +1,8 @@
-# Feature Specification: Module Flow Governance
+﻿# Feature Specification: Module Flow Governance
 
-**Feature Branch**: `codex/052-module-flow-governance`  
-**Created**: 2026-05-26  
-**Status**: Draft  
+**Feature Branch**: `codex/052-module-flow-governance`
+**Created**: 2026-05-26
+**Status**: Draft
 **Input**: User description: "Create a professional module error discovery system, flow diagrams that prevent repeated and random Telegram module interactions, package reuse governance for generated modules, and an AI-assisted module builder aligned with the Tempot methodology."
 
 ## User Scenarios & Testing _(mandatory)_

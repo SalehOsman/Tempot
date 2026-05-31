@@ -1,6 +1,6 @@
-# Tasks: Module Flow Governance
+﻿# Tasks: Module Flow Governance
 
-**Input**: Design documents from `specs/052-module-flow-governance/`  
+**Input**: Design documents from `specs/052-module-flow-governance/`
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/module-flow-governance-contract.md`, `quickstart.md`
 
 **Tests**: Required. This feature changes developer tooling and module governance, so TDD is mandatory for readiness checks, seeded defects, assistant behavior, and pilot hardening.
