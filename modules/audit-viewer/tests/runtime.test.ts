@@ -1,4 +1,7 @@
 import type { Context } from 'grammy';
+import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import setup, { type ModuleDeps } from '../index.js';
 import { statsCommand } from '../commands/stats.command.js';
@@ -11,6 +14,29 @@ interface InlineCallbackButton {
 interface InlineKeyboardMarkupLike {
   readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
 }
+
+interface ModuleFlowSurface {
+  readonly surfaceId: string;
+  readonly surfaceType: string;
+  readonly openedBy?: string;
+  readonly visibleActions: readonly string[];
+}
+
+interface ModuleFlowCallback {
+  readonly callbackData: string;
+  readonly handlerStatus: string;
+  readonly labelKey: string;
+}
+
+interface ModuleFlowMap {
+  readonly moduleName: string;
+  readonly entryPoints: readonly string[];
+  readonly surfaces: readonly ModuleFlowSurface[];
+  readonly callbackActions: readonly ModuleFlowCallback[];
+  readonly exitPaths: readonly string[];
+}
+
+const moduleRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 function createDeps(): ModuleDeps {
   return {
@@ -54,6 +80,11 @@ function createConfig(name: string): ModuleDeps['config'] {
   };
 }
 
+async function readFlowMap(): Promise<ModuleFlowMap> {
+  const rawFlowMap = await readFile(join(moduleRoot, 'module.flow.json'), 'utf8');
+  return JSON.parse(rawFlowMap) as ModuleFlowMap;
+}
+
 function callbackDataFrom(markup: unknown): string[] {
   const keyboard = markup as InlineKeyboardMarkupLike;
   return keyboard.inline_keyboard.flatMap((row) =>
@@ -69,6 +100,44 @@ describe('audit-viewer runtime', () => {
     await setup(bot as never, createDeps());
     expect(bot.command).toHaveBeenCalledWith('stats', statsCommand);
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
+  });
+
+  it('documents visible stats callbacks in the governed module flow map', async () => {
+    const flowMap = await readFlowMap();
+    const callbackActions = new Set(
+      flowMap.callbackActions.map((callback) => callback.callbackData),
+    );
+    const surfaceActions = flowMap.surfaces.flatMap((surface) => surface.visibleActions);
+
+    expect(flowMap.moduleName).toBe('audit-viewer');
+    expect(flowMap.entryPoints).toContain('stats');
+    expect(flowMap.exitPaths).toContain('menu:main');
+    expect(surfaceActions).toEqual(
+      expect.arrayContaining([
+        'stats:modules',
+        'stats:runtime',
+        'stats:problems',
+        'stats:timeline',
+        'stats:view',
+        'menu:main',
+      ]),
+    );
+    expect(callbackActions).toEqual(
+      new Set(['stats:view', 'stats:modules', 'stats:runtime', 'stats:problems', 'stats:timeline']),
+    );
+  });
+
+  it('documents audit-viewer leaf surfaces without repeated self-navigation', async () => {
+    const flowMap = await readFlowMap();
+    const leafSurfaces = flowMap.surfaces.filter((surface) => surface.surfaceType === 'leaf');
+
+    expect(leafSurfaces).toHaveLength(4);
+    for (const surface of leafSurfaces) {
+      expect(surface.openedBy).toBeDefined();
+      expect(surface.visibleActions).not.toContain(surface.openedBy);
+      expect(surface.visibleActions).toContain('stats:view');
+      expect(surface.visibleActions).toContain('menu:main');
+    }
   });
 
   it('shows operational statistics from command', async () => {

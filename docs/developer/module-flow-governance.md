@@ -99,3 +99,5 @@ Current governed modules:
 - `notification-center`: functional operational notification center with
   preferences, recent activity, real test delivery, and governed result
   surfaces.
+- `audit-viewer`: operational diagnostics module with governed stats, modules,
+  runtime, recent problems, and interaction timeline surfaces.
