@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-05-31.
+> Last updated: 2026-06-07.
 
 ## Current Technical Baseline
 
@@ -111,22 +111,53 @@ Recently completed:
 
 Active or next work:
 
-1. Start a focused single-bot template production-readiness slice. The target is
-   a developer path from clone, environment setup, Docker or local startup,
-   `/start`, module interaction, testing, and deployment guidance.
-2. Keep `template-management` useful as a product capability and developer
+1. Execute the audit remediation program defined by Specs #053-#057. Production
+   deployment remains blocked until the program's P0/P1 gates are complete.
+2. Start with Spec #053 authorization correction, then complete the Spec #056
+   CI visibility slice before high-risk protected-data migration work.
+3. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
-3. `bot-management` (Spec #040) remains a future-facing operational module.
+4. `bot-management` (Spec #040) remains a future-facing operational module.
    Keep it useful as a lightweight bot profile registry for the template, but
    do not let multi-bot SaaS management displace the current single-bot
    framework priority.
-4. Consider future RAG evaluation expansion for latency, token usage, and cost
+5. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-5. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+6. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
+
+## Production Readiness Remediation Program
+
+The comprehensive audit completed on 2026-06-07 identified confirmed
+authorization, privacy, data-integrity, quality-gate, and delivery risks. The
+approved remediation design is documented in
+`docs/project-analysis/2026-06-07/remediation-program.md`.
+
+Planning these specifications does not mean their implementation is complete.
+Each spec requires a dedicated execution branch/worktree and all SpecKit,
+Superpowers, TDD, review, verification, reconciliation, and merge gates.
+
+| Recommended order | Spec | Scope | Priority | Status |
+|---:|---|---|---|---|
+| 1 | #053 `authorization-correction` | Correct global authorization and role/action enforcement | P0 | SpecKit artifact gates passed; Draft awaiting execution approval |
+| 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI | P1 enabler | SpecKit artifact gates passed; planned after #053 |
+| 3 | #054 `sensitive-data-protection` | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0 | SpecKit artifact gates passed; ADR and migration approval required |
+| 4 | #055 `data-integrity-hardening` | Atomic updates, soft delete, repository boundaries, aggregate pagination | P1 | SpecKit artifact gates passed; planned |
+| 5 | #056 `quality-gates-hardening` completion | Coverage tiers, documentation freshness, toolchain and source conformance | P1 | SpecKit artifact gates passed; planned |
+| 6 | #057 `production-delivery-hardening` | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1 | SpecKit artifact gates passed; final production gate |
+
+Production go/no-go requires:
+
+- zero open Critical findings;
+- no unapproved High security or production-readiness findings;
+- verified protected-data migration and key rotation;
+- complete application CI and component coverage gates;
+- a minimal signed immutable image;
+- passing staging migration, smoke, observability, backup/restore, and rollback
+  or forward-fix rehearsal.
 
 ## Phase Summary
 
@@ -141,6 +172,7 @@ Active or next work:
 | Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
 | Phase 5  | Enterprise infrastructure                           | Not started                                     |
 | Phase 6  | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection |
+| Remediation | Specs #053-#057 production-readiness corrections | SpecKit artifacts validated; implementation not started; production blocked |
 
 ## Package Status
 
@@ -269,7 +301,7 @@ Tempot enforces code-documentation parity.
 
 | Version | Theme                                        | Status         |
 | ------- | -------------------------------------------- | -------------- |
-| v1.0    | MVP bot framework core                       | In development |
+| v1.0    | MVP bot framework core                       | In development; blocked by Specs #053-#057 remediation gates |
 | v1.1    | Developer experience and templates           | Planned        |
 | v1.2    | AI, RAG, anomaly detection, and smart search | Planned        |
 | v1.3    | Mini apps and component library              | Planned        |
