@@ -32,6 +32,20 @@ describe('CI workflow quality gates', () => {
     expect(typecheckJob).toContain('pnpm build');
   });
 
+  it('should build the full workspace before running root unit tests', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const unitJob = workflow.slice(
+      workflow.indexOf('  test-unit:'),
+      workflow.indexOf('  test-integration:'),
+    );
+    const unitJobLines = unitJob.split(/\r?\n/u).map((line) => line.trim());
+
+    expect(unitJobLines).toContain('- run: pnpm build');
+    expect(unitJobLines.indexOf('- run: pnpm build')).toBeLessThan(
+      unitJobLines.indexOf('- run: pnpm test:unit'),
+    );
+  });
+
   it('should initialize the database before running coverage tests', () => {
     const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
     const coverageJob = workflow.slice(

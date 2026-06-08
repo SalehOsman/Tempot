@@ -104,7 +104,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @tempot/database db:generate
-      - run: pnpm build:bot-runtime
+      - run: pnpm build
       - run: pnpm test:inventory
       - run: pnpm test:unit
 
