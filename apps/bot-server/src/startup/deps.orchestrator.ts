@@ -8,8 +8,11 @@ import { loadModuleHandlers } from './module-loader.js';
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
+import { AbilityRegistry } from '../authorization/ability-registry.js';
+import { AbilityFactory, RoleEnum, type SessionUser } from '@tempot/auth-core';
 import type { OrchestratorDeps } from './orchestrator.js';
 import type {
+  AuthorizationContextResolver,
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
   SettingsProvider,
@@ -49,7 +52,10 @@ function buildSettingsProvider(settingsService: SettingsService): SettingsProvid
   };
 }
 
-function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['loadModuleHandlers'] {
+function buildModuleHandlersDep(
+  opts: AssembleDepsOptions,
+  abilityRegistry: AbilityRegistry,
+): OrchestratorDeps['loadModuleHandlers'] {
   return (bot, validated) =>
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
       logger: opts.log,
@@ -79,14 +85,48 @@ function buildModuleHandlersDep(opts: AssembleDepsOptions): OrchestratorDeps['lo
             InteractionEventProviderRecord[]
           >,
       },
+      resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
+      abilityRegistry,
       importer: async (p: string) => {
         const { pathToFileURL } = await import('node:url');
         const entryPoint = pathToFileURL(`${p}/dist/index.js`).href;
         return import(entryPoint) as Promise<{
           default?: import('../bot-server.types.js').ModuleSetupFn;
+          abilityDefinition?: import('@tempot/auth-core').AbilityDefinition;
         }>;
       },
     });
+}
+
+function buildAuthorizationContextResolver(
+  opts: AssembleDepsOptions,
+  abilityRegistry: AbilityRegistry,
+): AuthorizationContextResolver {
+  return async (ctx) => {
+    const telegramId = ctx.from?.id;
+    if (telegramId === undefined) return null;
+    const chatId = ctx.chat?.id ?? telegramId;
+    const result = await opts.sessionProvider.getSession(String(telegramId), String(chatId));
+    const actor = resolveCurrentActor(result, telegramId);
+    const ability = AbilityFactory.build(actor, abilityRegistry.getRuntimeDefinitions());
+    if (ability.isErr()) throw ability.error;
+    return { actor, ability: ability.value };
+  };
+}
+
+function resolveCurrentActor(
+  result: Awaited<ReturnType<SessionProvider['getSession']>>,
+  telegramId: number,
+): SessionUser {
+  if (result.isErr()) {
+    if (result.error.code !== 'session-manager.not_found') throw result.error;
+    return { id: String(telegramId), role: RoleEnum.GUEST, status: 'UNRESOLVED' };
+  }
+  return {
+    id: result.value.userId,
+    role: result.value.role,
+    status: result.value.status,
+  };
 }
 
 function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
@@ -135,6 +175,7 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
 }
 
 export function assembleOrchestratorDeps(opts: AssembleDepsOptions): OrchestratorDeps {
+  const abilityRegistry = new AbilityRegistry();
   const lifecycle = buildLifecycleFactory({
     shutdownManager: opts.shutdownManager,
     cache: opts.cache,
@@ -145,8 +186,8 @@ export function assembleOrchestratorDeps(opts: AssembleDepsOptions): Orchestrato
 
   return {
     ...(buildBasicDeps(opts) as OrchestratorDeps),
-    loadModuleHandlers: buildModuleHandlersDep(opts),
-    createBot: buildBotFactory(opts),
+    loadModuleHandlers: buildModuleHandlersDep(opts, abilityRegistry),
+    createBot: buildBotFactory(opts, abilityRegistry),
     createHttpServer: buildHttpServerFactory(opts),
     registerShutdownHooks: lifecycle.registerShutdownHooks,
     setupSignalHandlers: lifecycle.setupSignalHandlers,

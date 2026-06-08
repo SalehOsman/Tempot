@@ -6,6 +6,7 @@ import type { UserProfile } from '../types/index.js';
 import { handleUsersAction } from './users.callback.handler.js';
 import { handleProfileAction } from './profile.callback.handler.js';
 import { safeEditMessageText } from './callback-shared.handler.js';
+import type { ModuleAuthorizationPolicy } from '../types/module-deps.types.js';
 
 function parseCallbackData(data: string): { action: string; params: string[] } {
   const [action, ...params] = data.split(':');
@@ -43,6 +44,8 @@ async function handleCallbackQuery(ctx: Context, next: NextFunction = noopNext):
       await next();
       return;
     }
+    const policy = resolveAuthorizationPolicy(action, params);
+    if (!(await getDeps().authorization.enforce(ctx, policy))) return;
 
     log.info({ msg: 'callback_received', telegramId, action, params });
 
@@ -57,6 +60,24 @@ async function handleCallbackQuery(ctx: Context, next: NextFunction = noopNext):
     log.error({ msg: 'callback_error', error: String(error) });
     await ctx.answerCallbackQuery(i18n.t('user-management.errors.callback_failed'));
   }
+}
+
+function resolveAuthorizationPolicy(action: string, params: string[]): ModuleAuthorizationPolicy {
+  if (action === 'menu') return createPolicy('bootstrap', 'read', 'bootstrap');
+  if (action === 'users') return createPolicy('protected', 'manage', 'users');
+  if (params.join(':') === 'edit:role') {
+    return createPolicy('protected', 'manage', 'users');
+  }
+  if (params[0] === 'edit') return createPolicy('protected', 'update', 'profile');
+  return createPolicy('protected', 'read', 'profile');
+}
+
+function createPolicy(
+  classification: ModuleAuthorizationPolicy['classification'],
+  action: string,
+  subject: string,
+): ModuleAuthorizationPolicy {
+  return { module: 'user-management', classification, action, subject };
 }
 
 async function dispatchCallbackAction(

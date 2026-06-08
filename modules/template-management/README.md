@@ -37,7 +37,7 @@ commands, messages, input forms, permissions, and settings. A governed lifecycle
 | --- | --- | --- |
 | `/templates` | Open the template management menu | All users |
 | `/new_template` | Start template creation wizard | USER and above |
-| `/import_template` | Import a JSON template bundle | USER and above |
+| `/import_template` | Import a JSON template bundle | ADMIN and above |
 
 ## Package Dependencies
 
@@ -82,6 +82,13 @@ pnpm --filter @tempot/template-management test      # unit tests
 pnpm --filter @tempot/template-management build     # type-check
 pnpm lint                                           # eslint
 ```
+
+## Authorization
+
+Template browsing is explicitly public. Creation and personal-template actions
+require authenticated template permissions, while bundle import requires
+`manage template`. Callback policies are enforced before entering creation or
+rating behavior.
 
 ## Spec
 

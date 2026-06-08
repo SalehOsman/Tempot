@@ -59,14 +59,18 @@ function createUserProfile(role: UserProfile['role'] = 'ADMIN'): UserProfile {
 }
 
 describe('handleCallbackQuery', () => {
+  const enforce = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    enforce.mockResolvedValue(true);
     registerDeps({
       logger: createLogger(),
       i18n: { t: vi.fn((key: string) => key) },
       eventBus: { publish: vi.fn() },
       sessionProvider: { getSession: vi.fn() },
       settings: { get: vi.fn() },
+      authorization: { guard: vi.fn(), enforce },
       config: {} as never,
     });
   });
@@ -103,5 +107,20 @@ describe('handleCallbackQuery', () => {
     expect(callbacks).not.toContain('users:list');
     expect(callbacks).toContain('users:search');
     expect(callbacks).toContain('menu:main');
+  });
+
+  it('does not load or mutate users when management authorization is denied', async () => {
+    enforce.mockResolvedValue(false);
+    const ctx = createContext('users:list');
+
+    await handleCallbackQuery(ctx);
+
+    expect(enforce).toHaveBeenCalledWith(ctx, {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'users',
+    });
+    expect(getUserService).not.toHaveBeenCalled();
   });
 });

@@ -4,7 +4,8 @@ import { AppError } from '@tempot/shared';
 import { BotRuntimeMode, BotHealthStatus } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 
-const { runFormMock, registerMock } = vi.hoisted(() => ({
+const { refreshAndEnforceMock, runFormMock, registerMock } = vi.hoisted(() => ({
+  refreshAndEnforceMock: vi.fn(),
   runFormMock: vi.fn(),
   registerMock: vi.fn(),
 }));
@@ -37,6 +38,9 @@ vi.mock('../../deps.context.js', () => ({
   }),
   getI18n: () => ({
     t: (key: string) => key,
+  }),
+  getAuthorization: () => ({
+    refreshAndEnforce: refreshAndEnforceMock,
   }),
   getLogger: () => ({
     info: vi.fn(),
@@ -85,6 +89,7 @@ const managedBot = {
 describe('runBotRegistrationConversation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    refreshAndEnforceMock.mockResolvedValue(true);
   });
 
   it('uses the shared form engine and persists the completed registration result', async () => {
@@ -158,6 +163,32 @@ describe('runBotRegistrationConversation', () => {
 
     expect(registerMock).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith('bot-management.create.cancelled');
+  });
+
+  it('does not persist a bot when current authorization is denied at commit', async () => {
+    runFormMock.mockResolvedValue(
+      ok({
+        displayName: 'Support Bot',
+        telegramUsername: 'support_bot',
+        token: '1234567890abcdef',
+      }),
+    );
+    refreshAndEnforceMock.mockResolvedValue(false);
+    const ctx = {
+      from: { id: 123 },
+      chat: { id: 123 },
+      reply: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await runBotRegistrationConversation({}, ctx as never);
+
+    expect(refreshAndEnforceMock).toHaveBeenCalledWith(ctx, {
+      module: 'bot-management',
+      classification: 'protected',
+      action: 'create',
+      subject: 'bot',
+    });
+    expect(registerMock).not.toHaveBeenCalled();
   });
 
   it('renders reusable action buttons while waiting for text or callback input', async () => {

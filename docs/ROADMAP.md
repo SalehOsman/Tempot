@@ -142,7 +142,7 @@ Superpowers, TDD, review, verification, reconciliation, and merge gates.
 
 | Recommended order | Spec | Scope | Priority | Status |
 |---:|---|---|---|---|
-| 1 | #053 `authorization-correction` | Correct global authorization and role/action enforcement | P0 | SpecKit artifact gates passed; Draft awaiting execution approval |
+| 1 | #053 `authorization-correction` | Correct global authorization and role/action enforcement | P0 | Implemented and verified on feature branch; merge blocked by three pre-existing bot-server failures assigned to #056 |
 | 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI | P1 enabler | SpecKit artifact gates passed; planned after #053 |
 | 3 | #054 `sensitive-data-protection` | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0 | SpecKit artifact gates passed; ADR and migration approval required |
 | 4 | #055 `data-integrity-hardening` | Atomic updates, soft delete, repository boundaries, aggregate pagination | P1 | SpecKit artifact gates passed; planned |
@@ -172,7 +172,7 @@ Production go/no-go requires:
 | Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
 | Phase 5  | Enterprise infrastructure                           | Not started                                     |
 | Phase 6  | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection |
-| Remediation | Specs #053-#057 production-readiness corrections | SpecKit artifacts validated; implementation not started; production blocked |
+| Remediation | Specs #053-#057 production-readiness corrections | Spec #053 implemented and verified on feature branch; merge blocked pending #056; production blocked |
 
 ## Package Status
 

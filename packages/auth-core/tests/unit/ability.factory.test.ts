@@ -20,6 +20,14 @@ describe('AbilityFactory', () => {
     }
   });
 
+  it('rejects manage all for a non-super-admin production actor', () => {
+    const result = AbilityFactory.build({ id: 'user-1', role: RoleEnum.USER }, [
+      () => defineAbility((can) => can('manage', 'all')),
+    ]);
+
+    expect(result.isErr()).toBe(true);
+  });
+
   it('should return ok with empty ability when no definitions provided', () => {
     const user: SessionUser = { id: 1, role: RoleEnum.GUEST };
     const result = AbilityFactory.build(user, []);

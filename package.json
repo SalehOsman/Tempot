@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
     "boundary:audit": "tsx scripts/ci/import-boundary-audit.cli.ts",
+    "authorization:check": "tsx scripts/ci/authorization-coverage-audit.ts",
     "module:checklist": "tsx scripts/ci/module-package-checklist-audit.ts",
     "format": "prettier --write .",
     "prepare": "husky",

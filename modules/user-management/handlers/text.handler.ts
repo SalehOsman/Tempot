@@ -1,6 +1,7 @@
 import type { Context } from 'grammy';
-import { getI18n, getLogger } from '../deps.context.js';
+import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import type { UserProfile } from '../types/index.js';
+import type { ModuleAuthorizationPolicy } from '../types/module-deps.types.js';
 import { getUserService } from '../services/user-service.context.js';
 import { getUserInputState, clearUserInputState } from './user-state.service.js';
 import {
@@ -80,6 +81,8 @@ export async function handleTextInput(ctx: Context): Promise<void> {
 
   const state = await getUserInputState(telegramId, chatId);
   if (!state) return;
+  const policy = resolveAuthorizationPolicy(state.action);
+  if (!(await getDeps().authorization.enforce(ctx, policy))) return;
 
   const userResult = await getUserService().getByTelegramId(telegramId);
   if (userResult.isErr()) {
@@ -90,4 +93,21 @@ export async function handleTextInput(ctx: Context): Promise<void> {
 
   await dispatchTextAction(ctx, userResult.value, { action: state.action, text });
   await clearUserInputState(telegramId, chatId);
+}
+
+function resolveAuthorizationPolicy(action: string): ModuleAuthorizationPolicy {
+  if (action === 'edit_role') {
+    return {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'users',
+    };
+  }
+  return {
+    module: 'user-management',
+    classification: 'protected',
+    action: 'update',
+    subject: 'profile',
+  };
 }

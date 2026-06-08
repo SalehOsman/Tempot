@@ -21,6 +21,16 @@ export async function handleCallbackQuery(
     return;
   }
 
+  if (
+    !(await getDeps().authorization.enforce(ctx, {
+      module: 'audit-viewer',
+      classification: 'protected',
+      action: 'read',
+      subject: 'audit',
+    }))
+  ) {
+    return;
+  }
   const action = data.split(':')[1] ?? 'view';
   await showStatsPage(ctx, action);
 }

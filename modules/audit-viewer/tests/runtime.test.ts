@@ -7,6 +7,13 @@ import setup, { type ModuleDeps } from '../index.js';
 import { statsCommand } from '../commands/stats.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+type TestDeps = ModuleDeps & {
+  authorization: {
+    guard: ReturnType<typeof vi.fn>;
+    enforce: ReturnType<typeof vi.fn>;
+  };
+};
+
 interface InlineCallbackButton {
   readonly callback_data?: string;
   readonly text: string;
@@ -39,7 +46,7 @@ interface ModuleFlowMap {
 
 const moduleRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
-function createDeps(): ModuleDeps {
+function createDeps(): TestDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
@@ -74,8 +81,12 @@ function createDeps(): ModuleDeps {
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     auditLog: { findMany: vi.fn().mockResolvedValue([]) },
     interactionEvents: { findMany: vi.fn().mockResolvedValue([]) },
+    authorization: {
+      guard: vi.fn().mockReturnValue(vi.fn()),
+      enforce: vi.fn().mockResolvedValue(true),
+    },
     config: createConfig('audit-viewer'),
-  };
+  } as TestDeps;
 }
 
 function createConfig(name: string): ModuleDeps['config'] {
@@ -124,8 +135,19 @@ describe('audit-viewer runtime', () => {
 
   it('registers stats command and callback handler', async () => {
     const bot = { command: vi.fn(), on: vi.fn() };
-    await setup(bot as never, createDeps());
-    expect(bot.command).toHaveBeenCalledWith('stats', statsCommand);
+    const deps = createDeps();
+    await setup(bot as never, deps);
+    expect(deps.authorization.guard).toHaveBeenCalledWith({
+      module: 'audit-viewer',
+      classification: 'protected',
+      action: 'read',
+      subject: 'audit',
+    });
+    expect(bot.command).toHaveBeenCalledWith(
+      'stats',
+      deps.authorization.guard.mock.results[0]?.value,
+      statsCommand,
+    );
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
   });
 

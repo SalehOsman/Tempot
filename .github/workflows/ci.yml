@@ -33,6 +33,7 @@ jobs:
       - run: pnpm spec:validate
       - run: pnpm cms:check
       - run: pnpm boundary:audit
+      - run: pnpm authorization:check
       - run: pnpm module:checklist
       - name: Run Tempot CLI smoke checks
         run: |

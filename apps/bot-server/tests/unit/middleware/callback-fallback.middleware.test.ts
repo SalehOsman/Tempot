@@ -57,6 +57,24 @@ describe('createCallbackFallbackMiddleware', () => {
     );
   });
 
+  it('handles an old callback from a disabled module without invoking business logic', async () => {
+    const deps = createDeps();
+    const middleware = createCallbackFallbackMiddleware(deps);
+    const businessHandler = vi.fn();
+    const ctx: MockContext = {
+      callbackQuery: { data: 'disabled-module:mutate:record-1' },
+      from: { id: 123 },
+      chat: { id: 456 },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await middleware(ctx as never, businessHandler);
+
+    expect(businessHandler).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('bot-server.callback_unhandled');
+  });
+
   it('logs callback answer failures without throwing', async () => {
     const deps = createDeps();
     const middleware = createCallbackFallbackMiddleware(deps);
