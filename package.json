@@ -28,6 +28,7 @@
     "module:checklist": "tsx scripts/ci/module-package-checklist-audit.ts",
     "source:conformance": "tsx scripts/ci/source-conformance-audit.ts",
     "toolchain:audit": "tsx scripts/ci/toolchain-audit.ts",
+    "security:inventory": "corepack pnpm --filter @tempot/database db:generate && corepack pnpm --recursive --filter @tempot/database... build && tsx scripts/security/sensitive-data-inventory.cli.ts",
     "docs:freshness": "corepack pnpm --filter docs docs:freshness",
     "docs:validate": "corepack pnpm --filter docs docs:validate",
     "docs:claims": "tsx scripts/ci/documentation-claims-audit.ts",

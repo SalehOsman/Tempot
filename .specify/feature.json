@@ -1,5 +1,5 @@
 {
-  "feature": "056-quality-gates-hardening",
-  "feature_directory": "specs/056-quality-gates-hardening",
-  "specPath": "specs/056-quality-gates-hardening/spec.md"
+  "feature": "054-sensitive-data-protection",
+  "feature_directory": "specs/054-sensitive-data-protection",
+  "specPath": "specs/054-sensitive-data-protection/spec.md"
 }
