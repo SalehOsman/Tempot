@@ -49,4 +49,59 @@ describe('UserRepository protected persistence', () => {
     expect(serialize(create.mock.calls)).not.toContain(canary);
     expect(serialize(auditLogger.log.mock.calls)).not.toContain(canary);
   });
+
+  it('finds and recovers a user through the national ID lookup token', async () => {
+    const nationalId = '29801011234567';
+    const recordId = 'national-lookup-user';
+    const encryptionKey = Buffer.alloc(32, 3);
+    const lookupKey = Buffer.alloc(32, 4);
+    const keyProvider: ProtectedDataKeyProvider = {
+      getActiveEncryptionKey: () => ok({ version: 'enc-v1', key: encryptionKey }),
+      getEncryptionKey: () => ok({ version: 'enc-v1', key: encryptionKey }),
+      getActiveLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
+      getLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
+      validate: () => ok(undefined),
+    };
+    const protectionService = new NodeProtectedDataService(keyProvider);
+    const payload = protectionService
+      .protect(nationalId, { fieldId: 'nationalId', recordId })
+      ._unsafeUnwrap();
+    const lookup = protectionService.createLookupToken(nationalId, 'nationalId')._unsafeUnwrap();
+    const findMany = vi.fn().mockResolvedValue([
+      {
+        id: recordId,
+        telegramId: 456n,
+        nationalId: null,
+        nationalIdProtected: payload,
+        nationalIdLookupToken: lookup.token,
+        isDeleted: false,
+      },
+    ]);
+    const database = {
+      userProfile: {
+        create: vi.fn(),
+        findUnique: vi.fn(),
+        findMany,
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+    };
+    const repository = new UserRepository(
+      { log: vi.fn().mockResolvedValue(undefined) },
+      database as never,
+      protectionService,
+    );
+
+    const result = await repository.findByNationalId(nationalId);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    expect(result.value.nationalId).toBe(nationalId);
+    expect(findMany).toHaveBeenCalledWith({
+      where: {
+        isDeleted: false,
+        nationalIdLookupToken: lookup.token,
+      },
+    });
+  });
 });

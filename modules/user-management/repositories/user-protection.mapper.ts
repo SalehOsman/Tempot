@@ -1,6 +1,7 @@
 import { err, ok, type Result } from 'neverthrow';
 import {
   PROTECTED_DATA_ERRORS,
+  type LookupProtectedFieldId,
   type ProtectedDataService,
   type ProtectedFieldId,
   type ProtectedPayload,
@@ -54,8 +55,15 @@ export class UserProtectionMapper {
   }
 
   createEmailLookupToken(value: string): Result<string | null, AppError> {
+    return this.createLookupToken(value, 'email');
+  }
+
+  createLookupToken(
+    value: string,
+    fieldId: LookupProtectedFieldId,
+  ): Result<string | null, AppError> {
     if (!this.service) return ok(null);
-    return this.service.createLookupToken(value, 'email').map((token) => token.token);
+    return this.service.createLookupToken(value, fieldId).map((token) => token.token);
   }
 
   private protectField(params: ProtectFieldParams): Result<void, AppError> {

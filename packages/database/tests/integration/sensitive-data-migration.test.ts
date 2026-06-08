@@ -41,6 +41,12 @@ describe('sensitive data migration', () => {
           email: 'legacy-two@example.com',
           nationalId: '29801011234568',
         },
+        {
+          id: 'legacy-user-3',
+          telegramId: 9_200_000_005n,
+          email: 'legacy-three@example.com',
+          nationalId: '29801011234569',
+        },
       ],
     });
     await testDb.prisma.auditLog.create({
@@ -67,6 +73,16 @@ describe('sensitive data migration', () => {
     });
     expect(firstRun.isOk()).toBe(true);
     if (firstRun.isErr()) return;
+
+    const secondInterruptedRun = await runSensitiveDataBackfill({
+      migrationId: 'test-sensitive-data-backfill',
+      batchSize: 1,
+      stopAfterBatches: 1,
+      database: testDb.prisma as unknown as typeof prisma,
+      protectionService,
+    });
+    expect(secondInterruptedRun.isOk()).toBe(true);
+    if (secondInterruptedRun.isErr()) return;
 
     const resumedRun = await runSensitiveDataBackfill({
       migrationId: 'test-sensitive-data-backfill',

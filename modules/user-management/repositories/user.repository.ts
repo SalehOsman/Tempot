@@ -5,6 +5,7 @@
 import { randomUUID } from 'node:crypto';
 import {
   BaseRepository,
+  PROTECTED_DATA_ERRORS,
   type DatabaseClient,
   type IAuditLogger,
   type Prisma,
@@ -86,6 +87,21 @@ export class UserRepository extends BaseRepository<UserProfile> {
     const user = result.value[0];
     if (!user) return err(new AppError('user-management.not_found', { telegramId }));
 
+    return ok(user);
+  }
+
+  async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
+    const tokenResult = this.protectionMapper.createLookupToken(nationalId, 'nationalId');
+    if (tokenResult.isErr()) return err(tokenResult.error);
+    if (!tokenResult.value) {
+      return err(new AppError(PROTECTED_DATA_ERRORS.NOT_CONFIGURED));
+    }
+
+    const result = await this.findMany({ nationalIdLookupToken: tokenResult.value });
+    if (result.isErr()) return err(result.error);
+
+    const user = result.value[0];
+    if (!user) return err(new AppError('user-management.not_found'));
     return ok(user);
   }
 
