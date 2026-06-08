@@ -49,11 +49,11 @@
 
 ## Phase 5: User Story 2 - Migrate Existing Data (P1)
 
-- [ ] T026 [US2] Implement dry-run inventory and conflict reporting in `scripts/security/`
-- [ ] T027 [US2] Implement resumable bounded user backfill with non-sensitive checkpoints
-- [ ] T028 [US2] Implement structured historical audit sanitation with irreversible markers
-- [ ] T029 [US2] Implement verification for row counts, logical recovery, lookup parity, and canary absence
-- [ ] T030 [US2] Add cutover controls that block protected reads on any verification failure
+- [x] T026 [US2] Implement dry-run inventory and conflict reporting in `scripts/security/`
+- [x] T027 [US2] Implement resumable bounded user backfill with non-sensitive checkpoints
+- [x] T028 [US2] Implement structured historical audit sanitation with irreversible markers
+- [x] T029 [US2] Implement verification for row counts, logical recovery, lookup parity, and canary absence
+- [x] T030 [US2] Add cutover controls that block protected reads on any verification failure
 - [ ] T031 [US2] Execute interruption/resume and backup/restore rehearsals in an isolated database
 - [ ] T032 [US2] Obtain approval before applying the plaintext-retirement migration
 
