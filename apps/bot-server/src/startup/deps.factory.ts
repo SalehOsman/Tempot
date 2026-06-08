@@ -3,7 +3,7 @@ import type { Result } from 'neverthrow';
 
 import { logger } from '@tempot/logger';
 import { ShutdownManager, AppError } from '@tempot/shared';
-import { prisma } from '@tempot/database';
+import { NodeProtectedDataService, prisma, StaticProtectedDataKeyProvider } from '@tempot/database';
 
 import {
   StaticSettingsLoader,
@@ -28,6 +28,7 @@ import { loadConfig } from './config.loader.js';
 import type { OrchestratorDeps } from './orchestrator.js';
 import type { CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
+import type { ProtectedDataService } from '@tempot/database';
 
 function buildShutdownManager(): ShutdownManager {
   return new ShutdownManager({
@@ -49,8 +50,8 @@ function redisConfig(): { connectionString: string; host: string; port: number }
 function buildSettingsService(
   cache: CacheService,
   eventBus: EventBusOrchestrator,
+  staticResult: ReturnType<typeof StaticSettingsLoader.load>,
 ): SettingsService {
-  const staticResult = StaticSettingsLoader.load();
   const settingsRepo = new SettingsRepository(
     prisma as unknown as import('@tempot/settings').SettingsPrismaClient,
   );
@@ -88,6 +89,17 @@ function modulesDir(): string {
   return resolveRuntimeDirectory('modules');
 }
 
+function buildProtectedDataService(
+  staticSettingsResult: ReturnType<typeof StaticSettingsLoader.load>,
+): ProtectedDataService | undefined {
+  if (staticSettingsResult.isErr() || !staticSettingsResult.value.protectedDataKeys) {
+    return undefined;
+  }
+  return new NodeProtectedDataService(
+    new StaticProtectedDataKeyProvider(staticSettingsResult.value.protectedDataKeys),
+  );
+}
+
 export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const log = logger.child({ module: 'bot-server' });
   const shutdownManager = buildShutdownManager();
@@ -113,7 +125,9 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const cache = cacheResult.value;
 
   const sessionProvider = buildSessionProvider(log, eventBus, cache);
-  const settingsService = buildSettingsService(cache, eventBus);
+  const staticSettingsResult = StaticSettingsLoader.load();
+  const settingsService = buildSettingsService(cache, eventBus, staticSettingsResult);
+  const protectedDataService = buildProtectedDataService(staticSettingsResult);
 
   const i18nResult = await loadModuleLocales();
   if (i18nResult.isErr()) {
@@ -136,6 +150,7 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
     cache,
     sessionProvider,
     settingsService,
+    protectedDataService,
     registry,
     sentryReporter,
     loadModuleLocales,

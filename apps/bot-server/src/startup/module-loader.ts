@@ -25,6 +25,7 @@ interface ModuleLoaderDeps {
   sessionProvider: ModuleDependencyContainer['sessionProvider'];
   i18n: ModuleDependencyContainer['i18n'];
   settings: ModuleDependencyContainer['settings'];
+  protectedData: ModuleDependencyContainer['protectedData'];
   auditLog: ModuleDependencyContainer['auditLog'];
   interactionEvents: ModuleDependencyContainer['interactionEvents'];
   resolveAuthorizationContext: AuthorizationContextResolver;
@@ -161,6 +162,7 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
     sessionProvider: deps.sessionProvider,
     i18n: deps.i18n,
     settings: deps.settings,
+    protectedData: deps.protectedData,
     auditLog: deps.auditLog,
     interactionEvents: deps.interactionEvents,
     navigation,

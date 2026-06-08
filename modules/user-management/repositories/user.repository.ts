@@ -2,11 +2,19 @@
  * UserRepository — قاعدة بيانات المستخدمين
  */
 
-import { BaseRepository } from '@tempot/database';
+import { randomUUID } from 'node:crypto';
+import {
+  BaseRepository,
+  type DatabaseClient,
+  type IAuditLogger,
+  type Prisma,
+  type ProtectedDataService,
+} from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import { RoleEnum } from '@tempot/auth-core';
 import type { UserProfile, UserSearchResult } from '../types/index.js';
+import { UserProtectionMapper } from './user-protection.mapper.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
@@ -14,6 +22,61 @@ export class UserRepository extends BaseRepository<UserProfile> {
 
   protected get model() {
     return this.db.userProfile;
+  }
+
+  constructor(
+    auditLogger: IAuditLogger,
+    db?: DatabaseClient,
+    private readonly protectedData?: ProtectedDataService,
+  ) {
+    super(auditLogger, db);
+    this.protectionMapper = new UserProtectionMapper(protectedData);
+  }
+
+  private readonly protectionMapper: UserProtectionMapper;
+
+  override withTransaction(tx: Prisma.TransactionClient): this {
+    return new UserRepository(this.auditLogger, tx, this.protectedData) as this;
+  }
+
+  override async findById(id: string): Promise<Result<UserProfile, AppError>> {
+    const result = await super.findById(id);
+    return result.andThen((user) => this.recoverProtectedFields(user));
+  }
+
+  override async findMany(
+    where?: Record<string, unknown>,
+  ): Promise<Result<UserProfile[], AppError>> {
+    const result = await super.findMany(where);
+    if (result.isErr()) return err(result.error);
+
+    const recovered: UserProfile[] = [];
+    for (const user of result.value) {
+      const recovery = this.recoverProtectedFields(user);
+      if (recovery.isErr()) return err(recovery.error);
+      recovered.push(recovery.value);
+    }
+    return ok(recovered);
+  }
+
+  override async create(data: Record<string, unknown>): Promise<Result<UserProfile, AppError>> {
+    const recordId = typeof data['id'] === 'string' ? data['id'] : randomUUID();
+    const protectedInput = this.protectionMapper.protectInput({ ...data, id: recordId }, recordId);
+    if (protectedInput.isErr()) return err(protectedInput.error);
+
+    const result = await super.create(protectedInput.value);
+    return result.andThen((user) => this.recoverProtectedFields(user));
+  }
+
+  override async update(
+    id: string,
+    data: Record<string, unknown>,
+  ): Promise<Result<UserProfile, AppError>> {
+    const protectedInput = this.protectionMapper.protectInput(data, id);
+    if (protectedInput.isErr()) return err(protectedInput.error);
+
+    const result = await super.update(id, protectedInput.value);
+    return result.andThen((user) => this.recoverProtectedFields(user));
   }
 
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
@@ -26,14 +89,22 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return ok(user);
   }
 
-  async search(query: string, page: number = 0, pageSize: number = 10): Promise<Result<UserSearchResult, AppError>> {
-    const where =
-      query.trim().length > 0
-        ? { OR: [
-            { username: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-          ] }
-        : {};
+  async search(
+    query: string,
+    page: number = 0,
+    pageSize: number = 10,
+  ): Promise<Result<UserSearchResult, AppError>> {
+    const trimmedQuery = query.trim();
+    let where: Record<string, unknown> = {};
+    if (trimmedQuery.length > 0) {
+      const conditions: Record<string, unknown>[] = [
+        { username: { contains: trimmedQuery, mode: 'insensitive' } },
+      ];
+      const tokenResult = this.protectionMapper.createEmailLookupToken(trimmedQuery);
+      if (tokenResult.isErr()) return err(tokenResult.error);
+      if (tokenResult.value) conditions.push({ emailLookupToken: tokenResult.value });
+      where = { OR: conditions };
+    }
 
     const usersResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (usersResult.isErr()) return err(usersResult.error);
@@ -42,6 +113,10 @@ export class UserRepository extends BaseRepository<UserProfile> {
     if (allResult.isErr()) return err(allResult.error);
 
     return ok({ users: usersResult.value, totalCount: allResult.value.length, page, pageSize });
+  }
+
+  private recoverProtectedFields(user: UserProfile): Result<UserProfile, AppError> {
+    return this.protectionMapper.recover(user);
   }
 
   // ─── Update — أساسية ─────────────────────────────────────────────────────────

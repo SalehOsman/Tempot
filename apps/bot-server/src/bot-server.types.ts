@@ -2,6 +2,7 @@ import type { AnyAbility } from '@casl/ability';
 import type { SessionUser } from '@tempot/auth-core';
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
+import type { ProtectedDataService } from '@tempot/database';
 
 /** Operation mode for the bot */
 export type BotMode = 'polling' | 'webhook';
@@ -13,6 +14,7 @@ export interface ModuleDependencyContainer {
   sessionProvider: SessionProvider;
   i18n: I18nProvider;
   settings: SettingsProvider;
+  protectedData?: ProtectedDataService;
   auditLog: AuditLogProvider;
   interactionEvents: InteractionEventProvider;
   navigation: ModuleNavigationProvider;

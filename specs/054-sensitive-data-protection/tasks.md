@@ -30,10 +30,10 @@
 - [x] T014 [US1] Define strict protection, key-provider, payload, and lookup-token types in `packages/database/src/`
 - [x] T015 [US1] Implement Node crypto protection behind the typed Result-based interface
 - [x] T016 [US1] Add validated versioned key settings in `packages/settings/src/`
-- [ ] T017 [US1] Add expand-only Prisma schema and migration changes in `packages/database/prisma/`
-- [ ] T018 [US1] Update user repository mapping to dual-write protected payloads and lookup tokens transactionally
-- [ ] T019 [US1] Update approved exact-match lookups to use tokens
-- [ ] T020 [US1] Run T007-T010 and confirm GREEN without plaintext fallback
+- [x] T017 [US1] Add expand-only Prisma schema and migration changes in `packages/database/prisma/`
+- [x] T018 [US1] Update user repository mapping to dual-write protected payloads and lookup tokens transactionally
+- [x] T019 [US1] Update approved exact-match lookups to use tokens
+- [x] T020 [US1] Run T007-T010 and confirm GREEN without plaintext fallback
 
 **Independent Test**: New user writes and exact lookups work while canary plaintext is absent from persisted rows.
 

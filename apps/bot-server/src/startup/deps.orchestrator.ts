@@ -1,6 +1,6 @@
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma, type Prisma } from '@tempot/database';
+import { prisma, type Prisma, type ProtectedDataService } from '@tempot/database';
 import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
@@ -33,6 +33,7 @@ export interface AssembleDepsOptions {
   cache: CacheService;
   sessionProvider: SessionProvider;
   settingsService: SettingsService;
+  protectedDataService: ProtectedDataService | undefined;
   registry: ModuleRegistry;
   sentryReporter: SentryReporter | undefined;
   loadModuleLocales: typeof import('@tempot/i18n-core').loadModuleLocales;
@@ -73,6 +74,7 @@ function buildModuleHandlersDep(
       },
       i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
       settings: buildSettingsProvider(opts.settingsService),
+      protectedData: opts.protectedDataService,
       auditLog: {
         findMany: async (args: Record<string, unknown>) =>
           prisma.auditLog.findMany(args as Prisma.AuditLogFindManyArgs) as Promise<

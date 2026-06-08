@@ -5,4 +5,5 @@ export const PROTECTED_DATA_ERRORS = {
   PROTECT_FAILED: 'database.protection.protect_failed',
   INTEGRITY_FAILED: 'database.protection.integrity_failed',
   LOOKUP_FIELD_UNSUPPORTED: 'database.protection.lookup_field_unsupported',
+  NOT_CONFIGURED: 'database.protection.not_configured',
 } as const;

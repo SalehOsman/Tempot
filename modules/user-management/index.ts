@@ -1,5 +1,6 @@
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
+import type { ProtectedDataService } from '@tempot/database';
 import { registerDeps } from './deps.context.js';
 import { initUserService } from './services/user-service.context.js';
 import { startCommand } from './commands/start.command.js';
@@ -54,6 +55,7 @@ export interface ModuleDeps {
   sessionProvider: ModuleSessionProvider;
   i18n: ModuleI18n;
   settings: ModuleSettings;
+  protectedData?: ProtectedDataService;
   navigation?: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;

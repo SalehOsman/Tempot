@@ -8,6 +8,7 @@ import { RoleEnum } from '@tempot/auth-core';
 import { UserRepository } from '../repositories/user.repository.js';
 import type { UserProfile } from '../types/index.js';
 import { extractNationalIdData } from '@tempot/national-id-parser';
+import type { ProtectedDataService } from '@tempot/database';
 
 interface AuditLoggerLike {
   log: (data: Record<string, unknown>) => Promise<void>;
@@ -24,8 +25,8 @@ export class UserService {
   private readonly cache = new Map<string, CacheEntry>();
   private readonly repository: UserRepository;
 
-  constructor(auditLogger: AuditLoggerLike) {
-    this.repository = new UserRepository(auditLogger);
+  constructor(auditLogger: AuditLoggerLike, protectedData?: ProtectedDataService) {
+    this.repository = new UserRepository(auditLogger, undefined, protectedData);
   }
 
   // ─── Read ────────────────────────────────────────────────────────────────────

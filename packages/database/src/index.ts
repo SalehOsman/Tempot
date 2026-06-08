@@ -10,3 +10,4 @@ export * from './database.config.js';
 export * from './protection/protected-data.errors.js';
 export * from './protection/protected-data.service.js';
 export * from './protection/protected-data.types.js';
+export * from './protection/static-key.provider.js';

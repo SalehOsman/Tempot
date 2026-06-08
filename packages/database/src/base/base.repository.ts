@@ -10,7 +10,10 @@ import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
  * runtime value, not a type. We use `InstanceType<typeof PrismaClient>` to
  * derive the instance type from the constructor value.
  */
-type DatabaseClient = InstanceType<typeof PrismaClient> | Prisma.TransactionClient | typeof prisma;
+export type DatabaseClient =
+  | InstanceType<typeof PrismaClient>
+  | Prisma.TransactionClient
+  | typeof prisma;
 
 /**
  * Local interface for Audit Logger to avoid circular dependencies

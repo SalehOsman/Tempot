@@ -6,15 +6,18 @@
  */
 
 import { UserService } from './user.service.js';
-import { getLogger } from '../deps.context.js';
+import { getDeps, getLogger } from '../deps.context.js';
 
 let _service: UserService | null = null;
 
 export function initUserService(): void {
   const log = getLogger();
-  _service = new UserService({
-    log: async (data: Record<string, unknown>) => log.debug(data),
-  });
+  _service = new UserService(
+    {
+      log: async (data: Record<string, unknown>) => log.debug(data),
+    },
+    getDeps().protectedData,
+  );
 }
 
 export function getUserService(): UserService {
