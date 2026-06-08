@@ -208,34 +208,34 @@ model Setting {
 // This file serves as the module-level schema reference and validator gate.
 
 model Template {
-  id             String    @id @default(cuid())
-  name           String    @db.VarChar(255)
-  description    String    @db.Text
-  slug           String    @db.VarChar(255)
-  status         String    @default("DRAFT") @db.VarChar(20)
-  content        Json      @default("{}")
-  categoryId     String?   @map("category_id")
-  authorId       String    @map("author_id")
-  clonedFrom     String?   @map("cloned_from")
-  language       String    @default("ar") @db.VarChar(10)
-  usageCount     Int       @default(0) @map("usage_count")
-  ratingAvg      Decimal   @default(0) @map("rating_avg") @db.Decimal(3, 2)
-  ratingCount    Int       @default(0) @map("rating_count")
-  currentVersion String?   @map("current_version") @db.VarChar(20)
-  isOfficial     Boolean   @default(false) @map("is_official")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  isDeleted      Boolean   @default(false) @map("is_deleted")
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(255)
+  description    String   @db.Text
+  slug           String   @db.VarChar(255)
+  status         String   @default("DRAFT") @db.VarChar(20)
+  content        Json     @default("{}")
+  categoryId     String?  @map("category_id")
+  authorId       String   @map("author_id")
+  clonedFrom     String?  @map("cloned_from")
+  language       String   @default("ar") @db.VarChar(10)
+  usageCount     Int      @default(0) @map("usage_count")
+  ratingAvg      Decimal  @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount    Int      @default(0) @map("rating_count")
+  currentVersion String?  @map("current_version") @db.VarChar(20)
+  isOfficial     Boolean  @default(false) @map("is_official")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isDeleted      Boolean  @default(false) @map("is_deleted")
   deletedAt      DateTime? @map("deleted_at")
-  deletedBy      String?   @map("deleted_by")
+  deletedBy      String?  @map("deleted_by")
 
-  category       Category?              @relation(fields: [categoryId], references: [id])
-  sourceTemplate Template?              @relation("TemplateClone", fields: [clonedFrom], references: [id])
-  clones         Template[]             @relation("TemplateClone")
-  versions       TemplateVersion[]
-  tags           TemplateTag[]
-  ratings        TemplateRating[]
-  subscriptions  TemplateSubscription[]
+  category      Category?          @relation(fields: [categoryId], references: [id])
+  sourceTemplate Template?         @relation("TemplateClone", fields: [clonedFrom], references: [id])
+  clones        Template[]         @relation("TemplateClone")
+  versions      TemplateVersion[]
+  tags          TemplateTag[]
+  ratings       TemplateRating[]
+  subscriptions TemplateSubscription[]
 
   @@index([status], map: "idx_templates_status")
   @@index([authorId], map: "idx_templates_author")
@@ -343,32 +343,32 @@ model TemplateSubscription {
 // See: specs/040-bot-management/data-model.md
 
 model ManagedBot {
-  id               String    @id @default(cuid())
-  displayName      String    @map("display_name") @db.VarChar(120)
-  telegramUsername String    @map("telegram_username") @db.VarChar(64)
-  tokenFingerprint String    @map("token_fingerprint") @db.VarChar(255)
-  tokenRedacted    String    @map("token_redacted") @db.VarChar(255)
-  ownerId          String    @map("owner_id")
-  runtimeMode      String    @map("runtime_mode") @db.VarChar(20)
-  status           String    @default("DRAFT") @db.VarChar(20)
-  defaultLocale    String    @default("ar-EG") @map("default_locale") @db.VarChar(10)
-  defaultCountry   String    @default("EG") @map("default_country") @db.VarChar(10)
-  timezone         String    @default("Africa/Cairo") @db.VarChar(100)
-  healthStatus     String    @default("unknown") @map("health_status") @db.VarChar(20)
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
-  createdBy        String?   @map("created_by")
-  updatedBy        String?   @map("updated_by")
-  isDeleted        Boolean   @default(false) @map("is_deleted")
+  id               String   @id @default(cuid())
+  displayName      String   @map("display_name") @db.VarChar(120)
+  telegramUsername String   @map("telegram_username") @db.VarChar(64)
+  tokenFingerprint String   @map("token_fingerprint") @db.VarChar(255)
+  tokenRedacted    String   @map("token_redacted") @db.VarChar(255)
+  ownerId          String   @map("owner_id")
+  runtimeMode      String   @map("runtime_mode") @db.VarChar(20)
+  status           String   @default("DRAFT") @db.VarChar(20)
+  defaultLocale    String   @default("ar-EG") @map("default_locale") @db.VarChar(10)
+  defaultCountry   String   @default("EG") @map("default_country") @db.VarChar(10)
+  timezone         String   @default("Africa/Cairo") @db.VarChar(100)
+  healthStatus     String   @default("unknown") @map("health_status") @db.VarChar(20)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  createdBy        String?  @map("created_by")
+  updatedBy        String?  @map("updated_by")
+  isDeleted        Boolean  @default(false) @map("is_deleted")
   deletedAt        DateTime? @map("deleted_at")
-  deletedBy        String?   @map("deleted_by")
+  deletedBy        String?  @map("deleted_by")
 
-  settingsProfile   BotSettingsProfile?
+  settingsProfile BotSettingsProfile?
   moduleEnablements BotModuleEnablement[]
-  templateSource    BotTemplateSource?
-  lifecycleEvents   BotLifecycleEvent[]
-  healthSnapshots   BotHealthSnapshot[]
-  exports           BotProfileExport[]
+  templateSource BotTemplateSource?
+  lifecycleEvents BotLifecycleEvent[]
+  healthSnapshots BotHealthSnapshot[]
+  exports BotProfileExport[]
 
   @@unique([telegramUsername, isDeleted])
   @@unique([tokenFingerprint, isDeleted])
@@ -397,14 +397,14 @@ model BotSettingsProfile {
 }
 
 model BotModuleEnablement {
-  id            String    @id @default(cuid())
-  botId         String    @map("bot_id")
-  moduleName    String    @map("module_name") @db.VarChar(120)
-  state         String    @db.VarChar(20)
-  blockedReason String?   @map("blocked_reason")
-  enabledBy     String?   @map("enabled_by")
+  id            String   @id @default(cuid())
+  botId         String   @map("bot_id")
+  moduleName    String   @map("module_name") @db.VarChar(120)
+  state         String   @db.VarChar(20)
+  blockedReason String?  @map("blocked_reason")
+  enabledBy     String?  @map("enabled_by")
   enabledAt     DateTime? @map("enabled_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   bot ManagedBot @relation(fields: [botId], references: [id])
 
@@ -461,13 +461,13 @@ model BotHealthSnapshot {
 }
 
 model BotProfileExport {
-  id          String    @id @default(cuid())
-  botId       String    @map("bot_id")
-  requestedBy String    @map("requested_by")
-  format      String    @db.VarChar(20)
-  artifactId  String?   @map("artifact_id")
-  status      String    @default("PENDING") @db.VarChar(20)
-  createdAt   DateTime  @default(now()) @map("created_at")
+  id          String   @id @default(cuid())
+  botId       String   @map("bot_id")
+  requestedBy String   @map("requested_by")
+  format      String   @db.VarChar(20)
+  artifactId  String?  @map("artifact_id")
+  status      String   @default("PENDING") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
   completedAt DateTime? @map("completed_at")
 
   bot ManagedBot @relation(fields: [botId], references: [id])
@@ -478,14 +478,14 @@ model BotProfileExport {
 }
 
 model BotProfileImport {
-  id                  String    @id @default(cuid())
-  requestedBy         String    @map("requested_by")
-  sourceArtifactId    String    @map("source_artifact_id")
-  createdBotId        String?   @map("created_bot_id")
-  status              String    @default("PENDING") @db.VarChar(20)
-  validationErrors    Json?     @map("validation_errors")
-  blockedRequirements Json?     @map("blocked_requirements")
-  createdAt           DateTime  @default(now()) @map("created_at")
+  id                  String   @id @default(cuid())
+  requestedBy         String   @map("requested_by")
+  sourceArtifactId    String   @map("source_artifact_id")
+  createdBotId        String?  @map("created_bot_id")
+  status              String   @default("PENDING") @db.VarChar(20)
+  validationErrors    Json?    @map("validation_errors")
+  blockedRequirements Json?    @map("blocked_requirements")
+  createdAt           DateTime @default(now()) @map("created_at")
   completedAt         DateTime? @map("completed_at")
 
   @@index([createdBotId], map: "idx_bot_imports_created_bot")

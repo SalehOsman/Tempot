@@ -20,7 +20,7 @@ documentation rules.
 **Project Type**: pnpm TypeScript monorepo  
 **Performance Goals**: Fast unit lane remains practical; complete required CI provides deterministic project accounting  
 **Constraints**: No omitted app projects; no version drift; no weakening existing lint/security rules  
-**Scale/Scope**: 32 workspace projects, active docs, root scripts, and CI workflows
+**Scale/Scope**: 35 governed test surfaces, active docs, root scripts, and CI workflows
 
 ## Constitution Check
 

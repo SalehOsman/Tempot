@@ -48,15 +48,19 @@ function subscribeAbilityInvalidation(deps: BotFactoryDeps): void {
   });
 }
 
+function escapeTelegramHtml(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
 function subscribeCriticalAlerts(deps: BotFactoryDeps, bot: BotInstance): void {
   deps.eventBus.subscribe('system.alert.critical', (payload) => {
     if (!(payload && typeof payload === 'object' && 'message' in payload)) return;
     const staticResult = deps.settingsService.getStatic();
     const superAdminIds = staticResult.isOk() ? staticResult.value.superAdminIds : [];
-    const alertMsg =
-      `⚠️ <b>[System Degradation Alert]</b>\n\n` +
-      `<b>Message:</b> ${payload.message}\n` +
-      `<b>Error:</b> ${(payload as { error?: string }).error ?? 'N/A'}`;
+    const alertMsg = deps.t('bot-server.critical_alert', {
+      message: escapeTelegramHtml(String(payload.message)),
+      error: escapeTelegramHtml(String((payload as { error?: string }).error ?? 'N/A')),
+    });
     for (const adminId of superAdminIds) {
       bot.api.sendMessage(adminId, alertMsg, { parse_mode: 'HTML' }).catch((err) => {
         deps.log.error({

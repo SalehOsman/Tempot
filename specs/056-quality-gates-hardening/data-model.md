@@ -7,10 +7,10 @@
 - `workspaceName`
 - `workspacePath`
 - `projectType`: app, package, module, or script
-- `testKinds`: unit, integration, application, smoke
+- `testKinds`: unit, integration, e2e, application
 - `command`
 - `required`
-- `reportedTestCount`
+- `testFileCount`
 
 **Rules**:
 

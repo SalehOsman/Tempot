@@ -1,12 +1,33 @@
 import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TestDB } from '@tempot/database/testing';
 import path from 'node:path';
-import { ok } from 'neverthrow';
+import fs from 'node:fs/promises';
+import ts from 'typescript';
+import { err, ok } from 'neverthrow';
 import { execSync } from 'node:child_process';
 
 // Mock cwd to point to fixtures so discovery finds test-module
 const mockCwd = path.resolve(__dirname, '__fixtures__');
 vi.spyOn(process, 'cwd').mockReturnValue(mockCwd);
+
+const fixtureModuleDir = path.join(mockCwd, 'modules', 'test-module');
+
+async function buildModuleFixture(): Promise<void> {
+  const distDir = path.join(fixtureModuleDir, 'dist');
+  await fs.mkdir(distDir, { recursive: true });
+
+  for (const fileName of ['index.ts', 'module.config.ts']) {
+    const source = await fs.readFile(path.join(fixtureModuleDir, fileName), 'utf8');
+    const output = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.NodeNext,
+        target: ts.ScriptTarget.ES2022,
+      },
+      fileName,
+    });
+    await fs.writeFile(path.join(distDir, fileName.replace(/\.ts$/, '.js')), output.outputText);
+  }
+}
 
 import { buildDeps } from '../../src/startup/deps.factory.js';
 import { startApplication } from '../../src/startup/orchestrator.js';
@@ -32,11 +53,13 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     // We must disable Sentry locally to avoid real network requests
     process.env.SENTRY_DSN = '';
 
+    await buildModuleFixture();
+
     testDb = new TestDB();
     await testDb.start();
 
     // Push Prisma schema
-    execSync('pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
+    execSync('corepack pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       stdio: 'inherit',
     });
@@ -44,6 +67,7 @@ describe('Phase 2D End-to-End Integration Tests', () => {
 
   afterAll(async () => {
     await testDb.stop();
+    await fs.rm(path.join(fixtureModuleDir, 'dist'), { recursive: true, force: true });
   });
 
   it('boots, loads module, processes update, and shuts down', async () => {

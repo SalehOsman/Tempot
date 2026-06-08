@@ -60,6 +60,15 @@ describe('FormatService', () => {
         expect(result.value.length).toBeGreaterThan(0);
       }
     });
+
+    it('should return err for an invalid locale', () => {
+      const result = service.formatNumber(1234, 'not_a_locale');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe('regional.invalid_locale');
+      }
+    });
   });
 
   describe('formatPercent()', () => {
@@ -77,6 +86,15 @@ describe('FormatService', () => {
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         expect(typeof result.value).toBe('string');
+      }
+    });
+
+    it('should return err for an invalid locale', () => {
+      const result = service.formatPercent(0.5, 'not_a_locale');
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe('regional.invalid_locale');
       }
     });
   });

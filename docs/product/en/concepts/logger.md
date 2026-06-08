@@ -10,11 +10,15 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## What is the Logger Package?
 
 The `@tempot/logger` package provides two complementary logging systems: a technical logger for operational diagnostics and an audit logger for compliance-grade state change tracking. Both produce structured JSON and integrate with Tempot's session context for automatic user attribution.
+
+This page was verified against Pino 9, `appErrorSerializer`, and `AuditLogger`
+on 2026-06-08.
 
 ## Two Logging Systems
 
@@ -23,7 +27,10 @@ The `@tempot/logger` package provides two complementary logging systems: a techn
 | Technical | `logger` (Pino instance) | Operational diagnostics, debugging, error reporting | Structured JSON to stdout            |
 | Audit     | `AuditLogger`            | State change tracking, compliance, traceability     | Persisted to AuditLog database table |
 
-These serve different audiences. The technical logger helps developers diagnose issues. The audit logger provides a tamper-proof record of who changed what and when, required for enterprise compliance.
+These serve different audiences. The technical logger helps developers diagnose
+issues. The audit logger provides a persistent record of who changed what and
+when. Database permissions and retention controls remain responsible for
+protecting that record against unauthorized modification.
 
 ## Structured JSON Format
 

@@ -9,6 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
+lastVerified: 2026-06-08
 ---
 
 ## Prerequisites
@@ -18,6 +19,9 @@ Before you begin, make sure you have:
 - A working Tempot development environment (see [Getting Started](/en/tutorials/getting-started/))
 - PostgreSQL 16 running with the Tempot database migrated
 - Basic understanding of Prisma and TypeScript
+
+This tutorial was verified against the active modular schema merge and Prisma 7
+workflow on 2026-06-08.
 
 ## Building a Task Repository
 
@@ -44,7 +48,9 @@ model Task {
 }
 ```
 
-Run `pnpm db:migrate` to apply the migration.
+Run `pnpm --filter @tempot/database db:generate`, then
+`pnpm --filter @tempot/database db:migrate --name add-task` to merge module
+schemas, regenerate the client, and create the migration.
 
 ### Step 2: Create the Repository Class
 

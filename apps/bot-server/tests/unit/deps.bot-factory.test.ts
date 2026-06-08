@@ -103,4 +103,33 @@ describe('buildBotFactory', () => {
     const botDeps = vi.mocked(createBot).mock.calls.at(-1)?.[1];
     await expect(botDeps?.getSessionUser(123)).rejects.toBe(sessionError);
   });
+
+  it('localizes critical alerts before sending them to super administrators', async () => {
+    const deps = createDeps();
+    deps.settingsService.getStatic.mockReturnValue({
+      isOk: () => true,
+      value: { superAdminIds: [123] },
+    });
+    deps.t.mockReturnValue('localized critical alert');
+
+    const createRuntimeBot = buildBotFactory(deps as never);
+    const bot = createRuntimeBot('12345:testtoken', []);
+    const subscription = deps.eventBus.subscribe.mock.calls.find(
+      ([eventName]) => eventName === 'system.alert.critical',
+    );
+    const handler = subscription?.[1] as (payload: { message: string; error: string }) => void;
+
+    handler({ message: '<cache & redis>', error: 'connection > timeout' });
+    await vi.waitFor(() => {
+      expect(bot.api.sendMessage).toHaveBeenCalled();
+    });
+
+    expect(deps.t).toHaveBeenCalledWith('bot-server.critical_alert', {
+      message: '&lt;cache &amp; redis&gt;',
+      error: 'connection &gt; timeout',
+    });
+    expect(bot.api.sendMessage).toHaveBeenCalledWith(123, 'localized critical alert', {
+      parse_mode: 'HTML',
+    });
+  });
 });

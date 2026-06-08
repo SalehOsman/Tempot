@@ -5,13 +5,13 @@ vi.mock('node:child_process');
 
 describe('checkFreshness', () => {
   let checkFreshness: typeof import('../../scripts/check-freshness.js').checkFreshness;
-  let execSync: typeof import('node:child_process').execSync;
+  let execFileSync: typeof import('node:child_process').execFileSync;
 
   beforeEach(async () => {
     vi.resetModules();
 
     const childProcess = await import('node:child_process');
-    execSync = childProcess.execSync;
+    execFileSync = childProcess.execFileSync;
 
     const mod = await import('../../scripts/check-freshness.js');
     checkFreshness = mod.checkFreshness;
@@ -21,9 +21,10 @@ describe('checkFreshness', () => {
     const sourceTimestamp = '2026-04-06T12:00:00+00:00';
     const docTimestamp = '2026-04-01T12:00:00+00:00';
 
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return 'docs/product/en/guides/shared-overview.md\n';
       }
       if (command.includes('packages/shared/src')) return sourceTimestamp;
@@ -45,9 +46,10 @@ describe('checkFreshness', () => {
     const sourceTimestamp = '2026-04-01T12:00:00+00:00';
     const docTimestamp = '2026-04-06T12:00:00+00:00';
 
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return 'docs/product/en/guides/logger-usage.md\n';
       }
       if (command.includes('packages/logger/src')) return sourceTimestamp;
@@ -65,12 +67,13 @@ describe('checkFreshness', () => {
     const sourceTimestamp = '2026-04-01T12:00:00+00:00';
     const docTimestamp = '2026-04-06T12:00:00+00:00';
 
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files') && command.includes('shared')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files') && command.includes('shared')) {
         return 'docs/product/en/guides/shared-overview.md\n';
       }
-      if (command.includes('git ls-files') && command.includes('logger')) {
+      if (command.includes('ls-files') && command.includes('logger')) {
         return 'docs/product/en/guides/logger-usage.md\n';
       }
       if (command.includes('docs/product/')) return docTimestamp;
@@ -86,9 +89,10 @@ describe('checkFreshness', () => {
     const sourceTimestamp = '2026-04-06T10:00:00+00:00';
     const docTimestamp = '2026-04-05T10:00:00+00:00';
 
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return 'docs/product/en/concepts/ai-core-overview.md\n';
       }
       if (command.includes('packages/ai-core/src')) return sourceTimestamp;
@@ -111,9 +115,10 @@ describe('checkFreshness', () => {
   });
 
   it('handles packages without documentation files gracefully', () => {
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return '';
       }
       return '';
@@ -128,9 +133,10 @@ describe('checkFreshness', () => {
     const docTimestamp1 = '2026-04-07T12:00:00+00:00';
     const docTimestamp2 = '2026-04-01T12:00:00+00:00';
 
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return 'docs/product/en/guides/shared-overview.md\ndocs/product/ar/guides/shared-overview.md\n';
       }
       if (command.includes('packages/shared/src')) return sourceTimestamp;
@@ -149,9 +155,10 @@ describe('checkFreshness', () => {
   });
 
   it('skips entries when git log returns empty for untracked files', () => {
-    vi.mocked(execSync).mockImplementation((cmd: string) => {
-      const command = String(cmd);
-      if (command.includes('git ls-files')) {
+    vi.mocked(execFileSync).mockImplementation((_file, args) => {
+      const command = args?.join(' ') ?? '';
+      if (command.includes('status --porcelain')) return '';
+      if (command.includes('ls-files')) {
         return 'docs/product/en/guides/shared-overview.md\n';
       }
       // git log returns empty for untracked files

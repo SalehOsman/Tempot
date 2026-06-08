@@ -1,100 +1,68 @@
 # bot-server
 
-> The main Telegram bot entry point — grammY + Hono. Assembles all packages and modules into a running bot.
-
-## Purpose
-
-The `bot-server` app is the final assembly layer:
-
-- Initialises the grammY bot with all middleware (session, auth, i18n, rate limiter, sanitizer)
-- Starts the Hono web server (webhook endpoint + health check + API)
-- Registers all active modules via `module-registry`
-- Implements the Graceful Shutdown sequence (Constitution Rule XVII)
-- Runs in polling mode for development, webhook mode for production
+The production Telegram runtime for Tempot. It assembles grammY, Hono, the
+active infrastructure packages, and discovered business modules.
 
 ## Current State
 
-**Minimal mode** (Phase 0) — grammY only, no database or Redis required. Used for connection testing.
+The application is implemented and covered by unit and integration tests. It
+supports polling for local development and webhook delivery for deployed
+environments. Startup connects required infrastructure, initializes i18n and
+caches, discovers and validates modules, registers commands, starts HTTP
+serving, and installs graceful shutdown hooks.
 
-Full bot assembly happens in Phase 5 after all packages are built.
+## Main Responsibilities
 
-## Phase
+- Build the grammY bot and middleware chain.
+- Enforce authentication, authorization, maintenance, validation, sanitization,
+  rate limiting, audit logging, and interaction observability.
+- Discover module configuration and load validated module handlers.
+- Expose Hono health and webhook routes.
+- Bootstrap super administrators and warm runtime caches.
+- Coordinate lifecycle events and graceful shutdown.
 
-Phase 5 — App Assembly (final phase)
+## Structure
 
-## Dependencies (Phase 5)
-
-All `@tempot/*` packages plus:
-
-| Package         | Purpose                    |
-| --------------- | -------------------------- |
-| `grammy` 1.41.1 | Telegram bot engine        |
-| `hono` 4.x      | Web server (webhook + API) |
-| `tsx` 4.21.0    | TypeScript dev runner      |
-
-## Structure (Phase 5)
-
-```
+```text
 apps/bot-server/
-├── src/
-│   ├── index.ts              # Entry point — creates bot + server
-│   ├── bot/
-│   │   ├── bot.ts            # grammY bot instance + middleware stack
-│   │   ├── middleware/       # session, auth, i18n, ratelimiter, sanitizer
-│   │   └── error-boundary.ts # Global error handler
-│   ├── server/
-│   │   ├── hono.ts           # Hono app instance
-│   │   ├── routes/
-│   │   │   ├── webhook.ts    # POST /webhook
-│   │   │   ├── health.ts     # GET /health
-│   │   │   └── api/          # REST endpoints for dashboard
-│   │   └── middleware/
-│   └── startup/
-│       ├── bootstrap.ts      # Super admin bootstrap
-│       ├── cache-warmer.ts   # Warm settings + translations cache
-│       └── shutdown.ts       # Graceful shutdown hooks
-├── Dockerfile                # Phase 5 — see TODO comments inside
-├── package.json
-└── tsconfig.json
+|-- src/
+|   |-- bot/                 # bot factory, error boundary, middleware
+|   |-- server/              # Hono factory and routes
+|   |-- startup/             # dependency assembly and lifecycle orchestration
+|   `-- index.ts             # process entry point
+|-- tests/
+|   |-- unit/
+|   `-- integration/
+|-- Dockerfile
+|-- package.json
+`-- vitest.config.ts
 ```
 
-## Running
+## Required Environment
+
+- `BOT_TOKEN`
+- `DATABASE_URL`
+- `REDIS_URL`
+- `SUPER_ADMIN_IDS`
+- `BOT_MODE=polling|webhook`
+- `WEBHOOK_URL` and `WEBHOOK_SECRET_TOKEN` when webhook mode is enabled
+
+See the root `.env.example` for the complete configuration reference.
+
+## Commands
+
+Run from the repository root:
 
 ```bash
-# Development (current — minimal mode)
-pnpm dev
-
-# Production (Phase 5 — requires all packages)
-pnpm build
-pnpm start
+pnpm build:bot-runtime
+pnpm --filter bot-server test
+pnpm --filter bot-server test:integration
+pnpm --filter bot-server dev
+pnpm --filter bot-server start
 ```
 
-## Health Check
+## Health And Shutdown
 
-`GET /health` returns:
-
-```json
-{
-  "status": "healthy",
-  "uptime": 3600,
-  "checks": {
-    "database": { "status": "ok", "latency_ms": 12 },
-    "redis": { "status": "ok", "latency_ms": 2 },
-    "ai_provider": { "status": "ok" },
-    "disk": { "status": "ok", "free_gb": 15.2 },
-    "queue_manager": { "status": "ok", "active_jobs": 3 }
-  },
-  "version": "0.1.0"
-}
-```
-
-## Graceful Shutdown Order (Constitution Rule XVII)
-
-1. Hono server stops accepting new requests
-2. grammY completes pending updates (10s max)
-3. BullMQ workers drain via queue factory (15s max)
-4. Redis connection closes
-5. Prisma disconnects
-6. Drizzle pool ends
-
-Total timeout: 30 seconds → `process.exit(1)` + FATAL log if exceeded.
+`GET /health` reports runtime dependency health. Shutdown hooks stop the HTTP
+server and bot, then close cache, database, event bus, and other registered
+resources through the shared `ShutdownManager`.
