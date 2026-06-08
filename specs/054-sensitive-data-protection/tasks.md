@@ -11,7 +11,7 @@
 - [x] T003 [P] Profile nulls, duplicates, normalization conflicts, and audit exposure with a non-destructive script under `scripts/security/`
 - [x] T004 [P] Create the encryption/key-management ADR in `docs/architecture/adr/` and update `docs/architecture/adr/README.md`
 - [x] T005 Create the key-management and migration runbooks in `docs/operations/`
-- [ ] T006 Obtain Project Manager approval for classification, ADR, irreversible checkpoint, and runbooks
+- [x] T006 Obtain Project Manager approval for classification, ADR, irreversible checkpoint, and runbooks
 
 ## Phase 2: Foundational RED Tests and Contracts
 

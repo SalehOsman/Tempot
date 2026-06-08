@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -122,9 +122,15 @@ failure blocks cutover and retirement.
 
 ## Approval
 
-This ADR remains `Proposed` until the Project Manager approves:
+Approved by the Project Manager on 2026-06-08 with these constraints:
 
-1. the field classification and normalization rules,
-2. the external key boundary and lifecycle,
-3. the migration and restore runbooks,
-4. the irreversible plaintext-retirement checkpoint.
+1. Protect `email`, `nationalId`, `mobileNumber`, and `birthDate`.
+2. Use AES-256-GCM envelopes with separately keyed HMAC-SHA-256 lookup tokens.
+3. Enable lookup tokens only for email and national ID. Mobile numbers remain
+   encrypted without lookup until a separate E.164 normalization contract is
+   approved.
+4. Keep key material outside the repository and database through the
+   deployment secret boundary.
+5. Treat plaintext deletion as a separate irreversible approval after
+   migration, restore, and rotation evidence is complete (`T032` and `T045`).
+6. Limit protected-data p95 performance regression to 20 percent.

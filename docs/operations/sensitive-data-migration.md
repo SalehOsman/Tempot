@@ -2,7 +2,7 @@
 
 **Spec**: #054 Sensitive Data Protection  
 **ADR**: ADR-044  
-**Status**: Proposed for Project Manager approval
+**Status**: Approved for reversible implementation on 2026-06-08
 
 ## Safety Rules
 
@@ -157,9 +157,9 @@ retirement window.
 
 ## Approval Record
 
-| Gate                           | Status                   | Approver        | Date    |
-| ------------------------------ | ------------------------ | --------------- | ------- |
-| Inventory and conflict policy  | Pending                  | Project Manager | Pending |
-| Backup and restore rehearsal   | Pending                  | Project Manager | Pending |
-| Protected-read cutover         | Pending                  | Project Manager | Pending |
-| Plaintext retirement migration | Blocked pending evidence | Project Manager | Pending |
+| Gate                           | Status                   | Approver        | Date       |
+| ------------------------------ | ------------------------ | --------------- | ---------- |
+| Inventory and conflict policy  | Approved                 | Project Manager | 2026-06-08 |
+| Backup and restore rehearsal   | Approved                 | Project Manager | 2026-06-08 |
+| Protected-read cutover         | Approved                 | Project Manager | 2026-06-08 |
+| Plaintext retirement migration | Blocked pending evidence | Project Manager | Pending    |

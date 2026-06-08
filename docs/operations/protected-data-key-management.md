@@ -2,7 +2,7 @@
 
 **Spec**: #054 Sensitive Data Protection  
 **ADR**: ADR-044  
-**Status**: Proposed for Project Manager approval
+**Status**: Approved by the Project Manager on 2026-06-08
 
 ## Purpose
 
@@ -133,9 +133,9 @@ Never include protected plaintext or key bytes in evidence.
 
 ## Approval Record
 
-| Item                                 | Status  | Approver        | Date    |
-| ------------------------------------ | ------- | --------------- | ------- |
-| External key boundary                | Pending | Project Manager | Pending |
-| Initial version activation procedure | Pending | Project Manager | Pending |
-| Rotation and retirement procedure    | Pending | Project Manager | Pending |
-| Backup key recovery boundary         | Pending | Project Manager | Pending |
+| Item                                 | Status   | Approver        | Date       |
+| ------------------------------------ | -------- | --------------- | ---------- |
+| External key boundary                | Approved | Project Manager | 2026-06-08 |
+| Initial version activation procedure | Approved | Project Manager | 2026-06-08 |
+| Rotation and retirement procedure    | Approved | Project Manager | 2026-06-08 |
+| Backup key recovery boundary         | Approved | Project Manager | 2026-06-08 |

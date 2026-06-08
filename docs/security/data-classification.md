@@ -1,7 +1,7 @@
 # Sensitive Data Classification
 
 **Spec**: #054 Sensitive Data Protection  
-**Status**: Proposed for Project Manager approval  
+**Status**: Approved by the Project Manager on 2026-06-08
 **Last reviewed**: 2026-06-08
 
 ## Scope
@@ -26,27 +26,27 @@ spec.
 
 ## Field Inventory
 
-| Field              | Schema evidence                              | Classification                  | Lookup                                        | Approved representation                      | Audit policy                                   |
-| ------------------ | -------------------------------------------- | ------------------------------- | --------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
-| `nationalId`       | `packages/database/prisma/base.prisma:26`    | Restricted                      | Exact match and uniqueness                    | AES-256-GCM envelope plus HMAC-SHA-256 token | Field name and change kind only                |
-| `birthDate`        | `packages/database/prisma/base.prisma:28`    | Restricted                      | None                                          | AES-256-GCM envelope                         | Field name and change kind only                |
-| `email`            | `packages/database/prisma/base.prisma:21`    | Confidential                    | Exact match only after migration              | AES-256-GCM envelope plus HMAC-SHA-256 token | Field name and change kind only                |
-| `mobileNumber`     | `packages/database/prisma/base.prisma:27`    | Confidential                    | Exact match when an approved flow requires it | AES-256-GCM envelope plus HMAC-SHA-256 token | Field name and change kind only                |
-| `telegramId`       | `packages/database/prisma/base.prisma:19`    | Personal operational identifier | Exact match and routing                       | Plain operational identifier; no bulk export | Identifier only when required for traceability |
-| `username`         | `packages/database/prisma/base.prisma:20`    | Personal                        | Existing case-insensitive search              | Plain profile value                          | Omit value from generic audit snapshots        |
-| `gender`           | `packages/database/prisma/base.prisma:29`    | Personal                        | None                                          | Plain profile value in this spec             | Field name and change kind only                |
-| `governorate`      | `packages/database/prisma/base.prisma:30`    | Personal                        | None                                          | Plain profile value in this spec             | Field name and change kind only                |
-| `countryCode`      | `packages/database/prisma/base.prisma:31`    | Personal                        | None                                          | Plain profile value in this spec             | Field name and change kind only                |
-| `language`, `role` | `packages/database/prisma/base.prisma:22-23` | Operational                     | Exact operational filters                     | Plain operational value                      | Allowlisted before/after value when required   |
+| Field              | Schema evidence                              | Classification                  | Lookup                                  | Approved representation                      | Audit policy                                   |
+| ------------------ | -------------------------------------------- | ------------------------------- | --------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| `nationalId`       | `packages/database/prisma/base.prisma:26`    | Restricted                      | Exact match and uniqueness              | AES-256-GCM envelope plus HMAC-SHA-256 token | Field name and change kind only                |
+| `birthDate`        | `packages/database/prisma/base.prisma:28`    | Restricted                      | None                                    | AES-256-GCM envelope                         | Field name and change kind only                |
+| `email`            | `packages/database/prisma/base.prisma:21`    | Confidential                    | Exact match only after migration        | AES-256-GCM envelope plus HMAC-SHA-256 token | Field name and change kind only                |
+| `mobileNumber`     | `packages/database/prisma/base.prisma:27`    | Confidential                    | No exact lookup in this protection wave | AES-256-GCM envelope only                    | Field name and change kind only                |
+| `telegramId`       | `packages/database/prisma/base.prisma:19`    | Personal operational identifier | Exact match and routing                 | Plain operational identifier; no bulk export | Identifier only when required for traceability |
+| `username`         | `packages/database/prisma/base.prisma:20`    | Personal                        | Existing case-insensitive search        | Plain profile value                          | Omit value from generic audit snapshots        |
+| `gender`           | `packages/database/prisma/base.prisma:29`    | Personal                        | None                                    | Plain profile value in this spec             | Field name and change kind only                |
+| `governorate`      | `packages/database/prisma/base.prisma:30`    | Personal                        | None                                    | Plain profile value in this spec             | Field name and change kind only                |
+| `countryCode`      | `packages/database/prisma/base.prisma:31`    | Personal                        | None                                    | Plain profile value in this spec             | Field name and change kind only                |
+| `language`, `role` | `packages/database/prisma/base.prisma:22-23` | Operational                     | Exact operational filters               | Plain operational value                      | Allowlisted before/after value when required   |
 
 ## Normalization Decisions Requiring Enforcement
 
-| Field          | Version 1 rule                                                                                | Evidence and constraint                                                                                                                                                                                                                        |
-| -------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `email`        | Trim surrounding whitespace and lowercase                                                     | Current repository performs case-insensitive substring search at `modules/user-management/repositories/user.repository.ts:34`. Substring search over protected email is out of scope and must be removed or replaced by an exact token lookup. |
-| `nationalId`   | Validate and canonicalize through `@tempot/national-id-parser`; no ad hoc transformation      | `modules/user-management/services/user.service.ts:95` already uses the parser for Egyptian identities.                                                                                                                                         |
-| `mobileNumber` | No production token can be enabled until a project-owned phone normalization rule is approved | No phone normalization implementation exists in `packages/regional-engine`; the inventory script uses punctuation removal only as a conflict diagnostic, not as the production rule.                                                           |
-| `birthDate`    | ISO calendar date after existing date validation                                              | No lookup token is permitted.                                                                                                                                                                                                                  |
+| Field          | Version 1 rule                                                                                  | Evidence and constraint                                                                                                                                                                                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email`        | Trim surrounding whitespace and lowercase                                                       | Current repository performs case-insensitive substring search at `modules/user-management/repositories/user.repository.ts:34`. Substring search over protected email is out of scope and must be removed or replaced by an exact token lookup. |
+| `nationalId`   | Validate and canonicalize through `@tempot/national-id-parser`; no ad hoc transformation        | `modules/user-management/services/user.service.ts:95` already uses the parser for Egyptian identities.                                                                                                                                         |
+| `mobileNumber` | No lookup token is enabled in this protection wave; approve an E.164 contract before adding one | No phone normalization implementation exists in `packages/regional-engine`; the inventory script uses punctuation removal only as a conflict diagnostic, not as the production rule.                                                           |
+| `birthDate`    | ISO calendar date after existing date validation                                                | No lookup token is permitted.                                                                                                                                                                                                                  |
 
 ## Persistence and Lookup Findings
 
@@ -132,9 +132,9 @@ deployment must run its own inventory.
 
 ## Approval Record
 
-| Item                                        | Status  | Approver        | Date    |
-| ------------------------------------------- | ------- | --------------- | ------- |
-| Classification and first-wave scope         | Pending | Project Manager | Pending |
-| Exact lookup fields and normalization rules | Pending | Project Manager | Pending |
-| Audit allowlist policy                      | Pending | Project Manager | Pending |
-| Backup and restore boundary                 | Pending | Project Manager | Pending |
+| Item                                        | Status   | Approver        | Date       |
+| ------------------------------------------- | -------- | --------------- | ---------- |
+| Classification and first-wave scope         | Approved | Project Manager | 2026-06-08 |
+| Exact lookup fields and normalization rules | Approved | Project Manager | 2026-06-08 |
+| Audit allowlist policy                      | Approved | Project Manager | 2026-06-08 |
+| Backup and restore boundary                 | Approved | Project Manager | 2026-06-08 |
