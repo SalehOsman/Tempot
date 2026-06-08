@@ -3,6 +3,7 @@ import type { AppError } from '@tempot/shared';
 
 export type ProtectedFieldId = 'email' | 'nationalId' | 'mobileNumber' | 'birthDate';
 export type LookupProtectedFieldId = 'email' | 'nationalId';
+export type ProtectedDataKeyState = 'active' | 'readable' | 'retiring' | 'retired';
 
 export interface ProtectedDataContext {
   fieldId: ProtectedFieldId;

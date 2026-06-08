@@ -61,10 +61,10 @@
 
 ## Phase 6: User Story 3 - Key Rotation (P1)
 
-- [ ] T033 [US3] Implement active/readable/retiring key lifecycle in the provider boundary
-- [ ] T034 [US3] Implement bounded re-protection under the active key version
-- [ ] T035 [US3] Add verification that blocks key retirement while any target record needs the old key
-- [ ] T036 [US3] Execute a two-version rotation rehearsal and confirm old-key retirement readiness
+- [x] T033 [US3] Implement active/readable/retiring key lifecycle in the provider boundary
+- [x] T034 [US3] Implement bounded re-protection under the active key version
+- [x] T035 [US3] Add verification that blocks key retirement while any target record needs the old key
+- [x] T036 [US3] Execute a two-version rotation rehearsal and confirm old-key retirement readiness
 
 **Independent Test**: Old and new records remain readable during rotation and the old key becomes unnecessary after verified re-protection.
 

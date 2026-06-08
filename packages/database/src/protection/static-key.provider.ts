@@ -1,13 +1,19 @@
 import { err, ok, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { PROTECTED_DATA_ERRORS } from './protected-data.errors.js';
-import type { ProtectedDataKey, ProtectedDataKeyProvider } from './protected-data.types.js';
+import type {
+  ProtectedDataKey,
+  ProtectedDataKeyProvider,
+  ProtectedDataKeyState,
+} from './protected-data.types.js';
 
 export interface StaticProtectedDataKeyRing {
   activeEncryptionKeyVersion: string;
   encryptionKeys: Readonly<Record<string, Buffer>>;
   activeLookupKeyVersion: string;
   lookupKeys: Readonly<Record<string, Buffer>>;
+  encryptionKeyStates?: Readonly<Record<string, ProtectedDataKeyState>>;
+  lookupKeyStates?: Readonly<Record<string, ProtectedDataKeyState>>;
 }
 
 export class StaticProtectedDataKeyProvider implements ProtectedDataKeyProvider {
@@ -52,11 +58,40 @@ export class StaticProtectedDataKeyProvider implements ProtectedDataKeyProvider 
     return ok(undefined);
   }
 
+  getEncryptionKeyState(version: string): ProtectedDataKeyState {
+    return this.resolveState(
+      version,
+      this.keyRing.activeEncryptionKeyVersion,
+      this.keyRing.encryptionKeyStates,
+    );
+  }
+
+  getLookupKeyState(version: string): ProtectedDataKeyState {
+    return this.resolveState(
+      version,
+      this.keyRing.activeLookupKeyVersion,
+      this.keyRing.lookupKeyStates,
+    );
+  }
+
   private resolveKey(
     keys: Readonly<Record<string, Buffer>>,
     version: string,
     purpose: 'encryption' | 'lookup',
   ): Result<ProtectedDataKey, AppError> {
+    const state =
+      purpose === 'encryption'
+        ? this.getEncryptionKeyState(version)
+        : this.getLookupKeyState(version);
+    if (state === 'retired') {
+      return err(
+        new AppError(PROTECTED_DATA_ERRORS.UNKNOWN_KEY_VERSION, {
+          keyVersion: version,
+          purpose,
+          state,
+        }),
+      );
+    }
     const key = keys[version];
     if (!key) {
       return err(
@@ -67,5 +102,13 @@ export class StaticProtectedDataKeyProvider implements ProtectedDataKeyProvider 
       );
     }
     return ok({ version, key });
+  }
+
+  private resolveState(
+    version: string,
+    activeVersion: string,
+    states: Readonly<Record<string, ProtectedDataKeyState>> | undefined,
+  ): ProtectedDataKeyState {
+    return states?.[version] ?? (version === activeVersion ? 'active' : 'readable');
   }
 }
