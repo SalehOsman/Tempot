@@ -15,13 +15,13 @@
 
 ## Phase 2: Foundational RED Tests and Contracts
 
-- [ ] T007 [P] Create failing AES envelope and tamper tests under `packages/database/tests/unit/`
-- [ ] T008 [P] Create failing lookup normalization/token tests under `packages/database/tests/unit/`
-- [ ] T009 [P] Write failing key-ring and rotation tests in `packages/settings/tests/` and database protection tests
-- [ ] T010 [P] Write failing repository plaintext/canary tests in `modules/user-management/tests/integration/`
-- [ ] T011 [P] Write failing audit allowlist tests in `packages/database/tests/`
-- [ ] T012 [P] Write failing Pino and Sentry canary-redaction tests in their package test directories
-- [ ] T013 [P] Write failing resumable migration and rollback tests using Testcontainers
+- [x] T007 [P] Create failing AES envelope and tamper tests under `packages/database/tests/unit/`
+- [x] T008 [P] Create failing lookup normalization/token tests under `packages/database/tests/unit/`
+- [x] T009 [P] Write failing key-ring and rotation tests in `packages/settings/tests/` and database protection tests
+- [x] T010 [P] Write failing repository plaintext/canary tests in `modules/user-management/tests/integration/`
+- [x] T011 [P] Write failing audit allowlist tests in `packages/database/tests/`
+- [x] T012 [P] Write failing Pino and Sentry canary-redaction tests in their package test directories
+- [x] T013 [P] Write failing resumable migration and rollback tests using Testcontainers
 
 **Checkpoint**: Tests prove current plaintext, audit, and observability exposure.
 
