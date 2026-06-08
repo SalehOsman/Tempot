@@ -27,9 +27,9 @@
 
 ## Phase 3: User Story 1 - Protect New Writes (P1)
 
-- [ ] T014 [US1] Define strict protection, key-provider, payload, and lookup-token types in `packages/database/src/`
-- [ ] T015 [US1] Implement Node crypto protection behind the typed Result-based interface
-- [ ] T016 [US1] Add validated versioned key settings in `packages/settings/src/`
+- [x] T014 [US1] Define strict protection, key-provider, payload, and lookup-token types in `packages/database/src/`
+- [x] T015 [US1] Implement Node crypto protection behind the typed Result-based interface
+- [x] T016 [US1] Add validated versioned key settings in `packages/settings/src/`
 - [ ] T017 [US1] Add expand-only Prisma schema and migration changes in `packages/database/prisma/`
 - [ ] T018 [US1] Update user repository mapping to dual-write protected payloads and lookup tokens transactionally
 - [ ] T019 [US1] Update approved exact-match lookups to use tokens

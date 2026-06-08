@@ -1,6 +1,7 @@
 // Types
 export type {
   StaticSettings,
+  ProtectedDataKeySettings,
   JoinMode,
   DynamicSettingKey,
   DynamicSettingDefinitions,

@@ -10,6 +10,14 @@ export interface StaticSettings {
   superAdminIds: number[];
   defaultLanguage: string;
   defaultCountry: string;
+  protectedDataKeys: ProtectedDataKeySettings | null;
+}
+
+export interface ProtectedDataKeySettings {
+  activeEncryptionKeyVersion: string;
+  encryptionKeys: Readonly<Record<string, Buffer>>;
+  activeLookupKeyVersion: string;
+  lookupKeys: Readonly<Record<string, Buffer>>;
 }
 
 /** Join mode for the bot */

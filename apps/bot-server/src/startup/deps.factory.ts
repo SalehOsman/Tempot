@@ -77,6 +77,7 @@ function buildSettingsService(
         superAdminIds: [],
         defaultLanguage: 'en',
         defaultCountry: 'US',
+        protectedDataKeys: null,
       };
 
   const maintenance = new MaintenanceService(dynSettings, staticSettings);

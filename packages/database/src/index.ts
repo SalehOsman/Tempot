@@ -7,3 +7,6 @@ export * from './prisma/prisma.client.js';
 export * from './drizzle/drizzle.schema.js';
 export * from './manager/transaction.manager.js';
 export * from './database.config.js';
+export * from './protection/protected-data.errors.js';
+export * from './protection/protected-data.service.js';
+export * from './protection/protected-data.types.js';
