@@ -2,7 +2,7 @@ import type { Context } from 'grammy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerDeps } from '../../deps.context.js';
 import { handleTextInput } from '../../handlers/text.handler.js';
-import { handleEditName } from '../../handlers/text.editors.js';
+import { handleEditName, handleEditRole } from '../../handlers/text.editors.js';
 import { clearUserInputState, getUserInputState } from '../../handlers/user-state.service.js';
 import { getUserService } from '../../services/user-service.context.js';
 
@@ -53,14 +53,18 @@ function createContext(text = 'test input', from: Context['from'] = { id: 123456
 }
 
 describe('handleTextInput', () => {
+  const enforce = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    enforce.mockResolvedValue(true);
     registerDeps({
       logger: createLogger(),
       i18n: { t: vi.fn((key: string) => key) },
       eventBus: { publish: vi.fn() },
       sessionProvider: { getSession: vi.fn() },
       settings: { get: vi.fn() },
+      authorization: { guard: vi.fn(), enforce },
       config: {} as never,
     });
   });
@@ -127,5 +131,26 @@ describe('handleTextInput', () => {
 
     expect(handleEditName).toHaveBeenCalledWith(ctx, mockUser, 'New Name');
     expect(clearUserInputState).toHaveBeenCalledWith('123456789', '987654321');
+  });
+
+  it('does not edit roles or clear state when management authorization is denied', async () => {
+    vi.mocked(getUserInputState).mockResolvedValue({
+      action: 'edit_role',
+      timestamp: Date.now(),
+    });
+    enforce.mockResolvedValue(false);
+    const ctx = createContext('ADMIN');
+
+    await handleTextInput(ctx);
+
+    expect(enforce).toHaveBeenCalledWith(ctx, {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'users',
+    });
+    expect(getUserService).not.toHaveBeenCalled();
+    expect(handleEditRole).not.toHaveBeenCalled();
+    expect(clearUserInputState).not.toHaveBeenCalled();
   });
 });

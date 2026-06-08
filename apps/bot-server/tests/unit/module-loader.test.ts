@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { AbilityDefinition } from '@tempot/auth-core';
 import type { ModuleSetupFn } from '../../src/bot-server.types.js';
 import { BOT_SERVER_ERRORS } from '../../src/bot-server.errors.js';
 import { loadModuleHandlers } from '../../src/startup/module-loader.js';
@@ -54,6 +55,8 @@ function createDeps(importer: ModuleImporter) {
     settings: mockSettings,
     auditLog: mockAuditLog,
     interactionEvents: mockInteractionEvents,
+    resolveAuthorizationContext: vi.fn().mockResolvedValue(null),
+    abilityRegistry: { register: vi.fn() },
     importer,
   };
 }
@@ -76,6 +79,28 @@ describe('loadModuleHandlers', () => {
       expect(result.value).toEqual(['my-module']);
     }
     expect(setupFn).toHaveBeenCalledOnce();
+  });
+
+  it('registers the module ability definition before setup executes', async () => {
+    const abilityDefinition: AbilityDefinition = vi.fn();
+    const setupFn: ModuleSetupFn = vi.fn().mockResolvedValue(undefined);
+    const deps = createDeps(
+      vi.fn().mockResolvedValue({
+        default: setupFn,
+        abilityDefinition,
+      }),
+    );
+
+    const result = await loadModuleHandlers(mockBot, [createMockModule()], deps);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toEqual(['test-module']);
+    }
+    expect(deps.abilityRegistry.register).toHaveBeenCalledWith('test-module', abilityDefinition);
+    expect(deps.abilityRegistry.register.mock.invocationCallOrder[0]).toBeLessThan(
+      setupFn.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
+    );
   });
 
   it('registers callback fallback after module handlers are loaded', async () => {

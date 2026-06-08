@@ -15,6 +15,16 @@ export async function handleCallbackQuery(
     return;
   }
 
+  if (
+    !(await getDeps().authorization.enforce(ctx, {
+      module: 'content-management',
+      classification: 'protected',
+      action: 'read',
+      subject: 'content',
+    }))
+  ) {
+    return;
+  }
   const action = data.split(':')[1] ?? 'view';
   await showMessagePage(ctx, action);
 }

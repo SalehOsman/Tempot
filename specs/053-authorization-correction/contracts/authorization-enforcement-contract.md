@@ -31,9 +31,10 @@ Before a protected operation executes, the owning boundary MUST:
 
 ## Repository Contract
 
-Protected repository methods MUST retain defense-in-depth authorization where
-required by the constitution. Repository policy MUST be consistent with the
-operation's action and subject and MUST return `Result<T, AppError>`.
+This correction MUST preserve existing repository boundaries and MUST NOT add
+direct persistence access or bypass an existing repository check. Broad
+repository authorization conformance and direct-Prisma remediation are outside
+this feature and remain owned by Spec 055.
 
 ## Test Contract
 

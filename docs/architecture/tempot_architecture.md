@@ -304,6 +304,26 @@ export const defineInvoiceAbilities = (user: SessionUser) => {
 - المحاولات المتكررة المرفوضة من نفس المستخدم ترسل تنبيهاً فورياً للسوبر أدمن.
 - الموديولات ذات `isCore: true` محمية على مستوى النظام ولا يمكن تعطيلها حتى بواسطة SUPER_ADMIN. هذا القيد تقني وليس صلاحياتياً — تعطيل هذه الموديولات يُوقف النظام كلياً.
 
+### 5.3.1 Telegram Authorization Ownership
+
+The bot security boundary separates actor construction from operation policy:
+
+1. Global middleware resolves the current session actor, rejects BANNED and
+   PENDING sessions, and builds the combined production CASL ability.
+2. Module command registrations declare explicit classification, action, and
+   subject policies through `authorization.guard`.
+3. Callback and stateful text handlers call `authorization.enforce` before
+   service, event, settings, or repository work.
+4. Long-running conversations call `refreshAndEnforce` before their final
+   mutation so a role change during the flow cannot reuse stale authority.
+5. Denials return localized content and structured logs without request
+   payloads or secrets.
+
+`manage all` remains exclusive to SUPER_ADMIN. Public and bootstrap behavior is
+explicitly classified; no entry point becomes public by omission. The enforced
+inventory is maintained in `docs/developer/authorization-coverage.md` and
+validated by `pnpm authorization:check`.
+
 ## 5.4 التكامل مع Prisma عبر @casl/prisma
 
 ```typescript

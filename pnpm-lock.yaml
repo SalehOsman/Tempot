@@ -249,6 +249,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ux-helpers
     devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
@@ -344,6 +347,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ux-helpers
     devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
@@ -363,6 +369,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ux-helpers
     devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
@@ -382,6 +391,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ux-helpers
     devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
       grammy:
         specifier: ^1.41.1
         version: 1.41.1
@@ -401,6 +413,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ux-helpers
     devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
       grammy:
         specifier: ^1.41.1
         version: 1.41.1

@@ -7,9 +7,11 @@ import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createMongoAbility } from '@casl/ability';
 import { AbilityFactory } from '@tempot/auth-core';
+import type { SessionUser } from '@tempot/auth-core';
 import { InteractionRecorder } from '@tempot/interaction-observability';
 import { createAuditLogWriter } from './audit-log.writer.js';
 import { createInteractionEventWriter } from './interaction-event.writer.js';
+import { AbilityRegistry } from '../authorization/ability-registry.js';
 
 export interface BotFactoryDeps {
   log: typeof import('@tempot/logger').logger;
@@ -67,11 +69,18 @@ function subscribeCriticalAlerts(deps: BotFactoryDeps, bot: BotInstance): void {
   });
 }
 
-export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createBot'] {
+const systemAbilityDefinition = (user: SessionUser) =>
+  createMongoAbility(user.role === 'SUPER_ADMIN' ? [{ action: 'manage', subject: 'all' }] : []);
+
+export function buildBotFactory(
+  deps: BotFactoryDeps,
+  abilityRegistry = new AbilityRegistry(),
+): OrchestratorDeps['createBot'] {
+  abilityRegistry.register('bot-server', systemAbilityDefinition);
   subscribeAbilityInvalidation(deps);
 
   return (token: string, validatedModules?: ValidatedModule[]) => {
-    const bot = createBot(token, createRuntimeBotDeps(deps, validatedModules));
+    const bot = createBot(token, createRuntimeBotDeps(deps, abilityRegistry, validatedModules));
     subscribeCriticalAlerts(deps, bot);
     return bot;
   };
@@ -79,6 +88,7 @@ export function buildBotFactory(deps: BotFactoryDeps): OrchestratorDeps['createB
 
 function createRuntimeBotDeps(
   deps: BotFactoryDeps,
+  abilityRegistry: AbilityRegistry,
   validatedModules?: ValidatedModule[],
 ): RuntimeBotDeps {
   return {
@@ -97,15 +107,17 @@ function createRuntimeBotDeps(
     },
     getSessionUser: async (userId: number) => {
       const result = await deps.sessionProvider.getSession(String(userId), String(userId));
-      if (result.isErr()) return null;
-      return { id: String(userId), role: result.value.role };
+      if (result.isErr()) {
+        if (result.error.code === 'session-manager.not_found') return null;
+        throw result.error;
+      }
+      return {
+        id: result.value.userId,
+        role: result.value.role,
+        status: result.value.status,
+      };
     },
-    abilityDefinitions: [
-      (user: { id: string | number; role: string }) =>
-        createMongoAbility(
-          user.role === 'SUPER_ADMIN' ? [{ action: 'manage', subject: 'all' }] : [],
-        ),
-    ],
+    abilityDefinitions: abilityRegistry.getRuntimeDefinitions(),
     commandScopeMap: new Map(),
     commandModuleMap: buildCommandModuleMap(validatedModules),
     auditLog: createAuditLogWriter(deps.log),

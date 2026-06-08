@@ -21,9 +21,11 @@
     "@tempot/ux-helpers": "workspace:*"
   },
   "peerDependencies": {
+    "@casl/ability": "^6.7.3",
     "grammy": "^1.41.1"
   },
   "devDependencies": {
+    "@casl/ability": "^6.7.3",
     "grammy": "^1.41.1",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

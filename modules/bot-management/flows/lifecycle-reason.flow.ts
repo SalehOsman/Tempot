@@ -10,7 +10,7 @@ import {
   type FieldMetadata,
   type FormRunnerDeps,
 } from '@tempot/input-engine';
-import { getDeps, getI18n, getLogger } from '../deps.context.js';
+import { getAuthorization, getDeps, getI18n, getLogger } from '../deps.context.js';
 import { getLifecycleService } from '../services/lifecycle-service.context.js';
 import { createBotDetailMenu } from '../menus/bot-menu.factory.js';
 import { formatBotDetailMessage } from '../menus/bot-detail.factory.js';
@@ -52,6 +52,14 @@ export async function runLifecycleReasonConversation(
     await ctx.reply(i18n.t('bot-management.lifecycle.reason_cancelled'));
     return;
   }
+
+  const canCommit = await getAuthorization().refreshAndEnforce(ctx, {
+    module: 'bot-management',
+    classification: 'protected',
+    action: 'manage',
+    subject: 'bot',
+  });
+  if (!canCommit) return;
 
   const transitionResult = await getLifecycleService().transition({
     botId: intent.botId,

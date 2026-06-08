@@ -6,8 +6,8 @@
 ## Summary
 
 Correct the bot authorization boundary so global middleware authenticates and
-constructs actor context while commands, callbacks, conversations, services,
-and repositories enforce explicit action/subject policy. Preserve CASL, the
+constructs actor context while commands, callbacks, conversations, and use
+cases enforce explicit action/subject policy. Preserve CASL, the
 four-role hierarchy, module ability declarations, security-chain ordering, and
 auditable denials. Prove the correction with production-ability role matrices
 and zero-mutation denial tests.
@@ -17,7 +17,7 @@ and zero-mutation denial tests.
 **Language/Version**: TypeScript 5.9.3 strict mode  
 **Primary Dependencies**: grammY 1.41.x, CASL 6.x, `@tempot/auth-core`, `@tempot/shared`, module ability declarations  
 **Storage**: Existing PostgreSQL user/role data and audit records; no planned schema migration  
-**Testing**: Vitest 4.1.0; bot-server unit/integration tests; affected module tests; repository authorization tests  
+**Testing**: Vitest 4.1.0; bot-server unit/integration tests; affected module tests; authorization coverage audit
 **Target Platform**: Node.js 22.12+ Telegram bot runtime  
 **Project Type**: TypeScript monorepo modular bot application  
 **Performance Goals**: Authorization adds no new network round trip per update and remains within existing middleware latency budgets  
@@ -74,8 +74,9 @@ docs/developer/
 ```
 
 **Structure Decision**: Keep identity/context establishment in bot middleware,
-policy definition in auth-core and module abilities, action enforcement at the
-handler/use-case boundary, and defense-in-depth checks in repositories.
+policy definition in auth-core and module abilities, and action enforcement at
+the handler/use-case boundary. Preserve existing repository boundaries without
+claiming the broader Spec 055 repository remediation in this feature.
 
 ## Implementation Phases
 
@@ -97,7 +98,7 @@ handler/use-case boundary, and defense-in-depth checks in repositories.
 
 1. Audit every active handler/use case in scope.
 2. Add missing action/subject checks at the owning boundary.
-3. Reconcile repository checks with handler decisions.
+3. Confirm the correction introduces no repository bypass or direct persistence access.
 4. Add localized denial and structured audit evidence.
 
 ### Phase 3 - Regression and Governance
@@ -129,8 +130,9 @@ No production middleware or handler change may precede its failing test.
 
 ## Post-Design Constitution Check
 
-The design preserves CASL, explicit role hierarchy, repository defense in
-depth, i18n, and TDD. The global correction does not create a broad allow path.
+The design preserves CASL, explicit role hierarchy, existing repository
+boundaries, i18n, and TDD. The global correction does not create a broad allow
+path. Full repository authorization conformance remains assigned to Spec 055.
 
 Post-design gate result: PASS.
 

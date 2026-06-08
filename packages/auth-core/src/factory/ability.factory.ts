@@ -1,7 +1,8 @@
 import { AnyAbility, createMongoAbility } from '@casl/ability';
-import { ok, Result } from 'neverthrow';
+import { err, ok, Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { SessionUser } from '../contracts/session.types.js';
+import { RoleEnum } from '../contracts/auth.roles.js';
 import { authToggle } from '../auth.toggle.js';
 
 export type AbilityDefinition = (user: SessionUser) => AnyAbility;
@@ -35,12 +36,16 @@ export class AbilityFactory {
     const key = cacheKey(user);
     const now = Date.now();
     const cached = cache.get(key);
-    if (cached && cached.expiresAt > now) return ok(cached.ability);
+    if (cached && cached.expiresAt > now) {
+      return validateAdministrativeBoundary(user, cached.ability);
+    }
 
     const rules = definitions.flatMap((def) => def(user).rules) as Parameters<
       typeof createMongoAbility
     >[0];
     const ability = createMongoAbility(rules);
+    const validationResult = validateAdministrativeBoundary(user, ability);
+    if (validationResult.isErr()) return validationResult;
 
     if (cache.size >= CACHE_MAX_SIZE) pruneExpired();
     if (cache.size >= CACHE_MAX_SIZE) {
@@ -49,7 +54,7 @@ export class AbilityFactory {
     }
     cache.set(key, { ability, expiresAt: now + CACHE_TTL_MS });
 
-    return ok(ability);
+    return validationResult;
   }
 
   static invalidate(userId: string | number, role?: string): void {
@@ -66,4 +71,20 @@ export class AbilityFactory {
   static clearCache(): void {
     cache.clear();
   }
+}
+
+function validateAdministrativeBoundary(
+  user: SessionUser,
+  ability: AnyAbility,
+): Result<AnyAbility, AppError> {
+  if (user.role !== RoleEnum.SUPER_ADMIN && ability.can('manage', 'all')) {
+    return err(
+      new AppError('auth.invalid_manage_all_grant', {
+        role: user.role,
+        userId: String(user.id),
+      }),
+    );
+  }
+
+  return ok(ability);
 }

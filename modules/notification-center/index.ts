@@ -1,7 +1,6 @@
-import type { Bot, Context } from 'grammy';
+import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig } from '@tempot/module-registry';
 import { registerDeps } from './deps.context.js';
-import { notificationCenterAbilities } from './abilities.js';
 import { notificationsCommand } from './commands/notifications.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
 
@@ -34,6 +33,18 @@ export interface NotificationActivityProvider<TRecord> {
   findMany: (args: Record<string, unknown>) => Promise<TRecord[]>;
 }
 
+export interface ModuleAuthorizationPolicy {
+  module: string;
+  classification: 'public' | 'bootstrap' | 'protected';
+  action: string;
+  subject: string;
+}
+
+export interface ModuleAuthorizationProvider {
+  guard: (policy: ModuleAuthorizationPolicy) => MiddlewareFn<Context>;
+  enforce: (ctx: Context, policy: ModuleAuthorizationPolicy) => Promise<boolean>;
+}
+
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
@@ -45,15 +56,25 @@ export interface ModuleDeps {
   };
   auditLog: NotificationActivityProvider<NotificationAuditRecord>;
   interactionEvents: NotificationActivityProvider<NotificationInteractionRecord>;
+  authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
 }
 
 const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   registerDeps(deps);
-  bot.command('notifications', notificationsCommand);
+  bot.command(
+    'notifications',
+    deps.authorization.guard({
+      module: 'notification-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'notifications',
+    }),
+    notificationsCommand,
+  );
   bot.on('callback_query:data', handleCallbackQuery);
   deps.logger.info({ msg: 'notification-center handlers registered' });
 };
 
 export default setup;
-export { notificationCenterAbilities };
+export { notificationCenterAbilities, abilityDefinition } from './abilities.js';

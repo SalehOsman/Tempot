@@ -70,3 +70,27 @@ denied with a typed error and structured evidence.
 
 - **Fail open for availability**: Rejected because protected business actions
   cannot trade authorization correctness for availability.
+
+## Decision 6: Re-evaluate Deferred Mutations
+
+**Decision**: Conversation entry uses the normal handler policy, and the final
+mutation uses `refreshAndEnforce` to reload the current session and rebuild the
+production ability immediately before commit.
+
+**Rationale**: A role can change while a multi-update conversation is active.
+Using only the entry ability would permit a stale ADMIN decision to survive a
+later downgrade.
+
+**Alternatives considered**:
+
+- **Trust the entry decision for the full conversation**: Rejected because it
+  creates a stale-role authorization window.
+- **Query the database on every prompt**: Rejected because only the mutation
+  boundary requires a fresh decision.
+
+## Repository Boundary Finding
+
+Spec 053 verified that its handler and conversation changes do not bypass
+repositories or add direct Prisma access. The audit's broader repository
+boundary correction remains assigned to Spec 055; this feature does not claim
+that the pre-existing repository authorization architecture is complete.

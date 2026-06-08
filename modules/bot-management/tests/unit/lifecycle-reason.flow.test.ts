@@ -4,7 +4,8 @@ import { AppError } from '@tempot/shared';
 import { BotHealthStatus, BotRuntimeMode } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 
-const { runFormMock, transitionMock } = vi.hoisted(() => ({
+const { refreshAndEnforceMock, runFormMock, transitionMock } = vi.hoisted(() => ({
+  refreshAndEnforceMock: vi.fn(),
   runFormMock: vi.fn(),
   transitionMock: vi.fn(),
 }));
@@ -34,6 +35,9 @@ vi.mock('../../deps.context.js', () => ({
   }),
   getI18n: () => ({
     t: (key: string) => key,
+  }),
+  getAuthorization: () => ({
+    refreshAndEnforce: refreshAndEnforceMock,
   }),
   getLogger: () => ({
     info: vi.fn(),
@@ -82,6 +86,7 @@ const managedBot = {
 describe('runLifecycleReasonConversation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    refreshAndEnforceMock.mockResolvedValue(true);
   });
 
   it('collects a reason through input-engine and delegates to LifecycleService', async () => {
@@ -124,6 +129,29 @@ describe('runLifecycleReasonConversation', () => {
 
     expect(transitionMock).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith('bot-management.lifecycle.reason_cancelled');
+  });
+
+  it('does not mutate lifecycle state when current authorization is denied at commit', async () => {
+    runFormMock.mockResolvedValue(ok({ reason: 'Operational pause' }));
+    refreshAndEnforceMock.mockResolvedValue(false);
+    const ctx = {
+      from: { id: 123 },
+      chat: { id: 123 },
+      reply: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await runLifecycleReasonConversation({} as never, ctx as never, {
+      botId: 'bot-1',
+      toStatus: BotLifecycleStatus.PAUSED,
+    });
+
+    expect(refreshAndEnforceMock).toHaveBeenCalledWith(ctx, {
+      module: 'bot-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'bot',
+    });
+    expect(transitionMock).not.toHaveBeenCalled();
   });
 
   it('renders reusable action buttons while waiting for text or callback input', async () => {

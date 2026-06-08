@@ -1,7 +1,7 @@
 import type { Context, NextFunction } from 'grammy';
 import type { InlineKeyboard } from 'grammy';
 import { answerCallback, editOrSend } from '@tempot/ux-helpers';
-import { getI18n } from '../deps.context.js';
+import { getAuthorization, getI18n } from '../deps.context.js';
 import { getBotService } from '../services/bot-service.context.js';
 import { getLifecycleService } from '../services/lifecycle-service.context.js';
 import { createBotDetailMenu, createBotListMenu } from '../menus/bot-menu.factory.js';
@@ -16,6 +16,7 @@ import {
   BOT_LIFECYCLE_REASON_FLOW_ID,
   type LifecycleReasonIntent,
 } from '../flows/lifecycle-reason.flow.js';
+import { resolveCallbackAuthorizationPolicy } from './callback-authorization.policy.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -30,6 +31,8 @@ export async function handleCallbackQuery(
   }
 
   const [, action, value, trailingValue] = data.split(':');
+  const policy = resolveCallbackAuthorizationPolicy(action);
+  if (!(await getAuthorization().enforce(ctx, policy))) return;
 
   if (action === 'create') {
     await acknowledgeCallback(ctx);

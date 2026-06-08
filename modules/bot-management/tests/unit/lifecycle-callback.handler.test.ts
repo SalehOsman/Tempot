@@ -5,13 +5,17 @@ import { AppError } from '@tempot/shared';
 import { BotHealthStatus, BotRuntimeMode, type ManagedBot } from '../../types/bot.types.js';
 import { BotLifecycleStatus } from '../../types/lifecycle.types.js';
 
-const { getDetailMock, listMock, transitionMock } = vi.hoisted(() => ({
+const { enforceMock, getDetailMock, listMock, transitionMock } = vi.hoisted(() => ({
+  enforceMock: vi.fn(),
   getDetailMock: vi.fn(),
   listMock: vi.fn(),
   transitionMock: vi.fn(),
 }));
 
 vi.mock('../../deps.context.js', () => ({
+  getAuthorization: () => ({
+    enforce: enforceMock,
+  }),
   getI18n: () => ({
     t: (key: string) => key,
   }),
@@ -85,6 +89,7 @@ function createContext(data: string): Context {
 describe('handleCallbackQuery lifecycle controls', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    enforceMock.mockResolvedValue(true);
   });
 
   it('renders lifecycle controls from the lifecycle callback', async () => {
@@ -144,6 +149,22 @@ describe('handleCallbackQuery lifecycle controls', () => {
     expect(ctx.editMessageText).toHaveBeenCalledWith('bot detail', {
       reply_markup: { inline_keyboard: [['detail-menu']] },
     });
+  });
+
+  it('does not execute lifecycle transitions when authorization is denied', async () => {
+    const ctx = createContext('botmgmt:lifecycle-transition:bot-1:ACTIVE');
+    enforceMock.mockResolvedValue(false);
+
+    await handleCallbackQuery(ctx);
+
+    expect(enforceMock).toHaveBeenCalledWith(ctx, {
+      module: 'bot-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'bot',
+    });
+    expect(transitionMock).not.toHaveBeenCalled();
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 
   it('reports stale or invalid direct transitions without false success', async () => {
