@@ -33,9 +33,18 @@ The module exposes these Telegram command shortcuts:
 - User administration flows for authorized roles.
 - Role-aware menu and callback handling.
 - Regional data support through `@tempot/national-id-parser`.
+- Versioned AES-256-GCM protection for email, national ID, mobile number, and
+  birth date before persistence.
+- Exact email lookup through a versioned HMAC token. National-ID token support
+  is available at the protection boundary; mobile lookup remains disabled until
+  a governed E.164 normalization contract is approved.
 
 ## Governance
 
 The module has a `module.manifest.ts` file and passes Module Doctor. It remains
 governed by the Tempot repository pattern, Result pattern, i18n-only rule, and
 module boundary rules.
+
+Protected values must enter persistence through `UserRepository`. Services and
+handlers must not query protected plaintext columns or build lookup tokens
+directly.

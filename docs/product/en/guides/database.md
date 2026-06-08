@@ -45,6 +45,10 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
 
 The base class provides `findById`, `findMany`, `create`, `update`, and `delete` methods, all returning `Result<T, AppError>`. Audit fields (`createdBy`, `updatedBy`, `deletedBy`) are populated automatically from `sessionContext`.
 
+Audit snapshots use an explicit safe-field policy. Classified identity and
+contact fields are omitted and represented only by non-sensitive change
+markers. A repository must not opt protected fields back into audit snapshots.
+
 ## Adding Custom Queries
 
 Add domain-specific queries as methods on your repository subclass:
@@ -201,3 +205,5 @@ The `AuditLogRepository` itself takes a no-op audit logger to prevent infinite r
 - Use `withTransaction(tx)` to bind repositories to a shared transaction
 - Let soft-delete and audit fields work automatically via extensions and `sessionContext`
 - Implement domain queries as repository methods, not as raw Prisma calls in services
+- Use the shared protected-data service for classified values and approved
+  exact-match tokens; never add plaintext or reversible indexes for them

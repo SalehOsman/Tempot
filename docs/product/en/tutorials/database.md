@@ -23,6 +23,12 @@ Before you begin, make sure you have:
 This tutorial was verified against the active modular schema merge and Prisma 7
 workflow on 2026-06-08.
 
+If an entity contains classified identity, contact, credential, or payment
+data, stop before adding it to the model and define its protected envelope,
+lookup requirements, and migration plan. `BaseRepository` audit snapshots will
+omit known protected field names, but persistence protection remains the
+concrete repository's responsibility.
+
 ## Building a Task Repository
 
 In this tutorial you will create a complete `Task` entity with a Prisma model, a repository, and transactional operations.
@@ -75,6 +81,11 @@ export class TaskRepository extends BaseRepository<Task> {
 ```
 
 This gives you `findById`, `findMany`, `create`, `update`, and `delete` for free.
+
+Do not pass classified plaintext to these generic methods. Follow the
+`UserRepository` pattern: protect the value first, persist the envelope and
+approved token atomically, and return recovered values only through an
+authorized domain mapping.
 
 ### Step 3: Add a Custom Query
 

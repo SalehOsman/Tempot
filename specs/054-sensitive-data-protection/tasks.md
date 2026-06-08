@@ -54,7 +54,7 @@
 - [x] T028 [US2] Implement structured historical audit sanitation with irreversible markers
 - [x] T029 [US2] Implement verification for row counts, logical recovery, lookup parity, and canary absence
 - [x] T030 [US2] Add cutover controls that block protected reads on any verification failure
-- [ ] T031 [US2] Execute interruption/resume and backup/restore rehearsals in an isolated database
+- [x] T031 [US2] Execute interruption/resume and backup/restore rehearsals in an isolated database
 - [ ] T032 [US2] Obtain approval before applying the plaintext-retirement migration
 
 **Independent Test**: Seeded legacy data migrates, resumes, verifies, and restores without plaintext leakage or loss.
@@ -70,14 +70,14 @@
 
 ## Phase 7: Documentation, Review, and Release Gates
 
-- [ ] T037 Update security, architecture, deployment, backup, configuration, and user-management documentation
-- [ ] T038 Update all SpecKit artifacts and `docs/ROADMAP.md` with actual migration status
+- [x] T037 Update security, architecture, deployment, backup, configuration, and user-management documentation
+- [x] T038 Update all SpecKit artifacts and `docs/ROADMAP.md` with actual migration status
 - [ ] T039 Run focused tests and full relevant unit/integration suites
 - [ ] T040 Run database migration dry run, audit sanitation dry run, canary scan, backup restore, and key rotation rehearsal
 - [ ] T041 Run `pnpm lint`, `pnpm build`, `pnpm audit --audit-level=high`, and `pnpm spec:validate`
 - [ ] T042 Request independent security/code review and resolve all Critical/High findings
 - [ ] T043 Run `speckit-analyze` and resolve artifact inconsistencies
-- [ ] T044 Create changesets for all released packages affected
+- [x] T044 Create changesets for all released packages affected
 - [ ] T045 Run verification-before-completion and obtain explicit approval for irreversible plaintext retirement
 
 ## Dependencies and Execution Order

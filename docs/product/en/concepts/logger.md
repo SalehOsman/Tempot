@@ -79,11 +79,17 @@ Sensitive data is redacted at two layers:
 
 ### Pino Built-in Redaction
 
-Pino's native `redact` option strips values for keys matching `SENSITIVE_KEYS` (`password`, `token`, `secret`, `apiKey`, `creditCard`) from top-level log properties.
+Pino's native `redact` option covers credentials and classified identity fields
+at supported object paths. The shared policy includes email, national ID,
+mobile number, birth date, protected envelopes, lookup tokens, and key
+configuration aliases.
 
 ### Error Serializer Redaction
 
-The `appErrorSerializer` recursively walks `err.details` and replaces any value whose key matches `SENSITIVE_KEYS` with `[REDACTED]`. This handles arbitrarily nested objects and arrays.
+The `appErrorSerializer` recursively walks `err.details` and replaces any value
+whose key matches the shared protected-field policy with `[REDACTED]`. This
+handles arbitrarily nested objects and arrays. Sentry uses the same recursive
+policy so the two observability channels do not drift.
 
 ## No Double Logging
 

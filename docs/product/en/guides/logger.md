@@ -35,6 +35,10 @@ logger.error({ err: appError, msg: 'Payment failed' });
 
 All output is structured JSON sent to stdout. The `userId` field is injected automatically from `sessionContext` when available, so you never need to pass it manually.
 
+Never include classified values in log messages or interpolate them into
+strings. Structured redaction can sanitize recognized object keys, but it
+cannot reliably recover semantic fields embedded in arbitrary prose.
+
 ## Configuring Log Levels
 
 Set the `LOG_LEVEL` environment variable to control output verbosity:
@@ -73,6 +77,11 @@ logger.error({ err: error, msg: 'Invoice creation failed' });
 ```
 
 The `appErrorSerializer` extracts `code`, `i18nKey`, `referenceCode`, and redacted `details` from the error. In non-production environments, the stack trace is included.
+
+Protected identity fields, envelopes, lookup tokens, and key-ring aliases are
+redacted recursively through the central `@tempot/shared` policy. Keep
+diagnostic details structured and use record IDs or reference codes instead of
+raw user values.
 
 ### No Double Logging
 

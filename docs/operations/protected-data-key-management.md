@@ -9,8 +9,9 @@
 Operate versioned encryption and lookup keys without storing key material in
 source control, PostgreSQL, audit records, logs, diagnostics, or backups.
 
-This runbook defines the required operational contract. Environment variable
-names and startup validation are implemented in task T016 after approval.
+This runbook defines the implemented operational contract. Environment
+variable parsing and startup validation are provided by
+`@tempot/settings`.
 
 ## Roles
 
@@ -37,16 +38,17 @@ The initial self-hosted adapter will receive two versioned key rings from the
 deployment secret system:
 
 ```text
-TEMPOT_PROTECTION_ACTIVE_KEY_VERSION
-TEMPOT_PROTECTION_KEYS
-TEMPOT_LOOKUP_ACTIVE_KEY_VERSION
-TEMPOT_LOOKUP_KEYS
+PROTECTED_DATA_ACTIVE_ENCRYPTION_KEY_VERSION
+PROTECTED_DATA_ENCRYPTION_KEYS
+PROTECTED_DATA_ACTIVE_LOOKUP_KEY_VERSION
+PROTECTED_DATA_LOOKUP_KEYS
 ```
 
 The two `*_KEYS` values are secret JSON maps from version identifier to
 base64-encoded 32-byte key material. They must be injected at runtime and must
-never be written to `.env.example`, CI logs, Docker image layers, database
-tables, or generated diagnostic bundles.
+never be populated in `.env.example`, CI logs, Docker image layers, database
+tables, or generated diagnostic bundles. `.env.example` documents the variable
+names with empty values only.
 
 ## Generate a Key
 
@@ -84,8 +86,8 @@ include key material or the raw secret payload.
 5. Confirm startup key-ring validation succeeds.
 6. Run protected-write and canary tests.
 7. Record only deployment SHA, version identifiers, timestamp, and gate result.
-8. Do not enable production dual write until the ADR and migration runbook are
-   approved.
+8. Do not enable production protected writes until the ADR, migration runbook,
+   and restore evidence are approved.
 
 ## Rotate to a New Version
 
@@ -100,6 +102,11 @@ include key material or the raw secret payload.
 9. Obtain Project Manager and security-review approval.
 10. Remove `v1` from the readable ring.
 11. Restart and prove all protected reads and exact lookups still pass.
+
+The automated two-version rehearsal is covered by
+`scripts/security/sensitive-data-rotation.integration.test.ts`. Removing an old
+key from the deployment secret system remains an operator action and is blocked
+until the report proves zero references to that version.
 
 ## Compromise Procedure
 

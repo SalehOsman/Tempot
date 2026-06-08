@@ -9,6 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
+lastVerified: 2026-06-08
 ---
 
 ## Prerequisites
@@ -28,8 +29,7 @@ In this tutorial you will build a notification service that caches user preferen
 Create your module's error codes following the `{module}.{operation}_{outcome}` convention:
 
 ```typescript
-import { AppError, type AsyncResult } from '@tempot/shared';
-import { ok, err } from 'neverthrow';
+import { AppError, err, ok, type AsyncResult } from '@tempot/shared';
 
 const ERRORS = {
   NOT_FOUND: 'notifications.preferences_not_found',

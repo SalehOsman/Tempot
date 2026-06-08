@@ -82,6 +82,10 @@ function validateOrder(orderId: string) {
 
 The serializer stamps `loggedAt` on the error, preventing duplicate full-trace entries if the same error is logged again upstream.
 
+Keep `AppError.details` non-sensitive. The serializer provides defense in
+depth, not permission to place plaintext identity data in errors. Prefer stable
+record IDs, field names, counts, and operator-safe reference codes.
+
 ### Step 4: Set Up the Audit Logger
 
 Create an `AuditLogger` to persist state changes for compliance:
@@ -97,6 +101,10 @@ const auditLogger = new AuditLogger(auditLogRepo);
 ### Step 5: Log State Changes
 
 Record before/after snapshots for every state-changing operation:
+
+For repository-backed entities, let `BaseRepository` create the safe snapshot.
+Do not manually copy full entities into audit entries because classified fields
+must be omitted and represented only by non-sensitive change markers.
 
 ```typescript
 async function updateOrderStatus(

@@ -60,21 +60,23 @@ Apply an additive migration only:
 Legacy plaintext columns remain available during this phase. No plaintext
 column or index is removed.
 
-## Phase 3: Dual Write
+## Phase 3: Protected Write Activation
 
 Deploy repository logic that atomically writes:
 
 - the protected envelope,
 - the approved exact-match lookup token,
 - key and normalization versions,
-- temporary legacy plaintext only while migration mode is explicitly active.
+- `NULL` to the legacy plaintext columns for new or updated protected values.
 
-New writes must pass database, audit, Pino, Sentry, and error canary tests.
-Failure pauses the rollout.
+Existing legacy rows retain plaintext only until bounded backfill, verification,
+and the separately approved retirement release. New writes must pass database,
+audit, Pino, Sentry, and error canary tests. Failure pauses the rollout.
 
 ## Phase 4: Bounded Backfill
 
-The planned backfill command is implemented in task T027. It must support:
+The backfill implementation is in
+`scripts/security/sensitive-data-migration.ts`. It supports:
 
 - dry-run mode,
 - bounded batch size,
@@ -83,12 +85,18 @@ The planned backfill command is implemented in task T027. It must support:
 - processed, verified, and failed counts,
 - a stop-on-mismatch option.
 
-Run one canary batch, verify it, then increase batch size within the approved
-database latency threshold. Do not log recovered values.
+The Testcontainers rehearsal in
+`scripts/security/sensitive-data-migration.integration.test.ts` proves bounded
+execution, interruption, checkpoint resume, idempotency, and verification.
+Production execution must use an operator-controlled wrapper that injects the
+approved database and protection service. Run one canary batch, verify it, then
+increase batch size within the approved database latency threshold. Do not log
+recovered values.
 
 ## Phase 5: Historical Audit Sanitation
 
-The planned sanitation command is implemented in task T028.
+Historical sanitation is implemented by the same migration runner and shares
+the central protected-field policy.
 
 For each selected audit record:
 
@@ -154,6 +162,19 @@ retirement window.
 | Verification           | Block cutover                                                   | Override failed evidence           |
 | Protected-read cutover | Roll back application to verified dual-read release             | Silent plaintext fallback          |
 | Retirement             | Restore from the approved encrypted backup and incident process | Ad hoc reverse migration           |
+
+## Current Implementation Status
+
+As of 2026-06-08:
+
+- expand-only schema migrations are implemented;
+- new protected profile writes and approved exact email lookup are implemented;
+- audit, Pino, Sentry, and error sanitation are implemented;
+- resumable migration and two-version rotation rehearsals pass in isolated
+  Testcontainers databases;
+- plaintext retirement is not implemented or approved;
+- a deployment-system backup/restore rehearsal remains required before
+  production cutover.
 
 ## Approval Record
 

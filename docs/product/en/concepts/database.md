@@ -20,6 +20,11 @@ The `@tempot/database` package manages all data persistence in Tempot. It provid
 This page was verified against Prisma 7.8, Drizzle ORM 0.45, and the current
 `BaseRepository` implementation on 2026-06-08.
 
+The package also owns the versioned protected-data primitives used for
+AES-256-GCM envelopes and HMAC-SHA-256 exact-match tokens. Application services
+must consume those primitives through repositories rather than reading or
+writing classified plaintext directly.
+
 ## Dual-ORM Strategy
 
 Tempot uses two ORMs connecting to the same PostgreSQL 16 database:
@@ -38,6 +43,8 @@ No service in Tempot calls Prisma directly. All database operations flow through
 - Automatic soft-delete filtering on all read queries
 - Audit field injection (`createdBy`, `updatedBy`, `deletedBy`) from `AsyncLocalStorage`
 - Audit trail logging for every create, update, and delete operation
+- Safe audit snapshots that omit classified fields and retain only
+  non-sensitive change markers
 - Result pattern returns (`Result<T, AppError>`) instead of thrown exceptions
 - Transaction support via `withTransaction(tx)`
 

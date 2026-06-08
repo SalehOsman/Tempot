@@ -141,14 +141,14 @@ Planning these specifications does not mean their implementation is complete.
 Each spec requires a dedicated execution branch/worktree and all SpecKit,
 Superpowers, TDD, review, verification, reconciliation, and merge gates.
 
-| Recommended order | Spec                                      | Scope                                                                                 | Priority   | Status                                                            |
-| ----------------: | ----------------------------------------- | ------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------- |
-|                 1 | #053 `authorization-correction`           | Correct global authorization and role/action enforcement                              | P0         | Implemented and integrated on the remediation branch              |
-|                 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI                       | P1 enabler | Implemented and integrated on the remediation branch              |
-|                 3 | #054 `sensitive-data-protection`          | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0         | Phase 1 and T006 approval complete; Phase 2 RED tests in progress |
-|                 4 | #055 `data-integrity-hardening`           | Atomic updates, soft delete, repository boundaries, aggregate pagination              | P1         | SpecKit artifact gates passed; planned                            |
-|                 5 | #056 `quality-gates-hardening` completion | Coverage tiers, documentation freshness, toolchain and source conformance             | P1         | Implemented and integrated on the remediation branch              |
-|                 6 | #057 `production-delivery-hardening`      | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery     | P1         | SpecKit artifact gates passed; final production gate              |
+| Recommended order | Spec                                      | Scope                                                                                 | Priority   | Status                                                                                                                                |
+| ----------------: | ----------------------------------------- | ------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+|                 1 | #053 `authorization-correction`           | Correct global authorization and role/action enforcement                              | P0         | Implemented and integrated on the remediation branch                                                                                  |
+|                 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI                       | P1 enabler | Implemented and integrated on the remediation branch                                                                                  |
+|                 3 | #054 `sensitive-data-protection`          | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0         | Reversible implementation complete on feature branch; backup/restore, review, and release gates pending; plaintext retirement blocked |
+|                 4 | #055 `data-integrity-hardening`           | Atomic updates, soft delete, repository boundaries, aggregate pagination              | P1         | SpecKit artifact gates passed; planned                                                                                                |
+|                 5 | #056 `quality-gates-hardening` completion | Coverage tiers, documentation freshness, toolchain and source conformance             | P1         | Implemented and integrated on the remediation branch                                                                                  |
+|                 6 | #057 `production-delivery-hardening`      | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery     | P1         | SpecKit artifact gates passed; final production gate                                                                                  |
 
 Production go/no-go requires:
 
@@ -162,18 +162,18 @@ Production go/no-go requires:
 
 ## Phase Summary
 
-| Phase       | Scope                                               | Status                                                                                   |
-| ----------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Phase 0     | Workspace and monorepo foundation                   | Complete                                                                                 |
-| Phase 1     | Core bedrock packages                               | Complete; package inventory reconciled                                                   |
-| Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                 |
-| Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                         |
-| Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                 |
-| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                          |
-| Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                              |
-| Phase 5     | Enterprise infrastructure                           | Not started                                                                              |
-| Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection       |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053 and #056 integrated; #054 implementation approved; production remains blocked |
+| Phase       | Scope                                               | Status                                                                                                                                            |
+| ----------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 0     | Workspace and monorepo foundation                   | Complete                                                                                                                                          |
+| Phase 1     | Core bedrock packages                               | Complete; package inventory reconciled                                                                                                            |
+| Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                                                                          |
+| Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                                                                                  |
+| Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                                                                          |
+| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                                                                                   |
+| Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                       |
+| Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                       |
+| Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053 and #056 integrated; #054 reversible implementation complete on its feature branch; production and plaintext retirement remain blocked |
 
 ## Package Status
 
