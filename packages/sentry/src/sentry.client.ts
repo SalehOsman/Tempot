@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { ok, err } from 'neverthrow';
 import type { Result, AsyncResult } from '@tempot/shared';
-import { AppError } from '@tempot/shared';
+import { AppError, redactSensitiveData } from '@tempot/shared';
 import { sentryToggle } from './sentry.toggle.js';
 import { SENTRY_ERRORS } from './sentry.errors.js';
 import type { SentryConfig } from './sentry.types.js';
@@ -39,6 +39,7 @@ export function initSentry(config?: Partial<SentryConfig>): Result<void, AppErro
       release: config?.release,
       sampleRate: config?.sampleRate ?? SENTRY_DEFAULT_SAMPLE_RATE,
       tracesSampleRate: config?.tracesSampleRate ?? 0,
+      beforeSend: (event) => redactSensitiveData(event) as typeof event,
     });
     initialized = true;
     return ok(undefined);

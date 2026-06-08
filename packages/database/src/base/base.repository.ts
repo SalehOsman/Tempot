@@ -1,6 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError, sessionContext } from '@tempot/shared';
 import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
+import { buildProtectedAuditChanges, buildSafeAuditSnapshot } from './audit.policy.js';
 
 /**
  * Database client type that accepts base PrismaClient, TransactionClient,
@@ -137,7 +138,8 @@ export abstract class BaseRepository<T extends { id: string }> {
 
       await this.logAudit('create', {
         targetId: item.id,
-        after: item as unknown as Record<string, unknown>,
+        after: buildSafeAuditSnapshot(item),
+        changes: buildProtectedAuditChanges(null, item as unknown as Record<string, unknown>),
       });
 
       return ok(item);
@@ -161,8 +163,12 @@ export abstract class BaseRepository<T extends { id: string }> {
 
       await this.logAudit('update', {
         targetId: id,
-        before: before as unknown as Record<string, unknown>,
-        after: item as unknown as Record<string, unknown>,
+        before: buildSafeAuditSnapshot(before),
+        after: buildSafeAuditSnapshot(item),
+        changes: buildProtectedAuditChanges(
+          before as Record<string, unknown>,
+          item as unknown as Record<string, unknown>,
+        ),
       });
 
       return ok(item);
@@ -186,7 +192,8 @@ export abstract class BaseRepository<T extends { id: string }> {
 
       await this.logAudit('delete', {
         targetId: id,
-        before: before as unknown as Record<string, unknown>,
+        before: buildSafeAuditSnapshot(before),
+        changes: buildProtectedAuditChanges(before as Record<string, unknown>, null),
       });
 
       return ok(undefined);

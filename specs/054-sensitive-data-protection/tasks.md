@@ -39,11 +39,11 @@
 
 ## Phase 4: User Story 4 - Protect Audit and Observability (P1)
 
-- [ ] T021 [US4] Replace whole-entity audit snapshots with an explicit safe-field policy in `packages/database/src/base/`
-- [ ] T022 [US4] Expand Pino redaction and serializers in `packages/logger/src/`
-- [ ] T023 [US4] Expand Sentry `beforeSend` protection in `packages/sentry/src/`
-- [ ] T024 [US4] Remove protected values from error details and administrative diagnostics in affected consumers
-- [ ] T025 [US4] Run T011-T012 canary tests and confirm GREEN across audit, logs, Sentry, and errors
+- [x] T021 [US4] Replace whole-entity audit snapshots with an explicit safe-field policy in `packages/database/src/base/`
+- [x] T022 [US4] Expand Pino redaction and serializers in `packages/logger/src/`
+- [x] T023 [US4] Expand Sentry `beforeSend` protection in `packages/sentry/src/`
+- [x] T024 [US4] Remove protected values from error details and administrative diagnostics in affected consumers
+- [x] T025 [US4] Run T011-T012 canary tests and confirm GREEN across audit, logs, Sentry, and errors
 
 **Independent Test**: Known canary values traverse success and failure paths without appearing in observability sinks.
 

@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { ok, err } from 'neverthrow';
 import type { Result } from '@tempot/shared';
-import { AppError, generateErrorReference } from '@tempot/shared';
+import { AppError, generateErrorReference, redactSensitiveData } from '@tempot/shared';
 import { sentryToggle } from './sentry.toggle.js';
 import { isSentryInitialized } from './sentry.client.js';
 import { SENTRY_ERRORS } from './sentry.errors.js';
@@ -64,9 +64,11 @@ export class SentryReporter {
         scope.setContext(SENTRY_CONTEXT_APP_ERROR, {
           code: error.code,
           i18nKey: error.i18nKey,
-          details: error.details ?? null,
+          details: redactSensitiveData(error.details ?? null),
         });
-        eventId = Sentry.captureException(error);
+        eventId = Sentry.captureException(
+          new AppError(error.code, redactSensitiveData(error.details ?? null)),
+        );
       });
 
       return ok(eventId ?? null);

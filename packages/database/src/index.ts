@@ -1,5 +1,6 @@
 export * from './base/base.entity.js';
 export * from './base/base.repository.js';
+export * from './base/audit.policy.js';
 export * from './base/vector.repository.js';
 export * from './repositories/audit-log.repository.js';
 export * from './repositories/interaction-event.repository.js';
