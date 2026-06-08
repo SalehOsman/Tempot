@@ -22,6 +22,9 @@ focused tests. Plaintext retirement remains blocked.
 - New-write database, audit, Pino, Sentry, and error canary absence.
 - Migration interruption/resume and cutover blocking.
 - Two-version re-protection and old-key retirement readiness.
+- Exact national-ID lookup through a versioned HMAC token.
+- Protected repository update p95 within 20 percent of the equivalent legacy
+  repository update.
 
 ## Migration Rehearsal
 
@@ -55,8 +58,9 @@ operational gates, not unit-test substitutes.
 pnpm --filter @tempot/database test
 pnpm --filter @tempot/user-management test
 pnpm --filter @tempot/logger test
-pnpm vitest run scripts/security/sensitive-data-migration.integration.test.ts
-pnpm vitest run scripts/security/sensitive-data-rotation.integration.test.ts
+pnpm --filter @tempot/database exec vitest run tests/integration/sensitive-data-migration.test.ts
+pnpm --filter @tempot/database exec vitest run tests/integration/sensitive-data-rotation.test.ts
+pnpm --filter @tempot/user-management exec vitest run tests/integration/protected-performance.test.ts
 pnpm test:unit
 pnpm test:integration
 pnpm lint

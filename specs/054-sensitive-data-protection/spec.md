@@ -156,6 +156,7 @@ paths and scan captured observability outputs for exact and nested variants.
 - **SC-006**: A two-version rotation exercise completes with old and new records readable during transition and the old key removable after verification.
 - **SC-007**: Zero Critical or High findings remain in the independent security review.
 - **SC-008**: Full relevant tests, migration rehearsal, backup/restore rehearsal, lint, build, audit, and reconciliation gates pass.
+- **SC-009**: Protected user-profile updates remain within 20 percent of the legacy repository update p95 in an interleaved, warmed PostgreSQL Testcontainers benchmark.
 
 ## Assumptions
 

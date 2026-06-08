@@ -35,9 +35,9 @@ The module exposes these Telegram command shortcuts:
 - Regional data support through `@tempot/national-id-parser`.
 - Versioned AES-256-GCM protection for email, national ID, mobile number, and
   birth date before persistence.
-- Exact email lookup through a versioned HMAC token. National-ID token support
-  is available at the protection boundary; mobile lookup remains disabled until
-  a governed E.164 normalization contract is approved.
+- Exact email and canonical national-ID lookup through versioned HMAC tokens.
+  Mobile lookup remains disabled until a governed E.164 normalization contract
+  is approved.
 
 ## Governance
 

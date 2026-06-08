@@ -172,6 +172,10 @@ As of 2026-06-08:
 - audit, Pino, Sentry, and error sanitation are implemented;
 - resumable migration and two-version rotation rehearsals pass in isolated
   Testcontainers databases;
+- two interrupted migration runs resume before final completion;
+- exact email and canonical national-ID token parity are verified;
+- three protected-update benchmark runs remain below the approved 20 percent
+  p95 regression limit;
 - plaintext retirement is not implemented or approved;
 - a deployment-system backup/restore rehearsal remains required before
   production cutover.

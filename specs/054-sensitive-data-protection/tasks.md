@@ -31,7 +31,7 @@
 - [x] T015 [US1] Implement Node crypto protection behind the typed Result-based interface
 - [x] T016 [US1] Add validated versioned key settings in `packages/settings/src/`
 - [x] T017 [US1] Add expand-only Prisma schema and migration changes in `packages/database/prisma/`
-- [x] T018 [US1] Update user repository mapping to dual-write protected payloads and lookup tokens transactionally
+- [x] T018 [US1] Update user repository mapping to write protected payloads and lookup tokens atomically
 - [x] T019 [US1] Update approved exact-match lookups to use tokens
 - [x] T020 [US1] Run T007-T010 and confirm GREEN without plaintext fallback
 
@@ -76,9 +76,10 @@
 - [ ] T040 Run database migration dry run, audit sanitation dry run, canary scan, backup restore, and key rotation rehearsal
 - [ ] T041 Run `pnpm lint`, `pnpm build`, `pnpm audit --audit-level=high`, and `pnpm spec:validate`
 - [ ] T042 Request independent security/code review and resolve all Critical/High findings
-- [ ] T043 Run `speckit-analyze` and resolve artifact inconsistencies
+- [x] T043 Run `speckit-analyze` and resolve artifact inconsistencies
 - [x] T044 Create changesets for all released packages affected
 - [ ] T045 Run verification-before-completion and obtain explicit approval for irreversible plaintext retirement
+- [x] T046 Add and execute the approved protected-data p95 regression benchmark
 
 ## Dependencies and Execution Order
 
@@ -110,3 +111,4 @@ phases are also complete.
 - `SC-006`: T033-T036, T040
 - `SC-007`: T042, T045
 - `SC-008`: T039-T045
+- `SC-009`: T046

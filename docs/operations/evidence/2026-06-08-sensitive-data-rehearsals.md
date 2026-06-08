@@ -9,11 +9,12 @@
 
 The focused Testcontainers integration suite executed:
 
-- bounded migration with an intentional interruption;
+- bounded migration with two intentional interruptions;
 - checkpoint-based resume without duplicate processing;
 - dry-run normalization conflict reporting;
 - structured historical audit sanitation;
 - row reconciliation and logical recovery;
+- email and national-ID lookup-token parity;
 - cutover blocking after forced verification failure.
 
 No protected plaintext or key material was written to the test report.
@@ -71,6 +72,33 @@ The rehearsal then:
 | Logical protected read        | Pass   |
 | Lookup parity                 | Pass   |
 | Temporary resource cleanup    | Pass   |
+
+## Performance
+
+The protected user-profile update benchmark used PostgreSQL Testcontainers,
+10 warm-up updates, 60 measured samples, and alternating legacy/protected
+execution order. Both paths used the repository and audit boundary; the
+protected path additionally generated the envelope and lookup token and
+recovered the logical value.
+
+| Run | Legacy p95 | Protected p95 | Regression | Limit |
+| --: | ---------: | ------------: | ---------: | ----: |
+|   1 |   7.616 ms |      8.784 ms |     15.33% |   20% |
+|   2 |   7.859 ms |      8.385 ms |      6.70% |   20% |
+|   3 |   7.209 ms |      8.050 ms |     11.66% |   20% |
+
+All three runs passed the approved threshold.
+
+## Artifact Analysis
+
+The post-implementation SpecKit analysis reported:
+
+- 31 functional and success requirements;
+- 46 implementation and release tasks;
+- 100 percent requirement-to-task coverage;
+- zero unmapped requirements;
+- zero Critical, High, or Medium artifact inconsistencies;
+- zero constitution conflicts.
 
 This evidence does not authorize plaintext-column retirement. T032 and T045
 remain blocked pending the exact irreversible migration and separate Project
