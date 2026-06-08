@@ -9,6 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
+lastVerified: 2026-06-08
 ---
 
 ## Prerequisites
@@ -18,6 +19,10 @@ Before you begin, make sure you have:
 - A working Tempot development environment (see [Getting Started](/en/tutorials/getting-started/))
 - Redis running locally (required for distributed events)
 - Basic understanding of the [Shared Package](/en/concepts/shared/) Result pattern
+
+This tutorial was verified against the active event-bus API on 2026-06-08.
+Published values are raw typed payloads, and Redis Pub/Sub delivery is
+cross-instance but non-durable.
 
 ## Building Order-to-Notification Communication
 

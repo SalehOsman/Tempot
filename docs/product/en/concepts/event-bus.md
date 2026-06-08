@@ -10,11 +10,15 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## What is the Event Bus?
 
 The `@tempot/event-bus` package provides decoupled inter-module communication. Modules never call each other directly. All communication flows through typed events, enabling loose coupling and independent deployment.
+
+This page was verified against the active orchestrator, local bus, and Redis bus
+on 2026-06-08.
 
 ## Three-Level Architecture
 
@@ -50,7 +54,9 @@ Examples of valid event names:
 
 ## EventEnvelope
 
-Every published event is wrapped in an `EventEnvelope` containing metadata:
+`EventEnvelope` is an exported contract for consumers that need explicit event
+metadata. The current `publish()` implementations send the typed payload
+directly; the orchestrator does not automatically wrap every payload.
 
 | Field       | Description                                   |
 | ----------- | --------------------------------------------- |

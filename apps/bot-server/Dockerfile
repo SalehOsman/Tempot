@@ -23,7 +23,7 @@
 #   Prerequisite: `prisma` must be a production dep of @tempot/database so that
 #   `pnpm deploy --prod` includes it in /app/out.
 
-FROM node:22-alpine AS base
+FROM node:22.12-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 # Prisma library engine requires openssl + libc compat on Alpine
