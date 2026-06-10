@@ -2,10 +2,8 @@
   "name": "tempot-monorepo",
   "private": true,
   "engines": {
-    "node": ">=22.12.0",
-    "pnpm": ">=11.0.0"
+    "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "corepack pnpm --filter bot-server dev",
     "build:bot-runtime": "corepack pnpm --recursive --filter bot-server... --filter @tempot/input-engine... --filter @tempot/interaction-observability... --filter @tempot/ux-helpers... --filter @tempot/bot-management... --filter @tempot/template-management... --filter @tempot/user-management... --filter @tempot/settings-management... --filter @tempot/notification-center... --filter @tempot/content-management... --filter @tempot/audit-viewer... --filter @tempot/help-center... build",

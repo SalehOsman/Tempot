@@ -4,7 +4,9 @@
 
 Repository hygiene and toolchain alignment (analysis 2026-06-10):
 
-- Pin `packageManager: pnpm@11.0.0` and require pnpm >=11 in `engines`.
+- Toolchain pinning (`packageManager` and `engines.pnpm`) is deferred to
+  Spec #056 because the current local/CI pnpm versions diverge and
+  `pnpm/action-setup@v5` cannot accept both `version` and `packageManager`.
 - Align CI Node version to `22` to match `engines`, Dockerfile `node:22-alpine`,
   README, AGENTS.md, and the Constitution.
 - Translate the only non-English comment in `apps/bot-server/src/index.ts`
