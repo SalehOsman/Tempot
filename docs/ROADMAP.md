@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-07.
+> Last updated: 2026-06-10.
 
 ## Current Technical Baseline
 
@@ -135,6 +135,11 @@ The comprehensive audit completed on 2026-06-07 identified confirmed
 authorization, privacy, data-integrity, quality-gate, and delivery risks. The
 approved remediation design is documented in
 `docs/project-analysis/2026-06-07/remediation-program.md`.
+
+A follow-up Technical Advisor analysis on 2026-06-10
+(`docs/analysis-2026-06-10/`) reconfirms the program scope, attaches a
+phase-based fix plan, an improvement roadmap, and a quantified scoring of all
+project axes. It does not modify the approved Specs #053-#057 program.
 
 Planning these specifications does not mean their implementation is complete.
 Each spec requires a dedicated execution branch/worktree and all SpecKit,
@@ -290,9 +295,12 @@ pnpm spec:validate
 pnpm cms:check
 pnpm boundary:audit
 pnpm module:checklist
-pnpm docs:freshness
 pnpm audit --audit-level=high
 ```
+
+> `pnpm docs:freshness` is a planned root gate owned by Spec #056
+> (`specs/056-quality-gates-hardening/`, FR-010 / SC-006). It will be added to
+> the list above once the Spec #056 implementation lands.
 
 For documentation-only changes, `pnpm spec:validate` is still relevant because
 Tempot enforces code-documentation parity.

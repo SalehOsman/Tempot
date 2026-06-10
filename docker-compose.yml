@@ -7,10 +7,7 @@
 # Shutdown order: Hono → grammY → BullMQ → Redis → Prisma → Drizzle
 
 # =============================================================================
-# DEVELOPMENT SERVICES ONLY
-# Current: PostgreSQL (pgvector) + Redis
-#
-# TODO — Phase 5: Add bot-server service after Dockerfile is created
+# Services: bot-server + PostgreSQL (pgvector) + Redis
 # =============================================================================
 
 services:
