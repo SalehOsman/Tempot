@@ -1,7 +1,7 @@
 # Security Requirements Checklist: Sensitive Data Protection
 
-**Purpose**: Validate security, privacy, migration, and operational requirements  
-**Created**: 2026-06-07  
+**Purpose**: Validate security, privacy, migration, and operational requirements
+**Created**: 2026-06-07
 **Feature**: [spec.md](../spec.md)
 
 ## Classification and Scope

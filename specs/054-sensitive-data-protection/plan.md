@@ -14,14 +14,14 @@ through expand, dual-write, backfill, verify, cutover, and retirement phases.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: Node.js `crypto`, Prisma 7.x, neverthrow 8.2.0, Pino 9.x, existing Sentry package, Zod settings validation  
-**Storage**: PostgreSQL 16 user and audit tables; deployment secret boundary for key material  
-**Testing**: Vitest 4.1.0, Testcontainers, migration fixtures, canary scans, backup/restore rehearsal  
-**Target Platform**: Node.js 22.12+ Linux container  
-**Project Type**: TypeScript monorepo with shared database, logger, settings, and user-management components  
-**Performance Goals**: Exact-match lookup remains index-backed; protected-field read/write overhead is measured and does not exceed the approved database latency alert threshold  
-**Constraints**: AES-256 application-level protection; no plaintext fallback; no key material in DB/source/logs; no `any` or suppression directives  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: Node.js `crypto`, Prisma 7.x, neverthrow 8.2.0, Pino 9.x, existing Sentry package, Zod settings validation
+**Storage**: PostgreSQL 16 user and audit tables; deployment secret boundary for key material
+**Testing**: Vitest 4.1.0, Testcontainers, migration fixtures, canary scans, backup/restore rehearsal
+**Target Platform**: Node.js 22.12+ Linux container
+**Project Type**: TypeScript monorepo with shared database, logger, settings, and user-management components
+**Performance Goals**: Exact-match lookup remains index-backed; protected-field read/write overhead is measured and does not exceed the approved database latency alert threshold
+**Constraints**: AES-256 application-level protection; no plaintext fallback; no key material in DB/source/logs; no `any` or suppression directives
 **Scale/Scope**: All existing user rows and historical audit JSON in the target deployment
 
 ## Constitution Check

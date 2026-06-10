@@ -1,8 +1,8 @@
 # Feature Specification: Sensitive Data Protection
 
-**Feature Branch**: `codex/054-sensitive-data-protection`  
-**Created**: 2026-06-07  
-**Status**: Draft  
+**Feature Branch**: `codex/054-sensitive-data-protection`
+**Created**: 2026-06-07
+**Status**: Draft
 **Input**: Project audit finding that protected user identity data is stored in plaintext, duplicated into audit records, and not comprehensively redacted from logs.
 
 ## Clarifications

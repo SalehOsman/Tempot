@@ -1,6 +1,6 @@
 # Tasks: Quality Gates Hardening
 
-**Input**: Design documents from `specs/056-quality-gates-hardening/`  
+**Input**: Design documents from `specs/056-quality-gates-hardening/`
 **Tests**: Mandatory for every gate behavior.
 
 ## Phase 1: Setup and Baseline

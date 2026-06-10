@@ -14,14 +14,14 @@ and zero-mutation denial tests.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: grammY 1.41.x, CASL 6.x, `@tempot/auth-core`, `@tempot/shared`, module ability declarations  
-**Storage**: Existing PostgreSQL user/role data and audit records; no planned schema migration  
-**Testing**: Vitest 4.1.0; bot-server unit/integration tests; affected module tests; repository authorization tests  
-**Target Platform**: Node.js 22.12+ Telegram bot runtime  
-**Project Type**: TypeScript monorepo modular bot application  
-**Performance Goals**: Authorization adds no new network round trip per update and remains within existing middleware latency budgets  
-**Constraints**: No broad allow fallback; no new role; no hardcoded user text; all fallible public APIs use `Result<T, AppError>`  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: grammY 1.41.x, CASL 6.x, `@tempot/auth-core`, `@tempot/shared`, module ability declarations
+**Storage**: Existing PostgreSQL user/role data and audit records; no planned schema migration
+**Testing**: Vitest 4.1.0; bot-server unit/integration tests; affected module tests; repository authorization tests
+**Target Platform**: Node.js 22.12+ Telegram bot runtime
+**Project Type**: TypeScript monorepo modular bot application
+**Performance Goals**: Authorization adds no new network round trip per update and remains within existing middleware latency budgets
+**Constraints**: No broad allow fallback; no new role; no hardcoded user text; all fallible public APIs use `Result<T, AppError>`
 **Scale/Scope**: All active bot entry points are inventoried; implementation may be delivered module-by-module after the global correction
 
 ## Constitution Check

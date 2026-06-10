@@ -1,8 +1,8 @@
 # Tempot SpecKit Remediation Program
 
-**Program date:** 2026-06-07  
-**Source audit:** [Comprehensive Technical Audit](./README.md)  
-**Status:** SpecKit artifacts validated; awaiting Project Manager execution approval  
+**Program date:** 2026-06-07
+**Source audit:** [Comprehensive Technical Audit](./README.md)
+**Status:** SpecKit artifacts validated; awaiting Project Manager execution approval
 **Planning branch:** `codex/project-audit-2026-06-07`
 
 ## Purpose

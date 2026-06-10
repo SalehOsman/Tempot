@@ -11,14 +11,14 @@ release path.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3; Node.js 22.12+  
-**Primary Dependencies**: Hono 4.x patched release, grammY 1.41.x, Pino 9.x, Sentry, Docker BuildKit, GitHub Actions/GHCR  
-**Storage**: PostgreSQL 16, Redis, image registry, CI artifacts  
-**Testing**: Vitest, integration tests, container smoke tests, vulnerability scanning, signature verification, staging rehearsal  
-**Target Platform**: Linux OCI containers, provider-neutral self-hosted deployment  
-**Project Type**: Bot web service and monorepo release pipeline  
-**Performance Goals**: Preserve constitutional database/Redis/error/memory thresholds; cheap public liveness; bounded webhook bodies and rate limits  
-**Constraints**: Non-root runtime, immutable artifacts, no public diagnostics, no source/spec trees in runner, compatible migration strategy  
+**Language/Version**: TypeScript 5.9.3; Node.js 22.12+
+**Primary Dependencies**: Hono 4.x patched release, grammY 1.41.x, Pino 9.x, Sentry, Docker BuildKit, GitHub Actions/GHCR
+**Storage**: PostgreSQL 16, Redis, image registry, CI artifacts
+**Testing**: Vitest, integration tests, container smoke tests, vulnerability scanning, signature verification, staging rehearsal
+**Target Platform**: Linux OCI containers, provider-neutral self-hosted deployment
+**Project Type**: Bot web service and monorepo release pipeline
+**Performance Goals**: Preserve constitutional database/Redis/error/memory thresholds; cheap public liveness; bounded webhook bodies and rate limits
+**Constraints**: Non-root runtime, immutable artifacts, no public diagnostics, no source/spec trees in runner, compatible migration strategy
 **Scale/Scope**: One bot-server image, current dependencies, PostgreSQL/Redis, GHCR publishing
 
 ## Constitution Check

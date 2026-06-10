@@ -1,7 +1,7 @@
 # Requirements Quality Checklist: Authorization Correction
 
-**Purpose**: Validate authorization requirements before implementation  
-**Created**: 2026-06-07  
+**Purpose**: Validate authorization requirements before implementation
+**Created**: 2026-06-07
 **Feature**: [spec.md](../spec.md)
 
 ## Requirement Completeness

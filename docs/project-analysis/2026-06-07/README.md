@@ -1,11 +1,11 @@
 # Tempot Comprehensive Technical Audit
 
-**Audit date:** 2026-06-07  
-**Repository:** `https://github.com/SalehOsman/Tempot`  
-**Audited commit:** `f1028fecb0e63a1dc6c8c25888babf1324e5d64f`  
-**Audit branch:** `codex/project-audit-2026-06-07`  
-**Review roles:** Senior Software Architect, Principal Backend Engineer, DevSecOps Engineer, QA/Test Lead, Product/Technical Project Manager, Code Reviewer  
-**Audit type:** Read-only source, configuration, documentation, test, security, operations, and delivery review  
+**Audit date:** 2026-06-07
+**Repository:** `https://github.com/SalehOsman/Tempot`
+**Audited commit:** `f1028fecb0e63a1dc6c8c25888babf1324e5d64f`
+**Audit branch:** `codex/project-audit-2026-06-07`
+**Review roles:** Senior Software Architect, Principal Backend Engineer, DevSecOps Engineer, QA/Test Lead, Product/Technical Project Manager, Code Reviewer
+**Audit type:** Read-only source, configuration, documentation, test, security, operations, and delivery review
 
 > This report is written in English because Tempot Constitution Rule I requires all
 > developer-facing documentation to be in English. No application source,
@@ -584,7 +584,7 @@ to calculate `.length`:
 This changes pagination count cost from a database aggregate to O(N) data
 transfer and memory allocation.
 
-**Priority:** High before large tenant/user datasets.  
+**Priority:** High before large tenant/user datasets.
 **Fix:** implement typed Prisma `count` methods and verify query plans/indexes.
 
 ## Additional Performance Risks
@@ -1051,8 +1051,8 @@ privacy properties are materially incorrect.
 
 The project already has the structure needed for a high-quality production
 platform. Converting existing conventions into executable, end-to-end
-assurance—real-role tests, privacy invariants, complete workspace CI, and
-reversible delivery—will produce a larger quality gain than adding new
+assuranceâ€”real-role tests, privacy invariants, complete workspace CI, and
+reversible deliveryâ€”will produce a larger quality gain than adding new
 abstractions or features.
 
 ## Management Summary

@@ -1,7 +1,7 @@
 # Tasks: Authorization Correction
 
-**Input**: Design documents from `specs/053-authorization-correction/`  
-**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/authorization-enforcement-contract.md`, `quickstart.md`  
+**Input**: Design documents from `specs/053-authorization-correction/`
+**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/authorization-enforcement-contract.md`, `quickstart.md`
 **Tests**: Mandatory. Every behavior change follows RED -> GREEN -> REFACTOR.
 
 ## Phase 1: Setup and Evidence

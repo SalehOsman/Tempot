@@ -1,8 +1,8 @@
 # Feature Specification: Quality Gates Hardening
 
-**Feature Branch**: `codex/056-quality-gates-hardening`  
-**Created**: 2026-06-07  
-**Status**: Draft  
+**Feature Branch**: `codex/056-quality-gates-hardening`
+**Created**: 2026-06-07
+**Status**: Draft
 **Input**: Project audit findings that root CI omits application tests, bot-server has hidden failing tests, coverage policy is not enforced, documentation freshness is broken, and toolchain/documentation conformance has drifted.
 
 ## Clarifications

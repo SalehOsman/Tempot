@@ -1,7 +1,7 @@
 # Tasks: Sensitive Data Protection
 
-**Input**: Design documents from `specs/054-sensitive-data-protection/`  
-**Prerequisites**: All files in this spec, including `detailed-specs.md` and `contracts/protected-data-contract.md`  
+**Input**: Design documents from `specs/054-sensitive-data-protection/`
+**Prerequisites**: All files in this spec, including `detailed-specs.md` and `contracts/protected-data-contract.md`
 **Tests**: Mandatory. Security behavior follows RED -> GREEN -> REFACTOR.
 
 ## Phase 1: Approval and Inventory

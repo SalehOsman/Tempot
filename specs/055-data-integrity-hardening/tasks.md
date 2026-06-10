@@ -1,6 +1,6 @@
 # Tasks: Data Integrity Hardening
 
-**Input**: Design documents from `specs/055-data-integrity-hardening/`  
+**Input**: Design documents from `specs/055-data-integrity-hardening/`
 **Tests**: Mandatory. Each invariant uses RED -> GREEN -> REFACTOR and a separate scoped commit.
 
 ## Phase 1: Setup and Blast Radius
