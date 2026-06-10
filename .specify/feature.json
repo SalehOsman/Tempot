@@ -1,5 +1,5 @@
 {
-  "feature": "052-module-flow-governance",
-  "feature_directory": "specs/052-module-flow-governance",
-  "specPath": "specs/052-module-flow-governance/spec.md"
+  "feature": "053-authorization-correction",
+  "feature_directory": "specs/053-authorization-correction",
+  "specPath": "specs/053-authorization-correction/spec.md"
 }

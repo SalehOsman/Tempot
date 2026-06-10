@@ -29,7 +29,7 @@ truth for project status.
 ## Requirements
 
 - Node.js 22.12 or newer.
-- pnpm 10 or newer.
+- pnpm 11 or newer.
 - Docker for PostgreSQL, pgvector, and Redis integration tests.
 
 ## Quick Start
