@@ -180,6 +180,7 @@ describe('createAuditMiddleware', () => {
       userId: 123,
       chatId: 456,
       responseCount: 0,
+      eventCount: 0,
       startedAt: 100,
     };
 

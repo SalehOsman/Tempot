@@ -16,6 +16,7 @@ export default defineConfig({
             'packages/*/tests/unit/**/*.test.ts',
             'modules/*/tests/unit/**/*.test.ts',
             'scripts/*/tests/unit/**/*.test.ts',
+            'apps/*/tests/unit/**/*.test.ts',
           ],
           exclude: baseExclude,
           environment: 'node',
