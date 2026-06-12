@@ -35,6 +35,14 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     testDb = new TestDB();
     await testDb.start();
 
+    // Build the test-module fixture so module discovery can import its dist/
+    // output (matches production module-loader behavior in deps.orchestrator.ts).
+    const fixturePath = path.resolve(__dirname, '__fixtures__/modules/test-module');
+    execSync('pnpm exec tsc -p .', {
+      cwd: fixturePath,
+      stdio: 'inherit',
+    });
+
     // Push Prisma schema
     execSync('pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
