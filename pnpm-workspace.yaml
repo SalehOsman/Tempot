@@ -25,3 +25,7 @@ overrides:
   protobufjs: '>=7.5.8'
   # Security: GHSA-ph9p-34f9-6g65 - tmp path traversal via unsanitized prefix/postfix (<0.2.6).
   tmp: '>=0.2.6'
+  # Security: GHSA-99f4-grh7-6pcq + GHSA-5375-pq7m-f5r2 — @grpc/grpc-js server/client
+  # crash on malformed message (>=1.14.0 <1.14.4). Affects dev-only path
+  # testcontainers > dockerode. Pin to patched range.
+  '@grpc/grpc-js': '>=1.14.4'
