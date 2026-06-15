@@ -1,8 +1,7 @@
 # Remediation Sequence Reconciliation Design
 
 **Date:** 2026-06-15
-**Status:** Project Manager approved the improved sequence in conversation;
-written design pending review
+**Status:** Approved by the Project Manager on 2026-06-15
 **Scope:** Specs 053-057 remediation sequencing and branch reconciliation
 
 ## Context
