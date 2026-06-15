@@ -3,7 +3,7 @@ import { TestDB } from '@tempot/database/testing';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { err, ok } from 'neverthrow';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 // Mock cwd to point to fixtures so discovery finds test-module
 const mockCwd = path.resolve(__dirname, '__fixtures__');
@@ -41,7 +41,8 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     // Build the test-module fixture so module discovery can import its dist/
     // output (matches production module-loader behavior in deps.orchestrator.ts).
     const fixturePath = path.resolve(__dirname, '__fixtures__/modules/test-module');
-    execSync('pnpm exec tsc -p .', {
+    const tscPath = path.resolve(__dirname, '../../../../node_modules/typescript/bin/tsc');
+    execFileSync(process.execPath, [tscPath, '-p', '.'], {
       cwd: fixturePath,
       stdio: 'inherit',
     });
