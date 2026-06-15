@@ -2,32 +2,14 @@ import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TestDB } from '@tempot/database/testing';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import ts from 'typescript';
 import { err, ok } from 'neverthrow';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 // Mock cwd to point to fixtures so discovery finds test-module
 const mockCwd = path.resolve(__dirname, '__fixtures__');
 vi.spyOn(process, 'cwd').mockReturnValue(mockCwd);
 
 const fixtureModuleDir = path.join(mockCwd, 'modules', 'test-module');
-
-async function buildModuleFixture(): Promise<void> {
-  const distDir = path.join(fixtureModuleDir, 'dist');
-  await fs.mkdir(distDir, { recursive: true });
-
-  for (const fileName of ['index.ts', 'module.config.ts']) {
-    const source = await fs.readFile(path.join(fixtureModuleDir, fileName), 'utf8');
-    const output = ts.transpileModule(source, {
-      compilerOptions: {
-        module: ts.ModuleKind.NodeNext,
-        target: ts.ScriptTarget.ES2022,
-      },
-      fileName,
-    });
-    await fs.writeFile(path.join(distDir, fileName.replace(/\.ts$/, '.js')), output.outputText);
-  }
-}
 
 import { buildDeps } from '../../src/startup/deps.factory.js';
 import { startApplication } from '../../src/startup/orchestrator.js';
@@ -49,14 +31,31 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     process.env.BOT_MODE = 'polling';
     process.env.SUPER_ADMIN_IDS = '123';
     process.env.PORT = '3000';
+    process.env.DEFAULT_LANGUAGE = 'en';
+    process.env.DEFAULT_COUNTRY = 'US';
+    process.env.PROTECTED_DATA_ACTIVE_ENCRYPTION_KEY_VERSION = 'enc-test-v1';
+    process.env.PROTECTED_DATA_ENCRYPTION_KEYS = JSON.stringify({
+      'enc-test-v1': Buffer.alloc(32, 71).toString('base64'),
+    });
+    process.env.PROTECTED_DATA_ACTIVE_LOOKUP_KEY_VERSION = 'lookup-test-v1';
+    process.env.PROTECTED_DATA_LOOKUP_KEYS = JSON.stringify({
+      'lookup-test-v1': Buffer.alloc(32, 72).toString('base64'),
+    });
 
     // We must disable Sentry locally to avoid real network requests
     process.env.SENTRY_DSN = '';
 
-    await buildModuleFixture();
-
     testDb = new TestDB();
     await testDb.start();
+
+    // Build the test-module fixture so module discovery can import its dist/
+    // output (matches production module-loader behavior in deps.orchestrator.ts).
+    const fixturePath = path.resolve(__dirname, '__fixtures__/modules/test-module');
+    const tscPath = path.resolve(__dirname, '../../../../node_modules/typescript/bin/tsc');
+    execFileSync(process.execPath, [tscPath, '-p', '.'], {
+      cwd: fixturePath,
+      stdio: 'inherit',
+    });
 
     // Push Prisma schema
     execSync('corepack pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {

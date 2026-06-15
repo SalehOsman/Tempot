@@ -83,13 +83,18 @@ describe('UserRepository routine listing', () => {
     const database = createDatabase();
     const { repository, recover } = repositoryWith(database);
 
-    const result = await repository.findMany();
+    const result = await repository.search('', 0, 10);
 
     expect(result.isOk()).toBe(true);
     expect(database.findMany).toHaveBeenCalledWith({
       where: { isDeleted: false },
       select: safeSelect,
+      skip: 0,
+      take: 10,
     });
+    expect(database.count).toHaveBeenCalledWith({ where: { isDeleted: false } });
+    if (result.isErr()) return;
+    expect(result.value.users).toEqual([database.row]);
     expect(recover).not.toHaveBeenCalled();
   });
 

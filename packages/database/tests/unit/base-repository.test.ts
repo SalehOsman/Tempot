@@ -32,6 +32,10 @@ class TestRepository extends BaseRepository<TestEntity> {
   get mockModel() {
     return this._mockModel;
   }
+
+  findActive(where?: Record<string, unknown>) {
+    return this.findMany(where);
+  }
 }
 
 describe('BaseRepository', () => {
@@ -61,7 +65,7 @@ describe('BaseRepository', () => {
     ];
     repo.mockModel.findMany.mockResolvedValue(items);
 
-    const result = await repo.findMany();
+    const result = await repo.findActive();
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(items);
@@ -75,11 +79,24 @@ describe('BaseRepository', () => {
     const repo = new TestRepository(auditLogger);
     repo.mockModel.findMany.mockResolvedValue([]);
 
-    const result = await repo.findMany({ name: 'test' });
+    const result = await repo.findActive({ name: 'test' });
 
     expect(result.isOk()).toBe(true);
     expect(repo.mockModel.findMany).toHaveBeenCalledWith({
       where: { isDeleted: false, name: 'test' },
+    });
+  });
+
+  it('should prevent flat findMany filters from overriding the active-record scope', async () => {
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repo = new TestRepository(auditLogger);
+    repo.mockModel.findMany.mockResolvedValue([]);
+
+    const result = await repo.findActive({ isDeleted: true, name: 'test' });
+
+    expect(result.isOk()).toBe(true);
+    expect(repo.mockModel.findMany).toHaveBeenCalledWith({
+      where: { name: 'test', isDeleted: false },
     });
   });
 
@@ -88,7 +105,7 @@ describe('BaseRepository', () => {
     const repo = new TestRepository(auditLogger);
     repo.mockModel.findMany.mockResolvedValue([]);
 
-    const result = await repo.findMany({
+    const result = await repo.findActive({
       where: { name: 'test' },
       skip: 10,
       take: 5,
@@ -104,12 +121,29 @@ describe('BaseRepository', () => {
     });
   });
 
+  it('should prevent nested findMany filters from overriding the active-record scope', async () => {
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repo = new TestRepository(auditLogger);
+    repo.mockModel.findMany.mockResolvedValue([]);
+
+    const result = await repo.findActive({
+      where: { isDeleted: true, name: 'test' },
+      take: 5,
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(repo.mockModel.findMany).toHaveBeenCalledWith({
+      where: { name: 'test', isDeleted: false },
+      take: 5,
+    });
+  });
+
   it('should return err on findMany failure', async () => {
     const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
     const repo = new TestRepository(auditLogger);
     repo.mockModel.findMany.mockRejectedValue(new Error('DB error'));
 
-    const result = await repo.findMany();
+    const result = await repo.findActive();
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().message).toBe('test.find_many_failed');

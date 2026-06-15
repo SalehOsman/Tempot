@@ -1,7 +1,7 @@
 # Requirements Quality Checklist: Data Integrity Hardening
 
-**Purpose**: Validate transaction, deletion, repository, and pagination requirements  
-**Created**: 2026-06-07  
+**Purpose**: Validate transaction, deletion, repository, and pagination requirements
+**Created**: 2026-06-07
 **Feature**: [spec.md](../spec.md)
 
 ## Atomicity

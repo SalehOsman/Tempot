@@ -69,3 +69,47 @@ audit, with narrow documented exceptions for low-level database boot and
 migrations.
 
 **Rationale**: Manual review did not prevent current composition-layer bypasses.
+
+## Reconciliation Baseline - 2026-06-15
+
+### Shared Database Blast Radius
+
+`BaseRepository` is consumed directly or through module base repositories by:
+
+- `modules/user-management`
+- `modules/template-management`
+- `modules/bot-management`
+- `packages/session-manager`
+- `packages/storage-engine`
+- `packages/database` audit repositories and transaction tests
+
+The global Prisma soft-delete query extension affects every soft-deletable
+model reached through the shared client. Changes therefore require focused
+database integration tests plus user, template, bot, session, and storage
+regression coverage.
+
+### Reconciled Defect Status
+
+- **Resolved in the foundation:** `UserService.updateNationalId()` and
+  `UserService.extractFromExistingNationalId()` coordinate independent
+  repository updates through `Promise.all`, permitting mixed identity state.
+- **Resolved in the foundation:** Both the global Prisma extension and
+  `BaseRepository.findMany()` apply
+  `isDeleted: false` before caller criteria, so caller input can overwrite the
+  protected scope.
+- **Open:** Bot startup reads audit and interaction records directly and writes sessions
+  directly through Prisma.
+- **Open:** User, template, and bot pagination load complete result sets to derive
+  `totalCount`.
+
+### Foundation Boundary
+
+The pre-Spec-054 foundation implements:
+
+- one repository call for national-ID-derived identity state;
+- non-overridable normal-read soft-delete enforcement;
+- adversarial regression tests and shared-consumer blast-radius checks.
+
+Protected audit persistence, privileged deleted-record recovery, remaining
+direct-Prisma replacement, and aggregate pagination remain open for the
+post-Spec-054 continuation of Spec 055.

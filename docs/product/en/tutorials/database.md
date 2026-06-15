@@ -80,7 +80,9 @@ export class TaskRepository extends BaseRepository<Task> {
 }
 ```
 
-This gives you `findById`, `findMany`, `create`, `update`, and `delete` for free.
+This gives you public `findById`, `create`, `update`, and `delete` operations.
+The protected `findMany` helper is available for purpose-specific methods
+inside the repository.
 
 Do not pass classified plaintext to these generic methods. Follow the
 `UserRepository` pattern: protect the value first, persist the envelope and
@@ -105,7 +107,9 @@ export class TaskRepository extends BaseRepository<Task> {
 }
 ```
 
-The `findMany` base method automatically filters out soft-deleted records.
+The protected `findMany` base method enforces the active-record scope after
+your criteria, so the method cannot expose soft-deleted records through a
+conflicting filter.
 
 ### Step 4: Instantiate with an Audit Logger
 

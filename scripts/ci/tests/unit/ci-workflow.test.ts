@@ -60,4 +60,16 @@ describe('CI workflow quality gates', () => {
       coverageJob.indexOf('pnpm test:coverage'),
     );
   });
+
+  it('should report the known coverage baseline without blocking the foundation slice', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const coverageJob = workflow.slice(
+      workflow.indexOf('  coverage:'),
+      workflow.indexOf('  audit:'),
+    );
+
+    expect(coverageJob).toContain('name: Coverage Baseline (Non-blocking)');
+    expect(coverageJob).toContain('continue-on-error: true');
+    expect(coverageJob).toContain('pnpm test:coverage');
+  });
 });

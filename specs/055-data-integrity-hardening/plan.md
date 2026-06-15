@@ -12,14 +12,14 @@ policy only where duplication is proven.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: Prisma 7.x, neverthrow 8.2.0, existing BaseRepository and authorization context  
-**Storage**: PostgreSQL 16  
-**Testing**: Vitest 4.1.0, Testcontainers, boundary audit, query/mocking assertions  
-**Target Platform**: Node.js 22.12+  
-**Project Type**: TypeScript modular monorepo  
-**Performance Goals**: Paginated requests transfer only page rows plus aggregate count; no O(N) entity load for totals  
-**Constraints**: Repository-only business access, Result APIs, soft-delete enforcement, scoped commits, no unrelated repository rewrite  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: Prisma 7.x, neverthrow 8.2.0, existing BaseRepository and authorization context
+**Storage**: PostgreSQL 16
+**Testing**: Vitest 4.1.0, Testcontainers, boundary audit, query/mocking assertions
+**Target Platform**: Node.js 22.12+
+**Project Type**: TypeScript modular monorepo
+**Performance Goals**: Paginated requests transfer only page rows plus aggregate count; no O(N) entity load for totals
+**Constraints**: Repository-only business access, Result APIs, soft-delete enforcement, scoped commits, no unrelated repository rewrite
 **Scale/Scope**: Shared database package, bot-server composition reads, user-management, template-management, bot-management
 
 ## Constitution Check

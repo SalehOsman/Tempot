@@ -1,19 +1,24 @@
 # Tempot Comprehensive Technical Audit
 
-**Audit date:** 2026-06-07  
-**Repository:** `https://github.com/SalehOsman/Tempot`  
-**Audited commit:** `f1028fecb0e63a1dc6c8c25888babf1324e5d64f`  
-**Audit branch:** `codex/project-audit-2026-06-07`  
-**Review roles:** Senior Software Architect, Principal Backend Engineer, DevSecOps Engineer, QA/Test Lead, Product/Technical Project Manager, Code Reviewer  
-**Audit type:** Read-only source, configuration, documentation, test, security, operations, and delivery review  
+**Audit date:** 2026-06-07
+**Repository:** `https://github.com/SalehOsman/Tempot`
+**Audited commit:** `f1028fecb0e63a1dc6c8c25888babf1324e5d64f`
+**Audit branch:** `codex/project-audit-2026-06-07`
+**Review roles:** Senior Software Architect, Principal Backend Engineer, DevSecOps Engineer, QA/Test Lead, Product/Technical Project Manager, Code Reviewer
+**Audit type:** Read-only source, configuration, documentation, test, security, operations, and delivery review
 
 > This report is written in English because Tempot Constitution Rule I requires all
 > developer-facing documentation to be in English. No application source,
 > configuration, dependency, or test file was modified during this audit.
 
 **Approved remediation plan:** [SpecKit Remediation Program](./remediation-program.md)
-covering Specs #053-#057. The program is planned; no remediation implementation
-is claimed by this report.
+covering Specs #053-#057.
+
+> **Reconciliation note (2026-06-15):** This document preserves the immutable
+> 2026-06-07 audit snapshot. Current execution status is maintained in the
+> remediation program and `docs/ROADMAP.md`. Spec 053 and the Spec 056
+> foundation are verified on `codex/remediation-sequence-reconciliation`;
+> remaining coverage currently reports 23 blocking findings and 9 warnings.
 
 ## Audit Scope and Method
 
@@ -30,37 +35,37 @@ external Redis instance, or live deployment was exercised.
 
 ### Repository Snapshot
 
-| Metric | Observed value |
-|---|---:|
-| Tracked files | 1,930 |
-| TypeScript files | 930 |
-| Test files | 313 |
-| Markdown files | 774 |
-| JSON files | 102 |
-| Workspace projects built | 32 |
-| Spec directories | 50 |
-| Active business modules | 8 |
-| Root test cases executed | 1,989 |
+| Metric                   | Observed value |
+| ------------------------ | -------------: |
+| Tracked files            |          1,930 |
+| TypeScript files         |            930 |
+| Test files               |            313 |
+| Markdown files           |            774 |
+| JSON files               |            102 |
+| Workspace projects built |             32 |
+| Spec directories         |             50 |
+| Active business modules  |              8 |
+| Root test cases executed |          1,989 |
 
 ### Commands Executed
 
-| Command | Result | Relevant observation |
-|---|---|---|
-| `pnpm spec:validate` | Pass | 300/300 checks passed |
-| `pnpm cms:check` | Pass | No reported CMS violations |
-| `pnpm lint` | Pass | ESLint completed successfully |
-| `pnpm boundary:audit` | Pass | 930 TypeScript files, 0 reported boundary violations |
-| `pnpm module:checklist` | Pass | 8 modules, 0 reported violations |
-| `pnpm build` | Pass | 32 workspace projects built |
-| `pnpm test:unit` | Pass | 241 files, 1,942 tests |
-| `pnpm test:integration` | Pass | 14 files, 47 tests |
-| `pnpm test:coverage` | Pass with warning | 84.07% statements, 75.64% branches, 71.04% functions, 85.11% lines |
-| `pnpm --filter bot-server test` | **Fail** | 2 failed, 185 passed |
-| `pnpm --filter docs test` | Pass | 7 files, 119 tests |
-| `pnpm docs:freshness` | **Fail** | Root script does not exist |
-| `pnpm --filter docs docs:freshness` | **Fail** | `ENOENT: scandir F:\Tempot\apps\docs\packages` |
-| `pnpm audit --audit-level=high` | Pass threshold | 6 moderate and 1 low vulnerabilities remain |
-| `pnpm --filter @tempot/database db:generate` | Pass | Prisma generation succeeded |
+| Command                                      | Result            | Relevant observation                                               |
+| -------------------------------------------- | ----------------- | ------------------------------------------------------------------ |
+| `pnpm spec:validate`                         | Pass              | 300/300 checks passed                                              |
+| `pnpm cms:check`                             | Pass              | No reported CMS violations                                         |
+| `pnpm lint`                                  | Pass              | ESLint completed successfully                                      |
+| `pnpm boundary:audit`                        | Pass              | 930 TypeScript files, 0 reported boundary violations               |
+| `pnpm module:checklist`                      | Pass              | 8 modules, 0 reported violations                                   |
+| `pnpm build`                                 | Pass              | 32 workspace projects built                                        |
+| `pnpm test:unit`                             | Pass              | 241 files, 1,942 tests                                             |
+| `pnpm test:integration`                      | Pass              | 14 files, 47 tests                                                 |
+| `pnpm test:coverage`                         | Pass with warning | 84.07% statements, 75.64% branches, 71.04% functions, 85.11% lines |
+| `pnpm --filter bot-server test`              | **Fail**          | 2 failed, 185 passed                                               |
+| `pnpm --filter docs test`                    | Pass              | 7 files, 119 tests                                                 |
+| `pnpm docs:freshness`                        | **Fail**          | Root script does not exist                                         |
+| `pnpm --filter docs docs:freshness`          | **Fail**          | `ENOENT: scandir F:\Tempot\apps\docs\packages`                     |
+| `pnpm audit --audit-level=high`              | Pass threshold    | 6 moderate and 1 low vulnerabilities remain                        |
+| `pnpm --filter @tempot/database db:generate` | Pass              | Prisma generation succeeded                                        |
 
 ---
 
@@ -137,33 +142,33 @@ expansion.
 
 # 2. Percentage-Based Assessment
 
-| Area | Score | Rating | Short rationale |
-|---|---:|---|---|
-| Architecture | 78% | Good | Strong modular intent and boundaries, with some composition-layer repository bypasses |
-| Code Quality | 76% | Good | Strict typing and linting are strong; unsafe casts, hardcoded strings, and semantic defects remain |
-| Maintainability | 72% | Good | Packages are separated, but documentation drift and repeated repository patterns increase maintenance cost |
-| Scalability | 70% | Good | Redis, queues, caching, and modular composition exist; inefficient counts and operational gaps remain |
-| Security | 55% | Weak | Authorization defect, plaintext PII, insufficient redaction, and dependency advisories |
-| Error Handling | 80% | Good | Structured `Result` usage and error references; some async initialization can reject outside the contract |
-| Logging & Monitoring | 74% | Good | Pino, Sentry, probes, and audit events exist; metrics, alert delivery, and sensitive-field coverage are incomplete |
-| Testing | 67% | Medium | 1,989 root tests and good aggregate coverage, but app tests are omitted and tier thresholds are not enforced |
-| Documentation | 62% | Medium | Extensive documentation volume, but active files are stale and freshness automation is broken |
-| Configuration Management | 63% | Medium | Typed validation exists, but variable names, pnpm versions, and deployment instructions drift |
-| Database/Data Model | 62% | Medium | Prisma models and repositories are mature; PII protection, transaction boundaries, and deletion invariants are deficient |
-| API Design | 71% | Good | Small Hono surface and secure webhook comparison; validation and HTTP hardening are incomplete |
-| Performance | 68% | Medium | Caching and queues exist; full-record reads for counts and oversized runtime artifacts create avoidable cost |
-| Deployment Readiness | 52% | Weak | Image builds, but production hardening, safe secrets, scan/sign, and rollback execution are incomplete |
-| CI/CD | 65% | Medium | Multiple gates exist; app tests, docs freshness, minimum runtime, coverage policy, and supply-chain gates are missing |
-| Developer Experience | 76% | Good | Strong scripts and governance; stale READMEs and runtime version mismatch create avoidable friction |
+| Area                     | Score | Rating | Short rationale                                                                                                          |
+| ------------------------ | ----: | ------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Architecture             |   78% | Good   | Strong modular intent and boundaries, with some composition-layer repository bypasses                                    |
+| Code Quality             |   76% | Good   | Strict typing and linting are strong; unsafe casts, hardcoded strings, and semantic defects remain                       |
+| Maintainability          |   72% | Good   | Packages are separated, but documentation drift and repeated repository patterns increase maintenance cost               |
+| Scalability              |   70% | Good   | Redis, queues, caching, and modular composition exist; inefficient counts and operational gaps remain                    |
+| Security                 |   55% | Weak   | Authorization defect, plaintext PII, insufficient redaction, and dependency advisories                                   |
+| Error Handling           |   80% | Good   | Structured `Result` usage and error references; some async initialization can reject outside the contract                |
+| Logging & Monitoring     |   74% | Good   | Pino, Sentry, probes, and audit events exist; metrics, alert delivery, and sensitive-field coverage are incomplete       |
+| Testing                  |   67% | Medium | 1,989 root tests and good aggregate coverage, but app tests are omitted and tier thresholds are not enforced             |
+| Documentation            |   62% | Medium | Extensive documentation volume, but active files are stale and freshness automation is broken                            |
+| Configuration Management |   63% | Medium | Typed validation exists, but variable names, pnpm versions, and deployment instructions drift                            |
+| Database/Data Model      |   62% | Medium | Prisma models and repositories are mature; PII protection, transaction boundaries, and deletion invariants are deficient |
+| API Design               |   71% | Good   | Small Hono surface and secure webhook comparison; validation and HTTP hardening are incomplete                           |
+| Performance              |   68% | Medium | Caching and queues exist; full-record reads for counts and oversized runtime artifacts create avoidable cost             |
+| Deployment Readiness     |   52% | Weak   | Image builds, but production hardening, safe secrets, scan/sign, and rollback execution are incomplete                   |
+| CI/CD                    |   65% | Medium | Multiple gates exist; app tests, docs freshness, minimum runtime, coverage policy, and supply-chain gates are missing    |
+| Developer Experience     |   76% | Good   | Strong scripts and governance; stale READMEs and runtime version mismatch create avoidable friction                      |
 
 ## Composite Scores
 
-| Composite | Score | Meaning |
-|---|---:|---|
-| Overall Technical Score | **69/100** | Solid foundation with material correctness and governance gaps |
-| Production Readiness Score | **49/100** | Deployment must remain blocked pending P0/P1 remediation |
-| Maintainability Score | **72/100** | Maintainable with targeted consolidation and documentation repair |
-| Risk Score | **63/100** | Elevated risk; higher score means greater operational/business exposure |
+| Composite                  |      Score | Meaning                                                                 |
+| -------------------------- | ---------: | ----------------------------------------------------------------------- |
+| Overall Technical Score    | **69/100** | Solid foundation with material correctness and governance gaps          |
+| Production Readiness Score | **49/100** | Deployment must remain blocked pending P0/P1 remediation                |
+| Maintainability Score      | **72/100** | Maintainable with targeted consolidation and documentation repair       |
+| Risk Score                 | **63/100** | Elevated risk; higher score means greater operational/business exposure |
 
 The low production score is driven by severity, not by the raw number of
 findings. One global authorization defect or one systemic privacy failure is
@@ -175,16 +180,16 @@ enough to block release.
 
 ## Current Organization
 
-| Area | Purpose | Assessment |
-|---|---|---|
-| `apps/bot-server/` | Runtime composition, grammY bot, Hono server, startup | Logical application boundary |
-| `apps/docs/` | Starlight documentation application and generators | Appropriate, but scripts assume the wrong working directory |
-| `packages/` | Reusable technical capabilities | Strong separation overall |
-| `modules/` | Business modules and module manifests | Appropriate modular direction |
-| `specs/` | SpecKit feature artifacts | Extensive and consistently validated |
-| `scripts/` | CI audits, SpecKit validation, tooling | Useful, but some root capabilities are not exposed as scripts |
-| `docs/` | Architecture, product, developer, operations documentation | Broad coverage with significant freshness drift |
-| `.github/workflows/` | CI, docs lint, container publishing | Good base, incomplete release assurance |
+| Area                 | Purpose                                                    | Assessment                                                    |
+| -------------------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
+| `apps/bot-server/`   | Runtime composition, grammY bot, Hono server, startup      | Logical application boundary                                  |
+| `apps/docs/`         | Starlight documentation application and generators         | Appropriate, but scripts assume the wrong working directory   |
+| `packages/`          | Reusable technical capabilities                            | Strong separation overall                                     |
+| `modules/`           | Business modules and module manifests                      | Appropriate modular direction                                 |
+| `specs/`             | SpecKit feature artifacts                                  | Extensive and consistently validated                          |
+| `scripts/`           | CI audits, SpecKit validation, tooling                     | Useful, but some root capabilities are not exposed as scripts |
+| `docs/`              | Architecture, product, developer, operations documentation | Broad coverage with significant freshness drift               |
+| `.github/workflows/` | CI, docs lint, container publishing                        | Good base, incomplete release assurance                       |
 
 ## Layer Separation
 
@@ -207,13 +212,13 @@ testing, and auditing less uniform.
 
 ## Structural Problems
 
-| Problem | Evidence | Consequence |
-|---|---|---|
-| Root test projects exclude applications | `vitest.config.ts` unit/integration includes only packages, modules, and scripts | Bot-server regressions are invisible to the principal CI test commands |
-| Repeated module base repositories | `modules/template-management/repositories/module-base.repository.ts`; `modules/bot-management/repositories/module-base.repository.ts` | Deletion behavior and pagination fixes must be repeated |
-| Missing active module READMEs | `modules/audit-viewer`, `content-management`, `help-center`, `notification-center`, `settings-management` | Violates module documentation expectations and slows onboarding |
-| Runtime validator requires source/spec trees | `apps/bot-server/Dockerfile:90-114` | Production image contains more repository content than the running service needs |
-| Documentation checks are split and inconsistently callable | Root `package.json`; `apps/docs/package.json:13-16` | A documented quality gate cannot run reliably from the root |
+| Problem                                                    | Evidence                                                                                                                              | Consequence                                                                      |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Root test projects exclude applications                    | `vitest.config.ts` unit/integration includes only packages, modules, and scripts                                                      | Bot-server regressions are invisible to the principal CI test commands           |
+| Repeated module base repositories                          | `modules/template-management/repositories/module-base.repository.ts`; `modules/bot-management/repositories/module-base.repository.ts` | Deletion behavior and pagination fixes must be repeated                          |
+| Missing active module READMEs                              | `modules/audit-viewer`, `content-management`, `help-center`, `notification-center`, `settings-management`                             | Violates module documentation expectations and slows onboarding                  |
+| Runtime validator requires source/spec trees               | `apps/bot-server/Dockerfile:90-114`                                                                                                   | Production image contains more repository content than the running service needs |
+| Documentation checks are split and inconsistently callable | Root `package.json`; `apps/docs/package.json:13-16`                                                                                   | A documented quality gate cannot run reliably from the root                      |
 
 ## Structural Verdict
 
@@ -258,7 +263,7 @@ Tempot uses a modular monolith with elements of:
 `apps/bot-server/src/bot/middleware/auth.middleware.ts:45-57` requires:
 
 ```ts
-Guard.enforce(ability, 'manage', 'all')
+Guard.enforce(ability, 'manage', 'all');
 ```
 
 for every update. `apps/bot-server/src/startup/deps.bot-factory.ts:103-108`
@@ -335,16 +340,16 @@ active, modules are small enough to navigate, and the lint/boundary gates pass.
 The main quality concern is that automated conformance has not prevented
 semantic violations.
 
-| Problem | File/evidence | Severity | Impact | Proposed resolution |
-|---|---|---:|---|---|
-| Administrative authorization applied to every update | `apps/bot-server/src/bot/middleware/auth.middleware.ts:45-57` | Critical | Normal users cannot use the product | Authenticate globally; authorize action/resource in handlers |
-| Unsafe type erasure | `apps/bot-server/src/startup/deps.orchestrator.ts:42,46` | Medium | Masks contract mismatch | Add typed adapter/interface |
-| Hardcoded alert HTML | `apps/bot-server/src/startup/deps.bot-factory.ts:54-57` | Medium | i18n violation and unsafe HTML payload composition | Use locale key and escape dynamic values |
-| Hardcoded event alert text | `packages/event-bus/src/event-bus.orchestrator.ts:49-52` | Medium | Inconsistent operator/user messaging | Use structured event fields and localized renderer |
-| Production comments are not English | `apps/bot-server/src/index.ts:15`; user-management service/repository comments | Low | Violates documentation language rule | Translate developer-facing comments |
-| ESLint suppression in script | `apps/bot-server/scripts/webhook-manager.ts:1-2` | Low | Creates a policy exception hidden from root lint | Replace suppression with a script logger or narrow tooling rule |
-| Repeated full-list count pattern | User/template repositories | Medium | O(N) reads for paginated requests | Add typed `count` repository operation |
-| Stale TODO and phase comments | `docker-compose.yml:10-14`; `apps/bot-server/README.md` | Low | Misleads maintainers | Reconcile with roadmap and actual runtime |
+| Problem                                              | File/evidence                                                                  | Severity | Impact                                             | Proposed resolution                                             |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------ | -------: | -------------------------------------------------- | --------------------------------------------------------------- |
+| Administrative authorization applied to every update | `apps/bot-server/src/bot/middleware/auth.middleware.ts:45-57`                  | Critical | Normal users cannot use the product                | Authenticate globally; authorize action/resource in handlers    |
+| Unsafe type erasure                                  | `apps/bot-server/src/startup/deps.orchestrator.ts:42,46`                       |   Medium | Masks contract mismatch                            | Add typed adapter/interface                                     |
+| Hardcoded alert HTML                                 | `apps/bot-server/src/startup/deps.bot-factory.ts:54-57`                        |   Medium | i18n violation and unsafe HTML payload composition | Use locale key and escape dynamic values                        |
+| Hardcoded event alert text                           | `packages/event-bus/src/event-bus.orchestrator.ts:49-52`                       |   Medium | Inconsistent operator/user messaging               | Use structured event fields and localized renderer              |
+| Production comments are not English                  | `apps/bot-server/src/index.ts:15`; user-management service/repository comments |      Low | Violates documentation language rule               | Translate developer-facing comments                             |
+| ESLint suppression in script                         | `apps/bot-server/scripts/webhook-manager.ts:1-2`                               |      Low | Creates a policy exception hidden from root lint   | Replace suppression with a script logger or narrow tooling rule |
+| Repeated full-list count pattern                     | User/template repositories                                                     |   Medium | O(N) reads for paginated requests                  | Add typed `count` repository operation                          |
+| Stale TODO and phase comments                        | `docker-compose.yml:10-14`; `apps/bot-server/README.md`                        |      Low | Misleads maintainers                               | Reconcile with roadmap and actual runtime                       |
 
 ## Duplication and Complexity
 
@@ -457,21 +462,21 @@ constitution-pinned Vitest version.
 
 # 7. Security Review
 
-| Vulnerability/risk | Severity | Evidence | Impact | Treatment |
-|---|---:|---|---|---|
-| Global authorization denies legitimate roles and bypasses intended module policy | Critical | Auth middleware and ability factory cited above | Product unavailable to normal roles; policy architecture is invalid | Redesign global middleware and add real-role authorization tests |
-| Sensitive PII stored plaintext | High | `packages/database/prisma/schema.prisma:17-47`; `modules/user-management/repositories/user.repository.ts:54-77` | Database compromise exposes identity data | AES-256 field encryption with key rotation and migration |
-| PII copied into immutable audit JSON | High | `packages/database/src/base/base.repository.ts:128-163`; `schema.prisma:51-65` | Expands breach scope and retention risk | Field allowlist, masking/tokenization, and migration of old audit records |
-| Logger redaction omits identity fields | High | `packages/logger/src/logger.config.ts:1` | Email, national ID, or mobile may enter logs | Add exact/nested redaction paths and tests |
-| Hono runtime advisories | Medium | Audit found Hono advisories below `4.12.21` | Potential restriction bypass, cookie injection, JWT scheme issue, routing issue depending on used APIs | Upgrade/pin Hono and run regression/security tests |
-| Other transitive advisories | Medium | `qs`, `uuid`, `@ai-sdk/provider-utils` audit findings | DoS, buffer-bound, or resource-consumption risk | Upgrade direct/transitive owners; document exploitability |
-| Detailed public health response | Medium | `apps/bot-server/src/server/routes/health.route.ts:30-43` | Reveals subsystem and error details | Public liveness only; authenticated/internal readiness details |
-| Missing HTTP hardening middleware | Medium | `apps/bot-server/src/server/hono.factory.ts:17-38` | Larger attack surface for future HTTP routes | Secure headers, body limit, request rate limit, explicit CORS policy |
-| Redis/PostgreSQL exposed by local Compose | Medium | `docker-compose.yml:60-80` | Unsafe if reused outside a trusted workstation | Bind to localhost or remove host ports; clearly mark local-only |
-| Redis has no authentication/TLS in Compose | Medium | `docker-compose.yml:75-85` | Unauthorized access if network-exposed | Local-only network; production managed Redis with TLS/auth |
-| Critical alerts include unescaped dynamic HTML | Medium | `apps/bot-server/src/startup/deps.bot-factory.ts:54-57` | Message corruption or markup injection | Escape values and use structured templates |
-| Rate limiter fails open when Redis fails | Medium | `apps/bot-server/src/bot/middleware/rate-limiter.middleware.ts:70-78` | Abuse protection disappears during cache outage | Degraded local limiter or risk-based fail-closed policy |
-| Container supply chain lacks scan/sign/SBOM | Medium | `.github/workflows/docker.yml` | Vulnerable or untraceable images may be published | Add Trivy/Grype, SBOM, provenance, and keyless signing |
+| Vulnerability/risk                                                               | Severity | Evidence                                                                                                        | Impact                                                                                                 | Treatment                                                                 |
+| -------------------------------------------------------------------------------- | -------: | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Global authorization denies legitimate roles and bypasses intended module policy | Critical | Auth middleware and ability factory cited above                                                                 | Product unavailable to normal roles; policy architecture is invalid                                    | Redesign global middleware and add real-role authorization tests          |
+| Sensitive PII stored plaintext                                                   |     High | `packages/database/prisma/schema.prisma:17-47`; `modules/user-management/repositories/user.repository.ts:54-77` | Database compromise exposes identity data                                                              | AES-256 field encryption with key rotation and migration                  |
+| PII copied into immutable audit JSON                                             |     High | `packages/database/src/base/base.repository.ts:128-163`; `schema.prisma:51-65`                                  | Expands breach scope and retention risk                                                                | Field allowlist, masking/tokenization, and migration of old audit records |
+| Logger redaction omits identity fields                                           |     High | `packages/logger/src/logger.config.ts:1`                                                                        | Email, national ID, or mobile may enter logs                                                           | Add exact/nested redaction paths and tests                                |
+| Hono runtime advisories                                                          |   Medium | Audit found Hono advisories below `4.12.21`                                                                     | Potential restriction bypass, cookie injection, JWT scheme issue, routing issue depending on used APIs | Upgrade/pin Hono and run regression/security tests                        |
+| Other transitive advisories                                                      |   Medium | `qs`, `uuid`, `@ai-sdk/provider-utils` audit findings                                                           | DoS, buffer-bound, or resource-consumption risk                                                        | Upgrade direct/transitive owners; document exploitability                 |
+| Detailed public health response                                                  |   Medium | `apps/bot-server/src/server/routes/health.route.ts:30-43`                                                       | Reveals subsystem and error details                                                                    | Public liveness only; authenticated/internal readiness details            |
+| Missing HTTP hardening middleware                                                |   Medium | `apps/bot-server/src/server/hono.factory.ts:17-38`                                                              | Larger attack surface for future HTTP routes                                                           | Secure headers, body limit, request rate limit, explicit CORS policy      |
+| Redis/PostgreSQL exposed by local Compose                                        |   Medium | `docker-compose.yml:60-80`                                                                                      | Unsafe if reused outside a trusted workstation                                                         | Bind to localhost or remove host ports; clearly mark local-only           |
+| Redis has no authentication/TLS in Compose                                       |   Medium | `docker-compose.yml:75-85`                                                                                      | Unauthorized access if network-exposed                                                                 | Local-only network; production managed Redis with TLS/auth                |
+| Critical alerts include unescaped dynamic HTML                                   |   Medium | `apps/bot-server/src/startup/deps.bot-factory.ts:54-57`                                                         | Message corruption or markup injection                                                                 | Escape values and use structured templates                                |
+| Rate limiter fails open when Redis fails                                         |   Medium | `apps/bot-server/src/bot/middleware/rate-limiter.middleware.ts:70-78`                                           | Abuse protection disappears during cache outage                                                        | Degraded local limiter or risk-based fail-closed policy                   |
+| Container supply chain lacks scan/sign/SBOM                                      |   Medium | `.github/workflows/docker.yml`                                                                                  | Vulnerable or untraceable images may be published                                                      | Add Trivy/Grype, SBOM, provenance, and keyless signing                    |
 
 ## Secret and Environment Review
 
@@ -502,24 +507,24 @@ as one privacy workstream rather than as independent patches.
 
 ## Existing Test Types
 
-| Type | Present | Assessment |
-|---|---|---|
-| Unit tests | Yes | Extensive across packages and modules |
-| Integration tests | Yes | Present, including database-related areas |
-| Application tests | Yes | Bot-server and docs tests exist but are not included in root test projects |
-| End-to-end Telegram flow | Limited/not proven | No live Telegram/webhook end-to-end execution was demonstrated |
-| Container smoke tests | Partial | Docker build workflow exists; runtime smoke evidence is limited |
-| Security tests | Partial | Some webhook/auth tests exist; no systematic abuse suite |
-| Performance/load tests | Not established | No repeatable load baseline was found |
+| Type                     | Present            | Assessment                                                                 |
+| ------------------------ | ------------------ | -------------------------------------------------------------------------- |
+| Unit tests               | Yes                | Extensive across packages and modules                                      |
+| Integration tests        | Yes                | Present, including database-related areas                                  |
+| Application tests        | Yes                | Bot-server and docs tests exist but are not included in root test projects |
+| End-to-end Telegram flow | Limited/not proven | No live Telegram/webhook end-to-end execution was demonstrated             |
+| Container smoke tests    | Partial            | Docker build workflow exists; runtime smoke evidence is limited            |
+| Security tests           | Partial            | Some webhook/auth tests exist; no systematic abuse suite                   |
+| Performance/load tests   | Not established    | No repeatable load baseline was found                                      |
 
 ## Coverage
 
-| Metric | Aggregate |
-|---|---:|
-| Statements | 84.07% |
-| Branches | 75.64% |
-| Functions | 71.04% |
-| Lines | 85.11% |
+| Metric     | Aggregate |
+| ---------- | --------: |
+| Statements |    84.07% |
+| Branches   |    75.64% |
+| Functions  |    71.04% |
+| Lines      |    85.11% |
 
 Aggregate coverage is acceptable, but it is misleading as a release metric:
 
@@ -584,18 +589,18 @@ to calculate `.length`:
 This changes pagination count cost from a database aggregate to O(N) data
 transfer and memory allocation.
 
-**Priority:** High before large tenant/user datasets.  
+**Priority:** High before large tenant/user datasets.
 **Fix:** implement typed Prisma `count` methods and verify query plans/indexes.
 
 ## Additional Performance Risks
 
-| Risk | Evidence/condition | Recommendation |
-|---|---|---|
-| Runtime image includes full package/module/spec trees | `apps/bot-server/Dockerfile:90-114` | Emit compiled manifest and copy runtime artifacts only |
-| Health checks can perform multiple dependency operations | Health probes | Separate lightweight liveness from detailed readiness |
-| Rate limiting depends on Redis and fails open | Rate limiter middleware | Add bounded local fallback and outage metrics |
-| Audit JSON may grow with complete entities | Base repository audit behavior | Persist minimal changed-field metadata |
-| Database indexes may expose encrypted-field design constraints | PII fields are indexed | Use deterministic token/hash columns for exact lookup, encrypted payload for storage |
+| Risk                                                           | Evidence/condition                  | Recommendation                                                                       |
+| -------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| Runtime image includes full package/module/spec trees          | `apps/bot-server/Dockerfile:90-114` | Emit compiled manifest and copy runtime artifacts only                               |
+| Health checks can perform multiple dependency operations       | Health probes                       | Separate lightweight liveness from detailed readiness                                |
+| Rate limiting depends on Redis and fails open                  | Rate limiter middleware             | Add bounded local fallback and outage metrics                                        |
+| Audit JSON may grow with complete entities                     | Base repository audit behavior      | Persist minimal changed-field metadata                                               |
+| Database indexes may expose encrypted-field design constraints | PII fields are indexed              | Use deterministic token/hash columns for exact lookup, encrypted payload for storage |
 
 ## Performance Priorities
 
@@ -683,16 +688,16 @@ internal environment can be started.
 
 ## Confirmed Documentation Defects
 
-| Defect | Evidence | Impact |
-|---|---|---|
-| Root README reports outdated module/package state | `README.md:20-24` versus `docs/ROADMAP.md` | New contributors receive false project status |
-| Root README and environment example disagree on AI variable | `README.md:55-56`; `.env.example` | Configuration failure or confusion |
-| Bot-server README describes a minimal Phase 0 app | `apps/bot-server/README.md:15-23` | Runtime architecture is misrepresented |
-| Compose comments claim bot-server is future work | `docker-compose.yml:10-14` | Operational instructions are self-contradictory |
-| Roadmap lists a root docs freshness command that does not exist | `docs/ROADMAP.md:252-262`; root `package.json` | Required gate cannot be executed as documented |
-| Docs freshness script uses workspace-relative paths | `apps/docs/scripts/check-freshness.ts:76-80` | Script fails in its package working directory |
-| Active module READMEs are missing | Five module paths listed in Section 3 | Module contracts and operations are undocumented |
-| Developer-facing Arabic remains in active docs/code | Active architecture doc and comments | Conflicts with Constitution Rule I |
+| Defect                                                          | Evidence                                       | Impact                                           |
+| --------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| Root README reports outdated module/package state               | `README.md:20-24` versus `docs/ROADMAP.md`     | New contributors receive false project status    |
+| Root README and environment example disagree on AI variable     | `README.md:55-56`; `.env.example`              | Configuration failure or confusion               |
+| Bot-server README describes a minimal Phase 0 app               | `apps/bot-server/README.md:15-23`              | Runtime architecture is misrepresented           |
+| Compose comments claim bot-server is future work                | `docker-compose.yml:10-14`                     | Operational instructions are self-contradictory  |
+| Roadmap lists a root docs freshness command that does not exist | `docs/ROADMAP.md:252-262`; root `package.json` | Required gate cannot be executed as documented   |
+| Docs freshness script uses workspace-relative paths             | `apps/docs/scripts/check-freshness.ts:76-80`   | Script fails in its package working directory    |
+| Active module READMEs are missing                               | Five module paths listed in Section 3          | Module contracts and operations are undocumented |
+| Developer-facing Arabic remains in active docs/code             | Active architecture doc and comments           | Conflicts with Constitution Rule I               |
 
 ## Recommended Documentation Structure
 
@@ -734,28 +739,28 @@ against machine-readable project metadata where possible.
 
 # 12. Prioritized Technical Backlog
 
-| Priority | Problem | Type | File/path | Impact | Resolution | Effort |
-|---|---|---|---|---|---|---|
-| P0 | Global `manage all` requirement | Bug/Security/UX | Bot auth middleware and ability factory | Normal roles cannot use the system | Redesign auth boundary and add role matrix tests | M |
-| P0 | Plaintext PII and raw audit snapshots | Security/Data | Prisma schema, user repository, base repository | Regulatory and breach exposure | Encryption, lookup tokens, audit minimization, migration | XL |
-| P1 | Bot-server tests omitted and two tests fail | Testing/CI | Root Vitest config, bot-server tests | False-green CI | Add app projects; repair fixtures | M |
-| P1 | Multi-field identity update is non-transactional | Bug/Data | User service/repository | Partial user identity state | Single transactional repository operation | M |
-| P1 | Soft-delete filter can be overridden | Bug/Data/Security | Shared and module repositories | Deleted data may be read | Central invariant plus integration tests | M |
-| P1 | Hono and transitive advisories | Security | Manifests/lockfile | Runtime exposure | Upgrade, pin, regression test | S-M |
-| P1 | Documentation freshness gate is broken | CI/Documentation | Root scripts and docs script | Stale docs merge unchecked | Root command and workspace-root resolution | M |
-| P1 | Sensitive log redaction incomplete | Security/Operations | Logger config | PII can enter logs | Redaction allowlist/denylist and tests | M |
-| P2 | Pagination counts load full datasets | Performance | User/template repositories | Increasing latency and memory | Prisma count API | M |
-| P2 | Direct Prisma use in composition layer | Architecture | Startup orchestrator/bootstrap | Policy and test inconsistency | Explicit repositories | L |
-| P2 | HTTP hardening is incomplete | Security | Hono factory/routes | Future endpoint attack surface | Headers, limits, rate limit, CORS policy | M |
-| P2 | Public health details reveal internals | Security/Operations | Health route | Information disclosure | Split liveness/readiness | S |
-| P2 | Coverage tiers are not enforced | Testing/CI | Vitest config | Low-risk score hides weak packages | Per-project thresholds and app coverage | L |
-| P2 | Node/pnpm versions are inconsistent | Configuration/DX | package.json, CI, docs | Non-reproducible builds | Pin package manager and test Node 22/24 | S |
-| P2 | Runtime image includes source/spec trees | Deployment/Architecture | Bot-server Dockerfile | Larger attack surface/image | Build-time module manifest | L |
-| P2 | Image publish lacks SBOM/scan/sign | DevSecOps | Docker workflow | Supply-chain risk | Add security and provenance jobs | M |
-| P2 | Missing active module READMEs | Documentation | Five module directories | Onboarding and support cost | Add standard module docs | L |
-| P3 | Hardcoded user/operator text | Quality/i18n | Bot factory, Event Bus | Inconsistent language and escaping | Locale/structured templates | S-M |
-| P3 | Stale READMEs and Compose comments | Documentation | Root/app README, Compose | Misleading setup | Reconcile with roadmap | S |
-| P3 | Non-English code comments | Quality/Governance | Bot/user-management source | Constitution drift | Translate comments | XS-S |
+| Priority | Problem                                          | Type                    | File/path                                       | Impact                             | Resolution                                               | Effort |
+| -------- | ------------------------------------------------ | ----------------------- | ----------------------------------------------- | ---------------------------------- | -------------------------------------------------------- | ------ |
+| P0       | Global `manage all` requirement                  | Bug/Security/UX         | Bot auth middleware and ability factory         | Normal roles cannot use the system | Redesign auth boundary and add role matrix tests         | M      |
+| P0       | Plaintext PII and raw audit snapshots            | Security/Data           | Prisma schema, user repository, base repository | Regulatory and breach exposure     | Encryption, lookup tokens, audit minimization, migration | XL     |
+| P1       | Bot-server tests omitted and two tests fail      | Testing/CI              | Root Vitest config, bot-server tests            | False-green CI                     | Add app projects; repair fixtures                        | M      |
+| P1       | Multi-field identity update is non-transactional | Bug/Data                | User service/repository                         | Partial user identity state        | Single transactional repository operation                | M      |
+| P1       | Soft-delete filter can be overridden             | Bug/Data/Security       | Shared and module repositories                  | Deleted data may be read           | Central invariant plus integration tests                 | M      |
+| P1       | Hono and transitive advisories                   | Security                | Manifests/lockfile                              | Runtime exposure                   | Upgrade, pin, regression test                            | S-M    |
+| P1       | Documentation freshness gate is broken           | CI/Documentation        | Root scripts and docs script                    | Stale docs merge unchecked         | Root command and workspace-root resolution               | M      |
+| P1       | Sensitive log redaction incomplete               | Security/Operations     | Logger config                                   | PII can enter logs                 | Redaction allowlist/denylist and tests                   | M      |
+| P2       | Pagination counts load full datasets             | Performance             | User/template repositories                      | Increasing latency and memory      | Prisma count API                                         | M      |
+| P2       | Direct Prisma use in composition layer           | Architecture            | Startup orchestrator/bootstrap                  | Policy and test inconsistency      | Explicit repositories                                    | L      |
+| P2       | HTTP hardening is incomplete                     | Security                | Hono factory/routes                             | Future endpoint attack surface     | Headers, limits, rate limit, CORS policy                 | M      |
+| P2       | Public health details reveal internals           | Security/Operations     | Health route                                    | Information disclosure             | Split liveness/readiness                                 | S      |
+| P2       | Coverage tiers are not enforced                  | Testing/CI              | Vitest config                                   | Low-risk score hides weak packages | Per-project thresholds and app coverage                  | L      |
+| P2       | Node/pnpm versions are inconsistent              | Configuration/DX        | package.json, CI, docs                          | Non-reproducible builds            | Pin package manager and test Node 22/24                  | S      |
+| P2       | Runtime image includes source/spec trees         | Deployment/Architecture | Bot-server Dockerfile                           | Larger attack surface/image        | Build-time module manifest                               | L      |
+| P2       | Image publish lacks SBOM/scan/sign               | DevSecOps               | Docker workflow                                 | Supply-chain risk                  | Add security and provenance jobs                         | M      |
+| P2       | Missing active module READMEs                    | Documentation           | Five module directories                         | Onboarding and support cost        | Add standard module docs                                 | L      |
+| P3       | Hardcoded user/operator text                     | Quality/i18n            | Bot factory, Event Bus                          | Inconsistent language and escaping | Locale/structured templates                              | S-M    |
+| P3       | Stale READMEs and Compose comments               | Documentation           | Root/app README, Compose                        | Misleading setup                   | Reconcile with roadmap                                   | S      |
+| P3       | Non-English code comments                        | Quality/Governance      | Bot/user-management source                      | Constitution drift                 | Translate comments                                       | XS-S   |
 
 Effort scale: XS <1 hour, S 1-4 hours, M approximately one working day,
 L 2-5 days, XL more than one week.
@@ -873,15 +878,15 @@ staging deploy, migration, smoke, promotion, and rollback rehearsal.
 
 **Goal:** eliminate release blockers and establish safe behavior.
 
-| Task | Priority | Estimate |
-|---|---:|---:|
-| Correct authorization architecture and role tests | P0 | 2-4 days |
-| Stop raw PII audit snapshots and expand redaction | P0 | 1-2 days |
-| Design and implement PII encryption/migration | P0 | 2-3 weeks |
-| Make identity update transactional | P1 | 1-2 days |
-| Fix and centralize soft-delete enforcement | P1 | 1-2 days |
-| Run app tests in CI and repair failures | P1 | 1-2 days |
-| Upgrade vulnerable dependencies | P1 | 1 day |
+| Task                                              | Priority |  Estimate |
+| ------------------------------------------------- | -------: | --------: |
+| Correct authorization architecture and role tests |       P0 |  2-4 days |
+| Stop raw PII audit snapshots and expand redaction |       P0 |  1-2 days |
+| Design and implement PII encryption/migration     |       P0 | 2-3 weeks |
+| Make identity update transactional                |       P1 |  1-2 days |
+| Fix and centralize soft-delete enforcement        |       P1 |  1-2 days |
+| Run app tests in CI and repair failures           |       P1 |  1-2 days |
+| Upgrade vulnerable dependencies                   |       P1 |     1 day |
 
 **Deliverables:** corrected role behavior, protected data path, passing complete
 test suite, migration plan, and closed P0 backlog.
@@ -1051,8 +1056,8 @@ privacy properties are materially incorrect.
 
 The project already has the structure needed for a high-quality production
 platform. Converting existing conventions into executable, end-to-end
-assurance—real-role tests, privacy invariants, complete workspace CI, and
-reversible delivery—will produce a larger quality gain than adding new
+assuranceâ€”real-role tests, privacy invariants, complete workspace CI, and
+reversible deliveryâ€”will produce a larger quality gain than adding new
 abstractions or features.
 
 ## Management Summary

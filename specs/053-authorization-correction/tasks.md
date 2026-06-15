@@ -1,7 +1,7 @@
 # Tasks: Authorization Correction
 
-**Input**: Design documents from `specs/053-authorization-correction/`  
-**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/authorization-enforcement-contract.md`, `quickstart.md`  
+**Input**: Design documents from `specs/053-authorization-correction/`
+**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/authorization-enforcement-contract.md`, `quickstart.md`
 **Tests**: Mandatory. Every behavior change follows RED -> GREEN -> REFACTOR.
 
 ## Phase 1: Setup and Evidence
@@ -81,16 +81,15 @@ proof that protected behavior remains denied.
   Spec 055.
 - T017 reuses the existing localized `bot-server.unauthorized` key; no duplicate
   module-specific denial text was introduced.
-- T025 completed as an execution/evidence task. The full bot-server suite
-  retains the same three pre-existing failures recorded in `quickstart.md` and
-  assigned to Spec 056, so the merge decision remains blocked by the
-  constitutional zero-defect gate.
+- T025 was reverified on 2026-06-15 after reconciliation. Root
+  unit/application tests passed 2,318 tests, integration passed 122 tests, and
+  E2E passed 13 tests.
 - T027 completed through a local defect-first review against the constitution,
   Spec 053, and the changed implementation. No Critical or High authorization
   finding remains; independent delegated review was not requested.
-- T032 decision: implementation is complete on the feature branch, but merge is
-  blocked until Spec 056 repairs the three pre-existing bot-server failures
-  required by the constitutional zero-defect and merge gates.
+- T032 decision: the authorization implementation is verified on
+  `codex/remediation-sequence-reconciliation` and awaits the Project Manager's
+  merge decision.
 
 ## Requirements Traceability
 
@@ -103,5 +102,5 @@ proof that protected behavior remains denied.
 - `FR-016`: T003, T020, T022, T024
 - `SC-001`, `SC-002`, `SC-003`: T005-T019
 - `SC-004`, `SC-005`: T003, T008, T020-T024
-- `SC-006`: T025-T026, T029-T032, with the recorded Spec 056 baseline exception
+- `SC-006`: T025-T026, T029-T032
 - `SC-007`: T027, T032

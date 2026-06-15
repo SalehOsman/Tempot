@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createInteractionTrace, setInteractionTrace } from '@tempot/interaction-observability';
 import { createAuditMiddleware } from '../../../src/bot/middleware/audit.middleware.js';
 import type { AuditDeps } from '../../../src/bot/middleware/audit.middleware.js';
 
@@ -171,20 +170,19 @@ describe('createAuditMiddleware', () => {
       callbackQuery: { data: 'users:list' },
       update: { update_id: 99 },
     }) as MockContext & Record<string, unknown>;
-    setInteractionTrace(
-      ctx,
-      createInteractionTrace({
-        traceId: 'trace-1',
-        updateId: 99,
-        updateType: 'callback_query',
-        callbackData: 'users:list',
-        callbackNamespace: 'users',
-        module: 'user-management',
-        userId: 123,
-        chatId: 456,
-        startedAt: 100,
-      }),
-    );
+    ctx['interactionTrace'] = {
+      traceId: 'trace-1',
+      updateId: 99,
+      updateType: 'callback_query',
+      callbackData: 'users:list',
+      callbackNamespace: 'users',
+      module: 'user-management',
+      userId: 123,
+      chatId: 456,
+      responseCount: 0,
+      eventCount: 0,
+      startedAt: 100,
+    };
 
     const middleware = createAuditMiddleware(deps);
 

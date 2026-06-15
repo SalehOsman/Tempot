@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   BaseRepository,
   PROTECTED_DATA_ERRORS,
+  enforceActiveRecordScope,
   type DatabaseClient,
   type IAuditLogger,
   type Prisma,
@@ -13,6 +14,7 @@ import { RoleEnum } from '@tempot/auth-core';
 import {
   buildSafeUserListArgs,
   resolveUserProtectionOptions,
+  type IdentityUpdateData,
   type UserProfile,
   type UserRepositoryProtectionOptions,
   type UserSearchDelegate,
@@ -54,12 +56,6 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return result.andThen((user) => this.recoverProtectedFields(user));
   }
 
-  override async findMany(
-    where?: Record<string, unknown>,
-  ): Promise<Result<UserProfile[], AppError>> {
-    return super.findMany(buildSafeUserListArgs(where));
-  }
-
   override async create(data: Record<string, unknown>): Promise<Result<UserProfile, AppError>> {
     const recordId = typeof data['id'] === 'string' ? data['id'] : randomUUID();
     const protectedInput = this.protectionMapper.protectInput({ ...data, id: recordId }, recordId);
@@ -75,15 +71,6 @@ export class UserRepository extends BaseRepository<UserProfile> {
   ): Promise<Result<UserProfile, AppError>> {
     const result = await this.persistUpdate(id, data);
     return result.andThen((user) => this.recoverProtectedFields(user));
-  }
-
-  private async persistUpdate(
-    id: string,
-    data: Record<string, unknown>,
-  ): Promise<Result<UserProfile, AppError>> {
-    const protectedInput = this.protectionMapper.protectInput(data, id);
-    if (protectedInput.isErr()) return err(protectedInput.error);
-    return super.update(id, protectedInput.value);
   }
 
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
@@ -140,7 +127,7 @@ export class UserRepository extends BaseRepository<UserProfile> {
     }
 
     const [usersResult, countResult] = await Promise.all([
-      this.findMany({ where, skip: page * pageSize, take: pageSize }),
+      this.listSafeUsers({ where, skip: page * pageSize, take: pageSize }),
       this.countUsers(where),
     ]);
     if (usersResult.isErr()) return err(usersResult.error);
@@ -153,10 +140,69 @@ export class UserRepository extends BaseRepository<UserProfile> {
     });
   }
 
+  updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'username', newUsername);
+  }
+
+  updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'email', newEmail);
+  }
+
+  updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'language', newLanguage);
+  }
+
+  updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'role', newRole);
+  }
+
+  updateIdentity(userId: string, identity: IdentityUpdateData): Promise<Result<void, AppError>> {
+    return this.updateFields(userId, { ...identity });
+  }
+
+  updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'nationalId', nationalId);
+  }
+
+  updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'mobileNumber', mobileNumber);
+  }
+
+  updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'birthDate', birthDate);
+  }
+
+  updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'gender', gender);
+  }
+
+  updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'governorate', governorate);
+  }
+
+  updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'countryCode', countryCode);
+  }
+
+  private async persistUpdate(
+    id: string,
+    data: Record<string, unknown>,
+  ): Promise<Result<UserProfile, AppError>> {
+    const protectedInput = this.protectionMapper.protectInput(data, id);
+    if (protectedInput.isErr()) return err(protectedInput.error);
+    return super.update(id, protectedInput.value);
+  }
+
+  private async listSafeUsers(
+    args?: Record<string, unknown>,
+  ): Promise<Result<UserProfile[], AppError>> {
+    return super.findMany(buildSafeUserListArgs(args));
+  }
+
   private async countUsers(where: Record<string, unknown>): Promise<Result<number, AppError>> {
     try {
       const count = await (this.model as unknown as UserSearchDelegate).count({
-        where: { isDeleted: false, ...where },
+        where: enforceActiveRecordScope(where),
       });
       return ok(count);
     } catch (error) {
@@ -168,43 +214,19 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return this.protectionMapper.recover(user);
   }
 
-  updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'username', newUsername);
-  }
-  updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'email', newEmail);
-  }
-  updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'language', newLanguage);
-  }
-  updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'role', newRole);
-  }
-  updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'nationalId', nationalId);
-  }
-  updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'mobileNumber', mobileNumber);
-  }
-  updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'birthDate', birthDate);
-  }
-  updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'gender', gender);
-  }
-  updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'governorate', governorate);
-  }
-  updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'countryCode', countryCode);
-  }
-
-  private async updateField(
+  private updateField(
     userId: string,
     field: string,
     value: unknown,
   ): Promise<Result<void, AppError>> {
-    const result = await this.persistUpdate(userId, { [field]: value });
+    return this.updateFields(userId, { [field]: value });
+  }
+
+  private async updateFields(
+    userId: string,
+    data: Record<string, unknown>,
+  ): Promise<Result<void, AppError>> {
+    const result = await this.persistUpdate(userId, data);
     return result.isErr() ? err(result.error) : ok(undefined);
   }
 }

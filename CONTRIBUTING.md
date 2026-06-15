@@ -15,7 +15,7 @@ quality gates.
 ## Prerequisites
 
 - Node.js 22.12 or newer.
-- pnpm 10 or newer.
+- pnpm 11 or newer.
 - Docker and Docker Compose.
 - SpecKit CLI.
 - Superpowers skills on the AI tool used for execution.

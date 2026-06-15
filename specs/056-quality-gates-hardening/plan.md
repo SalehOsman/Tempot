@@ -12,14 +12,14 @@ documentation rules.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3; Node.js minimum 22.12 plus current supported line  
-**Primary Dependencies**: Vitest 4.1.0, matching `@vitest/coverage-v8`, pnpm/Corepack, ESLint, existing CI scripts, Astro/Starlight docs tooling  
-**Storage**: Repository files and CI artifacts only  
-**Testing**: Meta-tests/fixtures for gate behavior plus full project gates  
-**Target Platform**: GitHub Actions and local PowerShell/Linux shells  
-**Project Type**: pnpm TypeScript monorepo  
-**Performance Goals**: Fast unit lane remains practical; complete required CI provides deterministic project accounting  
-**Constraints**: No omitted app projects; no version drift; no weakening existing lint/security rules  
+**Language/Version**: TypeScript 5.9.3; Node.js minimum 22.12 plus current supported line
+**Primary Dependencies**: Vitest 4.1.0, matching `@vitest/coverage-v8`, pnpm/Corepack, ESLint, existing CI scripts, Astro/Starlight docs tooling
+**Storage**: Repository files and CI artifacts only
+**Testing**: Meta-tests/fixtures for gate behavior plus full project gates
+**Target Platform**: GitHub Actions and local PowerShell/Linux shells
+**Project Type**: pnpm TypeScript monorepo
+**Performance Goals**: Fast unit lane remains practical; complete required CI provides deterministic project accounting
+**Constraints**: No omitted app projects; no version drift; no weakening existing lint/security rules
 **Scale/Scope**: 35 governed test surfaces, active docs, root scripts, and CI workflows
 
 ## Constitution Check

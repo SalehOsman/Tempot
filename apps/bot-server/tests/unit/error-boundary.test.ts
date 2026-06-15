@@ -10,7 +10,6 @@ vi.mock('@tempot/shared', async (importOriginal) => {
 
 import { createErrorBoundary } from '../../src/bot/error-boundary.js';
 import type { ErrorBoundaryDeps } from '../../src/bot/error-boundary.js';
-import { createInteractionTrace, setInteractionTrace } from '@tempot/interaction-observability';
 import { generateErrorReference } from '@tempot/shared';
 
 function createMockDeps(overrides: Partial<ErrorBoundaryDeps> = {}): ErrorBoundaryDeps {
@@ -113,20 +112,19 @@ describe('createErrorBoundary', () => {
     const deps = createMockDeps();
     const boundary = createErrorBoundary(deps);
     const botError = createMockBotError(new Error('fail'));
-    setInteractionTrace(
-      botError.ctx,
-      createInteractionTrace({
-        traceId: 'trace-1',
-        updateId: 77,
-        updateType: 'callback_query',
-        callbackData: 'settings:open',
-        callbackNamespace: 'settings',
-        module: 'settings-management',
-        userId: 123,
-        chatId: 456,
-        startedAt: 100,
-      }),
-    );
+    botError.ctx['interactionTrace'] = {
+      traceId: 'trace-1',
+      updateId: 77,
+      updateType: 'callback_query',
+      callbackData: 'settings:open',
+      callbackNamespace: 'settings',
+      module: 'settings-management',
+      userId: 123,
+      chatId: 456,
+      responseCount: 0,
+      eventCount: 0,
+      startedAt: 100,
+    };
 
     await boundary(botError as never);
 

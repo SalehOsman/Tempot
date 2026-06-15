@@ -18,14 +18,14 @@ export class BotRepository extends ModuleBaseRepository<ManagedBot> {
   }
 
   async findByTelegramUsername(username: string): Promise<Result<ManagedBot, AppError>> {
-    const result = await this.findMany({ telegramUsername: username, isDeleted: false });
+    const result = await this.findMany({ telegramUsername: username });
     if (result.isErr()) return err(result.error);
     const bot = result.value[0];
     return bot ? ok(bot) : err(new AppError('bot-management.not_found', { username }));
   }
 
   async list(page: number = 0, pageSize: number = 5): Promise<Result<BotListResult, AppError>> {
-    const where = { isDeleted: false };
+    const where = {};
     const items = await this.findMany({
       where,
       skip: page * pageSize,

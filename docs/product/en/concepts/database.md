@@ -53,10 +53,14 @@ No service in Tempot calls Prisma directly. All database operations flow through
 - Transaction support via `withTransaction(tx)`
 
 Subclasses implement three abstract members: `moduleName`, `entityName`, and a `model` getter returning the Prisma delegate.
+`findMany` is protected so callers use purpose-specific repository methods
+instead of supplying arbitrary persistence filters.
 
 ## Soft-Delete Mechanism
 
-Soft-delete is mandatory across the entire system. It operates at two levels via Prisma Client `$extends()`:
+Models that implement soft delete use it at two levels via Prisma Client
+`$extends()`. Models without deletion fields, such as `AuditLog`, are not given
+an artificial deletion filter.
 
 ### Write Interception
 
@@ -64,7 +68,11 @@ When code calls `model.delete()`, the Prisma extension intercepts it and convert
 
 ### Read Filtering
 
-All `findMany`, `findFirst`, `findUnique`, and `count` queries automatically inject `isDeleted: false` into their where clauses. Soft-deleted records are invisible to application code without any manual filtering.
+For soft-deletable models, `findMany`, `findFirst`, and `count` enforce
+`isDeleted: false` after caller criteria, so a conflicting filter cannot
+override the active-record scope. `findUnique` rejects a returned deleted
+record. Normal repository methods therefore keep deleted records invisible;
+purpose-specific maintenance or recovery paths must use separate contracts.
 
 ## Audit Fields
 

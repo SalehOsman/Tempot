@@ -14,19 +14,19 @@ and zero-mutation denial tests.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.9.3 strict mode  
-**Primary Dependencies**: grammY 1.41.x, CASL 6.x, `@tempot/auth-core`, `@tempot/shared`, module ability declarations  
-**Storage**: Existing PostgreSQL user/role data and audit records; no planned schema migration  
+**Language/Version**: TypeScript 5.9.3 strict mode
+**Primary Dependencies**: grammY 1.41.x, CASL 6.x, `@tempot/auth-core`, `@tempot/shared`, module ability declarations
+**Storage**: Existing PostgreSQL user/role data and audit records; no planned schema migration
 **Testing**: Vitest 4.1.0; bot-server unit/integration tests; affected module tests; authorization coverage audit
-**Target Platform**: Node.js 22.12+ Telegram bot runtime  
-**Project Type**: TypeScript monorepo modular bot application  
-**Performance Goals**: Authorization adds no new network round trip per update and remains within existing middleware latency budgets  
-**Constraints**: No broad allow fallback; no new role; no hardcoded user text; all fallible public APIs use `Result<T, AppError>`  
+**Target Platform**: Node.js 22.12+ Telegram bot runtime
+**Project Type**: TypeScript monorepo modular bot application
+**Performance Goals**: Authorization adds no new network round trip per update and remains within existing middleware latency budgets
+**Constraints**: No broad allow fallback; no new role; no hardcoded user text; all fallible public APIs use `Result<T, AppError>`
 **Scale/Scope**: All active bot entry points are inventoried; implementation may be delivered module-by-module after the global correction
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - **Rule VII / Fix at source**: Correct the global middleware and owning authorization boundaries; do not wrap or bypass the defect.
 - **Rules XIII-XV / Architecture**: Preserve interface/service/core boundaries and Event Bus-only module communication.

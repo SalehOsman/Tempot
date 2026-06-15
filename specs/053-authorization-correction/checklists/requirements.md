@@ -1,7 +1,7 @@
 # Requirements Quality Checklist: Authorization Correction
 
-**Purpose**: Validate authorization requirements before implementation  
-**Created**: 2026-06-07  
+**Purpose**: Validate authorization requirements before implementation
+**Created**: 2026-06-07
 **Feature**: [spec.md](../spec.md)
 
 ## Requirement Completeness
@@ -21,8 +21,8 @@
 ## Consistency and Security
 
 - [x] CHK009 Does the feature preserve existing repository boundaries while
-  assigning broad repository conformance to Spec 055 without contradictory
-  ownership? [Consistency, Spec FR-012]
+      assigning broad repository conformance to Spec 055 without contradictory
+      ownership? [Consistency, Spec FR-012]
 - [x] CHK010 Does the correction preserve the constitutional security-chain order? [Consistency, Spec FR-014]
 - [x] CHK011 Are denial evidence and localization requirements compatible with privacy and i18n rules? [Consistency, Spec FR-007/FR-008]
 
@@ -31,8 +31,8 @@
 - [x] CHK012 Are allowed and denied role outcomes objectively measurable? [Measurability, Spec SC-001/SC-002]
 - [x] CHK013 Is entry-point coverage measurable? [Measurability, Spec SC-004]
 - [x] CHK014 Does completion require passing feature-owned gates, preserving
-  the recorded bot-server baseline, and keeping production blocked until Spec
-  056 repairs that baseline? [Completeness, Spec SC-006]
+      the recorded bot-server baseline, and keeping production blocked until Spec
+      056 repairs that baseline? [Completeness, Spec SC-006]
 
 ## Scope
 

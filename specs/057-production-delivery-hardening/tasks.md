@@ -1,6 +1,6 @@
 # Tasks: Production Delivery Hardening
 
-**Input**: Design documents from `specs/057-production-delivery-hardening/`  
+**Input**: Design documents from `specs/057-production-delivery-hardening/`
 **Tests**: Mandatory for runtime, HTTP, image, pipeline, and deployment behavior.
 
 ## Phase 1: Setup and Threat/Release Baseline

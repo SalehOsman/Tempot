@@ -53,7 +53,7 @@ Set the required environment values in `.env` before starting the bot:
 - `SUPER_ADMIN_IDS`
 
 AI is enabled by default through `TEMPOT_AI=true`. Provider switching uses
-`AI_PROVIDER=gemini|openai|cohere`.
+`TEMPOT_AI_PROVIDER=gemini|openai`.
 
 ## Repository Map
 

@@ -1,7 +1,7 @@
 # Requirements Quality Checklist: Quality Gates Hardening
 
-**Purpose**: Validate CI, coverage, documentation, toolchain, and conformance requirements  
-**Created**: 2026-06-07  
+**Purpose**: Validate CI, coverage, documentation, toolchain, and conformance requirements
+**Created**: 2026-06-07
 **Feature**: [spec.md](../spec.md)
 
 ## Test Completeness
