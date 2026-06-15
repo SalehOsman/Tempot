@@ -5,10 +5,10 @@
 
 ## Phase 1: Setup and Blast Radius
 
-- [ ] T001 Create execution worktree `codex/055-data-integrity-hardening`
-- [ ] T002 Map shared database consumers and record blast radius in `specs/055-data-integrity-hardening/research.md`
-- [ ] T003 [P] Record direct Prisma calls and permitted infrastructure exceptions in `docs/architecture/boundaries/`
-- [ ] T004 [P] Record affected pagination methods and current query behavior in `quickstart.md`
+- [x] T001 Create execution worktree `codex/055-data-integrity-hardening`
+- [x] T002 Map shared database consumers and record blast radius in `specs/055-data-integrity-hardening/research.md`
+- [x] T003 [P] Record direct Prisma calls and permitted infrastructure exceptions in `docs/architecture/boundaries/`
+- [x] T004 [P] Record affected pagination methods and current query behavior in `quickstart.md`
 
 ## Phase 2: User Story 1 - Atomic Identity Updates (P1)
 
@@ -78,6 +78,14 @@
 - US3 depends on repository contracts but not on pagination.
 - US4 follows shared repository stabilization.
 - Each story must pass its review gate before the next concern is committed.
+
+## Improved Sequence Boundary - 2026-06-15
+
+The current pre-Spec-054 foundation covers atomic identity state and
+non-overridable normal soft-delete reads. T009, T013, T016, and the remaining
+US3/US4 work stay open until the protected-data cutover provides the required
+authorization and audit integration. No checkbox is completed solely because
+foundation code exists.
 
 ## MVP Scope
 

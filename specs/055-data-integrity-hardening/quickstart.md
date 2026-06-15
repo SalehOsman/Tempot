@@ -1,5 +1,21 @@
 # Quickstart: Data Integrity Hardening Verification
 
+## Reconciliation Baseline - 2026-06-15
+
+| Surface                  | Current behavior                                      | Foundation action                          |
+| ------------------------ | ----------------------------------------------------- | ------------------------------------------ |
+| User identity update     | Up to four independent writes through `Promise.all`   | Replace with one repository operation      |
+| Prisma soft-delete reads | Caller `isDeleted` can overwrite the default scope    | Apply protected scope after caller filters |
+| BaseRepository reads     | Nested or flat caller filters can overwrite the scope | Apply protected scope last                 |
+| User pagination          | Second full `findMany` supplies `totalCount`          | Deferred to remaining Spec 055             |
+| Template pagination      | Full result queries supply counts in three methods    | Deferred to remaining Spec 055             |
+| Bot pagination           | Full result query supplies `totalCount`               | Deferred to remaining Spec 055             |
+| Startup Prisma access    | Direct audit/event reads and session upsert           | Deferred to remaining Spec 055             |
+
+The current foundation does not expose deleted-record recovery. That contract
+requires the authorization and protected-audit integration completed around
+Spec 054.
+
 ## Atomic Update
 
 1. Seed a user with known identity fields.
