@@ -1,6 +1,6 @@
 # Data Access Boundary Baseline
 
-**Date:** 2026-06-15  
+**Date:** 2026-06-15
 **Feature:** Spec 055 data integrity hardening
 
 ## Permitted Infrastructure Access

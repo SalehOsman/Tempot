@@ -1,7 +1,7 @@
 # Remediation Stage 1 Verification Evidence
 
-**Date:** 2026-06-15  
-**Branch:** `codex/remediation-sequence-reconciliation`  
+**Date:** 2026-06-15
+**Branch:** `codex/remediation-sequence-reconciliation`
 **Verified head:** `8393c04`
 
 ## Scope

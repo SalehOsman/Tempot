@@ -7,7 +7,7 @@
 national-ID-derived identity state and non-overridable normal soft-delete
 reads.
 
-**Base branch:** `codex/remediation-sequence-reconciliation` at `c24907b`  
+**Base branch:** `codex/remediation-sequence-reconciliation` at `c24907b`
 **Execution branch:** `codex/055-data-integrity-hardening`
 
 ## Task 1: Establish the Execution Baseline

@@ -1,6 +1,6 @@
 # Remediation Branch Baseline
 
-**Captured:** 2026-06-15  
+**Captured:** 2026-06-15
 **Purpose:** Preserve the repository state used to begin remediation sequence
 reconciliation.
 
