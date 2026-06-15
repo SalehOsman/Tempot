@@ -12,12 +12,12 @@
 
 ## Phase 2: User Story 1 - Atomic Identity Updates (P1)
 
-- [ ] T005 [P] [US1] Write failing failure-injection integration tests in `modules/user-management/tests/integration/user.repository.test.ts`
-- [ ] T006 [P] [US1] Write failing service contract tests in `modules/user-management/tests/unit/user.service.test.ts`
-- [ ] T007 [US1] Add one atomic identity-update repository operation in `modules/user-management/repositories/user.repository.ts`
-- [ ] T008 [US1] Replace service-level concurrent writes in `modules/user-management/services/user.service.ts`
+- [x] T005 [P] [US1] Write failing failure-injection integration tests in `modules/user-management/tests/integration/user.repository.test.ts`
+- [x] T006 [P] [US1] Write failing service contract tests in `modules/user-management/tests/unit/user.service.test.ts`
+- [x] T007 [US1] Add one atomic identity-update repository operation in `modules/user-management/repositories/user.repository.ts`
+- [x] T008 [US1] Replace service-level concurrent writes in `modules/user-management/services/user.service.ts`
 - [ ] T009 [US1] Reconcile one logical audit operation with the protected audit policy from Spec 054
-- [ ] T010 [US1] Confirm GREEN, refactor, and commit only the atomic-update concern
+- [x] T010 [US1] Confirm GREEN, refactor, and commit only the atomic-update concern
 
 **Independent Test**: Every injected failure leaves all identity fields unchanged.
 
@@ -86,6 +86,11 @@ non-overridable normal soft-delete reads. T009, T013, T016, and the remaining
 US3/US4 work stay open until the protected-data cutover provides the required
 authorization and audit integration. No checkbox is completed solely because
 foundation code exists.
+
+Atomic identity state was completed in commit `41d8273`. Focused verification
+passed the user-management build, 23 module tests, the two service contract
+tests, and the two repository integration tests. T009 remains open because the
+audit write is not yet part of the protected transaction boundary.
 
 ## MVP Scope
 

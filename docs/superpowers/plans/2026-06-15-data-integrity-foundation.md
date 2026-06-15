@@ -20,13 +20,13 @@ reads.
 
 ## Task 2: Atomic Identity State
 
-- [ ] Add service-contract RED tests proving one repository operation owns all
+- [x] Add service-contract RED tests proving one repository operation owns all
       derived fields.
-- [ ] Add repository integration coverage for complete successful persistence.
-- [ ] Add a typed identity-update contract and repository operation.
-- [ ] Replace `Promise.all` update coordination in both service paths.
-- [ ] Run focused user-management and database tests.
-- [ ] Review and commit the atomic-state slice.
+- [x] Add repository integration coverage for complete successful persistence.
+- [x] Add a typed identity-update contract and repository operation.
+- [x] Replace `Promise.all` update coordination in both service paths.
+- [x] Run focused user-management and database tests.
+- [x] Review and commit the atomic-state slice (`41d8273`).
 
 The protected audit transaction remains open as T009 until Spec 054 integration
 is available. The foundation must not claim full US1 completion.
