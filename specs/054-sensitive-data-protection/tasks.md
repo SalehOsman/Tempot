@@ -78,7 +78,7 @@
 - [x] T042 Request independent security/code review and resolve all Critical/High findings
 - [x] T043 Run `speckit-analyze` and resolve artifact inconsistencies
 - [x] T044 Create changesets for all released packages affected
-- [ ] T045 Run verification-before-completion; explicit retirement approval was recorded on 2026-06-16
+- [x] T045 Run verification-before-completion; explicit retirement approval was recorded on 2026-06-16
 - [x] T046 Add and execute the approved protected-data p95 regression benchmark
 - [x] T047 Clear stale lookup metadata and support exact lookup across readable key versions without broad decryption
 - [x] T048 Prevent concurrent backfill overwrite and detect conflicts across plaintext and protected identities
@@ -87,7 +87,7 @@
 - [x] T051 Return typed non-sensitive errors from migration and rotation database failure paths
 - [x] T052 Stabilize the 20 percent p95 gate with equivalent writes and median interleaved trials
 - [x] T053 Repeat backup/restore with an explicitly encrypted local artifact and correct operational evidence
-- [ ] T054 Repeat independent security/code review and resolve all remaining Critical/High findings
+- [x] T054 Repeat independent security/code review and resolve all remaining Critical/High findings
 - [x] T055 Canonicalize national-ID comparison and rotation-token generation across equivalent formats
 - [x] T056 Reject stale concurrent backfill writes with a typed non-sensitive error
 - [x] T057 Regenerate incomplete lookup metadata and block premature key retirement
