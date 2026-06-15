@@ -1,6 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { AppError, sessionContext } from '@tempot/shared';
 import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
+import { enforceActiveRecordScope } from './soft-delete.js';
 
 /**
  * Database client type that accepts base PrismaClient, TransactionClient,
@@ -106,7 +107,7 @@ export abstract class BaseRepository<T extends { id: string }> {
     }
   }
 
-  async findMany(where?: Record<string, unknown>): Promise<Result<T[], AppError>> {
+  protected async findMany(where?: Record<string, unknown>): Promise<Result<T[], AppError>> {
     try {
       const isFindManyArgs =
         where && ('where' in where || 'skip' in where || 'take' in where || 'orderBy' in where);
@@ -116,8 +117,8 @@ export abstract class BaseRepository<T extends { id: string }> {
           ? (nestedWhere as Record<string, unknown>)
           : {};
       const args = isFindManyArgs
-        ? { ...where, where: { isDeleted: false, ...queryWhere } }
-        : { where: { isDeleted: false, ...where } };
+        ? { ...where, where: enforceActiveRecordScope(queryWhere) }
+        : { where: enforceActiveRecordScope(where) };
       const items = await this.delegate.findMany(args);
       return ok(items as T[]);
     } catch (e) {

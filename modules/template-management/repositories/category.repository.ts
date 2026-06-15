@@ -18,7 +18,7 @@ export class CategoryRepository extends ModuleBaseRepository<Category> {
   }
 
   async findBySlug(slug: string): Promise<Result<Category, AppError>> {
-    const result = await this.findMany({ slug, isDeleted: false });
+    const result = await this.findMany({ slug });
     if (result.isErr()) return err(result.error);
     const category = result.value[0];
     if (!category) return err(new AppError('template-management.category_not_found', { slug }));
@@ -26,11 +26,11 @@ export class CategoryRepository extends ModuleBaseRepository<Category> {
   }
 
   async listHierarchy(): Promise<Result<Category[], AppError>> {
-    return this.findMany({ isDeleted: false });
+    return this.findMany();
   }
 
   async listByParent(parentId: string | null): Promise<Result<Category[], AppError>> {
-    const where = parentId ? { parentId, isDeleted: false } : { parentId: null, isDeleted: false };
+    const where = parentId ? { parentId } : { parentId: null };
     return this.findMany(where);
   }
 

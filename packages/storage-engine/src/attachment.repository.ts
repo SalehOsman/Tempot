@@ -30,10 +30,21 @@ export class AttachmentRepository extends BaseRepository<Attachment> {
 
   /** Find soft-deleted attachments older than given date (for purge job) */
   async findExpiredDeleted(beforeDate: Date): Promise<Result<Attachment[], AppError>> {
-    return this.findMany({
-      isDeleted: true,
-      deletedAt: { lte: beforeDate },
-    });
+    try {
+      const dbClient = this.db as unknown as {
+        $queryRaw: <T>(strings: TemplateStringsArray, ...values: unknown[]) => Promise<T>;
+      };
+      const attachments = await dbClient.$queryRaw<Attachment[]>`
+        SELECT *
+        FROM "Attachment"
+        WHERE "isDeleted" = TRUE
+          AND "deletedAt" <= ${beforeDate}
+        ORDER BY "deletedAt" ASC, "id" ASC
+      `;
+      return ok(attachments);
+    } catch (error: unknown) {
+      return err(new AppError('storage.find_many_failed', error));
+    }
   }
 
   /** Permanently delete records by IDs (purge job only — bypasses soft-delete via $executeRaw) */

@@ -72,6 +72,86 @@ describe('Soft Delete Extension', () => {
     ).toBe(false);
   });
 
+  it('should ignore a conflicting isDeleted filter in findMany', async () => {
+    const active = await prisma.userProfile.create({
+      data: userProfileData('conflicting-find-many-active'),
+    });
+    const deleted = await prisma.userProfile.create({
+      data: userProfileData('conflicting-find-many-deleted'),
+    });
+    await prisma.userProfile.delete({ where: { id: deleted.id } });
+
+    const users = await prisma.userProfile.findMany({
+      where: {
+        id: { in: [active.id, deleted.id] },
+        isDeleted: true,
+      },
+    });
+
+    expect(users.map((user) => user.id)).toEqual([active.id]);
+  });
+
+  it('should ignore a conflicting isDeleted filter in findFirst', async () => {
+    const active = await prisma.userProfile.create({
+      data: userProfileData('conflicting-find-first-active'),
+    });
+    const deleted = await prisma.userProfile.create({
+      data: userProfileData('conflicting-find-first-deleted'),
+    });
+    await prisma.userProfile.delete({ where: { id: deleted.id } });
+
+    const user = await prisma.userProfile.findFirst({
+      where: {
+        id: { in: [active.id, deleted.id] },
+        isDeleted: true,
+      },
+      orderBy: { id: 'asc' },
+    });
+
+    expect(user?.id).toBe(active.id);
+  });
+
+  it('should ignore a conflicting isDeleted filter in count', async () => {
+    const firstActive = await prisma.userProfile.create({
+      data: userProfileData('conflicting-count-active-1'),
+    });
+    const secondActive = await prisma.userProfile.create({
+      data: userProfileData('conflicting-count-active-2'),
+    });
+    const deleted = await prisma.userProfile.create({
+      data: userProfileData('conflicting-count-deleted'),
+    });
+    await prisma.userProfile.delete({ where: { id: deleted.id } });
+
+    const count = await prisma.userProfile.count({
+      where: {
+        id: { in: [firstActive.id, secondActive.id, deleted.id] },
+        isDeleted: true,
+      },
+    });
+
+    expect(count).toBe(2);
+  });
+
+  it('should enforce the active-record scope alongside nested boolean filters', async () => {
+    const active = await prisma.userProfile.create({
+      data: userProfileData('nested-filter-active'),
+    });
+    const deleted = await prisma.userProfile.create({
+      data: userProfileData('nested-filter-deleted'),
+    });
+    await prisma.userProfile.delete({ where: { id: deleted.id } });
+
+    const users = await prisma.userProfile.findMany({
+      where: {
+        OR: [{ id: active.id }, { AND: [{ id: deleted.id }, { isDeleted: true }] }],
+        isDeleted: true,
+      },
+    });
+
+    expect(users.map((user) => user.id)).toEqual([active.id]);
+  });
+
   it('should return null when finding a deleted record via findUnique', async () => {
     const user = await prisma.userProfile.create({ data: userProfileData('unique-soft-delete') });
     await prisma.userProfile.delete({ where: { id: user.id } });
@@ -79,5 +159,20 @@ describe('Soft Delete Extension', () => {
     // This should return null if the extension is working correctly
     const found = await prisma.userProfile.findUnique({ where: { id: user.id } });
     expect(found).toBeNull();
+  });
+
+  it('should not inject deletion filters into models without soft delete', async () => {
+    const auditLog = await testDb.prisma.auditLog.create({
+      data: {
+        action: 'database.audit.read',
+        module: 'database',
+      },
+    });
+
+    const records = await prisma.auditLog.findMany({ where: { id: auditLog.id } });
+    const count = await prisma.auditLog.count({ where: { id: auditLog.id } });
+
+    expect(records.map((record) => record.id)).toEqual([auditLog.id]);
+    expect(count).toBe(1);
   });
 });

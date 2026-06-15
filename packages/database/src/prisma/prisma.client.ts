@@ -13,6 +13,7 @@ import type { PrismaClient as PrismaClientType, Prisma } from '@prisma/client';
 import { createRequire } from 'node:module';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { enforceActiveRecordScope, supportsSoftDelete } from '../base/soft-delete.js';
 
 // Load @prisma/client as CJS at runtime — works in both dev and Docker production.
 const _require = createRequire(import.meta.url);
@@ -63,6 +64,7 @@ interface DeleteManyArgs {
  */
 interface QueryExtensionArgs<TArgs> {
   args: TArgs;
+  model: string;
   query: (args: TArgs) => Promise<unknown>;
 }
 
@@ -123,21 +125,29 @@ const modelExtensions = {
  */
 const queryExtensions = {
   $allModels: {
-    async findMany({ args, query }: QueryExtensionArgs<WhereArgs>) {
-      args.where = { isDeleted: false, ...(args.where ?? {}) };
+    async findMany({ args, model, query }: QueryExtensionArgs<WhereArgs>) {
+      if (supportsSoftDelete(model)) {
+        args.where = enforceActiveRecordScope(args.where);
+      }
       return query(args);
     },
-    async findFirst({ args, query }: QueryExtensionArgs<WhereArgs>) {
-      args.where = { isDeleted: false, ...(args.where ?? {}) };
+    async findFirst({ args, model, query }: QueryExtensionArgs<WhereArgs>) {
+      if (supportsSoftDelete(model)) {
+        args.where = enforceActiveRecordScope(args.where);
+      }
       return query(args);
     },
-    async findUnique({ args, query }: QueryExtensionArgs<WhereArgs>) {
+    async findUnique({ args, model, query }: QueryExtensionArgs<WhereArgs>) {
       const result = await query(args);
-      if (result && (result as SoftDeletableRecord).isDeleted) return null;
+      if (supportsSoftDelete(model) && result && (result as SoftDeletableRecord).isDeleted) {
+        return null;
+      }
       return result;
     },
-    async count({ args, query }: QueryExtensionArgs<WhereArgs>) {
-      args.where = { isDeleted: false, ...(args.where ?? {}) };
+    async count({ args, model, query }: QueryExtensionArgs<WhereArgs>) {
+      if (supportsSoftDelete(model)) {
+        args.where = enforceActiveRecordScope(args.where);
+      }
       return query(args);
     },
   },
