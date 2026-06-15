@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { NotifierService } from '../../src/notification.service.js';
@@ -143,5 +143,96 @@ describe('NotifierService', () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe('notifier.invalid_schedule_time');
+  });
+
+  it('should resolve direct user lists without a recipient resolver', async () => {
+    const queue = new MemoryQueue();
+    const service = new NotifierService({ queue });
+
+    const result = await service.sendToUsers(['user-1', 'user-2'], {
+      templateKey: 'system.alert',
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(queue.jobs.map(({ job }) => job.recipient)).toEqual([
+      { userId: 'user-1', chatId: 'user-1' },
+      { userId: 'user-2', chatId: 'user-2' },
+    ]);
+  });
+
+  it('should require a recipient resolver for role targets', async () => {
+    const service = new NotifierService({ queue: new MemoryQueue() });
+
+    const result = await service.sendToRole('ADMIN', { templateKey: 'system.alert' });
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('notifier.recipient_resolver_required');
+  });
+
+  it('should reject targets that resolve to no recipients', async () => {
+    const service = new NotifierService({
+      queue: new MemoryQueue(),
+      recipientResolver: new StaticResolver([]),
+    });
+
+    const result = await service.broadcast({ templateKey: 'system.alert' });
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('notifier.no_recipients');
+  });
+
+  it('should return queue errors without publishing a broadcast event', async () => {
+    const events = new MemoryEvents();
+    const queue: NotificationQueuePort = {
+      enqueue: async () => err(new AppError('queue.unavailable')),
+      enqueueMany: async () => err(new AppError('queue.unavailable')),
+    };
+    const service = new NotifierService({
+      queue,
+      events,
+      recipientResolver: new StaticResolver([{ userId: 'user-1', chatId: '100' }]),
+    });
+
+    const result = await service.broadcast({ templateKey: 'system.alert' });
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('queue.unavailable');
+    expect(events.events).toHaveLength(0);
+  });
+
+  it('should apply a positive delay to future scheduled notifications', async () => {
+    const queue = new MemoryQueue();
+    const service = new NotifierService({ queue });
+
+    const result = await service.schedule(
+      { kind: 'user', userId: 'user-1' },
+      { templateKey: 'system.alert' },
+      new Date(Date.now() + 10_000),
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(queue.jobs[0]?.options.delayMs).toBeGreaterThan(0);
+  });
+
+  it('should warn when publishing the broadcast event fails', async () => {
+    const warn = vi.fn();
+    const events: NotificationEventPublisher = {
+      publish: async () => err(new AppError('event-bus.unavailable')),
+    };
+    const service = new NotifierService({
+      queue: new MemoryQueue(),
+      events,
+      logger: { warn },
+      recipientResolver: new StaticResolver([{ userId: 'user-1', chatId: '100' }]),
+    });
+
+    const result = await service.broadcast({ templateKey: 'system.alert' });
+
+    expect(result.isOk()).toBe(true);
+    expect(warn).toHaveBeenCalledWith({
+      code: 'notifier.event_publish_failed',
+      error: 'event-bus.unavailable',
+      eventName: 'notification.broadcast.queued',
+    });
   });
 });

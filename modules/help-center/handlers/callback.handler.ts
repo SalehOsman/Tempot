@@ -17,6 +17,16 @@ export async function handleCallbackQuery(
     return;
   }
 
+  if (
+    !(await getDeps().authorization.enforce(ctx, {
+      module: 'help-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'help',
+    }))
+  ) {
+    return;
+  }
   const action = data.split(':')[1] ?? 'view';
   await showHelpPage(ctx, action);
 }

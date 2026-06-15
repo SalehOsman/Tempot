@@ -34,11 +34,14 @@
 ```powershell
 pnpm test:unit
 pnpm test:integration
+pnpm test:e2e
 pnpm test:coverage
+pnpm test:inventory
 pnpm --filter bot-server test
 pnpm --filter docs test
-pnpm docs:freshness
-pnpm --filter docs docs:validate
+pnpm docs:check
+pnpm source:conformance
+pnpm toolchain:audit
 pnpm lint
 pnpm build
 pnpm boundary:audit
@@ -46,3 +49,7 @@ pnpm module:checklist
 pnpm cms:check
 pnpm spec:validate
 ```
+
+The supported CI runtime matrix is Node.js 22.12.0 and Node.js 24. The package
+manager baseline is pinned through Corepack to pnpm 10.33.3, which supports the
+minimum runtime.

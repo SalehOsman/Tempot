@@ -4,6 +4,13 @@ import setup, { type ModuleDeps } from '../index.js';
 import { settingsCommand } from '../commands/settings.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+type TestDeps = ModuleDeps & {
+  authorization: {
+    guard: ReturnType<typeof vi.fn>;
+    enforce: ReturnType<typeof vi.fn>;
+  };
+};
+
 interface InlineCallbackButton {
   readonly callback_data?: string;
 }
@@ -12,15 +19,19 @@ interface InlineKeyboardMarkupLike {
   readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
 }
 
-function createDeps(): ModuleDeps {
+function createDeps(): TestDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
     sessionProvider: { getSession: vi.fn() },
     i18n: { t: (key: string) => key },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
+    authorization: {
+      guard: vi.fn().mockReturnValue(vi.fn()),
+      enforce: vi.fn().mockResolvedValue(true),
+    },
     config: createConfig('settings-management'),
-  };
+  } as TestDeps;
 }
 
 function callbackDataFrom(markup: unknown): string[] {
@@ -59,8 +70,19 @@ describe('settings-management runtime', () => {
 
   it('registers settings command and callback handler', async () => {
     const bot = { command: vi.fn(), on: vi.fn() };
-    await setup(bot as never, createDeps());
-    expect(bot.command).toHaveBeenCalledWith('settings', settingsCommand);
+    const deps = createDeps();
+    await setup(bot as never, deps);
+    expect(deps.authorization.guard).toHaveBeenCalledWith({
+      module: 'settings-management',
+      classification: 'protected',
+      action: 'read',
+      subject: 'settings',
+    });
+    expect(bot.command).toHaveBeenCalledWith(
+      'settings',
+      deps.authorization.guard.mock.results[0]?.value,
+      settingsCommand,
+    );
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
   });
 

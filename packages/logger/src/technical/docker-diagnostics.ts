@@ -1,16 +1,6 @@
 /**
- * Docker Diagnostics — طباعة تشخيصية عند بدء التشغيل في بيئة Docker
- *
- * يحل مشكلة: "لماذا فشل الـ container؟" — يطبع كل المعلومات المهمة
- * قبل أن يبدأ أي كود آخر، حتى لو فشل الـ startup لاحقاً تعرف السبب.
- *
- * يُطبع عند NODE_ENV=production فقط (أو عند TEMPOT_DIAGNOSTICS=true).
- *
- * المعلومات المطبوعة:
- *  - Node.js version
- *  - وجود متغيرات البيئة الحرجة (بدون قيمها)
- *  - مسار dist/index.js (هل يوجد فعلاً)
- *  - معلومات الذاكرة والنظام
+ * Emits pre-startup diagnostics in production or when explicitly enabled.
+ * Sensitive environment values are never included.
  */
 
 import { logger } from './pino.logger.js';
@@ -21,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 interface EnvCheckResult {
   key: string;
   present: boolean;
-  /** true = التطبيق لن يعمل بدونه */
+  /** The application cannot start correctly without this value. */
   required: boolean;
 }
 
@@ -43,25 +33,20 @@ function checkEnvVars(): EnvCheckResult[] {
 
 function checkEntryPoint(): { path: string; exists: boolean } {
   const thisFile = fileURLToPath(import.meta.url);
-  // dist/index.js هو نفس المجلد الذي يحتوي على هذا الملف المجمّع في الإنتاج
-  // نصعد من dist/technical/ → dist/ → ابحث عن index.js
   const distDir = path.resolve(path.dirname(thisFile), '..', '..');
   const entryPoint = path.join(distDir, 'index.js');
   return { path: entryPoint, exists: fs.existsSync(entryPoint) };
 }
 
 function memoryMB(): { rss: number; heapUsed: number; heapTotal: number } {
-  const m = process.memoryUsage();
+  const memory = process.memoryUsage();
   return {
-    rss: Math.round(m.rss / 1024 / 1024),
-    heapUsed: Math.round(m.heapUsed / 1024 / 1024),
-    heapTotal: Math.round(m.heapTotal / 1024 / 1024),
+    rss: Math.round(memory.rss / 1024 / 1024),
+    heapUsed: Math.round(memory.heapUsed / 1024 / 1024),
+    heapTotal: Math.round(memory.heapTotal / 1024 / 1024),
   };
 }
 
-/**
- * يجب استدعاؤه في أول سطر من index.ts قبل أي import آخر غير مباشر
- */
 export function runDockerDiagnostics(): void {
   const shouldRun =
     process.env['NODE_ENV'] === 'production' || process.env['TEMPOT_DIAGNOSTICS'] === 'true';
@@ -69,7 +54,7 @@ export function runDockerDiagnostics(): void {
   if (!shouldRun) return;
 
   const envChecks = checkEnvVars();
-  const missingRequired = envChecks.filter((c) => c.required && !c.present).map((c) => c.key);
+  const missingRequired = envChecks.filter((check) => check.required && !check.present);
   const entryPoint = checkEntryPoint();
 
   logger.info({
@@ -86,23 +71,21 @@ export function runDockerDiagnostics(): void {
       BOT_MODE: process.env['BOT_MODE'],
       PORT: process.env['PORT'] ?? '3000 (default)',
       LOG_LEVEL: process.env['LOG_LEVEL'] ?? 'info (default)',
-      // القيم الحساسة: نُظهر فقط هل هي موجودة أم لا
       BOT_TOKEN: process.env['BOT_TOKEN'] ? '[PRESENT]' : '[MISSING]',
       DATABASE_URL: process.env['DATABASE_URL'] ? '[PRESENT]' : '[MISSING]',
       REDIS_URL: process.env['REDIS_URL'] ? '[PRESENT]' : '[MISSING]',
       SUPER_ADMIN_IDS: process.env['SUPER_ADMIN_IDS'] ? '[PRESENT]' : '[MISSING]',
     },
     memory_mb: memoryMB(),
-    missing_required_env: missingRequired,
+    missing_required_env: missingRequired.map((check) => check.key),
     status: missingRequired.length === 0 ? 'env_ok' : 'env_incomplete',
   });
 
-  // طباعة تحذير فوري إذا كانت متغيرات بيئة حرجة مفقودة
   if (missingRequired.length > 0) {
     logger.error({
       msg: 'docker_diagnostics_env_error',
       phase: 'pre_startup',
-      missing: missingRequired,
+      missing: missingRequired.map((check) => check.key),
       hint: 'Check your docker-compose.yml env_file or environment section',
     });
   }

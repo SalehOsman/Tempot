@@ -47,10 +47,12 @@ describe('createAuthMiddleware', () => {
     createMongoAbility([{ action: 'manage', subject: 'all' }]);
 
   it('stores session user and ability on context for known users', async () => {
-    const sessionUser = { id: 'user-1', role: RoleEnum.USER };
+    const sessionUser = { id: 'user-1', role: RoleEnum.USER, status: 'ACTIVE' as const };
+    const readProfileDefinition: AbilityDefinition = () =>
+      createMongoAbility([{ action: 'read', subject: 'profile' }]);
     const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(sessionUser),
-      abilityDefinitions: [manageAllDefinition],
+      abilityDefinitions: [readProfileDefinition],
     });
 
     const middleware = createAuthMiddleware(deps);
@@ -61,6 +63,54 @@ describe('createAuthMiddleware', () => {
     expect(next).toHaveBeenCalledOnce();
     expect(ctx['sessionUser']).toEqual(sessionUser);
     expect(ctx['ability']).toBeDefined();
+  });
+
+  it.each(['BANNED', 'PENDING'] as const)(
+    'blocks a %s session even when its ability contains manage all',
+    async (status) => {
+      const sessionUser = {
+        id: 'disabled-user',
+        role: RoleEnum.SUPER_ADMIN,
+        status,
+      };
+      const deps = createDeps({
+        getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+        abilityDefinitions: [manageAllDefinition],
+      });
+
+      const middleware = createAuthMiddleware(deps);
+      const ctx = createMockContext();
+
+      await middleware(ctx as never, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
+      expect(deps.logger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'access_denied',
+          reason: `session_${status.toLowerCase()}`,
+        }),
+      );
+    },
+  );
+
+  it('denies with a controlled response when session resolution fails', async () => {
+    const deps = createDeps({
+      getSessionUser: vi.fn().mockRejectedValue(new Error('session unavailable')),
+    });
+
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext();
+
+    await expect(middleware(ctx as never, next)).resolves.toBeUndefined();
+
+    expect(next).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
+    expect(deps.logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'session_resolution_failed',
+      }),
+    );
   });
 
   it('blocks requests without from field with localized message', async () => {
@@ -75,7 +125,7 @@ describe('createAuthMiddleware', () => {
     expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
   });
 
-  it('creates guest session user and blocks when no session found (W3)', async () => {
+  it('creates unresolved guest context when no session is found', async () => {
     const deps = createDeps({
       getSessionUser: vi.fn().mockResolvedValue(null),
     });
@@ -85,15 +135,17 @@ describe('createAuthMiddleware', () => {
 
     await middleware(ctx as never, next);
 
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledOnce();
     expect(ctx['sessionUser']).toEqual({
       id: '123',
       role: RoleEnum.GUEST,
+      status: 'UNRESOLVED',
     });
-    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
+    expect(ctx['ability']).toBeDefined();
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it('calls next even when ability build fails', async () => {
+  it('denies with a controlled response when ability construction fails', async () => {
     const sessionUser = { id: 'user-1', role: RoleEnum.USER };
     const failingDefinition = () => {
       throw new Error('definition error');

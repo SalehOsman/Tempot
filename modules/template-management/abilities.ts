@@ -71,3 +71,5 @@ export function canDoTemplate(
 ): boolean {
   return templateManagementAbilities(user).can(action, subject);
 }
+
+export const abilityDefinition = templateManagementAbilities;

@@ -4,6 +4,13 @@ import setup, { type ModuleDeps } from '../index.js';
 import { helpCommand } from '../commands/help.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+type TestDeps = ModuleDeps & {
+  authorization: {
+    guard: ReturnType<typeof vi.fn>;
+    enforce: ReturnType<typeof vi.fn>;
+  };
+};
+
 interface InlineCallbackButton {
   readonly callback_data?: string;
 }
@@ -12,7 +19,7 @@ interface InlineKeyboardMarkupLike {
   readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
 }
 
-function createDeps(): ModuleDeps {
+function createDeps(): TestDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
@@ -23,8 +30,12 @@ function createDeps(): ModuleDeps {
     },
     settings: { get: vi.fn().mockResolvedValue(undefined) },
     navigation: { getMainMenuItems: vi.fn().mockReturnValue([]) },
+    authorization: {
+      guard: vi.fn().mockReturnValue(vi.fn()),
+      enforce: vi.fn().mockResolvedValue(true),
+    },
     config: createConfig('help-center'),
-  };
+  } as TestDeps;
 }
 
 function createConfig(name: string): ModuleDeps['config'] {
@@ -63,8 +74,19 @@ describe('help-center runtime', () => {
 
   it('registers help command and callback handler', async () => {
     const bot = { command: vi.fn(), on: vi.fn() };
-    await setup(bot as never, createDeps());
-    expect(bot.command).toHaveBeenCalledWith('help', helpCommand);
+    const deps = createDeps();
+    await setup(bot as never, deps);
+    expect(deps.authorization.guard).toHaveBeenCalledWith({
+      module: 'help-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'help',
+    });
+    expect(bot.command).toHaveBeenCalledWith(
+      'help',
+      deps.authorization.guard.mock.results[0]?.value,
+      helpCommand,
+    );
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
   });
 

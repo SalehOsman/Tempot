@@ -18,10 +18,10 @@ systems while keeping business modules isolated and replaceable.
 ## Current Status
 
 Tempot Core is active. The first business module, `user-management`, is
-implemented on `main`. Architecture isolation and SaaS-readiness hardening have
-also been completed. `notifier` is the currently activated deferred package;
-`cms-engine`, `search-engine`, `document-engine`, and `import-engine` remain
-deferred until the roadmap records an activation decision.
+implemented on `main`, and Phase 3 is in progress. Architecture isolation,
+SaaS-readiness hardening, module tooling, and the documentation platform
+restructure are complete. All packages formerly deferred under Rule XC are now
+active; no package remains deferred.
 
 Use [docs/ROADMAP.md](docs/ROADMAP.md) as the single source of
 truth for project status.
@@ -29,7 +29,7 @@ truth for project status.
 ## Requirements
 
 - Node.js 22.12 or newer.
-- pnpm 11 or newer.
+- The pnpm version pinned by the root `packageManager` field through Corepack.
 - Docker for PostgreSQL, pgvector, and Redis integration tests.
 
 ## Quick Start
@@ -105,6 +105,9 @@ pnpm lint
 pnpm build
 pnpm test:unit
 pnpm test:integration
+pnpm test:e2e
+pnpm test:coverage
+pnpm docs:check
 pnpm spec:validate
 pnpm cms:check
 pnpm audit --audit-level=high

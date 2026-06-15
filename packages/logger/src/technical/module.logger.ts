@@ -1,21 +1,3 @@
-/**
- * Module Logger Factory — يُنشئ logger مرتبط بموديول محدد
- *
- * كل موديول يحصل على logger يحمل اسمه تلقائياً في كل سطر لوج،
- * مما يُسهّل البحث في الـ logs: `grep "module:user-management"`.
- *
- * يُطبع تلقائياً:
- *  - اسم الموديول
- *  - userId من الـ session context (إذا وُجد)
- *  - مدة العملية عبر timing helpers
- *
- * الاستخدام:
- *   const log = createModuleLogger('user-management');
- *   log.info({ msg: 'profile_fetched', telegramId });
- *   const timer = log.startTimer('db_query');
- *   timer.end({ rowCount: 5 }); // يُطبع durationMs تلقائياً
- */
-
 import { logger } from './pino.logger.js';
 
 export interface ModuleLoggerInstance {
@@ -24,7 +6,7 @@ export interface ModuleLoggerInstance {
   error: (data: Record<string, unknown>) => void;
   debug: (data: Record<string, unknown>) => void;
   child: (bindings: Record<string, unknown>) => ModuleLoggerInstance;
-  /** يبدأ مؤقتاً — استدعِ .end() عند انتهاء العملية لطباعة durationMs */
+  /** Starts an operation timer and logs its duration when end() is called. */
   startTimer: (operationName: string) => { end: (meta?: Record<string, unknown>) => void };
 }
 
@@ -59,10 +41,7 @@ function wrapPinoChild(pinoChild: unknown): ModuleLoggerInstance {
   };
 }
 
-/**
- * يُنشئ logger مرتبطاً بموديول محدد
- * @param moduleName — اسم الموديول (مثل 'user-management')
- */
+/** Creates a logger child bound to a module name. */
 export function createModuleLogger(moduleName: string): ModuleLoggerInstance {
   const child = logger.child({ module: moduleName });
   return wrapPinoChild(child);

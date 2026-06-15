@@ -3,7 +3,14 @@ import type { Context } from 'grammy';
 import { newBotCommand } from '../../commands/new-bot.command.js';
 import { handleCallbackQuery } from '../../handlers/callback.handler.js';
 
+const { enforceMock } = vi.hoisted(() => ({
+  enforceMock: vi.fn().mockResolvedValue(true),
+}));
+
 vi.mock('../../deps.context.js', () => ({
+  getAuthorization: () => ({
+    enforce: enforceMock,
+  }),
   getI18n: () => ({
     t: (key: string) => key,
   }),

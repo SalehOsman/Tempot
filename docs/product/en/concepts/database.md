@@ -10,11 +10,15 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## What is the Database Package?
 
 The `@tempot/database` package manages all data persistence in Tempot. It provides a repository abstraction over two ORMs, automatic soft-delete handling, audit field population, and vector similarity search for AI features.
+
+This page was verified against Prisma 7.8, Drizzle ORM 0.45, and the current
+`BaseRepository` implementation on 2026-06-08.
 
 ## Dual-ORM Strategy
 

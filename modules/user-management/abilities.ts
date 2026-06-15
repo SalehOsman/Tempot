@@ -13,7 +13,7 @@ import { AbilityBuilder, createMongoAbility, type AnyAbility } from '@casl/abili
 import { RoleEnum } from '@tempot/auth-core';
 import type { SessionUser } from '@tempot/auth-core';
 
-export type UserManagementSubject = 'profile' | 'users' | 'all';
+export type UserManagementSubject = 'bootstrap' | 'profile' | 'users' | 'all';
 export type UserManagementAction = 'read' | 'update' | 'manage';
 
 /**
@@ -29,24 +29,28 @@ export function userManagementAbilities(user: SessionUser): AnyAbility {
       break;
 
     case RoleEnum.ADMIN:
+      can('read', 'bootstrap');
       can('manage', 'users');
       can('read', 'profile');
       can('update', 'profile');
       break;
 
     case RoleEnum.USER:
+      can('read', 'bootstrap');
       can('read', 'profile');
       can('update', 'profile');
       break;
 
     case RoleEnum.GUEST:
     default:
-      can('read', 'profile');
+      can('read', 'bootstrap');
       break;
   }
 
   return build();
 }
+
+export const abilityDefinition = userManagementAbilities;
 
 /**
  * فحص صلاحية محددة — يُرجع boolean مباشرة للاستخدام في الـ handlers.

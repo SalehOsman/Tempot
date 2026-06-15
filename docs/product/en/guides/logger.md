@@ -10,11 +10,16 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## Overview
 
 The `@tempot/logger` package provides two logging systems: a Pino-based technical logger for operational diagnostics and an `AuditLogger` for compliance-grade state tracking. This guide covers using both systems, configuring log levels, handling errors in logs, and understanding PII redaction.
+
+The examples were verified against the active package exports on 2026-06-08.
+`AuditLogger` accepts `AuditLogRepository`; application services should depend
+on an injected audit abstraction rather than constructing it inline.
 
 ## Using the Technical Logger
 

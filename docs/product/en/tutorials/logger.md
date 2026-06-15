@@ -9,6 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
+lastVerified: 2026-06-08
 ---
 
 ## Prerequisites
@@ -18,6 +19,9 @@ Before you begin, make sure you have:
 - A working Tempot development environment (see [Getting Started](/en/tutorials/getting-started/))
 - PostgreSQL running with the Tempot database migrated (audit logs are persisted)
 - Basic understanding of the [Shared Package](/en/concepts/shared/) Result pattern
+
+This tutorial was verified against the current logger and shared session
+context contracts on 2026-06-08.
 
 ## Adding Logging to an Order Service
 

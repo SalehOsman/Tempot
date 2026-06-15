@@ -16,4 +16,14 @@ describe('Vitest CI configuration', () => {
 
     expect(integrationProject?.test?.fileParallelism).toBe(false);
   });
+
+  it('should include nested application tests without duplicating classified test projects', () => {
+    const projects = config.test?.projects ?? [];
+    const applicationProject = projects.find((project) => project.test?.name === 'application');
+
+    expect(applicationProject?.test?.include).toContain('modules/*/tests/**/*.test.ts');
+    expect(applicationProject?.test?.exclude).toEqual(
+      expect.arrayContaining(['**/tests/unit/**', '**/tests/integration/**', '**/tests/e2e/**']),
+    );
+  });
 });

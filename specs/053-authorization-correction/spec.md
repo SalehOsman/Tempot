@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/053-authorization-correction`
 **Created**: 2026-06-07
-**Status**: Draft
+**Status**: Implemented - Merge Blocked by Spec 056 Baseline
 **Input**: Project audit finding that global bot middleware requires `manage all` for every update, preventing legitimate non-super-admin roles from reaching module authorization.
 
 ## Clarifications
@@ -101,7 +101,10 @@ authentication requirement, an authorization owner, and role tests.
 - **FR-009**: Production ability construction MUST be used by role-matrix tests; synthetic `manage all` abilities for non-super-admin roles MUST NOT be accepted as representative coverage.
 - **FR-010**: Tests MUST cover GUEST, USER, ADMIN, and SUPER_ADMIN across allowed and denied command and callback paths.
 - **FR-011**: Tests MUST prove that denied actions perform zero state mutation.
-- **FR-012**: Repository-level authorization requirements defined by the constitution MUST remain effective and consistent with handler/use-case checks.
+- **FR-012**: This correction MUST NOT weaken existing repository boundaries,
+  introduce direct persistence access, or bypass repository checks. The broader
+  repository-authorization conformance work identified by the audit remains
+  owned by Spec 055.
 - **FR-013**: Existing module ability declarations MUST remain the policy source unless an explicit policy defect is documented in this feature.
 - **FR-014**: The correction MUST preserve the established security-chain order for sanitization, rate limiting, authentication, validation, business logic, and audit logging.
 - **FR-015**: Authorization infrastructure failures MUST return a controlled denial or typed error; they MUST NOT silently permit protected behavior.
@@ -123,7 +126,11 @@ authentication requirement, an authorization owner, and role tests.
 - **SC-003**: GUEST, USER, ADMIN, and SUPER_ADMIN each have at least one allowed and one denied scenario where the role supports both outcomes.
 - **SC-004**: 100% of active protected commands and callbacks included in the implementation scope are mapped in the authorization coverage matrix.
 - **SC-005**: No test assigns `manage all` to a non-super-admin actor to represent production behavior.
-- **SC-006**: All authorization tests, bot-server tests, affected module tests, lint, build, and reconciliation gates pass.
+- **SC-006**: All authorization-specific tests, affected module tests, lint,
+  build, authorization coverage, and reconciliation gates pass. The full
+  bot-server suite MUST introduce no failures beyond the recorded three-test
+  baseline owned by Spec 056, and production remains blocked until that
+  baseline is repaired.
 - **SC-007**: Zero Critical or High authorization findings remain in the post-implementation review.
 
 ## Assumptions

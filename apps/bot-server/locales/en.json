@@ -5,6 +5,7 @@
   "bot-server.error_message": "An unexpected error occurred. Reference code: {{referenceCode}}",
   "bot-server.callback_unhandled": "This button is no longer available. Open the menu again and try once more.",
   "bot-server.callback_unchanged": "This screen is already open.",
+  "bot-server.critical_alert": "⚠️ <b>System Degradation Alert</b>\n\n<b>Message:</b> {{message}}\n<b>Error:</b> {{error}}",
   "bot-server.startup.database_unreachable": "Cannot connect to database",
   "bot-server.startup.event_bus_failed": "Failed to start EventBus",
   "bot-server.startup.cache_failed": "Failed to start Cache Service",
