@@ -5,6 +5,7 @@ import { ok, err, type Result } from 'neverthrow';
 interface ModuleDelegateMethods {
   findUnique: (args: Record<string, unknown>) => Promise<unknown>;
   findMany: (args: Record<string, unknown>) => Promise<unknown[]>;
+  count: (args: Record<string, unknown>) => Promise<number>;
   create: (args: Record<string, unknown>) => Promise<unknown>;
   update: (args: Record<string, unknown>) => Promise<unknown>;
 }
@@ -29,6 +30,15 @@ export abstract class ModuleBaseRepository<T extends { id: string }> extends Bas
       return ok(items as T[]);
     } catch (error) {
       return err(new AppError(`${this.moduleName}.find_many_failed`, error));
+    }
+  }
+
+  protected async countMany(query?: Record<string, unknown>): Promise<Result<number, AppError>> {
+    try {
+      const count = await this.moduleDelegate.count(this.toCountArgs(query));
+      return ok(count);
+    } catch (error) {
+      return err(new AppError(`${this.moduleName}.count_failed`, error));
     }
   }
 
@@ -64,6 +74,15 @@ export abstract class ModuleBaseRepository<T extends { id: string }> extends Bas
     if (this.isFindManyArgs(query)) {
       const where = this.asRecord(query['where']) ?? {};
       return { ...query, where: this.withSoftDelete(where) };
+    }
+    return { where: this.withSoftDelete(query) };
+  }
+
+  private toCountArgs(query?: Record<string, unknown>): Record<string, unknown> {
+    if (!query) return this.hasSoftDelete ? { where: { isDeleted: false } } : {};
+    if (this.isFindManyArgs(query)) {
+      const where = this.asRecord(query['where']) ?? {};
+      return { where: this.withSoftDelete(where) };
     }
     return { where: this.withSoftDelete(query) };
   }
