@@ -62,3 +62,5 @@ export function canDoBotManagement(
 ): boolean {
   return botManagementAbilities(user).can(action, subject);
 }
+
+export const abilityDefinition = botManagementAbilities;

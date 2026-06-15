@@ -2,12 +2,13 @@
  * UserService — Business logic لإدارة المستخدمين
  */
 
-import { ok, type Result } from 'neverthrow';
+import { err, ok, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { RoleEnum } from '@tempot/auth-core';
 import { UserRepository } from '../repositories/user.repository.js';
 import type { UserProfile } from '../types/index.js';
 import { extractNationalIdData } from '@tempot/national-id-parser';
+import type { ProtectedDataService } from '@tempot/database';
 
 interface AuditLoggerLike {
   log: (data: Record<string, unknown>) => Promise<void>;
@@ -24,8 +25,8 @@ export class UserService {
   private readonly cache = new Map<string, CacheEntry>();
   private readonly repository: UserRepository;
 
-  constructor(auditLogger: AuditLoggerLike) {
-    this.repository = new UserRepository(auditLogger);
+  constructor(auditLogger: AuditLoggerLike, protectedData?: ProtectedDataService) {
+    this.repository = new UserRepository(auditLogger, undefined, protectedData);
   }
 
   // ─── Read ────────────────────────────────────────────────────────────────────
@@ -95,19 +96,13 @@ export class UserService {
     const extractedData = isEgyptian ? extractNationalIdData(nationalId) : null;
 
     if (extractedData) {
-      const updates: Promise<Result<void, AppError>>[] = [
-        this.repository.updateNationalId(userId, nationalId),
-      ];
-      if (extractedData.gender)
-        updates.push(this.repository.updateGender(userId, extractedData.gender));
-      if (extractedData.birthDate)
-        updates.push(this.repository.updateBirthDate(userId, extractedData.birthDate));
-      if (extractedData.governorate)
-        updates.push(this.repository.updateGovernorate(userId, extractedData.governorate));
-
-      const results = await Promise.all(updates);
-      const firstError = results.find((r) => r.isErr());
-      if (firstError) return firstError as Result<never, AppError>;
+      const result = await this.repository.updateIdentity(userId, {
+        nationalId,
+        gender: extractedData.gender,
+        birthDate: extractedData.birthDate,
+        governorate: extractedData.governorate,
+      });
+      if (result.isErr()) return err(result.error);
 
       return ok({ extracted: true, data: extractedData });
     }
@@ -126,17 +121,12 @@ export class UserService {
 
     this.invalidateCacheByUserId(userId);
 
-    const updates: Promise<Result<void, AppError>>[] = [];
-    if (extractedData.gender)
-      updates.push(this.repository.updateGender(userId, extractedData.gender));
-    if (extractedData.birthDate)
-      updates.push(this.repository.updateBirthDate(userId, extractedData.birthDate));
-    if (extractedData.governorate)
-      updates.push(this.repository.updateGovernorate(userId, extractedData.governorate));
-
-    const results = await Promise.all(updates);
-    const firstError = results.find((r) => r.isErr());
-    if (firstError) return firstError as Result<never, AppError>;
+    const result = await this.repository.updateIdentity(userId, {
+      gender: extractedData.gender,
+      birthDate: extractedData.birthDate,
+      governorate: extractedData.governorate,
+    });
+    if (result.isErr()) return err(result.error);
 
     return ok(extractedData);
   }

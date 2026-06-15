@@ -1,4 +1,5 @@
 import { Result as NTResult } from 'neverthrow';
+export { err, ok } from 'neverthrow';
 import { AppError } from './shared.errors.js';
 
 /**

@@ -5,74 +5,74 @@
 
 ## Phase 1: Setup and Baseline
 
-- [ ] T001 Create execution worktree `codex/056-quality-gates-hardening`
-- [ ] T002 Generate a governed workspace/test inventory from `pnpm-workspace.yaml` and manifests
-- [ ] T003 Record baseline root, bot-server, docs, coverage, freshness, and toolchain command results
-- [ ] T004 [P] Record active documentation drift and missing README inventory
-- [ ] T005 [P] Record Node/pnpm/Vitest/coverage versions across manifest, lockfile, CI, Docker, and docs
+- [x] T001 Create execution worktree `codex/056-quality-gates-hardening`
+- [x] T002 Generate a governed workspace/test inventory from `pnpm-workspace.yaml` and manifests
+- [x] T003 Record baseline root, bot-server, docs, coverage, freshness, and toolchain command results
+- [x] T004 [P] Record active documentation drift and missing README inventory
+- [x] T005 [P] Record Node/pnpm/Vitest/coverage versions across manifest, lockfile, CI, Docker, and docs
 
 ## Phase 2: User Story 1 - Complete Workspace CI (P1)
 
-- [ ] T006 [P] [US1] Repair stale interaction trace fixtures in `apps/bot-server/tests/unit/error-boundary.test.ts`
-- [ ] T007 [P] [US1] Repair stale interaction trace fixtures in `apps/bot-server/tests/unit/middleware/audit.middleware.test.ts`
-- [ ] T008 [US1] Confirm direct bot-server tests pass without weakening `packages/interaction-observability/src/interaction.context.ts`
-- [ ] T009 [P] [US1] Add a failing fixture proving root config currently omits an app project
-- [ ] T010 [US1] Extend `vitest.config.ts` or workspace configuration to include governed applications
-- [ ] T011 [US1] Add canonical root scripts for complete application/project execution
-- [ ] T012 [US1] Update `.github/workflows/ci.yml` to invoke canonical complete commands and publish project/test counts
-- [ ] T013 [US1] Prove a seeded app failure blocks CI, remove the seed, and confirm GREEN
+- [x] T006 [P] [US1] Repair stale interaction trace fixtures in `apps/bot-server/tests/unit/error-boundary.test.ts`
+- [x] T007 [P] [US1] Repair stale interaction trace fixtures in `apps/bot-server/tests/unit/middleware/audit.middleware.test.ts`
+- [x] T008 [US1] Confirm direct bot-server tests pass without weakening `packages/interaction-observability/src/interaction.context.ts`
+- [x] T009 [P] [US1] Add a failing fixture proving root config currently omits an app project
+- [x] T010 [US1] Extend `vitest.config.ts` or workspace configuration to include governed applications
+- [x] T011 [US1] Add canonical root scripts for complete application/project execution
+- [x] T012 [US1] Update `.github/workflows/ci.yml` to invoke canonical complete commands and publish project/test counts
+- [x] T013 [US1] Prove a seeded app failure blocks CI, remove the seed, and confirm GREEN
 
 **Independent Test**: Any required app test failure fails the root and CI gates.
 
 ## Phase 3: User Story 2 - Enforced Coverage Policy (P1)
 
-- [ ] T014 [P] [US2] Add failing coverage-policy fixtures for service and handler thresholds
-- [ ] T015 [P] [US2] Add reporting fixtures for repository and conversation warning thresholds
-- [ ] T016 [US2] Pin `@vitest/coverage-v8` exactly to the approved Vitest version in `package.json`
-- [ ] T017 [US2] Consolidate active coverage configuration and include application source
-- [ ] T018 [US2] Implement deterministic component-category threshold mapping
-- [ ] T019 [US2] Add required coverage execution to CI
-- [ ] T020 [US2] Prove seeded blocking threshold failure and warning reporting, then confirm GREEN
+- [x] T014 [P] [US2] Add failing coverage-policy fixtures for service and handler thresholds
+- [x] T015 [P] [US2] Add reporting fixtures for repository and conversation warning thresholds
+- [x] T016 [US2] Pin `@vitest/coverage-v8` exactly to the approved Vitest version in `package.json`
+- [x] T017 [US2] Consolidate active coverage configuration and include application source
+- [x] T018 [US2] Implement deterministic component-category threshold mapping
+- [ ] T019 [US2] Make coverage execution blocking in CI after the governed baseline is GREEN
+- [ ] T020 [US2] Close the 23 blocking service/handler findings, retain warning reporting, and confirm GREEN
 
 **Independent Test**: Component thresholds control the gate independently of aggregate coverage.
 
 ## Phase 4: User Story 3 - Documentation Freshness (P1)
 
-- [ ] T021 [P] [US3] Add failing tests for docs script execution from root and `apps/docs`
-- [ ] T022 [P] [US3] Add failing fixtures for stale active claims and archive classification
-- [ ] T023 [US3] Make `apps/docs/scripts/check-freshness.ts` resolve repository root robustly
-- [ ] T024 [US3] Add canonical root `docs:freshness` and documentation validation scripts
-- [ ] T025 [US3] Add required docs freshness/frontmatter checks to CI
-- [ ] T026 [US3] Reconcile root README, bot-server README, Compose comments, environment names, deployment docs, and roadmap claims
-- [ ] T027 [US3] Add required README documentation for active modules currently missing it
-- [ ] T028 [US3] Document and enforce active/archive freshness policy
-- [ ] T029 [US3] Confirm seeded stale claims fail and current active docs pass
+- [x] T021 [P] [US3] Add failing tests for docs script execution from root and `apps/docs`
+- [x] T022 [P] [US3] Add failing fixtures for stale active claims and archive classification
+- [x] T023 [US3] Make `apps/docs/scripts/check-freshness.ts` resolve repository root robustly
+- [x] T024 [US3] Add canonical root `docs:freshness` and documentation validation scripts
+- [x] T025 [US3] Add required docs freshness/frontmatter checks to CI
+- [x] T026 [US3] Reconcile root README, bot-server README, Compose comments, environment names, deployment docs, and roadmap claims
+- [x] T027 [US3] Add required README documentation for active modules currently missing it
+- [x] T028 [US3] Document and enforce active/archive freshness policy
+- [x] T029 [US3] Confirm seeded stale claims fail and current active docs pass
 
 **Independent Test**: One root command detects stale active documentation with an actionable path.
 
 ## Phase 5: User Story 4 - Reproducible Toolchain and Policy (P2)
 
-- [ ] T030 [P] [US4] Add a failing check for package-manager baseline disagreement
-- [ ] T031 [P] [US4] Add failing conformance fixtures for suppression directives, hardcoded user text, and non-English comments
-- [ ] T032 [US4] Add approved `packageManager` metadata and align Corepack instructions
-- [ ] T033 [US4] Update CI to test Node 22.12+ and the current supported runtime line
-- [ ] T034 [US4] Reconcile Node/pnpm statements across Docker, workflow guide, roadmap, and deployment docs
-- [ ] T035 [US4] Extend existing lint/CI audits with explicit production-source conformance rules
-- [ ] T036 [US4] Remove confirmed hardcoded alert text, non-English developer comments, and unauthorized lint suppression through scoped fixes and i18n where user-facing
-- [ ] T037 [US4] Prove seeded violations fail and clean source passes
+- [x] T030 [P] [US4] Add a failing check for package-manager baseline disagreement
+- [x] T031 [P] [US4] Add failing conformance fixtures for suppression directives, hardcoded user text, and non-English comments
+- [x] T032 [US4] Add approved `packageManager` metadata and align Corepack instructions
+- [x] T033 [US4] Update CI to test Node 22.12+ and the current supported runtime line
+- [x] T034 [US4] Reconcile Node/pnpm statements across Docker, workflow guide, roadmap, and deployment docs
+- [x] T035 [US4] Extend existing lint/CI audits with explicit production-source conformance rules
+- [x] T036 [US4] Remove confirmed hardcoded alert text, non-English developer comments, and unauthorized lint suppression through scoped fixes and i18n where user-facing
+- [x] T037 [US4] Prove seeded violations fail and clean source passes
 
 **Independent Test**: Clean checkout uses the pinned toolchain and constitutional source violations fail CI.
 
 ## Phase 6: Review and Verification
 
-- [ ] T038 Update all SpecKit artifacts, workflow docs, and `docs/ROADMAP.md`
-- [ ] T039 Run complete root/app test inventory and coverage
-- [ ] T040 Run docs freshness, frontmatter, docs tests, and docs build
-- [ ] T041 Run Node runtime matrix and clean Corepack bootstrap
-- [ ] T042 Run lint, build, boundary, module checklist, CMS, audit, and spec validation
+- [x] T038 Update all SpecKit artifacts, workflow docs, and `docs/ROADMAP.md`
+- [ ] T039 Run complete root/app test inventory and obtain a GREEN coverage policy result
+- [x] T040 Run docs freshness, frontmatter, docs tests, and docs build
+- [x] T041 Run Node runtime matrix and clean Corepack bootstrap
+- [ ] T042 Run lint, build, boundary, module checklist, CMS, audit, coverage, and spec validation with all required gates GREEN
 - [ ] T043 Request code/documentation review and resolve all Critical/High findings
-- [ ] T044 Run `speckit-analyze`
-- [ ] T045 Create required changesets
+- [ ] T044 Run `speckit-analyze` after coverage remediation
+- [x] T045 Create required changesets
 - [ ] T046 Run verification-before-completion with fresh outputs
 
 ## Dependencies and Execution Order
@@ -82,6 +82,20 @@
 - Documentation scripts are corrected before CI marks them required.
 - Toolchain pinning precedes the clean-checkout matrix.
 - Each seeded failing fixture must prove RED and be removed or converted before merge.
+
+## Reconciliation Evidence - 2026-06-15
+
+- The CI visibility, documentation, toolchain, source-conformance, and
+  authorization gates are verified on
+  `codex/remediation-sequence-reconciliation`.
+- Root execution passed 2,318 unit/application tests, 122 integration tests,
+  and 13 E2E tests.
+- Correct module-source coverage collection evaluates 103 governed components
+  and currently reports 23 blocking service/handler findings plus 9 repository
+  warnings.
+- The coverage job remains visible but non-blocking until T019-T020 and
+  T039/T042-T044/T046 are complete. Thresholds remain 80% for services, 70% for
+  handlers, 60% warning for repositories, and 50% warning for conversations.
 
 ## MVP Scope
 

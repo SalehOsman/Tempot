@@ -12,7 +12,7 @@ import { runDockerDiagnostics, startupLogger } from '@tempot/logger';
 import { startApplication } from './startup/orchestrator.js';
 import { buildDeps } from './startup/deps.factory.js';
 
-// First action: print full environment diagnostics before any other step.
+// Emit environment diagnostics before dependency initialization.
 runDockerDiagnostics();
 
 async function main(): Promise<void> {

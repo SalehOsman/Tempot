@@ -1,5 +1,12 @@
 # 12 - التوصيات النهائية
 
+> **تحديث 2026-06-15 (يتقدم على الترتيب أدناه):** تم التحقق من #053 وأساس
+> #056 على `codex/remediation-sequence-reconciliation`. الترتيب المحسن هو:
+> `053 + أساس 056 -> أساس 055 -> قطع 054 بموافقة مستقلة -> باقي 055 -> باقي
+056 -> 057`. توصية تثبيت pnpm 11 غير صحيحة مع Node.js 22.12؛ الإصدار المتوافق
+> المثبت هو pnpm `10.33.3`. كما أن #056 ليس مكتملًا حتى تُغلق 23 فجوة تغطية
+> حاجبة و9 تحذيرات وتصبح بوابة coverage حاجبة في CI.
+
 ## ما الذي يجب فعله أولًا
 
 ### الإجراء 1 — اعتماد المدير المنتج لتنفيذ Spec #053
@@ -34,9 +41,11 @@
 ### الإجراء 5 — تأكيد أن `.env` ليس متتبعًا في git history
 
 التحقق التاريخي:
+
 ```powershell
 git log --all -- .env
 ```
+
 إن وجد، لا تحاول إخفاؤه — اتبع إجراء secret rotation كامل لكل القيم
 السرّية المعنية.
 
@@ -44,29 +53,29 @@ git log --all -- .env
 
 ## ما الذي يجب تجنبه
 
-| التجنب | السبب |
-|--------|-------|
-| فتح فرع تنفيذ كود قبل اكتمال Handoff Gate | يعكس منهجية المشروع |
-| تعديلات غير موثقة على `eslint.config.js` لأسباب قصيرة المدى | يضعف ADR-035 |
-| إضافة حزم جديدة بدون package-creation-checklist | يخالف Constitution |
-| تنفيذ "إصلاح سريع" لـ Spec #053 خارج إطار TDD | الأمن لا يحتمل اختصار |
-| دفع صور Docker إلى الإنتاج قبل توقيع/SBOM/scan | محظور عمليًا في Go-Live gate |
-| تجاوز Reconciliation Gate بدعوى أن التغيير "وثائقي فقط" | docs:freshness و spec:validate لا زالا مطلوبين |
-| ترك CI على Node 24 و runtime على Node 22 بدون قرار صريح | يخفي bugs |
+| التجنب                                                      | السبب                                          |
+| ----------------------------------------------------------- | ---------------------------------------------- |
+| فتح فرع تنفيذ كود قبل اكتمال Handoff Gate                   | يعكس منهجية المشروع                            |
+| تعديلات غير موثقة على `eslint.config.js` لأسباب قصيرة المدى | يضعف ADR-035                                   |
+| إضافة حزم جديدة بدون package-creation-checklist             | يخالف Constitution                             |
+| تنفيذ "إصلاح سريع" لـ Spec #053 خارج إطار TDD               | الأمن لا يحتمل اختصار                          |
+| دفع صور Docker إلى الإنتاج قبل توقيع/SBOM/scan              | محظور عمليًا في Go-Live gate                   |
+| تجاوز Reconciliation Gate بدعوى أن التغيير "وثائقي فقط"     | docs:freshness و spec:validate لا زالا مطلوبين |
+| ترك CI على Node 24 و runtime على Node 22 بدون قرار صريح     | يخفي bugs                                      |
 
 ---
 
 ## ما الذي يحتاج قرارًا إداريًا أو تقنيًا
 
-| القرار | المالك المقترح |
-|--------|------------------|
-| اعتماد بدء Spec #053 رسميًا | Project Manager |
-| اختيار خوارزمية تشفير الحقول لـ Spec #054 (AES-GCM، tink، libsodium) | Senior Architect + DevSecOps |
-| إقرار trade-off في Coverage Tiers (مثلًا foundation 95% أم 90%) | QA Lead + PM |
-| توحيد إصدار Node على 22 LTS أم 24 Current | Tech Advisor + DevOps |
-| اعتماد Constitution v2.5 (إضافة Production Rehearsal Gate + Coverage Tier Policy + Docs Freshness Required) | Project Manager |
-| اعتماد ملف `AGENTS.md` كمصدر حقيقة وحيد للسياق وإسقاط `CLAUDE.md`/`GEMINI.md` بصيغة generated | Project Manager |
-| إقرار سياسة Production Go/No-Go | Project Manager + Architecture Council |
+| القرار                                                                                                      | المالك المقترح                         |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| اعتماد بدء Spec #053 رسميًا                                                                                 | Project Manager                        |
+| اختيار خوارزمية تشفير الحقول لـ Spec #054 (AES-GCM، tink، libsodium)                                        | Senior Architect + DevSecOps           |
+| إقرار trade-off في Coverage Tiers (مثلًا foundation 95% أم 90%)                                             | QA Lead + PM                           |
+| توحيد إصدار Node على 22 LTS أم 24 Current                                                                   | Tech Advisor + DevOps                  |
+| اعتماد Constitution v2.5 (إضافة Production Rehearsal Gate + Coverage Tier Policy + Docs Freshness Required) | Project Manager                        |
+| اعتماد ملف `AGENTS.md` كمصدر حقيقة وحيد للسياق وإسقاط `CLAUDE.md`/`GEMINI.md` بصيغة generated               | Project Manager                        |
+| إقرار سياسة Production Go/No-Go                                                                             | Project Manager + Architecture Council |
 
 ---
 
@@ -81,7 +90,7 @@ Specs #053-#057 الذي اعتمدته بوابات SpecKit بالفعل.
 ما هو معتمد فعلًا**. كل ما يلزم الآن هو تفعيل التنفيذ بالترتيب:
 
 1. #053 → 2. شريحة CI من #056 → 3. #054 → 4. #055 → 5. باقي #056 →
-6. #057.
+2. #057.
 
 بعد إغلاق هذه الشريحة، يمكن للمشروع الانتقال إلى v1.0 الإنتاجية،
 ثم البدء في المنهجية v2.5 + الـ Specs المستقبلية (058-063) المقترحة

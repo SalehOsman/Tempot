@@ -45,3 +45,10 @@ The module provides inline-keyboard-first profile management, administrator user
 ## Status
 
 Implemented. Current hardening focus: package checklist compliance, documentation parity, and benchmark coverage.
+
+## Authorization
+
+`/start` is an explicit bootstrap policy. Profile reads and edits use separate
+CASL actions, while user administration and role changes require `manage
+users`. Callback and text-state denials occur before service calls or pending
+state mutation.

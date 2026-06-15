@@ -11,6 +11,7 @@ import {
   createNotificationMenu,
   type NotificationMenuSurface,
 } from '../menus/notification-menu.factory.js';
+import { resolveCallbackAuthorizationPolicy } from './callback-authorization.policy.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -44,6 +45,9 @@ export async function handleCallbackQuery(
   }
 
   const action = data.split(':')[1] ?? 'view';
+  const policy = resolveCallbackAuthorizationPolicy(action);
+  if (!(await getDeps().authorization.enforce(ctx, policy))) return;
+
   if (action === 'toggle') {
     await toggleNotificationPreference(ctx);
     return;

@@ -10,6 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## What is the Shared Package?
@@ -35,8 +36,7 @@ The `loggedAt` field ensures an error is only serialized once in logs. When the 
 Tempot uses the `neverthrow` library to enforce explicit error handling. No public function throws an exception. Instead, every operation returns `Result<T, AppError>` (synchronous) or `AsyncResult<T, AppError>` (asynchronous):
 
 ```typescript
-import { ok, err } from 'neverthrow';
-import { AppError, type Result } from '@tempot/shared';
+import { AppError, err, ok, type Result } from '@tempot/shared';
 
 function validate(input: string): Result<string, AppError> {
   if (!input) {
@@ -47,6 +47,11 @@ function validate(input: string): Result<string, AppError> {
 ```
 
 `AsyncResult<T>` is simply `Promise<Result<T, AppError>>`, providing a consistent async contract across the entire framework.
+
+`@tempot/shared` re-exports `ok` and `err` so root tooling and packages can use
+the governed Result constructors without adding a separate direct dependency.
+It also exports the central protected-field redaction policy consumed by
+logging and telemetry adapters.
 
 ## CacheService
 

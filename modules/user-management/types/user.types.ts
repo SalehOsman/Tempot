@@ -32,6 +32,13 @@ export interface UserProfile {
 /** نوع الدور يُشير مباشرة إلى RoleEnum — لا تكرار */
 export type UserRole = RoleEnum;
 
+export interface IdentityUpdateData {
+  nationalId?: string;
+  birthDate?: Date;
+  gender?: 'male' | 'female';
+  governorate?: string;
+}
+
 export interface UpdateUserData {
   username?: string;
   email?: string;

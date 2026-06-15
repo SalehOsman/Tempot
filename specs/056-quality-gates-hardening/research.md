@@ -58,9 +58,10 @@ provider exactly with Vitest, and test minimum/current Node versions.
 
 **Rationale**: Direct pnpm and Corepack currently resolve different majors.
 
-## Decision 7: Extend Existing Audits
+## Decision 7: Add Focused Audits to the Existing CI Workflow
 
-**Decision**: Add source policy detection to existing CI scripts where the rule
-fits, keeping production source and tooling-script exceptions explicit.
+**Decision**: Add focused source, toolchain, documentation, inventory, and
+coverage audits to the existing CI workflow, keeping production source and
+tooling-script exceptions explicit.
 
 **Rationale**: A second disconnected lint framework would increase drift.

@@ -1,5 +1,10 @@
 # 10 - خطة الإصلاح المرحلية
 
+> **تحديث 2026-06-15:** تم تنفيذ والتحقق من Spec #053 وأساس Spec #056 على
+> فرع المصالحة. الخطوة التالية هي أساس Spec #055، وليس القطع المدمر لـ Spec
+> #054. أي migration أو cutover أو key rotation في Spec #054 يتطلب موافقة
+> مستقلة وصريحة. تبقى تغطية Spec #056 غير مكتملة: 23 فشلًا حاجبًا و9 تحذيرات.
+
 > الخطة مبنية بالكامل على Specs #053-#057 الموجودة فعلًا في
 > `specs/`، بحيث لا يُفتح مسار تنفيذي خارج المنهجية. كل مرحلة تشير
 > إلى Spec واحد على الأقل، ويمر تنفيذها بـ Handoff Gate و Superpowers.
@@ -14,11 +19,11 @@
 
 ### المهام
 
-| # | المهمة | Spec | المرجع |
-|---|-------|------|--------|
-| 1 | تنفيذ Spec #053 (Authorization Correction) | #053 | ISS-001 |
-| 2 | إدراج `apps/bot-server` و `apps/docs` في `vitest projects` الجذرية | #056 | ISS-003 |
-| 3 | إصلاح الفشلين المعروفين في `apps/bot-server/tests` | #056 | ISS-003 |
+| #   | المهمة                                                             | Spec | المرجع  |
+| --- | ------------------------------------------------------------------ | ---- | ------- |
+| 1   | تنفيذ Spec #053 (Authorization Correction)                         | #053 | ISS-001 |
+| 2   | إدراج `apps/bot-server` و `apps/docs` في `vitest projects` الجذرية | #056 | ISS-003 |
+| 3   | إصلاح الفشلين المعروفين في `apps/bot-server/tests`                 | #056 | ISS-003 |
 
 ### الترتيب
 
@@ -55,11 +60,11 @@
 
 ### المهام
 
-| # | المهمة | Spec |
-|---|-------|------|
-| 1 | تنفيذ Spec #054 (Sensitive Data Protection) — تشفير، lookup tokens، redaction | #054 |
-| 2 | rehearsal لـ migration على بيئة staging قبل تطبيقها على prod | #054 |
-| 3 | تنفيذ Spec #055 (Data Integrity Hardening) — atomicity, soft-delete invariants | #055 |
+| #   | المهمة                                                                         | Spec |
+| --- | ------------------------------------------------------------------------------ | ---- |
+| 1   | تنفيذ Spec #054 (Sensitive Data Protection) — تشفير، lookup tokens، redaction  | #054 |
+| 2   | rehearsal لـ migration على بيئة staging قبل تطبيقها على prod                   | #054 |
+| 3   | تنفيذ Spec #055 (Data Integrity Hardening) — atomicity, soft-delete invariants | #055 |
 
 ### الترتيب
 
@@ -99,15 +104,15 @@
 
 ### المهام
 
-| # | المهمة | Spec |
-|---|-------|------|
-| 1 | استكمال Spec #056: Coverage tiers ملزمة، toolchain conformance، docs freshness | #056 |
-| 2 | إضافة Trivy/Grype + Cosign + Syft SBOM إلى docker workflow | #057 |
-| 3 | تفعيل CodeQL + Dependabot | Spec #056 task |
-| 4 | إضافة `packageManager` في `package.json` | Spec #056 |
-| 5 | توحيد إصدار Node بين CI/Dockerfile/engines | Spec #056 |
-| 6 | تنظيف الجذر (`bot-terminal.log`, `project_status_report.md`, `.gitkeep`) | فرع `codex/repo-hygiene` (تابع لـ Spec #056) |
-| 7 | إضافة `setup-dev.ps1` | Spec #056 DX task |
+| #   | المهمة                                                                         | Spec                                         |
+| --- | ------------------------------------------------------------------------------ | -------------------------------------------- |
+| 1   | استكمال Spec #056: Coverage tiers ملزمة، toolchain conformance، docs freshness | #056                                         |
+| 2   | إضافة Trivy/Grype + Cosign + Syft SBOM إلى docker workflow                     | #057                                         |
+| 3   | تفعيل CodeQL + Dependabot                                                      | Spec #056 task                               |
+| 4   | إضافة `packageManager` في `package.json`                                       | Spec #056                                    |
+| 5   | توحيد إصدار Node بين CI/Dockerfile/engines                                     | Spec #056                                    |
+| 6   | تنظيف الجذر (`bot-terminal.log`, `project_status_report.md`, `.gitkeep`)       | فرع `codex/repo-hygiene` (تابع لـ Spec #056) |
+| 7   | إضافة `setup-dev.ps1`                                                          | Spec #056 DX task                            |
 
 ### الترتيب
 
@@ -144,14 +149,14 @@ CI logs + GHCR registry inspection + cosign verify.
 
 ### المهام
 
-| # | المهمة | المسار |
-|---|-------|--------|
-| 1 | استكمال Spec #057 (deployment runbook، rehearsal، rollback automation، startup hardening) | Spec #057 |
-| 2 | اختبار E2E خفيف عبر mock Telegram | Spec #056 امتداد |
-| 3 | matrix testing لـ `TEMPOT_*` flag combinations (nightly) | Spec #056 امتداد |
-| 4 | تحديث Constitution v2.5 لإدراج "Production Rehearsal Gate" + "Coverage Tier Policy" + "Docs Freshness Required" | Spec جديد `058-constitution-v2.5` |
-| 5 | استبدال تكرار سياق AI بـ ملف source-of-truth + sync تلقائي | Spec جديد `059-ai-context-source-of-truth` |
-| 6 | rotation review للقواعد الـ 90 — تقاعد ما لم يعد قابلًا للتطبيق | Spec جديد `060-constitution-rules-rotation` |
+| #   | المهمة                                                                                                          | المسار                                      |
+| --- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1   | استكمال Spec #057 (deployment runbook، rehearsal، rollback automation، startup hardening)                       | Spec #057                                   |
+| 2   | اختبار E2E خفيف عبر mock Telegram                                                                               | Spec #056 امتداد                            |
+| 3   | matrix testing لـ `TEMPOT_*` flag combinations (nightly)                                                        | Spec #056 امتداد                            |
+| 4   | تحديث Constitution v2.5 لإدراج "Production Rehearsal Gate" + "Coverage Tier Policy" + "Docs Freshness Required" | Spec جديد `058-constitution-v2.5`           |
+| 5   | استبدال تكرار سياق AI بـ ملف source-of-truth + sync تلقائي                                                      | Spec جديد `059-ai-context-source-of-truth`  |
+| 6   | rotation review للقواعد الـ 90 — تقاعد ما لم يعد قابلًا للتطبيق                                                 | Spec جديد `060-constitution-rules-rotation` |
 
 ### الترتيب
 
@@ -181,12 +186,12 @@ CI logs + GHCR registry inspection + cosign verify.
 
 ## الملخص الزمني
 
-| المرحلة | المدة المتوقعة | المخرج الرئيسي |
-|--------|----------------|------------------|
-| 1 | 1-2 أسبوع | تفويض سليم + رؤية CI كاملة |
-| 2 | 2-4 أسابيع | بيانات شخصية مشفرة + تكامل بيانات |
-| 3 | 1-2 شهر | بوابات جودة + سلسلة إمداد آمنة |
-| 4 | 2-4 أشهر | جاهزية إنتاج + منهجية v2.5 |
+| المرحلة | المدة المتوقعة | المخرج الرئيسي                    |
+| ------- | -------------- | --------------------------------- |
+| 1       | 1-2 أسبوع      | تفويض سليم + رؤية CI كاملة        |
+| 2       | 2-4 أسابيع     | بيانات شخصية مشفرة + تكامل بيانات |
+| 3       | 1-2 شهر        | بوابات جودة + سلسلة إمداد آمنة    |
+| 4       | 2-4 أشهر       | جاهزية إنتاج + منهجية v2.5        |
 
 كل مرحلة تخضع لـ Quality Gates (Spec → Plan → TDD → Review →
 Verification → Reconciliation → Merge) بدون استثناء.

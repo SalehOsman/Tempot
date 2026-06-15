@@ -12,7 +12,7 @@ Represents the authenticated application actor for one Telegram update.
 - `telegramUserId`: Telegram identity when present.
 - `applicationUserId`: Persisted user identity when resolved.
 - `role`: GUEST, USER, ADMIN, or SUPER_ADMIN.
-- `enabledStatus`: Active, disabled, unresolved, or bootstrap.
+- `enabledStatus`: ACTIVE, BANNED, PENDING, or UNRESOLVED.
 - `ability`: Production CASL ability for the actor.
 - `traceId`: Interaction trace reference.
 
@@ -20,7 +20,9 @@ Represents the authenticated application actor for one Telegram update.
 
 - SUPER_ADMIN is assigned only through secure bootstrap rules.
 - Missing or disabled actors cannot execute protected behavior.
-- Context is immutable for one authorization decision.
+- Normal update decisions use the attached context.
+- Deferred mutation decisions replace stale actor and ability values with a
+  freshly resolved context before commit.
 
 ## Entry-Point Policy
 

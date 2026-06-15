@@ -30,3 +30,10 @@ Spec #042 hardens the lifecycle operating surface:
 The module is not yet production complete. Remaining work is tracked in
 `specs/040-bot-management/tasks.md` and the production completion plan under
 `docs/superpowers/plans/2026-05-12-bot-management-production-completion.md`.
+
+## Authorization
+
+Commands and callbacks declare CASL action/subject policies at registration or
+dispatch. Registration and lifecycle conversations re-resolve the current
+session and ability immediately before persistence, preventing a stale role
+from committing a protected mutation.

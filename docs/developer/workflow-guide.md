@@ -3,7 +3,7 @@
 > Constitutional reference: Rules LXXIX-LXXXIX in
 > `.specify/memory/constitution.md`.
 >
-> Last reviewed: 2026-04-29.
+> Last reviewed: 2026-06-08.
 
 This is the practical workflow guide for Tempot. SpecKit defines what and why.
 Superpowers defines how the approved work is executed and verified.
@@ -120,17 +120,29 @@ roadmap state.
 ```bash
 pnpm lint
 pnpm build
+pnpm test:inventory
 pnpm test:unit
 pnpm test:integration
+pnpm test:e2e
+pnpm test:coverage
 pnpm spec:validate
 pnpm cms:check
 pnpm boundary:audit
 pnpm module:checklist
+pnpm source:conformance
+pnpm toolchain:audit
+pnpm docs:check
 pnpm audit --audit-level=high
 ```
 
 Run the subset that matches the change while developing. Run the full relevant
 set before merge.
+
+CI verifies full builds and unit tests on Node.js 22.12.0 and Node.js 24.
+Corepack resolves the repository-pinned pnpm 10.33.3 release, which supports the
+minimum Node runtime. Coverage blocks services below 80% and
+handlers below 70%, while repository and conversation shortfalls remain visible
+warnings under the constitutional policy.
 
 ## Local Bot Development Runtime
 

@@ -1,4 +1,4 @@
-import { BaseRepository } from '@tempot/database';
+import { BaseRepository, enforceActiveRecordScope } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 
@@ -21,7 +21,9 @@ export abstract class ModuleBaseRepository<T extends { id: string }> extends Bas
     }
   }
 
-  override async findMany(query?: Record<string, unknown>): Promise<Result<T[], AppError>> {
+  protected override async findMany(
+    query?: Record<string, unknown>,
+  ): Promise<Result<T[], AppError>> {
     try {
       const items = await this.moduleDelegate.findMany(this.toFindManyArgs(query));
       return ok(items as T[]);
@@ -71,7 +73,7 @@ export abstract class ModuleBaseRepository<T extends { id: string }> extends Bas
   }
 
   private withSoftDelete(where: Record<string, unknown>): Record<string, unknown> {
-    return this.hasSoftDelete ? { isDeleted: false, ...where } : where;
+    return this.hasSoftDelete ? enforceActiveRecordScope(where) : where;
   }
 
   private asRecord(value: unknown): Record<string, unknown> | null {

@@ -7,9 +7,9 @@
 # Shutdown order: Hono → grammY → BullMQ → Redis → Prisma → Drizzle
 
 # =============================================================================
-# Services: bot-server + PostgreSQL (pgvector) + Redis
+# LOCAL DEVELOPMENT STACK
+# Services: bot-server + PostgreSQL (pgvector) + Redis.
 # =============================================================================
-
 services:
   bot-server:
     build:

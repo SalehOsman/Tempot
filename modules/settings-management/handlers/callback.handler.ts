@@ -23,6 +23,16 @@ export async function handleCallbackQuery(
     return;
   }
 
+  if (
+    !(await getDeps().authorization.enforce(ctx, {
+      module: 'settings-management',
+      classification: 'protected',
+      action: 'read',
+      subject: 'settings',
+    }))
+  ) {
+    return;
+  }
   const action = data.slice('settings:'.length) || 'view';
   await showSettingsPage(ctx, action);
 }

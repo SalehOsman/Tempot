@@ -39,7 +39,7 @@
 | الحزمة | السبب |
 |--------|--------|
 | `devalue >=5.8.1` | CVE-2025-47935 |
-| `esbuild >=0.25.0` | dev-server CORS |
+| `esbuild >=0.28.1` | dev-server CORS and binary integrity verification |
 | `@hono/node-server >=1.19.13` | GHSA-92pp-h63x-v22m middleware bypass |
 | `protobufjs >=7.5.8` | GHSA-jggg-4jg4-v7c6 DoS |
 | `tmp >=0.2.6` | GHSA-ph9p-34f9-6g65 path traversal |

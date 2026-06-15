@@ -16,7 +16,7 @@ vi.mock('@tempot/database', () => {
     ): Promise<{ isOk: () => boolean; value: unknown[] }> {
       const model = (this as unknown as { model: Record<string, (...args: unknown[]) => unknown> })
         .model;
-      const items = await model.findMany({ where: { isDeleted: false, ...where } });
+      const items = await model.findMany({ where: { ...where, isDeleted: false } });
       return { isOk: () => true, value: items as unknown[] };
     }
   }
@@ -47,6 +47,7 @@ function createMockDb() {
       update: vi.fn(),
       delete: vi.fn(),
     },
+    $queryRaw: vi.fn(),
     $executeRaw: vi.fn(),
   };
 }
@@ -72,10 +73,11 @@ describe('AttachmentRepository', () => {
 
   describe('findExpiredDeleted', () => {
     it('should query soft-deleted records before date', async () => {
-      mockDb.attachment.findMany.mockResolvedValue([]);
+      mockDb.$queryRaw.mockResolvedValue([]);
       const beforeDate = new Date('2026-01-01');
       const result = await repo.findExpiredDeleted(beforeDate);
       expect(result.isOk()).toBe(true);
+      expect(mockDb.$queryRaw).toHaveBeenCalled();
     });
   });
 

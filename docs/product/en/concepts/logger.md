@@ -10,11 +10,15 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-16
 ---
 
 ## What is the Logger Package?
 
 The `@tempot/logger` package provides two complementary logging systems: a technical logger for operational diagnostics and an audit logger for compliance-grade state change tracking. Both produce structured JSON and integrate with Tempot's session context for automatic user attribution.
+
+This page was verified against Pino 9, `appErrorSerializer`, and `AuditLogger`
+on 2026-06-16.
 
 ## Two Logging Systems
 
@@ -23,7 +27,10 @@ The `@tempot/logger` package provides two complementary logging systems: a techn
 | Technical | `logger` (Pino instance) | Operational diagnostics, debugging, error reporting | Structured JSON to stdout            |
 | Audit     | `AuditLogger`            | State change tracking, compliance, traceability     | Persisted to AuditLog database table |
 
-These serve different audiences. The technical logger helps developers diagnose issues. The audit logger provides a tamper-proof record of who changed what and when, required for enterprise compliance.
+These serve different audiences. The technical logger helps developers diagnose
+issues. The audit logger provides a persistent record of who changed what and
+when. Database permissions and retention controls remain responsible for
+protecting that record against unauthorized modification.
 
 ## Structured JSON Format
 
@@ -72,11 +79,17 @@ Sensitive data is redacted at two layers:
 
 ### Pino Built-in Redaction
 
-Pino's native `redact` option strips values for keys matching `SENSITIVE_KEYS` (`password`, `token`, `secret`, `apiKey`, `creditCard`) from top-level log properties.
+Pino's native `redact` option applies the shared recursive censor at the root
+object boundary. It covers credentials and classified identity fields at
+arbitrary nesting depth, including email, national ID, mobile number, birth
+date, protected envelopes, lookup tokens, and key configuration aliases.
 
 ### Error Serializer Redaction
 
-The `appErrorSerializer` recursively walks `err.details` and replaces any value whose key matches `SENSITIVE_KEYS` with `[REDACTED]`. This handles arbitrarily nested objects and arrays.
+The `appErrorSerializer` recursively walks `err.details` and replaces any value
+whose key matches the shared protected-field policy with `[REDACTED]`. This
+handles arbitrarily nested objects and arrays. Sentry uses the same recursive
+policy so the two observability channels do not drift.
 
 ## No Double Logging
 
@@ -92,7 +105,9 @@ The `AuditLogger` persists state changes to the database via `AuditLogRepository
 
 - **action**: The operation (e.g., `invoices.invoice.create`)
 - **module**: The originating module
-- **before/after**: JSON snapshots of the entity state
+- **before/after**: allowlisted JSON snapshots of approved operational state
+- **changes**: validated protected-field identity and added/changed/cleared
+  metadata, persisted without raw values
 - **userId/userRole**: From session context or explicit override
 - **status**: Defaults to `SUCCESS`
 - **referenceCode**: Auto-generated for non-success statuses

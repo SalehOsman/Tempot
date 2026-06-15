@@ -1,5 +1,9 @@
 import { AsyncResult, AppError, sessionContext, generateErrorReference } from '@tempot/shared';
-import { AuditLogRepository } from '@tempot/database';
+import {
+  AuditLogRepository,
+  buildSafeAuditSnapshot,
+  type ProtectedAuditChange,
+} from '@tempot/database';
 import { ok, err } from 'neverthrow';
 
 /**
@@ -15,6 +19,7 @@ export interface AuditLogEntry {
   userId?: string;
   userRole?: string;
   referenceCode?: string;
+  changes?: ProtectedAuditChange[];
 }
 
 /**
@@ -37,8 +42,8 @@ export class AuditLogger {
       action: entry.action,
       module: entry.module,
       targetId: entry.targetId,
-      before: entry.before,
-      after: entry.after,
+      before: this.sanitizeSnapshot(entry.before),
+      after: this.buildPersistedAfter(entry),
       status,
       userId: entry.userId ?? store?.userId,
       userRole: entry.userRole ?? store?.userRole,
@@ -50,6 +55,24 @@ export class AuditLogger {
     }
 
     return ok(undefined);
+  }
+
+  private buildPersistedAfter(entry: AuditLogEntry): Record<string, unknown> | null | undefined {
+    if (entry.after === null && (!entry.changes || entry.changes.length === 0)) return null;
+    if (entry.after === undefined && (!entry.changes || entry.changes.length === 0)) {
+      return undefined;
+    }
+    return buildSafeAuditSnapshot({
+      ...(entry.after ?? {}),
+      changes: entry.changes,
+    });
+  }
+
+  private sanitizeSnapshot(
+    value: Record<string, unknown> | null | undefined,
+  ): Record<string, unknown> | null | undefined {
+    if (value === null || value === undefined) return value;
+    return buildSafeAuditSnapshot(value);
   }
 
   /**

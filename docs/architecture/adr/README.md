@@ -47,3 +47,4 @@
 | 041 | [Telegram Managed Bots Strategy](ADR-041-telegram-managed-bots-strategy.md)         | Accepted |
 | 042 | [Module-Owned Telegram Navigation](ADR-042-module-owned-navigation.md)              | Accepted |
 | 043 | [Interaction Observability Package](ADR-043-interaction-observability-package.md)   | Accepted |
+| 044 | [Versioned Sensitive Data Protection](ADR-044-sensitive-data-protection.md)         | Accepted |

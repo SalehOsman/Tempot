@@ -10,11 +10,16 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-16
 ---
 
 ## Overview
 
 The `@tempot/logger` package provides two logging systems: a Pino-based technical logger for operational diagnostics and an `AuditLogger` for compliance-grade state tracking. This guide covers using both systems, configuring log levels, handling errors in logs, and understanding PII redaction.
+
+The examples were verified against the active package exports on 2026-06-16.
+`AuditLogger` accepts `AuditLogRepository`; application services should depend
+on an injected audit abstraction rather than constructing it inline.
 
 ## Using the Technical Logger
 
@@ -29,6 +34,10 @@ logger.error({ err: appError, msg: 'Payment failed' });
 ```
 
 All output is structured JSON sent to stdout. The `userId` field is injected automatically from `sessionContext` when available, so you never need to pass it manually.
+
+Never include classified values in log messages or interpolate them into
+strings. Structured redaction can sanitize recognized object keys, but it
+cannot reliably recover semantic fields embedded in arbitrary prose.
 
 ## Configuring Log Levels
 
@@ -68,6 +77,11 @@ logger.error({ err: error, msg: 'Invoice creation failed' });
 ```
 
 The `appErrorSerializer` extracts `code`, `i18nKey`, `referenceCode`, and redacted `details` from the error. In non-production environments, the stack trace is included.
+
+Protected identity fields, envelopes, lookup tokens, and key-ring aliases are
+redacted recursively through the central `@tempot/shared` policy. Keep
+diagnostic details structured and use record IDs or reference codes instead of
+raw user values.
 
 ### No Double Logging
 
@@ -131,14 +145,16 @@ Sensitive data is stripped at two layers before it reaches log output.
 
 ### Layer 1 — Pino Redaction
 
-Pino's native `redact` option replaces top-level values for keys in `SENSITIVE_KEYS`:
+Pino's native `redact` option invokes the shared recursive censor from the root
+payload. Sensitive aliases are therefore protected at arbitrary nesting depth:
 
 ```typescript
 import { SENSITIVE_KEYS } from '@tempot/logger';
-// ['password', 'token', 'secret', 'apiKey', 'creditCard']
+// Pino redact configuration with paths and a recursive censor
 ```
 
-Any log call containing these keys at the top level produces `[Redacted]` in the output.
+Any log call containing protected aliases at any nested level produces
+`[Redacted]` in the output.
 
 ### Layer 2 — Error Serializer Redaction
 

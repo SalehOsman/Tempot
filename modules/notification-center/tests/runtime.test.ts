@@ -4,6 +4,13 @@ import setup, { type ModuleDeps } from '../index.js';
 import { notificationsCommand } from '../commands/notifications.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
+type TestDeps = ModuleDeps & {
+  authorization: {
+    guard: ReturnType<typeof vi.fn>;
+    enforce: ReturnType<typeof vi.fn>;
+  };
+};
+
 interface InlineCallbackButton {
   readonly callback_data?: string;
 }
@@ -12,7 +19,7 @@ interface InlineKeyboardMarkupLike {
   readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
 }
 
-function createDeps(): ModuleDeps {
+function createDeps(): TestDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
@@ -27,8 +34,12 @@ function createDeps(): ModuleDeps {
     },
     auditLog: { findMany: vi.fn().mockResolvedValue([]) },
     interactionEvents: { findMany: vi.fn().mockResolvedValue([]) },
+    authorization: {
+      guard: vi.fn().mockReturnValue(vi.fn()),
+      enforce: vi.fn().mockResolvedValue(true),
+    },
     config: createConfig('notification-center'),
-  };
+  } as TestDeps;
 }
 
 function callbackDataFrom(markup: unknown): string[] {
@@ -67,8 +78,19 @@ describe('notification-center runtime', () => {
 
   it('registers notifications command and callback handler', async () => {
     const bot = { command: vi.fn(), on: vi.fn() };
-    await setup(bot as never, createDeps());
-    expect(bot.command).toHaveBeenCalledWith('notifications', notificationsCommand);
+    const deps = createDeps();
+    await setup(bot as never, deps);
+    expect(deps.authorization.guard).toHaveBeenCalledWith({
+      module: 'notification-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'notifications',
+    });
+    expect(bot.command).toHaveBeenCalledWith(
+      'notifications',
+      deps.authorization.guard.mock.results[0]?.value,
+      notificationsCommand,
+    );
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
   });
 
@@ -168,6 +190,30 @@ describe('notification-center runtime', () => {
       'notification-center.view.preferences_disabled',
       expect.any(Object),
     );
+  });
+
+  it('does not mutate notification preferences when authorization is denied', async () => {
+    const deps = createDeps();
+    deps.authorization.enforce.mockResolvedValue(false);
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'notifications:toggle', message: { message_id: 10 } },
+      from: { id: 123 },
+      answerCallbackQuery: vi.fn(),
+      editMessageText: vi.fn(),
+      reply: vi.fn(),
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.authorization.enforce).toHaveBeenCalledWith(ctx, {
+      module: 'notification-center',
+      classification: 'protected',
+      action: 'update',
+      subject: 'notifications',
+    });
+    expect(deps.settings.get).not.toHaveBeenCalled();
+    expect(deps.settings.set).not.toHaveBeenCalled();
   });
 
   it('renders an explicit empty state when notification activity is unavailable', async () => {

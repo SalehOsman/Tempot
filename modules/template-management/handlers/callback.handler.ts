@@ -6,6 +6,7 @@ import { createMainMenu, createMyTemplatesMenu } from '../menus/template-menu.fa
 import { createBrowseMenu } from '../menus/browse-menu.factory.js';
 import { createExportMenu } from '../menus/export-menu.factory.js';
 import { createRatingMenu } from '../menus/rating-menu.factory.js';
+import type { ModuleAuthorizationPolicy } from '../index.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 type TranslationFn = (key: string) => string;
@@ -31,6 +32,8 @@ export async function handleCallbackQuery(
 
   const parts = data.split(':');
   const action = parts[1];
+  const policy = resolveAuthorizationPolicy(action);
+  if (!(await getDeps().authorization.enforce(ctx, policy))) return;
 
   switch (action) {
     case 'menu':
@@ -62,6 +65,21 @@ export async function handleCallbackQuery(
       await acknowledgeCallback(ctx, t('bot-server.callback_unchanged'));
       break;
   }
+}
+
+function resolveAuthorizationPolicy(action?: string): ModuleAuthorizationPolicy {
+  if (action === 'create') return createPolicy('protected', 'create', 'template');
+  if (action === 'my') return createPolicy('protected', 'read', 'template-own');
+  if (action === 'rate') return createPolicy('protected', 'create', 'rating');
+  return createPolicy('public', 'read', 'template');
+}
+
+function createPolicy(
+  classification: ModuleAuthorizationPolicy['classification'],
+  action: string,
+  subject: string,
+): ModuleAuthorizationPolicy {
+  return { module: 'template-management', classification, action, subject };
 }
 
 async function showMainMenu(ctx: Context, t: TranslationFn): Promise<void> {

@@ -16,16 +16,18 @@ overrides:
   # Security: CVE-2025-47935 (devalue DoS via sparse array deserialization)
   # astro@6.3.3 (latest) pins devalue@5.8.0 exactly. Force >=5.8.1 patched version.
   devalue: '>=5.8.1'
-  # Security: esbuild <=0.24.2 exposes dev-server to cross-origin requests.
-  # Affects drizzle-kit (dev-only). Override pins all transitive uses to patched range.
-  esbuild: '>=0.25.0'
+  # Security: GHSA-gv7w-rqvm-qjhr allows binary replacement through a custom
+  # registry in Deno-backed tooling. Affects drizzle-kit (dev-only).
+  esbuild: '>=0.28.1'
   # Security: GHSA-92pp-h63x-v22m — @hono/node-server middleware bypass (<1.19.13).
   '@hono/node-server': '>=1.19.13'
-  # Security: GHSA-jggg-4jg4-v7c6 — protobufjs DoS via unbounded recursion (<=7.5.7).
-  protobufjs: '>=7.5.8'
+  # Security: GHSA-wcpc-wj8m-hjx6 - protobufjs DoS via unbounded Any expansion (<=8.4.0).
+  protobufjs: '>=8.4.1'
   # Security: GHSA-ph9p-34f9-6g65 - tmp path traversal via unsanitized prefix/postfix (<0.2.6).
   tmp: '>=0.2.6'
   # Security: GHSA-99f4-grh7-6pcq + GHSA-5375-pq7m-f5r2 — @grpc/grpc-js server/client
   # crash on malformed message (>=1.14.0 <1.14.4). Affects dev-only path
   # testcontainers > dockerode. Pin to patched range.
   '@grpc/grpc-js': '>=1.14.4'
+  # Security: GHSA-fx2h-pf6j-xcff - Vite Windows server.fs.deny bypass (<=7.3.4).
+  vite: '>=7.3.5'

@@ -1,12 +1,15 @@
 import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TestDB } from '@tempot/database/testing';
 import path from 'node:path';
-import { ok } from 'neverthrow';
-import { execSync } from 'node:child_process';
+import fs from 'node:fs/promises';
+import { err, ok } from 'neverthrow';
+import { execFileSync, execSync } from 'node:child_process';
 
 // Mock cwd to point to fixtures so discovery finds test-module
 const mockCwd = path.resolve(__dirname, '__fixtures__');
 vi.spyOn(process, 'cwd').mockReturnValue(mockCwd);
+
+const fixtureModuleDir = path.join(mockCwd, 'modules', 'test-module');
 
 import { buildDeps } from '../../src/startup/deps.factory.js';
 import { startApplication } from '../../src/startup/orchestrator.js';
@@ -28,6 +31,16 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     process.env.BOT_MODE = 'polling';
     process.env.SUPER_ADMIN_IDS = '123';
     process.env.PORT = '3000';
+    process.env.DEFAULT_LANGUAGE = 'en';
+    process.env.DEFAULT_COUNTRY = 'US';
+    process.env.PROTECTED_DATA_ACTIVE_ENCRYPTION_KEY_VERSION = 'enc-test-v1';
+    process.env.PROTECTED_DATA_ENCRYPTION_KEYS = JSON.stringify({
+      'enc-test-v1': Buffer.alloc(32, 71).toString('base64'),
+    });
+    process.env.PROTECTED_DATA_ACTIVE_LOOKUP_KEY_VERSION = 'lookup-test-v1';
+    process.env.PROTECTED_DATA_LOOKUP_KEYS = JSON.stringify({
+      'lookup-test-v1': Buffer.alloc(32, 72).toString('base64'),
+    });
 
     // We must disable Sentry locally to avoid real network requests
     process.env.SENTRY_DSN = '';
@@ -38,13 +51,14 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     // Build the test-module fixture so module discovery can import its dist/
     // output (matches production module-loader behavior in deps.orchestrator.ts).
     const fixturePath = path.resolve(__dirname, '__fixtures__/modules/test-module');
-    execSync('pnpm exec tsc -p .', {
+    const tscPath = path.resolve(__dirname, '../../../../node_modules/typescript/bin/tsc');
+    execFileSync(process.execPath, [tscPath, '-p', '.'], {
       cwd: fixturePath,
       stdio: 'inherit',
     });
 
     // Push Prisma schema
-    execSync('pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
+    execSync('corepack pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       stdio: 'inherit',
     });
@@ -52,6 +66,7 @@ describe('Phase 2D End-to-End Integration Tests', () => {
 
   afterAll(async () => {
     await testDb.stop();
+    await fs.rm(path.join(fixtureModuleDir, 'dist'), { recursive: true, force: true });
   });
 
   it('boots, loads module, processes update, and shuts down', async () => {

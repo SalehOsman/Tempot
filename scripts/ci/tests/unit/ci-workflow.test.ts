@@ -19,4 +19,57 @@ describe('CI workflow quality gates', () => {
     expect(workflow).toContain('pnpm boundary:audit');
     expect(workflow).toContain('pnpm module:checklist');
   });
+
+  it('should build on the minimum and current supported Node runtimes', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const typecheckJob = workflow.slice(
+      workflow.indexOf('  typecheck:'),
+      workflow.indexOf('  test-unit:'),
+    );
+
+    expect(typecheckJob).toContain("node: ['22.12.0', '24']");
+    expect(typecheckJob).toContain('node-version: ${{ matrix.node }}');
+    expect(typecheckJob).toContain('pnpm build');
+  });
+
+  it('should build the full workspace before running root unit tests', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const unitJob = workflow.slice(
+      workflow.indexOf('  test-unit:'),
+      workflow.indexOf('  test-integration:'),
+    );
+    const unitJobLines = unitJob.split(/\r?\n/u).map((line) => line.trim());
+
+    expect(unitJobLines).toContain('- run: pnpm build');
+    expect(unitJobLines.indexOf('- run: pnpm build')).toBeLessThan(
+      unitJobLines.indexOf('- run: pnpm test:unit'),
+    );
+  });
+
+  it('should initialize the database before running coverage tests', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const coverageJob = workflow.slice(
+      workflow.indexOf('  coverage:'),
+      workflow.indexOf('  audit:'),
+    );
+
+    expect(coverageJob).toContain(
+      'pnpm --filter @tempot/database exec prisma db push --accept-data-loss',
+    );
+    expect(coverageJob.indexOf('prisma db push')).toBeLessThan(
+      coverageJob.indexOf('pnpm test:coverage'),
+    );
+  });
+
+  it('should report the known coverage baseline without blocking the foundation slice', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const coverageJob = workflow.slice(
+      workflow.indexOf('  coverage:'),
+      workflow.indexOf('  audit:'),
+    );
+
+    expect(coverageJob).toContain('name: Coverage Baseline (Non-blocking)');
+    expect(coverageJob).toContain('continue-on-error: true');
+    expect(coverageJob).toContain('pnpm test:coverage');
+  });
 });

@@ -1,5 +1,5 @@
 {
-  "feature": "053-authorization-correction",
-  "feature_directory": "specs/053-authorization-correction",
-  "specPath": "specs/053-authorization-correction/spec.md"
+  "feature": "054-sensitive-data-protection",
+  "feature_directory": "specs/054-sensitive-data-protection",
+  "specPath": "specs/054-sensitive-data-protection/spec.md"
 }

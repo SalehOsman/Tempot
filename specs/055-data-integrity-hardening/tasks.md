@@ -5,31 +5,31 @@
 
 ## Phase 1: Setup and Blast Radius
 
-- [ ] T001 Create execution worktree `codex/055-data-integrity-hardening`
-- [ ] T002 Map shared database consumers and record blast radius in `specs/055-data-integrity-hardening/research.md`
-- [ ] T003 [P] Record direct Prisma calls and permitted infrastructure exceptions in `docs/architecture/boundaries/`
-- [ ] T004 [P] Record affected pagination methods and current query behavior in `quickstart.md`
+- [x] T001 Create execution worktree `codex/055-data-integrity-hardening`
+- [x] T002 Map shared database consumers and record blast radius in `specs/055-data-integrity-hardening/research.md`
+- [x] T003 [P] Record direct Prisma calls and permitted infrastructure exceptions in `docs/architecture/boundaries/`
+- [x] T004 [P] Record affected pagination methods and current query behavior in `quickstart.md`
 
 ## Phase 2: User Story 1 - Atomic Identity Updates (P1)
 
-- [ ] T005 [P] [US1] Write failing failure-injection integration tests in `modules/user-management/tests/integration/user.repository.test.ts`
-- [ ] T006 [P] [US1] Write failing service contract tests in `modules/user-management/tests/unit/user.service.test.ts`
-- [ ] T007 [US1] Add one atomic identity-update repository operation in `modules/user-management/repositories/user.repository.ts`
-- [ ] T008 [US1] Replace service-level concurrent writes in `modules/user-management/services/user.service.ts`
+- [x] T005 [P] [US1] Write failing failure-injection integration tests in `modules/user-management/tests/integration/user.repository.test.ts`
+- [x] T006 [P] [US1] Write failing service contract tests in `modules/user-management/tests/unit/user.service.test.ts`
+- [x] T007 [US1] Add one atomic identity-update repository operation in `modules/user-management/repositories/user.repository.ts`
+- [x] T008 [US1] Replace service-level concurrent writes in `modules/user-management/services/user.service.ts`
 - [ ] T009 [US1] Reconcile one logical audit operation with the protected audit policy from Spec 054
-- [ ] T010 [US1] Confirm GREEN, refactor, and commit only the atomic-update concern
+- [x] T010 [US1] Confirm GREEN, refactor, and commit only the atomic-update concern
 
 **Independent Test**: Every injected failure leaves all identity fields unchanged.
 
 ## Phase 3: User Story 2 - Non-Overridable Soft Delete (P1)
 
-- [ ] T011 [P] [US2] Write failing adversarial soft-delete tests for the Prisma extension and shared BaseRepository
-- [ ] T012 [P] [US2] Write failing affected module repository tests for conflicting and nested filters
+- [x] T011 [P] [US2] Write failing adversarial soft-delete tests for the Prisma extension and shared BaseRepository
+- [x] T012 [P] [US2] Write failing affected module repository tests for conflicting and nested filters
 - [ ] T013 [P] [US2] Write failing authorized/denied recovery repository tests
-- [ ] T014 [US2] Correct and centralize normal-read deletion enforcement in `packages/database/src/`
-- [ ] T015 [US2] Remove deletion control from normal public filter types
+- [x] T014 [US2] Correct and centralize normal-read deletion enforcement in `packages/database/src/`
+- [x] T015 [US2] Remove deletion control from normal public filter types
 - [ ] T016 [US2] Add the explicit privileged recovery repository contract
-- [ ] T017 [US2] Remove duplicated module deletion-policy implementations where the shared contract applies
+- [x] T017 [US2] Remove duplicated module deletion-policy implementations where the shared contract applies
 - [ ] T018 [US2] Confirm GREEN, refactor, run blast-radius tests, and commit only the soft-delete concern
 
 **Independent Test**: Normal reads cannot return deleted rows; explicit authorized recovery can.
@@ -61,13 +61,13 @@
 
 ## Phase 6: Documentation, Review, and Gates
 
-- [ ] T034 Update repository, database, module, boundary, and architecture documentation
-- [ ] T035 Update all SpecKit artifacts and `docs/ROADMAP.md`
-- [ ] T036 Run focused package/module tests after each slice
-- [ ] T037 Run `pnpm boundary:audit`, `pnpm lint`, `pnpm build`, `pnpm test:unit`, and `pnpm test:integration`
+- [x] T034 Update repository, database, module, boundary, and architecture documentation
+- [x] T035 Update all SpecKit artifacts and `docs/ROADMAP.md`
+- [x] T036 Run focused package/module tests after each slice
+- [x] T037 Run `pnpm boundary:audit`, `pnpm lint`, `pnpm build`, `pnpm test:unit`, and `pnpm test:integration`
 - [ ] T038 Request code review after each scoped concern and resolve all Critical/High findings
-- [ ] T039 Run `speckit-analyze` and resolve Critical inconsistencies
-- [ ] T040 Run `pnpm spec:validate`
+- [x] T039 Run `speckit-analyze` and resolve Critical inconsistencies
+- [x] T040 Run `pnpm spec:validate`
 - [ ] T041 Create required changesets
 - [ ] T042 Run final verification with fresh output
 
@@ -78,6 +78,33 @@
 - US3 depends on repository contracts but not on pagination.
 - US4 follows shared repository stabilization.
 - Each story must pass its review gate before the next concern is committed.
+
+## Improved Sequence Boundary - 2026-06-15
+
+The current pre-Spec-054 foundation covers atomic identity state and
+non-overridable normal soft-delete reads. T009, T013, T016, and the remaining
+US3/US4 work stay open until the protected-data cutover provides the required
+authorization and audit integration. No checkbox is completed solely because
+foundation code exists.
+
+Atomic identity state was completed in commit `41d8273`. Focused verification
+passed the user-management build, 23 module tests, the two service contract
+tests, and the two repository integration tests. T009 remains open because the
+audit write is not yet part of the protected transaction boundary.
+
+Normal-read soft-delete enforcement was completed in commit `e42cce8`.
+`BaseRepository.findMany` is now protected, Prisma and module repositories use
+one active-record scope helper, non-soft-deletable models remain unfiltered,
+and the storage purge query uses an explicit internal deleted-record path.
+Database, template-management, bot-management, and storage-engine regression
+suites passed, as did full lint, the 32-project build, and boundary audit.
+T013, T016, and T018 remain open until authorized recovery is integrated.
+
+Foundation verification also passed 310 unit/application files with 2,325
+tests, 22 integration files with 130 tests, documentation freshness and claims,
+and `spec:validate` at 330/330. SpecKit cross-artifact analysis mapped all 19
+functional requirements and 8 success criteria to tasks with zero Critical or
+High inconsistencies.
 
 ## MVP Scope
 

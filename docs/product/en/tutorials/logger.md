@@ -9,6 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
+lastVerified: 2026-06-16
 ---
 
 ## Prerequisites
@@ -18,6 +19,9 @@ Before you begin, make sure you have:
 - A working Tempot development environment (see [Getting Started](/en/tutorials/getting-started/))
 - PostgreSQL running with the Tempot database migrated (audit logs are persisted)
 - Basic understanding of the [Shared Package](/en/concepts/shared/) Result pattern
+
+This tutorial was verified against the current logger and shared session
+context contracts on 2026-06-16.
 
 ## Adding Logging to an Order Service
 
@@ -78,6 +82,14 @@ function validateOrder(orderId: string) {
 
 The serializer stamps `loggedAt` on the error, preventing duplicate full-trace entries if the same error is logged again upstream.
 
+Keep `AppError.details` non-sensitive. The serializer provides defense in
+depth, not permission to place plaintext identity data in errors. Prefer stable
+record IDs, field names, counts, and operator-safe reference codes.
+
+The technical logger also applies the shared recursive censor to the complete
+structured payload, so deeply nested protected aliases do not bypass Pino
+redaction.
+
 ### Step 4: Set Up the Audit Logger
 
 Create an `AuditLogger` to persist state changes for compliance:
@@ -93,6 +105,10 @@ const auditLogger = new AuditLogger(auditLogRepo);
 ### Step 5: Log State Changes
 
 Record before/after snapshots for every state-changing operation:
+
+For repository-backed entities, let `BaseRepository` create the safe snapshot.
+Do not manually copy full entities into audit entries because classified fields
+must be omitted and represented only by non-sensitive change markers.
 
 ```typescript
 async function updateOrderStatus(

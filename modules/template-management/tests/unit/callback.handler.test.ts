@@ -25,6 +25,10 @@ function createDeps(): ModuleDeps {
     settings: {
       get: vi.fn().mockResolvedValue(undefined),
     },
+    authorization: {
+      guard: vi.fn().mockReturnValue(vi.fn()),
+      enforce: vi.fn().mockResolvedValue(true),
+    },
     config: {
       commands: [],
     } as ModuleDeps['config'],
@@ -63,6 +67,23 @@ describe('template-management callback handler', () => {
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalledTimes(1);
     expect(ctx.reply).toHaveBeenCalledWith('template-management.wizard.step_name');
+  });
+
+  it('does not enter template creation when authorization is denied', async () => {
+    const deps = createDeps();
+    vi.mocked(deps.authorization.enforce).mockResolvedValue(false);
+    registerDeps(deps);
+    const ctx = createContext('tmpl:create');
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.authorization.enforce).toHaveBeenCalledWith(ctx, {
+      module: 'template-management',
+      classification: 'protected',
+      action: 'create',
+      subject: 'template',
+    });
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('opens the my templates surface from the main menu callback', async () => {

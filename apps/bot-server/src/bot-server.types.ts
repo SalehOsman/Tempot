@@ -1,5 +1,8 @@
-import type { Bot, Context } from 'grammy';
+import type { AnyAbility } from '@casl/ability';
+import type { SessionUser } from '@tempot/auth-core';
+import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
+import type { ProtectedDataService } from '@tempot/database';
 
 /** Operation mode for the bot */
 export type BotMode = 'polling' | 'webhook';
@@ -11,11 +14,37 @@ export interface ModuleDependencyContainer {
   sessionProvider: SessionProvider;
   i18n: I18nProvider;
   settings: SettingsProvider;
+  protectedData?: ProtectedDataService;
   auditLog: AuditLogProvider;
   interactionEvents: InteractionEventProvider;
   navigation: ModuleNavigationProvider;
+  authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
 }
+
+export type AuthorizationClassification = 'public' | 'bootstrap' | 'protected';
+
+export interface AuthorizationPolicy {
+  module: string;
+  classification: AuthorizationClassification;
+  action: string;
+  subject: string;
+}
+
+export interface ModuleAuthorizationProvider {
+  guard: (policy: AuthorizationPolicy) => MiddlewareFn<Context>;
+  enforce: (ctx: Context, policy: AuthorizationPolicy) => Promise<boolean>;
+  refreshAndEnforce: (ctx: Context, policy: AuthorizationPolicy) => Promise<boolean>;
+}
+
+export interface ResolvedAuthorizationContext {
+  actor: SessionUser;
+  ability: AnyAbility;
+}
+
+export type AuthorizationContextResolver = (
+  ctx: Context,
+) => Promise<ResolvedAuthorizationContext | null>;
 
 /** Module setup function signature — default export from each module's index.ts */
 export type ModuleSetupFn = (bot: Bot<Context>, deps: ModuleDependencyContainer) => Promise<void>;

@@ -1,5 +1,7 @@
 export * from './base/base.entity.js';
 export * from './base/base.repository.js';
+export * from './base/audit.policy.js';
+export * from './base/soft-delete.js';
 export * from './base/vector.repository.js';
 export * from './repositories/audit-log.repository.js';
 export * from './repositories/interaction-event.repository.js';
@@ -7,3 +9,7 @@ export * from './prisma/prisma.client.js';
 export * from './drizzle/drizzle.schema.js';
 export * from './manager/transaction.manager.js';
 export * from './database.config.js';
+export * from './protection/protected-data.errors.js';
+export * from './protection/protected-data.service.js';
+export * from './protection/protected-data.types.js';
+export * from './protection/static-key.provider.js';

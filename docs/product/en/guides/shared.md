@@ -10,6 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## Overview
@@ -33,11 +34,10 @@ The `i18nKey` is auto-derived as `errors.invoices.payment_failed`, linking the e
 
 ## Working with the Result Pattern
 
-Every public function returns `Result<T, AppError>` or `AsyncResult<T, AppError>` instead of throwing. Use `ok()` and `err()` from `neverthrow`:
+Every public function returns `Result<T, AppError>` or `AsyncResult<T, AppError>` instead of throwing. Use the governed `ok()` and `err()` exports:
 
 ```typescript
-import { ok, err } from 'neverthrow';
-import { AppError, type Result } from '@tempot/shared';
+import { AppError, err, ok, type Result } from '@tempot/shared';
 
 function parseAmount(input: string): Result<number, AppError> {
   const amount = Number(input);
@@ -49,6 +49,10 @@ function parseAmount(input: string): Result<number, AppError> {
 ```
 
 Chain results with `.map()`, `.andThen()`, and `.mapErr()`. Handle both outcomes with `.match()`:
+
+The shared package also owns recursive protected-field redaction. Observability
+packages consume that policy centrally; domain code should still avoid placing
+classified plaintext in errors, logs, or telemetry.
 
 ```typescript
 parseAmount(raw).match(

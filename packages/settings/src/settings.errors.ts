@@ -12,4 +12,6 @@ export const SETTINGS_ERRORS = {
   DYNAMIC_PARSE_FAILED: 'settings.dynamic.parse_failed',
   CACHE_INVALIDATION_FAILED: 'settings.cache.invalidation_failed',
   REPOSITORY_ERROR: 'settings.repository.error',
+  PROTECTED_DATA_INVALID_KEY_RING: 'settings.protected_data.invalid_key_ring',
+  PROTECTED_DATA_KEY_REUSE: 'settings.protected_data.key_reuse',
 } as const;

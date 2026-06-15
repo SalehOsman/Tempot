@@ -10,7 +10,8 @@ fields, non-reversible exact-match lookup tokens, minimized audit snapshots,
 comprehensive logging/Sentry redaction, and a resumable verified migration for
 legacy user and audit data. Use Node.js cryptography behind a project-owned
 interface, keep key material in deployment secrets, and execute migration
-through expand, dual-write, backfill, verify, cutover, and retirement phases.
+through expand, protected-write activation, backfill, verify, cutover, and
+retirement phases.
 
 ## Technical Context
 
@@ -20,7 +21,7 @@ through expand, dual-write, backfill, verify, cutover, and retirement phases.
 **Testing**: Vitest 4.1.0, Testcontainers, migration fixtures, canary scans, backup/restore rehearsal
 **Target Platform**: Node.js 22.12+ Linux container
 **Project Type**: TypeScript monorepo with shared database, logger, settings, and user-management components
-**Performance Goals**: Exact-match lookup remains index-backed; protected-field read/write overhead is measured and does not exceed the approved database latency alert threshold
+**Performance Goals**: Exact-match lookup remains index-backed; protected user-profile update p95 does not regress by more than 20 percent against the equivalent legacy repository update in an interleaved, warmed PostgreSQL Testcontainers benchmark
 **Constraints**: AES-256 application-level protection; no plaintext fallback; no key material in DB/source/logs; no `any` or suppression directives
 **Scale/Scope**: All existing user rows and historical audit JSON in the target deployment
 
@@ -84,7 +85,7 @@ redaction policies without receiving decryption capability.
 
 1. **Inventory**: confirm protected fields, duplicates, nulls, and audit exposure.
 2. **Expand**: add protected payload, lookup-token, and key-version storage without removing legacy columns.
-3. **Dual write**: write protected representations transactionally while legacy reads remain available for controlled migration only.
+3. **Protected-write activation**: write protected representations transactionally and store `NULL` in legacy plaintext columns for new or updated protected values; unchanged legacy rows remain readable only for controlled migration.
 4. **Backfill**: migrate deterministic batches with resumable checkpoints.
 5. **Sanitize audit**: replace protected historical JSON values with irreversible markers.
 6. **Verify**: compare authorized logical values, lookup parity, row counts, canary absence, and backup restore.
@@ -104,6 +105,8 @@ redaction policies without receiving decryption capability.
 - Testcontainers migration and rollback rehearsal.
 - Database and filesystem canary scan.
 - Backup/restore rehearsal.
+- Interleaved legacy-versus-protected repository update benchmark with a
+  maximum 20 percent p95 regression.
 - `pnpm audit --audit-level=high`
 - `pnpm lint`
 - `pnpm build`

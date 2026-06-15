@@ -10,11 +10,16 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
+lastVerified: 2026-06-08
 ---
 
 ## Overview
 
 The `@tempot/event-bus` package provides decoupled inter-module communication via typed events. This guide covers initializing the orchestrator, publishing and subscribing to events, defining new event types, and configuring the connection watcher.
+
+The examples were verified against the `publish()` and `subscribe()` APIs on
+2026-06-08. Redis Pub/Sub provides cross-instance delivery but is not a durable
+queue; consumers requiring retries or persistence must use the queue layer.
 
 ## Initializing the Orchestrator
 

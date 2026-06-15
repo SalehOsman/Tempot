@@ -1,17 +1,23 @@
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
-import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
+import type { AbilityDefinition } from '@tempot/auth-core';
+import type { ModuleConfig } from '@tempot/module-registry';
 import type { Bot, Context } from 'grammy';
 import type {
   ModuleLogger,
   ModuleDependencyContainer,
   ModuleSetupFn,
+  AuthorizationContextResolver,
 } from '../bot-server.types.js';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import { createCallbackFallbackMiddleware } from '../bot/middleware/callback-fallback.middleware.js';
+import { createModuleAuthorizationProvider } from '../authorization/context-authorization.js';
+import { createModuleNavigationProvider } from './module-navigation.provider.js';
 
-export type ModuleImporter = (path: string) => Promise<{ default?: ModuleSetupFn }>;
+export type ModuleImporter = (
+  path: string,
+) => Promise<{ default?: ModuleSetupFn; abilityDefinition?: AbilityDefinition }>;
 
 interface ModuleLoaderDeps {
   logger: ModuleLogger;
@@ -19,8 +25,11 @@ interface ModuleLoaderDeps {
   sessionProvider: ModuleDependencyContainer['sessionProvider'];
   i18n: ModuleDependencyContainer['i18n'];
   settings: ModuleDependencyContainer['settings'];
+  protectedData: ModuleDependencyContainer['protectedData'];
   auditLog: ModuleDependencyContainer['auditLog'];
   interactionEvents: ModuleDependencyContainer['interactionEvents'];
+  resolveAuthorizationContext: AuthorizationContextResolver;
+  abilityRegistry: { register: (moduleName: string, definition: AbilityDefinition) => void };
   importer: ModuleImporter;
 }
 
@@ -62,7 +71,7 @@ async function loadSingleModule(params: LoadSingleModuleParams): AsyncResult<str
   const { bot, mod, deps, navigation } = params;
   const childLogger = deps.logger.child({ module: mod.config.name });
 
-  let imported: { default?: ModuleSetupFn };
+  let imported: { default?: ModuleSetupFn; abilityDefinition?: AbilityDefinition };
   try {
     imported = await deps.importer(mod.path);
   } catch (error: unknown) {
@@ -71,6 +80,10 @@ async function loadSingleModule(params: LoadSingleModuleParams): AsyncResult<str
 
   if (!imported.default) {
     return handleMissingExport(mod, childLogger);
+  }
+
+  if (imported.abilityDefinition) {
+    deps.abilityRegistry.register(mod.config.name, imported.abilityDefinition);
   }
 
   return executeSetup({ bot, mod, setupFn: imported.default, deps, navigation, childLogger });
@@ -149,9 +162,15 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
     sessionProvider: deps.sessionProvider,
     i18n: deps.i18n,
     settings: deps.settings,
+    protectedData: deps.protectedData,
     auditLog: deps.auditLog,
     interactionEvents: deps.interactionEvents,
     navigation,
+    authorization: createModuleAuthorizationProvider({
+      logger: childLogger,
+      t: deps.i18n.t,
+      resolveContext: deps.resolveAuthorizationContext,
+    }),
     config: mod.config,
   };
 
@@ -188,27 +207,4 @@ function handleSetupError(
     ...details,
   });
   return Promise.resolve(ok(undefined));
-}
-
-const ROLE_LEVELS: Record<UserRole, number> = {
-  GUEST: 1,
-  USER: 2,
-  ADMIN: 3,
-  SUPER_ADMIN: 4,
-};
-
-function createModuleNavigationProvider(
-  configs: ModuleConfig[],
-): ModuleDependencyContainer['navigation'] {
-  const entries = configs.flatMap((config) => config.navigation?.mainMenu ?? []);
-  return {
-    getMainMenuItems: (role: UserRole) =>
-      entries
-        .filter((entry) => ROLE_LEVELS[role] >= ROLE_LEVELS[entry.requiredRole])
-        .sort(compareNavigationItems),
-  };
-}
-
-function compareNavigationItems(left: ModuleNavigationItem, right: ModuleNavigationItem): number {
-  return left.row - right.row || left.order - right.order || left.id.localeCompare(right.id);
 }

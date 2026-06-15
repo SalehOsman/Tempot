@@ -1,7 +1,6 @@
 import type { Context } from 'grammy';
 import type { Conversation } from '@grammyjs/conversations';
 import { ok } from 'neverthrow';
-import { z } from 'zod';
 import {
   buildActionButtons,
   FieldHandlerRegistry,
@@ -12,11 +11,12 @@ import {
   type FormRunnerDeps,
 } from '@tempot/input-engine';
 import { BotRuntimeMode } from '../types/bot.types.js';
-import { getDeps, getI18n, getLogger } from '../deps.context.js';
+import { getAuthorization, getDeps, getI18n, getLogger } from '../deps.context.js';
 import { getBotService } from '../services/bot-service.context.js';
 import { createBotDetailMenu } from '../menus/bot-menu.factory.js';
 import { formatBotDetailMessage } from '../menus/bot-detail.factory.js';
 import { BOT_REGISTRATION_FLOW_ID } from '../commands/new-bot.command.js';
+import { createBotRegistrationSchema } from './bot-registration.schema.js';
 
 interface BotRegistrationFormData {
   displayName: string;
@@ -47,6 +47,14 @@ export async function runBotRegistrationConversation(
     await ctx.reply(i18n.t(key));
     return;
   }
+
+  const canCommit = await getAuthorization().refreshAndEnforce(ctx, {
+    module: 'bot-management',
+    classification: 'protected',
+    action: 'create',
+    subject: 'bot',
+  });
+  if (!canCommit) return;
 
   await persistRegistration({ ctx, telegramId, data: formResult.value });
 }
@@ -187,32 +195,4 @@ function createPromptKeyboard(
       })),
     ),
   };
-}
-
-function createBotRegistrationSchema(): z.ZodObject<z.ZodRawShape> {
-  return z.object({
-    displayName: registerField(z.string(), {
-      fieldType: 'ShortText',
-      i18nKey: 'bot-management.create.prompt.display_name',
-      minLength: 1,
-      maxLength: 120,
-    }),
-    telegramUsername: registerField(z.string(), {
-      fieldType: 'ShortText',
-      i18nKey: 'bot-management.create.prompt.telegram_username',
-      minLength: 1,
-      maxLength: 64,
-    }),
-    token: registerField(z.string(), {
-      fieldType: 'ShortText',
-      i18nKey: 'bot-management.create.prompt.token',
-      minLength: 10,
-      maxLength: 256,
-    }),
-  });
-}
-
-function registerField(schema: z.ZodType, metadata: FieldMetadata): z.ZodType {
-  z.globalRegistry.add(schema, { 'input-engine': metadata });
-  return schema;
 }

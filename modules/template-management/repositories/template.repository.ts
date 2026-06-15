@@ -18,7 +18,7 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
   }
 
   async findBySlug(slug: string): Promise<Result<Template, AppError>> {
-    const result = await this.findMany({ slug, isDeleted: false });
+    const result = await this.findMany({ slug });
     if (result.isErr()) return err(result.error);
     const template = result.value[0];
     if (!template) return err(new AppError('template-management.not_found', { slug }));
@@ -30,7 +30,7 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
     page: number = 0,
     pageSize: number = 10,
   ): Promise<Result<TemplateSearchResult, AppError>> {
-    const where = { authorId, isDeleted: false };
+    const where = { authorId };
     const itemsResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (itemsResult.isErr()) return err(itemsResult.error);
 
@@ -49,7 +49,7 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
     page: number = 0,
     pageSize: number = 10,
   ): Promise<Result<TemplateSearchResult, AppError>> {
-    const where = { status: TemplateStatus.PUBLISHED, isDeleted: false };
+    const where = { status: TemplateStatus.PUBLISHED };
     const itemsResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (itemsResult.isErr()) return err(itemsResult.error);
 
@@ -97,7 +97,7 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
 
   async search(params: TemplateSearchParams): Promise<Result<TemplateSearchResult, AppError>> {
     const { filters, page, pageSize } = params;
-    const where: Record<string, unknown> = { isDeleted: false };
+    const where: Record<string, unknown> = {};
 
     if (filters.status) {
       where['status'] = filters.status;

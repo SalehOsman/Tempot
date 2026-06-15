@@ -1,33 +1,4 @@
-import { AppError } from '@tempot/shared';
-import { SENSITIVE_KEYS } from '../logger.config.js';
-
-/**
- * Redacts sensitive information recursively from an object based on provided keys.
- */
-function redactRecursive(obj: unknown, keys: string[]): unknown {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map((item) => redactRecursive(item, keys));
-  }
-
-  // Handle case where it might be a special object (like Date)
-  if (Object.prototype.toString.call(obj) !== '[object Object]') {
-    return obj;
-  }
-
-  const redacted: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (keys.includes(key)) {
-      redacted[key] = '[REDACTED]';
-    } else {
-      redacted[key] = redactRecursive(value, keys);
-    }
-  }
-  return redacted;
-}
+import { AppError, redactSensitiveData } from '@tempot/shared';
 
 /**
  * Custom serializer for AppError to be used with Pino.
@@ -51,7 +22,7 @@ export const appErrorSerializer = (err: unknown): unknown => {
   err.loggedAt = new Date();
 
   const serialized: Record<string, unknown> = {
-    message: err.message,
+    message: redactSensitiveData(err.message),
     code: err.code,
     i18nKey: err.i18nKey,
   };
@@ -63,12 +34,12 @@ export const appErrorSerializer = (err: unknown): unknown => {
 
   // Only include stack in non-production environments
   if (process.env.NODE_ENV !== 'production') {
-    serialized.stack = err.stack;
+    serialized.stack = redactSensitiveData(err.stack);
   }
 
   // Redact PII from details recursively
   if (err.details) {
-    serialized.details = redactRecursive(err.details, SENSITIVE_KEYS);
+    serialized.details = redactSensitiveData(err.details);
   }
 
   return serialized;

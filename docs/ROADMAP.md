@@ -3,14 +3,14 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-10.
+> Last updated: 2026-06-16.
 
 ## Current Technical Baseline
 
 | Area            | Baseline                            |
 | --------------- | ----------------------------------- |
 | Runtime         | Node.js 22.12+                      |
-| Package manager | pnpm 11+                            |
+| Package manager | pnpm 10.33.3                        |
 | Language        | TypeScript 5.9.3 strict mode        |
 | Bot engine      | grammY 1.41.x                       |
 | Web server      | Hono 4.x                            |
@@ -83,7 +83,7 @@ Recently completed:
 - Spec #038: documentation platform restructure — Starlight navigation,
   content promotion, and documentation quality automation.
 - The `test-module` diagnostic scaffold has been removed.
-- CI pipeline aligned to pnpm 11 and high-severity audit vulnerabilities
+- CI pipeline aligned to pnpm 10.33.3 and high-severity audit vulnerabilities
   resolved via dependency overrides.
 - Spec #039: `template-management` closure hardening completed with repository
   contract fixes, module manifests for implemented modules, Module Doctor
@@ -111,20 +111,24 @@ Recently completed:
 
 Active or next work:
 
-1. Execute the audit remediation program defined by Specs #053-#057. Production
-   deployment remains blocked until the program's P0/P1 gates are complete.
-2. Start with Spec #053 authorization correction, then complete the Spec #056
-   CI visibility slice before high-risk protected-data migration work.
-3. Keep `template-management` useful as a product capability and developer
+1. Review and merge the verified Spec #053 authorization correction and Spec
+   #056 quality-foundation slice from
+   `codex/remediation-sequence-reconciliation`.
+2. Integrate the verified Spec #055 atomicity and normal soft-delete foundation
+   into the Spec #054 protected-data branch, then rerun the combined gates.
+3. Execute the approved Spec #054 protected-data implementation while keeping
+   irreversible plaintext retirement blocked until migration, restore, and key
+   rotation evidence satisfies the separate T032/T045 approval gate.
+4. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
-4. `bot-management` (Spec #040) remains a future-facing operational module.
+5. `bot-management` (Spec #040) remains a future-facing operational module.
    Keep it useful as a lightweight bot profile registry for the template, but
    do not let multi-bot SaaS management displace the current single-bot
    framework priority.
-5. Consider future RAG evaluation expansion for latency, token usage, and cost
+6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-6. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+7. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
@@ -139,20 +143,23 @@ approved remediation design is documented in
 A follow-up Technical Advisor analysis on 2026-06-10
 (`docs/analysis-2026-06-10/`) reconfirms the program scope, attaches a
 phase-based fix plan, an improvement roadmap, and a quantified scoring of all
-project axes. It does not modify the approved Specs #053-#057 program.
+project axes. The 2026-06-15 reconciliation corrected its literal execution
+order and its pnpm 11 recommendation: pnpm 10.33.3 is the compatible pinned
+release for the constitutional Node.js 22.12 minimum.
 
-Planning these specifications does not mean their implementation is complete.
-Each spec requires a dedicated execution branch/worktree and all SpecKit,
-Superpowers, TDD, review, verification, reconciliation, and merge gates.
+Implementation claims below distinguish verified branch work from work merged
+to `main`. Production remains blocked until every P0/P1 remediation gate is
+complete and merged.
 
-| Recommended order | Spec | Scope | Priority | Status |
-|---:|---|---|---|---|
-| 1 | #053 `authorization-correction` | Correct global authorization and role/action enforcement | P0 | SpecKit artifact gates passed; Draft awaiting execution approval |
-| 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI | P1 enabler | SpecKit artifact gates passed; planned after #053 |
-| 3 | #054 `sensitive-data-protection` | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0 | SpecKit artifact gates passed; ADR and migration approval required |
-| 4 | #055 `data-integrity-hardening` | Atomic updates, soft delete, repository boundaries, aggregate pagination | P1 | SpecKit artifact gates passed; planned |
-| 5 | #056 `quality-gates-hardening` completion | Coverage tiers, documentation freshness, toolchain and source conformance | P1 | SpecKit artifact gates passed; planned |
-| 6 | #057 `production-delivery-hardening` | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1 | SpecKit artifact gates passed; final production gate |
+| Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                            |
+| ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+|                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Verified on reconciliation branch; awaiting merge approval                                                                                        |
+|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Verified on reconciliation branch; coverage remains non-blocking                                                                                  |
+|                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Implemented and verified on `codex/055-data-integrity-hardening`; integration into #054 in progress                                                |
+|                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Technical-advisor review remediation verified; destructive execution approved on 2026-06-16; target backup rehearsal and final gates pending       |
+|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Not started                                                                                                                                       |
+|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | In progress; baseline is 23 failures and 9 warnings across 103 components                                                                         |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Not started; final production gate                                                                                                                |
 
 Production go/no-go requires:
 
@@ -166,18 +173,18 @@ Production go/no-go requires:
 
 ## Phase Summary
 
-| Phase    | Scope                                               | Status                                          |
-| -------- | --------------------------------------------------- | ----------------------------------------------- |
-| Phase 0  | Workspace and monorepo foundation                   | Complete                                        |
-| Phase 1  | Core bedrock packages                               | Complete; package inventory reconciled          |
-| Phase 2  | Module infrastructure and bot-server reconstruction | Complete                                        |
-| Phase 3  | Business modules                                    | Started; `user-management` and `template-management` implemented |
-| Phase 3A | Architecture isolation and SaaS readiness           | Complete                                        |
-| Phase 3B | Next business module and supporting packages        | Started; `template-management` closure complete |
-| Phase 4  | Dashboard, mini apps, and additional frontends      | Not started                                     |
-| Phase 5  | Enterprise infrastructure                           | Not started                                     |
-| Phase 6  | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection |
-| Remediation | Specs #053-#057 production-readiness corrections | SpecKit artifacts validated; implementation not started; production blocked |
+| Phase       | Scope                                               | Status                                                                                          |
+| ----------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Phase 0     | Workspace and monorepo foundation                   | Complete                                                                                        |
+| Phase 1     | Core bedrock packages                               | Complete; package inventory reconciled                                                          |
+| Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                        |
+| Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                                |
+| Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                        |
+| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                                 |
+| Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
+| Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
+| Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
+| Remediation | Specs #053-#057 production-readiness corrections    | Stage 1 verified on reconciliation branch; #055 foundation is being integrated into #054; target backup rehearsal and final release gates remain |
 
 ## Package Status
 
@@ -249,16 +256,16 @@ execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
 
 Baseline module strategy documented by Spec #036:
 
-| Module                | Type          | Status           |
-| --------------------- | ------------- | ---------------- |
-| `user-management`     | Core platform | Implemented      |
-| `template-management` | Product       | Implemented      |
-| `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge |
-| `content-management`  | Product       | Implemented baseline |
-| `notification-center` | Operational   | Implemented baseline |
+| Module                | Type          | Status                                                  |
+| --------------------- | ------------- | ------------------------------------------------------- |
+| `user-management`     | Core platform | Implemented                                             |
+| `template-management` | Product       | Implemented                                             |
+| `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge            |
+| `content-management`  | Product       | Implemented baseline                                    |
+| `notification-center` | Operational   | Implemented baseline                                    |
 | `audit-viewer`        | Operational   | Implemented baseline plus recent bot problem inspection |
-| `settings-management` | Core platform | Implemented baseline |
-| `help-center`         | Core platform | Implemented baseline |
+| `settings-management` | Core platform | Implemented baseline                                    |
+| `help-center`         | Core platform | Implemented baseline                                    |
 
 ## Architecture and Governance Artifacts
 
@@ -291,27 +298,32 @@ pnpm lint
 pnpm build
 pnpm test:unit
 pnpm test:integration
+pnpm test:e2e
+pnpm docs:check
 pnpm spec:validate
 pnpm cms:check
 pnpm boundary:audit
+pnpm authorization:check
 pnpm module:checklist
+pnpm source:conformance
+pnpm toolchain:audit
 pnpm audit --audit-level=high
 ```
 
-> `pnpm docs:freshness` is a planned root gate owned by Spec #056
-> (`specs/056-quality-gates-hardening/`, FR-010 / SC-006). It will be added to
-> the list above once the Spec #056 implementation lands.
+`pnpm test:coverage` currently reports the complete baseline but remains
+non-blocking in CI until the 23 service/handler failures are corrected during
+the remaining Spec #056 execution. Thresholds have not been reduced.
 
 For documentation-only changes, `pnpm spec:validate` is still relevant because
 Tempot enforces code-documentation parity.
 
 ## Version Vision
 
-| Version | Theme                                        | Status         |
-| ------- | -------------------------------------------- | -------------- |
+| Version | Theme                                        | Status                                                       |
+| ------- | -------------------------------------------- | ------------------------------------------------------------ |
 | v1.0    | MVP bot framework core                       | In development; blocked by Specs #053-#057 remediation gates |
-| v1.1    | Developer experience and templates           | Planned        |
-| v1.2    | AI, RAG, anomaly detection, and smart search | Planned        |
-| v1.3    | Mini apps and component library              | Planned        |
-| v1.4    | Observability dashboard                      | Planned        |
-| v2.0    | Multi-bot SaaS and enterprise platform       | Future vision  |
+| v1.1    | Developer experience and templates           | Planned                                                      |
+| v1.2    | AI, RAG, anomaly detection, and smart search | Planned                                                      |
+| v1.3    | Mini apps and component library              | Planned                                                      |
+| v1.4    | Observability dashboard                      | Planned                                                      |
+| v2.0    | Multi-bot SaaS and enterprise platform       | Future vision                                                |

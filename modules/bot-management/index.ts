@@ -1,7 +1,6 @@
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import { createConversation } from '@grammyjs/conversations';
 import type { ModuleConfig } from '@tempot/module-registry';
-import { botManagementAbilities } from './abilities.js';
 import { registerDeps } from './deps.context.js';
 import { initBotService } from './services/bot-service.context.js';
 import { initLifecycleService } from './services/lifecycle-service.context.js';
@@ -38,12 +37,26 @@ export interface ModuleSettings {
   get: (key: string) => Promise<unknown>;
 }
 
+export interface ModuleAuthorizationPolicy {
+  module: string;
+  classification: 'public' | 'bootstrap' | 'protected';
+  action: string;
+  subject: string;
+}
+
+export interface ModuleAuthorizationProvider {
+  guard: (policy: ModuleAuthorizationPolicy) => MiddlewareFn<Context>;
+  enforce: (ctx: Context, policy: ModuleAuthorizationPolicy) => Promise<boolean>;
+  refreshAndEnforce: (ctx: Context, policy: ModuleAuthorizationPolicy) => Promise<boolean>;
+}
+
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
   sessionProvider: ModuleSessionProvider;
   i18n: ModuleI18n;
   settings: ModuleSettings;
+  authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
 }
 
@@ -64,8 +77,26 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
       BOT_LIFECYCLE_REASON_FLOW_ID,
     ) as unknown as MiddlewareFn<Context>,
   );
-  bot.command('bots', botsCommand);
-  bot.command('new_bot', newBotCommand);
+  bot.command(
+    'bots',
+    deps.authorization.guard({
+      module: 'bot-management',
+      classification: 'protected',
+      action: 'read',
+      subject: 'bot',
+    }),
+    botsCommand,
+  );
+  bot.command(
+    'new_bot',
+    deps.authorization.guard({
+      module: 'bot-management',
+      classification: 'protected',
+      action: 'create',
+      subject: 'bot',
+    }),
+    newBotCommand,
+  );
   bot.on('callback_query:data', handleCallbackQuery);
 
   deps.logger.info({
@@ -75,7 +106,7 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
 };
 
 export default setup;
-export { botManagementAbilities };
+export { botManagementAbilities, abilityDefinition } from './abilities.js';
 export { canDoBotManagement } from './abilities.js';
 export * from './types/index.js';
 export { BOT_MANAGEMENT_EVENTS } from './events/event-names.js';

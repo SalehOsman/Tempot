@@ -1,7 +1,7 @@
 import type { Context, NextFunction } from 'grammy';
 import type { AnyAbility } from '@casl/ability';
 import type { SessionUser, AbilityDefinition } from '@tempot/auth-core';
-import { RoleEnum, AbilityFactory, Guard } from '@tempot/auth-core';
+import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
 
 export interface AuthDeps {
   getSessionUser: (userId: number) => Promise<SessionUser | null>;
@@ -11,11 +11,8 @@ export interface AuthDeps {
 }
 
 /**
- * Creates auth middleware that resolves the session user, builds
- * a CASL ability, enforces authorization via Guard.enforce, and
- * stores both on the context for downstream middleware/handlers.
- * Blocks requests without a `from` field, when ability build fails,
- * or when Guard.enforce('manage', 'all') denies access (W1/W2/W3).
+ * Resolves the actor and builds the production CASL ability.
+ * Operation-specific authorization belongs to the owning entry point.
  */
 export function createAuthMiddleware(
   deps: AuthDeps,
@@ -28,30 +25,35 @@ export function createAuthMiddleware(
       return;
     }
 
-    const resolved = await deps.getSessionUser(userId);
-    const sessionUser: SessionUser = resolved ?? {
-      id: String(userId),
-      role: RoleEnum.GUEST,
-    };
-
-    (ctx as unknown as Record<string, unknown>)['sessionUser'] = sessionUser;
-
-    const abilityResult = buildAbility(sessionUser, deps);
-    if (abilityResult === null) {
+    const resolved = await resolveSessionUser(userId, deps);
+    if (resolved === undefined) {
       await ctx.reply(deps.t('bot-server.unauthorized'));
       return;
     }
 
-    // W1: Enforce authorization — blocks GUEST users (W3) and
-    // any user whose ability lacks 'manage all'
-    const enforceResult = Guard.enforce(abilityResult, 'manage', 'all');
-    if (enforceResult.isErr()) {
+    const sessionUser: SessionUser = resolved ?? {
+      id: String(userId),
+      role: RoleEnum.GUEST,
+      status: 'UNRESOLVED',
+    };
+
+    (ctx as unknown as Record<string, unknown>)['sessionUser'] = sessionUser;
+
+    if (sessionUser.status === 'BANNED' || sessionUser.status === 'PENDING') {
       deps.logger.warn({
         module: 'bot-server',
         msg: 'access_denied',
         userId,
         role: sessionUser.role,
+        status: sessionUser.status,
+        reason: `session_${sessionUser.status.toLowerCase()}`,
       });
+      await ctx.reply(deps.t('bot-server.unauthorized'));
+      return;
+    }
+
+    const abilityResult = buildAbility(sessionUser, deps);
+    if (abilityResult === null) {
       await ctx.reply(deps.t('bot-server.unauthorized'));
       return;
     }
@@ -61,7 +63,23 @@ export function createAuthMiddleware(
   };
 }
 
-/** W2: Build ability and return it, or null on failure */
+async function resolveSessionUser(
+  userId: number,
+  deps: AuthDeps,
+): Promise<SessionUser | null | undefined> {
+  try {
+    return await deps.getSessionUser(userId);
+  } catch (error: unknown) {
+    deps.logger.error({
+      module: 'bot-server',
+      msg: 'session_resolution_failed',
+      userId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return undefined;
+  }
+}
+
 function buildAbility(user: SessionUser, deps: AuthDeps): AnyAbility | null {
   try {
     const result = AbilityFactory.build(user, deps.abilityDefinitions);
