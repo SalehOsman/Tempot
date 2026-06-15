@@ -6,7 +6,7 @@
 |-------|--------|
 | سياسة أمنية موثقة | `SECURITY.md` (تقارير عبر GitHub Security Advisories) |
 | Pipeline أمن مرئي: sanitize-html → rate-limit → CASL → Zod → audit | `SECURITY.md:37-50` |
-| overrides أمنية صريحة لمعالجة CVEs | `pnpm-workspace.yaml:15-27` (`devalue`, `esbuild`, `@hono/node-server`, `protobufjs`, `tmp`) |
+| overrides أمنية صريحة لمعالجة CVEs | `pnpm-workspace.yaml:15-29` (`devalue`, `esbuild`, `@hono/node-server`, `protobufjs`, `tmp`) |
 | `pnpm audit --audit-level=high` كبوابة CI ملزمة | `.github/workflows/ci.yml:150-163` |
 | المستخدم غير الجذر `hono:1001` في الصورة | `apps/bot-server/Dockerfile:119-122` |
 | `WEBHOOK_SECRET_TOKEN` موجه نحو إنتاج عشوائي قوي | `.env.example:40-41` |
