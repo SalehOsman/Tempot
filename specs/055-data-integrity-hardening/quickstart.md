@@ -16,6 +16,19 @@ The current foundation does not expose deleted-record recovery. That contract
 requires the authorization and protected-audit integration completed around
 Spec 054.
 
+## Foundation Evidence - 2026-06-15
+
+- Atomic identity state: commit `41d8273`
+- Non-overridable normal soft-delete reads: commit `e42cce8`
+- Normal `BaseRepository.findMany` access is protected.
+- Prisma filters only models that implement soft delete.
+- Storage purge reads deleted attachments through a purpose-specific internal
+  query rather than the normal read path.
+- Full lint, the 32-project build, and boundary audit passed.
+
+Authorized deleted-record recovery, protected audit transaction integration,
+repository-only startup access, and aggregate pagination remain open.
+
 ## Atomic Update
 
 1. Seed a user with known identity fields.

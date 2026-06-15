@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-15
 ---
 
 ## Overview
@@ -18,7 +18,7 @@ lastVerified: 2026-06-08
 The `@tempot/database` package enforces the repository pattern for all data access. This guide covers extending `BaseRepository` for your entities, using transactions, working with soft-delete behavior, and performing vector similarity searches.
 
 The commands and APIs in this guide were verified against the active package on
-2026-06-08. Run database commands through
+2026-06-15. Run database commands through
 `pnpm --filter @tempot/database <script>`.
 
 ## Extending BaseRepository
@@ -43,7 +43,10 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
 }
 ```
 
-The base class provides `findById`, `findMany`, `create`, `update`, and `delete` methods, all returning `Result<T, AppError>`. Audit fields (`createdBy`, `updatedBy`, `deletedBy`) are populated automatically from `sessionContext`.
+The base class provides public `findById`, `create`, `update`, and `delete`
+methods plus protected `findMany` support for domain-specific repository
+queries. All return `Result<T, AppError>`. Audit fields (`createdBy`,
+`updatedBy`, `deletedBy`) are populated automatically from `sessionContext`.
 
 ## Adding Custom Queries
 
@@ -115,17 +118,21 @@ Physical deletion never occurs through the repository API.
 
 ### What Happens on Read
 
-All read queries automatically inject `isDeleted: false`:
+Normal reads of soft-deletable models enforce `isDeleted: false` after all
+caller criteria:
 
 ```typescript
-// Your code calls:
-await invoiceRepo.findMany({ status: 'PENDING' });
+// Repository code calls the protected helper:
+return this.findMany({ status: 'PENDING' });
 
 // Prisma extension adds:
 // WHERE status = 'PENDING' AND "isDeleted" = false
 ```
 
-Soft-deleted records are invisible to all application code without any manual filtering.
+Caller-supplied `isDeleted` criteria cannot override this scope. Deleted-record
+maintenance or recovery requires a separate purpose-specific repository
+contract; it must not be exposed through normal filter arguments. Models that
+do not implement soft delete are left unfiltered.
 
 ## Working with Audit Fields
 
@@ -201,3 +208,4 @@ The `AuditLogRepository` itself takes a no-op audit logger to prevent infinite r
 - Use `withTransaction(tx)` to bind repositories to a shared transaction
 - Let soft-delete and audit fields work automatically via extensions and `sessionContext`
 - Implement domain queries as repository methods, not as raw Prisma calls in services
+- Keep deleted-record maintenance and recovery behind explicit privileged repository methods

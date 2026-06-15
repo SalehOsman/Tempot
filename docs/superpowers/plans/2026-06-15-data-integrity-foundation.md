@@ -33,19 +33,19 @@ is available. The foundation must not claim full US1 completion.
 
 ## Task 3: Non-Overridable Normal Soft Delete
 
-- [ ] Add RED tests for flat, nested, and direct Prisma conflicting filters.
-- [ ] Apply the protected soft-delete scope after caller criteria.
-- [ ] Remove normal runtime access to caller-controlled deletion fields where
+- [x] Add RED tests for flat, nested, and direct Prisma conflicting filters.
+- [x] Apply the protected soft-delete scope after caller criteria.
+- [x] Remove normal runtime access to caller-controlled deletion fields where
       the owning public types permit a scoped correction.
-- [ ] Run database integration and shared-consumer regression tests.
-- [ ] Review and commit the normal-read soft-delete slice.
+- [x] Run database integration and shared-consumer regression tests.
+- [x] Review and commit the normal-read soft-delete slice (`e42cce8`).
 
 Privileged recovery remains open as T013/T016 until the authorization and
 protected-audit contract is ready.
 
 ## Task 4: Foundation Verification
 
-- [ ] Run lint, build, focused unit/integration tests, boundary audit, and spec
+- [x] Run lint, build, focused unit/integration tests, boundary audit, and spec
       validation.
-- [ ] Update Spec 055 task evidence and roadmap status.
-- [ ] Record remaining post-Spec-054 work without marking the feature complete.
+- [x] Update Spec 055 task evidence and roadmap status.
+- [x] Record remaining post-Spec-054 work without marking the feature complete.

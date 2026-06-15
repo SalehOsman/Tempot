@@ -114,9 +114,10 @@ Active or next work:
 1. Review and merge the verified Spec #053 authorization correction and Spec
    #056 quality-foundation slice from
    `codex/remediation-sequence-reconciliation`.
-2. Continue with Spec #055 atomicity and soft-delete foundations, then execute
-   the destructive Spec #054 protected-data cutover only after separate
-   Project Manager approval.
+2. Review and merge the verified Spec #055 atomicity and normal soft-delete
+   foundation from `codex/055-data-integrity-hardening`, then execute the
+   destructive Spec #054 protected-data cutover only after separate Project
+   Manager approval.
 3. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
@@ -153,7 +154,7 @@ complete and merged.
 | ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------- |
 |                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Verified on reconciliation branch; awaiting merge approval                |
 |                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Verified on reconciliation branch; coverage remains non-blocking          |
-|                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Not started                                                               |
+|                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Implemented and verified on `codex/055-data-integrity-hardening`          |
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Blocked pending explicit destructive-migration approval                   |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Not started                                                               |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | In progress; baseline is 23 failures and 9 warnings across 103 components |

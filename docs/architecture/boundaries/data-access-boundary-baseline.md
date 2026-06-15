@@ -35,3 +35,15 @@ services, handlers, and application orchestration as violations while
 preserving the narrow infrastructure exceptions above. This enforcement is
 part of the post-Spec-054 continuation and is not claimed complete by the
 current foundation.
+
+## Implemented Foundation
+
+Normal repository reads no longer expose `BaseRepository.findMany` publicly
+and cannot override the shared active-record scope. Prisma applies that scope
+only to models that implement soft delete. Template and bot module repositories
+reuse the same enforcement helper instead of defining caller-overridable
+policies.
+
+The storage purge worker retains a purpose-specific internal query for expired
+deleted attachments. It does not expose caller-controlled deletion filters and
+is separate from the still-open authorized recovery contract.

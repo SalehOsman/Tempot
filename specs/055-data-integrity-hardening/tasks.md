@@ -23,13 +23,13 @@
 
 ## Phase 3: User Story 2 - Non-Overridable Soft Delete (P1)
 
-- [ ] T011 [P] [US2] Write failing adversarial soft-delete tests for the Prisma extension and shared BaseRepository
-- [ ] T012 [P] [US2] Write failing affected module repository tests for conflicting and nested filters
+- [x] T011 [P] [US2] Write failing adversarial soft-delete tests for the Prisma extension and shared BaseRepository
+- [x] T012 [P] [US2] Write failing affected module repository tests for conflicting and nested filters
 - [ ] T013 [P] [US2] Write failing authorized/denied recovery repository tests
-- [ ] T014 [US2] Correct and centralize normal-read deletion enforcement in `packages/database/src/`
-- [ ] T015 [US2] Remove deletion control from normal public filter types
+- [x] T014 [US2] Correct and centralize normal-read deletion enforcement in `packages/database/src/`
+- [x] T015 [US2] Remove deletion control from normal public filter types
 - [ ] T016 [US2] Add the explicit privileged recovery repository contract
-- [ ] T017 [US2] Remove duplicated module deletion-policy implementations where the shared contract applies
+- [x] T017 [US2] Remove duplicated module deletion-policy implementations where the shared contract applies
 - [ ] T018 [US2] Confirm GREEN, refactor, run blast-radius tests, and commit only the soft-delete concern
 
 **Independent Test**: Normal reads cannot return deleted rows; explicit authorized recovery can.
@@ -61,13 +61,13 @@
 
 ## Phase 6: Documentation, Review, and Gates
 
-- [ ] T034 Update repository, database, module, boundary, and architecture documentation
-- [ ] T035 Update all SpecKit artifacts and `docs/ROADMAP.md`
-- [ ] T036 Run focused package/module tests after each slice
-- [ ] T037 Run `pnpm boundary:audit`, `pnpm lint`, `pnpm build`, `pnpm test:unit`, and `pnpm test:integration`
+- [x] T034 Update repository, database, module, boundary, and architecture documentation
+- [x] T035 Update all SpecKit artifacts and `docs/ROADMAP.md`
+- [x] T036 Run focused package/module tests after each slice
+- [x] T037 Run `pnpm boundary:audit`, `pnpm lint`, `pnpm build`, `pnpm test:unit`, and `pnpm test:integration`
 - [ ] T038 Request code review after each scoped concern and resolve all Critical/High findings
-- [ ] T039 Run `speckit-analyze` and resolve Critical inconsistencies
-- [ ] T040 Run `pnpm spec:validate`
+- [x] T039 Run `speckit-analyze` and resolve Critical inconsistencies
+- [x] T040 Run `pnpm spec:validate`
 - [ ] T041 Create required changesets
 - [ ] T042 Run final verification with fresh output
 
@@ -91,6 +91,20 @@ Atomic identity state was completed in commit `41d8273`. Focused verification
 passed the user-management build, 23 module tests, the two service contract
 tests, and the two repository integration tests. T009 remains open because the
 audit write is not yet part of the protected transaction boundary.
+
+Normal-read soft-delete enforcement was completed in commit `e42cce8`.
+`BaseRepository.findMany` is now protected, Prisma and module repositories use
+one active-record scope helper, non-soft-deletable models remain unfiltered,
+and the storage purge query uses an explicit internal deleted-record path.
+Database, template-management, bot-management, and storage-engine regression
+suites passed, as did full lint, the 32-project build, and boundary audit.
+T013, T016, and T018 remain open until authorized recovery is integrated.
+
+Foundation verification also passed 310 unit/application files with 2,325
+tests, 22 integration files with 130 tests, documentation freshness and claims,
+and `spec:validate` at 330/330. SpecKit cross-artifact analysis mapped all 19
+functional requirements and 8 success criteria to tasks with zero Critical or
+High inconsistencies.
 
 ## MVP Scope
 

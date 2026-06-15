@@ -88,17 +88,18 @@ model reached through the shared client. Changes therefore require focused
 database integration tests plus user, template, bot, session, and storage
 regression coverage.
 
-### Confirmed Current Defects
+### Reconciled Defect Status
 
-- `UserService.updateNationalId()` and
+- **Resolved in the foundation:** `UserService.updateNationalId()` and
   `UserService.extractFromExistingNationalId()` coordinate independent
   repository updates through `Promise.all`, permitting mixed identity state.
-- Both the global Prisma extension and `BaseRepository.findMany()` apply
+- **Resolved in the foundation:** Both the global Prisma extension and
+  `BaseRepository.findMany()` apply
   `isDeleted: false` before caller criteria, so caller input can overwrite the
   protected scope.
-- Bot startup reads audit and interaction records directly and writes sessions
+- **Open:** Bot startup reads audit and interaction records directly and writes sessions
   directly through Prisma.
-- User, template, and bot pagination load complete result sets to derive
+- **Open:** User, template, and bot pagination load complete result sets to derive
   `totalCount`.
 
 ### Foundation Boundary

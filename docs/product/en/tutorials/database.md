@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-08
+lastVerified: 2026-06-15
 ---
 
 ## Prerequisites
@@ -21,7 +21,7 @@ Before you begin, make sure you have:
 - Basic understanding of Prisma and TypeScript
 
 This tutorial was verified against the active modular schema merge and Prisma 7
-workflow on 2026-06-08.
+workflow on 2026-06-15.
 
 ## Building a Task Repository
 
@@ -74,7 +74,9 @@ export class TaskRepository extends BaseRepository<Task> {
 }
 ```
 
-This gives you `findById`, `findMany`, `create`, `update`, and `delete` for free.
+This gives you public `findById`, `create`, `update`, and `delete` operations.
+The protected `findMany` helper is available for purpose-specific methods
+inside the repository.
 
 ### Step 3: Add a Custom Query
 
@@ -90,7 +92,9 @@ export class TaskRepository extends BaseRepository<Task> {
 }
 ```
 
-The `findMany` base method automatically filters out soft-deleted records.
+The protected `findMany` base method enforces the active-record scope after
+your criteria, so the method cannot expose soft-deleted records through a
+conflicting filter.
 
 ### Step 4: Instantiate with an Audit Logger
 
