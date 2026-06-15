@@ -6,7 +6,7 @@ import { BaseRepository } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import { RoleEnum } from '@tempot/auth-core';
-import type { UserProfile, UserSearchResult } from '../types/index.js';
+import type { IdentityUpdateData, UserProfile, UserSearchResult } from '../types/index.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
@@ -26,13 +26,19 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return ok(user);
   }
 
-  async search(query: string, page: number = 0, pageSize: number = 10): Promise<Result<UserSearchResult, AppError>> {
+  async search(
+    query: string,
+    page: number = 0,
+    pageSize: number = 10,
+  ): Promise<Result<UserSearchResult, AppError>> {
     const where =
       query.trim().length > 0
-        ? { OR: [
-            { username: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-          ] }
+        ? {
+            OR: [
+              { username: { contains: query, mode: 'insensitive' } },
+              { email: { contains: query, mode: 'insensitive' } },
+            ],
+          }
         : {};
 
     const usersResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
@@ -67,6 +73,14 @@ export class UserRepository extends BaseRepository<UserProfile> {
   }
 
   // ─── Update — مصرية ──────────────────────────────────────────────────────────
+
+  async updateIdentity(
+    userId: string,
+    identity: IdentityUpdateData,
+  ): Promise<Result<void, AppError>> {
+    const result = await this.update(userId, { ...identity });
+    return result.isErr() ? err(result.error) : ok(undefined);
+  }
 
   async updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
     const result = await this.update(userId, { nationalId });
