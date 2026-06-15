@@ -31,8 +31,8 @@
 - [x] T016 [US2] Pin `@vitest/coverage-v8` exactly to the approved Vitest version in `package.json`
 - [x] T017 [US2] Consolidate active coverage configuration and include application source
 - [x] T018 [US2] Implement deterministic component-category threshold mapping
-- [x] T019 [US2] Add required coverage execution to CI
-- [x] T020 [US2] Prove seeded blocking threshold failure and warning reporting, then confirm GREEN
+- [ ] T019 [US2] Make coverage execution blocking in CI after the governed baseline is GREEN
+- [ ] T020 [US2] Close the 23 blocking service/handler findings, retain warning reporting, and confirm GREEN
 
 **Independent Test**: Component thresholds control the gate independently of aggregate coverage.
 
@@ -66,14 +66,14 @@
 ## Phase 6: Review and Verification
 
 - [x] T038 Update all SpecKit artifacts, workflow docs, and `docs/ROADMAP.md`
-- [x] T039 Run complete root/app test inventory and coverage
+- [ ] T039 Run complete root/app test inventory and obtain a GREEN coverage policy result
 - [x] T040 Run docs freshness, frontmatter, docs tests, and docs build
 - [x] T041 Run Node runtime matrix and clean Corepack bootstrap
-- [x] T042 Run lint, build, boundary, module checklist, CMS, audit, and spec validation
-- [x] T043 Request code/documentation review and resolve all Critical/High findings
-- [x] T044 Run `speckit-analyze`
+- [ ] T042 Run lint, build, boundary, module checklist, CMS, audit, coverage, and spec validation with all required gates GREEN
+- [ ] T043 Request code/documentation review and resolve all Critical/High findings
+- [ ] T044 Run `speckit-analyze` after coverage remediation
 - [x] T045 Create required changesets
-- [x] T046 Run verification-before-completion with fresh outputs
+- [ ] T046 Run verification-before-completion with fresh outputs
 
 ## Dependencies and Execution Order
 
@@ -82,6 +82,20 @@
 - Documentation scripts are corrected before CI marks them required.
 - Toolchain pinning precedes the clean-checkout matrix.
 - Each seeded failing fixture must prove RED and be removed or converted before merge.
+
+## Reconciliation Evidence - 2026-06-15
+
+- The CI visibility, documentation, toolchain, source-conformance, and
+  authorization gates are verified on
+  `codex/remediation-sequence-reconciliation`.
+- Root execution passed 2,318 unit/application tests, 122 integration tests,
+  and 13 E2E tests.
+- Correct module-source coverage collection evaluates 103 governed components
+  and currently reports 23 blocking service/handler findings plus 9 repository
+  warnings.
+- The coverage job remains visible but non-blocking until T019-T020 and
+  T039/T042-T044/T046 are complete. Thresholds remain 80% for services, 70% for
+  handlers, 60% warning for repositories, and 50% warning for conversations.
 
 ## MVP Scope
 

@@ -55,7 +55,7 @@ SpecKit validation, CASL authorization, GitHub Actions.
 - Modify:
   `docs/superpowers/specs/2026-06-15-remediation-sequence-reconciliation-design.md`
 
-- [ ] **Step 1: Capture branch and worktree evidence**
+- [x] **Step 1: Capture branch and worktree evidence**
 
 Run:
 
@@ -72,7 +72,7 @@ git -C F:\Tempot_Worktrees\054-sensitive-data-protection status --short
 Expected: the evidence identifies current `main`, committed remediation heads,
 and the dirty Spec 054 worktree without modifying it.
 
-- [ ] **Step 2: Write the baseline document**
+- [x] **Step 2: Write the baseline document**
 
 The document must contain:
 
@@ -88,7 +88,7 @@ The document must contain:
 
 Also record that Spec 055 has no active worktree.
 
-- [ ] **Step 3: Verify the baseline document**
+- [x] **Step 3: Verify the baseline document**
 
 Run:
 
@@ -101,7 +101,7 @@ git diff --check
 Expected: every branch/state assertion is present and `git diff --check`
 returns no findings.
 
-- [ ] **Step 4: Commit the baseline**
+- [x] **Step 4: Commit the baseline**
 
 ```powershell
 git add docs/operations/evidence/2026-06-15-remediation-branch-baseline.md `
@@ -134,7 +134,7 @@ git commit -m "docs(remediation): record branch reconciliation baseline"
 - Add: committed Spec 053/056 implementation files shown by
   `git diff --name-status main...codex/remediation-integration`
 
-- [ ] **Step 1: Start a non-committing merge**
+- [x] **Step 1: Start a non-committing merge**
 
 Run:
 
@@ -146,7 +146,7 @@ Expected: Git imports committed remediation work and reports the known
 current-main conflicts. Do not abort unless the index cannot represent the
 merge.
 
-- [ ] **Step 2: Resolve current-main behavior conflicts**
+- [x] **Step 2: Resolve current-main behavior conflicts**
 
 Use these rules:
 
@@ -175,7 +175,7 @@ SpecKit artifacts:
   never mark unverified work complete solely because the source branch did.
 ```
 
-- [ ] **Step 3: Confirm no unresolved merge markers remain**
+- [x] **Step 3: Confirm no unresolved merge markers remain**
 
 Run:
 
@@ -187,7 +187,7 @@ rg -n "^(<<<<<<<|=======|>>>>>>>)" `
 
 Expected: both commands return no unresolved conflicts.
 
-- [ ] **Step 4: Regenerate the lockfile**
+- [x] **Step 4: Regenerate the lockfile**
 
 Run:
 
@@ -198,7 +198,7 @@ git diff --check
 
 Expected: install exits zero and no whitespace errors exist.
 
-- [ ] **Step 5: Commit the mechanical reconciliation**
+- [x] **Step 5: Commit the mechanical reconciliation**
 
 ```powershell
 git add -A
@@ -221,7 +221,7 @@ tests belong to later TDD commits.
 - Test: `packages/auth-core/tests/unit/ability.factory.test.ts`
 - Modify only if a failing test proves a defect: corresponding Spec 053 source
 
-- [ ] **Step 1: Run focused authorization tests**
+- [x] **Step 1: Run focused authorization tests**
 
 Run:
 
@@ -239,25 +239,25 @@ corepack pnpm authorization:check
 
 Expected: all tests and the authorization coverage audit pass.
 
-- [ ] **Step 2: If a defect appears, preserve RED evidence**
+- [x] **Step 2: If a defect appears, preserve RED evidence**
 
 Add the smallest failing test to the owning test file and rerun only that test.
 The expected failure must describe the missing action/subject enforcement,
 invalid actor acceptance, non-super-admin `manage all`, or state mutation.
 
-- [ ] **Step 3: Implement the minimal GREEN repair**
+- [x] **Step 3: Implement the minimal GREEN repair**
 
 Change only the owning middleware, ability factory, policy, or handler. Do not
 add broad allow rules, synthetic production abilities, direct Prisma access,
 or hardcoded user-facing text.
 
-- [ ] **Step 4: Rerun focused tests**
+- [x] **Step 4: Rerun focused tests**
 
 Run the commands from Step 1.
 
 Expected: all focused tests pass and the coverage audit reports zero findings.
 
-- [ ] **Step 5: Commit any behavioral repair**
+- [x] **Step 5: Commit any behavioral repair**
 
 ```powershell
 git add <failing-test-files> <owning-source-files>
@@ -277,7 +277,7 @@ Skip this commit when no repair was required.
 - Review: `vitest.config.ts`
 - Modify only when a failing meta-test proves a gate defect
 
-- [ ] **Step 1: Run quality-gate meta-tests**
+- [x] **Step 1: Run quality-gate meta-tests**
 
 Run:
 
@@ -293,7 +293,7 @@ corepack pnpm docs:check
 
 Expected: meta-tests, project inventory, and documentation checks pass.
 
-- [ ] **Step 2: Verify canonical app execution**
+- [x] **Step 2: Verify canonical app execution**
 
 Run:
 
@@ -304,7 +304,7 @@ corepack pnpm test:integration
 
 Expected: application projects are listed and all tests pass.
 
-- [ ] **Step 3: Repair failures with RED -> GREEN**
+- [x] **Step 3: Repair failures with RED -> GREEN**
 
 For each failure:
 
@@ -314,7 +314,7 @@ For each failure:
 4. rerun the isolated test;
 5. rerun Steps 1 and 2.
 
-- [ ] **Step 4: Commit quality-gate repairs**
+- [x] **Step 4: Commit quality-gate repairs**
 
 ```powershell
 git add <gate-test-files> <owning-script-or-config-files>
@@ -330,7 +330,7 @@ Skip this commit when no repair was required.
 - Review all files in `git diff main...HEAD`
 - Modify findings at their owning source
 
-- [ ] **Step 1: Run constitutional static checks**
+- [x] **Step 1: Run constitutional static checks**
 
 Run:
 
@@ -343,7 +343,7 @@ corepack pnpm cms:check
 
 Expected: all commands exit zero.
 
-- [ ] **Step 2: Review high-risk authorization and CI changes**
+- [x] **Step 2: Review high-risk authorization and CI changes**
 
 Confirm:
 
@@ -358,12 +358,12 @@ Confirm:
 - no existing current-main integration fixture was replaced by a dummy path.
 ```
 
-- [ ] **Step 3: Fix every Critical/High finding with TDD**
+- [x] **Step 3: Fix every Critical/High finding with TDD**
 
 Each behavior defect receives a failing test first. Documentation-only findings
 are corrected directly and verified with docs/spec commands.
 
-- [ ] **Step 4: Commit reviewed fixes**
+- [x] **Step 4: Commit reviewed fixes**
 
 ```powershell
 git add <reviewed-files>
@@ -383,7 +383,7 @@ Skip this commit when review has no findings.
 - Modify: `specs/056-quality-gates-hardening/implementation-report.md`
 - Modify: `.specify/feature.json`
 
-- [ ] **Step 1: Update status from verification evidence**
+- [x] **Step 1: Update status from verification evidence**
 
 Use only these states:
 
@@ -398,7 +398,7 @@ blocked pending explicit approval
 Mark task checkboxes complete only when the corresponding file and fresh
 verification evidence exist.
 
-- [ ] **Step 2: Record the improved dependency order**
+- [x] **Step 2: Record the improved dependency order**
 
 The program must state:
 
@@ -409,7 +409,7 @@ remaining 055 -> remaining 056 -> 057 -> production go/no-go
 
 It must also state that destructive Spec 054 actions require separate approval.
 
-- [ ] **Step 3: Run documentation reconciliation**
+- [x] **Step 3: Run documentation reconciliation**
 
 Run:
 
@@ -420,6 +420,13 @@ git diff --check
 ```
 
 Expected: all commands exit zero.
+
+Result: `docs:check`, `spec:validate` (330/330), and `git diff --check`
+passed. A read-only manual cross-artifact review of Spec 056 found no critical
+consistency issue. The automated `speckit-analyze` prerequisite rejected the
+maintenance branch name because it is not a numbered feature branch; T044
+therefore remains open until coverage remediation is complete and the analysis
+can run in the feature workflow.
 
 - [ ] **Step 4: Commit documentation reconciliation**
 

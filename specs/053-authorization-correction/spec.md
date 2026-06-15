@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/053-authorization-correction`
 **Created**: 2026-06-07
-**Status**: Implemented - Merge Blocked by Spec 056 Baseline
+**Status**: Verified on reconciliation branch; awaiting merge approval
 **Input**: Project audit finding that global bot middleware requires `manage all` for every update, preventing legitimate non-super-admin roles from reaching module authorization.
 
 ## Clarifications
