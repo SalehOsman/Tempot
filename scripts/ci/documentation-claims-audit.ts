@@ -41,13 +41,13 @@ export function auditDocumentationClaims(
   }
 
   if (
-    input.rootReadme.includes('TEMPOT_AI_PROVIDER') ||
-    !input.environmentExample.includes('AI_PROVIDER=')
+    !input.rootReadme.includes('TEMPOT_AI_PROVIDER=') ||
+    !input.environmentExample.includes('TEMPOT_AI_PROVIDER=')
   ) {
     findings.push({
       ruleId: 'docs.configuration_name',
       file: 'README.md',
-      message: 'AI provider documentation must use AI_PROVIDER from .env.example',
+      message: 'AI provider documentation must use the runtime TEMPOT_AI_PROVIDER name',
     });
   }
 

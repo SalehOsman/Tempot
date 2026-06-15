@@ -10,7 +10,7 @@
 | Area            | Baseline                            |
 | --------------- | ----------------------------------- |
 | Runtime         | Node.js 22.12+                      |
-| Package manager | pnpm 11+                            |
+| Package manager | pnpm 10.33.3                       |
 | Language        | TypeScript 5.9.3 strict mode        |
 | Bot engine      | grammY 1.41.x                       |
 | Web server      | Hono 4.x                            |
@@ -83,7 +83,7 @@ Recently completed:
 - Spec #038: documentation platform restructure — Starlight navigation,
   content promotion, and documentation quality automation.
 - The `test-module` diagnostic scaffold has been removed.
-- CI pipeline aligned to pnpm 11 and high-severity audit vulnerabilities
+- CI pipeline aligned to pnpm 10.33.3 and high-severity audit vulnerabilities
   resolved via dependency overrides.
 - Spec #039: `template-management` closure hardening completed with repository
   contract fixes, module manifests for implemented modules, Module Doctor
