@@ -4,6 +4,7 @@ export * from './base/audit.policy.js';
 export * from './base/soft-delete.js';
 export * from './base/vector.repository.js';
 export * from './repositories/audit-log.repository.js';
+export * from './repositories/bootstrap-session.repository.js';
 export * from './repositories/interaction-event.repository.js';
 export * from './prisma/prisma.client.js';
 export * from './drizzle/drizzle.schema.js';

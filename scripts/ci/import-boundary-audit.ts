@@ -1,12 +1,14 @@
 import { dirname, posix } from 'node:path';
 
 import ts from 'typescript';
+import { auditDirectPrismaModelAccess } from './import-boundary-prisma-audit.js';
 
 export type ImportBoundaryViolationCode =
   | 'MODULE_TO_MODULE_IMPORT'
   | 'PACKAGE_TO_APP_IMPORT'
   | 'PACKAGE_TO_MODULE_IMPORT'
-  | 'DEEP_TEMPOT_PACKAGE_IMPORT';
+  | 'DEEP_TEMPOT_PACKAGE_IMPORT'
+  | 'DIRECT_PRISMA_MODEL_ACCESS';
 
 export interface TrackedSourceFile {
   path: string;
@@ -45,9 +47,12 @@ function auditFile(
 ): ImportBoundaryViolation[] {
   const importer = normalizePath(file.path);
   const sourceFile = ts.createSourceFile(importer, file.content, ts.ScriptTarget.Latest, true);
-  return extractSpecifiers(sourceFile).flatMap((specifier) =>
-    classifyViolation(importer, specifier, moduleNames),
-  );
+  return [
+    ...extractSpecifiers(sourceFile).flatMap((specifier) =>
+      classifyViolation(importer, specifier, moduleNames),
+    ),
+    ...auditDirectPrismaModelAccess(importer, sourceFile),
+  ];
 }
 
 function extractSpecifiers(sourceFile: ts.SourceFile): string[] {
