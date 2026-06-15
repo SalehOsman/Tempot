@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-16
 ---
 
 ## Overview
@@ -18,7 +18,7 @@ lastVerified: 2026-06-08
 The `@tempot/database` package enforces the repository pattern for all data access. This guide covers extending `BaseRepository` for your entities, using transactions, working with soft-delete behavior, and performing vector similarity searches.
 
 The commands and APIs in this guide were verified against the active package on
-2026-06-08. Run database commands through
+2026-06-16. Run database commands through
 `pnpm --filter @tempot/database <script>`.
 
 ## Extending BaseRepository
@@ -48,6 +48,12 @@ The base class provides `findById`, `findMany`, `create`, `update`, and `delete`
 Audit snapshots use an explicit safe-field policy. Classified identity and
 contact fields are omitted and represented only by non-sensitive change
 markers. A repository must not opt protected fields back into audit snapshots.
+
+When an exact lookup must survive key rotation, use
+`ProtectedDataService.createLookupTokens()`. It returns tokens for active,
+readable, and retiring versions while excluding retired versions. Query the
+indexed token column only; never fetch all records from an older key version
+for in-memory decryption.
 
 ## Adding Custom Queries
 

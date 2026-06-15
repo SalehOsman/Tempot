@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-08
+lastVerified: 2026-06-16
 ---
 
 ## Prerequisites
@@ -21,7 +21,7 @@ Before you begin, make sure you have:
 - Basic understanding of the [Shared Package](/en/concepts/shared/) Result pattern
 
 This tutorial was verified against the current logger and shared session
-context contracts on 2026-06-08.
+context contracts on 2026-06-16.
 
 ## Adding Logging to an Order Service
 
@@ -85,6 +85,10 @@ The serializer stamps `loggedAt` on the error, preventing duplicate full-trace e
 Keep `AppError.details` non-sensitive. The serializer provides defense in
 depth, not permission to place plaintext identity data in errors. Prefer stable
 record IDs, field names, counts, and operator-safe reference codes.
+
+The technical logger also applies the shared recursive censor to the complete
+structured payload, so deeply nested protected aliases do not bypass Pino
+redaction.
 
 ### Step 4: Set Up the Audit Logger
 

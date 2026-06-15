@@ -8,6 +8,7 @@ import {
   sanitizeHistoricalAudit,
   saveCheckpoint,
 } from './sensitive-data-migration.persistence.js';
+import { MIGRATION_VERIFICATION_ERROR } from './sensitive-data-migration.error.js';
 import type {
   CheckpointState,
   MigrationDatabase,
@@ -20,13 +21,13 @@ export type {
   SensitiveDataBackfillReport,
 } from './sensitive-data-migration.types.js';
 
-const MIGRATION_ERROR = 'database.protection.migration_verification_failed';
-
 export async function runSensitiveDataBackfill(
   options: SensitiveDataBackfillOptions,
 ): Promise<Result<SensitiveDataBackfillReport, AppError>> {
   const database = options.database ?? prisma;
-  const duplicateCount = await countLookupConflicts(database);
+  const conflicts = await countLookupConflicts(database, options.protectionService);
+  if (conflicts.isErr()) return err(conflicts.error);
+  const duplicateCount = conflicts.value;
   const initial = emptyReport(options.migrationId, duplicateCount);
   if (options.dryRun) return ok({ ...initial, status: 'dry-run' });
   if (duplicateCount > 0) return conflictError(options.migrationId, duplicateCount);
@@ -54,14 +55,16 @@ export async function assertSensitiveDataCutoverReady(
   database: MigrationDatabase,
   migrationId: string,
 ): Promise<Result<void, AppError>> {
-  const checkpoint = await loadCheckpoint(database, migrationId);
+  const checkpointResult = await loadCheckpoint(database, migrationId);
+  if (checkpointResult.isErr()) return err(checkpointResult.error);
+  const checkpoint = checkpointResult.value;
   if (
     !checkpoint ||
     checkpoint.status !== 'READY_FOR_CUTOVER' ||
     checkpoint.failureCount !== 0 ||
     checkpoint.processedCount !== checkpoint.verifiedCount
   ) {
-    return err(new AppError(MIGRATION_ERROR, { migrationId }));
+    return err(new AppError(MIGRATION_VERIFICATION_ERROR, { migrationId }));
   }
   return ok(undefined);
 }
@@ -71,11 +74,14 @@ async function processBatches(
   options: SensitiveDataBackfillOptions,
 ): Promise<Result<{ state: CheckpointState; paused: boolean }, AppError>> {
   const checkpoint = await loadCheckpoint(database, options.migrationId);
-  const state = checkpointState(checkpoint);
+  if (checkpoint.isErr()) return err(checkpoint.error);
+  const state = checkpointState(checkpoint.value);
   let batchCount = 0;
 
   while (true) {
-    const rows = await loadMigrationBatch(database, state.cursor, options.batchSize);
+    const rowsResult = await loadMigrationBatch(database, state.cursor, options.batchSize);
+    if (rowsResult.isErr()) return err(rowsResult.error);
+    const rows = rowsResult.value;
     if (rows.length === 0) return ok({ state, paused: false });
     for (const row of rows) {
       const result = await migrateAndVerifyRow(database, options.protectionService, row);
@@ -87,7 +93,8 @@ async function processBatches(
     batchCount += 1;
     const paused = options.stopAfterBatches !== undefined && batchCount >= options.stopAfterBatches;
     state.status = paused ? 'PAUSED' : 'RUNNING';
-    await saveCheckpoint(database, options.migrationId, state);
+    const saved = await saveCheckpoint(database, options.migrationId, state);
+    if (saved.isErr()) return err(saved.error);
     if (paused) return ok({ state, paused: true });
   }
 }
@@ -96,22 +103,25 @@ async function finalizeMigration(
   params: FinalizeMigrationParams,
 ): Promise<Result<SensitiveDataBackfillReport, AppError>> {
   const { database, options, report, state } = params;
-  const sanitizedAuditCount = await sanitizeHistoricalAudit(database);
+  const sanitizedAudit = await sanitizeHistoricalAudit(database);
+  if (sanitizedAudit.isErr()) return err(sanitizedAudit.error);
   if (options.forceVerificationFailure) {
     state.failureCount = 1;
     state.status = 'FAILED';
-    await saveCheckpoint(database, options.migrationId, state);
-    return err(new AppError(MIGRATION_ERROR, safeCounts(options.migrationId, state)));
+    const saved = await saveCheckpoint(database, options.migrationId, state);
+    if (saved.isErr()) return err(saved.error);
+    return err(new AppError(MIGRATION_VERIFICATION_ERROR, safeCounts(options.migrationId, state)));
   }
 
   state.status = 'READY_FOR_CUTOVER';
-  await saveCheckpoint(database, options.migrationId, state);
+  const saved = await saveCheckpoint(database, options.migrationId, state);
+  if (saved.isErr()) return err(saved.error);
   return ok({
     ...report,
     status: 'ready-for-cutover',
     processedCount: state.processedCount,
     verifiedCount: state.verifiedCount,
-    sanitizedAuditCount,
+    sanitizedAuditCount: sanitizedAudit.value,
   });
 }
 
@@ -122,7 +132,7 @@ interface FinalizeMigrationParams {
   state: CheckpointState;
 }
 
-function checkpointState(checkpoint: Awaited<ReturnType<typeof loadCheckpoint>>): CheckpointState {
+function checkpointState(checkpoint: CheckpointState | null): CheckpointState {
   return {
     cursor: checkpoint?.cursor ?? null,
     processedCount: checkpoint?.processedCount ?? 0,
@@ -145,7 +155,7 @@ function emptyReport(migrationId: string, duplicateCount: number): SensitiveData
 }
 
 function conflictError(migrationId: string, duplicateCount: number): Result<never, AppError> {
-  return err(new AppError(MIGRATION_ERROR, { migrationId, duplicateCount }));
+  return err(new AppError(MIGRATION_VERIFICATION_ERROR, { migrationId, duplicateCount }));
 }
 
 function safeCounts(migrationId: string, state: CheckpointState): Record<string, unknown> {

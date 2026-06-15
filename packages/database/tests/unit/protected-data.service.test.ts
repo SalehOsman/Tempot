@@ -46,6 +46,11 @@ function createProvider(
             throw new Error('Unknown test lookup key');
           })();
     },
+    getReadableLookupKeyVersions: () =>
+      ok([
+        activeLookupVersion,
+        ...Object.keys(lookupKeys).filter((version) => version !== activeLookupVersion),
+      ]),
     validate: () => ok(undefined),
   };
 }

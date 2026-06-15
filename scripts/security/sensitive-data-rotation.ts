@@ -1,12 +1,17 @@
 import { prisma } from '@tempot/database';
 import { AppError, err, ok, type Result } from '@tempot/shared';
-import { countOldReferences, rotateAndVerifyRow } from './sensitive-data-rotation.row.js';
+import {
+  countOldReferences,
+  getActiveLookupKeyVersion,
+  rotateAndVerifyRow,
+} from './sensitive-data-rotation.row.js';
 import type {
   RotationDatabase,
   RotationState,
   SensitiveDataRotationOptions,
   SensitiveDataRotationReport,
 } from './sensitive-data-rotation.types.js';
+import { rotationDatabaseError } from './sensitive-data-rotation.error.js';
 
 export type {
   SensitiveDataRotationOptions,
@@ -18,49 +23,62 @@ const ROTATION_ERROR = 'database.protection.rotation_verification_failed';
 export async function runSensitiveDataRotation(
   options: SensitiveDataRotationOptions,
 ): Promise<Result<SensitiveDataRotationReport, AppError>> {
+  try {
+    return await executeRotation(options);
+  } catch {
+    return err(rotationDatabaseError('run_rotation'));
+  }
+}
+
+async function executeRotation(
+  options: SensitiveDataRotationOptions,
+): Promise<Result<SensitiveDataRotationReport, AppError>> {
   const database = options.database ?? prisma;
+  const lookupVersion = getActiveLookupKeyVersion(options.protectionService);
+  if (lookupVersion.isErr()) return err(lookupVersion.error);
   const state = await loadRotationState(database, options.migrationId);
   const batchResult = await processRotationBatches(database, options, state);
   if (batchResult.isErr()) return err(batchResult.error);
 
-  const remainingOldReferences = await countOldReferences(
+  const references = await countOldReferences(
     database,
     options.fromEncryptionKeyVersion,
+    lookupVersion.value,
   );
+  if (references.isErr()) return err(references.error);
   if (batchResult.value.paused) {
     return ok(
       report({
         status: 'paused',
         state,
-        remainingOldReferences,
+        remainingOldReferences: references.value,
         retirementReady: false,
       }),
     );
   }
+  return finalizeRotation({
+    database,
+    migrationId: options.migrationId,
+    state,
+    remainingOldReferences: references.value,
+  });
+}
 
+async function finalizeRotation(
+  params: FinalizeRotationParams,
+): Promise<Result<SensitiveDataRotationReport, AppError>> {
+  const { database, migrationId, state, remainingOldReferences } = params;
   const retirementReady = remainingOldReferences === 0;
   await saveRotationCheckpoint({
     database,
-    migrationId: options.migrationId,
+    migrationId,
     state,
     status: retirementReady ? 'READY_FOR_RETIREMENT' : 'FAILED',
   });
   if (!retirementReady) {
-    return err(
-      new AppError(ROTATION_ERROR, {
-        migrationId: options.migrationId,
-        remainingOldReferences,
-      }),
-    );
+    return err(new AppError(ROTATION_ERROR, { migrationId, remainingOldReferences }));
   }
-  return ok(
-    report({
-      status: 'complete',
-      state,
-      remainingOldReferences,
-      retirementReady: true,
-    }),
-  );
+  return ok(report({ status: 'complete', state, remainingOldReferences, retirementReady: true }));
 }
 
 async function processRotationBatches(
@@ -130,6 +148,13 @@ interface SaveRotationCheckpointParams {
   migrationId: string;
   state: RotationState;
   status: string;
+}
+
+interface FinalizeRotationParams {
+  database: RotationDatabase;
+  migrationId: string;
+  state: RotationState;
+  remainingOldReferences: number;
 }
 
 function report(params: ReportParams): SensitiveDataRotationReport {

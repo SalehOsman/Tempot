@@ -5,32 +5,49 @@ import {
   type ProtectedPayload,
 } from '@tempot/database';
 import { AppError, err, ok, type Result } from '@tempot/shared';
+import {
+  MIGRATION_VERIFICATION_ERROR,
+  migrationConcurrentUpdateError,
+  migrationDatabaseError,
+} from './sensitive-data-migration.error.js';
+import { canonicalizeNationalId } from './sensitive-data-national-id.js';
 import type { MigrationDatabase } from './sensitive-data-migration.types.js';
 
-const MIGRATION_ERROR = 'database.protection.migration_verification_failed';
-
-type MigrationRow = Prisma.UserProfileGetPayload<Record<string, never>>;
+export type MigrationRow = Prisma.UserProfileGetPayload<Record<string, never>>;
 
 export async function migrateAndVerifyRow(
   database: MigrationDatabase,
   service: ProtectedDataService,
   row: MigrationRow,
 ): Promise<Result<void, AppError>> {
+  const data = buildProtectedUpdate(service, row);
+  if (data.isErr()) return err(data.error);
+
+  try {
+    const update = await database.userProfile.updateMany({
+      where: { id: row.id, updatedAt: row.updatedAt },
+      data: data.value as Prisma.UserProfileUpdateInput,
+    });
+    if (update.count !== 1) return err(migrationConcurrentUpdateError(row.id));
+    const migrated = await database.userProfile.findUnique({ where: { id: row.id } });
+    return migrated ? verifyMigratedRow(service, migrated) : verificationError(row.id);
+  } catch {
+    return err(migrationDatabaseError('userProfile.migrateAndVerify'));
+  }
+}
+
+function buildProtectedUpdate(
+  service: ProtectedDataService,
+  row: MigrationRow,
+): Result<Record<string, unknown>, AppError> {
   const data: Record<string, unknown> = {};
-  const fields = migrationFields(row);
-  for (const field of fields) {
+  for (const field of migrationFields(row)) {
     if (field.value === null || field.payload !== null) continue;
     const result = protectField(service, row.id, field);
     if (result.isErr()) return err(result.error);
     Object.assign(data, result.value);
   }
-
-  await database.userProfile.update({
-    where: { id: row.id },
-    data: data as Prisma.UserProfileUpdateInput,
-  });
-  const migrated = await database.userProfile.findUnique({ where: { id: row.id } });
-  return migrated ? verifyMigratedRow(service, migrated) : err(new AppError(MIGRATION_ERROR));
+  return ok(data);
 }
 
 function protectField(
@@ -47,7 +64,10 @@ function protectField(
 
   const output: Record<string, unknown> = { [field.protectedColumn]: protection.value };
   if (field.fieldId === 'email' || field.fieldId === 'nationalId') {
-    const token = service.createLookupToken(field.value, field.fieldId);
+    const lookupValue =
+      field.fieldId === 'nationalId' ? canonicalizeNationalId(field.value) : ok(field.value);
+    if (lookupValue.isErr()) return err(lookupValue.error);
+    const token = service.createLookupToken(lookupValue.value, field.fieldId);
     if (token.isErr()) return err(token.error);
     const prefix = field.fieldId === 'email' ? 'email' : 'nationalId';
     output[`${prefix}LookupToken`] = token.value.token;
@@ -62,20 +82,24 @@ function verifyMigratedRow(
   row: MigrationRow,
 ): Result<void, AppError> {
   for (const field of migrationFields(row)) {
-    if (field.value === null) continue;
+    if (field.value === null && field.payload === null) continue;
     if (!isPayload(field.payload)) return verificationError(row.id, field.fieldId);
     const recovered = service.recover(field.payload, {
       fieldId: field.fieldId,
       recordId: row.id,
     });
-    if (recovered.isErr() || recovered.value !== field.value) {
+    if (recovered.isErr() || (field.value !== null && recovered.value !== field.value)) {
       return verificationError(row.id, field.fieldId);
     }
     if (
+      field.value !== null &&
       field.lookupToken !== undefined &&
       (field.fieldId === 'email' || field.fieldId === 'nationalId')
     ) {
-      const token = service.createLookupToken(field.value, field.fieldId);
+      const lookupValue =
+        field.fieldId === 'nationalId' ? canonicalizeNationalId(field.value) : ok(field.value);
+      if (lookupValue.isErr()) return err(lookupValue.error);
+      const token = service.createLookupToken(lookupValue.value, field.fieldId);
       if (token.isErr() || token.value.token !== field.lookupToken) {
         return verificationError(row.id, field.fieldId);
       }
@@ -123,8 +147,8 @@ function migrationFields(row: MigrationRow): MigrationField[] {
   ];
 }
 
-function verificationError(recordId: string, fieldId: ProtectedFieldId): Result<never, AppError> {
-  return err(new AppError(MIGRATION_ERROR, { recordId, fieldId }));
+function verificationError(recordId: string, fieldId?: ProtectedFieldId): Result<never, AppError> {
+  return err(new AppError(MIGRATION_VERIFICATION_ERROR, { recordId, fieldId }));
 }
 
 function isPayload(value: unknown): value is ProtectedPayload {

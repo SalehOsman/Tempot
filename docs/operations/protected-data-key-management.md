@@ -1,7 +1,7 @@
 # Protected Data Key Management Runbook
 
-**Spec**: #054 Sensitive Data Protection  
-**ADR**: ADR-044  
+**Spec**: #054 Sensitive Data Protection
+**ADR**: ADR-044
 **Status**: Approved by the Project Manager on 2026-06-08
 
 ## Purpose
@@ -104,9 +104,11 @@ include key material or the raw secret payload.
 11. Restart and prove all protected reads and exact lookups still pass.
 
 The automated two-version rehearsal is covered by
-`scripts/security/sensitive-data-rotation.integration.test.ts`. Removing an old
-key from the deployment secret system remains an operator action and is blocked
-until the report proves zero references to that version.
+`packages/database/tests/integration/sensitive-data-rotation.test.ts` and
+`packages/database/tests/unit/sensitive-data-lookup-rotation.test.ts`. Removing
+an old key from the deployment secret system remains an operator action and is
+blocked until the report proves zero encryption and lookup references to that
+version.
 
 ## Compromise Procedure
 

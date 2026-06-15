@@ -35,6 +35,16 @@ export class StaticProtectedDataKeyProvider implements ProtectedDataKeyProvider 
     return this.resolveKey(this.keyRing.lookupKeys, version, 'lookup');
   }
 
+  getReadableLookupKeyVersions(): Result<readonly string[], AppError> {
+    const versions = Object.keys(this.keyRing.lookupKeys).filter(
+      (version) => this.getLookupKeyState(version) !== 'retired',
+    );
+    return ok([
+      this.keyRing.activeLookupKeyVersion,
+      ...versions.filter((version) => version !== this.keyRing.activeLookupKeyVersion),
+    ]);
+  }
+
   validate(): Result<void, AppError> {
     const activeEncryption = this.getActiveEncryptionKey();
     if (activeEncryption.isErr()) return err(activeEncryption.error);

@@ -1,6 +1,6 @@
 # Sensitive Data Classification
 
-**Spec**: #054 Sensitive Data Protection  
+**Spec**: #054 Sensitive Data Protection
 **Status**: Approved by the Project Manager on 2026-06-08
 **Last reviewed**: 2026-06-08
 

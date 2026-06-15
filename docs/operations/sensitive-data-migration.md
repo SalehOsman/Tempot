@@ -1,7 +1,7 @@
 # Sensitive Data Migration Runbook
 
-**Spec**: #054 Sensitive Data Protection  
-**ADR**: ADR-044  
+**Spec**: #054 Sensitive Data Protection
+**ADR**: ADR-044
 **Status**: Approved for reversible implementation on 2026-06-08
 
 ## Safety Rules
@@ -85,9 +85,11 @@ The backfill implementation is in
 - processed, verified, and failed counts,
 - a stop-on-mismatch option.
 
-The Testcontainers rehearsal in
-`scripts/security/sensitive-data-migration.integration.test.ts` proves bounded
-execution, interruption, checkpoint resume, idempotency, and verification.
+The Testcontainers rehearsals in
+`packages/database/tests/integration/sensitive-data-migration.test.ts` and
+`packages/database/tests/integration/sensitive-data-migration-regression.test.ts`
+prove bounded execution, interruption, checkpoint resume, concurrency
+protection, conflict detection, typed failures, idempotency, and verification.
 Production execution must use an operator-controlled wrapper that injects the
 approved database and protection service. Run one canary batch, verify it, then
 increase batch size within the approved database latency threshold. Do not log
@@ -174,17 +176,21 @@ As of 2026-06-08:
   Testcontainers databases;
 - two interrupted migration runs resume before final completion;
 - exact email and canonical national-ID token parity are verified;
-- three protected-update benchmark runs remain below the approved 20 percent
-  p95 regression limit;
+- the merge-gate benchmark uses seven interleaved p95 trials and retains the
+  approved 20 percent median-regression limit;
+- an encrypted local backup artifact was restored successfully after deleting
+  the temporary plaintext dump;
 - plaintext retirement is not implemented or approved;
-- a deployment-system backup/restore rehearsal remains required before
-  production cutover.
+- a target deployment-system backup/restore rehearsal remains required before
+  production cutover;
+- final independent review and release gates remain pending.
 
 ## Approval Record
 
 | Gate                           | Status                   | Approver        | Date       |
 | ------------------------------ | ------------------------ | --------------- | ---------- |
 | Inventory and conflict policy  | Approved                 | Project Manager | 2026-06-08 |
-| Backup and restore rehearsal   | Approved                 | Project Manager | 2026-06-08 |
-| Protected-read cutover         | Approved                 | Project Manager | 2026-06-08 |
-| Plaintext retirement migration | Blocked pending evidence | Project Manager | Pending    |
+| Local encrypted restore rehearsal | Engineering evidence complete | Technical review | 2026-06-09 |
+| Target deployment backup rehearsal | Pending                | Project Manager | Pending    |
+| Protected-read cutover         | Blocked pending final gates | Project Manager | Pending    |
+| Plaintext retirement migration | Execution approved; production application still gated | Project Manager | 2026-06-16 |

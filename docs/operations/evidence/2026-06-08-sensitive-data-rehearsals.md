@@ -1,8 +1,8 @@
 # Sensitive Data Protection Rehearsal Evidence
 
-**Spec**: #054 Sensitive Data Protection  
-**Date**: 2026-06-08  
-**Environment**: Isolated local PostgreSQL 16 + pgvector containers  
+**Spec**: #054 Sensitive Data Protection
+**Date**: 2026-06-08, with review remediation repeated on 2026-06-09 and 2026-06-16
+**Environment**: Isolated local PostgreSQL 16 + pgvector containers
 **Scope**: Reversible engineering gates only
 
 ## Migration and Sanitation
@@ -45,7 +45,7 @@ The source database received the current Prisma schema and one protected user
 row. The row contained an AES-256-GCM envelope and HMAC lookup token while its
 legacy email column remained `NULL`.
 
-The rehearsal then:
+The initial rehearsal then:
 
 1. created a PostgreSQL custom-format backup with `pg_dump`;
 2. copied the backup outside the source container;
@@ -58,6 +58,27 @@ The rehearsal then:
 8. verified exact lookup-token parity;
 9. removed both temporary containers and the temporary backup file.
 
+The independent review correctly identified that PostgreSQL custom format is
+not encryption. On 2026-06-09, the rehearsal was repeated with an explicit
+AES-256-GCM artifact-encryption boundary:
+
+1. `pg_dump` created the temporary custom-format dump;
+2. the dump was encrypted into a separate authenticated artifact;
+3. the unencrypted dump was deleted before restore;
+4. the encrypted artifact was decrypted only into the isolated restore
+   workflow;
+5. `pg_restore` restored the current schema and protected row;
+6. the restored database returned one expected row and zero plaintext canary
+   matches;
+7. logical recovery and exact lookup-token parity passed;
+8. the encrypted artifact SHA-256 was
+   `EEBBE70F977611699D6B395524E852456FB8124CDFCEFC2017EC288787D21C38`;
+9. both containers, decrypted temporary dump, and encrypted test artifact were
+   removed.
+
+This proves the local engineering procedure. It does not replace a rehearsal
+through the target deployment backup system or approve production cutover.
+
 ## Result
 
 | Gate                          | Result |
@@ -67,7 +88,7 @@ The rehearsal then:
 | Dry-run conflict report       | Pass   |
 | Canary absence                | Pass   |
 | Two-version key rotation      | Pass   |
-| Backup checksum               | Pass   |
+| Encrypted backup checksum     | Pass   |
 | Isolated restore              | Pass   |
 | Logical protected read        | Pass   |
 | Lookup parity                 | Pass   |
@@ -75,19 +96,19 @@ The rehearsal then:
 
 ## Performance
 
-The protected user-profile update benchmark used PostgreSQL Testcontainers,
-10 warm-up updates, 60 measured samples, and alternating legacy/protected
-execution order. Both paths used the repository and audit boundary; the
-protected path additionally generated the envelope and lookup token and
-recovered the logical value.
+The review found that a single 60-sample p95 assertion was vulnerable to
+container and scheduler spikes under the full integration workload. The
+benchmark now uses:
 
-| Run | Legacy p95 | Protected p95 | Regression | Limit |
-| --: | ---------: | ------------: | ---------: | ----: |
-|   1 |   7.616 ms |      8.784 ms |     15.33% |   20% |
-|   2 |   7.859 ms |      8.385 ms |      6.70% |   20% |
-|   3 |   7.209 ms |      8.050 ms |     11.66% |   20% |
+- equivalent protected-column writes for the control path, with cryptography
+  precomputed outside the timed operation;
+- 20 warm-up operations;
+- 7 trials of 80 interleaved samples;
+- alternating execution order;
+- the median of trial p95 ratios;
+- the unchanged maximum regression threshold of 20 percent.
 
-All three runs passed the approved threshold.
+The focused benchmark and the full integration suite pass with this method.
 
 ## Artifact Analysis
 
@@ -100,6 +121,36 @@ The post-implementation SpecKit analysis reported:
 - zero Critical, High, or Medium artifact inconsistencies;
 - zero constitution conflicts.
 
-This evidence does not authorize plaintext-column retirement. T032 and T045
-remain blocked pending the exact irreversible migration and separate Project
-Manager approval.
+The first independent review found eight High-priority issues. Remediation on
+2026-06-09 added:
+
+- exact multi-key lookup without broad decryption;
+- lookup metadata clearing and retirement-reference verification;
+- optimistic concurrency for backfill;
+- protected/plaintext duplicate detection;
+- explicit audit allowlisting and recursive logger redaction;
+- startup failure for malformed protected-key settings;
+- typed migration and rotation database failures;
+- a stable merge-gate performance benchmark.
+
+The Technical Advisor follow-up on 2026-06-16 found and corrected additional
+release-blocking edge cases:
+
+- canonical national-ID comparison after protected lookup;
+- canonical national-ID token generation during lookup-key rotation;
+- regeneration and retirement blocking for incomplete lookup metadata;
+- explicit typed rejection of stale concurrent backfill writes;
+- non-protected updates that do not require decryption capability;
+- startup failure for every invalid static-settings result;
+- audit allowlisting at the public logger boundary and accurate protected-field
+  change detection.
+
+The focused verification passed 47 unit tests, 14 migration/rotation/persistence
+integration tests, and the seven-trial performance benchmark. The measured
+median p95 regression was 3.89 percent against the approved 20 percent limit.
+
+The Project Manager authorized execution of the irreversible work on
+2026-06-16. Production application remains blocked until the exact retirement
+migration is implemented and rehearsed after Spec #055 integration, the target
+deployment backup system is restored successfully, and final review and release
+gates pass.

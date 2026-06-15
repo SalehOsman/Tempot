@@ -1,7 +1,13 @@
-import { SENSITIVE_KEY_ALIASES } from '@tempot/shared';
+import { SENSITIVE_KEY_ALIASES, isSensitiveDataKey, redactSensitiveData } from '@tempot/shared';
 
-const MAX_REDACTION_DEPTH = 5;
+const REDACTED = '[Redacted]';
 
-export const SENSITIVE_KEYS = SENSITIVE_KEY_ALIASES.flatMap((key) =>
-  Array.from({ length: MAX_REDACTION_DEPTH + 1 }, (_, depth) => `${'*.'.repeat(depth)}${key}`),
-);
+export const SENSITIVE_KEYS = {
+  paths: ['*', ...SENSITIVE_KEY_ALIASES],
+  censor: (value: unknown, path: string[]): unknown => {
+    const key = path.at(-1);
+    return typeof key === 'string' && isSensitiveDataKey(key)
+      ? REDACTED
+      : redactSensitiveData(value);
+  },
+};

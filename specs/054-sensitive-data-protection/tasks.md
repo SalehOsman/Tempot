@@ -55,7 +55,7 @@
 - [x] T029 [US2] Implement verification for row counts, logical recovery, lookup parity, and canary absence
 - [x] T030 [US2] Add cutover controls that block protected reads on any verification failure
 - [x] T031 [US2] Execute interruption/resume and backup/restore rehearsals in an isolated database
-- [ ] T032 [US2] Obtain approval before applying the plaintext-retirement migration
+- [x] T032 [US2] Obtain approval before applying the plaintext-retirement migration (approved 2026-06-16; production application remains gated)
 
 **Independent Test**: Seeded legacy data migrates, resumes, verifies, and restores without plaintext leakage or loss.
 
@@ -72,14 +72,28 @@
 
 - [x] T037 Update security, architecture, deployment, backup, configuration, and user-management documentation
 - [x] T038 Update all SpecKit artifacts and `docs/ROADMAP.md` with actual migration status
-- [ ] T039 Run focused tests and full relevant unit/integration suites
-- [ ] T040 Run database migration dry run, audit sanitation dry run, canary scan, backup restore, and key rotation rehearsal
-- [ ] T041 Run `pnpm lint`, `pnpm build`, `pnpm audit --audit-level=high`, and `pnpm spec:validate`
-- [ ] T042 Request independent security/code review and resolve all Critical/High findings
+- [x] T039 Run focused tests and full relevant unit/integration suites
+- [x] T040 Run database migration dry run, audit sanitation dry run, canary scan, backup restore, and key rotation rehearsal
+- [x] T041 Run `pnpm lint`, `pnpm build`, `pnpm audit --audit-level=high`, and `pnpm spec:validate`
+- [x] T042 Request independent security/code review and resolve all Critical/High findings
 - [x] T043 Run `speckit-analyze` and resolve artifact inconsistencies
 - [x] T044 Create changesets for all released packages affected
-- [ ] T045 Run verification-before-completion and obtain explicit approval for irreversible plaintext retirement
+- [ ] T045 Run verification-before-completion; explicit retirement approval was recorded on 2026-06-16
 - [x] T046 Add and execute the approved protected-data p95 regression benchmark
+- [x] T047 Clear stale lookup metadata and support exact lookup across readable key versions without broad decryption
+- [x] T048 Prevent concurrent backfill overwrite and detect conflicts across plaintext and protected identities
+- [x] T049 Enforce explicit audit allowlists, preserve validated change metadata, and redact logger payloads recursively
+- [x] T050 Fail startup on malformed or partial protected-key configuration
+- [x] T051 Return typed non-sensitive errors from migration and rotation database failure paths
+- [x] T052 Stabilize the 20 percent p95 gate with equivalent writes and median interleaved trials
+- [x] T053 Repeat backup/restore with an explicitly encrypted local artifact and correct operational evidence
+- [ ] T054 Repeat independent security/code review and resolve all remaining Critical/High findings
+- [x] T055 Canonicalize national-ID comparison and rotation-token generation across equivalent formats
+- [x] T056 Reject stale concurrent backfill writes with a typed non-sensitive error
+- [x] T057 Regenerate incomplete lookup metadata and block premature key retirement
+- [x] T058 Avoid requiring decryption capability for non-protected field updates
+- [x] T059 Fail bot-server startup for every invalid static-settings result
+- [x] T060 Enforce audit allowlisting at the public logger boundary and suppress unchanged protected-field markers
 
 ## Dependencies and Execution Order
 
@@ -98,17 +112,17 @@ phases are also complete.
 
 ## Requirements Traceability
 
-- `FR-001`, `FR-017`, `FR-018`, `FR-019`: T002-T003, T010, T026, T031
-- `FR-002`, `FR-003`, `FR-004`, `FR-009`, `FR-016`: T007-T010, T014-T020
-- `FR-005`, `FR-006`, `FR-007`, `FR-008`: T004-T009, T014-T016, T033-T036
-- `FR-010`, `FR-011`: T011, T021, T028
-- `FR-012`, `FR-015`, `FR-020`: T012, T022-T025, T029-T031
-- `FR-013`, `FR-014`: T005, T013, T026-T032, T040
-- `FR-021`: T005, T031, T037, T040
+- `FR-001`, `FR-017`, `FR-018`, `FR-019`: T002-T003, T010, T026, T031, T047-T048
+- `FR-002`, `FR-003`, `FR-004`, `FR-009`, `FR-016`: T007-T010, T014-T020, T047-T048
+- `FR-005`, `FR-006`, `FR-007`, `FR-008`: T004-T009, T014-T016, T033-T036, T047, T050-T051
+- `FR-010`, `FR-011`: T011, T021, T028, T049
+- `FR-012`, `FR-015`, `FR-020`: T012, T022-T025, T029-T031, T049, T051
+- `FR-013`, `FR-014`: T005, T013, T026-T032, T040, T048, T051, T053
+- `FR-021`: T005, T031, T037, T040, T053
 - `FR-022`: T004-T006, T037, T042, T045
-- `SC-001`: T010-T012, T020, T025, T029, T040
-- `SC-002`, `SC-003`, `SC-004`, `SC-005`: T026-T032, T040
-- `SC-006`: T033-T036, T040
-- `SC-007`: T042, T045
-- `SC-008`: T039-T045
-- `SC-009`: T046
+- `SC-001`: T010-T012, T020, T025, T029, T040, T047, T049
+- `SC-002`, `SC-003`, `SC-004`, `SC-005`: T026-T032, T040, T047-T049, T051
+- `SC-006`: T033-T036, T040, T047, T051
+- `SC-007`: T042, T045, T054
+- `SC-008`: T039-T045, T050-T054
+- `SC-009`: T046, T052

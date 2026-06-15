@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ok } from 'neverthrow';
 import { NodeProtectedDataService, type ProtectedDataKeyProvider } from '@tempot/database';
+import { formatNationalId } from '@tempot/national-id-parser';
 import { UserRepository } from '../../repositories/user.repository.js';
 
 describe('UserRepository protected persistence', () => {
@@ -28,6 +29,7 @@ describe('UserRepository protected persistence', () => {
       getEncryptionKey: () => ok({ version: 'enc-v1', key: encryptionKey }),
       getActiveLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
       getLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
+      getReadableLookupKeyVersions: () => ok(['lookup-v1']),
       validate: () => ok(undefined),
     };
     const repository = new UserRepository(
@@ -60,13 +62,16 @@ describe('UserRepository protected persistence', () => {
       getEncryptionKey: () => ok({ version: 'enc-v1', key: encryptionKey }),
       getActiveLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
       getLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
+      getReadableLookupKeyVersions: () => ok(['lookup-v1']),
       validate: () => ok(undefined),
     };
     const protectionService = new NodeProtectedDataService(keyProvider);
     const payload = protectionService
       .protect(nationalId, { fieldId: 'nationalId', recordId })
       ._unsafeUnwrap();
-    const lookup = protectionService.createLookupToken(nationalId, 'nationalId')._unsafeUnwrap();
+    const lookup = protectionService
+      .createLookupToken(formatNationalId(nationalId), 'nationalId')
+      ._unsafeUnwrap();
     const findMany = vi.fn().mockResolvedValue([
       {
         id: recordId,
@@ -100,7 +105,7 @@ describe('UserRepository protected persistence', () => {
     expect(findMany).toHaveBeenCalledWith({
       where: {
         isDeleted: false,
-        nationalIdLookupToken: lookup.token,
+        nationalIdLookupToken: { in: [lookup.token] },
       },
     });
   });

@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-08.
+> Last updated: 2026-06-16.
 
 ## Current Technical Baseline
 
@@ -145,8 +145,8 @@ Superpowers, TDD, review, verification, reconciliation, and merge gates.
 | ----------------: | ----------------------------------------- | ------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 |                 1 | #053 `authorization-correction`           | Correct global authorization and role/action enforcement                              | P0         | Implemented and integrated on the remediation branch                                                                                  |
 |                 2 | #056 `quality-gates-hardening` foundation | Repair hidden app test failures and include apps in required CI                       | P1 enabler | Implemented and integrated on the remediation branch                                                                                  |
-|                 3 | #054 `sensitive-data-protection`          | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0         | Reversible implementation complete on feature branch; backup/restore, review, and release gates pending; plaintext retirement blocked |
-|                 4 | #055 `data-integrity-hardening`           | Atomic updates, soft delete, repository boundaries, aggregate pagination              | P1         | SpecKit artifact gates passed; planned                                                                                                |
+|                 3 | #054 `sensitive-data-protection`          | Encrypt protected data, minimize audit, redact observability, migrate and rotate keys | P0         | Technical-advisor review remediation verified on feature branch; Spec #055 integration, target backup rehearsal, final review, and release gates pending |
+|                 4 | #055 `data-integrity-hardening`           | Atomic updates, soft delete, repository boundaries, aggregate pagination              | P1         | Foundation implemented and verified on feature branch; integration into #054 pending                                                    |
 |                 5 | #056 `quality-gates-hardening` completion | Coverage tiers, documentation freshness, toolchain and source conformance             | P1         | Implemented and integrated on the remediation branch                                                                                  |
 |                 6 | #057 `production-delivery-hardening`      | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery     | P1         | SpecKit artifact gates passed; final production gate                                                                                  |
 
@@ -173,7 +173,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                       |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                       |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053 and #056 integrated; #054 reversible implementation complete on its feature branch; production and plaintext retirement remain blocked |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053 and #056 integrated; #054 and #055 foundations verified on feature branches; integration, target backup rehearsal, and final release gates remain |
 
 ## Package Status
 

@@ -57,6 +57,12 @@ vi.mock('@tempot/database', () => ({
     session: { upsert: vi.fn().mockResolvedValue({}) },
     setting: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), delete: vi.fn() },
   },
+  StaticProtectedDataKeyProvider: vi.fn().mockImplementation(function (keyRing: unknown) {
+    return { keyRing };
+  }),
+  NodeProtectedDataService: vi.fn().mockImplementation(function (keyProvider: unknown) {
+    return { keyProvider };
+  }),
 }));
 
 vi.mock('@tempot/session-manager', () => ({
@@ -72,6 +78,10 @@ vi.mock('@tempot/session-manager', () => ({
 }));
 
 vi.mock('@tempot/settings', () => ({
+  SETTINGS_ERRORS: {
+    PROTECTED_DATA_INVALID_KEY_RING: 'settings.protected_data.invalid_key_ring',
+    PROTECTED_DATA_KEY_REUSE: 'settings.protected_data.key_reuse',
+  },
   StaticSettingsLoader: {
     load: vi.fn().mockReturnValue(
       ok({
@@ -147,10 +157,30 @@ vi.mock('@tempot/auth-core', () => ({
 // ---------------------------------------------------------------------------
 
 import { buildDeps } from '../../src/startup/deps.factory.js';
+import { NodeProtectedDataService, StaticProtectedDataKeyProvider } from '@tempot/database';
+import { StaticSettingsLoader } from '@tempot/settings';
+import { AppError } from '@tempot/shared';
+
+function validStaticSettings() {
+  return {
+    botToken: 'test-token',
+    databaseUrl: 'postgresql://test',
+    superAdminIds: [111],
+    defaultLanguage: 'en',
+    defaultCountry: 'US',
+    protectedDataKeys: {
+      activeEncryptionKeyVersion: 'enc-v1',
+      encryptionKeys: { 'enc-v1': Buffer.alloc(32, 1) },
+      activeLookupKeyVersion: 'lookup-v1',
+      lookupKeys: { 'lookup-v1': Buffer.alloc(32, 2) },
+    },
+  };
+}
 
 describe('buildDeps', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(StaticSettingsLoader.load).mockReturnValue(ok(validStaticSettings()));
     process.env['BOT_TOKEN'] = 'fake-bot-token';
     process.env['BOT_MODE'] = 'polling';
     process.env['REDIS_HOST'] = 'localhost';
@@ -161,6 +191,50 @@ describe('buildDeps', () => {
     const result = await buildDeps();
 
     expect(result.isOk()).toBe(true);
+  });
+
+  it('returns err when protected data key configuration is entirely absent', async () => {
+    vi.mocked(StaticSettingsLoader.load).mockReturnValueOnce(
+      ok({ ...validStaticSettings(), protectedDataKeys: null }),
+    );
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('settings.protected_data.invalid_key_ring');
+  });
+
+  it('returns err when protected data key configuration is invalid', async () => {
+    vi.mocked(StaticSettingsLoader.load).mockReturnValueOnce(
+      err(new AppError('settings.protected_data.invalid_key_ring')),
+    );
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('settings.protected_data.invalid_key_ring');
+  });
+
+  it('returns err when static settings validation fails', async () => {
+    vi.mocked(StaticSettingsLoader.load).mockReturnValueOnce(
+      err(new AppError('settings.static.validation_failed')),
+    );
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('settings.static.validation_failed');
+  });
+
+  it('creates the protected data service when key configuration is valid', async () => {
+    const settings = validStaticSettings();
+    vi.mocked(StaticSettingsLoader.load).mockReturnValueOnce(ok(settings));
+
+    const result = await buildDeps();
+
+    expect(result.isOk()).toBe(true);
+    expect(StaticProtectedDataKeyProvider).toHaveBeenCalledWith(settings.protectedDataKeys);
+    expect(NodeProtectedDataService).toHaveBeenCalledWith(expect.any(Object));
   });
 
   it('returns OrchestratorDeps with all required function fields', async () => {

@@ -36,6 +36,7 @@ export interface ProtectedDataKeyProvider {
   getEncryptionKey(version: string): Result<ProtectedDataKey, AppError>;
   getActiveLookupKey(): Result<ProtectedDataKey, AppError>;
   getLookupKey(version: string): Result<ProtectedDataKey, AppError>;
+  getReadableLookupKeyVersions(): Result<readonly string[], AppError>;
   validate(): Result<void, AppError>;
 }
 
@@ -46,6 +47,10 @@ export interface ProtectedDataService {
     value: string,
     fieldId: LookupProtectedFieldId,
   ): Result<ProtectedLookupToken, AppError>;
+  createLookupTokens(
+    value: string,
+    fieldId: LookupProtectedFieldId,
+  ): Result<readonly ProtectedLookupToken[], AppError>;
   reprotect(
     payload: ProtectedPayload,
     context: ProtectedDataContext,

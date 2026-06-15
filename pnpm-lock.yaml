@@ -36,6 +36,9 @@ importers:
       '@tempot/logger':
         specifier: workspace:*
         version: link:packages/logger
+      '@tempot/national-id-parser':
+        specifier: workspace:*
+        version: link:packages/national-id-parser
       '@tempot/session-manager':
         specifier: workspace:*
         version: link:packages/session-manager

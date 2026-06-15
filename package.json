@@ -55,6 +55,7 @@
     "@tempot/database": "workspace:*",
     "@tempot/event-bus": "workspace:*",
     "@tempot/logger": "workspace:*",
+    "@tempot/national-id-parser": "workspace:*",
     "@tempot/session-manager": "workspace:*",
     "@tempot/shared": "workspace:*",
     "@types/node": "22.19.17",

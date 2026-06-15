@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-16
 ---
 
 ## What is the Database Package?
@@ -18,12 +18,16 @@ lastVerified: 2026-06-08
 The `@tempot/database` package manages all data persistence in Tempot. It provides a repository abstraction over two ORMs, automatic soft-delete handling, audit field population, and vector similarity search for AI features.
 
 This page was verified against Prisma 7.8, Drizzle ORM 0.45, and the current
-`BaseRepository` implementation on 2026-06-08.
+`BaseRepository` implementation on 2026-06-16.
 
 The package also owns the versioned protected-data primitives used for
 AES-256-GCM envelopes and HMAC-SHA-256 exact-match tokens. Application services
 must consume those primitives through repositories rather than reading or
 writing classified plaintext directly.
+
+Exact lookup generates tokens for every non-retired readable lookup-key
+version. Repositories query those tokens with an indexed `IN` condition, so key
+rotation does not require a broad row scan or bulk decryption.
 
 ## Dual-ORM Strategy
 
@@ -43,8 +47,8 @@ No service in Tempot calls Prisma directly. All database operations flow through
 - Automatic soft-delete filtering on all read queries
 - Audit field injection (`createdBy`, `updatedBy`, `deletedBy`) from `AsyncLocalStorage`
 - Audit trail logging for every create, update, and delete operation
-- Safe audit snapshots that omit classified fields and retain only
-  non-sensitive change markers
+- Explicit audit allowlists that retain approved operational fields and
+  validated non-sensitive change markers only
 - Result pattern returns (`Result<T, AppError>`) instead of thrown exceptions
 - Transaction support via `withTransaction(tx)`
 

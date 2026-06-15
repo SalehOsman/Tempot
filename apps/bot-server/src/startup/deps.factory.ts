@@ -7,6 +7,7 @@ import { NodeProtectedDataService, prisma, StaticProtectedDataKeyProvider } from
 
 import {
   StaticSettingsLoader,
+  SETTINGS_ERRORS,
   SettingsRepository,
   DynamicSettingsService,
   MaintenanceService,
@@ -91,12 +92,15 @@ function modulesDir(): string {
 
 function buildProtectedDataService(
   staticSettingsResult: ReturnType<typeof StaticSettingsLoader.load>,
-): ProtectedDataService | undefined {
-  if (staticSettingsResult.isErr() || !staticSettingsResult.value.protectedDataKeys) {
-    return undefined;
+): Result<ProtectedDataService | undefined, AppError> {
+  if (staticSettingsResult.isErr()) return err(staticSettingsResult.error);
+  if (!staticSettingsResult.value.protectedDataKeys) {
+    return err(new AppError(SETTINGS_ERRORS.PROTECTED_DATA_INVALID_KEY_RING));
   }
-  return new NodeProtectedDataService(
-    new StaticProtectedDataKeyProvider(staticSettingsResult.value.protectedDataKeys),
+  return ok(
+    new NodeProtectedDataService(
+      new StaticProtectedDataKeyProvider(staticSettingsResult.value.protectedDataKeys),
+    ),
   );
 }
 
@@ -104,7 +108,6 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const log = logger.child({ module: 'bot-server' });
   const shutdownManager = buildShutdownManager();
 
-  // Database connect, event-bus init, and i18n init are independent — run in parallel.
   const [dbError, eventBusResult] = await Promise.all([
     prisma
       .$connect()
@@ -128,7 +131,7 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const staticSettingsResult = StaticSettingsLoader.load();
   const settingsService = buildSettingsService(cache, eventBus, staticSettingsResult);
   const protectedDataService = buildProtectedDataService(staticSettingsResult);
-
+  if (protectedDataService.isErr()) return err(protectedDataService.error);
   const i18nResult = await loadModuleLocales();
   if (i18nResult.isErr()) {
     log.warn({ msg: 'i18n_load_failed', error: i18nResult.error.code });
@@ -150,7 +153,7 @@ export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
     cache,
     sessionProvider,
     settingsService,
-    protectedDataService,
+    protectedDataService: protectedDataService.value,
     registry,
     sentryReporter,
     loadModuleLocales,

@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-08
+lastVerified: 2026-06-16
 ---
 
 ## Prerequisites
@@ -21,13 +21,13 @@ Before you begin, make sure you have:
 - Basic understanding of Prisma and TypeScript
 
 This tutorial was verified against the active modular schema merge and Prisma 7
-workflow on 2026-06-08.
+workflow on 2026-06-16.
 
 If an entity contains classified identity, contact, credential, or payment
 data, stop before adding it to the model and define its protected envelope,
-lookup requirements, and migration plan. `BaseRepository` audit snapshots will
-omit known protected field names, but persistence protection remains the
-concrete repository's responsibility.
+lookup requirements, and migration plan. `BaseRepository` audit snapshots use
+an explicit allowlist rather than preserving unknown fields, but persistence
+protection remains the concrete repository's responsibility.
 
 ## Building a Task Repository
 
@@ -86,6 +86,10 @@ Do not pass classified plaintext to these generic methods. Follow the
 `UserRepository` pattern: protect the value first, persist the envelope and
 approved token atomically, and return recovered values only through an
 authorized domain mapping.
+
+For searchable protected fields, generate exact tokens for every readable key
+version and query the indexed token column with `IN`. Do not implement a
+rotation fallback that scans or decrypts unrelated records.
 
 ### Step 3: Add a Custom Query
 

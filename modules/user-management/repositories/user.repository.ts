@@ -1,7 +1,3 @@
-/**
- * UserRepository — قاعدة بيانات المستخدمين
- */
-
 import { randomUUID } from 'node:crypto';
 import {
   BaseRepository,
@@ -14,7 +10,15 @@ import {
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 import { RoleEnum } from '@tempot/auth-core';
-import type { UserProfile, UserSearchResult } from '../types/index.js';
+import {
+  buildSafeUserListArgs,
+  resolveUserProtectionOptions,
+  type UserProfile,
+  type UserRepositoryProtectionOptions,
+  type UserSearchDelegate,
+  type UserSearchResult,
+} from '../types/index.js';
+import { canonicalizeUserLookupValue } from './user-lookup.normalizer.js';
 import { UserProtectionMapper } from './user-protection.mapper.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
@@ -28,16 +32,21 @@ export class UserRepository extends BaseRepository<UserProfile> {
   constructor(
     auditLogger: IAuditLogger,
     db?: DatabaseClient,
-    private readonly protectedData?: ProtectedDataService,
+    protection?: ProtectedDataService | UserRepositoryProtectionOptions,
   ) {
     super(auditLogger, db);
-    this.protectionMapper = new UserProtectionMapper(protectedData);
+    this.protectionOptions = resolveUserProtectionOptions(protection);
+    this.protectionMapper = new UserProtectionMapper(
+      this.protectionOptions.protectedData,
+      this.protectionOptions.readMode,
+    );
   }
 
   private readonly protectionMapper: UserProtectionMapper;
+  private readonly protectionOptions: UserRepositoryProtectionOptions;
 
   override withTransaction(tx: Prisma.TransactionClient): this {
-    return new UserRepository(this.auditLogger, tx, this.protectedData) as this;
+    return new UserRepository(this.auditLogger, tx, this.protectionOptions) as this;
   }
 
   override async findById(id: string): Promise<Result<UserProfile, AppError>> {
@@ -48,16 +57,7 @@ export class UserRepository extends BaseRepository<UserProfile> {
   override async findMany(
     where?: Record<string, unknown>,
   ): Promise<Result<UserProfile[], AppError>> {
-    const result = await super.findMany(where);
-    if (result.isErr()) return err(result.error);
-
-    const recovered: UserProfile[] = [];
-    for (const user of result.value) {
-      const recovery = this.recoverProtectedFields(user);
-      if (recovery.isErr()) return err(recovery.error);
-      recovered.push(recovery.value);
-    }
-    return ok(recovered);
+    return super.findMany(buildSafeUserListArgs(where));
   }
 
   override async create(data: Record<string, unknown>): Promise<Result<UserProfile, AppError>> {
@@ -73,36 +73,53 @@ export class UserRepository extends BaseRepository<UserProfile> {
     id: string,
     data: Record<string, unknown>,
   ): Promise<Result<UserProfile, AppError>> {
-    const protectedInput = this.protectionMapper.protectInput(data, id);
-    if (protectedInput.isErr()) return err(protectedInput.error);
-
-    const result = await super.update(id, protectedInput.value);
+    const result = await this.persistUpdate(id, data);
     return result.andThen((user) => this.recoverProtectedFields(user));
   }
 
+  private async persistUpdate(
+    id: string,
+    data: Record<string, unknown>,
+  ): Promise<Result<UserProfile, AppError>> {
+    const protectedInput = this.protectionMapper.protectInput(data, id);
+    if (protectedInput.isErr()) return err(protectedInput.error);
+    return super.update(id, protectedInput.value);
+  }
+
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
-    const result = await this.findMany({ telegramId });
+    const result = await super.findMany({ where: { telegramId }, take: 1 });
     if (result.isErr()) return err(result.error);
 
     const user = result.value[0];
     if (!user) return err(new AppError('user-management.not_found', { telegramId }));
 
-    return ok(user);
+    return this.recoverProtectedFields(user);
   }
 
   async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
-    const tokenResult = this.protectionMapper.createLookupToken(nationalId, 'nationalId');
-    if (tokenResult.isErr()) return err(tokenResult.error);
-    if (!tokenResult.value) {
+    const conditions = this.protectionMapper.createLookupConditions(nationalId, 'nationalId');
+    if (conditions.isErr()) return err(conditions.error);
+    if (!conditions.value) {
       return err(new AppError(PROTECTED_DATA_ERRORS.NOT_CONFIGURED));
     }
 
-    const result = await this.findMany({ nationalIdLookupToken: tokenResult.value });
+    const result = await super.findMany({ where: conditions.value });
     if (result.isErr()) return err(result.error);
 
-    const user = result.value[0];
-    if (!user) return err(new AppError('user-management.not_found'));
-    return ok(user);
+    const normalizedNationalId = canonicalizeUserLookupValue(nationalId, 'nationalId');
+    if (normalizedNationalId.isErr()) return err(normalizedNationalId.error);
+    for (const candidate of result.value) {
+      const recovery = this.recoverProtectedFields(candidate);
+      if (recovery.isErr()) return err(recovery.error);
+      if (recovery.value.nationalId === undefined) continue;
+      const normalizedCandidate = canonicalizeUserLookupValue(
+        recovery.value.nationalId,
+        'nationalId',
+      );
+      if (normalizedCandidate.isErr()) return err(normalizedCandidate.error);
+      if (normalizedCandidate.value === normalizedNationalId.value) return recovery;
+    }
+    return err(new AppError('user-management.not_found'));
   }
 
   async search(
@@ -116,76 +133,78 @@ export class UserRepository extends BaseRepository<UserProfile> {
       const conditions: Record<string, unknown>[] = [
         { username: { contains: trimmedQuery, mode: 'insensitive' } },
       ];
-      const tokenResult = this.protectionMapper.createEmailLookupToken(trimmedQuery);
-      if (tokenResult.isErr()) return err(tokenResult.error);
-      if (tokenResult.value) conditions.push({ emailLookupToken: tokenResult.value });
+      const lookup = this.protectionMapper.createLookupConditions(trimmedQuery, 'email');
+      if (lookup.isErr()) return err(lookup.error);
+      if (lookup.value) conditions.push(lookup.value);
       where = { OR: conditions };
     }
 
-    const usersResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
+    const [usersResult, countResult] = await Promise.all([
+      this.findMany({ where, skip: page * pageSize, take: pageSize }),
+      this.countUsers(where),
+    ]);
     if (usersResult.isErr()) return err(usersResult.error);
+    if (countResult.isErr()) return err(countResult.error);
+    return ok({
+      users: usersResult.value,
+      totalCount: countResult.value,
+      page,
+      pageSize,
+    });
+  }
 
-    const allResult = await this.findMany({ where });
-    if (allResult.isErr()) return err(allResult.error);
-
-    return ok({ users: usersResult.value, totalCount: allResult.value.length, page, pageSize });
+  private async countUsers(where: Record<string, unknown>): Promise<Result<number, AppError>> {
+    try {
+      const count = await (this.model as unknown as UserSearchDelegate).count({
+        where: { isDeleted: false, ...where },
+      });
+      return ok(count);
+    } catch (error) {
+      return err(new AppError('user-management.search_count_failed', error));
+    }
   }
 
   private recoverProtectedFields(user: UserProfile): Result<UserProfile, AppError> {
     return this.protectionMapper.recover(user);
   }
 
-  // ─── Update — أساسية ─────────────────────────────────────────────────────────
-
-  async updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { username: newUsername });
-    return result.isErr() ? err(result.error) : ok(undefined);
+  updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'username', newUsername);
+  }
+  updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'email', newEmail);
+  }
+  updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'language', newLanguage);
+  }
+  updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'role', newRole);
+  }
+  updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'nationalId', nationalId);
+  }
+  updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'mobileNumber', mobileNumber);
+  }
+  updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'birthDate', birthDate);
+  }
+  updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'gender', gender);
+  }
+  updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'governorate', governorate);
+  }
+  updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'countryCode', countryCode);
   }
 
-  async updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { email: newEmail });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { language: newLanguage });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { role: newRole });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  // ─── Update — مصرية ──────────────────────────────────────────────────────────
-
-  async updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { nationalId });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { mobileNumber });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { birthDate });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { gender });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { governorate });
-    return result.isErr() ? err(result.error) : ok(undefined);
-  }
-
-  async updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
-    const result = await this.update(userId, { countryCode });
+  private async updateField(
+    userId: string,
+    field: string,
+    value: unknown,
+  ): Promise<Result<void, AppError>> {
+    const result = await this.persistUpdate(userId, { [field]: value });
     return result.isErr() ? err(result.error) : ok(undefined);
   }
 }

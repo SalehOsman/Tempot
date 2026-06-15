@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BaseRepository } from '../../src/base/base.repository.js';
+import { buildProtectedAuditChanges, buildSafeAuditSnapshot } from '../../src/base/audit.policy.js';
 
 interface ProtectedTestEntity {
   id: string;
@@ -27,6 +28,29 @@ class ProtectedTestRepository extends BaseRepository<ProtectedTestEntity> {
 }
 
 describe('BaseRepository protected audit policy', () => {
+  it('keeps only allowlisted operational fields in audit snapshots', () => {
+    const snapshot = buildSafeAuditSnapshot({
+      language: 'en',
+      role: 'USER',
+      username: 'personal-username',
+      gender: 'FEMALE',
+      governorate: 'Cairo',
+      countryCode: 'EG',
+      unexpectedProfileField: 'unexpected-audit-canary',
+      nested: {
+        unexpectedKey: 'nested-audit-canary',
+      },
+    });
+
+    expect(snapshot).toEqual({
+      language: 'en',
+      role: 'USER',
+    });
+    expect(JSON.stringify(snapshot)).not.toContain('personal-username');
+    expect(JSON.stringify(snapshot)).not.toContain('unexpected-audit-canary');
+    expect(JSON.stringify(snapshot)).not.toContain('nested-audit-canary');
+  });
+
   it('records safe change metadata without whole protected entities', async () => {
     const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
     const repository = new ProtectedTestRepository(auditLogger);
@@ -50,5 +74,23 @@ describe('BaseRepository protected audit policy', () => {
         ]),
       }),
     );
+  });
+
+  it('does not report unchanged protected fields during an unrelated update', () => {
+    const protectedEmail = {
+      formatVersion: 1,
+      algorithm: 'aes-256-gcm',
+      keyVersion: 'enc-v1',
+      nonce: 'nonce',
+      ciphertext: 'ciphertext',
+      authTag: 'auth-tag',
+    };
+
+    const changes = buildProtectedAuditChanges(
+      { email: null, emailProtected: protectedEmail, role: 'USER' },
+      { email: null, emailProtected: protectedEmail, role: 'ADMIN' },
+    );
+
+    expect(changes).toEqual([]);
   });
 });

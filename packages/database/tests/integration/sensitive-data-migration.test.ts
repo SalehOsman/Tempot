@@ -18,6 +18,7 @@ describe('sensitive data migration', () => {
     getEncryptionKey: () => ok({ version: 'enc-v1', key: encryptionKey }),
     getActiveLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
     getLookupKey: () => ok({ version: 'lookup-v1', key: lookupKey }),
+    getReadableLookupKeyVersions: () => ok(['lookup-v1']),
     validate: () => ok(undefined),
   };
   const protectionService = new NodeProtectedDataService(keyProvider);

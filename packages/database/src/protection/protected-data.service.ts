@@ -135,17 +135,42 @@ export class NodeProtectedDataService implements ProtectedDataService {
 
     const keyResult = this.keyProvider.getActiveLookupKey().andThen(validateKey);
     if (keyResult.isErr()) return err(keyResult.error);
+    return this.createLookupTokenWithKey(value, fieldId, keyResult.value);
+  }
 
+  createLookupTokens(
+    value: string,
+    fieldId: LookupProtectedFieldId,
+  ): Result<readonly ProtectedLookupToken[], AppError> {
+    const providerValidation = this.keyProvider.validate();
+    if (providerValidation.isErr()) return err(providerValidation.error);
+    const versions = this.keyProvider.getReadableLookupKeyVersions();
+    if (versions.isErr()) return err(versions.error);
+
+    const tokens: ProtectedLookupToken[] = [];
+    for (const version of versions.value) {
+      const key = this.keyProvider.getLookupKey(version).andThen(validateKey);
+      if (key.isErr()) return err(key.error);
+      const token = this.createLookupTokenWithKey(value, fieldId, key.value);
+      if (token.isErr()) return err(token.error);
+      tokens.push(token.value);
+    }
+    return ok(tokens);
+  }
+
+  private createLookupTokenWithKey(
+    value: string,
+    fieldId: LookupProtectedFieldId,
+    key: ProtectedDataKey,
+  ): Result<ProtectedLookupToken, AppError> {
     const { normalized, normalizationVersion } = normalizeLookupValue(value, fieldId);
     const message = `${fieldId}\u0000${normalizationVersion}\u0000${normalized}`;
-    const token = createHmac('sha256', keyResult.value.key)
-      .update(message, 'utf8')
-      .digest('base64url');
+    const token = createHmac('sha256', key.key).update(message, 'utf8').digest('base64url');
 
     return ok({
       fieldId,
       normalizationVersion,
-      tokenKeyVersion: keyResult.value.version,
+      tokenKeyVersion: key.version,
       token,
     });
   }

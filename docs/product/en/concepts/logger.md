@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-16
 ---
 
 ## What is the Logger Package?
@@ -18,7 +18,7 @@ lastVerified: 2026-06-08
 The `@tempot/logger` package provides two complementary logging systems: a technical logger for operational diagnostics and an audit logger for compliance-grade state change tracking. Both produce structured JSON and integrate with Tempot's session context for automatic user attribution.
 
 This page was verified against Pino 9, `appErrorSerializer`, and `AuditLogger`
-on 2026-06-08.
+on 2026-06-16.
 
 ## Two Logging Systems
 
@@ -79,10 +79,10 @@ Sensitive data is redacted at two layers:
 
 ### Pino Built-in Redaction
 
-Pino's native `redact` option covers credentials and classified identity fields
-at supported object paths. The shared policy includes email, national ID,
-mobile number, birth date, protected envelopes, lookup tokens, and key
-configuration aliases.
+Pino's native `redact` option applies the shared recursive censor at the root
+object boundary. It covers credentials and classified identity fields at
+arbitrary nesting depth, including email, national ID, mobile number, birth
+date, protected envelopes, lookup tokens, and key configuration aliases.
 
 ### Error Serializer Redaction
 
@@ -105,7 +105,9 @@ The `AuditLogger` persists state changes to the database via `AuditLogRepository
 
 - **action**: The operation (e.g., `invoices.invoice.create`)
 - **module**: The originating module
-- **before/after**: JSON snapshots of the entity state
+- **before/after**: allowlisted JSON snapshots of approved operational state
+- **changes**: validated protected-field identity and added/changed/cleared
+  metadata, persisted without raw values
 - **userId/userRole**: From session context or explicit override
 - **status**: Defaults to `SUCCESS`
 - **referenceCode**: Auto-generated for non-success statuses

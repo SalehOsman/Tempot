@@ -80,7 +80,7 @@ function redactString(value: string): string {
   return value
     .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, REDACTED)
     .replace(/\b\d{14}\b/g, REDACTED)
-    .replace(/\+?\d[\d\s()-]{8,}\d/g, REDACTED)
+    .replace(/(?<![\w-])\+?\d[\d\s()-]{8,}\d(?![\w-])/g, REDACTED)
     .replace(/\b\d{4}-\d{2}-\d{2}\b/g, REDACTED);
 }
 
