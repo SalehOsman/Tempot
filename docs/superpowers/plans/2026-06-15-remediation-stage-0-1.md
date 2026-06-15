@@ -428,7 +428,7 @@ maintenance branch name because it is not a numbered feature branch; T044
 therefore remains open until coverage remediation is complete and the analysis
 can run in the feature workflow.
 
-- [ ] **Step 4: Commit documentation reconciliation**
+- [x] **Step 4: Commit documentation reconciliation**
 
 ```powershell
 git add docs/ROADMAP.md `
@@ -447,7 +447,7 @@ git commit -m "docs(remediation): reconcile stage 1 execution evidence"
 - No intended source changes
 - Update verification evidence only if required
 
-- [ ] **Step 1: Verify clean source workspace**
+- [x] **Step 1: Verify clean source workspace**
 
 Run:
 
@@ -458,7 +458,7 @@ Get-ChildItem apps,packages,modules -Recurse -File -Include *.js,*.d.ts |
 
 Expected: no generated JavaScript or declaration files under `src`.
 
-- [ ] **Step 2: Run full relevant gates**
+- [x] **Step 2: Run full relevant gates**
 
 Run:
 
@@ -477,7 +477,7 @@ corepack pnpm audit --audit-level=high
 Expected: all gates pass. If audit reports a current High advisory, Stage 1 is
 not complete; record and fix it before promotion.
 
-- [ ] **Step 3: Confirm the dirty Spec 054 worktree was preserved**
+- [x] **Step 3: Confirm the dirty Spec 054 worktree was preserved**
 
 Run:
 
@@ -488,8 +488,14 @@ git -C F:\Tempot_Worktrees\054-sensitive-data-protection status --short
 Expected: the pre-existing dirty file set remains present; no file was removed
 or reset by Stage 1.
 
-- [ ] **Step 4: Produce the merge-readiness report**
+- [x] **Step 4: Produce the merge-readiness report**
 
 Report exact command results, remaining findings, branch SHA, and whether Stage
 1 is ready for Project Manager merge approval. Do not merge to `main`
 automatically.
+
+Result: evidence is recorded in
+`docs/operations/evidence/2026-06-15-remediation-stage-1-verification.md`.
+Stage 1 is ready for Project Manager merge review as a verified foundation;
+Spec 056 coverage completion and the remaining remediation stages are still
+open.

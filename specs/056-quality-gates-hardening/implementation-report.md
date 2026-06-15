@@ -40,7 +40,7 @@
   Windows `EBUSY` symlink retry.
 - Full build passed for all 32 buildable workspace projects, including 2,689
   documentation pages.
-- Root unit/application execution passed 307 files and 2,318 tests.
+- Root unit/application execution passed 307 files and 2,319 tests.
 - Integration execution passed 20 files and 122 tests.
 - E2E execution passed 1 file and 13 tests.
 - Test inventory reported 35 governed surfaces, 328 test files, and zero
@@ -50,6 +50,11 @@
   checklist, and CMS checks passed.
 - Corrected coverage collection includes module-root source instead of the
   nonexistent `modules/*/src/` layout.
+- Dependency audit passes the High threshold after pinning all transitive
+  `esbuild` use to the patched `0.28.1` release. Six Moderate and one Low
+  advisory remain visible.
+- The E2E module fixture uses the repository-local TypeScript compiler and no
+  longer depends on the ambient pnpm version.
 
 ## Blocking Coverage Baseline
 
@@ -87,5 +92,6 @@ finding; T044 remains open for execution after coverage remediation.
 - Add focused tests for the 23 service/handler findings.
 - Re-run the complete coverage command until the policy is GREEN.
 - Make the CI coverage job blocking.
-- Re-run security audit, SpecKit analysis, spec validation, code review, and
-  verification-before-completion before marking Spec 056 complete.
+- Re-run SpecKit analysis, full code review, and
+  verification-before-completion after coverage remediation before marking
+  Spec 056 complete.
