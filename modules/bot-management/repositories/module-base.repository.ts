@@ -1,4 +1,4 @@
-import { BaseRepository, enforceActiveRecordScope } from '@tempot/database';
+import { BaseRepository, enforceActiveRecordScope, type RecoveryAccess } from '@tempot/database';
 import { AppError } from '@tempot/shared';
 import { ok, err, type Result } from 'neverthrow';
 
@@ -39,6 +39,26 @@ export abstract class ModuleBaseRepository<T extends { id: string }> extends Bas
       return ok(count);
     } catch (error) {
       return err(new AppError(`${this.moduleName}.count_failed`, error));
+    }
+  }
+
+  async findDeletedById(id: string, access: RecoveryAccess): Promise<Result<T, AppError>> {
+    if (!access.authorized) return err(new AppError(`${this.moduleName}.recovery_forbidden`));
+    try {
+      const item = await this.moduleDelegate.findUnique({ where: { id, isDeleted: true } });
+      if (!item) return err(new AppError(`${this.moduleName}.not_found`));
+      await this.auditLogger.log({
+        action: `${this.moduleName}.${this.entityName}.recovery_read`,
+        module: this.moduleName,
+        targetId: id,
+        recoveryActorId: access.actorId,
+        recoveryActorRole: access.actorRole,
+        recoveryReason: access.reason,
+        status: 'SUCCESS',
+      });
+      return ok(item as T);
+    } catch (error) {
+      return err(new AppError(`${this.moduleName}.recovery_failed`, error));
     }
   }
 

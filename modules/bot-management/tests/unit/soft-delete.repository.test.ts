@@ -41,4 +41,40 @@ describe('bot-management soft-delete repository scope', () => {
       where: { telegramUsername: 'example_bot', isDeleted: false },
     });
   });
+
+  it('requires explicit authorization before reading deleted records', async () => {
+    const findUnique = vi.fn().mockResolvedValue({ id: 'bot-1' });
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repository = new SoftDeleteRepository(auditLogger, {
+      managedBot: { findUnique, findMany: vi.fn() },
+    } as unknown as ConstructorParameters<typeof ModuleBaseRepository<ManagedBot>>[1]);
+
+    const denied = await repository.findDeletedById('bot-1', {
+      actorId: 'admin-1',
+      actorRole: 'ADMIN',
+      authorized: false,
+      reason: 'operator-review',
+    });
+
+    expect(denied.isErr()).toBe(true);
+    expect(findUnique).not.toHaveBeenCalled();
+
+    const allowed = await repository.findDeletedById('bot-1', {
+      actorId: 'admin-1',
+      actorRole: 'ADMIN',
+      authorized: true,
+      reason: 'operator-review',
+    });
+
+    expect(allowed.isOk()).toBe(true);
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { id: 'bot-1', isDeleted: true },
+    });
+    expect(auditLogger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'bot-management.managedBot.recovery_read',
+        targetId: 'bot-1',
+      }),
+    );
+  });
 });
