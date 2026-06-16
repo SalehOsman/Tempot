@@ -4,32 +4,26 @@ import { AppError } from '@tempot/shared';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import type { ModuleLogger } from '../bot-server.types.js';
 
-export interface PrismaSessionUpsertArgs {
-  where: { id: string };
-  update: { role: string };
-  create: {
-    id: string;
-    userId: string;
-    chatId: string;
-    role: string;
-    status: string;
-    language: string;
-  };
+export interface BootstrapSuperAdminSessionInput {
+  sessionId: string;
+  userId: string;
+  chatId: string;
+  role: string;
+  status: string;
+  language: string;
 }
 
-export interface BootstrapPrisma {
-  session: {
-    upsert: (args: PrismaSessionUpsertArgs) => Promise<unknown>;
-  };
+export interface BootstrapSessionWriter {
+  upsertSuperAdminSession: (input: BootstrapSuperAdminSessionInput) => AsyncResult<void>;
 }
 
 interface BootstrapDeps {
-  prisma: BootstrapPrisma;
+  sessions: BootstrapSessionWriter;
   logger: ModuleLogger;
 }
 
 export async function bootstrapSuperAdmins(ids: number[], deps: BootstrapDeps): AsyncResult<void> {
-  const { prisma, logger } = deps;
+  const { sessions, logger } = deps;
 
   if (ids.length === 0) {
     logger.warn('No super admin IDs configured');
@@ -40,18 +34,15 @@ export async function bootstrapSuperAdmins(ids: number[], deps: BootstrapDeps): 
     for (const id of ids) {
       const strId = String(id);
       const sessionId = `${strId}:${strId}`;
-      await prisma.session.upsert({
-        where: { id: sessionId },
-        update: { role: 'SUPER_ADMIN' },
-        create: {
-          id: sessionId,
-          userId: strId,
-          chatId: strId,
-          role: 'SUPER_ADMIN',
-          status: 'ACTIVE',
-          language: 'ar-EG',
-        },
+      const result = await sessions.upsertSuperAdminSession({
+        sessionId,
+        userId: strId,
+        chatId: strId,
+        role: 'SUPER_ADMIN',
+        status: 'ACTIVE',
+        language: 'ar-EG',
       });
+      if (result.isErr()) return bootstrapFailed(result.error, logger);
       logger.info(`Bootstrapped super admin: ${strId}`);
     }
     return ok(undefined);
@@ -59,4 +50,11 @@ export async function bootstrapSuperAdmins(ids: number[], deps: BootstrapDeps): 
     logger.error({ msg: 'Super admin bootstrap failed', error });
     return err(new AppError(BOT_SERVER_ERRORS.SUPER_ADMIN_BOOTSTRAP_FAILED, { error }));
   }
+}
+
+function bootstrapFailed(error: AppError, logger: ModuleLogger): AsyncResult<void> {
+  logger.error({ msg: 'Super admin bootstrap failed', error });
+  return Promise.resolve(
+    err(new AppError(BOT_SERVER_ERRORS.SUPER_ADMIN_BOOTSTRAP_FAILED, { error })),
+  );
 }

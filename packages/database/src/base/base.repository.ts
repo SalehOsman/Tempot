@@ -2,40 +2,23 @@ import { Result, ok, err } from 'neverthrow';
 import { AppError, sessionContext } from '@tempot/shared';
 import { prisma, Prisma, PrismaClient } from '../prisma/prisma.client.js';
 import { buildProtectedAuditChanges, buildSafeAuditSnapshot } from './audit.policy.js';
+import type { RecoveryAccess } from './recovery.types.js';
 import { enforceActiveRecordScope } from './soft-delete.js';
 
-/**
- * Database client type that accepts base PrismaClient, TransactionClient,
- * or the extended client (from $extends()) used by the prisma proxy.
- *
- * Note: PrismaClient is loaded via createRequire (CJS interop) so it is a
- * runtime value, not a type. We use `InstanceType<typeof PrismaClient>` to
- * derive the instance type from the constructor value.
- */
 export type DatabaseClient =
   | InstanceType<typeof PrismaClient>
   | Prisma.TransactionClient
   | typeof prisma;
 
-/**
- * Local interface for Audit Logger to avoid circular dependencies
- */
 export interface IAuditLogger {
   log: (data: Record<string, unknown>) => Promise<void>;
 }
+/*
 
-/**
- * Opaque type alias for a Prisma model delegate.
- * Prisma 7 delegates use deeply-branded generics that cannot be expressed
  * without `any`. We use `object` — subclasses return Prisma delegates,
- * and BaseRepository casts at the call boundary via `delegate`.
- *
- * PRISMA-BOUNDARY: No `any` in @tempot/database.
- * @see https://github.com/prisma/prisma/issues/20798
- */
+*/
 export type PrismaModelDelegate = object;
 
-/** Internal callable shape for Prisma delegate methods used by BaseRepository. */
 interface PrismaDelegateMethods {
   findUnique: (args: Record<string, unknown>) => Promise<unknown>;
   findMany: (args: Record<string, unknown>) => Promise<unknown[]>;
@@ -44,29 +27,21 @@ interface PrismaDelegateMethods {
   delete: (args: Record<string, unknown>) => Promise<unknown>;
 }
 
-/**
- * Abstract Base Repository with Result pattern and Audit Log triggers.
- * Rules: XIV (Repository Pattern), XXI (Result Pattern), LVII (Audit Log)
- */
 export abstract class BaseRepository<T extends { id: string }> {
   protected abstract moduleName: string;
   protected abstract entityName: string;
 
-  /** Database client (can be standard prisma client or transaction client) */
   constructor(
     protected auditLogger: IAuditLogger,
     protected db: DatabaseClient = prisma,
   ) {}
 
-  /** The Prisma model delegate for this entity. Subclasses return the correct model. */
   protected abstract get model(): PrismaModelDelegate;
 
-  /** PRISMA-BOUNDARY: Casts opaque PrismaModelDelegate to callable methods. */
   private get delegate(): PrismaDelegateMethods {
     return this.model as unknown as PrismaDelegateMethods;
   }
 
-  /** Create a new instance of this repository using a transaction client. */
   withTransaction(tx: Prisma.TransactionClient): this {
     const RepositoryClass = this.constructor as new (
       auditLogger: IAuditLogger,
@@ -75,7 +50,6 @@ export abstract class BaseRepository<T extends { id: string }> {
     return new RepositoryClass(this.auditLogger, tx);
   }
 
-  /** Helper to get user context from session. */
   protected getContext() {
     const store = sessionContext.getStore();
     return {
@@ -84,7 +58,6 @@ export abstract class BaseRepository<T extends { id: string }> {
     };
   }
 
-  /** Logs an audit trail entry for a repository operation. */
   private async logAudit(action: string, entry: Record<string, unknown>): Promise<void> {
     const { userId, userRole } = this.getContext();
     await this.auditLogger.log({
@@ -108,6 +81,24 @@ export abstract class BaseRepository<T extends { id: string }> {
       return ok(item as T);
     } catch (e) {
       return err(new AppError(`${this.moduleName}.unexpected_error`, e));
+    }
+  }
+
+  async findDeletedById(id: string, access: RecoveryAccess): Promise<Result<T, AppError>> {
+    if (!access.authorized) return err(new AppError(`${this.moduleName}.recovery_forbidden`));
+    try {
+      const item = await this.delegate.findUnique({ where: { id, isDeleted: true } });
+      if (!item) return err(new AppError(`${this.moduleName}.not_found`));
+      await this.logAudit('recovery_read', {
+        targetId: id,
+        recoveryActorId: access.actorId,
+        recoveryActorRole: access.actorRole,
+        recoveryReason: access.reason,
+        after: buildSafeAuditSnapshot(item),
+      });
+      return ok(item as T);
+    } catch (e) {
+      return err(new AppError(`${this.moduleName}.recovery_failed`, e));
     }
   }
 

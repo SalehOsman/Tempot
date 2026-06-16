@@ -34,10 +34,10 @@ export class BotRepository extends ModuleBaseRepository<ManagedBot> {
     });
     if (items.isErr()) return err(items.error);
 
-    const all = await this.findMany({ where });
-    if (all.isErr()) return err(all.error);
+    const count = await this.countMany({ where });
+    if (count.isErr()) return err(count.error);
 
-    return ok({ bots: items.value, totalCount: all.value.length });
+    return ok({ bots: items.value, totalCount: count.value });
   }
 
   async archive(id: string, actorId: string): Promise<Result<ManagedBot, AppError>> {

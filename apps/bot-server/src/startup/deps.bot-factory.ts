@@ -100,7 +100,7 @@ function createRuntimeBotDeps(
     redisClient: deps.eventBus.getRedisClient(),
     eventBus: {
       publish: async (event: string, payload: unknown) => {
-        await deps.eventBus.publish(event as never, payload as never);
+        await deps.eventBus.publish(event, payload);
         return { isOk: () => true };
       },
     },

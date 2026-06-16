@@ -2,6 +2,11 @@ import { AuditLog, Prisma } from '@prisma/client';
 import { Result, ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { BaseRepository } from '../base/base.repository.js';
+import type { DatabaseClient, IAuditLogger } from '../base/base.repository.js';
+
+const noopAuditLogger: IAuditLogger = {
+  log: async () => undefined,
+};
 
 /**
  * Repository for Audit Log entity
@@ -10,6 +15,10 @@ import { BaseRepository } from '../base/base.repository.js';
 export class AuditLogRepository extends BaseRepository<AuditLog> {
   protected moduleName = 'database';
   protected entityName = 'auditLog';
+
+  constructor(auditLogger: IAuditLogger = noopAuditLogger, db?: DatabaseClient) {
+    super(auditLogger, db);
+  }
 
   protected get model() {
     return this.db.auditLog;
@@ -60,6 +69,15 @@ export class AuditLogRepository extends BaseRepository<AuditLog> {
       return ok(item as AuditLog);
     } catch (e) {
       return err(new AppError(`${this.moduleName}.unexpected_error`, e));
+    }
+  }
+
+  async findMany(args: Prisma.AuditLogFindManyArgs): Promise<Result<AuditLog[], AppError>> {
+    try {
+      const items = await this.model.findMany(args);
+      return ok(items);
+    } catch (e) {
+      return err(new AppError(`${this.moduleName}.find_many_failed`, e));
     }
   }
 

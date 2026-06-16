@@ -34,12 +34,12 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
     const itemsResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (itemsResult.isErr()) return err(itemsResult.error);
 
-    const countResult = await this.findMany({ where });
+    const countResult = await this.countMany({ where });
     if (countResult.isErr()) return err(countResult.error);
 
     return ok({
       templates: itemsResult.value,
-      totalCount: countResult.value.length,
+      totalCount: countResult.value,
       page,
       pageSize,
     });
@@ -53,12 +53,12 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
     const itemsResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (itemsResult.isErr()) return err(itemsResult.error);
 
-    const countResult = await this.findMany({ where });
+    const countResult = await this.countMany({ where });
     if (countResult.isErr()) return err(countResult.error);
 
     return ok({
       templates: itemsResult.value,
-      totalCount: countResult.value.length,
+      totalCount: countResult.value,
       page,
       pageSize,
     });
@@ -116,12 +116,12 @@ export class TemplateRepository extends ModuleBaseRepository<Template> {
     const itemsResult = await this.findMany({ where, skip: page * pageSize, take: pageSize });
     if (itemsResult.isErr()) return err(itemsResult.error);
 
-    const countResult = await this.findMany({ where });
+    const countResult = await this.countMany({ where });
     if (countResult.isErr()) return err(countResult.error);
 
     return ok({
       templates: itemsResult.value,
-      totalCount: countResult.value.length,
+      totalCount: countResult.value,
       page,
       pageSize,
     });

@@ -16,7 +16,7 @@
 - [x] T006 [P] [US1] Write failing service contract tests in `modules/user-management/tests/unit/user.service.test.ts`
 - [x] T007 [US1] Add one atomic identity-update repository operation in `modules/user-management/repositories/user.repository.ts`
 - [x] T008 [US1] Replace service-level concurrent writes in `modules/user-management/services/user.service.ts`
-- [ ] T009 [US1] Reconcile one logical audit operation with the protected audit policy from Spec 054
+- [x] T009 [US1] Reconcile one logical audit operation with the protected audit policy from Spec 054
 - [x] T010 [US1] Confirm GREEN, refactor, and commit only the atomic-update concern
 
 **Independent Test**: Every injected failure leaves all identity fields unchanged.
@@ -25,37 +25,37 @@
 
 - [x] T011 [P] [US2] Write failing adversarial soft-delete tests for the Prisma extension and shared BaseRepository
 - [x] T012 [P] [US2] Write failing affected module repository tests for conflicting and nested filters
-- [ ] T013 [P] [US2] Write failing authorized/denied recovery repository tests
+- [x] T013 [P] [US2] Write failing authorized/denied recovery repository tests
 - [x] T014 [US2] Correct and centralize normal-read deletion enforcement in `packages/database/src/`
 - [x] T015 [US2] Remove deletion control from normal public filter types
-- [ ] T016 [US2] Add the explicit privileged recovery repository contract
+- [x] T016 [US2] Add the explicit privileged recovery repository contract
 - [x] T017 [US2] Remove duplicated module deletion-policy implementations where the shared contract applies
-- [ ] T018 [US2] Confirm GREEN, refactor, run blast-radius tests, and commit only the soft-delete concern
+- [x] T018 [US2] Confirm GREEN, refactor, run blast-radius tests, and commit only the soft-delete concern
 
 **Independent Test**: Normal reads cannot return deleted rows; explicit authorized recovery can.
 
 ## Phase 4: User Story 3 - Repository-Only Application Access (P1)
 
-- [ ] T019 [P] [US3] Add failing boundary fixtures for direct Prisma calls in governed application layers
-- [ ] T020 [P] [US3] Write repository contract tests for audit-history, interaction-event, and bootstrap-session operations
-- [ ] T021 [US3] Add purpose-specific repository interfaces and implementations in `packages/database/src/`
-- [ ] T022 [US3] Replace direct reads in `apps/bot-server/src/startup/deps.orchestrator.ts`
-- [ ] T023 [US3] Replace direct session persistence in `apps/bot-server/src/startup/bootstrap.ts`
-- [ ] T024 [US3] Remove `as never` data-contract bridges with typed adapters
-- [ ] T025 [US3] Extend `scripts/ci/import-boundary-audit.cli.ts` with governed Prisma access rules
-- [ ] T026 [US3] Confirm GREEN and commit only the repository-boundary concern
+- [x] T019 [P] [US3] Add failing boundary fixtures for direct Prisma calls in governed application layers
+- [x] T020 [P] [US3] Write repository contract tests for audit-history, interaction-event, and bootstrap-session operations
+- [x] T021 [US3] Add purpose-specific repository interfaces and implementations in `packages/database/src/`
+- [x] T022 [US3] Replace direct reads in `apps/bot-server/src/startup/deps.orchestrator.ts`
+- [x] T023 [US3] Replace direct session persistence in `apps/bot-server/src/startup/bootstrap.ts`
+- [x] T024 [US3] Remove `as never` data-contract bridges with typed adapters
+- [x] T025 [US3] Extend `scripts/ci/import-boundary-audit.cli.ts` with governed Prisma access rules
+- [x] T026 [US3] Confirm GREEN and commit only the repository-boundary concern
 
 **Independent Test**: Boundary audit reports zero prohibited Prisma use and runtime behavior passes repository tests.
 
 ## Phase 5: User Story 4 - Aggregate Pagination (P2)
 
-- [ ] T027 [P] [US4] Write failing query-behavior tests for user-management pagination
-- [ ] T028 [P] [US4] Write failing query-behavior tests for template-management pagination variants
-- [ ] T029 [US4] Add typed count support to the owning repository abstraction
-- [ ] T030 [US4] Replace full-list count reads in `modules/user-management/repositories/user.repository.ts`
-- [ ] T031 [US4] Replace full-list count reads in `modules/template-management/repositories/template.repository.ts`
-- [ ] T032 [US4] Verify filter parity, empty, boundary-page, and large-dataset behavior
-- [ ] T033 [US4] Confirm GREEN, measure query behavior, and commit only the pagination concern
+- [x] T027 [P] [US4] Write failing query-behavior tests for user-management pagination
+- [x] T028 [P] [US4] Write failing query-behavior tests for template-management pagination variants
+- [x] T029 [US4] Add typed count support to the owning repository abstraction
+- [x] T030 [US4] Replace full-list count reads in `modules/user-management/repositories/user.repository.ts`
+- [x] T031 [US4] Replace full-list count reads in `modules/template-management/repositories/template.repository.ts`
+- [x] T032 [US4] Verify filter parity, empty, boundary-page, and large-dataset behavior
+- [x] T033 [US4] Confirm GREEN, measure query behavior, and commit only the pagination concern
 
 **Independent Test**: Each page request uses aggregate count and never loads all matching entities for totals.
 
@@ -65,11 +65,11 @@
 - [x] T035 Update all SpecKit artifacts and `docs/ROADMAP.md`
 - [x] T036 Run focused package/module tests after each slice
 - [x] T037 Run `pnpm boundary:audit`, `pnpm lint`, `pnpm build`, `pnpm test:unit`, and `pnpm test:integration`
-- [ ] T038 Request code review after each scoped concern and resolve all Critical/High findings
+- [x] T038 Request code review after each scoped concern and resolve all Critical/High findings
 - [x] T039 Run `speckit-analyze` and resolve Critical inconsistencies
 - [x] T040 Run `pnpm spec:validate`
-- [ ] T041 Create required changesets
-- [ ] T042 Run final verification with fresh output
+- [x] T041 Create required changesets
+- [x] T042 Run final verification with fresh output
 
 ## Dependencies and Execution Order
 
@@ -81,24 +81,46 @@
 
 ## Improved Sequence Boundary - 2026-06-15
 
-The current pre-Spec-054 foundation covers atomic identity state and
-non-overridable normal soft-delete reads. T009, T013, T016, and the remaining
-US3/US4 work stay open until the protected-data cutover provides the required
-authorization and audit integration. No checkbox is completed solely because
-foundation code exists.
+The pre-Spec-054 foundation covered atomic identity state and non-overridable
+normal soft-delete reads. The 2026-06-16 continuation completed the protected
+audit reconciliation, explicit recovery contract, repository-only startup
+access, typed data-contract adapters, and aggregate pagination work.
 
 Atomic identity state was completed in commit `41d8273`. Focused verification
 passed the user-management build, 23 module tests, the two service contract
-tests, and the two repository integration tests. T009 remains open because the
-audit write is not yet part of the protected transaction boundary.
+tests, and the two repository integration tests. Spec 054 then supplied the
+protected audit persistence required to reconcile T009.
 
 Normal-read soft-delete enforcement was completed in commit `e42cce8`.
 `BaseRepository.findMany` is now protected, Prisma and module repositories use
 one active-record scope helper, non-soft-deletable models remain unfiltered,
 and the storage purge query uses an explicit internal deleted-record path.
 Database, template-management, bot-management, and storage-engine regression
-suites passed, as did full lint, the 32-project build, and boundary audit.
-T013, T016, and T018 remain open until authorized recovery is integrated.
+suites passed, as did full lint, the 32-project build, and boundary audit. The
+continuation added authorized and denied recovery repository coverage and the
+explicit privileged recovery contract.
+
+Repository-only startup access was completed in commit `4f8f7b0`.
+`bot-server` startup now reads audit logs and interaction events through
+purpose-specific database repositories, persists bootstrap sessions through
+`BootstrapSessionRepository`, and the boundary audit rejects governed direct
+Prisma model access. The remaining production `as never` bridges in startup
+were replaced by typed settings and event-bus adapters during final completion.
+
+Aggregate pagination was completed in commit `a9faa52`. User, template, and
+bot pagination now use filtered count aggregates instead of full-list count
+queries, with query-behavior regression tests for the affected repositories.
+
+Privileged recovery was completed in commit `f55d409`. Base, template, and bot
+repositories expose explicit authorized recovery reads; denied access performs
+no database read and no audit write, while authorized recovery emits a
+dedicated recovery audit event.
+
+Final completion verification on 2026-06-16 passed boundary audit, lint, the
+32-project build, 327 unit/application files with 2,373 tests, 27 integration
+files with 145 tests, `spec:validate` at 330/330, `cms:check`,
+`pnpm audit --audit-level=high`, and `git diff --check HEAD`. Local review
+found no Critical or High findings.
 
 Foundation verification also passed 310 unit/application files with 2,325
 tests, 22 integration files with 130 tests, documentation freshness and claims,

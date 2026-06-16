@@ -74,6 +74,37 @@ describe('tracked import boundary audit', () => {
     ]);
   });
 
+  it('should reject direct Prisma model access in governed application layers', () => {
+    const report = auditImportBoundaries([
+      {
+        path: 'apps/bot-server/src/startup/deps.orchestrator.ts',
+        content: [
+          "import { prisma } from '@tempot/database';",
+          'export async function readAudit() {',
+          '  return prisma.auditLog.findMany({ take: 5 });',
+          '}',
+        ].join('\n'),
+      },
+      {
+        path: 'apps/bot-server/src/startup/health.probes.ts',
+        content: [
+          "import { prisma } from '@tempot/database';",
+          'export async function probe() {',
+          '  return prisma.$queryRaw`SELECT 1`;',
+          '}',
+        ].join('\n'),
+      },
+    ]);
+
+    expect(report.violations).toEqual([
+      expect.objectContaining({
+        code: 'DIRECT_PRISMA_MODEL_ACCESS',
+        importer: 'apps/bot-server/src/startup/deps.orchestrator.ts',
+        specifier: 'prisma.auditLog',
+      }),
+    ]);
+  });
+
   it('should allow public package imports and relative imports inside the same module', () => {
     const report = auditImportBoundaries([
       {

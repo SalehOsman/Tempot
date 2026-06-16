@@ -57,6 +57,15 @@ vi.mock('@tempot/database', () => ({
     session: { upsert: vi.fn().mockResolvedValue({}) },
     setting: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), delete: vi.fn() },
   },
+  AuditLogRepository: vi.fn().mockImplementation(function () {
+    return { findMany: vi.fn().mockResolvedValue(ok([])) };
+  }),
+  BootstrapSessionRepository: vi.fn().mockImplementation(function () {
+    return { upsertSuperAdminSession: vi.fn().mockResolvedValue(ok(undefined)) };
+  }),
+  InteractionEventRepository: vi.fn().mockImplementation(function () {
+    return { findMany: vi.fn().mockResolvedValue(ok([])) };
+  }),
   StaticProtectedDataKeyProvider: vi.fn().mockImplementation(function (keyRing: unknown) {
     return { keyRing };
   }),

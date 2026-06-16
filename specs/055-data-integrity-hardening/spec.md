@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/055-data-integrity-hardening`
 **Created**: 2026-06-07
-**Status**: Foundation implemented; completion pending Spec 054 integration and remaining stories
+**Status**: Completion implemented and locally verified on `codex/055-data-integrity-completion`; merge pending
 **Input**: Project audit findings covering partial multi-field updates, caller-overridable soft-delete filters, direct Prisma access outside repositories, and full-record reads used for pagination counts.
 
 ## Clarifications

@@ -1,6 +1,12 @@
 import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
-import { prisma, type Prisma, type ProtectedDataService } from '@tempot/database';
+import {
+  AuditLogRepository,
+  BootstrapSessionRepository,
+  InteractionEventRepository,
+  prisma,
+  type ProtectedDataService,
+} from '@tempot/database';
 import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
@@ -15,7 +21,6 @@ import type {
   AuthorizationContextResolver,
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
-  SettingsProvider,
 } from '../bot-server.types.js';
 
 import type { ShutdownManager, CacheService } from '@tempot/shared';
@@ -24,6 +29,7 @@ import type { SessionProvider } from '@tempot/session-manager';
 import type { SettingsService } from '@tempot/settings';
 import type { ModuleRegistry } from '@tempot/module-registry';
 import type { SentryReporter } from '@tempot/sentry';
+import { buildSettingsProvider } from './deps.settings-provider.js';
 
 export interface AssembleDepsOptions {
   loadConfig: typeof import('./config.loader.js').loadConfig;
@@ -40,23 +46,12 @@ export interface AssembleDepsOptions {
   t: typeof import('@tempot/i18n-core').t;
 }
 
-function buildSettingsProvider(settingsService: SettingsService): SettingsProvider {
-  return {
-    get: async (key: string) => {
-      const result = await settingsService.getDynamic(key as never);
-      return result.isOk() ? result.value : null;
-    },
-    set: async (key: string, value: unknown, updatedBy: string | null) => {
-      const result = await settingsService.setDynamic(key as never, value as never, updatedBy);
-      return result.isOk() ? undefined : null;
-    },
-  };
-}
-
 function buildModuleHandlersDep(
   opts: AssembleDepsOptions,
   abilityRegistry: AbilityRegistry,
 ): OrchestratorDeps['loadModuleHandlers'] {
+  const auditLogRepository = new AuditLogRepository();
+  const interactionEventRepository = new InteractionEventRepository();
   return (bot, validated) =>
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
       logger: opts.log,
@@ -76,16 +71,18 @@ function buildModuleHandlersDep(
       settings: buildSettingsProvider(opts.settingsService),
       protectedData: opts.protectedDataService,
       auditLog: {
-        findMany: async (args: Record<string, unknown>) =>
-          prisma.auditLog.findMany(args as Prisma.AuditLogFindManyArgs) as Promise<
-            AuditLogProviderRecord[]
-          >,
+        findMany: async (args: Record<string, unknown>) => {
+          const result = await auditLogRepository.findMany(args);
+          if (result.isErr()) throw result.error;
+          return result.value as AuditLogProviderRecord[];
+        },
       },
       interactionEvents: {
-        findMany: async (args: Record<string, unknown>) =>
-          prisma.interactionEvent.findMany(args as Prisma.InteractionEventFindManyArgs) as Promise<
-            InteractionEventProviderRecord[]
-          >,
+        findMany: async (args: Record<string, unknown>) => {
+          const result = await interactionEventRepository.findMany(args);
+          if (result.isErr()) throw result.error;
+          return result.value as InteractionEventProviderRecord[];
+        },
       },
       resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
       abilityRegistry,
@@ -146,7 +143,7 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
     },
     bootstrapSuperAdmins: (ids: number[]) =>
       bootstrapSuperAdmins(ids, {
-        prisma: prisma as unknown as import('./bootstrap.js').BootstrapPrisma,
+        sessions: new BootstrapSessionRepository(),
         logger: opts.log,
       }),
     warmCaches: () =>

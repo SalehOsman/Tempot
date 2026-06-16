@@ -42,4 +42,40 @@ describe('template-management soft-delete repository scope', () => {
       take: 10,
     });
   });
+
+  it('requires explicit authorization before reading deleted records', async () => {
+    const findUnique = vi.fn().mockResolvedValue({ id: 'template-1' });
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repository = new SoftDeleteRepository(auditLogger, {
+      template: { findUnique, findMany: vi.fn() },
+    } as unknown as ConstructorParameters<typeof ModuleBaseRepository<Template>>[1]);
+
+    const denied = await repository.findDeletedById('template-1', {
+      actorId: 'admin-1',
+      actorRole: 'ADMIN',
+      authorized: false,
+      reason: 'operator-review',
+    });
+
+    expect(denied.isErr()).toBe(true);
+    expect(findUnique).not.toHaveBeenCalled();
+
+    const allowed = await repository.findDeletedById('template-1', {
+      actorId: 'admin-1',
+      actorRole: 'ADMIN',
+      authorized: true,
+      reason: 'operator-review',
+    });
+
+    expect(allowed.isOk()).toBe(true);
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { id: 'template-1', isDeleted: true },
+    });
+    expect(auditLogger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'template-management.template.recovery_read',
+        targetId: 'template-1',
+      }),
+    );
+  });
 });

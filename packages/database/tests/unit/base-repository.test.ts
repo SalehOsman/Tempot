@@ -38,6 +38,13 @@ class TestRepository extends BaseRepository<TestEntity> {
   }
 }
 
+const recoveryAccess = {
+  actorId: 'admin-1',
+  actorRole: 'ADMIN',
+  authorized: true,
+  reason: 'operator-review',
+};
+
 describe('BaseRepository', () => {
   it('should trigger AuditLogger on create', async () => {
     const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
@@ -147,5 +154,41 @@ describe('BaseRepository', () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().message).toBe('test.find_many_failed');
+  });
+
+  it('should deny deleted-record recovery without an explicit privileged grant', async () => {
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repo = new TestRepository(auditLogger);
+
+    const result = await repo.findDeletedById('deleted-1', {
+      ...recoveryAccess,
+      authorized: false,
+    });
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('test.recovery_forbidden');
+    expect(repo.mockModel.findUnique).not.toHaveBeenCalled();
+    expect(auditLogger.log).not.toHaveBeenCalled();
+  });
+
+  it('should use an explicit deleted-record scope and audit privileged recovery reads', async () => {
+    const auditLogger = { log: vi.fn().mockResolvedValue(undefined) };
+    const repo = new TestRepository(auditLogger);
+    repo.mockModel.findUnique.mockResolvedValue({ id: 'deleted-1', name: 'deleted item' });
+
+    const result = await repo.findDeletedById('deleted-1', recoveryAccess);
+
+    expect(result.isOk()).toBe(true);
+    expect(repo.mockModel.findUnique).toHaveBeenCalledWith({
+      where: { id: 'deleted-1', isDeleted: true },
+    });
+    expect(auditLogger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'test.item.recovery_read',
+        module: 'test',
+        targetId: 'deleted-1',
+        status: 'SUCCESS',
+      }),
+    );
   });
 });
