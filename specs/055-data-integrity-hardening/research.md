@@ -97,10 +97,11 @@ regression coverage.
   `BaseRepository.findMany()` apply
   `isDeleted: false` before caller criteria, so caller input can overwrite the
   protected scope.
-- **Open:** Bot startup reads audit and interaction records directly and writes sessions
-  directly through Prisma.
-- **Open:** User, template, and bot pagination load complete result sets to derive
-  `totalCount`.
+- **Resolved in the completion continuation:** Bot startup reads audit and
+  interaction records through repositories and writes sessions through
+  `BootstrapSessionRepository`.
+- **Resolved in the completion continuation:** User, template, and bot
+  pagination use filtered aggregate counts for `totalCount`.
 
 ### Foundation Boundary
 
@@ -110,6 +111,7 @@ The pre-Spec-054 foundation implements:
 - non-overridable normal-read soft-delete enforcement;
 - adversarial regression tests and shared-consumer blast-radius checks.
 
-Protected audit persistence, privileged deleted-record recovery, remaining
-direct-Prisma replacement, and aggregate pagination remain open for the
-post-Spec-054 continuation of Spec 055.
+Spec 054 supplied the protected audit persistence dependency. The Spec 055
+completion continuation then added privileged deleted-record recovery,
+repository-only startup access, governed direct-Prisma boundary checks, typed
+startup adapters, and aggregate pagination.

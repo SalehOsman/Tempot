@@ -21,7 +21,6 @@ import type {
   AuthorizationContextResolver,
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
-  SettingsProvider,
 } from '../bot-server.types.js';
 
 import type { ShutdownManager, CacheService } from '@tempot/shared';
@@ -30,6 +29,7 @@ import type { SessionProvider } from '@tempot/session-manager';
 import type { SettingsService } from '@tempot/settings';
 import type { ModuleRegistry } from '@tempot/module-registry';
 import type { SentryReporter } from '@tempot/sentry';
+import { buildSettingsProvider } from './deps.settings-provider.js';
 
 export interface AssembleDepsOptions {
   loadConfig: typeof import('./config.loader.js').loadConfig;
@@ -44,19 +44,6 @@ export interface AssembleDepsOptions {
   sentryReporter: SentryReporter | undefined;
   loadModuleLocales: typeof import('@tempot/i18n-core').loadModuleLocales;
   t: typeof import('@tempot/i18n-core').t;
-}
-
-function buildSettingsProvider(settingsService: SettingsService): SettingsProvider {
-  return {
-    get: async (key: string) => {
-      const result = await settingsService.getDynamic(key as never);
-      return result.isOk() ? result.value : null;
-    },
-    set: async (key: string, value: unknown, updatedBy: string | null) => {
-      const result = await settingsService.setDynamic(key as never, value as never, updatedBy);
-      return result.isOk() ? undefined : null;
-    },
-  };
 }
 
 function buildModuleHandlersDep(
