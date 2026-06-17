@@ -17,6 +17,7 @@ import { buildLifecycleFactory } from './deps.lifecycle.js';
 import { AbilityRegistry } from '../authorization/ability-registry.js';
 import { AbilityFactory, RoleEnum, type SessionUser } from '@tempot/auth-core';
 import type { OrchestratorDeps } from './orchestrator.js';
+import { createStartupStateStore } from './startup-state.js';
 import type {
   AuthorizationContextResolver,
   AuditLogProviderRecord,
@@ -171,6 +172,7 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
         await opts.eventBus.publish(event, payload);
       },
     },
+    startupState: createStartupStateStore(),
     logger: opts.log,
   };
 }

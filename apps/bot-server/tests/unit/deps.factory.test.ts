@@ -273,6 +273,8 @@ describe('buildDeps', () => {
     expect(typeof deps.createHttpServer).toBe('function');
     expect(typeof deps.registerShutdownHooks).toBe('function');
     expect(typeof deps.setupSignalHandlers).toBe('function');
+    expect(typeof deps.startupState.markStarted).toBe('function');
+    expect(typeof deps.startupState.activateReadiness).toBe('function');
   });
 
   it('returns err when prisma.$connect throws', async () => {

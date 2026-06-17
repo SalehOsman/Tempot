@@ -3,6 +3,7 @@ import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { startApplication, type OrchestratorDeps } from '../../src/startup/orchestrator.js';
 import { BOT_SERVER_ERRORS } from '../../src/bot-server.errors.js';
+import type { StartupStateStore } from '../../src/startup/startup-state.js';
 
 function createMockLogger() {
   const logger = {
@@ -17,6 +18,7 @@ function createMockLogger() {
 
 function createFullDeps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
   const logger = createMockLogger();
+  const startupState = createMockStartupState();
   return {
     loadConfig: vi.fn().mockReturnValue(
       ok({
@@ -63,8 +65,24 @@ function createFullDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
     },
+    startupState,
     logger,
     ...overrides,
+  };
+}
+
+function createMockStartupState(): StartupStateStore {
+  return {
+    markStarted: vi.fn(),
+    markReady: vi.fn(),
+    markDegraded: vi.fn(),
+    markFailed: vi.fn(),
+    activateReadiness: vi.fn(),
+    deactivateReadiness: vi.fn(),
+    snapshot: vi.fn().mockReturnValue({
+      ready: false,
+      stages: [],
+    }),
   };
 }
 
@@ -190,6 +208,37 @@ describe('startup sequence integration', () => {
     expect(deps.createHttpServer).toHaveBeenCalled();
   });
 
+  it('activates readiness only after the HTTP server is listening', async () => {
+    const order: string[] = [];
+    const startupState = createMockStartupState();
+    startupState.activateReadiness = vi.fn(() => {
+      order.push('activateReadiness');
+    });
+    const deps = createFullDeps({
+      startupState,
+      createHttpServer: vi.fn().mockReturnValue({
+        listen: vi.fn(() => {
+          order.push('listen');
+        }),
+        close: vi.fn().mockResolvedValue(undefined),
+      }),
+      eventBus: {
+        publish: vi.fn(async () => {
+          order.push('publishStartupCompleted');
+          return { isOk: () => true };
+        }),
+      },
+    });
+
+    const result = await startApplication(deps);
+
+    expect(result.isOk()).toBe(true);
+    expect(startupState.markStarted).toHaveBeenCalledWith('httpServer');
+    expect(startupState.markReady).toHaveBeenCalledWith('httpServer');
+    expect(startupState.activateReadiness).toHaveBeenCalledOnce();
+    expect(order).toEqual(['listen', 'activateReadiness', 'publishStartupCompleted']);
+  });
+
   it('returns err and does not publish startup completion when HTTP listen fails', async () => {
     const mockBot = { start: vi.fn().mockResolvedValue(undefined) };
     const deps = createFullDeps({
@@ -211,6 +260,11 @@ describe('startup sequence integration', () => {
       expect.anything(),
     );
     expect(mockBot.start).not.toHaveBeenCalled();
+    expect(deps.startupState.activateReadiness).not.toHaveBeenCalled();
+    expect(deps.startupState.markFailed).toHaveBeenCalledWith(
+      'httpServer',
+      BOT_SERVER_ERRORS.HTTP_SERVER_FAILED,
+    );
   });
 
   it('webhook mode does not call bot.start', async () => {

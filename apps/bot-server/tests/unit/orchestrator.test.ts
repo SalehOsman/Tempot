@@ -4,6 +4,7 @@ import { AppError } from '@tempot/shared';
 import type { ValidatedModule, ModuleConfig } from '@tempot/module-registry';
 import { startApplication, type OrchestratorDeps } from '../../src/startup/orchestrator.js';
 import { BOT_SERVER_ERRORS } from '../../src/bot-server.errors.js';
+import type { StartupStateStore } from '../../src/startup/startup-state.js';
 
 function createMockLogger() {
   return {
@@ -43,7 +44,23 @@ function createMockDeps(): OrchestratorDeps {
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
     },
+    startupState: createMockStartupState(),
     logger,
+  };
+}
+
+function createMockStartupState(): StartupStateStore {
+  return {
+    markStarted: vi.fn(),
+    markReady: vi.fn(),
+    markDegraded: vi.fn(),
+    markFailed: vi.fn(),
+    activateReadiness: vi.fn(),
+    deactivateReadiness: vi.fn(),
+    snapshot: vi.fn().mockReturnValue({
+      ready: false,
+      stages: [],
+    }),
   };
 }
 

@@ -5,6 +5,8 @@ import { AppError } from '@tempot/shared';
 import type { DiscoveryResult, ValidationResult, ValidatedModule } from '@tempot/module-registry';
 import type { BotServerConfig, ModuleLogger } from '../bot-server.types.js';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
+import type { StartupStageName, StartupStateStore } from './startup-state.js';
+import { runFatalStartupSteps } from './fatal-startup-steps.js';
 
 interface BotLike {
   start: () => Promise<void>;
@@ -31,47 +33,27 @@ export interface OrchestratorDeps {
   eventBus: {
     publish: (event: string, payload: Record<string, unknown>) => Promise<unknown>;
   };
+  startupState: StartupStateStore;
   logger: ModuleLogger;
 }
 
 export async function startApplication(deps: OrchestratorDeps): AsyncResult<void> {
   const startTime = Date.now();
 
-  const configResult = deps.loadConfig();
+  const configResult = loadStartupConfig(deps);
   if (configResult.isErr()) {
     return err(configResult.error);
   }
   const config = configResult.value;
-  deps.logger.info({ msg: 'config_loaded', mode: config.botMode });
 
-  const fatalStepsResult = await runFatalSteps(config, deps);
+  const fatalStepsResult = await runFatalStartupSteps(config, deps);
   if (fatalStepsResult.isErr()) {
     return err(fatalStepsResult.error);
   }
 
   const { bot, loadedModules } = fatalStepsResult.value;
-
-  const httpServerResult = createHttpServer(deps, bot, config);
-  if (httpServerResult.isErr()) {
-    return err(httpServerResult.error);
-  }
-  const httpServer = httpServerResult.value;
-
-  const shutdownResult = deps.registerShutdownHooks(httpServer, bot);
-  if (shutdownResult.isErr()) {
-    return err(shutdownResult.error);
-  }
-
-  const signalResult = deps.setupSignalHandlers();
-  if (signalResult.isErr()) {
-    return err(signalResult.error);
-  }
-
-  const listenResult = listenHttpServer(httpServer, config.port);
-  if (listenResult.isErr()) {
-    return err(listenResult.error);
-  }
-  deps.logger.info({ msg: 'http_server_listening', port: config.port });
+  const serverResult = startHttpServer(deps, bot, config);
+  if (serverResult.isErr()) return err(serverResult.error);
 
   const durationMs = Date.now() - startTime;
   publishStartupCompleted(deps, {
@@ -87,9 +69,72 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   });
 
   if (config.botMode === 'polling') {
+    deps.startupState.markStarted('botPolling');
     await bot.start();
+    deps.startupState.markReady('botPolling');
   }
 
+  return ok(undefined);
+}
+
+function loadStartupConfig(deps: OrchestratorDeps): Result<BotServerConfig, AppError> {
+  deps.startupState.markStarted('config');
+  const configResult = deps.loadConfig();
+  if (configResult.isErr()) {
+    markFailedAndDeactivate(deps, 'config', configResult.error.code);
+    return err(configResult.error);
+  }
+  deps.startupState.markReady('config');
+  deps.logger.info({ msg: 'config_loaded', mode: configResult.value.botMode });
+  return ok(configResult.value);
+}
+
+function startHttpServer(
+  deps: OrchestratorDeps,
+  bot: BotLike,
+  config: BotServerConfig,
+): Result<void, AppError> {
+  deps.startupState.markStarted('httpServer');
+  const httpServerResult = createHttpServer(deps, bot, config);
+  if (httpServerResult.isErr()) {
+    markFailedAndDeactivate(deps, 'httpServer', httpServerResult.error.code);
+    return err(httpServerResult.error);
+  }
+
+  const hookResult = registerRuntimeHooks(deps, httpServerResult.value, bot);
+  if (hookResult.isErr()) return err(hookResult.error);
+
+  const listenResult = listenHttpServer(httpServerResult.value, config.port);
+  if (listenResult.isErr()) {
+    markFailedAndDeactivate(deps, 'httpServer', listenResult.error.code);
+    return err(listenResult.error);
+  }
+  deps.startupState.markReady('httpServer');
+  deps.startupState.activateReadiness();
+  deps.logger.info({ msg: 'http_server_listening', port: config.port });
+  return ok(undefined);
+}
+
+function registerRuntimeHooks(
+  deps: OrchestratorDeps,
+  httpServer: HttpServerLike,
+  bot: BotLike,
+): Result<void, AppError> {
+  deps.startupState.markStarted('shutdownHooks');
+  const shutdownResult = deps.registerShutdownHooks(httpServer, bot);
+  if (shutdownResult.isErr()) {
+    markFailedAndDeactivate(deps, 'shutdownHooks', shutdownResult.error.code);
+    return err(shutdownResult.error);
+  }
+  deps.startupState.markReady('shutdownHooks');
+
+  deps.startupState.markStarted('signalHandlers');
+  const signalResult = deps.setupSignalHandlers();
+  if (signalResult.isErr()) {
+    markFailedAndDeactivate(deps, 'signalHandlers', signalResult.error.code);
+    return err(signalResult.error);
+  }
+  deps.startupState.markReady('signalHandlers');
   return ok(undefined);
 }
 
@@ -140,63 +185,11 @@ function isFailedPublish(value: unknown): boolean {
     : false;
 }
 
-interface FatalStepsOutput {
-  bot: BotLike;
-  loadedModules: string[];
-}
-
-async function runFatalSteps(
-  config: BotServerConfig,
+function markFailedAndDeactivate(
   deps: OrchestratorDeps,
-): AsyncResult<FatalStepsOutput> {
-  const dbResult = await deps.connectDatabase();
-  if (dbResult.isErr()) {
-    deps.logger.error({ msg: 'database_unreachable', error: dbResult.error.code });
-    return err(dbResult.error);
-  }
-  deps.logger.info({ msg: 'database_connected' });
-
-  const bootstrapResult = await deps.bootstrapSuperAdmins(config.superAdminIds);
-  if (bootstrapResult.isErr()) {
-    deps.logger.error({ msg: 'bootstrap_failed', error: bootstrapResult.error.code });
-    return err(bootstrapResult.error);
-  }
-
-  const cacheResult = await deps.warmCaches();
-  if (cacheResult.isErr()) {
-    deps.logger.warn({ msg: 'cache_warming_failed', error: cacheResult.error.code });
-  } else {
-    deps.logger.info({ msg: 'caches_warmed' });
-  }
-
-  const discoveryResult = await deps.discover();
-  if (discoveryResult.isErr()) {
-    return err(discoveryResult.error);
-  }
-  deps.logger.info({
-    msg: 'modules_discovered',
-    count: discoveryResult.value.discovered.length,
-  });
-
-  const validationResult = await deps.validate();
-  if (validationResult.isErr()) {
-    deps.logger.error({ msg: 'module_validation_failed' });
-    return err(validationResult.error);
-  }
-
-  const bot = deps.createBot(config.botToken, validationResult.value.validated);
-
-  const handlersResult = await deps.loadModuleHandlers(bot, validationResult.value.validated);
-  if (handlersResult.isErr()) {
-    deps.logger.error({ msg: 'module_handler_failed', error: handlersResult.error.code });
-    return err(handlersResult.error);
-  }
-
-  const registerResult = await deps.registerCommands(bot);
-  if (registerResult.isErr()) {
-    deps.logger.error({ msg: 'command_registration_failed' });
-    return err(registerResult.error);
-  }
-
-  return ok({ bot, loadedModules: handlersResult.value });
+  stage: StartupStageName,
+  errorCode: string,
+): void {
+  deps.startupState.markFailed(stage, errorCode);
+  deps.startupState.deactivateReadiness();
 }
