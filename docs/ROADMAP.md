@@ -114,8 +114,8 @@ Recently completed:
 
 Active or next work:
 
-1. Complete the remaining Spec #056 quality-gates hardening scope, including
-   closing component coverage debt before making coverage blocking.
+1. Merge the verified Spec #056 quality-gates completion slice into local
+   `main`, then publish the accumulated local remediation history.
 2. Execute Spec #057 production-delivery hardening before any production
    go/no-go decision.
 3. Keep Spec #054 irreversible production cutover blocked until target backup
@@ -156,11 +156,11 @@ complete and merged.
 | Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                            |
 | ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Merged to `main` with the Spec #054 remediation integration on 2026-06-16                                                                          |
-|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; coverage remains non-blocking until the completion slice closes the known debt                                        |
+|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; completion slice verified locally on 2026-06-17                                                                       |
 |                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged locally to `main` on 2026-06-17 after final local verification; remote publication remains pending                                         |
-|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | In progress; baseline is 23 failures and 9 warnings across 103 components                                                                         |
+|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Verified locally on `codex/056-quality-gates-completion`: coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
 |                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Not started; final production gate                                                                                                                |
 
 Production go/no-go requires:
@@ -312,9 +312,10 @@ pnpm toolchain:audit
 pnpm audit --audit-level=high
 ```
 
-`pnpm test:coverage` currently reports the complete baseline but remains
-non-blocking in CI until the 23 service/handler failures are corrected during
-the remaining Spec #056 execution. Thresholds have not been reduced.
+`pnpm test:coverage` now enforces the component policy as a blocking CI gate.
+The 2026-06-17 completion slice evaluates 107 governed components with zero
+blocking service/handler failures and seven repository warnings. Thresholds
+have not been reduced.
 
 For documentation-only changes, `pnpm spec:validate` is still relevant because
 Tempot enforces code-documentation parity.

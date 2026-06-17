@@ -61,15 +61,15 @@ describe('CI workflow quality gates', () => {
     );
   });
 
-  it('should report the known coverage baseline without blocking the foundation slice', () => {
+  it('should run coverage as a blocking quality gate after the governed baseline is green', () => {
     const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
     const coverageJob = workflow.slice(
       workflow.indexOf('  coverage:'),
       workflow.indexOf('  audit:'),
     );
 
-    expect(coverageJob).toContain('name: Coverage Baseline (Non-blocking)');
-    expect(coverageJob).toContain('continue-on-error: true');
+    expect(coverageJob).toContain('name: Coverage');
+    expect(coverageJob).not.toContain('continue-on-error');
     expect(coverageJob).toContain('pnpm test:coverage');
   });
 });

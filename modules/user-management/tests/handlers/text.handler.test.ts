@@ -2,7 +2,20 @@ import type { Context } from 'grammy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerDeps } from '../../deps.context.js';
 import { handleTextInput } from '../../handlers/text.handler.js';
-import { handleEditName, handleEditRole } from '../../handlers/text.editors.js';
+import {
+  handleEditEmail,
+  handleEditLanguage,
+  handleEditName,
+  handleEditRole,
+} from '../../handlers/text.editors.js';
+import {
+  handleEditBirthDate,
+  handleEditCountryCode,
+  handleEditGender,
+  handleEditGovernorate,
+  handleEditMobile,
+  handleEditNationalId,
+} from '../../handlers/text-egyptian.editors.js';
 import { clearUserInputState, getUserInputState } from '../../handlers/user-state.service.js';
 import { getUserService } from '../../services/user-service.context.js';
 
@@ -92,6 +105,22 @@ describe('handleTextInput', () => {
     expect(getUserInputState).toHaveBeenCalledWith('123456789', '987654321');
   });
 
+  it('should ignore commands and messages without Telegram users', async () => {
+    const commandCtx = createContext('/start');
+    const noUserCtx = {
+      message: { text: 'hello' },
+      chat: { id: 987654321 },
+      reply: vi.fn(),
+    } as unknown as Context;
+
+    await handleTextInput(commandCtx);
+    await handleTextInput(noUserCtx);
+
+    expect(getUserInputState).not.toHaveBeenCalled();
+    expect(commandCtx.reply).not.toHaveBeenCalled();
+    expect(noUserCtx.reply).not.toHaveBeenCalled();
+  });
+
   it('should reply with profile not found when user lookup fails', async () => {
     vi.mocked(getUserInputState).mockResolvedValue({ action: 'edit_name', timestamp: Date.now() });
     vi.mocked(getUserService).mockReturnValue({
@@ -130,6 +159,70 @@ describe('handleTextInput', () => {
     await handleTextInput(ctx);
 
     expect(handleEditName).toHaveBeenCalledWith(ctx, mockUser, 'New Name');
+    expect(clearUserInputState).toHaveBeenCalledWith('123456789', '987654321');
+  });
+
+  it('enforces profile update authorization before dispatching non-role edits', async () => {
+    vi.mocked(getUserInputState).mockResolvedValue({ action: 'edit_email', timestamp: Date.now() });
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: {
+          id: '1',
+          username: 'testuser',
+          email: 'test@example.com',
+          language: 'ar',
+          role: 'USER',
+          telegramId: '123456789',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      }),
+    } as never);
+    const ctx = createContext('new@example.com');
+
+    await handleTextInput(ctx);
+
+    expect(enforce).toHaveBeenCalledWith(ctx, {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'update',
+      subject: 'profile',
+    });
+    expect(handleEditEmail).toHaveBeenCalled();
+  });
+
+  it.each([
+    ['edit_language', handleEditLanguage],
+    ['edit_national_id', handleEditNationalId],
+    ['edit_mobile', handleEditMobile],
+    ['edit_birth_date', handleEditBirthDate],
+    ['edit_gender', handleEditGender],
+    ['edit_governorate', handleEditGovernorate],
+    ['edit_country_code', handleEditCountryCode],
+  ] as const)('dispatches %s pending input actions', async (action, handler) => {
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      language: 'ar',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    vi.mocked(getUserInputState).mockResolvedValue({ action, timestamp: Date.now() });
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
+      }),
+    } as never);
+    const ctx = createContext('New Value');
+
+    await handleTextInput(ctx);
+
+    expect(handler).toHaveBeenCalledWith(ctx, mockUser, 'New Value');
     expect(clearUserInputState).toHaveBeenCalledWith('123456789', '987654321');
   });
 

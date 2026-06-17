@@ -25,6 +25,7 @@ function createContext(data: string): Context {
   return {
     callbackQuery: { data, message: { message_id: 10 } },
     from: { id: 123456789 },
+    chat: { id: 987654321 },
     answerCallbackQuery: vi.fn(),
     editMessageText: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
@@ -86,6 +87,26 @@ describe('handleCallbackQuery', () => {
     expect(getUserService).not.toHaveBeenCalled();
   });
 
+  it('answers invalid callbacks and callbacks without Telegram users', async () => {
+    const invalid = {
+      callbackQuery: {},
+      from: { id: 123456789 },
+      answerCallbackQuery: vi.fn(),
+    } as unknown as Context;
+    const noUser = {
+      callbackQuery: { data: 'profile:view' },
+      answerCallbackQuery: vi.fn(),
+    } as unknown as Context;
+
+    await handleCallbackQuery(invalid);
+    await handleCallbackQuery(noUser);
+
+    expect(invalid.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.errors.invalid_callback',
+    );
+    expect(noUser.answerCallbackQuery).toHaveBeenCalledWith('user-management.errors.no_user');
+  });
+
   it('renders the user list without repeating the selected list callback', async () => {
     vi.mocked(getUserService).mockReturnValue({
       getByTelegramId: vi.fn().mockResolvedValue({
@@ -122,5 +143,66 @@ describe('handleCallbackQuery', () => {
       subject: 'users',
     });
     expect(getUserService).not.toHaveBeenCalled();
+  });
+
+  it('renders the main menu through the bootstrap policy', async () => {
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile(),
+      }),
+    } as never);
+    const ctx = createContext('menu:main');
+
+    await handleCallbackQuery(ctx);
+
+    expect(enforce).toHaveBeenCalledWith(ctx, {
+      module: 'user-management',
+      classification: 'bootstrap',
+      action: 'read',
+      subject: 'bootstrap',
+    });
+    expect(ctx.editMessageText).toHaveBeenCalledOnce();
+  });
+
+  it('reports profile lookup misses and callback exceptions', async () => {
+    vi.mocked(getUserService).mockReturnValueOnce({
+      getByTelegramId: vi.fn().mockResolvedValue({ isErr: () => true }),
+    } as never);
+    const notFound = createContext('profile:view');
+
+    await handleCallbackQuery(notFound);
+
+    expect(notFound.answerCallbackQuery).toHaveBeenCalledWith('user-management.profile.not_found');
+
+    vi.mocked(getUserService).mockReturnValueOnce({
+      getByTelegramId: vi.fn().mockRejectedValue(new Error('service down')),
+    } as never);
+    const failed = createContext('profile:view');
+
+    await handleCallbackQuery(failed);
+
+    expect(failed.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.errors.callback_failed',
+    );
+  });
+
+  it('uses management authorization for profile role edit callbacks', async () => {
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile(),
+      }),
+    } as never);
+    const ctx = createContext('profile:edit:role');
+
+    await handleCallbackQuery(ctx);
+
+    expect(enforce).toHaveBeenCalledWith(ctx, {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'users',
+    });
   });
 });

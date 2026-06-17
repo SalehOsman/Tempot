@@ -1,4 +1,4 @@
-import { ok, type Result } from 'neverthrow';
+import { err, type Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import { RoleEnum } from '@tempot/auth-core';
 import { UserRepository } from '../repositories/user.repository.js';
@@ -22,8 +22,8 @@ export class RoleService {
     try {
       const result = await this.getRepository().updateRole(userId, newRole);
       return result;
-    } catch (e) {
-      return ok(new AppError('user-management.role_change_failed', e) as unknown as void);
+    } catch (error) {
+      return err(new AppError('user-management.role_change_failed', error));
     }
   }
 }

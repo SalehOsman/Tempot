@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-16
+lastVerified: 2026-06-17
 ---
 
 ## Overview
@@ -18,7 +18,7 @@ lastVerified: 2026-06-16
 The `@tempot/database` package enforces the repository pattern for all data access. This guide covers extending `BaseRepository` for your entities, using transactions, working with soft-delete behavior, and performing vector similarity searches.
 
 The commands and APIs in this guide were verified against the active package on
-2026-06-16. Run database commands through
+2026-06-17. Run database commands through
 `pnpm --filter @tempot/database <script>`.
 
 ## Extending BaseRepository

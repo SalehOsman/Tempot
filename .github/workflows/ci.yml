@@ -162,8 +162,7 @@ jobs:
       - run: pnpm test:e2e
 
   coverage:
-    name: Coverage Baseline (Non-blocking)
-    continue-on-error: true
+    name: Coverage
     runs-on: ubuntu-latest
     needs: [test-integration]
     services:
