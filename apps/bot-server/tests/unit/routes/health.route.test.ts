@@ -247,4 +247,18 @@ describe('createHealthRoute', () => {
     expect(body.status).toBe('degraded');
     expect(body.checks.queue_manager.status).toBe('error');
   });
+
+  it('returns degraded when optional providers are unconfigured', async () => {
+    deps.probes.queue_manager = vi.fn().mockResolvedValue({ status: 'unconfigured' });
+    deps.probes.ai_provider = vi.fn().mockResolvedValue({ status: 'unconfigured' });
+    const app = createTestApp(deps);
+
+    const response = await requestReady(app);
+    const body = (await response.json()) as HealthCheckResponse;
+
+    expect(response.status).toBe(200);
+    expect(body.status).toBe('degraded');
+    expect(body.checks.queue_manager.status).toBe('unconfigured');
+    expect(body.checks.ai_provider.status).toBe('unconfigured');
+  });
 });

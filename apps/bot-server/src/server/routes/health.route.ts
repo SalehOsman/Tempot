@@ -113,13 +113,16 @@ function classifyHealth(checks: ChecksRecord): HealthCheckResponse['status'] {
   let degraded = false;
 
   for (const [name, check] of Object.entries(checks)) {
-    if (check.status === 'error') {
+    if (check.status === 'error' || check.status === 'unconfigured') {
       if (CRITICAL_SUBSYSTEMS.has(name)) {
         return 'unhealthy';
       }
       if (DEGRADED_SUBSYSTEMS.has(name)) {
         degraded = true;
       }
+    }
+    if (check.status === 'degraded' && DEGRADED_SUBSYSTEMS.has(name)) {
+      degraded = true;
     }
   }
 

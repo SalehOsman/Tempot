@@ -51,7 +51,7 @@ export type ModuleSetupFn = (bot: Bot<Context>, deps: ModuleDependencyContainer)
 
 /** Health check subsystem result */
 export interface SubsystemCheck {
-  status: 'ok' | 'error' | 'degraded';
+  status: 'ok' | 'error' | 'degraded' | 'unconfigured';
   latency_ms?: number;
   error?: string;
   [key: string]: unknown;

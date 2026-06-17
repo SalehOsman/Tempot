@@ -115,12 +115,12 @@ describe('buildHealthProbes', () => {
   });
 
   describe('queue_manager probe', () => {
-    it('returns ok when no queueFactory provided', async () => {
+    it('returns unconfigured when no queueFactory provided', async () => {
       const probes = buildHealthProbes({ prisma: makePrisma(), cache: makeCache() });
 
       const result = await probes.queue_manager();
 
-      expect(result.status).toBe('ok');
+      expect(result.status).toBe('unconfigured');
     });
 
     it('returns ok when queueFactory.ping succeeds', async () => {
@@ -143,12 +143,12 @@ describe('buildHealthProbes', () => {
   });
 
   describe('ai_provider probe', () => {
-    it('returns ok when no aiProvider provided', async () => {
+    it('returns unconfigured when no aiProvider provided', async () => {
       const probes = buildHealthProbes({ prisma: makePrisma(), cache: makeCache() });
 
       const result = await probes.ai_provider();
 
-      expect(result.status).toBe('ok');
+      expect(result.status).toBe('unconfigured');
     });
 
     it('returns ok when aiProvider.ping succeeds', async () => {

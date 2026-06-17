@@ -106,10 +106,10 @@ export function buildHealthProbes(resources: ProbeResources): HealthProbes {
     queue_manager: () =>
       resources.queueFactory
         ? probeQueue(resources.queueFactory)
-        : Promise.resolve({ status: 'ok' as const }),
+        : Promise.resolve({ status: 'unconfigured' as const }),
     ai_provider: () =>
       resources.aiProvider
         ? probeAiProvider(resources.aiProvider)
-        : Promise.resolve({ status: 'ok' as const }),
+        : Promise.resolve({ status: 'unconfigured' as const }),
   };
 }
