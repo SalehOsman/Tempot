@@ -85,8 +85,9 @@
 
 ## Reconciliation Evidence - 2026-06-17
 
-- The completion slice is verified on `codex/056-quality-gates-completion`
-  after the foundation and Spec #055 local main reconciliation.
+- The completion slice is verified on `codex/056-quality-gates-completion` and
+  merged locally to `main` after the foundation and Spec #055 local main
+  reconciliation.
 - Root test inventory reports 36 governed surfaces, 363 test files, and zero
   testless governed surfaces.
 - `pnpm test:coverage` evaluates 107 governed components with zero blocking

@@ -114,8 +114,7 @@ Recently completed:
 
 Active or next work:
 
-1. Merge the verified Spec #056 quality-gates completion slice into local
-   `main`, then publish the accumulated local remediation history.
+1. Publish the accumulated local remediation history after final local review.
 2. Execute Spec #057 production-delivery hardening before any production
    go/no-go decision.
 3. Keep Spec #054 irreversible production cutover blocked until target backup
@@ -156,11 +155,11 @@ complete and merged.
 | Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                            |
 | ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Merged to `main` with the Spec #054 remediation integration on 2026-06-16                                                                          |
-|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; completion slice verified locally on 2026-06-17                                                                       |
+|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; completion slice merged locally to `main` on 2026-06-17                                                               |
 |                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged locally to `main` on 2026-06-17 after final local verification; remote publication remains pending                                         |
-|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Verified locally on `codex/056-quality-gates-completion`: coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
+|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged locally to `main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
 |                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Not started; final production gate                                                                                                                |
 
 Production go/no-go requires:

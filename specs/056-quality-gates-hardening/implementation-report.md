@@ -3,7 +3,7 @@
 **Branch**: `codex/056-quality-gates-hardening`
 **Started**: 2026-06-08
 **Reconciled branch**: `codex/remediation-sequence-reconciliation`
-**Status**: Completion verified locally; local main merge pending
+**Status**: Complete; merged locally to main
 
 ## Baseline Findings
 
@@ -80,8 +80,8 @@ critical inconsistency:
 - Every functional requirement and success criterion has task traceability.
 - Tasks T019-T020 and T039/T042-T044/T046 are complete based on fresh
   2026-06-17 verification.
-- The feature status now reflects local completion while keeping local main
-  merge and remote publication separate from branch verification.
+- The feature status now reflects local completion and local main merge while
+  keeping remote publication separate from branch verification.
 
 The automated prerequisite was executed for this branch with
 `SPECIFY_FEATURE_DIRECTORY=specs/056-quality-gates-hardening` because the
