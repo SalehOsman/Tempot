@@ -16,8 +16,11 @@ export const DEFAULT_STARTUP_STAGES = [
 export type StartupStageName = (typeof DEFAULT_STARTUP_STAGES)[number];
 export type StartupStageStatus = 'pending' | 'started' | 'ready' | 'degraded' | 'failed';
 
+const OPTIONAL_STARTUP_STAGES = new Set<StartupStageName>(['cache']);
+
 export interface StartupStageSnapshot {
   name: StartupStageName;
+  required: boolean;
   status: StartupStageStatus;
   updatedAt: string;
   errorCode: string | undefined;
@@ -84,6 +87,7 @@ function createStageSnapshot(
 ): StartupStageSnapshot {
   return {
     name,
+    required: !OPTIONAL_STARTUP_STAGES.has(name),
     status,
     updatedAt: new Date().toISOString(),
     errorCode,

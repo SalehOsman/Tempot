@@ -289,6 +289,59 @@ describe('startApplication', () => {
     expect(result.isOk()).toBe(true);
   });
 
+  it('closes the HTTP server and logs once when listen fails', async () => {
+    const close = vi.fn().mockResolvedValue(undefined);
+    deps.createHttpServer = vi.fn().mockReturnValue({
+      listen: vi.fn(() => {
+        throw new Error('port in use');
+      }),
+      close,
+    });
+
+    const result = await startApplication(deps);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(BOT_SERVER_ERRORS.HTTP_SERVER_FAILED);
+    expect(close).toHaveBeenCalledOnce();
+    expect(deps.logger.error).toHaveBeenCalledTimes(1);
+    expect(deps.logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'startup_failed',
+        stage: 'httpServer',
+        error: BOT_SERVER_ERRORS.HTTP_SERVER_FAILED,
+      }),
+    );
+  });
+
+  it('maps polling rejection to Result, deactivates readiness, and closes HTTP server', async () => {
+    const close = vi.fn().mockResolvedValue(undefined);
+    const mockBot = { start: vi.fn().mockRejectedValue(new Error('polling denied')) };
+    deps.createBot = vi.fn().mockReturnValue(mockBot);
+    deps.createHttpServer = vi.fn().mockReturnValue({
+      listen: vi.fn(),
+      close,
+    });
+
+    const result = await startApplication(deps);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(BOT_SERVER_ERRORS.STARTUP_FAILED);
+    expect(deps.startupState.markFailed).toHaveBeenCalledWith(
+      'botPolling',
+      BOT_SERVER_ERRORS.STARTUP_FAILED,
+    );
+    expect(deps.startupState.deactivateReadiness).toHaveBeenCalled();
+    expect(close).toHaveBeenCalledOnce();
+    expect(deps.logger.error).toHaveBeenCalledTimes(1);
+    expect(deps.logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'startup_failed',
+        stage: 'botPolling',
+        error: BOT_SERVER_ERRORS.STARTUP_FAILED,
+      }),
+    );
+  });
+
   it('does not call bot.start in webhook mode', async () => {
     deps.loadConfig = vi.fn().mockReturnValue(
       ok({

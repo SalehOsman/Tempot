@@ -4,9 +4,9 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { DiscoveryResult, ValidationResult, ValidatedModule } from '@tempot/module-registry';
 import type { BotServerConfig, ModuleLogger } from '../bot-server.types.js';
-import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import type { StartupStageName, StartupStateStore } from './startup-state.js';
 import { runFatalStartupSteps } from './fatal-startup-steps.js';
+import { startHttpServer, startPolling } from './runtime-startup.js';
 
 interface BotLike {
   start: () => Promise<void>;
@@ -52,7 +52,7 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   }
 
   const { bot, loadedModules } = fatalStepsResult.value;
-  const serverResult = startHttpServer(deps, bot, config);
+  const serverResult = await startHttpServer(deps, bot, config);
   if (serverResult.isErr()) return err(serverResult.error);
 
   const durationMs = Date.now() - startTime;
@@ -69,9 +69,8 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   });
 
   if (config.botMode === 'polling') {
-    deps.startupState.markStarted('botPolling');
-    await bot.start();
-    deps.startupState.markReady('botPolling');
+    const pollingResult = await startPolling(deps, bot, serverResult.value);
+    if (pollingResult.isErr()) return err(pollingResult.error);
   }
 
   return ok(undefined);
@@ -87,80 +86,6 @@ function loadStartupConfig(deps: OrchestratorDeps): Result<BotServerConfig, AppE
   deps.startupState.markReady('config');
   deps.logger.info({ msg: 'config_loaded', mode: configResult.value.botMode });
   return ok(configResult.value);
-}
-
-function startHttpServer(
-  deps: OrchestratorDeps,
-  bot: BotLike,
-  config: BotServerConfig,
-): Result<void, AppError> {
-  deps.startupState.markStarted('httpServer');
-  const httpServerResult = createHttpServer(deps, bot, config);
-  if (httpServerResult.isErr()) {
-    markFailedAndDeactivate(deps, 'httpServer', httpServerResult.error.code);
-    return err(httpServerResult.error);
-  }
-
-  const hookResult = registerRuntimeHooks(deps, httpServerResult.value, bot);
-  if (hookResult.isErr()) return err(hookResult.error);
-
-  const listenResult = listenHttpServer(httpServerResult.value, config.port);
-  if (listenResult.isErr()) {
-    markFailedAndDeactivate(deps, 'httpServer', listenResult.error.code);
-    return err(listenResult.error);
-  }
-  deps.startupState.markReady('httpServer');
-  deps.startupState.activateReadiness();
-  deps.logger.info({ msg: 'http_server_listening', port: config.port });
-  return ok(undefined);
-}
-
-function registerRuntimeHooks(
-  deps: OrchestratorDeps,
-  httpServer: HttpServerLike,
-  bot: BotLike,
-): Result<void, AppError> {
-  deps.startupState.markStarted('shutdownHooks');
-  const shutdownResult = deps.registerShutdownHooks(httpServer, bot);
-  if (shutdownResult.isErr()) {
-    markFailedAndDeactivate(deps, 'shutdownHooks', shutdownResult.error.code);
-    return err(shutdownResult.error);
-  }
-  deps.startupState.markReady('shutdownHooks');
-
-  deps.startupState.markStarted('signalHandlers');
-  const signalResult = deps.setupSignalHandlers();
-  if (signalResult.isErr()) {
-    markFailedAndDeactivate(deps, 'signalHandlers', signalResult.error.code);
-    return err(signalResult.error);
-  }
-  deps.startupState.markReady('signalHandlers');
-  return ok(undefined);
-}
-
-function createHttpServer(
-  deps: OrchestratorDeps,
-  bot: BotLike,
-  config: BotServerConfig,
-): Result<HttpServerLike, AppError> {
-  try {
-    return ok(deps.createHttpServer(bot, config));
-  } catch (error: unknown) {
-    return err(new AppError(BOT_SERVER_ERRORS.HTTP_SERVER_FAILED, { error: errorMessage(error) }));
-  }
-}
-
-function listenHttpServer(httpServer: HttpServerLike, port: number): Result<void, AppError> {
-  try {
-    httpServer.listen(port);
-    return ok(undefined);
-  } catch (error: unknown) {
-    return err(new AppError(BOT_SERVER_ERRORS.HTTP_SERVER_FAILED, { error: errorMessage(error) }));
-  }
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 function publishStartupCompleted(deps: OrchestratorDeps, payload: Record<string, unknown>): void {

@@ -9,8 +9,8 @@ describe('startup state store', () => {
 
     expect(snapshot.ready).toBe(false);
     expect(snapshot.stages).toEqual([
-      expect.objectContaining({ name: 'config', status: 'pending' }),
-      expect.objectContaining({ name: 'httpServer', status: 'pending' }),
+      expect.objectContaining({ name: 'config', required: true, status: 'pending' }),
+      expect.objectContaining({ name: 'httpServer', required: true, status: 'pending' }),
     ]);
   });
 
@@ -48,6 +48,27 @@ describe('startup state store', () => {
         status: 'failed',
         errorCode: 'bot-server.startup.http_server_failed',
       }),
+    ]);
+  });
+
+  it('keeps optional degraded stages explicit without deactivating readiness', () => {
+    const store = createStartupStateStore(['cache', 'httpServer']);
+
+    store.markReady('httpServer');
+    store.activateReadiness();
+    store.markDegraded('cache', 'bot-server.startup.cache_warming_failed');
+
+    const snapshot = store.snapshot();
+
+    expect(snapshot.ready).toBe(true);
+    expect(snapshot.stages).toEqual([
+      expect.objectContaining({
+        name: 'cache',
+        required: false,
+        status: 'degraded',
+        errorCode: 'bot-server.startup.cache_warming_failed',
+      }),
+      expect.objectContaining({ name: 'httpServer', required: true, status: 'ready' }),
     ]);
   });
 });
