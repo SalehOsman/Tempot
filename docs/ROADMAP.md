@@ -114,22 +114,21 @@ Recently completed:
 
 Active or next work:
 
-1. Publish the accumulated local remediation history after final local review.
-2. Execute Spec #057 production-delivery hardening before any production
+1. Execute Spec #057 production-delivery hardening before any production
    go/no-go decision.
-3. Keep Spec #054 irreversible production cutover blocked until target backup
+2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
-4. Keep `template-management` useful as a product capability and developer
+3. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
-5. `bot-management` (Spec #040) remains a future-facing operational module.
+4. `bot-management` (Spec #040) remains a future-facing operational module.
    Keep it useful as a lightweight bot profile registry for the template, but
    do not let multi-bot SaaS management displace the current single-bot
    framework priority.
-6. Consider future RAG evaluation expansion for latency, token usage, and cost
+5. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-7. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+6. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
@@ -158,9 +157,9 @@ complete and merged.
 |                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; completion slice merged locally to `main` on 2026-06-17                                                               |
 |                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
-|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged locally to `main` on 2026-06-17 after final local verification; remote publication remains pending                                         |
-|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged locally to `main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Not started; final production gate                                                                                                                |
+|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
+|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Started on `codex/057-production-delivery-hardening`; Phase 1 baseline, threat model, and release templates complete; final production gate remains blocked |
 
 Production go/no-go requires:
 
@@ -185,7 +184,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053, #054, #055, and #056 foundation merged locally to `main`; target backup rehearsal and final release gates remain |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 published to `origin/main`; Spec #057 started; target backup rehearsal and final release gates remain blocked |
 
 ## Package Status
 

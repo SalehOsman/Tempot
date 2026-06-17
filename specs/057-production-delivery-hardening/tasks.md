@@ -5,11 +5,11 @@
 
 ## Phase 1: Setup and Threat/Release Baseline
 
-- [ ] T001 Create execution worktree `codex/057-production-delivery-hardening`
-- [ ] T002 Record startup stages, health visibility, HTTP routes, dependency advisories, image contents, and workflow baseline
+- [x] T001 Create execution worktree `codex/057-production-delivery-hardening`
+- [x] T002 Record startup stages, health visibility, HTTP routes, dependency advisories, image contents, and workflow baseline
 - [ ] T003 [P] Create or update the HTTP/health/runtime-manifest ADR and ADR index if architectural decisions change
-- [ ] T004 [P] Create a production threat model in `docs/security/`
-- [ ] T005 Define migration compatibility and release evidence templates in `docs/operations/`
+- [x] T004 [P] Create a production threat model in `docs/security/`
+- [x] T005 Define migration compatibility and release evidence templates in `docs/operations/`
 
 ## Phase 2: User Story 1 - Predictable Startup (P1)
 

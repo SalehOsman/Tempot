@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/057-production-delivery-hardening`
 **Created**: 2026-06-07
-**Status**: Draft
+**Status**: Execution started
 **Input**: Project audit findings covering startup error-contract gaps, incomplete HTTP hardening, detailed public health output, vulnerable runtime dependencies, oversized runtime images, unsafe Compose defaults, and incomplete supply-chain, promotion, observability, and rollback controls.
 
 ## Clarifications
