@@ -5,6 +5,7 @@
 node_modules
 apps/*/node_modules
 packages/*/node_modules
+apps/docs/src/content/docs
 dist
 apps/*/dist
 packages/*/dist

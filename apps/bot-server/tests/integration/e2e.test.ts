@@ -58,7 +58,7 @@ describe('Phase 2D End-to-End Integration Tests', () => {
     });
 
     // Push Prisma schema
-    execSync('corepack pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
+    execSync('pnpm --filter @tempot/database exec prisma db push --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       stdio: 'inherit',
     });

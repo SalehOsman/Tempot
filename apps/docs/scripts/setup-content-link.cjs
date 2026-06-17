@@ -1,8 +1,7 @@
 /* eslint-disable */
-// setup-content-link.js — Creates directory junction/symlink from
-// apps/docs/src/content/docs/ → docs/product/ (project root)
-// Starlight 0.34.x requires content at src/content/docs/ — no contentDir option.
-// This script is idempotent and runs automatically via the "prepare" hook.
+// Creates apps/docs/src/content/docs/ as a link to docs/product/.
+// Docker build contexts can expand that link into a regular directory; when
+// the expanded directory mirrors docs/product, the prepare hook accepts it.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -13,14 +12,65 @@ function log(level, msg) {
   process.stderr.write(JSON.stringify({ level, msg }) + '\n');
 }
 
-function main() {
-  const linkPath = path.resolve(__dirname, '..', 'src', 'content', 'docs');
-  const targetPath = path.resolve(__dirname, '..', '..', '..', 'docs', 'product');
+function collectRelativeFiles(rootPath) {
+  const files = [];
+
+  function visit(currentPath, relativePath) {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+    entries.sort((left, right) => left.name.localeCompare(right.name));
+
+    for (const entry of entries) {
+      const childPath = path.join(currentPath, entry.name);
+      const childRelativePath = path.join(relativePath, entry.name);
+
+      if (entry.isDirectory()) {
+        visit(childPath, childRelativePath);
+        continue;
+      }
+
+      if (entry.isFile()) {
+        files.push(childRelativePath.split(path.sep).join('/'));
+      }
+    }
+  }
+
+  visit(rootPath, '');
+  return files;
+}
+
+function directoriesHaveSameFiles(leftPath, rightPath) {
+  const leftFiles = collectRelativeFiles(leftPath);
+  const rightFiles = collectRelativeFiles(rightPath);
+
+  if (leftFiles.length !== rightFiles.length) {
+    return false;
+  }
+
+  for (let index = 0; index < leftFiles.length; index += 1) {
+    const relativeFile = leftFiles[index];
+    if (relativeFile !== rightFiles[index]) {
+      return false;
+    }
+
+    const leftContent = fs.readFileSync(path.join(leftPath, relativeFile));
+    const rightContent = fs.readFileSync(path.join(rightPath, relativeFile));
+    if (!leftContent.equals(rightContent)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function ensureContentLink(options = {}) {
+  const logger = options.logger ?? log;
+  const linkPath = options.linkPath ?? path.resolve(__dirname, '..', 'src', 'content', 'docs');
+  const targetPath = options.targetPath ?? path.resolve(__dirname, '..', '..', '..', 'docs', 'product');
+  const platform = options.platform ?? os.platform();
 
   if (!fs.existsSync(targetPath)) {
-    log('error', `Target directory does not exist: ${targetPath}`);
-    process.exitCode = 1;
-    return;
+    logger('error', `Target directory does not exist: ${targetPath}`);
+    return false;
   }
 
   if (fs.existsSync(linkPath)) {
@@ -29,32 +79,50 @@ function main() {
       const existing = fs.realpathSync(linkPath);
       const resolved = fs.realpathSync(targetPath);
       if (existing === resolved) {
-        log('info', 'Junction already exists: src/content/docs/ → docs/product/');
-        return;
+        logger('info', 'Junction already exists: src/content/docs/ -> docs/product/');
+        return true;
       }
     }
+
+    if (stats.isDirectory() && directoriesHaveSameFiles(linkPath, targetPath)) {
+      logger('info', 'Directory already mirrors docs/product; keeping Docker-expanded content.');
+      return true;
+    }
+
     if (!stats.isSymbolicLink()) {
-      log('error', `Path exists but is not a symlink/junction: ${linkPath}`);
-      process.exitCode = 1;
-      return;
+      logger('error', `Path exists but is not a symlink/junction: ${linkPath}`);
+      return false;
     }
   }
 
-  // Ensure parent directory exists
   fs.mkdirSync(path.resolve(linkPath, '..'), { recursive: true });
 
-  const type = os.platform() === 'win32' ? 'junction' : 'dir';
+  const type = platform === 'win32' ? 'junction' : 'dir';
   try {
     fs.symlinkSync(targetPath, linkPath, type);
-    log('info', 'Junction created: src/content/docs/ → docs/product/');
+    logger('info', 'Junction created: src/content/docs/ -> docs/product/');
+    return true;
   } catch (err) {
     if (err.code !== 'EEXIST') {
-      log('error', err.message);
-      process.exitCode = 1;
-    } else {
-      log('info', 'Junction exists but target might be unreachable. Ignored.');
+      logger('error', err.message);
+      return false;
     }
+
+    logger('info', 'Junction exists but target might be unreachable. Ignored.');
+    return true;
   }
 }
 
-main();
+function main() {
+  if (!ensureContentLink()) {
+    process.exitCode = 1;
+  }
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  ensureContentLink,
+};

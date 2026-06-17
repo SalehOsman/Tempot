@@ -34,6 +34,9 @@ describe('sensitive data key rotation', () => {
   beforeAll(async () => {
     await testDb.start();
     testDb.applyPrismaSchema();
+    await testDb.prisma.sensitiveDataMigrationCheckpoint.deleteMany();
+    await testDb.prisma.auditLog.deleteMany();
+    await testDb.prisma.userProfile.deleteMany();
     const oldService = new NodeProtectedDataService(
       new StaticProtectedDataKeyProvider({
         activeEncryptionKeyVersion: 'enc-v1',
