@@ -170,7 +170,7 @@ import { NodeProtectedDataService, StaticProtectedDataKeyProvider } from '@tempo
 import { StaticSettingsLoader } from '@tempot/settings';
 import { initI18n, loadModuleLocales } from '@tempot/i18n-core';
 import { logger } from '@tempot/logger';
-import { AppError } from '@tempot/shared';
+import { AppError, CacheService } from '@tempot/shared';
 
 function validStaticSettings() {
   return {
@@ -300,8 +300,23 @@ describe('buildDeps', () => {
     expect(result.isErr()).toBe(true);
   });
 
+  it('returns typed err when EventBusOrchestrator.init rejects', async () => {
+    const { EventBusOrchestrator } = await import('@tempot/event-bus');
+    vi.mocked(EventBusOrchestrator).mockImplementationOnce(function () {
+      return {
+        init: vi.fn().mockRejectedValue(new Error('redis refused connection')),
+        publish: vi.fn(),
+        dispose: vi.fn(),
+      };
+    } as never);
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('bot-server.startup.event_bus_failed');
+  });
+
   it('returns err when CacheService.init fails', async () => {
-    const { CacheService } = await import('@tempot/shared');
     vi.mocked(CacheService).mockImplementationOnce(function () {
       return {
         get: vi.fn(),
@@ -315,6 +330,23 @@ describe('buildDeps', () => {
     const result = await buildDeps();
 
     expect(result.isErr()).toBe(true);
+  });
+
+  it('returns typed err when CacheService.init rejects', async () => {
+    vi.mocked(CacheService).mockImplementationOnce(function () {
+      return {
+        get: vi.fn(),
+        set: vi.fn(),
+        del: vi.fn(),
+        reset: vi.fn(),
+        init: vi.fn().mockRejectedValue(new Error('cache backend unavailable')),
+      };
+    } as never);
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('bot-server.startup.cache_init_failed');
   });
 
   it('logger and eventBus are present on the returned deps', async () => {

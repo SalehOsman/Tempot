@@ -9,6 +9,7 @@ import { SessionProvider, SessionRepository } from '@tempot/session-manager';
 import { ModuleRegistry, ModuleDiscovery, ModuleValidator } from '@tempot/module-registry';
 import { buildCacheAdapter } from './cache.adapter.js';
 import { resolveRuntimeDirectory } from './runtime-paths.js';
+import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 
 type LoggerLike = typeof import('@tempot/logger').logger;
 
@@ -21,37 +22,57 @@ function toRegistryLogger(log: LoggerLike) {
   };
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function toStartupError(code: string, error: unknown): AppError {
+  return error instanceof AppError ? error : new AppError(code, { error: errorMessage(error) });
+}
+
 export async function buildEventBus(
   log: typeof import('@tempot/logger').logger,
   shutdownManager: ShutdownManager,
   redisConfig: NonNullable<ConstructorParameters<typeof EventBusOrchestrator>[0]['redis']>,
 ): Promise<Result<EventBusOrchestrator, AppError>> {
-  const eventBus = new EventBusOrchestrator({
-    redis: redisConfig,
-    logger: toRegistryLogger(log),
-    shutdownManager,
-  });
-  const busInitResult = await eventBus.init();
-  if (busInitResult.isErr()) return err(busInitResult.error);
-  return ok(eventBus);
+  try {
+    const eventBus = new EventBusOrchestrator({
+      redis: redisConfig,
+      logger: toRegistryLogger(log),
+      shutdownManager,
+    });
+    const busInitResult = await eventBus.init();
+    if (busInitResult.isErr()) {
+      return err(toStartupError(BOT_SERVER_ERRORS.EVENT_BUS_FAILED, busInitResult.error));
+    }
+    return ok(eventBus);
+  } catch (error: unknown) {
+    return err(toStartupError(BOT_SERVER_ERRORS.EVENT_BUS_FAILED, error));
+  }
 }
 
 export async function buildCacheService(
   log: typeof import('@tempot/logger').logger,
   eventBus: EventBusOrchestrator,
 ): Promise<Result<CacheService, AppError>> {
-  const cache = new CacheService(
-    {
-      publish: async (event: string, payload: unknown) => {
-        await eventBus.publish(event, payload);
-        return ok(undefined);
+  try {
+    const cache = new CacheService(
+      {
+        publish: async (event: string, payload: unknown) => {
+          await eventBus.publish(event, payload);
+          return ok(undefined);
+        },
       },
-    },
-    { warn: (msg: string) => log.warn({ msg }) },
-  );
-  const cacheInitResult = await cache.init();
-  if (cacheInitResult.isErr()) return err(cacheInitResult.error);
-  return ok(cache);
+      { warn: (msg: string) => log.warn({ msg }) },
+    );
+    const cacheInitResult = await cache.init();
+    if (cacheInitResult.isErr()) {
+      return err(toStartupError(BOT_SERVER_ERRORS.CACHE_INIT_FAILED, cacheInitResult.error));
+    }
+    return ok(cache);
+  } catch (error: unknown) {
+    return err(toStartupError(BOT_SERVER_ERRORS.CACHE_INIT_FAILED, error));
+  }
 }
 
 export function buildSessionProvider(

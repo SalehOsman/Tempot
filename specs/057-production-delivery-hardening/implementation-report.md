@@ -95,5 +95,7 @@ zero testless surfaces.
 - T007 is complete: existing database, Redis, and module-loading failure tests
   are joined by an HTTP listen failure-injection test in
   `startup-sequence.test.ts`.
-- T008 remains open. `buildDeps()` now validates i18n initialization, but the
-  full initializer refactor and readiness activation work are not complete.
+- T008 is complete for the required startup initializer contract: database,
+  event bus, i18n initialization, cache initialization, static settings, and
+  protected-data key setup now return `Result` failures instead of raw rejected
+  startup paths. Readiness activation remains T009.
