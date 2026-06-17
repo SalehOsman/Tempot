@@ -100,6 +100,23 @@ describe('buildHealthProbes', () => {
       expect(result.error).toContain('Low disk space');
     });
 
+    it('uses configured free-space threshold', async () => {
+      vi.mocked(fs.statfs).mockResolvedValue({
+        bfree: 25_000,
+        bsize: 4096,
+      } as never);
+      const probes = buildHealthProbes({
+        prisma: makePrisma(),
+        cache: makeCache(),
+        diskPath: '/',
+        diskFreeThresholdBytes: 100_000_000,
+      });
+
+      const result = await probes.disk();
+
+      expect(result.status).toBe('ok');
+    });
+
     it('returns error when statfs throws', async () => {
       vi.mocked(fs.statfs).mockRejectedValue(new Error('ENOENT'));
       const probes = buildHealthProbes({

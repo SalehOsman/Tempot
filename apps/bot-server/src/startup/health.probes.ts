@@ -36,6 +36,7 @@ export interface ProbeResources {
   aiProvider?: AiProbe;
   /** Directory path to check for disk space (defaults to process.cwd()) */
   diskPath?: string;
+  diskFreeThresholdBytes?: number;
 }
 
 async function probePrisma(prisma: PrismaProbe): Promise<SubsystemCheck> {
@@ -58,11 +59,11 @@ async function probeCache(cache: CacheProbe): Promise<SubsystemCheck> {
   }
 }
 
-async function probeDisk(diskPath: string): Promise<SubsystemCheck> {
+async function probeDisk(diskPath: string, thresholdBytes: number): Promise<SubsystemCheck> {
   try {
     const stats = await fs.statfs(diskPath);
     const freeBytes = stats.bfree * stats.bsize;
-    if (freeBytes < DISK_FREE_THRESHOLD_BYTES) {
+    if (freeBytes < thresholdBytes) {
       return { status: 'degraded', error: `Low disk space: ${freeBytes} bytes free` };
     }
     return { status: 'ok' };
@@ -98,11 +99,12 @@ async function probeAiProvider(ai: AiProbe): Promise<SubsystemCheck> {
  */
 export function buildHealthProbes(resources: ProbeResources): HealthProbes {
   const diskPath = resources.diskPath ?? process.cwd();
+  const diskThreshold = resources.diskFreeThresholdBytes ?? DISK_FREE_THRESHOLD_BYTES;
 
   return {
     database: () => probePrisma(resources.prisma),
     redis: () => probeCache(resources.cache),
-    disk: () => probeDisk(diskPath),
+    disk: () => probeDisk(diskPath, diskThreshold),
     queue_manager: () =>
       resources.queueFactory
         ? probeQueue(resources.queueFactory)

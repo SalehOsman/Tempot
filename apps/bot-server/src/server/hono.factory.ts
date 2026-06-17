@@ -25,6 +25,7 @@ interface HonoFactoryDeps {
   startTime: number;
   logger: ModuleLogger;
   readinessToken?: string;
+  bodyLimitBytes?: number;
   httpRateLimit?: HttpRateLimitOptions;
 }
 
@@ -32,10 +33,11 @@ export function createHonoApp(deps: HonoFactoryDeps): Hono {
   const { bot, mode, webhookSecret, probes, version, startTime, logger, readinessToken } = deps;
   const app = new Hono();
   const rateLimit = createRateLimitMiddleware(deps.httpRateLimit ?? DEFAULT_RATE_LIMIT);
+  const bodyLimit = createBodyLimitMiddleware(deps.bodyLimitBytes ?? MAX_REQUEST_BODY_BYTES);
 
   app.use('*', secureHeadersMiddleware);
   app.use('*', rateLimit);
-  app.use('*', bodyLimitMiddleware);
+  app.use('*', bodyLimit);
 
   const healthRoute = createHealthRoute({
     probes,
@@ -100,15 +102,18 @@ async function secureHeadersMiddleware(c: HonoContext, next: Next): Promise<void
   );
 }
 
-async function bodyLimitMiddleware(c: HonoContext, next: Next): Promise<Response | void> {
-  const bodySize = await requestBodySize(c);
-  if (bodySize > MAX_REQUEST_BODY_BYTES) {
-    return c.json({ error: 'payload_too_large' }, 413);
-  }
-  await next();
+function createBodyLimitMiddleware(maxBodyBytes: number) {
+  return async (c: HonoContext, next: Next): Promise<Response | void> => {
+    const bodySize = await requestBodySize(c);
+    if (bodySize > maxBodyBytes) {
+      return c.json({ error: 'payload_too_large' }, 413);
+    }
+    await next();
+  };
 }
 
 async function requestBodySize(c: HonoContext): Promise<number> {
+  if (c.req.method === 'GET' || c.req.method === 'HEAD') return 0;
   const contentLength = Number(c.req.header('content-length') ?? 0);
   if (contentLength > 0) return contentLength;
   const buffer = await c.req.raw.clone().arrayBuffer();

@@ -19,7 +19,11 @@ export function buildHttpServerFactory(
   deps: ServerFactoryDeps,
 ): OrchestratorDeps['createHttpServer'] {
   return (bot, config: BotServerConfig) => {
-    const probes = buildHealthProbes({ prisma, cache: deps.cache });
+    const probes = buildHealthProbes({
+      prisma,
+      cache: deps.cache,
+      diskFreeThresholdBytes: positiveIntegerEnv('TEMPOT_DISK_FREE_THRESHOLD_BYTES'),
+    });
     const version = process.env['npm_package_version'] ?? '0.0.0';
     const startTime = Date.now();
 
@@ -32,6 +36,8 @@ export function buildHttpServerFactory(
       startTime,
       logger: deps.log,
       readinessToken: process.env['TEMPOT_READINESS_TOKEN'],
+      bodyLimitBytes: positiveIntegerEnv('TEMPOT_HTTP_BODY_LIMIT_BYTES'),
+      httpRateLimit: buildHttpRateLimitFromEnv(),
     });
 
     let server: ReturnType<typeof serve> | undefined;
@@ -59,4 +65,21 @@ export function buildHttpServerFactory(
       },
     };
   };
+}
+
+function buildHttpRateLimitFromEnv(): { maxRequests: number; windowMs: number } | undefined {
+  const maxRequests = positiveIntegerEnv('TEMPOT_HTTP_RATE_LIMIT_MAX');
+  const windowMs = positiveIntegerEnv('TEMPOT_HTTP_RATE_LIMIT_WINDOW_MS');
+  if (maxRequests === undefined && windowMs === undefined) return undefined;
+  return {
+    maxRequests: maxRequests ?? 60,
+    windowMs: windowMs ?? 60_000,
+  };
+}
+
+function positiveIntegerEnv(name: string): number | undefined {
+  const raw = process.env[name];
+  if (!raw) return undefined;
+  const value = Number(raw);
+  return Number.isSafeInteger(value) && value > 0 ? value : undefined;
 }

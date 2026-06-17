@@ -26,7 +26,7 @@ function createProbes(): HealthProbes {
   };
 }
 
-function createApp(options: { rateLimitMaxRequests?: number } = {}) {
+function createApp(options: { bodyLimitBytes?: number; rateLimitMaxRequests?: number } = {}) {
   const bot = { handleUpdate: vi.fn().mockResolvedValue(undefined) };
   const app = createHonoApp({
     bot: bot as never,
@@ -37,6 +37,7 @@ function createApp(options: { rateLimitMaxRequests?: number } = {}) {
     startTime: Date.now(),
     logger: createMockLogger(),
     readinessToken: 'ops-token',
+    bodyLimitBytes: options.bodyLimitBytes,
     httpRateLimit:
       options.rateLimitMaxRequests === undefined
         ? undefined
@@ -82,6 +83,23 @@ describe('createHonoApp hardening', () => {
 
     expect(response.status).toBe(413);
     expect(await response.json()).toEqual({ error: 'payload_too_large' });
+    expect(bot.handleUpdate).not.toHaveBeenCalled();
+  });
+
+  it('uses configured body limits for webhook payloads', async () => {
+    const { app, bot } = createApp({ bodyLimitBytes: 128 });
+    const body = JSON.stringify({ update_id: 1, message: { text: 'x'.repeat(200) } });
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body,
+    });
+
+    expect(response.status).toBe(413);
     expect(bot.handleUpdate).not.toHaveBeenCalled();
   });
 

@@ -46,6 +46,9 @@ apps/bot-server/
 - `SUPER_ADMIN_IDS`
 - `BOT_MODE=polling|webhook`
 - `WEBHOOK_URL` and `WEBHOOK_SECRET_TOKEN` when webhook mode is enabled
+- Optional HTTP operations hardening: `TEMPOT_READINESS_TOKEN`,
+  `TEMPOT_HTTP_BODY_LIMIT_BYTES`, `TEMPOT_HTTP_RATE_LIMIT_MAX`,
+  `TEMPOT_HTTP_RATE_LIMIT_WINDOW_MS`, `TEMPOT_DISK_FREE_THRESHOLD_BYTES`
 
 See the root `.env.example` for the complete configuration reference.
 
