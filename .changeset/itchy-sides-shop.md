@@ -1,6 +1,7 @@
 ---
 "@tempot/database": patch
 "@tempot/i18n-core": patch
+"@tempot/settings": patch
 "bot-server": patch
 "docs": patch
 ---

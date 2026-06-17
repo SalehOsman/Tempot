@@ -32,12 +32,12 @@ describe('StaticSettingsLoader', () => {
   });
 
   it('should return error when BOT_TOKEN is missing', () => {
-    process.env['DATABASE_URL'] = 'postgresql://localhost/test';
-    process.env['SUPER_ADMIN_IDS'] = '123';
-    process.env['DEFAULT_LANGUAGE'] = 'ar';
-    process.env['DEFAULT_COUNTRY'] = 'EG';
-
-    const result = StaticSettingsLoader.load();
+    const result = StaticSettingsLoader.load({
+      DATABASE_URL: 'postgresql://localhost/test',
+      SUPER_ADMIN_IDS: '123',
+      DEFAULT_LANGUAGE: 'ar',
+      DEFAULT_COUNTRY: 'EG',
+    });
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error.code).toBe(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED);
@@ -45,12 +45,12 @@ describe('StaticSettingsLoader', () => {
   });
 
   it('should return error when DATABASE_URL is missing', () => {
-    process.env['BOT_TOKEN'] = 'test-token';
-    process.env['SUPER_ADMIN_IDS'] = '123';
-    process.env['DEFAULT_LANGUAGE'] = 'ar';
-    process.env['DEFAULT_COUNTRY'] = 'EG';
-
-    const result = StaticSettingsLoader.load();
+    const result = StaticSettingsLoader.load({
+      BOT_TOKEN: 'test-token',
+      SUPER_ADMIN_IDS: '123',
+      DEFAULT_LANGUAGE: 'ar',
+      DEFAULT_COUNTRY: 'EG',
+    });
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error.code).toBe(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED);
