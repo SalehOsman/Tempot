@@ -33,6 +33,9 @@ describe('sensitive data migration regressions', () => {
   beforeAll(async () => {
     await testDb.start();
     testDb.applyPrismaSchema();
+    await testDb.prisma.sensitiveDataMigrationCheckpoint.deleteMany();
+    await testDb.prisma.auditLog.deleteMany();
+    await testDb.prisma.userProfile.deleteMany();
   }, 120_000);
 
   afterAll(async () => {
