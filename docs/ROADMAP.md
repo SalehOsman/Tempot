@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-16.
+> Last updated: 2026-06-17.
 
 ## Current Technical Baseline
 
@@ -108,28 +108,29 @@ Recently completed:
   capability selection, and a `help-center` pilot with callback runtime tests.
 - Spec #052 rollout extended governed flow maps and runtime flow-map tests to
   `settings-management`, `notification-center`, and `audit-viewer`.
+- Spec #055: data-integrity hardening completion with repository-only startup
+  data access, aggregate pagination counts, explicit privileged deleted-record
+  recovery, and governed direct-Prisma boundary checks.
 
 Active or next work:
 
-1. Complete the remaining Spec #055 data-integrity hardening scope beyond the
-   atomic identity and soft-delete foundation merged with Spec #054.
-2. Complete the remaining Spec #056 quality-gates hardening scope, including
+1. Complete the remaining Spec #056 quality-gates hardening scope, including
    closing component coverage debt before making coverage blocking.
-3. Execute Spec #057 production-delivery hardening before any production
+2. Execute Spec #057 production-delivery hardening before any production
    go/no-go decision.
-4. Keep Spec #054 irreversible production cutover blocked until target backup
+3. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
-5. Keep `template-management` useful as a product capability and developer
+4. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
-6. `bot-management` (Spec #040) remains a future-facing operational module.
+5. `bot-management` (Spec #040) remains a future-facing operational module.
    Keep it useful as a lightweight bot profile registry for the template, but
    do not let multi-bot SaaS management displace the current single-bot
    framework priority.
-7. Consider future RAG evaluation expansion for latency, token usage, and cost
+6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-8. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+7. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
@@ -158,7 +159,7 @@ complete and merged.
 |                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; coverage remains non-blocking until the completion slice closes the known debt                                        |
 |                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
-|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Implementation and local verification complete on `codex/055-data-integrity-completion`; merge pending                                            |
+|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged locally to `main` on 2026-06-17 after final local verification; remote publication remains pending                                         |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | In progress; baseline is 23 failures and 9 warnings across 103 components                                                                         |
 |                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Not started; final production gate                                                                                                                |
 
@@ -185,7 +186,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053, #054, #055 foundation, and #056 foundation merged locally to `main`; target backup rehearsal and final release gates remain |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053, #054, #055, and #056 foundation merged locally to `main`; target backup rehearsal and final release gates remain |
 
 ## Package Status
 
