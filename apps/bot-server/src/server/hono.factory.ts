@@ -6,6 +6,15 @@ import { createHealthRoute } from './routes/health.route.js';
 import type { BotMode, HealthProbes, ModuleLogger } from '../bot-server.types.js';
 
 const MAX_REQUEST_BODY_BYTES = 65_536;
+const DEFAULT_RATE_LIMIT = {
+  maxRequests: 60,
+  windowMs: 60_000,
+} as const;
+
+interface HttpRateLimitOptions {
+  maxRequests: number;
+  windowMs: number;
+}
 
 interface HonoFactoryDeps {
   bot: Bot<GrammyContext>;
@@ -16,13 +25,16 @@ interface HonoFactoryDeps {
   startTime: number;
   logger: ModuleLogger;
   readinessToken?: string;
+  httpRateLimit?: HttpRateLimitOptions;
 }
 
 export function createHonoApp(deps: HonoFactoryDeps): Hono {
   const { bot, mode, webhookSecret, probes, version, startTime, logger, readinessToken } = deps;
   const app = new Hono();
+  const rateLimit = createRateLimitMiddleware(deps.httpRateLimit ?? DEFAULT_RATE_LIMIT);
 
   app.use('*', secureHeadersMiddleware);
+  app.use('*', rateLimit);
   app.use('*', bodyLimitMiddleware);
 
   const healthRoute = createHealthRoute({
@@ -44,6 +56,37 @@ export function createHonoApp(deps: HonoFactoryDeps): Hono {
   }
 
   return app;
+}
+
+function createRateLimitMiddleware(options: HttpRateLimitOptions) {
+  const buckets = new Map<string, { count: number; resetAt: number }>();
+
+  return async (c: HonoContext, next: Next): Promise<Response | void> => {
+    if (c.req.path !== '/webhook') {
+      await next();
+      return;
+    }
+
+    const now = Date.now();
+    const key = clientRateLimitKey(c);
+    const bucket = buckets.get(key);
+    if (!bucket || bucket.resetAt <= now) {
+      buckets.set(key, { count: 1, resetAt: now + options.windowMs });
+      await next();
+      return;
+    }
+
+    if (bucket.count >= options.maxRequests) {
+      return c.json({ error: 'rate_limited' }, 429);
+    }
+
+    bucket.count += 1;
+    await next();
+  };
+}
+
+function clientRateLimitKey(c: HonoContext): string {
+  return c.req.header('x-real-ip') ?? c.req.header('cf-connecting-ip') ?? 'unknown-client';
 }
 
 async function secureHeadersMiddleware(c: HonoContext, next: Next): Promise<void> {

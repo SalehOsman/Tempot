@@ -26,7 +26,7 @@ function createProbes(): HealthProbes {
   };
 }
 
-function createApp() {
+function createApp(options: { rateLimitMaxRequests?: number } = {}) {
   const bot = { handleUpdate: vi.fn().mockResolvedValue(undefined) };
   const app = createHonoApp({
     bot: bot as never,
@@ -37,6 +37,10 @@ function createApp() {
     startTime: Date.now(),
     logger: createMockLogger(),
     readinessToken: 'ops-token',
+    httpRateLimit:
+      options.rateLimitMaxRequests === undefined
+        ? undefined
+        : { maxRequests: options.rateLimitMaxRequests, windowMs: 60_000 },
   });
   return { app, bot };
 }
@@ -79,5 +83,29 @@ describe('createHonoApp hardening', () => {
     expect(response.status).toBe(413);
     expect(await response.json()).toEqual({ error: 'payload_too_large' });
     expect(bot.handleUpdate).not.toHaveBeenCalled();
+  });
+
+  it('rate limits webhook requests before repeated bot processing', async () => {
+    const { app, bot } = createApp({ rateLimitMaxRequests: 1 });
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+    };
+
+    const first = await app.request('/webhook', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ update_id: 1 }),
+    });
+    const second = await app.request('/webhook', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ update_id: 2 }),
+    });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(429);
+    expect(await second.json()).toEqual({ error: 'rate_limited' });
+    expect(bot.handleUpdate).toHaveBeenCalledOnce();
   });
 });
