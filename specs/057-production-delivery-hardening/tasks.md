@@ -28,7 +28,7 @@
 - [x] T013 [P] [US2] Write failing secure-header, body-limit, rate-limit, CORS, malformed-body, and safe-error tests
 - [x] T014 [US2] Split or refactor health routes into minimal public liveness and restricted readiness
 - [x] T015 [US2] Add Hono security middleware in `apps/bot-server/src/server/hono.factory.ts`
-- [ ] T016 [US2] Preserve timing-safe webhook secret validation and strengthen request schema validation
+- [x] T016 [US2] Preserve timing-safe webhook secret validation and strengthen request schema validation
 - [x] T017 [US2] Make health probes report required/unconfigured/degraded states accurately
 - [ ] T018 [US2] Make thresholds configurable and align defaults with the constitution
 - [x] T019 [US2] Implement and verify explicit Redis-outage rate-limit fallback or controlled denial, then confirm the adversarial HTTP/runtime suite GREEN

@@ -70,5 +70,6 @@ async function parseBody(c: HonoContext): Promise<Record<string, unknown> | null
 }
 
 function isValidUpdate(body: Record<string, unknown>): body is Record<string, unknown> & Update {
-  return typeof body['update_id'] === 'number';
+  const updateId = body['update_id'];
+  return typeof updateId === 'number' && Number.isSafeInteger(updateId) && updateId >= 0;
 }
