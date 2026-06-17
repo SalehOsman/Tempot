@@ -99,4 +99,56 @@ describe('template-management callback handler', () => {
       }),
     });
   });
+
+  it('renders public menu, browse, export, and rating callback surfaces', async () => {
+    registerDeps(createDeps());
+
+    const main = createContext('tmpl:menu');
+    const browse = createContext('tmpl:browse');
+    const exportOptions = createContext('tmpl:export:template-1');
+    const ratingOptions = createContext('tmpl:rate:template-1');
+
+    await handleCallbackQuery(main);
+    await handleCallbackQuery(browse);
+    await handleCallbackQuery(exportOptions);
+    await handleCallbackQuery(ratingOptions);
+
+    expect(main.editMessageText).toHaveBeenCalledWith('template-management.menu.title', {
+      reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+    });
+    expect(browse.editMessageText).toHaveBeenCalledWith('template-management.browse.title', {
+      reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+    });
+    expect(exportOptions.editMessageText).toHaveBeenCalledWith(
+      'template-management.actions.export',
+      { reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }) },
+    );
+    expect(ratingOptions.editMessageText).toHaveBeenCalledWith('template-management.rating.title', {
+      reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+    });
+  });
+
+  it('acknowledges completed or unknown callback actions without editing messages', async () => {
+    registerDeps(createDeps());
+    const completedExport = createContext('tmpl:export:template-1:json');
+    const completedRating = createContext('tmpl:rate:template-1:5');
+    const unknown = createContext('tmpl:unknown');
+
+    await handleCallbackQuery(completedExport);
+    await handleCallbackQuery(completedRating);
+    await handleCallbackQuery(unknown);
+
+    expect(completedExport.answerCallbackQuery).toHaveBeenCalledWith({
+      text: 'bot-server.callback_unchanged',
+    });
+    expect(completedRating.answerCallbackQuery).toHaveBeenCalledWith({
+      text: 'bot-server.callback_unchanged',
+    });
+    expect(unknown.answerCallbackQuery).toHaveBeenCalledWith({
+      text: 'bot-server.callback_unchanged',
+    });
+    expect(completedExport.editMessageText).not.toHaveBeenCalled();
+    expect(completedRating.editMessageText).not.toHaveBeenCalled();
+    expect(unknown.editMessageText).not.toHaveBeenCalled();
+  });
 });

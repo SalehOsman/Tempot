@@ -35,7 +35,7 @@
     "@tempot/shared": "workspace:*",
     "@tempot/ux-helpers": "workspace:*",
     "grammy": "^1.41.1",
-    "hono": "^4.12.15",
+    "hono": "^4.12.25",
     "ioredis": "5.10.1",
     "neverthrow": "8.2.0",
     "rate-limiter-flexible": "^5.0.4",

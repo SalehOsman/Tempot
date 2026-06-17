@@ -3,7 +3,7 @@
 **Branch**: `codex/056-quality-gates-hardening`
 **Started**: 2026-06-08
 **Reconciled branch**: `codex/remediation-sequence-reconciliation`
-**Status**: Foundation verified; coverage completion in progress
+**Status**: Completion verified locally; local main merge pending
 
 ## Baseline Findings
 
@@ -56,19 +56,20 @@
 - The E2E module fixture uses the repository-local TypeScript compiler and no
   longer depends on the ambient pnpm version.
 
-## Blocking Coverage Baseline
+## Coverage Completion - 2026-06-17
 
-`pnpm test:coverage` executes successfully through test collection, then the
-policy correctly fails:
+`pnpm test:coverage` now passes the governed component policy:
 
-- 103 governed components evaluated.
-- 23 blocking failures: 13 service-classified files and 10 handler-classified
-  files.
-- 9 repository warnings.
+- 107 governed components evaluated.
+- Zero blocking service or handler failures.
+- Seven repository warnings remain visible and non-blocking under the
+  constitutional warning policy.
 - Service and handler thresholds remain 80% and 70%; no threshold was reduced.
-- CI keeps this baseline visible with `continue-on-error: true` until the
-  remaining coverage tasks are complete, after which the job must become
-  blocking.
+- CI now treats coverage as a blocking quality gate by removing
+  `continue-on-error` from the coverage job.
+- A role-change persistence defect found during coverage closure was fixed at
+  the source: `RoleService.changeRole` now returns `err(AppError)` when the
+  repository throws instead of returning a false successful `ok(...)` result.
 
 ## Artifact Consistency Review
 
@@ -77,21 +78,26 @@ A read-only comparison of `spec.md`, `plan.md`, `tasks.md`, `research.md`,
 critical inconsistency:
 
 - Every functional requirement and success criterion has task traceability.
-- Open tasks T019-T020 and T039/T042-T044/T046 match the unmet blocking
-  coverage and completion criteria.
-- The feature status does not claim completion while the coverage gate is
-  non-blocking.
+- Tasks T019-T020 and T039/T042-T044/T046 are complete based on fresh
+  2026-06-17 verification.
+- The feature status now reflects local completion while keeping local main
+  merge and remote publication separate from branch verification.
 
-The automated `speckit-analyze` prerequisite cannot initialize from
-`codex/remediation-sequence-reconciliation` because the command requires a
-numbered feature branch. This is a workflow limitation rather than an artifact
-finding; T044 remains open for execution after coverage remediation.
+The automated prerequisite was executed for this branch with
+`SPECIFY_FEATURE_DIRECTORY=specs/056-quality-gates-hardening` because the
+worktree branch uses the Codex maintenance prefix rather than a numbered
+SpecKit branch name.
 
-## Remaining Work
+## Completion Verification - 2026-06-17
 
-- Add focused tests for the 23 service/handler findings.
-- Re-run the complete coverage command until the policy is GREEN.
-- Make the CI coverage job blocking.
-- Re-run SpecKit analysis, full code review, and
-  verification-before-completion after coverage remediation before marking
-  Spec 056 complete.
+- `pnpm install --frozen-lockfile` passed.
+- `pnpm lint`, `pnpm build`, `pnpm test:unit`, `pnpm test:integration`,
+  `pnpm test:e2e`, and `pnpm test:coverage` passed.
+- `pnpm test:inventory` reported 36 governed surfaces, 363 test files, and zero
+  testless surfaces.
+- `pnpm boundary:audit`, `pnpm module:checklist`, `pnpm cms:check`,
+  `pnpm spec:validate`, `pnpm source:conformance`,
+  `pnpm authorization:check`, and `pnpm toolchain:audit` passed.
+- `pnpm audit --audit-level=high` passed after patch-level security updates to
+  `hono` and `astro`; one Low and six Moderate advisories remain visible.
+- Code/documentation review found no Critical or High findings.

@@ -10,12 +10,16 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-17
 ---
 
 ## What is the Shared Package?
 
 The `@tempot/shared` package is the foundation layer of the Tempot framework. It provides the utilities, types, and services that every other package depends on: a unified error hierarchy, the Result pattern, caching, queue creation, graceful shutdown, toggle guards, and session context propagation.
+
+This page was verified against the active shared package exports on
+2026-06-17, including the governed Result constructors and protected-field
+redaction policy.
 
 ## AppError Hierarchy
 

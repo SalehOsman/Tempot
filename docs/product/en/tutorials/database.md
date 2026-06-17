@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-16
+lastVerified: 2026-06-17
 ---
 
 ## Prerequisites
@@ -21,7 +21,7 @@ Before you begin, make sure you have:
 - Basic understanding of Prisma and TypeScript
 
 This tutorial was verified against the active modular schema merge and Prisma 7
-workflow on 2026-06-16.
+workflow on 2026-06-17.
 
 If an entity contains classified identity, contact, credential, or payment
 data, stop before adding it to the model and define its protected envelope,

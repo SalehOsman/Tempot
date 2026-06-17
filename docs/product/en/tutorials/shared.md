@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-08
+lastVerified: 2026-06-17
 ---
 
 ## Prerequisites
@@ -19,6 +19,9 @@ Before you begin, make sure you have:
 - A working Tempot development environment (see [Getting Started](/en/tutorials/getting-started/))
 - Basic understanding of TypeScript and async/await
 - Redis running locally on port 6379
+
+This tutorial was verified against the active shared package API on
+2026-06-17.
 
 ## Building a Notification Service
 

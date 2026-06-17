@@ -10,12 +10,15 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-06-17
 ---
 
 ## Overview
 
 The `@tempot/shared` package provides the cross-cutting utilities that every Tempot package depends on. This guide covers the most common tasks: creating errors, using the Result pattern, configuring caching, creating queues, registering shutdown hooks, and setting up toggle guards.
+
+The examples in this guide were rechecked against the active shared package on
+2026-06-17.
 
 ## Creating AppErrors
 

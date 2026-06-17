@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-16
+lastVerified: 2026-06-17
 ---
 
 ## What is the Database Package?
@@ -18,7 +18,7 @@ lastVerified: 2026-06-16
 The `@tempot/database` package manages all data persistence in Tempot. It provides a repository abstraction over two ORMs, automatic soft-delete handling, audit field population, and vector similarity search for AI features.
 
 This page was verified against Prisma 7.8, Drizzle ORM 0.45, and the current
-`BaseRepository` implementation on 2026-06-16.
+`BaseRepository` implementation on 2026-06-17.
 
 The package also owns the versioned protected-data primitives used for
 AES-256-GCM envelopes and HMAC-SHA-256 exact-match tokens. Application services

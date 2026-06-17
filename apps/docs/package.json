@@ -20,7 +20,7 @@
     "@tempot/ai-core": "workspace:*",
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
-    "astro": "^6.3.3",
+    "astro": "^6.4.6",
     "starlight-typedoc": "^0.21.5",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0"
