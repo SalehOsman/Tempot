@@ -23,12 +23,15 @@
 #   Prerequisite: `prisma` must be a production dep of @tempot/database so that
 #   `pnpm deploy --prod` includes it in /app/out.
 
+ARG PNPM_VERSION=10.33.3
+
 FROM node:22.12-alpine AS base
+ARG PNPM_VERSION
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 # Prisma library engine requires openssl + libc compat on Alpine
 RUN apk add --no-cache openssl libc6-compat
-RUN corepack enable
+RUN npm install -g "pnpm@${PNPM_VERSION}"
 
 # ---------------------------------------------------------------------------
 # Stage: builder
