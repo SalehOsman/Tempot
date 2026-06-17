@@ -20,7 +20,7 @@ Infrastructure — built pre-methodology, integrated into bot-server.
 
 | Package | Purpose |
 |---------|---------|
-| `@sentry/node` 8.x | Sentry SDK — ADR not required (standard monitoring) |
+| `@sentry/node` 10.x | Sentry SDK — ADR not required (standard monitoring) |
 | `@tempot/shared` | AppError, toggle guard |
 | `neverthrow` 8.2.0 | Result pattern |
 

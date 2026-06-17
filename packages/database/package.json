@@ -35,12 +35,12 @@
     "prisma": "^7.8.0"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^11.14.0",
+    "@testcontainers/postgresql": "^12.0.3",
     "@types/node": "^22.19.17",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "glob": "^13.0.0",
-    "testcontainers": "^11.14.0",
+    "testcontainers": "^12.0.3",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

@@ -2518,7 +2518,7 @@ GET /health → 200 OK
 | 🆕 sanitize-html         | 2.x     | تنظيف المدخلات         |
 | 🆕 rate-limiter-flexible | 5.x     | Rate Limiting لـ Hono  |
 | bcrypt                   | 5.x     | تشفير كلمات المرور     |
-| @sentry/node             | 8.x     | تتبع الأخطاء           |
+| @sentry/node             | 10.x    | تتبع الأخطاء           |
 | gitleaks                 | 8.x     | كشف الأسرار            |
 
 ## 35.6 Logging & Testing
@@ -2528,7 +2528,7 @@ GET /health → 200 OK
 | pino                | 9.x     | التسجيل          |
 | pino-pretty         | 11.x    | تنسيق في التطوير |
 | vitest              | 2.x     | إطار الاختبار    |
-| testcontainers      | 10.x    | حاويات Docker    |
+| testcontainers      | 12.x    | حاويات Docker    |
 | @vitest/coverage-v8 | 2.x     | تغطية الكود      |
 
 ## 35.7 Frontend
@@ -2543,7 +2543,7 @@ GET /health → 200 OK
 
 | المكتبة            | الإصدار | الغرض            |
 | ------------------ | ------- | ---------------- |
-| @googleapis/drive  | 8.x     | Google Drive API |
+| @googleapis/drive  | 20.x    | Google Drive API |
 | @aws-sdk/client-s3 | 3.x     | AWS S3           |
 | grammy             | 1.x     | Telegram Bot API |
 | ExcelJS            | 4.x     | توليد Excel      |

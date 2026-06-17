@@ -20,7 +20,7 @@
     "@aws-sdk/client-s3": "^3.1038.0",
     "@aws-sdk/lib-storage": "^3.1038.0",
     "@aws-sdk/s3-request-presigner": "^3.1038.0",
-    "@googleapis/drive": "^20.1.0",
+    "@googleapis/drive": "^20.2.0",
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
     "file-type": "^22.0.1",

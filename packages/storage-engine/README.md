@@ -21,7 +21,7 @@ Phase 4 — Advanced Engines
 
 | Package                  | Purpose                      |
 | ------------------------ | ---------------------------- |
-| `@googleapis/drive` 8.x  | Google Drive provider        |
+| `@googleapis/drive` 20.x | Google Drive provider        |
 | `@aws-sdk/client-s3` 3.x | S3 provider                  |
 | `grammy` 1.x             | Telegram provider            |
 | `@tempot/database`       | Attachment metadata tracking |

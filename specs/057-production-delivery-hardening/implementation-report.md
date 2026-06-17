@@ -3,7 +3,8 @@
 **Feature:** `057-production-delivery-hardening`
 **Branch:** `codex/057-production-delivery-hardening`
 **Started:** 2026-06-17
-**Status:** Phase 1 baseline complete; Phase 2 startup tests and first runtime fixes in progress.
+**Status:** Phases 1-4 complete. Runtime manifest, image minimization,
+supply-chain evidence, staging promotion, and production rehearsal remain open.
 
 ## Handoff Gate
 
@@ -62,6 +63,37 @@
 requires runtime-reachable Moderate advisories to be remediated or explicitly
 approved as non-exploitable.
 
+### Dependency Remediation Evidence
+
+Phase 4 remediated the confirmed Moderate advisory paths and records one
+time-bounded exception for the Changesets-only YAML parser path:
+
+| Package path | Remediation |
+| --- | --- |
+| `@hono/node-server` through Prisma tooling | Root `pnpm.overrides` keeps `@hono/node-server` at `>=1.19.13`. |
+| `uuid` through `testcontainers > dockerode` | Upgraded `testcontainers`, `@testcontainers/postgresql`, and `@testcontainers/redis` to `^12.0.3`, which resolves `dockerode` without the vulnerable `uuid` path. |
+| `qs` through `@googleapis/drive > googleapis-common` | Upgraded `@googleapis/drive` to `^20.2.0` and pinned `qs` to `6.15.2` with a root override. |
+| `js-yaml` through Changesets tooling | Time-bounded exception through 2026-07-17 for `CVE-2026-53550` / `GHSA-h67p-54hq-rp68`. The vulnerable path is local developer release metadata parsing through Changesets, not runtime request handling. Direct override attempts to `js-yaml@4.2.0` broke `read-yaml-file@1.1.0`; overriding `@manypkg/get-packages` to 2.x broke Changesets' package API. Revisit when Changesets publishes a compatible patched dependency path. |
+| `markdown-it` through TypeDoc | Pinned `markdown-it` to `14.2.0` with a root override. |
+| `@opentelemetry/core` through `@sentry/node` | Upgraded `@sentry/node` to `^10.58.0`, which resolves OpenTelemetry 2.x. |
+| `esbuild`, `devalue`, `protobufjs`, `tmp`, `@grpc/grpc-js`, `vite` | Preserved existing root security overrides in `package.json` so lockfile regeneration remains reproducible. |
+
+Verification run on 2026-06-17:
+
+- `pnpm audit --audit-level=moderate`: passed after remediation/exception
+  handling with one Low advisory and one ignored Moderate Changesets-only
+  advisory reported.
+- `pnpm --filter @tempot/sentry test`: 4 files, 26 tests passed.
+- `pnpm --filter @tempot/storage-engine test`: 11 files, 127 tests passed.
+- `pnpm --filter @tempot/database build`: passed.
+- `pnpm --filter @tempot/event-bus build`: passed.
+- `pnpm --filter @tempot/session-manager build`: passed.
+- `pnpm --filter docs build`: passed. The command emitted existing Astro
+  deprecation and docs entry warnings but exited 0.
+- `pnpm changeset:status --since=origin/main`: Changesets executed after the
+  `js-yaml` patch and now fails only because this branch has package changes
+  without a changeset. This is tracked by T048.
+
 ### Runtime Image
 
 - `apps/bot-server/Dockerfile` already uses a multi-stage build and a non-root
@@ -99,3 +131,6 @@ zero testless surfaces.
   event bus, i18n initialization, cache initialization, static settings, and
   protected-data key setup now return `Result` failures instead of raw rejected
   startup paths. Readiness activation remains T009.
+- T020-T023 are complete: dependency advisories at the Moderate gate have been
+  remediated through direct upgrades, reproducible pnpm overrides, and one
+  documented Changesets-only `js-yaml` exception.

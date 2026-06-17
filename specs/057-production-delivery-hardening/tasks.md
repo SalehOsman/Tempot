@@ -37,10 +37,10 @@
 
 ## Phase 4: Runtime Dependency Remediation (P1)
 
-- [ ] T020 [P] Upgrade Hono to a patched release covering the confirmed audit advisories
-- [ ] T021 [P] Upgrade or override confirmed `qs`, `uuid`, and `@ai-sdk/provider-utils` advisory paths
-- [ ] T022 Run focused regression tests for every upgraded runtime dependency path
-- [ ] T023 Run dependency audit and document any time-bounded approved exception
+- [x] T020 [P] Upgrade Hono to a patched release covering the confirmed audit advisories
+- [x] T021 [P] Upgrade or override confirmed `qs`, `uuid`, and `@ai-sdk/provider-utils` advisory paths
+- [x] T022 Run focused regression tests for every upgraded runtime dependency path
+- [x] T023 Run dependency audit and document any time-bounded approved exception
 
 ## Phase 5: User Story 3 - Minimal Verifiable Artifact (P1)
 
