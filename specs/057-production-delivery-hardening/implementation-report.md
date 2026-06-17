@@ -3,7 +3,7 @@
 **Feature:** `057-production-delivery-hardening`
 **Branch:** `codex/057-production-delivery-hardening`
 **Started:** 2026-06-17
-**Status:** Phase 1 baseline complete; runtime changes not started.
+**Status:** Phase 1 baseline complete; Phase 2 startup tests and first runtime fixes in progress.
 
 ## Handoff Gate
 
@@ -89,5 +89,11 @@ zero testless surfaces.
 
 - T001, T002, T004, and T005 are complete as documentation and baseline tasks.
 - T003 remains open because no architecture decision has changed yet.
-- Production code changes for T006 onward must start with failing tests and then
-  implementation.
+- T006 is complete: `deps.factory.test.ts` now proves `initI18n()` rejection is
+  mapped to `bot-server.startup.i18n_init_failed` and that `loadModuleLocales()`
+  `Result.err` during cache warming is not silently ignored.
+- T007 is complete: existing database, Redis, and module-loading failure tests
+  are joined by an HTTP listen failure-injection test in
+  `startup-sequence.test.ts`.
+- T008 remains open. `buildDeps()` now validates i18n initialization, but the
+  full initializer refactor and readiness activation work are not complete.

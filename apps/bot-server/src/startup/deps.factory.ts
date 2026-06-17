@@ -26,10 +26,14 @@ import { assembleOrchestratorDeps } from './deps.orchestrator.js';
 import { resolveRuntimeDirectory } from './runtime-paths.js';
 
 import { loadConfig } from './config.loader.js';
+import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import type { OrchestratorDeps } from './orchestrator.js';
 import type { CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { ProtectedDataService } from '@tempot/database';
+
+type StartupLogger = Parameters<typeof buildEventBus>[0];
+type StartupShutdownManager = ReturnType<typeof buildShutdownManager>;
 
 function buildShutdownManager(): ShutdownManager {
   return new ShutdownManager({
@@ -90,6 +94,10 @@ function modulesDir(): string {
   return resolveRuntimeDirectory('modules');
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function buildProtectedDataService(
   staticSettingsResult: ReturnType<typeof StaticSettingsLoader.load>,
 ): Result<ProtectedDataService | undefined, AppError> {
@@ -104,22 +112,36 @@ function buildProtectedDataService(
   );
 }
 
+async function initializeRequiredServices(
+  log: StartupLogger,
+  shutdownManager: StartupShutdownManager,
+): Promise<Result<EventBusOrchestrator, AppError>> {
+  const [dbError, eventBusResult, i18nError] = await Promise.all([
+    prisma
+      .$connect()
+      .then(() => null)
+      .catch((e: unknown) => errorMessage(e)),
+    buildEventBus(log, shutdownManager, redisConfig()),
+    initI18n()
+      .then(() => null)
+      .catch((e: unknown) => errorMessage(e)),
+  ]);
+
+  if (dbError !== null) {
+    return err(new AppError(BOT_SERVER_ERRORS.DATABASE_UNREACHABLE, { error: dbError }));
+  }
+  if (eventBusResult.isErr()) return err(eventBusResult.error);
+  if (i18nError !== null) {
+    return err(new AppError(BOT_SERVER_ERRORS.I18N_INIT_FAILED, { error: i18nError }));
+  }
+  return ok(eventBusResult.value);
+}
+
 export async function buildDeps(): Promise<Result<OrchestratorDeps, AppError>> {
   const log = logger.child({ module: 'bot-server' });
   const shutdownManager = buildShutdownManager();
 
-  const [dbError, eventBusResult] = await Promise.all([
-    prisma
-      .$connect()
-      .then(() => null)
-      .catch((e: unknown) => (e instanceof Error ? e.message : String(e))),
-    buildEventBus(log, shutdownManager, redisConfig()),
-    initI18n(),
-  ]);
-
-  if (dbError !== null) {
-    return err(new AppError('bot-server.startup.database_unreachable', { error: dbError }));
-  }
+  const eventBusResult = await initializeRequiredServices(log, shutdownManager);
   if (eventBusResult.isErr()) return err(eventBusResult.error);
   const eventBus = eventBusResult.value;
 

@@ -168,6 +168,8 @@ vi.mock('@tempot/auth-core', () => ({
 import { buildDeps } from '../../src/startup/deps.factory.js';
 import { NodeProtectedDataService, StaticProtectedDataKeyProvider } from '@tempot/database';
 import { StaticSettingsLoader } from '@tempot/settings';
+import { initI18n, loadModuleLocales } from '@tempot/i18n-core';
+import { logger } from '@tempot/logger';
 import { AppError } from '@tempot/shared';
 
 function validStaticSettings() {
@@ -233,6 +235,15 @@ describe('buildDeps', () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe('settings.static.validation_failed');
+  });
+
+  it('returns err when i18n initialization rejects', async () => {
+    vi.mocked(initI18n).mockRejectedValueOnce(new Error('locale catalog unavailable'));
+
+    const result = await buildDeps();
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('bot-server.startup.i18n_init_failed');
   });
 
   it('creates the protected data service when key configuration is valid', async () => {
@@ -325,5 +336,19 @@ describe('buildDeps', () => {
 
     // prisma.$connect is called at least once during buildDeps itself
     expect(vi.mocked(prisma.$connect)).toHaveBeenCalled();
+  });
+
+  it('logs translation cache warming failure when loadModuleLocales returns err', async () => {
+    const result = await buildDeps();
+    const deps = result._unsafeUnwrap();
+    vi.mocked(loadModuleLocales).mockResolvedValueOnce(err(new AppError('i18n.load_failed')));
+    vi.mocked(logger.warn).mockClear();
+
+    const warmResult = await deps.warmCaches();
+
+    expect(warmResult.isOk()).toBe(true);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'Translation cache warming failed' }),
+    );
   });
 });

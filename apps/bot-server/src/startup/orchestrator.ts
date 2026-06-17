@@ -4,6 +4,7 @@ import type { AsyncResult } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type { DiscoveryResult, ValidationResult, ValidatedModule } from '@tempot/module-registry';
 import type { BotServerConfig, ModuleLogger } from '../bot-server.types.js';
+import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 
 interface BotLike {
   start: () => Promise<void>;
@@ -50,7 +51,11 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
 
   const { bot, loadedModules } = fatalStepsResult.value;
 
-  const httpServer = deps.createHttpServer(bot, config);
+  const httpServerResult = createHttpServer(deps, bot, config);
+  if (httpServerResult.isErr()) {
+    return err(httpServerResult.error);
+  }
+  const httpServer = httpServerResult.value;
 
   const shutdownResult = deps.registerShutdownHooks(httpServer, bot);
   if (shutdownResult.isErr()) {
@@ -62,7 +67,10 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
     return err(signalResult.error);
   }
 
-  httpServer.listen(config.port);
+  const listenResult = listenHttpServer(httpServer, config.port);
+  if (listenResult.isErr()) {
+    return err(listenResult.error);
+  }
   deps.logger.info({ msg: 'http_server_listening', port: config.port });
 
   const durationMs = Date.now() - startTime;
@@ -85,10 +93,32 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   return ok(undefined);
 }
 
-function publishStartupCompleted(
+function createHttpServer(
   deps: OrchestratorDeps,
-  payload: Record<string, unknown>,
-): void {
+  bot: BotLike,
+  config: BotServerConfig,
+): Result<HttpServerLike, AppError> {
+  try {
+    return ok(deps.createHttpServer(bot, config));
+  } catch (error: unknown) {
+    return err(new AppError(BOT_SERVER_ERRORS.HTTP_SERVER_FAILED, { error: errorMessage(error) }));
+  }
+}
+
+function listenHttpServer(httpServer: HttpServerLike, port: number): Result<void, AppError> {
+  try {
+    httpServer.listen(port);
+    return ok(undefined);
+  } catch (error: unknown) {
+    return err(new AppError(BOT_SERVER_ERRORS.HTTP_SERVER_FAILED, { error: errorMessage(error) }));
+  }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function publishStartupCompleted(deps: OrchestratorDeps, payload: Record<string, unknown>): void {
   deps.eventBus
     .publish('system.startup.completed', payload)
     .then((result: unknown) => {

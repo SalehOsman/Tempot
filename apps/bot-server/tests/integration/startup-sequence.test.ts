@@ -190,6 +190,29 @@ describe('startup sequence integration', () => {
     expect(deps.createHttpServer).toHaveBeenCalled();
   });
 
+  it('returns err and does not publish startup completion when HTTP listen fails', async () => {
+    const mockBot = { start: vi.fn().mockResolvedValue(undefined) };
+    const deps = createFullDeps({
+      createBot: vi.fn().mockReturnValue(mockBot),
+      createHttpServer: vi.fn().mockReturnValue({
+        listen: vi.fn(() => {
+          throw new Error('port already in use');
+        }),
+        close: vi.fn().mockResolvedValue(undefined),
+      }),
+    });
+
+    const result = await startApplication(deps);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe('bot-server.startup.http_server_failed');
+    expect(deps.eventBus.publish).not.toHaveBeenCalledWith(
+      'system.startup.completed',
+      expect.anything(),
+    );
+    expect(mockBot.start).not.toHaveBeenCalled();
+  });
+
   it('webhook mode does not call bot.start', async () => {
     const mockBot = { start: vi.fn() };
     const deps = createFullDeps({

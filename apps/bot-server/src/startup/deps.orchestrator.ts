@@ -150,12 +150,14 @@ function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
       warmCaches({
         settingsWarmer: {
           warmAll: async () => {
-            await opts.settingsService.getDynamic('maintenance_mode');
+            const result = await opts.settingsService.getDynamic('maintenance_mode');
+            if (result.isErr()) throw result.error;
           },
         },
         i18nWarmer: {
           warmAll: async () => {
-            await opts.loadModuleLocales();
+            const result = await opts.loadModuleLocales();
+            if (result.isErr()) throw result.error;
           },
         },
         logger: opts.log,

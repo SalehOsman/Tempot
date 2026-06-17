@@ -13,8 +13,8 @@
 
 ## Phase 2: User Story 1 - Predictable Startup (P1)
 
-- [ ] T006 [P] [US1] Write failing i18n rejection and ignored-result startup tests in `apps/bot-server/tests/`
-- [ ] T007 [P] [US1] Write failing database, Redis, module-loading, and server-start failure-injection tests
+- [x] T006 [P] [US1] Write failing i18n rejection and ignored-result startup tests in `apps/bot-server/tests/`
+- [x] T007 [P] [US1] Write failing database, Redis, module-loading, and server-start failure-injection tests
 - [ ] T008 [US1] Refactor `apps/bot-server/src/startup/deps.factory.ts` to validate every initializer and map failures to Result/AppError
 - [ ] T009 [US1] Add explicit startup-stage state and readiness activation
 - [ ] T010 [US1] Reconcile optional dependency degradation and required-provider configuration

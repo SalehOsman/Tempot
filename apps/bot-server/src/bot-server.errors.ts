@@ -14,5 +14,7 @@ export const BOT_SERVER_ERRORS = {
   SUPER_ADMIN_BOOTSTRAP_FAILED: 'bot-server.bootstrap.super_admin_failed',
   CACHE_WARMING_FAILED: 'bot-server.startup.cache_warming_failed',
   DATABASE_UNREACHABLE: 'bot-server.startup.database_unreachable',
+  I18N_INIT_FAILED: 'bot-server.startup.i18n_init_failed',
+  HTTP_SERVER_FAILED: 'bot-server.startup.http_server_failed',
   ABILITY_BUILD_FAILED: 'bot-server.auth.ability_build_failed',
 } as const;
