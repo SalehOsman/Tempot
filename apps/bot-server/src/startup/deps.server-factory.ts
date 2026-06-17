@@ -31,6 +31,7 @@ export function buildHttpServerFactory(
       version,
       startTime,
       logger: deps.log,
+      readinessToken: process.env['TEMPOT_READINESS_TOKEN'],
     });
 
     let server: ReturnType<typeof serve> | undefined;

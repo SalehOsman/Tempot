@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { timingSafeEqual } from 'node:crypto';
 import type { Context as HonoContext } from 'hono';
 import type {
   HealthCheckResponse,
@@ -13,9 +14,11 @@ interface HealthRouteDeps {
   version: string;
   startTime: number;
   logger: ModuleLogger;
+  readinessToken?: string;
 }
 
 const PROBE_TIMEOUT_MS = 4_000;
+const READINESS_TOKEN_HEADER = 'x-tempot-readiness-token';
 
 /** Subsystems whose failure means "unhealthy" (critical) */
 const CRITICAL_SUBSYSTEMS = new Set(['database', 'redis']);
@@ -25,9 +28,15 @@ const DEGRADED_SUBSYSTEMS = new Set(['ai_provider', 'disk', 'queue_manager']);
 
 export function createHealthRoute(deps: HealthRouteDeps): Hono {
   const route = new Hono();
-  const { probes, version, startTime, logger } = deps;
+  const { probes, version, startTime, logger, readinessToken } = deps;
 
-  route.get('/health', async (c: HonoContext) => {
+  route.get('/live', (c: HonoContext) => c.json({ status: 'alive' }, 200));
+  route.get('/health', (c: HonoContext) => c.json({ status: 'alive' }, 200));
+
+  route.get('/ready', async (c: HonoContext) => {
+    if (!isReadinessAuthorized(c, readinessToken)) {
+      return c.json({ error: 'forbidden' }, 403);
+    }
     const checks = await runAllProbes(probes, logger);
     const status = classifyHealth(checks);
     const uptime = Math.floor((Date.now() - startTime) / 1_000);
@@ -44,6 +53,17 @@ export function createHealthRoute(deps: HealthRouteDeps): Hono {
   });
 
   return route;
+}
+
+function isReadinessAuthorized(c: HonoContext, expectedToken: string | undefined): boolean {
+  if (!expectedToken) return false;
+  const receivedToken = c.req.header(READINESS_TOKEN_HEADER);
+  if (!receivedToken) return false;
+
+  const expectedBuffer = Buffer.from(expectedToken, 'utf8');
+  const receivedBuffer = Buffer.from(receivedToken, 'utf8');
+  if (expectedBuffer.length !== receivedBuffer.length) return false;
+  return timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
 type ChecksRecord = HealthCheckResponse['checks'];

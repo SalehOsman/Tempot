@@ -30,6 +30,7 @@ interface HealthRouteDeps {
   version: string;
   startTime: number;
   logger: ModuleLogger;
+  readinessToken: string;
 }
 
 function okCheck(latency = 5): SubsystemCheck {
@@ -57,9 +58,16 @@ function createTestApp(deps: HealthRouteDeps): Hono {
     version: deps.version,
     startTime: deps.startTime,
     logger: deps.logger,
+    readinessToken: deps.readinessToken,
   });
   app.route('/', route);
   return app;
+}
+
+function requestReady(app: Hono): Promise<Response> {
+  return app.request('/ready', {
+    headers: { 'X-Tempot-Readiness-Token': 'ops-token' },
+  });
 }
 
 describe('createHealthRoute', () => {
@@ -71,13 +79,49 @@ describe('createHealthRoute', () => {
       version: '1.0.0',
       startTime: Date.now() - 60_000,
       logger: createMockLogger(),
+      readinessToken: 'ops-token',
     };
+  });
+
+  it('returns minimal liveness without exposing dependency details', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/live');
+    const body = (await response.json()) as Record<string, unknown>;
+
+    expect(response.status).toBe(200);
+    expect(body['status']).toBe('alive');
+    expect(body).not.toHaveProperty('checks');
+    expect(body).not.toHaveProperty('version');
+    expect(deps.probes.database).not.toHaveBeenCalled();
+  });
+
+  it('keeps /health as minimal public liveness for container compatibility', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/health');
+    const body = (await response.json()) as Record<string, unknown>;
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual({ status: 'alive' });
+    expect(deps.probes.redis).not.toHaveBeenCalled();
+  });
+
+  it('rejects readiness without the operational token and hides details', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/ready');
+    const body = (await response.json()) as Record<string, unknown>;
+
+    expect(response.status).toBe(403);
+    expect(body).toEqual({ error: 'forbidden' });
+    expect(deps.probes.database).not.toHaveBeenCalled();
   });
 
   it('returns healthy when all subsystems are ok', async () => {
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(200);
@@ -93,7 +137,7 @@ describe('createHealthRoute', () => {
     deps.probes.database = vi.fn().mockResolvedValue(errorCheck('Connection refused'));
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(503);
@@ -106,7 +150,7 @@ describe('createHealthRoute', () => {
     deps.probes.ai_provider = vi.fn().mockResolvedValue(errorCheck('Provider timeout'));
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(200);
@@ -117,7 +161,7 @@ describe('createHealthRoute', () => {
   it('includes latency_ms for each subsystem', async () => {
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(body.checks.database.latency_ms).toBeTypeOf('number');
@@ -130,7 +174,7 @@ describe('createHealthRoute', () => {
   it('includes version and uptime', async () => {
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(body.version).toBe('1.0.0');
@@ -142,7 +186,7 @@ describe('createHealthRoute', () => {
     deps.probes.redis = vi.fn().mockResolvedValue(errorCheck('Redis connection lost'));
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(503);
@@ -155,7 +199,7 @@ describe('createHealthRoute', () => {
     deps.probes.ai_provider = vi.fn().mockResolvedValue(errorCheck('AI down'));
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(503);
@@ -166,7 +210,7 @@ describe('createHealthRoute', () => {
     deps.probes.database = vi.fn().mockResolvedValue({ status: 'ok' });
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(body.checks.database.status).toBe('ok');
@@ -181,7 +225,7 @@ describe('createHealthRoute', () => {
     );
     const app = createTestApp(deps);
 
-    const requestPromise = app.request('/health');
+    const requestPromise = requestReady(app);
     await vi.advanceTimersByTimeAsync(4_001);
     const response = await requestPromise;
     const body = (await response.json()) as HealthCheckResponse;
@@ -196,7 +240,7 @@ describe('createHealthRoute', () => {
     deps.probes.queue_manager = vi.fn().mockResolvedValue(errorCheck('Queue offline'));
     const app = createTestApp(deps);
 
-    const response = await app.request('/health');
+    const response = await requestReady(app);
     const body = (await response.json()) as HealthCheckResponse;
 
     expect(response.status).toBe(200);

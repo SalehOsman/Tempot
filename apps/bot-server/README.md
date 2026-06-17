@@ -63,6 +63,8 @@ pnpm --filter bot-server start
 
 ## Health And Shutdown
 
-`GET /health` reports runtime dependency health. Shutdown hooks stop the HTTP
+`GET /health` and `GET /live` return minimal public liveness only. Detailed
+runtime dependency readiness is available through restricted `GET /ready`
+access using the operational readiness token. Shutdown hooks stop the HTTP
 server and bot, then close cache, database, event bus, and other registered
 resources through the shared `ShutdownManager`.
