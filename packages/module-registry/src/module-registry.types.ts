@@ -139,6 +139,18 @@ export interface ValidationResult {
   failed: ValidationError[];
 }
 
+/** Build-time metadata consumed by production runtime validation. */
+export interface RuntimeManifestModule {
+  name: string;
+  specDir: string;
+}
+
+export interface RuntimeModuleManifest {
+  version: 1;
+  modules: RuntimeManifestModule[];
+  packages: string[];
+}
+
 /** Logger interface (minimal — injected dependency) */
 export interface RegistryLogger {
   info: (data: Record<string, unknown>) => void;

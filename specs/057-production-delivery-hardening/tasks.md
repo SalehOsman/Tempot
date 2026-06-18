@@ -3,16 +3,19 @@
 **Input**: Design documents from `specs/057-production-delivery-hardening/`
 **Tests**: Mandatory for runtime, HTTP, image, pipeline, and deployment behavior.
 
-## Current Status - 2026-06-18
+## Current Status - 2026-06-19
 
 T004-T023 are merged to `origin/main` through commit `5a459b1`, with a follow-up
 CI stabilization commit `a1bd220`. Startup, readiness, HTTP perimeter, health
 threshold, bounded rate-limit fallback, and runtime dependency remediation work
 is part of the current `main` baseline.
 
-T003 remains open because the HTTP/health/runtime-manifest ADR decision has not
-been completed. Phases 5-7 remain open and continue to block production
-go/no-go.
+T003 and T024-T031 are implemented on
+`codex/057-runtime-artifact-hardening`. The branch adds ADR-045, build-time
+runtime manifest generation, runtime manifest consumption by module
+validation, minimal runner image copy rules, and Docker SBOM/provenance,
+Trivy, and Cosign policy gates. T032 remains open until a real image build,
+scan, signature verification, and container smoke run complete.
 
 T041 remains open intentionally because the final documentation reconciliation
 must include Phase 5 image and supply-chain evidence, Phase 6 staging and
@@ -22,7 +25,7 @@ rollback evidence, and Phase 7 review and go/no-go evidence.
 
 - [x] T001 Create execution worktree `codex/057-production-delivery-hardening`
 - [x] T002 Record startup stages, health visibility, HTTP routes, dependency advisories, image contents, and workflow baseline
-- [ ] T003 [P] Create or update the HTTP/health/runtime-manifest ADR and ADR index if architectural decisions change
+- [x] T003 [P] Create or update the HTTP/health/runtime-manifest ADR and ADR index if architectural decisions change
 - [x] T004 [P] Create a production threat model in `docs/security/`
 - [x] T005 Define migration compatibility and release evidence templates in `docs/operations/`
 
@@ -59,14 +62,14 @@ rollback evidence, and Phase 7 review and go/no-go evidence.
 
 ## Phase 5: User Story 3 - Minimal Verifiable Artifact (P1)
 
-- [ ] T024 [P] [US3] Write failing image-content assertions for source, tests, and `specs/` trees
-- [ ] T025 [P] [US3] Write failing runtime-manifest validation and non-root smoke tests
-- [ ] T026 [US3] Generate a build-time validated runtime module manifest
-- [ ] T027 [US3] Update module discovery/validation to consume the runtime manifest
-- [ ] T028 [US3] Refactor `apps/bot-server/Dockerfile` to copy compiled runtime artifacts only
-- [ ] T029 [US3] Pin base-image policy and preserve non-root execution
-- [ ] T030 [US3] Add SBOM, image scan, provenance, signing, and verification to `.github/workflows/docker.yml`
-- [ ] T031 [US3] Block publication/promotion on policy failures
+- [x] T024 [P] [US3] Write failing image-content assertions for source, tests, and `specs/` trees
+- [x] T025 [P] [US3] Write failing runtime-manifest validation and non-root smoke tests
+- [x] T026 [US3] Generate a build-time validated runtime module manifest
+- [x] T027 [US3] Update module discovery/validation to consume the runtime manifest
+- [x] T028 [US3] Refactor `apps/bot-server/Dockerfile` to copy compiled runtime artifacts only
+- [x] T029 [US3] Pin base-image policy and preserve non-root execution
+- [x] T030 [US3] Add SBOM, image scan, provenance, signing, and verification to `.github/workflows/docker.yml`
+- [x] T031 [US3] Block publication/promotion on policy failures
 - [ ] T032 [US3] Confirm image-content, scan, signature, and smoke tests GREEN
 
 **Independent Test**: The signed immutable image is minimal, non-root, scanned, and reproducible.

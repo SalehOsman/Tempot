@@ -90,6 +90,39 @@ describe('ModuleValidator', () => {
   });
 
   describe('structural validation', () => {
+    it('should validate production modules from the runtime manifest without source or SpecKit trees', async () => {
+      const module = createModule();
+      const validator = new ModuleValidator({
+        specsDir: '/app/specs',
+        packagesDir: '/app/packages',
+        runtimeManifest: {
+          version: 1,
+          modules: [
+            {
+              name: 'test-module',
+              specDir: '019-test-module',
+            },
+          ],
+          packages: ['shared'],
+        },
+        listDir: async (path: string) => {
+          throw new Error(`unexpected filesystem list: ${path}`);
+        },
+        pathExists: async (path: string) => {
+          throw new Error(`unexpected filesystem access: ${path}`);
+        },
+        logger,
+      });
+
+      const result = await validator.validate([module]);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.validated).toHaveLength(1);
+        expect(result.value.failed).toHaveLength(0);
+      }
+    });
+
     it('should pass with all mandatory files', async () => {
       const module = createModule();
       const validator = new ModuleValidator({

@@ -3,11 +3,12 @@
 **Feature:** `057-production-delivery-hardening`
 **Branch:** `codex/057-production-delivery-hardening`
 **Started:** 2026-06-17
-**Last reconciled:** 2026-06-18
-**Status:** T004-T023 merged to `origin/main` on 2026-06-18. T003, runtime
-manifest, image minimization, SBOM/signing/scanning, immutable promotion,
-staging rehearsal, backup/restore, rollback or forward-fix evidence, final
-review, and production go/no-go remain open.
+**Last reconciled:** 2026-06-19
+**Status:** T004-T023 merged to `origin/main` on 2026-06-18. T003 and
+T024-T031 are implemented on `codex/057-runtime-artifact-hardening`.
+Image build/scan/signature/smoke evidence, immutable promotion, staging
+rehearsal, backup/restore, rollback or forward-fix evidence, final review, and
+production go/no-go remain open.
 
 ## Handoff Gate
 
@@ -165,10 +166,48 @@ Verification run on 2026-06-18 after documentation reconciliation:
 - After merge, GitHub Actions passed on `origin/main` commit `a1bd220`: CI and
   Docker both completed successfully.
 
+### Runtime Artifact Evidence
+
+Implemented on 2026-06-19 in `codex/057-runtime-artifact-hardening`:
+
+- ADR-045 records the runtime manifest and signed-image decision.
+- `scripts/ci/runtime-manifest.ts` validates module source, package inventory,
+  and matching SpecKit artifacts during the build and writes
+  `runtime/runtime-manifest.json`.
+- `ModuleValidator` consumes the runtime manifest when present, avoiding
+  production dependence on full `specs/`, module source, module tests, or full
+  package source trees.
+- `apps/bot-server/Dockerfile` prepares `/app/runtime` in the builder and
+  copies compiled runtime artifacts plus the generated manifest into the
+  runner.
+- `.github/workflows/docker.yml` enables BuildKit SBOM/provenance, blocks on
+  Trivy High/Critical image scan findings, signs the immutable digest with
+  Cosign, and verifies the signature.
+
+Verification run on 2026-06-19:
+
+- `pnpm --filter @tempot/database db:generate`: passed.
+- `pnpm build:bot-runtime`: passed after Prisma generation.
+- `pnpm runtime:manifest`: passed and generated 8 module entries and 22 package
+  entries.
+- Focused unit tests for runtime manifest, runtime artifact policy,
+  `ModuleValidator`, and runtime paths passed with 31/31 tests.
+- `pnpm audit --audit-level=high`: passed after pinning `undici` to 7.28.0
+  through the root override to close the `apps__docs > cheerio > undici` High
+  advisory path.
+- `docker build -f apps/bot-server/Dockerfile -t tempot-bot-server:runtime-artifact-hardening .`:
+  passed locally.
+- Local image content inspection: passed for non-root user `hono` / UID 1001,
+  no `/app/specs`, no `*/tests*`, no `*.ts`, no `*.d.ts`, and no `*.map` under
+  `/app/modules` or `/app/packages`.
+- Local Trivy and Cosign verification did not run because neither CLI is
+  installed in the local workstation environment. The workflow configuration
+  contains the blocking CI gates, but remote CI evidence is still required.
+
 Open documentation and evidence work:
 
-- T024-T032: runtime manifest, minimal non-root image contents, SBOM,
-  provenance, signing, image scanning, verification, and publication policy.
+- T032: remote image scan, signature verification, and container smoke evidence
+  from the Docker workflow or an equivalent supply-chain tool environment.
 - T033-T040: immutable staging promotion, migration compatibility automation,
   metrics, independent alert fallback, Compose safety, production runbooks,
   backup/restore, and rollback or forward-fix rehearsal.

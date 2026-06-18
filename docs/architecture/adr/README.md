@@ -48,3 +48,4 @@
 | 042 | [Module-Owned Telegram Navigation](ADR-042-module-owned-navigation.md)              | Accepted |
 | 043 | [Interaction Observability Package](ADR-043-interaction-observability-package.md)   | Accepted |
 | 044 | [Versioned Sensitive Data Protection](ADR-044-sensitive-data-protection.md)         | Accepted |
+| 045 | [Runtime Manifest and Signed Bot Image](ADR-045-runtime-manifest-and-signed-image.md) | Accepted |

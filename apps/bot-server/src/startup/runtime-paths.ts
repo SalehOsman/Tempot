@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export type RuntimeDirectoryName = 'modules' | 'packages' | 'specs';
+export type RuntimeDirectoryName = 'modules' | 'packages' | 'runtime' | 'specs';
 
 const CURRENT_FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(CURRENT_FILE_DIR, '../../../..');
