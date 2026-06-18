@@ -55,6 +55,31 @@ RUN pnpm --filter @tempot/database exec prisma generate
 # bot image, because Starlight content links are local-development concerns.
 RUN pnpm build:bot-runtime
 
+# Validate source/spec/package inputs at build time and emit the minimal runtime
+# metadata consumed by ModuleValidator in the runner image.
+RUN pnpm runtime:manifest
+
+# Prepare minimal runtime module and package trees. The runner needs compiled
+# module entrypoints, locale catalogs, and package dist outputs; it must not
+# include source, tests, TypeScript declarations/maps, or SpecKit documents.
+RUN mkdir -p /app/runtime/modules /app/runtime/packages \
+    && for dir in modules/*/; do \
+      name=$(basename "$dir"); \
+      mkdir -p "/app/runtime/modules/$name"; \
+      cp -R "$dir/dist" "/app/runtime/modules/$name/dist"; \
+      cp -R "$dir/locales" "/app/runtime/modules/$name/locales"; \
+    done \
+    && for dir in packages/*/; do \
+      name=$(basename "$dir"); \
+      mkdir -p "/app/runtime/packages/$name"; \
+      [ -f "$dir/package.json" ] && cp "$dir/package.json" "/app/runtime/packages/$name/package.json" || true; \
+      [ -d "$dir/dist" ] && cp -R "$dir/dist" "/app/runtime/packages/$name/dist" || true; \
+      [ -d "$dir/prisma" ] && cp -R "$dir/prisma" "/app/runtime/packages/$name/prisma" || true; \
+    done \
+    && find /app/runtime -path '*/tests*' -exec rm -rf {} + \
+    && find /app/runtime -name '*.d.ts' -delete \
+    && find /app/runtime -name '*.map' -delete
+
 # Deploy bot-server as an isolated production bundle.
 # Creates a fresh pnpm virtual store in /app/out — the .prisma/client binary
 # from step (1) is NOT carried over automatically.
@@ -90,9 +115,10 @@ COPY --from=builder /app/apps/bot-server/dist ./dist
 # Copy dependencies from pnpm deploy
 COPY --from=builder /app/out/node_modules ./node_modules
 
-# Copy all built workspace packages (for module-specific dependencies).
-# Modules declare needs in module.config.ts requires; the validator checks packages/.
-COPY --from=builder /app/packages ./packages
+# Copy runtime manifest and compiled workspace artifacts only.
+COPY --from=builder /app/runtime/runtime-manifest.json ./runtime/runtime-manifest.json
+COPY --from=builder /app/runtime/packages ./packages
+COPY --from=builder /app/runtime/modules ./modules
 
 # Create node_modules symlinks for workspace packages not already provided by
 # pnpm deploy. Packages that pnpm deploy already placed (database, auth-core, etc.)
@@ -103,18 +129,6 @@ RUN mkdir -p node_modules/@tempot && \
       [ ! -e "node_modules/@tempot/$name" ] && [ -d "$dir" ] && \
         ln -sf "../../packages/$name" "node_modules/@tempot/$name" || true; \
     done
-
-# Copy Prisma schema files (needed for runtime database operations)
-COPY --from=builder /app/packages/database/prisma ./prisma-schemas/database/
-
-# Copy modules from workspace root (modules/*). Each module contains both
-# source .ts files (for validator MANDATORY_PATHS checks) and compiled dist/
-# (for module-discovery and Node dynamic import at runtime).
-COPY --from=builder /app/modules ./modules
-
-# Copy specs/ so the ModuleValidator spec-gate check (specsDir = /app/specs) passes.
-# Without this, every module fails validation with "No spec directory found".
-COPY --from=builder /app/specs ./specs
 
 # Copy bot-server locale files for core messages like rate_limit_exceeded
 COPY --from=builder /app/apps/bot-server/locales ./apps/bot-server/locales

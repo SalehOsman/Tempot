@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-18.
+> Last updated: 2026-06-19.
 
 ## Current Technical Baseline
 
@@ -114,12 +114,14 @@ Recently completed:
 
 Active or next work:
 
-1. Complete Spec #057 production-delivery hardening Phases 5-7 before any
-   production go/no-go decision. The startup, readiness, HTTP hardening,
-   configurable health-threshold, bounded rate-limit fallback, and dependency
-   remediation slices are merged to `origin/main`. The conditional ADR task,
-   runtime image minimization, SBOM/signing/scanning, immutable promotion,
-   staging rehearsal, rollback evidence, and final review gates remain open.
+1. Complete Spec #057 production-delivery hardening remaining evidence before
+   any production go/no-go decision. The startup, readiness, HTTP hardening,
+   configurable health-threshold, bounded rate-limit fallback, dependency
+   remediation, runtime manifest, minimal image copy policy, and Docker
+   SBOM/provenance/signing/scanning workflow slices are implemented or merged.
+   The local image build and runtime-content inspection passed; remote
+   scan/signature/smoke evidence, immutable promotion, staging rehearsal,
+   rollback evidence, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -163,7 +165,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T023 merged to `origin/main` on 2026-06-18 with startup, readiness, HTTP hardening, configurable health thresholds, bounded rate-limit fallback, and dependency remediation evidence. T003 and Phases 5-7 remain open; final production gate remains blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T023 merged to `origin/main` on 2026-06-18. T003 and T024-T031 are implemented on `codex/057-runtime-artifact-hardening` with ADR-045, runtime manifest, minimal runner copy policy, and Docker SBOM/provenance/Trivy/Cosign gates. T032 and Phases 6-7 remain open; final production gate remains blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -185,6 +187,26 @@ Spec #057 merged evidence as of 2026-06-18:
   changeset status, and the high-severity audit gate.
 - `origin/main` is green after the 2026-06-18 push: GitHub Actions CI and Docker
   both passed on commit `a1bd220`.
+
+Spec #057 runtime artifact branch evidence as of 2026-06-19:
+
+- ADR-045 records the runtime manifest and signed-image decision.
+- `pnpm runtime:manifest` validates build-time module source, package inventory,
+  and SpecKit matching, then emits `runtime/runtime-manifest.json`.
+- `ModuleValidator` consumes the runtime manifest when present, so the
+  production runner does not need full source, tests, or SpecKit trees.
+- The bot-server Docker runner now copies compiled runtime artifacts and the
+  generated manifest instead of root `packages/`, `modules/`, and `specs/`
+  trees.
+- Docker publishing now requests BuildKit SBOM/provenance, blocks High/Critical
+  Trivy scan findings, signs the immutable digest with Cosign, and verifies the
+  signature.
+- Focused local verification passed for runtime manifest generation, artifact
+  policy, runtime path resolution, `ModuleValidator`, `build:bot-runtime`,
+  `runtime:manifest`, local Docker image build, non-root user inspection, and
+  runner-content inspection. Remote Trivy/Cosign/smoke evidence remains pending
+  under T032 because the local workstation does not have Trivy or Cosign
+  installed.
 
 Production go/no-go requires:
 
@@ -209,7 +231,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and the Spec #057 T004-T023 slices are published to `origin/main`; T003 plus runtime artifact, supply-chain, staging, backup/restore, rollback, review, and final release gates remain blocked |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and the Spec #057 T004-T023 slices are published to `origin/main`; Spec #057 T003 and T024-T031 are implemented on a branch; T032 plus staging, backup/restore, rollback, review, and final release gates remain blocked |
 
 ## Package Status
 

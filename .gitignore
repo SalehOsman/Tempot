@@ -200,6 +200,7 @@ temp/
 # -------------------------------------------------------------------
 *.generated.ts
 api-docs/
+runtime/
 typedoc-output/
 docs/product/reference/
 

@@ -13,6 +13,8 @@ export type {
   ValidationError,
   DiscoveryResult,
   ValidationResult,
+  RuntimeManifestModule,
+  RuntimeModuleManifest,
   RegistryLogger,
   RegistryEventBus,
   RegistryBot,

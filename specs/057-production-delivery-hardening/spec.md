@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/057-production-delivery-hardening`
 **Created**: 2026-06-07
-**Status**: T004-T023 merged to `origin/main` on 2026-06-18; T003 and Phases 5-7 remain open; production go/no-go blocked
+**Status**: T004-T023 merged to `origin/main` on 2026-06-18; T003 and T024-T031 implemented on `codex/057-runtime-artifact-hardening` on 2026-06-19; image build/scan/signature/smoke evidence, Phases 6-7, and production go/no-go remain blocked
 **Input**: Project audit findings covering startup error-contract gaps, incomplete HTTP hardening, detailed public health output, vulnerable runtime dependencies, oversized runtime images, unsafe Compose defaults, and incomplete supply-chain, promotion, observability, and rollback controls.
 
 ## Clarifications

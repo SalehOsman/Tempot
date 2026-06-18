@@ -6,6 +6,7 @@ import type {
   DiscoveredModule,
   ModuleValidatorPort,
   RegistryLogger,
+  RuntimeModuleManifest,
   ValidatedModule,
   ValidationError,
   ValidationResult,
@@ -15,6 +16,7 @@ import type {
 export interface ModuleValidatorDeps {
   specsDir: string;
   packagesDir: string;
+  runtimeManifest?: RuntimeModuleManifest;
   listDir: (path: string) => Promise<string[]>;
   pathExists: (path: string) => Promise<boolean>;
   logger: RegistryLogger;
@@ -36,8 +38,8 @@ export class ModuleValidator implements ModuleValidatorPort {
     const skipped: string[] = [];
     const failed: ValidationError[] = [];
 
-    const specDirs = await this.safeListDir(this.deps.specsDir);
-    const packageDirs = await this.safeListDir(this.deps.packagesDir);
+    const specDirs = await this.listSpecDirs();
+    const packageDirs = await this.listPackageDirs();
     const seenNames = new Set<string>();
 
     for (const module of discovered) {
@@ -69,6 +71,7 @@ export class ModuleValidator implements ModuleValidatorPort {
     ctx: { specDirs: string[]; packageDirs: string[]; seenNames: Set<string> },
   ): Promise<ValidationError[]> {
     const errors: ValidationError[] = [];
+    const manifestModule = this.manifestModule(module.name);
 
     if (ctx.seenNames.has(module.name)) {
       errors.push({
@@ -78,15 +81,27 @@ export class ModuleValidator implements ModuleValidatorPort {
       });
     }
 
-    const structureErrors = await checkStructure(module, this.deps.pathExists, this.deps.logger);
-    errors.push(...structureErrors);
+    if (this.deps.runtimeManifest && !manifestModule) {
+      errors.push({
+        module: module.name,
+        code: MODULE_REGISTRY_ERRORS.STRUCTURE_INVALID,
+        message: `Module missing from runtime manifest: ${module.name}`,
+      });
+    }
 
-    const specErrors = await checkSpecGate(module, {
-      specDirs: ctx.specDirs,
-      specsDir: this.deps.specsDir,
-      pathExists: this.deps.pathExists,
-    });
-    errors.push(...specErrors);
+    if (!this.deps.runtimeManifest) {
+      const structureErrors = await checkStructure(module, this.deps.pathExists, this.deps.logger);
+      errors.push(...structureErrors);
+    }
+
+    if (!this.deps.runtimeManifest) {
+      const specErrors = await checkSpecGate(module, {
+        specDirs: ctx.specDirs,
+        specsDir: this.deps.specsDir,
+        pathExists: this.deps.pathExists,
+      });
+      errors.push(...specErrors);
+    }
 
     const depErrors = checkDependencies(module, ctx.packageDirs, this.deps.logger);
     errors.push(...depErrors);
@@ -100,5 +115,25 @@ export class ModuleValidator implements ModuleValidatorPort {
     } catch {
       return [];
     }
+  }
+
+  private listSpecDirs(): Promise<string[]> {
+    const manifest = this.deps.runtimeManifest;
+    if (manifest) {
+      return Promise.resolve(manifest.modules.map((module) => module.specDir));
+    }
+    return this.safeListDir(this.deps.specsDir);
+  }
+
+  private listPackageDirs(): Promise<string[]> {
+    const manifest = this.deps.runtimeManifest;
+    if (manifest) {
+      return Promise.resolve(manifest.packages);
+    }
+    return this.safeListDir(this.deps.packagesDir);
+  }
+
+  private manifestModule(moduleName: string): RuntimeModuleManifest['modules'][number] | undefined {
+    return this.deps.runtimeManifest?.modules.find((module) => module.name === moduleName);
   }
 }

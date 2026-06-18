@@ -28,6 +28,7 @@ describe('resolveRuntimeDirectory', () => {
 
     expect(resolveRuntimeDirectory('modules')).toBe(path.join(repositoryRoot, 'modules'));
     expect(resolveRuntimeDirectory('packages')).toBe(path.join(repositoryRoot, 'packages'));
+    expect(resolveRuntimeDirectory('runtime')).toBe(path.join(repositoryRoot, 'runtime'));
     expect(resolveRuntimeDirectory('specs')).toBe(path.join(repositoryRoot, 'specs'));
   });
 });

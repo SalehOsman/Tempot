@@ -1,4 +1,5 @@
 import { pathToFileURL } from 'node:url';
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
@@ -7,6 +8,7 @@ import { ShutdownManager, CacheService, AppError } from '@tempot/shared';
 import { EventBusOrchestrator } from '@tempot/event-bus';
 import { SessionProvider, SessionRepository } from '@tempot/session-manager';
 import { ModuleRegistry, ModuleDiscovery, ModuleValidator } from '@tempot/module-registry';
+import type { RuntimeModuleManifest } from '@tempot/module-registry';
 import { buildCacheAdapter } from './cache.adapter.js';
 import { resolveRuntimeDirectory } from './runtime-paths.js';
 import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
@@ -28,6 +30,24 @@ function errorMessage(error: unknown): string {
 
 function toStartupError(code: string, error: unknown): AppError {
   return error instanceof AppError ? error : new AppError(code, { error: errorMessage(error) });
+}
+
+function isRuntimeManifest(value: unknown): value is RuntimeModuleManifest {
+  if (value === null || typeof value !== 'object') return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    candidate['version'] === 1 &&
+    Array.isArray(candidate['modules']) &&
+    Array.isArray(candidate['packages'])
+  );
+}
+
+function loadRuntimeManifest(): RuntimeModuleManifest | undefined {
+  const manifestPath = `${resolveRuntimeDirectory('runtime')}/runtime-manifest.json`;
+  if (!fsSync.existsSync(manifestPath)) return undefined;
+
+  const parsed = JSON.parse(fsSync.readFileSync(manifestPath, 'utf8')) as unknown;
+  return isRuntimeManifest(parsed) ? parsed : undefined;
 }
 
 export async function buildEventBus(
@@ -111,6 +131,7 @@ export function buildModuleRegistry(
   const validator = new ModuleValidator({
     specsDir: resolveRuntimeDirectory('specs'),
     packagesDir: resolveRuntimeDirectory('packages'),
+    runtimeManifest: loadRuntimeManifest(),
     listDir: async (p: string) => {
       try {
         const result = await fs.readdir(p);

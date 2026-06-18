@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "pnpm --filter bot-server dev",
     "build:bot-runtime": "pnpm --recursive --filter bot-server... --filter @tempot/input-engine... --filter @tempot/interaction-observability... --filter @tempot/ux-helpers... --filter @tempot/bot-management... --filter @tempot/template-management... --filter @tempot/user-management... --filter @tempot/settings-management... --filter @tempot/notification-center... --filter @tempot/content-management... --filter @tempot/audit-viewer... --filter @tempot/help-center... build",
+    "runtime:manifest": "tsx scripts/ci/runtime-manifest.ts",
     "dev:bot": "pnpm build:bot-runtime && pnpm --parallel --stream --filter @tempot/input-engine --filter @tempot/interaction-observability --filter @tempot/ux-helpers --filter @tempot/bot-management --filter @tempot/template-management --filter @tempot/user-management --filter @tempot/settings-management --filter @tempot/notification-center --filter @tempot/content-management --filter @tempot/audit-viewer --filter @tempot/help-center --filter bot-server dev:watch",
     "tempot": "tsx scripts/tempot/index.ts",
     "dev:tunnel": "pnpm --filter bot-server dev:tunnel",
@@ -95,6 +96,7 @@
       "protobufjs": ">=8.4.1",
       "qs": "6.15.2",
       "tmp": ">=0.2.6",
+      "undici": "7.28.0",
       "vite": ">=7.3.5"
     },
     "auditConfig": {

@@ -20,7 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
       packages: write
+      security-events: write
 
     steps:
       - uses: actions/checkout@v5
@@ -47,6 +49,7 @@ jobs:
             type=sha,prefix=sha-,format=short
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -56,4 +59,42 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: false
+          sbom: true
+          provenance: true
+
+      - name: Resolve immutable image reference
+        id: image
+        shell: bash
+        run: |
+          image_name="$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')"
+          echo "ref=${{ env.REGISTRY }}/${image_name}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+      - name: Scan image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ steps.image.outputs.ref }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+      - name: Upload image scan report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.10.0
+
+      - name: Sign image digest
+        run: cosign sign --yes "${{ steps.image.outputs.ref }}"
+
+      - name: Verify image signature
+        run: >
+          cosign verify
+          --certificate-identity-regexp
+          "https://github.com/${{ github.repository }}/.github/workflows/docker.yml@.*"
+          --certificate-oidc-issuer
+          "https://token.actions.githubusercontent.com"
+          "${{ steps.image.outputs.ref }}"
