@@ -3,7 +3,7 @@
 **Branch**: `codex/056-quality-gates-hardening`
 **Started**: 2026-06-08
 **Reconciled branch**: `codex/remediation-sequence-reconciliation`
-**Status**: Complete; merged locally to main
+**Status**: Complete; merged and published to `origin/main` on 2026-06-17
 
 ## Baseline Findings
 

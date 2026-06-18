@@ -5,9 +5,14 @@
 
 ## Current Status - 2026-06-18
 
-Phases 1-4 are complete on `codex/057-production-delivery-hardening`.
-Documentation was reconciled after Phase 4 so the roadmap and implementation
-report distinguish completed branch work from remaining production gates.
+T004-T023 are merged to `origin/main` through commit `5a459b1`, with a follow-up
+CI stabilization commit `a1bd220`. Startup, readiness, HTTP perimeter, health
+threshold, bounded rate-limit fallback, and runtime dependency remediation work
+is part of the current `main` baseline.
+
+T003 remains open because the HTTP/health/runtime-manifest ADR decision has not
+been completed. Phases 5-7 remain open and continue to block production
+go/no-go.
 
 T041 remains open intentionally because the final documentation reconciliation
 must include Phase 5 image and supply-chain evidence, Phase 6 staging and

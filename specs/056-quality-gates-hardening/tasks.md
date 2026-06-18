@@ -85,8 +85,8 @@
 
 ## Reconciliation Evidence - 2026-06-17
 
-- The completion slice is verified on `codex/056-quality-gates-completion` and
-  merged locally to `main` after the foundation and Spec #055 local main
+- The completion slice was verified on `codex/056-quality-gates-completion` and
+  merged and published to `origin/main` after the foundation and Spec #055
   reconciliation.
 - Root test inventory reports 36 governed surfaces, 363 test files, and zero
   testless governed surfaces.

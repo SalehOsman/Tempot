@@ -115,10 +115,11 @@ Recently completed:
 Active or next work:
 
 1. Complete Spec #057 production-delivery hardening Phases 5-7 before any
-   production go/no-go decision. Phases 1-4 are complete on
-   `codex/057-production-delivery-hardening`; runtime image minimization,
-   SBOM/signing/scanning, immutable promotion, staging rehearsal, rollback
-   evidence, and final review gates remain open.
+   production go/no-go decision. The startup, readiness, HTTP hardening,
+   configurable health-threshold, bounded rate-limit fallback, and dependency
+   remediation slices are merged to `origin/main`. The conditional ADR task,
+   runtime image minimization, SBOM/signing/scanning, immutable promotion,
+   staging rehearsal, rollback evidence, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -150,21 +151,21 @@ project axes. The 2026-06-15 reconciliation corrected its literal execution
 order and its pnpm 11 recommendation: pnpm 10.33.3 is the compatible pinned
 release for the constitutional Node.js 22.12 minimum.
 
-Implementation claims below distinguish verified branch work from work merged
-to `main`. Production remains blocked until every P0/P1 remediation gate is
-complete and merged.
+Implementation claims below distinguish work merged to `origin/main` from
+remaining production evidence. Production remains blocked until every P0/P1
+remediation gate is complete and verified.
 
 | Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                            |
 | ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Merged to `main` with the Spec #054 remediation integration on 2026-06-16                                                                          |
-|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation merged to `main`; completion slice merged locally to `main` on 2026-06-17                                                               |
+|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation and completion slices merged to `origin/main` on 2026-06-17                                                                            |
 |                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
-|                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
+|                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Active on `codex/057-production-delivery-hardening`; Phases 1-4 complete with startup, readiness, HTTP hardening, configurable health thresholds, bounded rate-limit fallback, and dependency remediation evidence. Phases 5-7 remain open; final production gate remains blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T023 merged to `origin/main` on 2026-06-18 with startup, readiness, HTTP hardening, configurable health thresholds, bounded rate-limit fallback, and dependency remediation evidence. T003 and Phases 5-7 remain open; final production gate remains blocked |
 
-Spec #057 branch evidence as of 2026-06-18:
+Spec #057 merged evidence as of 2026-06-18:
 
 - Startup hardening now tracks explicit startup readiness state, maps
   initializer failures into the startup error contract, and verifies
@@ -178,10 +179,12 @@ Spec #057 branch evidence as of 2026-06-18:
 - Runtime dependency remediation is complete for the confirmed Moderate
   production-delivery paths, with one documented time-bounded Changesets-only
   `js-yaml` audit exception through 2026-07-17.
-- `pnpm changeset:status --since=origin/main`, `pnpm audit
-  --audit-level=moderate`, `pnpm lint`, focused package tests, and
-  `pnpm spec:validate` have passed on the branch. The full build and final
-  production release gates are still required before merge readiness.
+- Local verification before merge passed lint, sequential workspace build, unit
+  tests, integration tests, e2e tests, `spec:validate`, docs, CMS, boundary,
+  authorization, module checklist, source conformance, toolchain audit,
+  changeset status, and the high-severity audit gate.
+- `origin/main` is green after the 2026-06-18 push: GitHub Actions CI and Docker
+  both passed on commit `a1bd220`.
 
 Production go/no-go requires:
 
@@ -206,7 +209,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 published to `origin/main`; Spec #057 Phases 1-4 complete on branch; runtime artifact, supply-chain, staging, backup/restore, rollback, review, and final release gates remain blocked |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and the Spec #057 T004-T023 slices are published to `origin/main`; T003 plus runtime artifact, supply-chain, staging, backup/restore, rollback, review, and final release gates remain blocked |
 
 ## Package Status
 

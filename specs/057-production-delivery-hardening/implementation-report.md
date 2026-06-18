@@ -4,17 +4,17 @@
 **Branch:** `codex/057-production-delivery-hardening`
 **Started:** 2026-06-17
 **Last reconciled:** 2026-06-18
-**Status:** Phases 1-4 complete on branch. Runtime manifest, image
-minimization, SBOM/signing/scanning, immutable promotion, staging rehearsal,
-backup/restore, rollback or forward-fix evidence, final review, and production
-go/no-go remain open.
+**Status:** T004-T023 merged to `origin/main` on 2026-06-18. T003, runtime
+manifest, image minimization, SBOM/signing/scanning, immutable promotion,
+staging rehearsal, backup/restore, rollback or forward-fix evidence, final
+review, and production go/no-go remain open.
 
 ## Handoff Gate
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| Worktree | PASS | `F:\Tempot_Worktrees\057-production-delivery-hardening` |
-| Branch | PASS | `codex/057-production-delivery-hardening` |
+| Worktree | PASS | Implemented in `F:\Tempot_Worktrees\057-production-delivery-hardening`; merged through `F:\Tempot_Worktrees\main-merge` |
+| Branch | PASS | `codex/057-production-delivery-hardening` merged to `origin/main`; current main commit after CI stabilization is `a1bd220` |
 | SpecKit prerequisites | PASS | `check-prerequisites.ps1` found `research.md`, `data-model.md`, `contracts/`, `quickstart.md`, and `tasks.md` |
 | Spec validation | PASS | `pnpm spec:validate` returned 330/330 checks passed |
 | Open clarification markers | PASS | No `NEEDS CLARIFICATION`, `TODO`, `TBD`, `???`, or `<placeholder>` markers found under `specs/057-production-delivery-hardening` |
@@ -124,7 +124,8 @@ zero testless surfaces.
 ## Execution Notes
 
 - T001, T002, T004, and T005 are complete as documentation and baseline tasks.
-- T003 remains open because no architecture decision has changed yet.
+- T003 remains open because the HTTP/health/runtime-manifest ADR decision has
+  not been completed.
 - T006 is complete: `deps.factory.test.ts` now proves `initI18n()` rejection is
   mapped to `bot-server.startup.i18n_init_failed` and that `loadModuleLocales()`
   `Result.err` during cache warming is not silently ignored.
@@ -146,8 +147,8 @@ Reconciled on 2026-06-18:
 - `.specify/feature.json` now points to
   `specs/057-production-delivery-hardening` instead of the previous Spec #054
   context.
-- `docs/ROADMAP.md` now records Spec #057 as active with Phases 1-4 complete
-  on `codex/057-production-delivery-hardening`, not merely started.
+- `docs/ROADMAP.md` now records Spec #057 T004-T023 as merged to
+  `origin/main`, not merely active on a branch.
 - The roadmap keeps production blocked until Phases 5-7 produce runtime
   artifact, supply-chain, staging, backup/restore, rollback or forward-fix,
   review, and final go/no-go evidence.
@@ -161,6 +162,8 @@ Verification run on 2026-06-18 after documentation reconciliation:
 - `pnpm changeset:status --since=origin/main`: passed.
 - `pnpm audit --audit-level=moderate`: passed with one Low advisory and one
   ignored Moderate Changesets-only advisory.
+- After merge, GitHub Actions passed on `origin/main` commit `a1bd220`: CI and
+  Docker both completed successfully.
 
 Open documentation and evidence work:
 

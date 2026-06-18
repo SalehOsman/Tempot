@@ -1,5 +1,14 @@
 # 00 - الملخص التنفيذي
 
+> **Status update - 2026-06-18:** This analysis is a historical 2026-06-10
+> snapshot. Its original statement that remediation execution had not started is
+> no longer current. Specs #053-#056 and Spec #057 tasks T004-T023 are now
+> merged to `origin/main`; GitHub Actions CI and Docker passed on commit
+> `a1bd220`. The remaining truth is narrower: production is still blocked by
+> Spec #057 T003, Phases 5-7, target backup/restore rehearsal, staging
+> verification, rollback or forward-fix evidence, final reviews, and the
+> production go/no-go record.
+
 > **تحديث المصالحة بتاريخ 2026-06-15:** يحتفظ هذا التحليل بلقطة
 > 2026-06-10، لكن لا يجب تنفيذ ترتيبه أو توصية pnpm 11 حرفيًا. الترتيب المعتمد
 > الآن هو: `053 + أساس 056 -> أساس 055 -> قطع 054 بموافقة مستقلة -> باقي
@@ -23,9 +32,11 @@ Docker متعدد المراحل، اختبارات وحدوية وتكامل، 
 ومع ذلك، ما يزال المشروع في مرحلة **ما قبل الإنتاج (Late pre-production)**.
 التدقيق المرجعي السابق (2026-06-07) كشف عيوبًا دلالية حقيقية لا أسلوبية،
 أهمها في التفويض، حماية البيانات الحساسة، وتغطية CI لتطبيق `bot-server`،
-وأطلق برنامج إصلاح متسلسل (Specs #053-#057). هذا التحليل يؤكد أن البرنامج
-قائم وموثق، لكن **التنفيذ لم يبدأ بعد**: ROADMAP يصف الحالة بـ "SpecKit
-artifact gates passed; Draft awaiting execution approval" حتى تاريخه.
+وأطلق برنامج إصلاح متسلسل (Specs #053-#057). اعتبارًا من 2026-06-18، تم دمج
+Specs #053-#056 ومهام Spec #057 من T004 إلى T023 في `origin/main`، ونجحت
+بوابات GitHub Actions CI وDocker على commit `a1bd220`. المتبقي الفعلي هو
+استكمال Spec #057 T003 وPhases 5-7 وأدلة backup/restore وstaging وrollback
+أو forward-fix والمراجعات النهائية وسجل production go/no-go.
 
 ## أهم المخاطر الحالية (مرتبة بالخطورة)
 

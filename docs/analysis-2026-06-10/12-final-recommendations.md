@@ -1,5 +1,12 @@
 # 12 - التوصيات النهائية
 
+> **Status update - 2026-06-18:** The first remediation sequence recommended
+> here has been executed through Specs #053-#056 and Spec #057 tasks T004-T023.
+> The current next action is not to restart that sequence. Continue Spec #057
+> from T003 and Phase 5, then close the image, supply-chain, staging,
+> backup/restore, rollback, final review, and go/no-go evidence gates before
+> any production approval.
+
 > **تحديث 2026-06-15 (يتقدم على الترتيب أدناه):** تم التحقق من #053 وأساس
 > #056 على `codex/remediation-sequence-reconciliation`. الترتيب المحسن هو:
 > `053 + أساس 056 -> أساس 055 -> قطع 054 بموافقة مستقلة -> باقي 055 -> باقي

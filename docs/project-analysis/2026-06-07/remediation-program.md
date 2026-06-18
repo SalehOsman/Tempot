@@ -2,7 +2,7 @@
 
 **Program date:** 2026-06-07
 **Source audit:** [Comprehensive Technical Audit](./README.md)
-**Status:** Stage 1 verified on reconciliation branch; remaining program active
+**Status:** Specs #053-#056 and Spec #057 T004-T023 are merged to `origin/main`; final production evidence remains active
 **Planning branch:** `codex/project-audit-2026-06-07`
 
 ## Purpose
@@ -20,11 +20,11 @@ documentation synchronization, and merge decision.
 
 | Spec                                                                                           | Scope                                                                               | Primary risk           | Status                                    | Implementation gate                                                  |
 | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------- | -------------------------------------------------------------------- |
-| [#053 Authorization Correction](../../../specs/053-authorization-correction/spec.md)           | Correct global authorization and enforce action/subject policy                      | P0 functional/security | Verified on reconciliation branch         | Awaiting merge approval                                              |
-| [#054 Sensitive Data Protection](../../../specs/054-sensitive-data-protection/spec.md)         | Encryption, lookup tokens, audit minimization, redaction, migration, rotation       | P0 security/privacy    | Artifact gates passed; Draft              | Requires ADR, key runbook, backup and migration approval             |
-| [#055 Data Integrity Hardening](../../../specs/055-data-integrity-hardening/spec.md)           | Atomic identity updates, soft delete, repository boundaries, aggregate counts       | P1 data/architecture   | Not started                               | Atomicity and soft-delete foundation precedes protected-data cutover |
-| [#056 Quality Gates Hardening](../../../specs/056-quality-gates-hardening/spec.md)             | Complete app CI, coverage policy, docs freshness, toolchain and conformance         | P1 assurance           | Foundation verified; coverage in progress | Coverage baseline has 23 blocking findings and 9 warnings            |
-| [#057 Production Delivery Hardening](../../../specs/057-production-delivery-hardening/spec.md) | Startup, HTTP, health, dependencies, image, supply chain, deployment, observability | P1 operations/security | Artifact gates passed; Draft              | Final production-readiness program                                   |
+| [#053 Authorization Correction](../../../specs/053-authorization-correction/spec.md)           | Correct global authorization and enforce action/subject policy                      | P0 functional/security | Merged to `origin/main`                   | Closed for code; covered by current CI                               |
+| [#054 Sensitive Data Protection](../../../specs/054-sensitive-data-protection/spec.md)         | Encryption, lookup tokens, audit minimization, redaction, migration, rotation       | P0 security/privacy    | Merged to `origin/main`                   | Target backup rehearsal, staging verification, and cutover approval remain blocked |
+| [#055 Data Integrity Hardening](../../../specs/055-data-integrity-hardening/spec.md)           | Atomic identity updates, soft delete, repository boundaries, aggregate counts       | P1 data/architecture   | Merged to `origin/main`                   | Closed for code; covered by current CI                               |
+| [#056 Quality Gates Hardening](../../../specs/056-quality-gates-hardening/spec.md)             | Complete app CI, coverage policy, docs freshness, toolchain and conformance         | P1 assurance           | Merged to `origin/main`                   | Closed for code; CI coverage remains blocking with repository warnings visible |
+| [#057 Production Delivery Hardening](../../../specs/057-production-delivery-hardening/spec.md) | Startup, HTTP, health, dependencies, image, supply chain, deployment, observability | P1 operations/security | T004-T023 merged to `origin/main`         | T003 and Phases 5-7 remain open; final production-readiness gate blocked |
 
 ## SpecKit Validation Result
 
@@ -43,10 +43,10 @@ Cross-artifact analysis and repository reconciliation completed on 2026-06-07.
 | `pnpm lint`                               |         Passed |
 | Docs frontmatter validation               |         Passed |
 
-The artifacts remain internally consistent, but implementation status must be
-read from fresh branch evidence. Spec 053 and the Spec 056 foundation are
-verified on `codex/remediation-sequence-reconciliation`; they are not yet
-merged to `main`.
+The artifacts remain internally consistent. As of 2026-06-18, Specs #053-#056
+and the Spec #057 T004-T023 slices are merged to `origin/main`; production
+readiness still depends on the open Spec #057 artifact, supply-chain, staging,
+backup/restore, rollback, review, and go/no-go evidence.
 
 ## Recommended Execution Order
 
@@ -167,17 +167,21 @@ review, and infrastructure availability can change the critical path.
 
 ## Current Execution Evidence
 
-- Spec 053 focused authorization tests: 26 passed; 8 modules audited with zero
-  coverage violations.
-- Root unit/application: 2,318 passed.
-- Integration: 122 passed.
-- E2E: 13 passed.
-- Coverage: 103 components evaluated, 23 blocking findings, 9 warnings.
+- Current `origin/main` commit `a1bd220` has passing GitHub Actions CI and
+  Docker workflows.
+- Local pre-merge verification for Spec #057 passed lint, sequential workspace
+  build, unit, integration, e2e, docs, CMS, boundary, authorization, module
+  checklist, source conformance, toolchain, spec validation, changeset status,
+  and high-severity audit gates.
+- Coverage is a blocking CI gate. The Spec #056 completion slice evaluates 107
+  governed components with zero blocking service/handler failures and seven
+  repository warnings.
 - pnpm 10.33.3 is pinned because pnpm 11 requires Node 22.13 or newer while the
   constitutional minimum remains Node 22.12.
 
 ## Immediate Next Action
 
-Review and merge Stage 1, then start the Spec 055 atomicity and soft-delete
-foundation. Do not execute Spec 054 migration, cutover, or key rotation without
-separate explicit Project Manager approval.
+Continue Spec #057 from T003 and Phase 5. Do not approve production until the
+minimal signed image, SBOM/provenance/scan evidence, immutable staging
+promotion, target backup/restore rehearsal, rollback or forward-fix evidence,
+final reviews, and go/no-go record are complete.

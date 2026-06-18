@@ -2,7 +2,7 @@
 
 **Feature Branch**: `codex/055-data-integrity-hardening`
 **Created**: 2026-06-07
-**Status**: Completion merged locally to `main` on 2026-06-17; remote publication pending
+**Status**: Complete; merged and published to `origin/main` on 2026-06-17
 **Input**: Project audit findings covering partial multi-field updates, caller-overridable soft-delete filters, direct Prisma access outside repositories, and full-record reads used for pagination counts.
 
 ## Clarifications
