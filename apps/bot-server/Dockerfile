@@ -30,7 +30,7 @@ ARG PNPM_VERSION
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 # Prisma library engine requires openssl + libc compat on Alpine
-RUN apk add --no-cache openssl libc6-compat
+RUN apk upgrade --no-cache && apk add --no-cache openssl libc6-compat
 RUN npm install -g "pnpm@${PNPM_VERSION}"
 
 # ---------------------------------------------------------------------------
@@ -132,6 +132,18 @@ RUN mkdir -p node_modules/@tempot && \
 
 # Copy bot-server locale files for core messages like rate_limit_exceeded
 COPY --from=builder /app/apps/bot-server/locales ./apps/bot-server/locales
+
+# Package managers are build-time tools only. Removing them from the runner keeps
+# the production image smaller and avoids shipping their transitive CVE surface.
+RUN rm -rf \
+    /usr/local/bin/corepack \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx \
+    /usr/local/bin/pnpm \
+    /usr/local/bin/pnpx \
+    /usr/local/lib/node_modules/corepack \
+    /usr/local/lib/node_modules/npm \
+    /usr/local/lib/node_modules/pnpm
 
 # Create non-root user (Constitution Rule X)
 RUN addgroup --system --gid 1001 nodejs && \

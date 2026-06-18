@@ -25,6 +25,9 @@ describe('runtime artifact policy', () => {
     expect(runner).not.toMatch(/COPY --from=builder \/app\/packages\b/u);
     expect(runner).toContain('runtime-manifest.json');
     expect(runner).toMatch(/^USER hono$/mu);
+    expect(runner).toContain('/usr/local/lib/node_modules/npm');
+    expect(runner).toContain('/usr/local/lib/node_modules/pnpm');
+    expect(runner).toContain('/usr/local/bin/corepack');
   });
 
   it('generates the runtime manifest during the bot runtime build', () => {
