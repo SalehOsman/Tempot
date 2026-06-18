@@ -3,8 +3,11 @@
 **Feature:** `057-production-delivery-hardening`
 **Branch:** `codex/057-production-delivery-hardening`
 **Started:** 2026-06-17
-**Status:** Phases 1-4 complete. Runtime manifest, image minimization,
-supply-chain evidence, staging promotion, and production rehearsal remain open.
+**Last reconciled:** 2026-06-18
+**Status:** Phases 1-4 complete on branch. Runtime manifest, image
+minimization, SBOM/signing/scanning, immutable promotion, staging rehearsal,
+backup/restore, rollback or forward-fix evidence, final review, and production
+go/no-go remain open.
 
 ## Handoff Gate
 
@@ -48,7 +51,8 @@ supply-chain evidence, staging promotion, and production rehearsal remain open.
 
 ### Dependencies
 
-`pnpm audit --audit-level=moderate` currently fails with 7 findings:
+The baseline audit captured before Phase 4 remediation failed
+`pnpm audit --audit-level=moderate` with 7 findings:
 
 | Severity | Package | Path |
 | --- | --- | --- |
@@ -61,7 +65,8 @@ supply-chain evidence, staging promotion, and production rehearsal remain open.
 
 `pnpm audit --audit-level=high` passed before this work started, but Spec 057
 requires runtime-reachable Moderate advisories to be remediated or explicitly
-approved as non-exploitable.
+approved as non-exploitable. Phase 4 has since remediated the runtime-relevant
+paths and recorded one time-bounded tooling-only exception.
 
 ### Dependency Remediation Evidence
 
@@ -90,9 +95,8 @@ Verification run on 2026-06-17:
 - `pnpm --filter @tempot/session-manager build`: passed.
 - `pnpm --filter docs build`: passed. The command emitted existing Astro
   deprecation and docs entry warnings but exited 0.
-- `pnpm changeset:status --since=origin/main`: Changesets executed after the
-  `js-yaml` patch and now fails only because this branch has package changes
-  without a changeset. This is tracked by T048.
+- `pnpm changeset:status --since=origin/main`: passed after adding
+  `.changeset/production-dependency-hardening.md`.
 
 ### Runtime Image
 
@@ -134,3 +138,37 @@ zero testless surfaces.
 - T020-T023 are complete: dependency advisories at the Moderate gate have been
   remediated through direct upgrades, reproducible pnpm overrides, and one
   documented Changesets-only `js-yaml` exception.
+
+## Documentation Reconciliation
+
+Reconciled on 2026-06-18:
+
+- `.specify/feature.json` now points to
+  `specs/057-production-delivery-hardening` instead of the previous Spec #054
+  context.
+- `docs/ROADMAP.md` now records Spec #057 as active with Phases 1-4 complete
+  on `codex/057-production-delivery-hardening`, not merely started.
+- The roadmap keeps production blocked until Phases 5-7 produce runtime
+  artifact, supply-chain, staging, backup/restore, rollback or forward-fix,
+  review, and final go/no-go evidence.
+- This report distinguishes baseline audit findings from the post-remediation
+  audit state and records the passing Changesets status.
+
+Verification run on 2026-06-18 after documentation reconciliation:
+
+- `pnpm spec:validate`: passed with 330/330 checks.
+- `pnpm lint`: passed.
+- `pnpm changeset:status --since=origin/main`: passed.
+- `pnpm audit --audit-level=moderate`: passed with one Low advisory and one
+  ignored Moderate Changesets-only advisory.
+
+Open documentation and evidence work:
+
+- T024-T032: runtime manifest, minimal non-root image contents, SBOM,
+  provenance, signing, image scanning, verification, and publication policy.
+- T033-T040: immutable staging promotion, migration compatibility automation,
+  metrics, independent alert fallback, Compose safety, production runbooks,
+  backup/restore, and rollback or forward-fix rehearsal.
+- T041-T049: final artifact reconciliation, full verification suite, security
+  and architecture review, SpecKit analysis, spec validation, changeset
+  confirmation, and production go/no-go decision.

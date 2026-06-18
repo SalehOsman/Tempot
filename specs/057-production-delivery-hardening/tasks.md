@@ -3,6 +3,16 @@
 **Input**: Design documents from `specs/057-production-delivery-hardening/`
 **Tests**: Mandatory for runtime, HTTP, image, pipeline, and deployment behavior.
 
+## Current Status - 2026-06-18
+
+Phases 1-4 are complete on `codex/057-production-delivery-hardening`.
+Documentation was reconciled after Phase 4 so the roadmap and implementation
+report distinguish completed branch work from remaining production gates.
+
+T041 remains open intentionally because the final documentation reconciliation
+must include Phase 5 image and supply-chain evidence, Phase 6 staging and
+rollback evidence, and Phase 7 review and go/no-go evidence.
+
 ## Phase 1: Setup and Threat/Release Baseline
 
 - [x] T001 Create execution worktree `codex/057-production-delivery-hardening`

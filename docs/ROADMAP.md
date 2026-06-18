@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-17.
+> Last updated: 2026-06-18.
 
 ## Current Technical Baseline
 
@@ -114,8 +114,11 @@ Recently completed:
 
 Active or next work:
 
-1. Execute Spec #057 production-delivery hardening before any production
-   go/no-go decision.
+1. Complete Spec #057 production-delivery hardening Phases 5-7 before any
+   production go/no-go decision. Phases 1-4 are complete on
+   `codex/057-production-delivery-hardening`; runtime image minimization,
+   SBOM/signing/scanning, immutable promotion, staging rehearsal, rollback
+   evidence, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -159,7 +162,26 @@ complete and merged.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `main` after final local verification; target backup rehearsal, staging verification, and production cutover gates remain blocked        |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Started on `codex/057-production-delivery-hardening`; Phase 1 baseline, threat model, and release templates complete; final production gate remains blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | Active on `codex/057-production-delivery-hardening`; Phases 1-4 complete with startup, readiness, HTTP hardening, configurable health thresholds, bounded rate-limit fallback, and dependency remediation evidence. Phases 5-7 remain open; final production gate remains blocked |
+
+Spec #057 branch evidence as of 2026-06-18:
+
+- Startup hardening now tracks explicit startup readiness state, maps
+  initializer failures into the startup error contract, and verifies
+  one-time logging plus graceful shutdown for covered failure paths.
+- HTTP hardening now separates minimal public liveness from restricted
+  readiness, applies secure headers, explicit CORS behavior, request size
+  limits, safe error responses, timing-safe webhook secret validation, stricter
+  webhook update validation, and bounded rate-limit degradation.
+- Health thresholds are configurable and aligned to constitutional performance
+  defaults. Required but unconfigured dependencies no longer report healthy.
+- Runtime dependency remediation is complete for the confirmed Moderate
+  production-delivery paths, with one documented time-bounded Changesets-only
+  `js-yaml` audit exception through 2026-07-17.
+- `pnpm changeset:status --since=origin/main`, `pnpm audit
+  --audit-level=moderate`, `pnpm lint`, focused package tests, and
+  `pnpm spec:validate` have passed on the branch. The full build and final
+  production release gates are still required before merge readiness.
 
 Production go/no-go requires:
 
@@ -184,7 +206,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 published to `origin/main`; Spec #057 started; target backup rehearsal and final release gates remain blocked |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 published to `origin/main`; Spec #057 Phases 1-4 complete on branch; runtime artifact, supply-chain, staging, backup/restore, rollback, review, and final release gates remain blocked |
 
 ## Package Status
 

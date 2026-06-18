@@ -43,7 +43,8 @@ signature according to CI-generated evidence.
 ## Required Gates
 
 ```powershell
-pnpm audit --audit-level=high
+pnpm changeset:status --since=origin/main
+pnpm audit --audit-level=moderate
 pnpm --filter bot-server test
 pnpm test:unit
 pnpm test:integration
@@ -51,3 +52,7 @@ pnpm lint
 pnpm build
 pnpm spec:validate
 ```
+
+The Moderate audit gate may pass with only documented, time-bounded,
+non-runtime exceptions. As of the Phase 4 reconciliation, the only approved
+exception is the Changesets-only `js-yaml` advisory through 2026-07-17.
