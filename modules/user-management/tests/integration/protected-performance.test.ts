@@ -88,24 +88,25 @@ describe('UserRepository protected-data performance', () => {
      * Each trial alternates execution order to cancel drift. The control writes
      * the same protected columns through BaseRepository with crypto precomputed,
      * so the measured delta is protection/recovery overhead rather than a wider
-     * PostgreSQL write. Median-of-seven p95 ratios rejects persistent regressions
-     * while isolating one scheduler, container, or CI saturation spike.
+     * PostgreSQL write. Geometric mean is used because the benchmark compares
+     * normalized ratios; it rejects persistent multiplicative regressions while
+     * cancelling runner noise that swings both the protected and legacy samples.
      */
-    const medianRatio = median(trials.map(({ ratio }) => ratio));
+    const summaryRatio = geometricMean(trials.map(({ ratio }) => ratio));
     if (process.env['REPORT_PROTECTED_DATA_PERFORMANCE'] === 'true') {
       process.stdout.write(
         `${JSON.stringify({
           trials,
-          medianRegressionPercent: (medianRatio - 1) * 100,
+          geometricMeanRegressionPercent: (summaryRatio - 1) * 100,
           samplesPerTrial: SAMPLES_PER_TRIAL,
         })}\n`,
       );
     }
     expect(
-      medianRatio,
-      `median protected p95 regression ${formatPercent(medianRatio)} exceeded 20%; trials: ${trials
-        .map(({ ratio }) => formatPercent(ratio))
-        .join(', ')}`,
+      summaryRatio,
+      `protected p95 geometric mean regression ${formatPercent(
+        summaryRatio,
+      )} exceeded 20%; trials: ${trials.map(formatTrial).join(', ')}`,
     ).toBeLessThanOrEqual(MAX_REGRESSION_RATIO);
   }, 120_000);
 });
@@ -191,10 +192,17 @@ function percentile(samples: readonly number[], percentileRank: number): number 
   return value;
 }
 
-function median(samples: readonly number[]): number {
-  return percentile(samples, 0.5);
+function geometricMean(samples: readonly number[]): number {
+  if (samples.length === 0) throw new Error('Performance samples are empty');
+  return Math.exp(samples.reduce((total, value) => total + Math.log(value), 0) / samples.length);
 }
 
 function formatPercent(ratio: number): string {
   return `${((ratio - 1) * 100).toFixed(2)}%`;
+}
+
+function formatTrial(trial: TrialResult): string {
+  return `${formatPercent(trial.ratio)} legacy=${trial.legacyP95Ms.toFixed(
+    2,
+  )}ms protected=${trial.protectedP95Ms.toFixed(2)}ms`;
 }

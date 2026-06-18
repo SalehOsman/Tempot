@@ -24,7 +24,8 @@ focused tests. Plaintext retirement remains blocked.
 - Two-version re-protection and old-key retirement readiness.
 - Exact national-ID lookup through a versioned HMAC token.
 - Protected repository update p95 within 20 percent of the equivalent legacy
-  repository update.
+  repository update, summarized with the geometric mean of interleaved trial
+  ratios.
 
 ## Migration Rehearsal
 

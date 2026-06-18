@@ -177,7 +177,8 @@ As of 2026-06-08:
 - two interrupted migration runs resume before final completion;
 - exact email and canonical national-ID token parity are verified;
 - the merge-gate benchmark uses seven interleaved p95 trials and retains the
-  approved 20 percent median-regression limit;
+  approved 20 percent regression limit using the geometric mean of normalized
+  ratios;
 - an encrypted local backup artifact was restored successfully after deleting
   the temporary plaintext dump;
 - plaintext retirement is not implemented or approved;

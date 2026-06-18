@@ -85,7 +85,7 @@
 - [x] T049 Enforce explicit audit allowlists, preserve validated change metadata, and redact logger payloads recursively
 - [x] T050 Fail startup on malformed or partial protected-key configuration
 - [x] T051 Return typed non-sensitive errors from migration and rotation database failure paths
-- [x] T052 Stabilize the 20 percent p95 gate with equivalent writes and median interleaved trials
+- [x] T052 Stabilize the 20 percent p95 gate with equivalent writes and geometric-mean interleaved trials
 - [x] T053 Repeat backup/restore with an explicitly encrypted local artifact and correct operational evidence
 - [x] T054 Repeat independent security/code review and resolve all remaining Critical/High findings
 - [x] T055 Canonicalize national-ID comparison and rotation-token generation across equivalent formats
