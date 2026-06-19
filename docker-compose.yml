@@ -42,9 +42,9 @@ services:
       # - WEBHOOK_URL=${WEBHOOK_URL:-https://example.com/webhook}
       # - WEBHOOK_SECRET_TOKEN=${WEBHOOK_SECRET_TOKEN:-}
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     healthcheck:
-      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/health']
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/live']
       interval: 15s
       timeout: 5s
       retries: 3
@@ -55,7 +55,7 @@ services:
     container_name: tempot-postgres
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     environment:
       POSTGRES_USER: tempot
       POSTGRES_PASSWORD: tempot_password
@@ -74,7 +74,7 @@ services:
     container_name: tempot-redis
     restart: unless-stopped
     ports:
-      - '6379:6379'
+      - '127.0.0.1:6379:6379'
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis_data:/data
