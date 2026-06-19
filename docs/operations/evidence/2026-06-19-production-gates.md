@@ -6,6 +6,7 @@
 - **Spec:** `057-production-delivery-hardening`.
 - **Git baseline:** `origin/main` at `451231518816ccefc9141a26472acad3e02c8014`.
 - **Published image tested:** `ghcr.io/salehosman/tempot-bot-server@sha256:9fec6332d816ce91784df51b8e83889c6c30962a603af4a47a5b3e99184fce01`.
+- **Post-fix published image:** `ghcr.io/salehosman/tempot-bot-server@sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
 - **Local fixed image tested:** `tempot-bot-server:057-staging-gates`.
 - **Environment:** Local isolated rehearsal only; no external staging target or staging secrets were present in the workspace environment.
 - **Date:** 2026-06-19.
@@ -28,6 +29,12 @@
 - The published image digest above was pulled successfully with Docker.
 - Existing workflow evidence records Trivy scan, Cosign signing, and Cosign
   verification for the published digest.
+- After PR #23 was merged to `main`, GitHub Docker workflow run `27842617793`
+  passed on commit `83696749cade6dee4bf9af57b4f55738e3874728`.
+- The post-fix Docker workflow built and pushed digest
+  `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
+- The post-fix Docker workflow passed Trivy scan, uploaded the scan SARIF,
+  signed the digest with Cosign, and verified the Cosign signature.
 
 ## Runtime Rehearsal Findings
 
@@ -89,7 +96,6 @@
 - **Decision:** No-Go.
 - **Reason:** external staging deployment, staging health/readiness/webhook
   smoke, monitoring/alerts evidence, rollback or forward-fix rehearsal, and
-  Product Manager final approval are not available. The previously published
-  image also failed local runtime rehearsal due to a missing runtime dependency.
-- **Required next artifact:** a new CI-built, scanned, signed image from this
-  branch after the `zod` runtime dependency fix.
+  Product Manager final approval are not available.
+- **Required next artifact:** staging deployment evidence using the post-fix
+  immutable digest.

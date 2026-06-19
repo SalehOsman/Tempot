@@ -28,6 +28,12 @@ Actual external staging, webhook, monitoring, alert, rollback, and final
 go/no-go evidence remain open because no staging target or staging secrets were
 available in the worktree environment.
 
+After PR #23 merged to `main`, Docker run `27842617793` built, pushed, scanned,
+signed, and verified post-fix digest
+`sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
+T032 remains open until this digest is deployed to staging and passes real
+container smoke.
+
 ## Phase 1: Setup and Threat/Release Baseline
 
 - [x] T001 Create execution worktree `codex/057-production-delivery-hardening`
