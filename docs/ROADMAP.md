@@ -124,9 +124,11 @@ Active or next work:
    not provide `zod` at `/app/node_modules`. The current staging-gates branch
    fixes that dependency, hardens local Compose bindings, updates deployment
    and cutover runbooks, and records local migration plus backup/restore
-   rehearsal evidence. A new CI-built signed digest, external staging deploy,
-   webhook smoke, monitoring/alert evidence, rollback rehearsal, and final
-   review gates remain open.
+   rehearsal evidence. After merge, Docker run `27842617793` built, scanned,
+   signed, and verified digest
+   `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
+   External staging deploy, webhook smoke, monitoring/alert evidence, rollback
+   rehearsal, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -170,7 +172,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. The 2026-06-19 staging-gates branch fixes a runtime-image `zod` dependency defect, hardens Compose local bindings, updates deployment/cutover docs, and records local migration plus backup/restore rehearsal. T032 is not closed until a new CI-built digest passes smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. The 2026-06-19 staging-gates branch fixed a runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. Docker run `27842617793` built, scanned, signed, and verified post-fix digest `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`. T032 is not closed until the digest passes real staging smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -227,6 +229,11 @@ Spec #057 runtime artifact branch evidence as of 2026-06-19:
   Complete liveness/readiness smoke remains blocked locally without a real
   staging Telegram token because command registration contacts Telegram before
   HTTP opens.
+- PR #23 merged to `main` as commit
+  `83696749cade6dee4bf9af57b4f55738e3874728`. Docker run `27842617793`
+  passed build, push, Trivy scan, SARIF upload, Cosign signing, and Cosign
+  verification for digest
+  `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
 
 Production go/no-go requires:
 
