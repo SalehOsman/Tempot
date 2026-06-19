@@ -1,135 +1,116 @@
-# Tempot — Production Deployment Guide
+# Tempot Production Deployment Guide
+
+This guide describes provider-neutral container deployment for Tempot Core. It
+does not approve production release by itself. Use the cutover plan and release
+evidence record before any go/no-go decision.
 
 ## Prerequisites
 
 | Requirement | Minimum version |
-|---|---|
+| --- | --- |
 | Docker | 24+ |
 | PostgreSQL | 16 with pgvector extension |
 | Redis | 7-alpine |
-| Node.js (if running without Docker) | 22.12+ |
-| pnpm | 11+ |
-
----
+| Node.js, if running without Docker | 22.12+ |
+| pnpm | 10.33.3 |
 
 ## 1. Environment Variables
 
-Copy `.env.example` to `.env` and fill in all required values:
+Copy `.env.example` to `.env` and fill in all required values. Do not commit
+real secret values.
 
 ```bash
 cp .env.example .env
 ```
 
-### Required variables
+### Required Variables
 
 | Variable | Description |
-|---|---|
-| `BOT_TOKEN` | Telegram bot token from @BotFather |
+| --- | --- |
+| `BOT_TOKEN` | Telegram bot token from BotFather |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `REDIS_URL` | Redis connection string |
 | `SUPER_ADMIN_IDS` | Comma-separated Telegram user IDs |
 | `BOT_MODE` | `webhook` for production |
 | `WEBHOOK_URL` | Public HTTPS URL where Telegram delivers updates |
-| `WEBHOOK_SECRET_TOKEN` | Random 32-byte hex — validate Telegram requests |
+| `WEBHOOK_SECRET_TOKEN` | Random secret token for Telegram webhook validation |
+| `TEMPOT_READINESS_TOKEN` | Secret token required for restricted readiness checks |
+| `DEFAULT_LANGUAGE` | Default locale, for example `en` |
+| `DEFAULT_COUNTRY` | Default country, for example `US` |
+| `PROTECTED_DATA_ACTIVE_ENCRYPTION_KEY_VERSION` | Active protected-data encryption key version |
+| `PROTECTED_DATA_ENCRYPTION_KEYS` | JSON map of encryption key versions to base64 32-byte keys |
+| `PROTECTED_DATA_ACTIVE_LOOKUP_KEY_VERSION` | Active protected-data lookup key version |
+| `PROTECTED_DATA_LOOKUP_KEYS` | JSON map of lookup key versions to base64 32-byte keys |
 
-### Optional variables
+### Optional Variables
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `DATABASE_POOL_MAX` | `20` | PostgreSQL connection pool limit |
 | `TEMPOT_SENTRY` | `false` | Enable Sentry error monitoring |
-| `SENTRY_DSN` | — | Required when `TEMPOT_SENTRY=true` |
-| `SENTRY_RELEASE` | — | Git SHA or semver tag for release tracking |
+| `SENTRY_DSN` | unset | Required when `TEMPOT_SENTRY=true` |
+| `SENTRY_RELEASE` | unset | Git SHA, image digest, or semver release |
 | `SENTRY_ENVIRONMENT` | `production` | Sentry environment tag |
 | `LOG_LEVEL` | `info` | Pino log level |
 
-Generate a secure webhook secret:
+Generate webhook secrets outside the repository:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
----
-
 ## 2. Database Migrations
 
-**Always run migrations before starting the application.**
+Always run migrations before starting the application for a new release.
 
 ```bash
-# First deployment or after schema changes
 pnpm --filter @tempot/database exec prisma migrate deploy
-
-# Verify migration status
 pnpm --filter @tempot/database exec prisma migrate status
 ```
 
-> **Never** use `prisma db push` in production — it bypasses migration history.
+Never use `prisma db push` in production because it bypasses migration history.
 
----
-
-## 3. Docker Deployment (Recommended)
-
-### Build the image
+For container images, run Prisma from the deployed database package:
 
 ```bash
-docker build -f apps/bot-server/Dockerfile -t tempot-bot-server:latest .
+docker run --rm \
+  --env-file .env \
+  ghcr.io/<owner>/tempot-bot-server@sha256:<digest> \
+  sh -c "cd /app/node_modules/@tempot/database && PRISMA_SCHEMA_PATH=/app/node_modules/@tempot/database/prisma/schema.prisma /app/node_modules/.pnpm/node_modules/.bin/prisma migrate deploy"
 ```
 
-### Run with Docker Compose
+## 3. Docker Deployment
+
+### Local Compose
+
+`docker-compose.yml` is local-only infrastructure. It binds exposed ports to
+`127.0.0.1` and must not be used as an internet-exposed production manifest.
 
 ```bash
-# Start PostgreSQL and Redis
 docker compose up -d postgres redis
-
-# Run database migrations
-docker compose run --rm bot-server \
-  sh -c "node_modules/.bin/prisma migrate deploy"
-
-# Start the bot
+docker compose run --rm bot-server sh -c "cd /app/node_modules/@tempot/database && PRISMA_SCHEMA_PATH=/app/node_modules/@tempot/database/prisma/schema.prisma /app/node_modules/.pnpm/node_modules/.bin/prisma migrate deploy"
 docker compose up -d bot-server
 ```
 
-### Run as standalone container
+### Immutable Image Deployment
+
+Promotion must use the immutable digest from the Docker workflow, not a mutable
+tag.
 
 ```bash
-docker run -d \
-  --name tempot-bot \
-  --env-file .env \
-  -p 3000:3000 \
-  tempot-bot-server:latest
-```
-
----
-
-## 4. GitHub Container Registry (CI/CD)
-
-The Docker workflow (`.github/workflows/docker.yml`) automatically builds and
-pushes to GHCR on every push to `main` and on version tags.
-
-### Pull and run the published image
-
-```bash
-docker pull ghcr.io/<owner>/tempot-bot-server:main
+docker pull ghcr.io/<owner>/tempot-bot-server@sha256:<digest>
 
 docker run -d \
   --name tempot-bot \
   --env-file .env \
-  -p 3000:3000 \
-  ghcr.io/<owner>/tempot-bot-server:main
+  -p 127.0.0.1:3000:3000 \
+  ghcr.io/<owner>/tempot-bot-server@sha256:<digest>
 ```
 
-### Automated deploy on new tag
+Place a TLS reverse proxy or platform load balancer in front of the container.
+Do not expose PostgreSQL or Redis to the public internet.
 
-Tag a release to trigger a versioned image build:
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-This produces images tagged as `v1.0.0`, `1.0`, and `sha-<short>`.
-
----
-
-## 5. Webhook Registration
+## 4. Webhook Registration
 
 After deployment, register the webhook with Telegram:
 
@@ -143,71 +124,83 @@ curl -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
 ```
 
 Verify:
+
 ```bash
 curl "https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo"
 ```
 
----
+## 5. Health And Readiness Checks
 
-## 6. Health Check
-
-The bot-server exposes a health endpoint at `GET /health`. Expect `200 OK`
-with `{"status":"ok"}` when the service is ready.
+Public liveness exposes only minimal process status:
 
 ```bash
+curl http://localhost:3000/live
 curl http://localhost:3000/health
 ```
 
----
+Both must return:
 
-## 7. Sentry Integration
-
-1. Create a project at [sentry.io](https://sentry.io) or your self-hosted instance.
-2. Set `TEMPOT_SENTRY=true` and `SENTRY_DSN=<your-dsn>` in `.env`.
-3. Set `SENTRY_RELEASE` to the current Git SHA for release tracking:
-   ```bash
-   SENTRY_RELEASE=$(git rev-parse --short HEAD)
-   ```
-4. Restart the bot. Errors are captured automatically.
-
----
-
-## 8. Database Connection Pool Tuning
-
-The default pool size is **20 connections**. Adjust based on your database
-server's `max_connections` limit:
-
-```
-# Rule of thumb: DATABASE_POOL_MAX = max_connections / number_of_replicas - 5
-DATABASE_POOL_MAX=15
+```json
+{ "status": "alive" }
 ```
 
----
-
-## 9. Rollback Procedure
+Detailed readiness is restricted:
 
 ```bash
-# Stop the current container
-docker stop tempot-bot
-
-# Run the previous image
-docker run -d --name tempot-bot --env-file .env \
-  ghcr.io/<owner>/tempot-bot-server:sha-<previous-sha>
-
-# If schema migration was applied, roll back:
-pnpm --filter @tempot/database exec prisma migrate resolve \
-  --rolled-back <migration-name>
+curl -H "x-tempot-readiness-token: ${TEMPOT_READINESS_TOKEN}" \
+  http://localhost:3000/ready
 ```
 
----
+`/ready` without the token must return `403`. With the token it returns
+dependency details and a status of `healthy`, `degraded`, or `unhealthy`.
 
-## 10. Checklist Before Go-Live
+## 6. Monitoring And Alerts
 
-- [ ] All required env vars filled in `.env`
-- [ ] `prisma migrate deploy` completed with no pending migrations
-- [ ] `GET /health` returns `200 OK`
-- [ ] Webhook registered and `getWebhookInfo` shows no errors
-- [ ] `SUPER_ADMIN_IDS` set to at least one valid Telegram user ID
-- [ ] `BOT_TOKEN` and `WEBHOOK_SECRET_TOKEN` are not committed to version control
-- [ ] `TEMPOT_SENTRY=true` and `SENTRY_DSN` set (optional but recommended)
-- [ ] Docker image tagged with release version and pushed to registry
+Before promotion, confirm the target environment exposes or forwards:
+
+- request and update latency;
+- error rate;
+- database latency or pool pressure;
+- Redis latency;
+- queue activity;
+- memory and event-loop health;
+- an independent alert path that does not depend only on Telegram.
+
+## 7. Rollback Or Forward-Fix
+
+Before rollback, read the migration compatibility record for the release. Image
+rollback is allowed only when the previous digest is compatible with the
+current schema and data state.
+
+```bash
+docker stop tempot-bot
+
+docker run -d \
+  --name tempot-bot \
+  --env-file .env \
+  ghcr.io/<owner>/tempot-bot-server@sha256:<previous-compatible-digest>
+```
+
+Do not mark a Prisma migration as rolled back unless the database state was
+actually restored or corrected according to the migration compatibility record.
+Use restore or forward-fix when image rollback is unsafe.
+
+## 8. Production Cutover
+
+Use `docs/operations/production-cutover-plan.md` for the full cutover sequence.
+Record release evidence under `docs/operations/evidence/`.
+
+## 9. Checklist Before Go-Live
+
+- [ ] All required env vars are filled through the target platform secret store.
+- [ ] `prisma migrate deploy` completed with no pending migrations.
+- [ ] `GET /live` and `GET /health` return `{ "status": "alive" }`.
+- [ ] `GET /ready` requires `x-tempot-readiness-token`.
+- [ ] Webhook is registered and `getWebhookInfo` shows no errors.
+- [ ] `SUPER_ADMIN_IDS` contains at least one valid Telegram user ID.
+- [ ] Protected-data key rings are present and recoverable.
+- [ ] Immutable digest is scanned, signed, verified, and promoted.
+- [ ] Backup/restore rehearsal evidence is recorded.
+- [ ] Rollback or forward-fix rehearsal evidence is recorded.
+- [ ] Monitoring and independent alert evidence is recorded.
+- [ ] Product Manager go/no-go decision is recorded.

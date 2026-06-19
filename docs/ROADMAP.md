@@ -119,9 +119,14 @@ Active or next work:
    configurable health-threshold, bounded rate-limit fallback, dependency
    remediation, runtime manifest, minimal image copy policy, and Docker
    SBOM/provenance/signing/scanning workflow slices are implemented or merged.
-   The local image build and runtime-content inspection passed; remote
-   scan/signature/smoke evidence, immutable promotion, staging rehearsal,
-   rollback evidence, and final review gates remain open.
+   The 2026-06-19 gate continuation found a real runtime-image defect in the
+   published digest: copied module dist files import `zod`, but the runner did
+   not provide `zod` at `/app/node_modules`. The current staging-gates branch
+   fixes that dependency, hardens local Compose bindings, updates deployment
+   and cutover runbooks, and records local migration plus backup/restore
+   rehearsal evidence. A new CI-built signed digest, external staging deploy,
+   webhook smoke, monitoring/alert evidence, rollback rehearsal, and final
+   review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -165,7 +170,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T023 merged to `origin/main` on 2026-06-18. T003 and T024-T031 are implemented on `codex/057-runtime-artifact-hardening` with ADR-045, runtime manifest, minimal runner copy policy, and Docker SBOM/provenance/Trivy/Cosign gates. T032 and Phases 6-7 remain open; final production gate remains blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. The 2026-06-19 staging-gates branch fixes a runtime-image `zod` dependency defect, hardens Compose local bindings, updates deployment/cutover docs, and records local migration plus backup/restore rehearsal. T032 is not closed until a new CI-built digest passes smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -207,6 +212,21 @@ Spec #057 runtime artifact branch evidence as of 2026-06-19:
   runner-content inspection. Remote Trivy/Cosign/smoke evidence remains pending
   under T032 because the local workstation does not have Trivy or Cosign
   installed.
+- The 2026-06-19 staging-gates continuation pulled the published digest
+  `sha256:9fec6332d816ce91784df51b8e83889c6c30962a603af4a47a5b3e99184fce01`,
+  applied its four Prisma migrations against an isolated PostgreSQL 16 plus
+  pgvector database, and proved backup/restore to a separate restore database.
+- The same published digest failed local runtime rehearsal before HTTP opened
+  because `bot-management` imported `zod` from copied runtime module files
+  while the runner did not provide `zod` at `/app/node_modules`. The current
+  branch fixes this by adding `zod` as a `bot-server` production dependency and
+  adds policy coverage.
+- A local rebuilt image from the current branch successfully imported
+  `bot-management` and progressed through DB connection, super-admin bootstrap,
+  cache warmup, module discovery, validation, and module handler loading.
+  Complete liveness/readiness smoke remains blocked locally without a real
+  staging Telegram token because command registration contacts Telegram before
+  HTTP opens.
 
 Production go/no-go requires:
 

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const dockerfilePath = join(process.cwd(), 'apps', 'bot-server', 'Dockerfile');
+const botServerPackagePath = join(process.cwd(), 'apps', 'bot-server', 'package.json');
 const dockerWorkflowPath = join(process.cwd(), '.github', 'workflows', 'docker.yml');
 
 function runnerStage(dockerfile: string): string {
@@ -49,5 +50,15 @@ describe('runtime artifact policy', () => {
     expect(workflow).toContain('aquasecurity/trivy-action');
     expect(workflow).toContain('cosign sign');
     expect(workflow).toContain('cosign verify');
+  });
+
+  it('ships runtime dependencies used by copied module dist files', () => {
+    const packageJson = JSON.parse(readFileSync(botServerPackagePath, 'utf8')) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    expect(packageJson.dependencies?.['zod']).toBeDefined();
+    expect(packageJson.devDependencies?.['zod']).toBeUndefined();
   });
 });

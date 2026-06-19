@@ -17,9 +17,16 @@ validation, minimal runner image copy rules, and Docker SBOM/provenance,
 Trivy, and Cosign policy gates. T032 remains open until a real image build,
 scan, signature verification, and container smoke run complete.
 
-T041 remains open intentionally because the final documentation reconciliation
-must include Phase 5 image and supply-chain evidence, Phase 6 staging and
-rollback evidence, and Phase 7 review and go/no-go evidence.
+The 2026-06-19 gate continuation found that the previously published image
+starts migrations but fails runtime rehearsal before HTTP opens because copied
+runtime module files import `zod` and the runner image did not provide it at
+`/app/node_modules`. The current branch adds `zod` as a `bot-server`
+production dependency, verifies the local rebuilt image can import
+`bot-management`, hardens Compose local bindings, updates deployment/cutover
+runbooks, and records local migration plus backup/restore rehearsal evidence.
+Actual external staging, webhook, monitoring, alert, rollback, and final
+go/no-go evidence remain open because no staging target or staging secrets were
+available in the worktree environment.
 
 ## Phase 1: Setup and Threat/Release Baseline
 
@@ -81,8 +88,8 @@ rollback evidence, and Phase 7 review and go/no-go evidence.
 - [ ] T035 [US4] Implement immutable digest promotion between build, staging, and production workflow stages
 - [ ] T036 [US4] Add required runtime metrics through existing observability abstractions
 - [ ] T037 [US4] Add independent alert fallback configuration and failure tests
-- [ ] T038 [US4] Harden `docker-compose.yml` as explicit local-only infrastructure with safe bindings
-- [ ] T039 [US4] Update production deployment, backup/restore, migration, incident, and rollback runbooks
+- [x] T038 [US4] Harden `docker-compose.yml` as explicit local-only infrastructure with safe bindings
+- [x] T039 [US4] Update production deployment, backup/restore, migration, incident, and rollback runbooks
 - [ ] T040 [US4] Execute staging deployment and rollback/forward-fix rehearsal
 
 **Independent Test**: The same digest is promoted and a simulated failed release is recovered safely with observable evidence.
