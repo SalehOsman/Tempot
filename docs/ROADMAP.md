@@ -138,12 +138,14 @@ Active or next work:
    run on `main` before deployment. Docker run `27856129345` for commit
    `5bf5b42b06f518e06b7a762b4d629ff4e096f5c2` produced signed and verified
    digest
-   `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`.
-   A 2026-06-20 local isolated smoke pulled that digest, applied migrations,
-   confirmed Telegram `getMe`, started polling mode, and verified `/live` plus
-   restricted `/ready`. External staging deploy, real Telegram webhook smoke,
-   monitoring/alert evidence, rollback rehearsal, and final review gates remain
-   open.
+   `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`,
+   and a 2026-06-20 local isolated smoke pulled that digest, applied
+   migrations, confirmed Telegram `getMe`, started polling mode, and verified
+   `/live` plus restricted `/ready`. Later documentation-only merges may
+   publish newer signed digests, so staging must record the exact selected
+   digest immediately before deployment. External staging deploy, real Telegram
+   webhook smoke, monitoring/alert evidence, rollback rehearsal, and final
+   review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -187,7 +189,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27856129345` built, scanned, signed, and verified current digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`. A 2026-06-20 local isolated smoke pulled that digest, applied migrations, confirmed Telegram `getMe`, started polling mode, and verified `/live` plus restricted `/ready`. T032 is not closed until the selected current `main` digest passes real staging webhook/container smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27856129345` built, scanned, signed, and verified digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`. A 2026-06-20 local isolated smoke pulled that digest, applied migrations, confirmed Telegram `getMe`, started polling mode, and verified `/live` plus restricted `/ready`. T032 is not closed until the selected latest `main` digest passes real staging webhook/container smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -290,7 +292,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; current published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
 

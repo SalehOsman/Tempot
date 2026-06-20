@@ -13,12 +13,18 @@
 
 ## Scope
 
-This record proves that the current signed `main` image can be pulled, migrated,
-started, connected to Telegram with the available bot token, and queried through
-the hardened liveness/readiness endpoints in a local isolated environment.
+This record proves that the signed `main` image from Docker run `27856129345`
+can be pulled, migrated, started, connected to Telegram with the available bot
+token, and queried through the hardened liveness/readiness endpoints in a local
+isolated environment.
 
 It does not close the external staging, webhook delivery, monitoring, alert,
 rollback, backup target, or production go/no-go gates.
+
+Later documentation-only merges may publish newer signed image digests. Staging
+must resolve and record the latest successful `main` Docker digest immediately
+before deployment instead of assuming the digest in this local evidence file is
+still the latest registry tag.
 
 ## Build And Supply Chain Evidence
 
