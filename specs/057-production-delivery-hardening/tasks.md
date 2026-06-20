@@ -35,9 +35,14 @@ signed, and verified post-fix digest
 After PR #24 merged to `main`, Docker run `27843468718` built, pushed, scanned,
 signed, and verified digest
 `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
-Documentation-only merges may publish newer signed digests. T032 remains open
-until the selected current `main` digest is deployed to staging and passes real
-container smoke.
+After PR #26 merged to `main`, Docker run `27856129345` built, pushed, scanned,
+signed, and verified digest
+`sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`.
+The 2026-06-20 local smoke record proves that this digest can be pulled,
+migrated, started in polling mode with the available Telegram token, and queried
+through `/live` and restricted `/ready` in an isolated local Docker environment.
+T032 remains open until the selected current `main` digest is deployed to
+external staging and passes real webhook/container smoke.
 
 ## Phase 1: Setup and Threat/Release Baseline
 
