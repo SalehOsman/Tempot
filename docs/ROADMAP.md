@@ -129,10 +129,13 @@ Active or next work:
    not provide `zod` at `/app/node_modules`. PR #23 fixed that dependency,
    hardened local Compose bindings, updated deployment and cutover runbooks,
    and recorded local migration plus backup/restore rehearsal evidence. PR #24
-   recorded the post-fix Docker evidence. The latest successful Docker run on
-   `main` is `27843468718` for commit `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`,
-   producing signed and verified digest
+   recorded the post-fix Docker evidence. Docker run `27843468718` for commit
+   `45f88bf146ad0f18e93330b71b21fe3c5a4507a6` produced signed and verified
+   digest
    `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+   Because documentation-only merges also publish images, the staging operator
+   must resolve the current candidate digest from the latest successful Docker
+   run on `main` before deployment.
    External staging deploy, real Telegram webhook smoke, monitoring/alert
    evidence, rollback rehearsal, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
@@ -178,7 +181,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27843468718` built, scanned, signed, and verified latest `main` digest `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`. T032 is not closed until the digest passes real staging smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27843468718` built, scanned, signed, and verified digest `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`. T032 is not closed until the selected current `main` digest passes real staging smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -246,6 +249,9 @@ Spec #057 runtime artifact branch evidence as of 2026-06-19:
   passed build, push, Trivy scan, SARIF upload, Cosign signing, and Cosign
   verification for digest
   `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+- Later documentation-only merges can produce newer signed digests. The
+  staging evidence must cite the exact Docker run and immutable digest selected
+  immediately before deployment.
 - On 2026-06-20, the Project Manager confirmed that a real Telegram token is
   available for smoke testing. That does not close T032 until the test is run
   and evidence is recorded against the immutable digest.

@@ -7,7 +7,7 @@
 - **Git baseline:** `origin/main` at `451231518816ccefc9141a26472acad3e02c8014`.
 - **Published image tested:** `ghcr.io/salehosman/tempot-bot-server@sha256:9fec6332d816ce91784df51b8e83889c6c30962a603af4a47a5b3e99184fce01`.
 - **Post-fix published image:** `ghcr.io/salehosman/tempot-bot-server@sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
-- **Latest `main` published image after PR #24:** `ghcr.io/salehosman/tempot-bot-server@sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+- **PR #24 published image:** `ghcr.io/salehosman/tempot-bot-server@sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
 - **Local fixed image tested:** `tempot-bot-server:057-staging-gates`.
 - **Environment:** Local isolated rehearsal only; no external staging target or staging secrets were present in the workspace environment.
 - **Date:** 2026-06-19.
@@ -110,4 +110,6 @@
   Product Manager final approval are not available.
 - **Required next artifact:** staging deployment evidence using the post-fix
   immutable digest.
-- **Current digest for next artifact:** `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+- **Digest selection rule for next artifact:** resolve the current candidate
+  from the latest successful Docker run on `main` immediately before staging,
+  then record that exact run ID and immutable digest in a new evidence file.
