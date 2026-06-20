@@ -7,6 +7,7 @@
 - **Git baseline:** `origin/main` at `451231518816ccefc9141a26472acad3e02c8014`.
 - **Published image tested:** `ghcr.io/salehosman/tempot-bot-server@sha256:9fec6332d816ce91784df51b8e83889c6c30962a603af4a47a5b3e99184fce01`.
 - **Post-fix published image:** `ghcr.io/salehosman/tempot-bot-server@sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
+- **Latest `main` published image after PR #24:** `ghcr.io/salehosman/tempot-bot-server@sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
 - **Local fixed image tested:** `tempot-bot-server:057-staging-gates`.
 - **Environment:** Local isolated rehearsal only; no external staging target or staging secrets were present in the workspace environment.
 - **Date:** 2026-06-19.
@@ -35,6 +36,12 @@
   `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
 - The post-fix Docker workflow passed Trivy scan, uploaded the scan SARIF,
   signed the digest with Cosign, and verified the Cosign signature.
+- After PR #24 was merged to `main`, GitHub Docker workflow run `27843468718`
+  passed on commit `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`.
+- That run built and pushed digest
+  `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+- The run passed Trivy scan, uploaded SARIF, signed the digest with Cosign, and
+  verified the Cosign signature.
 
 ## Runtime Rehearsal Findings
 
@@ -57,6 +64,10 @@
   all module handler loading.
 - Full HTTP liveness/readiness smoke remained blocked locally because command
   registration calls Telegram and only a dummy smoke token was available.
+- On 2026-06-20, the Project Manager stated that a real Telegram token is
+  available and connected. This evidence record is not retroactively changed to
+  "passed"; a new smoke run must be executed and recorded against the immutable
+  digest before T032 can close.
 
 ## Backup And Restore Evidence
 
@@ -99,3 +110,4 @@
   Product Manager final approval are not available.
 - **Required next artifact:** staging deployment evidence using the post-fix
   immutable digest.
+- **Current digest for next artifact:** `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.

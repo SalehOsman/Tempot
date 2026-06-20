@@ -3,19 +3,18 @@
 **Input**: Design documents from `specs/057-production-delivery-hardening/`
 **Tests**: Mandatory for runtime, HTTP, image, pipeline, and deployment behavior.
 
-## Current Status - 2026-06-19
+## Current Status - 2026-06-20
 
 T004-T023 are merged to `origin/main` through commit `5a459b1`, with a follow-up
 CI stabilization commit `a1bd220`. Startup, readiness, HTTP perimeter, health
 threshold, bounded rate-limit fallback, and runtime dependency remediation work
 is part of the current `main` baseline.
 
-T003 and T024-T031 are implemented on
-`codex/057-runtime-artifact-hardening`. The branch adds ADR-045, build-time
-runtime manifest generation, runtime manifest consumption by module
-validation, minimal runner image copy rules, and Docker SBOM/provenance,
-Trivy, and Cosign policy gates. T032 remains open until a real image build,
-scan, signature verification, and container smoke run complete.
+T003 and T024-T031 are merged to `origin/main`. They add ADR-045, build-time
+runtime manifest generation, runtime manifest consumption by module validation,
+minimal runner image copy rules, and Docker SBOM/provenance, Trivy, and Cosign
+policy gates. T032 remains open until a real image build, scan, signature
+verification, and container smoke run complete against the promoted digest.
 
 The 2026-06-19 gate continuation found that the previously published image
 starts migrations but fails runtime rehearsal before HTTP opens because copied
@@ -25,14 +24,19 @@ production dependency, verifies the local rebuilt image can import
 `bot-management`, hardens Compose local bindings, updates deployment/cutover
 runbooks, and records local migration plus backup/restore rehearsal evidence.
 Actual external staging, webhook, monitoring, alert, rollback, and final
-go/no-go evidence remain open because no staging target or staging secrets were
-available in the worktree environment.
+go/no-go evidence remain open. The Project Manager stated on 2026-06-20 that a
+real Telegram token is available and connected, so the next work item is to run
+and record the real webhook smoke instead of continuing to treat the Telegram
+token as unavailable.
 
 After PR #23 merged to `main`, Docker run `27842617793` built, pushed, scanned,
 signed, and verified post-fix digest
 `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
-T032 remains open until this digest is deployed to staging and passes real
-container smoke.
+After PR #24 merged to `main`, Docker run `27843468718` built, pushed, scanned,
+signed, and verified latest `main` digest
+`sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+T032 remains open until the current digest is deployed to staging and passes
+real container smoke.
 
 ## Phase 1: Setup and Threat/Release Baseline
 
