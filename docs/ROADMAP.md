@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-19.
+> Last updated: 2026-06-20.
 
 ## Current Technical Baseline
 
@@ -111,6 +111,11 @@ Recently completed:
 - Spec #055: data-integrity hardening completion with repository-only startup
   data access, aggregate pagination counts, explicit privileged deleted-record
   recovery, and governed direct-Prisma boundary checks.
+- Repository branch hygiene was reconciled on 2026-06-20. Obsolete remote
+  branches were deleted, `origin/main` is the only long-lived remote branch,
+  and the local Git branch set is reduced to `main`, the current documentation
+  branch, the pending Telegram smoke branch, and the dirty docs freshness
+  branch. See `docs/developer/git-branch-hygiene.md`.
 
 Active or next work:
 
@@ -118,17 +123,18 @@ Active or next work:
    any production go/no-go decision. The startup, readiness, HTTP hardening,
    configurable health-threshold, bounded rate-limit fallback, dependency
    remediation, runtime manifest, minimal image copy policy, and Docker
-   SBOM/provenance/signing/scanning workflow slices are implemented or merged.
+   SBOM/provenance/signing/scanning workflow slices are merged to `origin/main`.
    The 2026-06-19 gate continuation found a real runtime-image defect in the
    published digest: copied module dist files import `zod`, but the runner did
-   not provide `zod` at `/app/node_modules`. The current staging-gates branch
-   fixes that dependency, hardens local Compose bindings, updates deployment
-   and cutover runbooks, and records local migration plus backup/restore
-   rehearsal evidence. After merge, Docker run `27842617793` built, scanned,
-   signed, and verified digest
-   `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
-   External staging deploy, webhook smoke, monitoring/alert evidence, rollback
-   rehearsal, and final review gates remain open.
+   not provide `zod` at `/app/node_modules`. PR #23 fixed that dependency,
+   hardened local Compose bindings, updated deployment and cutover runbooks,
+   and recorded local migration plus backup/restore rehearsal evidence. PR #24
+   recorded the post-fix Docker evidence. The latest successful Docker run on
+   `main` is `27843468718` for commit `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`,
+   producing signed and verified digest
+   `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+   External staging deploy, real Telegram webhook smoke, monitoring/alert
+   evidence, rollback rehearsal, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -172,7 +178,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. The 2026-06-19 staging-gates branch fixed a runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. Docker run `27842617793` built, scanned, signed, and verified post-fix digest `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`. T032 is not closed until the digest passes real staging smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27843468718` built, scanned, signed, and verified latest `main` digest `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`. T032 is not closed until the digest passes real staging smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -192,8 +198,9 @@ Spec #057 merged evidence as of 2026-06-18:
   tests, integration tests, e2e tests, `spec:validate`, docs, CMS, boundary,
   authorization, module checklist, source conformance, toolchain audit,
   changeset status, and the high-severity audit gate.
-- `origin/main` is green after the 2026-06-18 push: GitHub Actions CI and Docker
-  both passed on commit `a1bd220`.
+- `origin/main` is green after the 2026-06-19 PR #24 merge: GitHub Actions CI
+  run `27843468722` and Docker run `27843468718` both passed on commit
+  `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`.
 
 Spec #057 runtime artifact branch evidence as of 2026-06-19:
 
@@ -234,6 +241,14 @@ Spec #057 runtime artifact branch evidence as of 2026-06-19:
   passed build, push, Trivy scan, SARIF upload, Cosign signing, and Cosign
   verification for digest
   `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
+- PR #24 merged documentation evidence to `main` as commit
+  `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`. Docker run `27843468718`
+  passed build, push, Trivy scan, SARIF upload, Cosign signing, and Cosign
+  verification for digest
+  `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
+- On 2026-06-20, the Project Manager confirmed that a real Telegram token is
+  available for smoke testing. That does not close T032 until the test is run
+  and evidence is recorded against the immutable digest.
 
 Production go/no-go requires:
 
@@ -258,7 +273,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and the Spec #057 T004-T023 slices are published to `origin/main`; Spec #057 T003 and T024-T031 are implemented on a branch; T032 plus staging, backup/restore, rollback, review, and final release gates remain blocked |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; T032 plus staging, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
 
@@ -362,6 +377,8 @@ Current active references:
   `docs/developer/project-knowledge-graph.md`
 - Module development catalog:
   `docs/developer/module-development-catalog.md`
+- Git branch hygiene:
+  `docs/developer/git-branch-hygiene.md`
 
 ## Quality Gates Before Merge
 
