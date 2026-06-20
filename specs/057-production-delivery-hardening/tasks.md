@@ -33,10 +33,11 @@ After PR #23 merged to `main`, Docker run `27842617793` built, pushed, scanned,
 signed, and verified post-fix digest
 `sha256:d9fdcc7db1dccb3f41249e1139992ac9202ca4c1125b26f33640b1e1043fd0c1`.
 After PR #24 merged to `main`, Docker run `27843468718` built, pushed, scanned,
-signed, and verified latest `main` digest
+signed, and verified digest
 `sha256:619f6ac4169c145b7478329b3adcc06e15c1cd6eaa5d7c8b02760132b154a26e`.
-T032 remains open until the current digest is deployed to staging and passes
-real container smoke.
+Documentation-only merges may publish newer signed digests. T032 remains open
+until the selected current `main` digest is deployed to staging and passes real
+container smoke.
 
 ## Phase 1: Setup and Threat/Release Baseline
 
