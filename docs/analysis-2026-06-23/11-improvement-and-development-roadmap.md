@@ -324,7 +324,7 @@
 
 ```
 2026-Q3                          2026-Q4                          2027-Q1
-=======                          =======                          =======
+-------                          -------                          -------
 [1.1] Spec #057 finish           [3.x] Docker hardening (HC, BuildKit)  [6.3] Mutation testing PoC
 [2.1] Spec #058 finish           [3.x] Doc unify (P2 docs)              [5.4] Bun matrix exploration
 [1.2-1.3] gitleaks + rotation    [5.1] Codecov                          [8.2] Secrets manager
