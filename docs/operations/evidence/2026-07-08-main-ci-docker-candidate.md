@@ -1,13 +1,14 @@
-# Main CI And Docker Candidate Evidence - 2026-07-08
+# Main CI And Docker Candidate Evidence Snapshot - 2026-07-08
 
 ## Release Identity
 
-- **Scope:** Post-merge evidence for the current `main` candidate after the
-  Spec #058 bot access mode and membership gate merge plus CI repair.
+- **Scope:** Post-merge evidence snapshot for the last successful `main`
+  candidate captured before this documentation evidence update, after the Spec
+  #058 bot access mode and membership gate merge plus CI repair.
 - **Git commit:** `47f59ea9080ac58c698d16bbf6c117cb3c74237a`.
 - **GitHub CI run:** `28950023839`.
 - **GitHub Docker run:** `28950023763`.
-- **Image reference:** `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
+- **Captured image reference:** `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
 - **Date:** 2026-07-08.
 - **Operator:** Codex, acting under Project Manager approval.
 
@@ -47,9 +48,16 @@ The workflow:
 - signed the immutable digest with Cosign;
 - verified the Cosign signature for the immutable digest.
 
+This repository publishes Docker images for documentation-only commits on
+`main`. Therefore, this captured digest is evidence for the last successful
+candidate available when this file was written, not a permanent declaration of
+the final staging digest. The staging operator must resolve and record the
+latest successful `main` digest after all documentation commits land and
+immediately before deployment.
+
 ## Decision
 
-- **Candidate state:** Valid current `main` candidate for staging selection.
+- **Candidate state:** Valid captured `main` candidate evidence.
 - **Production decision:** No-Go.
 - **Reason:** This evidence proves the current `main` code, CI, Docker build,
   scan, signing, and signature verification. It does not prove external staging

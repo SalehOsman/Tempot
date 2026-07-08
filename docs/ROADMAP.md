@@ -149,13 +149,15 @@ Active or next work:
    migrations, confirmed Telegram `getMe`, started polling mode, and verified
    `/live` plus restricted `/ready`. Later documentation-only merges may
    publish newer signed digests. The latest successful `main` Docker workflow
-   verified on 2026-07-08 is run `28950023763` for commit
+   captured before this evidence update was run `28950023763` for commit
    `47f59ea9080ac58c698d16bbf6c117cb3c74237a`, which built, scanned, signed,
    and verified
    `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
-   Staging must record the exact selected digest immediately before deployment.
-   External staging deploy, real Telegram webhook smoke, monitoring/alert
-   evidence, rollback rehearsal, and final review gates remain open.
+   Documentation-only evidence commits also publish images, so staging must
+   resolve and record the exact latest successful `main` digest after all
+   documentation commits land and immediately before deployment. External
+   staging deploy, real Telegram webhook smoke, monitoring/alert evidence,
+   rollback rehearsal, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -305,7 +307,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                                                                                                                                                                                                                                                                                          |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; the latest 2026-07-08 signed candidate digest is `sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; the captured 2026-07-08 signed candidate digest before this evidence update is `sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`, but staging must re-resolve the latest successful `main` digest after documentation commits land; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
 
