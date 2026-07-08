@@ -1,5 +1,6 @@
 import type { Context, NextFunction } from 'grammy';
 import { getDeps } from '../deps.context.js';
+import type { ModuleAuthorizationPolicy } from '../index.js';
 import {
   createBackToListMenu,
   createPendingRequestsMenu,
@@ -8,6 +9,18 @@ import {
 
 const noopNext: NextFunction = () => Promise.resolve();
 const ADMIN_REJECTION_REASON = 'membership-management.rejection.admin_rejected';
+const REQUEST_POLICY: ModuleAuthorizationPolicy = {
+  module: 'membership-management',
+  classification: 'bootstrap',
+  action: 'create',
+  subject: 'membership-request',
+};
+const ADMIN_POLICY: ModuleAuthorizationPolicy = {
+  module: 'membership-management',
+  classification: 'protected',
+  action: 'manage',
+  subject: 'membership-request',
+};
 
 interface MembershipContextState {
   sessionUser?: { id: string | number };
@@ -24,10 +37,12 @@ export async function handleCallbackQuery(
   }
 
   if (data === 'membership:request') {
+    if (!(await getDeps().authorization.enforce(ctx, REQUEST_POLICY))) return;
     await submitMembershipRequest(ctx);
     return;
   }
 
+  if (!(await getDeps().authorization.enforce(ctx, ADMIN_POLICY))) return;
   const handled = await handleAdminMembershipCallback(ctx, data);
   if (handled) return;
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { err, ok, AppError } from '@tempot/shared';
 import { registerDeps, type MembershipManagementDeps } from '../../deps.context.js';
 import { requestMembershipCommand } from '../../commands/request-membership.command.js';
+import type { ModuleAuthorizationProvider } from '../../index.js';
 
 type MembershipRequestServicePort = MembershipManagementDeps['membershipRequests'];
 
@@ -31,6 +32,13 @@ function createService(): MembershipRequestServicePort {
   };
 }
 
+function createAuthorization(): MembershipManagementDeps['authorization'] {
+  return {
+    enforce: vi.fn<ModuleAuthorizationProvider['enforce']>().mockResolvedValue(true),
+    guard: vi.fn<ModuleAuthorizationProvider['guard']>(() => vi.fn()),
+  };
+}
+
 function createContext(from: Context['from'] | null = visitor()): Context {
   return {
     ...(from === null ? {} : { from }),
@@ -56,6 +64,7 @@ describe('requestMembershipCommand', () => {
     vi.clearAllMocks();
     service = createService();
     registerDeps({
+      authorization: createAuthorization(),
       i18n: { t: (key: string) => key },
       membershipRequests: service,
     });

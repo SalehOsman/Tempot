@@ -51,7 +51,9 @@ describe('generateRuntimeManifest', () => {
     });
   });
 
-  it('rejects modules that would require source files inside the runner image', async ({ task }) => {
+  it('rejects modules that would require source files inside the runner image', async ({
+    task,
+  }) => {
     const root = join(process.cwd(), 'temp', 'tests', task.id);
     await createModule(root, 'test-module');
     await mkdir(join(root, 'packages', 'shared'), { recursive: true });
@@ -66,5 +68,33 @@ describe('generateRuntimeManifest', () => {
         forbiddenRuntimePaths: ['index.ts'],
       }),
     ).rejects.toThrow('Forbidden runtime source path');
+  });
+
+  it('matches modules documented by a broader feature specification', async ({ task }) => {
+    const root = join(process.cwd(), 'temp', 'tests', task.id);
+    await createModule(root, 'membership-management');
+    await mkdir(join(root, 'packages', 'shared'), { recursive: true });
+    await mkdir(join(root, 'specs', '058-bot-access-mode-membership-gate'), { recursive: true });
+    await writeFile(
+      join(root, 'specs', '058-bot-access-mode-membership-gate', 'spec.md'),
+      '# Bot Access Mode Membership Gate\n\nIncludes `membership-management` runtime work.\n',
+    );
+
+    const outputPath = join(root, 'runtime', 'runtime-manifest.json');
+    await generateRuntimeManifest({
+      root,
+      outputPath,
+    });
+
+    const manifest = JSON.parse(await readFile(outputPath, 'utf8')) as {
+      modules: Array<{ name: string; specDir: string }>;
+    };
+
+    expect(manifest.modules).toEqual([
+      {
+        name: 'membership-management',
+        specDir: '058-bot-access-mode-membership-gate',
+      },
+    ]);
   });
 });

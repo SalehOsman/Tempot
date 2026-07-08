@@ -60,6 +60,7 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   });
 
   registerDeps({
+    authorization: deps.authorization,
     i18n: deps.i18n,
     membershipRequests,
   });

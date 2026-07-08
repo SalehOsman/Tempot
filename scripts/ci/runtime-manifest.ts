@@ -1,4 +1,4 @@
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -40,7 +40,10 @@ const REQUIRED_MODULE_PATHS = [
 
 async function listDirectories(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
-  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+  return entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
 }
 
 async function pathExists(filePath: string): Promise<boolean> {
@@ -52,11 +55,34 @@ async function pathExists(filePath: string): Promise<boolean> {
   }
 }
 
-function matchingSpec(moduleName: string, specDirs: readonly string[]): string | undefined {
+function directlyMatchingSpec(moduleName: string, specDirs: readonly string[]): string | undefined {
   return specDirs.find((dir) => {
     const stripped = dir.replace(/^\d+-/u, '');
     return stripped === moduleName || stripped === `${moduleName}-package`;
   });
+}
+
+async function matchingSpec(
+  root: string,
+  moduleName: string,
+  specDirs: readonly string[],
+): Promise<string | undefined> {
+  const directMatch = directlyMatchingSpec(moduleName, specDirs);
+  if (directMatch) return directMatch;
+
+  for (const dir of specDirs) {
+    const specPath = path.join(root, 'specs', dir, 'spec.md');
+    if (await specMentionsModule(specPath, moduleName)) return dir;
+  }
+
+  return undefined;
+}
+
+async function specMentionsModule(specPath: string, moduleName: string): Promise<boolean> {
+  if (!(await pathExists(specPath))) return false;
+  const escapedModuleName = moduleName.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+  const moduleBoundary = new RegExp(`(^|[^a-z0-9-])${escapedModuleName}([^a-z0-9-]|$)`, 'iu');
+  return moduleBoundary.test(await readFile(specPath, 'utf8'));
 }
 
 async function assertRequiredModulePaths(root: string, moduleName: string): Promise<void> {
@@ -88,7 +114,7 @@ async function buildModuleEntry(options: ModuleEntryOptions): Promise<RuntimeMan
   await assertRequiredModulePaths(root, moduleName);
   await assertForbiddenRuntimePaths(root, moduleName, forbiddenRuntimePaths);
 
-  const specDir = matchingSpec(moduleName, specDirs);
+  const specDir = await matchingSpec(root, moduleName, specDirs);
   if (!specDir) {
     throw new Error(`Missing SpecKit source for module: ${moduleName}`);
   }

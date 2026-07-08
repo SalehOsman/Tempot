@@ -1,7 +1,7 @@
 import type { ModuleDeps } from './index.js';
 import type { MembershipRequestService } from './services/membership-request.service.js';
 
-export interface MembershipManagementDeps extends Pick<ModuleDeps, 'i18n'> {
+export interface MembershipManagementDeps extends Pick<ModuleDeps, 'authorization' | 'i18n'> {
   membershipRequests: Pick<
     MembershipRequestService,
     'submit' | 'listPending' | 'getById' | 'approve' | 'reject'

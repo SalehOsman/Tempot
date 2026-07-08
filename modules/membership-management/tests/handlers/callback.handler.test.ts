@@ -3,7 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ok } from '@tempot/shared';
 import { registerDeps } from '../../deps.context.js';
 import { handleCallbackQuery } from '../../handlers/callback.handler.js';
+import type { ModuleAuthorizationProvider } from '../../index.js';
 import type { MembershipRequestService } from '../../services/membership-request.service.js';
+
+type AuthorizationMock = ModuleAuthorizationProvider & {
+  enforce: ReturnType<typeof vi.fn<ModuleAuthorizationProvider['enforce']>>;
+};
 
 function request(overrides: Record<string, unknown> = {}) {
   return {
@@ -67,11 +72,17 @@ describe('membership-management callback handler', () => {
     MembershipRequestService,
     'submit' | 'listPending' | 'getById' | 'approve' | 'reject'
   >;
+  let authorization: AuthorizationMock;
 
   beforeEach(() => {
     vi.clearAllMocks();
     service = createService();
+    authorization = {
+      enforce: vi.fn<ModuleAuthorizationProvider['enforce']>().mockResolvedValue(true),
+      guard: vi.fn<ModuleAuthorizationProvider['guard']>(() => vi.fn()),
+    };
     registerDeps({
+      authorization,
       i18n: { t: (key: string) => key },
       membershipRequests: service,
     });
@@ -89,6 +100,19 @@ describe('membership-management callback handler', () => {
     });
     expect(ctx.editMessageText).toHaveBeenCalledWith('membership-management.request.submitted', {
       parse_mode: 'HTML',
+    });
+  });
+
+  it('should enforce bootstrap authorization before submitting membership request', async () => {
+    const ctx = createContext();
+
+    await handleCallbackQuery(ctx);
+
+    expect(authorization.enforce).toHaveBeenCalledWith(ctx, {
+      module: 'membership-management',
+      classification: 'bootstrap',
+      action: 'create',
+      subject: 'membership-request',
     });
   });
 
@@ -111,6 +135,22 @@ describe('membership-management callback handler', () => {
       parse_mode: 'HTML',
       reply_markup: expect.any(Object),
     });
+  });
+
+  it('should not load pending membership requests when administrator authorization is denied', async () => {
+    authorization.enforce.mockResolvedValue(false);
+    const ctx = createContext('membership:list');
+
+    await handleCallbackQuery(ctx);
+
+    expect(authorization.enforce).toHaveBeenCalledWith(ctx, {
+      module: 'membership-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'membership-request',
+    });
+    expect(service.listPending).not.toHaveBeenCalled();
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 
   it('should render membership request details', async () => {
