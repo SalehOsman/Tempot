@@ -1,5 +1,5 @@
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
-import type { ModuleDependencyContainer } from '../bot-server.types.js';
+import type { ModuleDependencyContainer, ModuleNavigationActor } from '../bot-server.types.js';
 
 const ROLE_LEVELS: Record<UserRole, number> = {
   GUEST: 1,
@@ -15,9 +15,26 @@ export function createModuleNavigationProvider(
   return {
     getMainMenuItems: (role: UserRole) =>
       entries
-        .filter((entry) => ROLE_LEVELS[role] >= ROLE_LEVELS[entry.requiredRole])
+        .filter((entry) => isRoleAllowed(role, entry.requiredRole))
         .sort(compareNavigationItems),
+    getVisibleMainMenuItems: (actor: ModuleNavigationActor) =>
+      entries.filter((entry) => canSeeNavigationItem(actor, entry)).sort(compareNavigationItems),
   };
+}
+
+function canSeeNavigationItem(actor: ModuleNavigationActor, entry: ModuleNavigationItem): boolean {
+  if (!isRoleAllowed(actor.role, entry.requiredRole)) return false;
+  if (entry.accessClassification === 'admin' && !isRoleAllowed(actor.role, 'ADMIN')) {
+    return false;
+  }
+
+  const requiredAbility = entry.requiredAbility;
+  if (requiredAbility === undefined) return true;
+  return actor.abilities.includes(requiredAbility) || actor.abilities.includes('manage.all');
+}
+
+function isRoleAllowed(actorRole: UserRole, requiredRole: UserRole): boolean {
+  return ROLE_LEVELS[actorRole] >= ROLE_LEVELS[requiredRole];
 }
 
 function compareNavigationItems(left: ModuleNavigationItem, right: ModuleNavigationItem): number {

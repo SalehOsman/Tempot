@@ -3,6 +3,9 @@ import type { AsyncResult } from '@tempot/shared';
 /** User roles from the CASL-based RBAC system (Rule XXVI) */
 export type UserRole = 'GUEST' | 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 
+/** Access visibility bucket for Telegram-facing module capabilities. */
+export type ModuleNavigationAccessClassification = 'public' | 'bootstrap' | 'protected' | 'admin';
+
 /** AI degradation mode (Constitution Rule XXXIII) */
 export type AiDegradationMode = 'graceful' | 'queue' | 'disable';
 
@@ -38,6 +41,8 @@ export interface ModuleNavigationItem {
   labelKey: string;
   callbackData: string;
   requiredRole: UserRole;
+  accessClassification?: ModuleNavigationAccessClassification;
+  requiredAbility?: string;
   row: number;
   order: number;
 }

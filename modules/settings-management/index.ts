@@ -33,7 +33,10 @@ export interface ModuleDeps {
   eventBus: ModuleEventBus;
   sessionProvider: { getSession: (userId: string, chatId: string) => Promise<unknown> };
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
-  settings: { get: (key: string) => Promise<unknown> };
+  settings: {
+    get: (key: string) => Promise<unknown>;
+    set: (key: string, value: unknown, updatedBy: string | null) => Promise<unknown>;
+  };
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
 }

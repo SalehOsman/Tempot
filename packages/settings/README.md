@@ -59,10 +59,20 @@ const settings = new SettingsService(staticLoader, dynamicService, maintenance);
 
 ## Exports
 
-- **Types:** `StaticSettings`, `JoinMode`, `DynamicSettingKey`, `SettingChangedPayload`, `MaintenanceStatus`
+- **Types:** `StaticSettings`, `BotAccessMode`, `JoinMode`, `DynamicSettingKey`, `SettingChangedPayload`, `MaintenanceStatus`
 - **Repository:** `SettingsRepository`, `SettingsRepositoryPort`
 - **Services:** `StaticSettingsLoader`, `DynamicSettingsService`, `MaintenanceService`, `SettingsService`
 - **Constants:** `DYNAMIC_SETTING_DEFAULTS`, `SETTINGS_ERRORS`
+
+## Bot Access Mode
+
+`BOT_ACCESS_MODE` controls how the Telegram runtime treats unknown visitors:
+
+- `private` is the default when the value is missing.
+- `public` only exposes capabilities explicitly classified as public.
+- Invalid values fail static settings validation and must not resolve to public behavior.
+
+The current runtime reads this value from static settings during startup. Admin UI/runtime updates are tracked separately by Spec #058.
 
 ## ADRs
 

@@ -74,13 +74,41 @@ export class UserRepository extends BaseRepository<UserProfile> {
   }
 
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
-    const result = await super.findMany({ where: { telegramId }, take: 1 });
+    const parsedTelegramId = this.parseTelegramId(telegramId);
+    if (parsedTelegramId.isErr()) return err(parsedTelegramId.error);
+
+    const result = await super.findMany({ where: { telegramId: parsedTelegramId.value }, take: 1 });
     if (result.isErr()) return err(result.error);
 
     const user = result.value[0];
     if (!user) return err(new AppError('user-management.not_found', { telegramId }));
 
     return this.recoverProtectedFields(user);
+  }
+
+  async createMemberProfile(input: {
+    telegramId: string;
+    username?: string;
+    language: string;
+    role: RoleEnum.USER;
+  }): Promise<Result<UserProfile, AppError>> {
+    const parsedTelegramId = this.parseTelegramId(input.telegramId);
+    if (parsedTelegramId.isErr()) return err(parsedTelegramId.error);
+
+    const result = await super.create({
+      telegramId: parsedTelegramId.value,
+      username: input.username,
+      language: input.language,
+      role: input.role,
+    });
+    return result.andThen((user) => this.recoverProtectedFields(user));
+  }
+
+  private parseTelegramId(telegramId: string): Result<bigint, AppError> {
+    if (!/^[1-9]\d*$/u.test(telegramId)) {
+      return err(new AppError('user-management.invalid_telegram_id', { telegramId }));
+    }
+    return ok(BigInt(telegramId));
   }
 
   async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
@@ -143,43 +171,33 @@ export class UserRepository extends BaseRepository<UserProfile> {
   updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'username', newUsername);
   }
-
   updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'email', newEmail);
   }
-
   updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'language', newLanguage);
   }
-
   updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'role', newRole);
   }
-
   updateIdentity(userId: string, identity: IdentityUpdateData): Promise<Result<void, AppError>> {
     return this.updateFields(userId, { ...identity });
   }
-
   updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'nationalId', nationalId);
   }
-
   updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'mobileNumber', mobileNumber);
   }
-
   updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'birthDate', birthDate);
   }
-
   updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'gender', gender);
   }
-
   updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'governorate', governorate);
   }
-
   updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'countryCode', countryCode);
   }

@@ -7,6 +7,7 @@ import { NodeProtectedDataService, prisma, StaticProtectedDataKeyProvider } from
 
 import {
   StaticSettingsLoader,
+  BOT_ACCESS_MODES,
   SETTINGS_ERRORS,
   SettingsRepository,
   DynamicSettingsService,
@@ -83,6 +84,7 @@ function buildSettingsService(
         superAdminIds: [],
         defaultLanguage: 'en',
         defaultCountry: 'US',
+        botAccessMode: BOT_ACCESS_MODES.private,
         protectedDataKeys: null,
       };
 

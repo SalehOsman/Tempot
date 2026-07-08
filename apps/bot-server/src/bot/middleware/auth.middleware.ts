@@ -1,5 +1,5 @@
 import type { Context, NextFunction } from 'grammy';
-import type { AnyAbility } from '@casl/ability';
+import { createMongoAbility, type AnyAbility } from '@casl/ability';
 import type { SessionUser, AbilityDefinition } from '@tempot/auth-core';
 import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
 
@@ -39,20 +39,21 @@ export function createAuthMiddleware(
 
     (ctx as unknown as Record<string, unknown>)['sessionUser'] = sessionUser;
 
-    if (sessionUser.status === 'BANNED' || sessionUser.status === 'PENDING') {
+    if (sessionUser.status === 'BANNED') {
       deps.logger.warn({
         module: 'bot-server',
         msg: 'access_denied',
         userId,
         role: sessionUser.role,
         status: sessionUser.status,
-        reason: `session_${sessionUser.status.toLowerCase()}`,
+        reason: 'session_banned',
       });
       await ctx.reply(deps.t('bot-server.unauthorized'));
       return;
     }
 
-    const abilityResult = buildAbility(sessionUser, deps);
+    const abilityResult =
+      sessionUser.status === 'PENDING' ? createMongoAbility([]) : buildAbility(sessionUser, deps);
     if (abilityResult === null) {
       await ctx.reply(deps.t('bot-server.unauthorized'));
       return;

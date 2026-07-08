@@ -1,4 +1,5 @@
 import {
+  BOT_ACCESS_MODES,
   DYNAMIC_SETTING_DEFAULTS,
   type DynamicSettingDefinitions,
   type DynamicSettingKey,
@@ -22,12 +23,19 @@ function isJoinMode(value: unknown): value is DynamicSettingDefinitions['join_mo
   }
 }
 
+function isBotAccessMode(value: unknown): value is DynamicSettingDefinitions['bot_access_mode'] {
+  return value === BOT_ACCESS_MODES.private || value === BOT_ACCESS_MODES.public;
+}
+
 function isDynamicSettingValue<K extends DynamicSettingKey>(
   key: K,
   value: unknown,
 ): value is DynamicSettingDefinitions[K] {
   if (key === 'join_mode') {
     return isJoinMode(value);
+  }
+  if (key === 'bot_access_mode') {
+    return isBotAccessMode(value);
   }
   return typeof value === typeof DYNAMIC_SETTING_DEFAULTS[key];
 }

@@ -14,6 +14,8 @@ const config: ModuleConfig = {
         labelKey: 'audit-viewer.menu.button',
         callbackData: 'stats:view',
         requiredRole: 'ADMIN',
+        accessClassification: 'admin',
+        requiredAbility: 'read.audit',
         row: 2,
         order: 20,
       },

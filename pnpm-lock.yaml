@@ -393,6 +393,34 @@ importers:
         specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@8.0.16(@types/node@24.12.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
+  modules/membership-management:
+    dependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
+      '@tempot/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
+      '@tempot/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@tempot/module-registry':
+        specifier: workspace:*
+        version: link:../../packages/module-registry
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      grammy:
+        specifier: ^1.41.1
+        version: 1.41.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@8.0.16(@types/node@24.12.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
   modules/notification-center:
     dependencies:
       '@tempot/module-registry':
@@ -13665,7 +13693,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.1.2
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@22.19.17)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)
       why-is-node-running: 2.3.0
@@ -13693,7 +13721,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.1.2
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@24.12.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4)
       why-is-node-running: 2.3.0

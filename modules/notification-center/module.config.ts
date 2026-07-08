@@ -16,6 +16,8 @@ const config: ModuleConfig = {
         labelKey: 'notification-center.menu.button',
         callbackData: 'notifications:view',
         requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.notifications',
         row: 1,
         order: 10,
       },

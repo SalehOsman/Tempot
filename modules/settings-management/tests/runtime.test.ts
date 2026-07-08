@@ -5,6 +5,10 @@ import { settingsCommand } from '../commands/settings.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
 
 type TestDeps = ModuleDeps & {
+  settings: {
+    get: ReturnType<typeof vi.fn>;
+    set: ReturnType<typeof vi.fn>;
+  };
   authorization: {
     guard: ReturnType<typeof vi.fn>;
     enforce: ReturnType<typeof vi.fn>;
@@ -25,7 +29,10 @@ function createDeps(): TestDeps {
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
     sessionProvider: { getSession: vi.fn() },
     i18n: { t: (key: string) => key },
-    settings: { get: vi.fn().mockResolvedValue(undefined) },
+    settings: {
+      get: vi.fn().mockResolvedValue(undefined),
+      set: vi.fn().mockResolvedValue(undefined),
+    },
     authorization: {
       guard: vi.fn().mockReturnValue(vi.fn()),
       enforce: vi.fn().mockResolvedValue(true),
@@ -96,6 +103,7 @@ describe('settings-management runtime', () => {
     expect(callbackDataFrom(options.reply_markup)).toEqual([
       'settings:profile',
       'settings:regional',
+      'settings:access-mode',
       'menu:main',
     ]);
   });
@@ -196,5 +204,89 @@ describe('settings-management runtime', () => {
     const callbacks = callbackDataFrom(options.reply_markup);
     expect(callbacks).toContain('settings:regional');
     expect(callbacks).not.toContain('settings:regional:timezone');
+  });
+
+  it('renders access-mode controls for authorized super administrators', async () => {
+    const deps = createDeps();
+    deps.settings.get.mockResolvedValue('private');
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'settings:access-mode', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+      sessionUser: { id: 'super-admin-1', role: 'SUPER_ADMIN' },
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.authorization.enforce).toHaveBeenCalledWith(ctx, {
+      module: 'settings-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'bot-access-mode',
+    });
+    expect(deps.settings.get).toHaveBeenCalledWith('bot_access_mode');
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      'settings-management.view.access_mode',
+      expect.any(Object),
+    );
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('settings:access-mode:set:public');
+    expect(callbacks).toContain('settings:access-mode:set:private');
+  });
+
+  it('updates and audits access mode changes for authorized super administrators', async () => {
+    const deps = createDeps();
+    deps.settings.get.mockResolvedValue('private');
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'settings:access-mode:set:public', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+      sessionUser: { id: 'super-admin-1', role: 'SUPER_ADMIN' },
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.settings.set).toHaveBeenCalledWith('bot_access_mode', 'public', 'super-admin-1');
+    expect(deps.logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'settings-management.audit',
+        action: 'settings-management.botAccessMode.update',
+        module: 'settings-management',
+        userId: 'super-admin-1',
+        userRole: 'SUPER_ADMIN',
+        status: 'SUCCESS',
+        before: { accessMode: 'private' },
+        after: { accessMode: 'public' },
+      }),
+    );
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      'settings-management.view.access_mode_updated',
+      expect.any(Object),
+    );
+  });
+
+  it('denies access-mode controls to unauthorized administrators', async () => {
+    const deps = createDeps();
+    deps.authorization.enforce.mockResolvedValue(false);
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = {
+      callbackQuery: { data: 'settings:access-mode', message: { message_id: 10 } },
+      answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
+      reply: vi.fn().mockResolvedValue(undefined),
+      sessionUser: { id: 'admin-1', role: 'ADMIN' },
+    } as unknown as Context;
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.settings.get).not.toHaveBeenCalled();
+    expect(deps.settings.set).not.toHaveBeenCalled();
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 });

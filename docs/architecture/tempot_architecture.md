@@ -233,6 +233,64 @@ Tempot اسم مشتق من كلمتي Template وBot، وهو إطار عمل �
 | `/spec`                                | المواصفات الفنية — SpecKit                                         |
 | `/scripts`                             | سكريبتات الأتمتة والـ CLI Generator                                |
 
+## Spec #058 Addendum — Bot Access Mode and Membership Gate
+
+Spec #058 adds a runtime access boundary for the Telegram bot while preserving
+the existing module isolation rules.
+
+### Runtime Boundary
+
+- `apps/bot-server` owns the access gate middleware. It resolves the current
+  actor from session state, maps Telegram commands and callbacks to
+  capabilities, reads `bot_access_mode`, and denies or allows the update before
+  module handlers run.
+- The access gate is not a business module. It does not create users, mutate
+  membership requests, or bypass module repositories.
+- Denied protected and administrative attempts are audit events with the actor
+  state, capability id, classification, access mode, and denial reason.
+
+### Access Modes
+
+- `private` is the default mode. Unknown and pending visitors can only use
+  bootstrap capabilities: `/start`, `/join`, and `membership:request`.
+- `public` allows unknown visitors to use capabilities explicitly classified as
+  public. Protected and administrative capabilities still require an approved
+  profile and matching CASL abilities.
+- `settings-management` exposes the access-mode setting to super administrators
+  only. Runtime reads use the settings dependency instead of hardcoded local
+  state.
+
+### Module Responsibilities
+
+- `membership-management` owns membership request submission, review callbacks,
+  cancellation or expiry transitions, and membership audit events.
+- `user-management` owns approved user profiles and renders `/start` responses.
+  Unknown visitors see membership entry points, pending visitors see pending
+  status, public-mode visitors see public navigation entries, and approved users
+  see the role-filtered main menu.
+- `module-registry` carries module-owned navigation metadata, including
+  `accessClassification` and optional `requiredAbility`, so menu visibility and
+  access decisions can remain aligned without direct module-to-module imports.
+
+### Event Flow
+
+1. Visitor sends `/start` or `/join`.
+2. `bot-server` allows bootstrap commands through the access gate.
+3. `membership-management` records or reuses a membership request.
+4. An administrator approves or rejects the request through governed callbacks.
+5. Approval emits membership events and activates or creates the
+   `user-management` profile through the approved profile service boundary.
+6. The next `/start` renders the approved user's role-filtered module menu.
+
+### Invariants
+
+- Modules must not import each other directly. Cross-module effects use the
+  event bus or injected app-level dependency boundaries.
+- Public mode does not make protected callbacks public.
+- Pending, rejected, unresolved, and stale callback actors must be denied before
+  business handlers mutate state.
+- Super administrators keep `manage.all` menu visibility and bootstrap behavior.
+
 </div>
 
 ---

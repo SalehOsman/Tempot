@@ -1,7 +1,26 @@
+import type { AnyAbility, RawRuleOf } from '@casl/ability';
+import type { ModuleNavigationItem } from '@tempot/module-registry';
 import type { Context } from 'grammy';
+import { InlineKeyboard } from 'grammy';
 import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
 import { MainMenuFactory } from '../menus/main-menu.factory.js';
+import type { UserProfile } from '../types/index.js';
+
+const BOT_ACCESS_MODE_KEY = 'bot_access_mode';
+
+type BotAccessMode = 'private' | 'public';
+
+interface SessionUserSnapshot {
+  readonly status?: string;
+}
+
+interface KnownUserReplyInput {
+  readonly ctx: Context;
+  readonly user: UserProfile;
+  readonly fallbackName: string;
+  readonly telegramId: string;
+}
 
 export async function startCommand(ctx: Context): Promise<void> {
   const log = getLogger().child({ command: 'start' });
@@ -21,15 +40,58 @@ export async function startCommand(ctx: Context): Promise<void> {
 
   if (userResult.isErr()) {
     log.warn({ msg: 'start_user_not_found', telegramId, errorCode: userResult.error.code });
-    await ctx.reply(i18n.t('user-management.errors.register_first'));
+    await replyToUnknownVisitor(ctx);
     return;
   }
 
-  const user = userResult.value;
-  const menuEntries = getDeps().navigation?.getMainMenuItems(user.role) ?? [];
+  await replyToKnownUser({
+    ctx,
+    user: userResult.value,
+    fallbackName: telegramUser.first_name,
+    telegramId,
+  });
+}
+
+async function replyToUnknownVisitor(ctx: Context): Promise<void> {
+  const i18n = getI18n();
+
+  if (sessionUserFromContext(ctx)?.status === 'PENDING') {
+    await ctx.reply(i18n.t('user-management.membership.pending_status'), {
+      parse_mode: 'HTML',
+      reply_markup: createMembershipRequestKeyboard(i18n),
+    });
+    return;
+  }
+
+  const accessMode = readAccessMode(await getDeps().settings.get(BOT_ACCESS_MODE_KEY));
+  if (accessMode === 'public') {
+    await ctx.reply(i18n.t('user-management.membership.public_prompt'), {
+      parse_mode: 'HTML',
+      reply_markup: createUnknownVisitorKeyboard(i18n, publicNavigationEntries()),
+    });
+    return;
+  }
+
+  await ctx.reply(i18n.t('user-management.membership.request_prompt'), {
+    parse_mode: 'HTML',
+    reply_markup: createMembershipRequestKeyboard(i18n),
+  });
+}
+
+async function replyToKnownUser(input: KnownUserReplyInput): Promise<void> {
+  const { ctx, user, fallbackName, telegramId } = input;
+  const i18n = getI18n();
+  const navigation = getDeps().navigation;
+  const menuEntries =
+    navigation?.getVisibleMainMenuItems?.({
+      role: user.role,
+      abilities: abilityTokensFromContext(ctx),
+    }) ??
+    navigation?.getMainMenuItems(user.role) ??
+    [];
   const keyboard = MainMenuFactory.create(user, i18n, menuEntries);
 
-  const displayName = user.username ?? telegramUser.first_name;
+  const displayName = user.username ?? fallbackName;
 
   await ctx.reply(
     i18n.t('user-management.menu.welcome', {
@@ -40,7 +102,7 @@ export async function startCommand(ctx: Context): Promise<void> {
     { parse_mode: 'HTML', reply_markup: keyboard },
   );
 
-  log.info({ msg: 'start_command_ok', userId: user.id });
+  getLogger().child({ command: 'start' }).info({ msg: 'start_command_ok', userId: user.id });
 
   // نشر event للـ session warming
   await getDeps().eventBus.publish('user-management.user.started', {
@@ -48,4 +110,63 @@ export async function startCommand(ctx: Context): Promise<void> {
     telegramId,
     role: user.role,
   });
+}
+
+function publicNavigationEntries(): readonly ModuleNavigationItem[] {
+  return (
+    getDeps()
+      .navigation?.getVisibleMainMenuItems?.({ role: 'GUEST', abilities: [] })
+      .filter((entry) => entry.accessClassification === 'public') ?? []
+  );
+}
+
+function createMembershipRequestKeyboard(i18n: { t: (key: string) => string }): InlineKeyboard {
+  return new InlineKeyboard().text(
+    i18n.t('user-management.membership.request_button'),
+    'membership:request',
+  );
+}
+
+function createUnknownVisitorKeyboard(
+  i18n: { t: (key: string) => string },
+  entries: readonly ModuleNavigationItem[],
+): InlineKeyboard {
+  const keyboard = createMembershipRequestKeyboard(i18n);
+
+  const sortedEntries = [...entries].sort((left, right) => {
+    if (left.row !== right.row) return left.row - right.row;
+    return left.order - right.order;
+  });
+
+  for (const entry of sortedEntries) {
+    keyboard.row().text(i18n.t(entry.labelKey), entry.callbackData);
+  }
+
+  return keyboard;
+}
+
+function readAccessMode(value: unknown): BotAccessMode {
+  return value === 'public' ? 'public' : 'private';
+}
+
+function sessionUserFromContext(ctx: Context): SessionUserSnapshot | undefined {
+  return (ctx as unknown as { sessionUser?: SessionUserSnapshot }).sessionUser;
+}
+
+function abilityTokensFromContext(ctx: Context): readonly string[] {
+  const ability = (ctx as unknown as { ability?: AnyAbility }).ability;
+  if (ability === undefined) return [];
+
+  return ability.rules.flatMap((rule: RawRuleOf<AnyAbility>) => {
+    const action = singleAbilityPart(rule.action);
+    const subject = singleAbilityPart(rule.subject);
+    if (action === null || subject === null) return [];
+    return [`${action}.${subject}`];
+  });
+}
+
+function singleAbilityPart(value: unknown): string | null {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value) && value.length === 1 && typeof value[0] === 'string') return value[0];
+  return null;
 }

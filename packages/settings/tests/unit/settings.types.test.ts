@@ -1,12 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import {
+  BOT_ACCESS_MODES,
   DYNAMIC_SETTING_DEFAULTS,
+  type BotAccessMode,
   type DynamicSettingDefinitions,
 } from '../../src/settings.types.js';
 import { SETTINGS_ERRORS } from '../../src/settings.errors.js';
 
 describe('Settings Type Definitions', () => {
-  it('should export DYNAMIC_SETTING_DEFAULTS with all 7 known keys', () => {
+  it('should export bot access modes used by the startup settings loader', () => {
+    const privateMode: BotAccessMode = BOT_ACCESS_MODES.private;
+    const publicMode: BotAccessMode = BOT_ACCESS_MODES.public;
+
+    expect(privateMode).toBe('private');
+    expect(publicMode).toBe('public');
+  });
+
+  it('should export DYNAMIC_SETTING_DEFAULTS with all 8 known keys', () => {
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('join_mode', 'AUTO');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('maintenance_mode', false);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('approval_role', '');
@@ -14,10 +24,11 @@ describe('Settings Type Definitions', () => {
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('log_retention_days', 90);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('dynamic_default_language', '');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('notifications_enabled', true);
+    expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('bot_access_mode', BOT_ACCESS_MODES.private);
   });
 
-  it('should have exactly 7 dynamic setting keys', () => {
-    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(7);
+  it('should have exactly 8 dynamic setting keys', () => {
+    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(8);
   });
 
   it('should enforce type safety — defaults match DynamicSettingDefinitions', () => {
@@ -29,10 +40,13 @@ describe('Settings Type Definitions', () => {
       DYNAMIC_SETTING_DEFAULTS.log_retention_days;
     const notificationsEnabled: DynamicSettingDefinitions['notifications_enabled'] =
       DYNAMIC_SETTING_DEFAULTS.notifications_enabled;
+    const botAccessMode: DynamicSettingDefinitions['bot_access_mode'] =
+      DYNAMIC_SETTING_DEFAULTS.bot_access_mode;
     expect(joinMode).toBe('AUTO');
     expect(maintenanceMode).toBe(false);
     expect(logRetention).toBe(90);
     expect(notificationsEnabled).toBe(true);
+    expect(botAccessMode).toBe(BOT_ACCESS_MODES.private);
   });
 });
 

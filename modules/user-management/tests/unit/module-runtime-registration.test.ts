@@ -9,6 +9,9 @@ type TestDeps = ModuleDeps & {
     guard: ReturnType<typeof vi.fn>;
     enforce: ReturnType<typeof vi.fn>;
   };
+  eventBus: ModuleDeps['eventBus'] & {
+    subscribe: ReturnType<typeof vi.fn>;
+  };
 };
 
 function createDeps(): TestDeps {
@@ -22,6 +25,7 @@ function createDeps(): TestDeps {
     },
     eventBus: {
       publish: vi.fn().mockResolvedValue({ isOk: () => true }),
+      subscribe: vi.fn().mockResolvedValue({ isOk: () => true }),
     },
     sessionProvider: {
       getSession: vi.fn().mockResolvedValue(undefined),
@@ -91,6 +95,21 @@ describe('user-management runtime registration', () => {
       'users',
       deps.authorization.guard.mock.results[2]?.value,
       usersCommand,
+    );
+  });
+
+  it('subscribes to membership approval events for profile activation', async () => {
+    const bot = {
+      command: vi.fn(),
+      on: vi.fn(),
+    };
+    const deps = createDeps();
+
+    await setup(bot as never, deps);
+
+    expect(deps.eventBus.subscribe).toHaveBeenCalledWith(
+      'membership-management.request.approved',
+      expect.any(Function),
     );
   });
 });

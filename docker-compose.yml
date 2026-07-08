@@ -9,6 +9,8 @@
 # =============================================================================
 # LOCAL DEVELOPMENT STACK
 # Services: bot-server + PostgreSQL (pgvector) + Redis.
+# Redis is intentionally internal-only to avoid conflicts with host Redis
+# instances; bot-server reaches it through the Compose network as `redis:6379`.
 # =============================================================================
 services:
   bot-server:
@@ -22,6 +24,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    command:
+      - sh
+      - -c
+      - >
+        cd /app/node_modules/@tempot/database &&
+        PRISMA_SCHEMA_PATH=/app/node_modules/@tempot/database/prisma/schema.prisma
+        /app/node_modules/.pnpm/node_modules/.bin/prisma migrate deploy &&
+        cd /app &&
+        node dist/index.js
     env_file: .env
     environment:
       - NODE_ENV=production
@@ -73,8 +84,6 @@ services:
     image: redis:7-alpine
     container_name: tempot-redis
     restart: unless-stopped
-    ports:
-      - '127.0.0.1:6379:6379'
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis_data:/data

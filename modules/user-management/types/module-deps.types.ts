@@ -16,6 +16,10 @@ export interface ModuleLogger {
 
 export interface ModuleEventBus {
   publish: (event: string, payload: Record<string, unknown>) => Promise<{ isOk: () => boolean }>;
+  subscribe: (
+    event: string,
+    handler: (payload: unknown) => void,
+  ) => Promise<{ isOk: () => boolean }>;
 }
 
 export interface ModuleSessionProvider {
@@ -32,6 +36,10 @@ export interface ModuleSettings {
 
 export interface ModuleNavigationProvider {
   getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
+  getVisibleMainMenuItems?: (actor: {
+    role: UserRole;
+    abilities: readonly string[];
+  }) => readonly ModuleNavigationItem[];
 }
 
 export interface ModuleAuthorizationPolicy {

@@ -15,6 +15,8 @@ const mockStaticSettings: StaticSettings = {
   superAdminIds: [111, 222],
   defaultLanguage: 'ar',
   defaultCountry: 'EG',
+  botAccessMode: 'private',
+  protectedDataKeys: null,
 };
 
 describe('MaintenanceService', () => {

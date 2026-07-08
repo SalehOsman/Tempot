@@ -87,6 +87,10 @@ vi.mock('@tempot/session-manager', () => ({
 }));
 
 vi.mock('@tempot/settings', () => ({
+  BOT_ACCESS_MODES: {
+    private: 'private',
+    public: 'public',
+  },
   SETTINGS_ERRORS: {
     PROTECTED_DATA_INVALID_KEY_RING: 'settings.protected_data.invalid_key_ring',
     PROTECTED_DATA_KEY_REUSE: 'settings.protected_data.key_reuse',
@@ -99,6 +103,8 @@ vi.mock('@tempot/settings', () => ({
         superAdminIds: [111],
         defaultLanguage: 'en',
         defaultCountry: 'US',
+        botAccessMode: 'private',
+        protectedDataKeys: null,
       }),
     ),
   },
@@ -179,6 +185,7 @@ function validStaticSettings() {
     superAdminIds: [111],
     defaultLanguage: 'en',
     defaultCountry: 'US',
+    botAccessMode: 'private',
     protectedDataKeys: {
       activeEncryptionKeyVersion: 'enc-v1',
       encryptionKeys: { 'enc-v1': Buffer.alloc(32, 1) },
