@@ -361,6 +361,40 @@ describe('startApplication', () => {
     expect(mockBot.start).not.toHaveBeenCalled();
   });
 
+  it('initializes the bot before listening in webhook mode', async () => {
+    const callOrder: string[] = [];
+    deps.loadConfig = vi.fn().mockReturnValue(
+      ok({
+        botToken: 'test-token',
+        botMode: 'webhook' as const,
+        port: 3000,
+        webhookUrl: 'https://example.com/webhook',
+        webhookSecret: 'secret',
+        superAdminIds: [],
+      }),
+    );
+    const mockBot = {
+      start: vi.fn(),
+      init: vi.fn(async () => {
+        callOrder.push('init');
+      }),
+    };
+    deps.createBot = vi.fn().mockReturnValue(mockBot);
+    deps.createHttpServer = vi.fn().mockReturnValue({
+      listen: vi.fn(() => {
+        callOrder.push('listen');
+      }),
+      close: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const result = await startApplication(deps);
+
+    expect(result.isOk()).toBe(true);
+    expect(mockBot.init).toHaveBeenCalledOnce();
+    expect(mockBot.start).not.toHaveBeenCalled();
+    expect(callOrder).toEqual(['init', 'listen']);
+  });
+
   it('passes ValidatedModule[] to loadModuleHandlers, not unknown[] (W7)', async () => {
     const mockConfig: ModuleConfig = {
       name: 'test-module',

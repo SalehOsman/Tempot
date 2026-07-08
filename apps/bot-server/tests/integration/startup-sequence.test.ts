@@ -267,8 +267,8 @@ describe('startup sequence integration', () => {
     );
   });
 
-  it('webhook mode does not call bot.start', async () => {
-    const mockBot = { start: vi.fn() };
+  it('webhook mode initializes bot and does not call bot.start', async () => {
+    const mockBot = { start: vi.fn(), init: vi.fn().mockResolvedValue(undefined) };
     const deps = createFullDeps({
       loadConfig: vi.fn().mockReturnValue(
         ok({
@@ -286,6 +286,7 @@ describe('startup sequence integration', () => {
     const result = await startApplication(deps);
 
     expect(result.isOk()).toBe(true);
+    expect(mockBot.init).toHaveBeenCalledOnce();
     expect(mockBot.start).not.toHaveBeenCalled();
     expect(deps.createHttpServer).toHaveBeenCalled();
   });

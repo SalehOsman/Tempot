@@ -9,6 +9,7 @@ export const DEFAULT_STARTUP_STAGES = [
   'commandRegistration',
   'shutdownHooks',
   'signalHandlers',
+  'botWebhook',
   'httpServer',
   'botPolling',
 ] as const;

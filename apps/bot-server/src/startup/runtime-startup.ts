@@ -10,6 +10,34 @@ import type { StartupStageName } from './startup-state.js';
 type BotLike = ReturnType<OrchestratorDeps['createBot']>;
 type HttpServerLike = ReturnType<OrchestratorDeps['createHttpServer']>;
 
+export async function initializeWebhookBot(
+  deps: OrchestratorDeps,
+  bot: BotLike,
+): AsyncResult<void> {
+  deps.startupState.markStarted('botWebhook');
+  if (typeof bot.init !== 'function') {
+    const appError = new RuntimeAppError(BOT_SERVER_ERRORS.STARTUP_FAILED, {
+      stage: 'botWebhook',
+      error: 'bot.init unavailable',
+    });
+    failStartupStage(deps, 'botWebhook', appError);
+    return err(appError);
+  }
+
+  try {
+    await bot.init();
+    deps.startupState.markReady('botWebhook');
+    return ok(undefined);
+  } catch (error: unknown) {
+    const appError = new RuntimeAppError(BOT_SERVER_ERRORS.STARTUP_FAILED, {
+      stage: 'botWebhook',
+      error: errorMessage(error),
+    });
+    failStartupStage(deps, 'botWebhook', appError);
+    return err(appError);
+  }
+}
+
 export async function startHttpServer(
   deps: OrchestratorDeps,
   bot: BotLike,

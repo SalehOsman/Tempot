@@ -6,10 +6,11 @@ import type { DiscoveryResult, ValidationResult, ValidatedModule } from '@tempot
 import type { BotServerConfig, ModuleLogger } from '../bot-server.types.js';
 import type { StartupStageName, StartupStateStore } from './startup-state.js';
 import { runFatalStartupSteps } from './fatal-startup-steps.js';
-import { startHttpServer, startPolling } from './runtime-startup.js';
+import { initializeWebhookBot, startHttpServer, startPolling } from './runtime-startup.js';
 
 interface BotLike {
   start: () => Promise<void>;
+  init?: () => Promise<void>;
 }
 
 interface HttpServerLike {
@@ -52,6 +53,11 @@ export async function startApplication(deps: OrchestratorDeps): AsyncResult<void
   }
 
   const { bot, loadedModules } = fatalStepsResult.value;
+  if (config.botMode === 'webhook') {
+    const webhookInitResult = await initializeWebhookBot(deps, bot);
+    if (webhookInitResult.isErr()) return err(webhookInitResult.error);
+  }
+
   const serverResult = await startHttpServer(deps, bot, config);
   if (serverResult.isErr()) return err(serverResult.error);
 

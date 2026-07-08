@@ -12,6 +12,31 @@ interface WebhookRouteDeps {
 }
 
 const TELEGRAM_SECRET_HEADER = 'x-telegram-bot-api-secret-token';
+const TELEGRAM_UPDATE_PAYLOAD_KEYS = [
+  'message',
+  'edited_message',
+  'channel_post',
+  'edited_channel_post',
+  'business_connection',
+  'business_message',
+  'edited_business_message',
+  'deleted_business_messages',
+  'message_reaction',
+  'message_reaction_count',
+  'inline_query',
+  'chosen_inline_result',
+  'callback_query',
+  'shipping_query',
+  'pre_checkout_query',
+  'purchased_paid_media',
+  'poll',
+  'poll_answer',
+  'my_chat_member',
+  'chat_member',
+  'chat_join_request',
+  'chat_boost',
+  'removed_chat_boost',
+] as const;
 
 export function createWebhookRoute(deps: WebhookRouteDeps): Hono {
   const route = new Hono();
@@ -34,7 +59,13 @@ export function createWebhookRoute(deps: WebhookRouteDeps): Hono {
       return c.json({ error: 'Bad Request' }, 400);
     }
 
-    await bot.handleUpdate(body);
+    try {
+      await bot.handleUpdate(body);
+    } catch (error: unknown) {
+      logger.error({ msg: 'webhook_update_failed', error: safeErrorMessage(error) });
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+
     return c.json({ ok: true }, 200);
   });
 
@@ -71,5 +102,14 @@ async function parseBody(c: HonoContext): Promise<Record<string, unknown> | null
 
 function isValidUpdate(body: Record<string, unknown>): body is Record<string, unknown> & Update {
   const updateId = body['update_id'];
-  return typeof updateId === 'number' && Number.isSafeInteger(updateId) && updateId >= 0;
+  return (
+    typeof updateId === 'number' &&
+    Number.isSafeInteger(updateId) &&
+    updateId >= 0 &&
+    TELEGRAM_UPDATE_PAYLOAD_KEYS.some((key) => key in body)
+  );
+}
+
+function safeErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Unknown error';
 }
