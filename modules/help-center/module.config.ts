@@ -14,6 +14,8 @@ const config: ModuleConfig = {
         labelKey: 'help-center.menu.button',
         callbackData: 'help:view',
         requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.help',
         row: 3,
         order: 10,
       },

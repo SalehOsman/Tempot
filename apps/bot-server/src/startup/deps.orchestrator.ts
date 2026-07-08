@@ -56,18 +56,8 @@ function buildModuleHandlersDep(
   return (bot, validated) =>
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
       logger: opts.log,
-      eventBus: {
-        publish: async (event: string, payload: unknown) => {
-          await opts.eventBus.publish(event, payload);
-          return { isOk: () => true };
-        },
-      },
-      sessionProvider: {
-        getSession: async (userId: string, chatId: string) => {
-          const result = await opts.sessionProvider.getSession(userId, chatId);
-          return result.isOk() ? result.value : null;
-        },
-      },
+      eventBus: buildModuleEventBusAdapter(opts),
+      sessionProvider: buildModuleSessionProviderAdapter(opts),
       i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
       settings: buildSettingsProvider(opts.settingsService),
       protectedData: opts.protectedDataService,
@@ -96,6 +86,28 @@ function buildModuleHandlersDep(
         }>;
       },
     });
+}
+
+function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
+  return {
+    publish: async (event: string, payload: unknown) => {
+      await opts.eventBus.publish(event, payload);
+      return { isOk: () => true };
+    },
+    subscribe: async (event: string, handler: (payload: unknown) => void) => {
+      await opts.eventBus.subscribe(event, handler);
+      return { isOk: () => true };
+    },
+  };
+}
+
+function buildModuleSessionProviderAdapter(opts: AssembleDepsOptions) {
+  return {
+    getSession: async (userId: string, chatId: string) => {
+      const result = await opts.sessionProvider.getSession(userId, chatId);
+      return result.isOk() ? result.value : null;
+    },
+  };
 }
 
 function buildAuthorizationContextResolver(

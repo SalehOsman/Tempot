@@ -65,34 +65,55 @@ describe('createAuthMiddleware', () => {
     expect(ctx['ability']).toBeDefined();
   });
 
-  it.each(['BANNED', 'PENDING'] as const)(
-    'blocks a %s session even when its ability contains manage all',
-    async (status) => {
-      const sessionUser = {
-        id: 'disabled-user',
-        role: RoleEnum.SUPER_ADMIN,
-        status,
-      };
-      const deps = createDeps({
-        getSessionUser: vi.fn().mockResolvedValue(sessionUser),
-        abilityDefinitions: [manageAllDefinition],
-      });
+  it('blocks a BANNED session even when its ability contains manage all', async () => {
+    const sessionUser = {
+      id: 'disabled-user',
+      role: RoleEnum.SUPER_ADMIN,
+      status: 'BANNED' as const,
+    };
+    const deps = createDeps({
+      getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+      abilityDefinitions: [manageAllDefinition],
+    });
 
-      const middleware = createAuthMiddleware(deps);
-      const ctx = createMockContext();
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext();
 
-      await middleware(ctx as never, next);
+    await middleware(ctx as never, next);
 
-      expect(next).not.toHaveBeenCalled();
-      expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
-      expect(deps.logger.warn).toHaveBeenCalledWith(
-        expect.objectContaining({
-          msg: 'access_denied',
-          reason: `session_${status.toLowerCase()}`,
-        }),
-      );
-    },
-  );
+    expect(next).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
+    expect(deps.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'access_denied',
+        reason: 'session_banned',
+      }),
+    );
+  });
+
+  it('passes a PENDING session to the access gate with no effective abilities', async () => {
+    const sessionUser = {
+      id: 'pending-user',
+      role: RoleEnum.SUPER_ADMIN,
+      status: 'PENDING' as const,
+    };
+    const deps = createDeps({
+      getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+      abilityDefinitions: [manageAllDefinition],
+    });
+
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext();
+
+    await middleware(ctx as never, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(ctx.reply).not.toHaveBeenCalled();
+    expect(ctx['sessionUser']).toEqual(sessionUser);
+    expect(ctx['ability']).toBeDefined();
+    const ability = ctx['ability'] as { can: (action: string, subject: string) => boolean };
+    expect(ability.can('manage', 'all')).toBe(false);
+  });
 
   it('denies with a controlled response when session resolution fails', async () => {
     const deps = createDeps({

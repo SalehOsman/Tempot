@@ -1,0 +1,33 @@
+{
+  "membership-management": {
+    "commands": {
+      "join": "Request membership"
+    },
+    "menu": {
+      "button": "Membership"
+    },
+    "request": {
+      "submitted": "Your membership request has been submitted.",
+      "pending": "Your membership request is pending review.",
+      "approved": "Your membership request has been approved.",
+      "rejected": "Your membership request was rejected.",
+      "identity_missing": "We could not read your Telegram identity. Please try again from your Telegram account.",
+      "failed": "We could not submit your membership request. Please try again later."
+    },
+    "admin": {
+      "list": {
+        "title": "Pending membership requests"
+      },
+      "detail": {
+        "title": "Membership request details",
+        "body": "Membership request details\nTelegram ID: {{telegramId}}\nUsername: {{username}}\nLanguage: {{language}}\nRequested at: {{requestedAt}}"
+      },
+      "approve_button": "Approve",
+      "reject_button": "Reject",
+      "back_button": "Back to requests",
+      "approved": "Membership request approved.",
+      "rejected": "Membership request rejected.",
+      "failed": "Could not process the membership request. Please try again later."
+    }
+  }
+}

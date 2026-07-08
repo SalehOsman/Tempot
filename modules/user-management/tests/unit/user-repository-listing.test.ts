@@ -79,12 +79,26 @@ function repositoryWith(database: ReturnType<typeof createDatabase>) {
 }
 
 describe('UserRepository routine listing', () => {
+  it('should lookup Telegram users with a bigint identifier', async () => {
+    const database = createDatabase();
+    const { repository } = repositoryWith(database);
+
+    const result = await repository.findByTelegramId('7594239391');
+
+    expect(result.isOk()).toBe(true);
+    expect(database.findMany).toHaveBeenCalledWith({
+      where: { isDeleted: false, telegramId: 7594239391n },
+      take: 1,
+    });
+  });
+
   it('should list only safe fields without bulk decryption', async () => {
     const database = createDatabase();
     const { repository, recover } = repositoryWith(database);
 
     const result = await repository.search('', 0, 10);
 
+    if (result.isErr()) throw result.error;
     expect(result.isOk()).toBe(true);
     expect(database.findMany).toHaveBeenCalledWith({
       where: { isDeleted: false },
@@ -104,8 +118,8 @@ describe('UserRepository routine listing', () => {
 
     const result = await repository.search('Person@Example.Invalid', 2, 10);
 
+    if (result.isErr()) throw result.error;
     expect(result.isOk()).toBe(true);
-    if (result.isErr()) return;
     const where = {
       isDeleted: false,
       OR: [

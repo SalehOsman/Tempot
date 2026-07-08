@@ -9,6 +9,10 @@ import {
 } from './middleware/maintenance.middleware.js';
 import { createAuthMiddleware, type AuthDeps } from './middleware/auth.middleware.js';
 import {
+  createAccessGateMiddleware,
+  type AccessGateDeps,
+} from './middleware/access-gate.middleware.js';
+import {
   createScopedUsersMiddleware,
   type ScopedUsersDeps,
 } from './middleware/scoped-users.middleware.js';
@@ -29,6 +33,7 @@ export interface BotFactoryDeps
   extends
     MaintenanceDeps,
     AuthDeps,
+    AccessGateDeps,
     ScopedUsersDeps,
     AuditDeps,
     ErrorBoundaryDeps,
@@ -43,7 +48,7 @@ export interface BotFactoryDeps
  * Creates and configures a grammY Bot with the full middleware
  * chain in the fixed, non-negotiable order:
  * 1. sanitizer  2. rate limiter  3. maintenance  4. auth
- * 5. scoped users  6. validation  7. (handlers)  8. audit
+ * 5. access gate  6. scoped users  7. validation  8. (handlers)  9. audit
  *
  * Error boundary is registered via bot.catch().
  */
@@ -56,6 +61,7 @@ export function createBot(token: string, deps: BotFactoryDeps): Bot<Context> {
   );
   bot.use(createMaintenanceMiddleware(deps));
   bot.use(createAuthMiddleware(deps));
+  bot.use(createAccessGateMiddleware(deps));
   bot.use(createScopedUsersMiddleware(deps));
   bot.use(createValidationMiddleware({ logger: deps.logger, t: deps.t }));
   bot.use(createInteractionObserverMiddleware(deps));

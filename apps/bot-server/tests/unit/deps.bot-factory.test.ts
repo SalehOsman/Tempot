@@ -28,7 +28,11 @@ function createDeps() {
     },
     settingsService: {
       getMaintenanceStatus: vi.fn().mockResolvedValue({ isOk: () => false }),
-      getStatic: vi.fn().mockReturnValue({ isOk: () => true, value: { superAdminIds: [] } }),
+      getDynamic: vi.fn().mockResolvedValue({ isOk: () => true, value: 'private' }),
+      getStatic: vi.fn().mockReturnValue({
+        isOk: () => true,
+        value: { superAdminIds: [], botAccessMode: 'private' },
+      }),
     },
     sentryReporter: undefined,
     t: vi.fn((key: string, options?: Record<string, unknown>) => `${key}:${options?.['code']}`),
@@ -51,6 +55,33 @@ describe('buildBotFactory', () => {
       'bot-server.error_message:ERR-1',
     );
     expect(deps.t).toHaveBeenCalledWith('bot-server.error_message', { code: 'ERR-1' });
+  });
+
+  it('prefers dynamic bot access mode for bot middleware dependencies', async () => {
+    const deps = createDeps();
+    deps.settingsService.getDynamic.mockResolvedValue({ isOk: () => true, value: 'public' });
+    const createRuntimeBot = buildBotFactory(deps as never);
+
+    createRuntimeBot('12345:testtoken', []);
+
+    const botDeps = vi.mocked(createBot).mock.calls.at(-1)?.[1];
+    await expect(botDeps?.getAccessMode()).resolves.toBe('public');
+    expect(deps.settingsService.getDynamic).toHaveBeenCalledWith('bot_access_mode');
+  });
+
+  it('falls back to static bot access mode when dynamic access mode is unavailable', async () => {
+    const deps = createDeps();
+    deps.settingsService.getDynamic.mockResolvedValue({ isOk: () => false });
+    deps.settingsService.getStatic.mockReturnValue({
+      isOk: () => true,
+      value: { superAdminIds: [], botAccessMode: 'public' },
+    });
+    const createRuntimeBot = buildBotFactory(deps as never);
+
+    createRuntimeBot('12345:testtoken', []);
+
+    const botDeps = vi.mocked(createBot).mock.calls.at(-1)?.[1];
+    await expect(botDeps?.getAccessMode()).resolves.toBe('public');
   });
 
   it('preserves the production session role and status in actor context', async () => {

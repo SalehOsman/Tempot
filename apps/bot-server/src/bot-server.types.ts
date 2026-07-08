@@ -93,6 +93,10 @@ export interface ModuleLogger {
 /** Minimal event bus interface for modules */
 export interface ModuleEventBus {
   publish: (event: string, payload: Record<string, unknown>) => Promise<{ isOk: () => boolean }>;
+  subscribe: (
+    event: string,
+    handler: (payload: unknown) => void,
+  ) => Promise<{ isOk: () => boolean }>;
 }
 
 /** Session provider interface for modules */
@@ -155,8 +159,14 @@ export interface InteractionEventProviderRecord {
 }
 
 /** Active module navigation available to interface modules */
+export interface ModuleNavigationActor {
+  role: UserRole;
+  abilities: readonly string[];
+}
+
 export interface ModuleNavigationProvider {
   getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
+  getVisibleMainMenuItems: (actor: ModuleNavigationActor) => readonly ModuleNavigationItem[];
 }
 
 /** Probe function for a single health check subsystem */

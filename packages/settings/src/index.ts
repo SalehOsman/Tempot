@@ -2,6 +2,7 @@
 export type {
   StaticSettings,
   ProtectedDataKeySettings,
+  BotAccessMode,
   JoinMode,
   DynamicSettingKey,
   DynamicSettingDefinitions,
@@ -13,7 +14,7 @@ export type {
   SettingsEventBus,
   DynamicSettingsServiceDeps,
 } from './settings.types.js';
-export { DYNAMIC_SETTING_DEFAULTS } from './settings.types.js';
+export { BOT_ACCESS_MODES, DYNAMIC_SETTING_DEFAULTS } from './settings.types.js';
 
 // Error codes
 export { SETTINGS_ERRORS } from './settings.errors.js';

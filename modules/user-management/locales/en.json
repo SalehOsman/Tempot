@@ -29,6 +29,12 @@
         "help": "Help"
       }
     },
+    "membership": {
+      "request_prompt": "<b>Membership Required</b>\n\nYour account was not found. You can submit a membership request for administrator review.",
+      "pending_status": "<b>Membership Request Pending</b>\n\nYour membership request is waiting for administrator review. You will receive access after approval.",
+      "public_prompt": "<b>Limited Access</b>\n\nYou can use the public options below or submit a membership request for full access.",
+      "request_button": "Request Membership"
+    },
     "profile": {
       "view": "Your Profile",
       "edit_prompt": "<b>Edit Profile</b>\n\nChoose the field you want to update:",

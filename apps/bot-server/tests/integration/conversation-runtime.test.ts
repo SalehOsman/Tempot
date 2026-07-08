@@ -34,6 +34,7 @@ const deps = {
     isSuperAdmin: () => false,
   }),
   getSessionUser: vi.fn().mockResolvedValue({ id: '123', role: 'SUPER_ADMIN' }),
+  getAccessMode: vi.fn().mockReturnValue('private'),
   abilityDefinitions: [() => createMongoAbility([{ action: 'manage', subject: 'all' }])],
   commandScopeMap: new Map<string, string>(),
   commandModuleMap: {},

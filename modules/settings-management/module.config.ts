@@ -14,6 +14,8 @@ const config: ModuleConfig = {
         labelKey: 'settings-management.menu.button',
         callbackData: 'settings:view',
         requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.settings',
         row: 0,
         order: 20,
       },

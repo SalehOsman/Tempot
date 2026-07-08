@@ -1,5 +1,5 @@
 {
-  "feature": "057-production-delivery-hardening",
-  "feature_directory": "specs/057-production-delivery-hardening",
-  "specPath": "specs/057-production-delivery-hardening/spec.md"
+  "feature": "058-bot-access-mode-membership-gate",
+  "feature_directory": "specs/058-bot-access-mode-membership-gate",
+  "specPath": "specs/058-bot-access-mode-membership-gate/spec.md"
 }

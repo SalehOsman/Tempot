@@ -11,6 +11,9 @@
       "language": "Language",
       "timezone": "Timezone",
       "defaults": "Defaults",
+      "access_mode": "Bot access",
+      "access_mode_private": "Private",
+      "access_mode_public": "Public",
       "open_profile": "Open profile",
       "preferences": "Preferences",
       "test_notification": "Test notification",
@@ -24,7 +27,10 @@
       "regional": "<b>Regional Settings</b>\n\nChoose what to review from language, timezone, and regional defaults.",
       "regional_language": "<b>Language Settings</b>\n\nReview the current interface language and available account language options.",
       "regional_timezone": "<b>Timezone Settings</b>\n\nReview the timezone used for displaying schedules and alerts.",
-      "regional_defaults": "<b>Regional Defaults</b>\n\nReview the default country, currency, and regional formats."
+      "regional_defaults": "<b>Regional Defaults</b>\n\nReview the default country, currency, and regional formats.",
+      "access_mode": "<b>Bot Access Mode</b>\n\nCurrent mode: <code>{{mode}}</code>.",
+      "access_mode_updated": "<b>Bot Access Mode Updated</b>\n\nCurrent mode: <code>{{mode}}</code>.",
+      "access_mode_update_failed": "Could not update bot access mode."
     }
   }
 }

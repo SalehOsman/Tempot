@@ -1,8 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
   BaseRepository,
-  PROTECTED_DATA_ERRORS,
-  enforceActiveRecordScope,
   type DatabaseClient,
   type IAuditLogger,
   type Prisma,
@@ -17,11 +15,16 @@ import {
   type IdentityUpdateData,
   type UserProfile,
   type UserRepositoryProtectionOptions,
-  type UserSearchDelegate,
   type UserSearchResult,
 } from '../types/index.js';
-import { canonicalizeUserLookupValue } from './user-lookup.normalizer.js';
 import { UserProtectionMapper } from './user-protection.mapper.js';
+import {
+  buildUserSearchWhere,
+  countUsers,
+  normalizeNationalId,
+  parseTelegramId,
+  requireProtectionLookup,
+} from './user-search.operations.js';
 
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
@@ -74,7 +77,10 @@ export class UserRepository extends BaseRepository<UserProfile> {
   }
 
   async findByTelegramId(telegramId: string): Promise<Result<UserProfile, AppError>> {
-    const result = await super.findMany({ where: { telegramId }, take: 1 });
+    const parsedTelegramId = parseTelegramId(telegramId);
+    if (parsedTelegramId.isErr()) return err(parsedTelegramId.error);
+
+    const result = await super.findMany({ where: { telegramId: parsedTelegramId.value }, take: 1 });
     if (result.isErr()) return err(result.error);
 
     const user = result.value[0];
@@ -83,26 +89,40 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return this.recoverProtectedFields(user);
   }
 
+  async createMemberProfile(input: {
+    telegramId: string;
+    username?: string;
+    language: string;
+    role: RoleEnum.USER;
+  }): Promise<Result<UserProfile, AppError>> {
+    const parsedTelegramId = parseTelegramId(input.telegramId);
+    if (parsedTelegramId.isErr()) return err(parsedTelegramId.error);
+
+    const result = await super.create({
+      telegramId: parsedTelegramId.value,
+      username: input.username,
+      language: input.language,
+      role: input.role,
+    });
+    return result.andThen((user) => this.recoverProtectedFields(user));
+  }
+
   async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
     const conditions = this.protectionMapper.createLookupConditions(nationalId, 'nationalId');
     if (conditions.isErr()) return err(conditions.error);
-    if (!conditions.value) {
-      return err(new AppError(PROTECTED_DATA_ERRORS.NOT_CONFIGURED));
-    }
+    const protectedLookup = requireProtectionLookup(conditions.value);
+    if (protectedLookup.isErr()) return err(protectedLookup.error);
 
-    const result = await super.findMany({ where: conditions.value });
+    const result = await super.findMany({ where: protectedLookup.value });
     if (result.isErr()) return err(result.error);
 
-    const normalizedNationalId = canonicalizeUserLookupValue(nationalId, 'nationalId');
+    const normalizedNationalId = normalizeNationalId(nationalId);
     if (normalizedNationalId.isErr()) return err(normalizedNationalId.error);
     for (const candidate of result.value) {
       const recovery = this.recoverProtectedFields(candidate);
       if (recovery.isErr()) return err(recovery.error);
       if (recovery.value.nationalId === undefined) continue;
-      const normalizedCandidate = canonicalizeUserLookupValue(
-        recovery.value.nationalId,
-        'nationalId',
-      );
+      const normalizedCandidate = normalizeNationalId(recovery.value.nationalId);
       if (normalizedCandidate.isErr()) return err(normalizedCandidate.error);
       if (normalizedCandidate.value === normalizedNationalId.value) return recovery;
     }
@@ -114,21 +134,13 @@ export class UserRepository extends BaseRepository<UserProfile> {
     page: number = 0,
     pageSize: number = 10,
   ): Promise<Result<UserSearchResult, AppError>> {
-    const trimmedQuery = query.trim();
-    let where: Record<string, unknown> = {};
-    if (trimmedQuery.length > 0) {
-      const conditions: Record<string, unknown>[] = [
-        { username: { contains: trimmedQuery, mode: 'insensitive' } },
-      ];
-      const lookup = this.protectionMapper.createLookupConditions(trimmedQuery, 'email');
-      if (lookup.isErr()) return err(lookup.error);
-      if (lookup.value) conditions.push(lookup.value);
-      where = { OR: conditions };
-    }
+    const whereResult = buildUserSearchWhere(query, this.protectionMapper);
+    if (whereResult.isErr()) return err(whereResult.error);
+    const where = whereResult.value;
 
     const [usersResult, countResult] = await Promise.all([
       this.listSafeUsers({ where, skip: page * pageSize, take: pageSize }),
-      this.countUsers(where),
+      countUsers(this.model, where),
     ]);
     if (usersResult.isErr()) return err(usersResult.error);
     if (countResult.isErr()) return err(countResult.error);
@@ -143,43 +155,33 @@ export class UserRepository extends BaseRepository<UserProfile> {
   updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'username', newUsername);
   }
-
   updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'email', newEmail);
   }
-
   updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'language', newLanguage);
   }
-
   updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'role', newRole);
   }
-
   updateIdentity(userId: string, identity: IdentityUpdateData): Promise<Result<void, AppError>> {
     return this.updateFields(userId, { ...identity });
   }
-
   updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'nationalId', nationalId);
   }
-
   updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'mobileNumber', mobileNumber);
   }
-
   updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'birthDate', birthDate);
   }
-
   updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'gender', gender);
   }
-
   updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'governorate', governorate);
   }
-
   updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'countryCode', countryCode);
   }
@@ -197,17 +199,6 @@ export class UserRepository extends BaseRepository<UserProfile> {
     args?: Record<string, unknown>,
   ): Promise<Result<UserProfile[], AppError>> {
     return super.findMany(buildSafeUserListArgs(args));
-  }
-
-  private async countUsers(where: Record<string, unknown>): Promise<Result<number, AppError>> {
-    try {
-      const count = await (this.model as unknown as UserSearchDelegate).count({
-        where: enforceActiveRecordScope(where),
-      });
-      return ok(count);
-    } catch (error) {
-      return err(new AppError('user-management.search_count_failed', error));
-    }
   }
 
   private recoverProtectedFields(user: UserProfile): Result<UserProfile, AppError> {

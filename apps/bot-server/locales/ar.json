@@ -2,6 +2,7 @@
   "bot-server.rate_limit_exceeded": "لقد تجاوزت الحد المسموح به من الطلبات. يرجى الانتظار قليلًا قبل المحاولة مرة أخرى.",
   "bot-server.rate_limit_reply_failed": "فشل في إرسال رسالة تحذير تجاوز الحد",
   "bot-server.validation_failed": "المدخلات المقدمة غير صالحة. يرجى التحقق من الأمر والمحاولة مجددًا.",
+  "bot-server.access_denied": "ليس لديك صلاحية لاستخدام هذه الميزة.",
   "bot-server.error_message": "حدث خطأ غير متوقع. رمز المرجع: {{referenceCode}}",
   "bot-server.callback_unhandled": "هذا الزر لم يعد متاحا. افتح القائمة مرة أخرى وحاول مجددا.",
   "bot-server.callback_unchanged": "\u0647\u0630\u0647 \u0627\u0644\u0634\u0627\u0634\u0629 \u0645\u0641\u062a\u0648\u062d\u0629 \u0628\u0627\u0644\u0641\u0639\u0644.",

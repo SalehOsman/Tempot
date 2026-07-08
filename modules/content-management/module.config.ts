@@ -14,6 +14,8 @@ const config: ModuleConfig = {
         labelKey: 'content-management.menu.button',
         callbackData: 'messages:view',
         requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.content',
         row: 1,
         order: 20,
       },

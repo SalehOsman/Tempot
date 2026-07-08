@@ -28,6 +28,54 @@ describe('StaticSettingsLoader', () => {
       expect(result.value.superAdminIds).toEqual([123, 456, 789]);
       expect(result.value.defaultLanguage).toBe('ar');
       expect(result.value.defaultCountry).toBe('EG');
+      expect(result.value.botAccessMode).toBe('private');
+    }
+  });
+
+  it('should default bot access mode to private when BOT_ACCESS_MODE is missing', () => {
+    const result = StaticSettingsLoader.load({
+      BOT_TOKEN: 'test-token',
+      DATABASE_URL: 'postgresql://localhost/test',
+      SUPER_ADMIN_IDS: '123',
+      DEFAULT_LANGUAGE: 'ar',
+      DEFAULT_COUNTRY: 'EG',
+    });
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.botAccessMode).toBe('private');
+    }
+  });
+
+  it('should load public bot access mode when BOT_ACCESS_MODE is public', () => {
+    const result = StaticSettingsLoader.load({
+      BOT_TOKEN: 'test-token',
+      DATABASE_URL: 'postgresql://localhost/test',
+      SUPER_ADMIN_IDS: '123',
+      DEFAULT_LANGUAGE: 'ar',
+      DEFAULT_COUNTRY: 'EG',
+      BOT_ACCESS_MODE: 'public',
+    });
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.botAccessMode).toBe('public');
+    }
+  });
+
+  it('should reject invalid BOT_ACCESS_MODE values', () => {
+    const result = StaticSettingsLoader.load({
+      BOT_TOKEN: 'test-token',
+      DATABASE_URL: 'postgresql://localhost/test',
+      SUPER_ADMIN_IDS: '123',
+      DEFAULT_LANGUAGE: 'ar',
+      DEFAULT_COUNTRY: 'EG',
+      BOT_ACCESS_MODE: 'open',
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe(SETTINGS_ERRORS.STATIC_VALIDATION_FAILED);
     }
   });
 

@@ -23,6 +23,12 @@ SaaS-readiness hardening, module tooling, and the documentation platform
 restructure are complete. All packages formerly deferred under Rule XC are now
 active; no package remains deferred.
 
+Spec #058 adds the local bot access-mode and membership gate implementation.
+The bot defaults to private mode, where unknown visitors can only use bootstrap
+membership actions until an administrator approves them. Public mode allows
+unknown visitors to use public navigation entries while still requiring
+membership approval for protected capabilities.
+
 Use [docs/ROADMAP.md](docs/ROADMAP.md) as the single source of
 truth for project status.
 
@@ -40,20 +46,40 @@ cd Tempot
 pnpm install
 cp .env.example .env
 pnpm docker:dev
-pnpm --filter @tempot/database db:generate
-pnpm --filter @tempot/database db:migrate --name init
-pnpm dev
 ```
 
-Set the required environment values in `.env` before starting the bot:
+`pnpm docker:dev` starts the local bot, PostgreSQL, and Redis stack through
+Docker Compose. The bot container applies pending Prisma migrations before the
+runtime starts.
+
+Set the required environment values in `.env` before starting the stack:
 
 - `BOT_TOKEN`
 - `DATABASE_URL`
 - `REDIS_URL`
 - `SUPER_ADMIN_IDS`
+- `PROTECTED_DATA_ACTIVE_ENCRYPTION_KEY_VERSION`
+- `PROTECTED_DATA_ENCRYPTION_KEYS`
+- `PROTECTED_DATA_ACTIVE_LOOKUP_KEY_VERSION`
+- `PROTECTED_DATA_LOOKUP_KEYS`
 
 AI is enabled by default through `TEMPOT_AI=true`. Provider switching uses
 `TEMPOT_AI_PROVIDER=gemini|openai`.
+
+## Bot Access Mode
+
+The `bot_access_mode` setting controls the local Telegram access boundary:
+
+- `private`: the default. Unknown and pending visitors can use `/start`,
+  `/join`, and the membership request callback only. Protected commands and
+  callbacks are denied and audited.
+- `public`: unknown visitors can use capabilities explicitly classified as
+  public. Protected and administrative capabilities still require an approved
+  user profile and matching CASL abilities.
+
+Membership requests are handled by `membership-management`. Approved requests
+create or activate the corresponding `user-management` profile, after which
+`/start` renders the normal role-filtered module menu.
 
 ## Repository Map
 

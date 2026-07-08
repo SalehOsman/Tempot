@@ -1,7 +1,7 @@
 import { createBot } from '../bot/bot.factory.js';
 import type { SessionProvider } from '@tempot/session-manager';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
-import type { SettingsService } from '@tempot/settings';
+import { BOT_ACCESS_MODES, type BotAccessMode, type SettingsService } from '@tempot/settings';
 import type { SentryReporter } from '@tempot/sentry';
 import type { ValidatedModule } from '@tempot/module-registry';
 import type { OrchestratorDeps } from './orchestrator.js';
@@ -34,6 +34,10 @@ function buildCommandModuleMap(validatedModules: ValidatedModule[] = []): Record
 
 type BotInstance = ReturnType<typeof createBot>;
 type RuntimeBotDeps = Parameters<typeof createBot>[1];
+
+function isBotAccessMode(value: unknown): value is BotAccessMode {
+  return value === BOT_ACCESS_MODES.private || value === BOT_ACCESS_MODES.public;
+}
 
 function subscribeAbilityInvalidation(deps: BotFactoryDeps): void {
   deps.eventBus.subscribe('auth.user.permissions_invalidated', (payload) => {
@@ -108,6 +112,14 @@ function createRuntimeBotDeps(
     getMaintenanceStatus: async () => {
       const result = await deps.settingsService.getMaintenanceStatus();
       return result.isOk() ? result.value : { enabled: false, isSuperAdmin: () => false };
+    },
+    getAccessMode: async () => {
+      const dynamicResult = await deps.settingsService.getDynamic('bot_access_mode');
+      if (dynamicResult.isOk() && isBotAccessMode(dynamicResult.value)) {
+        return dynamicResult.value;
+      }
+      const result = deps.settingsService.getStatic();
+      return result.isOk() ? result.value.botAccessMode : 'private';
     },
     getSessionUser: async (userId: number) => {
       const result = await deps.sessionProvider.getSession(String(userId), String(userId));

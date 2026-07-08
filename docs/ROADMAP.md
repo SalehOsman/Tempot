@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-06-20.
+> Last updated: 2026-07-07.
 
 ## Current Technical Baseline
 
@@ -162,6 +162,15 @@ Active or next work:
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
+7. Finish Spec #058 merge readiness by resolving final review findings and
+   re-running the broad gates required by the merge owner. The current feature
+   branch implements private and public bot modes, bootstrap-only visitor
+   access, pending-member denial, stale callback denial, membership request
+   review, approval-driven `user-management` profile activation, role-filtered
+   navigation snapshots, and administrator-controlled access-mode settings.
+   Focused access-mode scenario coverage, affected TypeScript builds,
+   lint/prettier checks for modified files, docs checks, and
+   `pnpm spec:validate` pass locally.
 
 ## Production Readiness Remediation Program
 
@@ -181,14 +190,14 @@ Implementation claims below distinguish work merged to `origin/main` from
 remaining production evidence. Production remains blocked until every P0/P1
 remediation gate is complete and verified.
 
-| Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                            |
-| ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-|                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Merged to `main` with the Spec #054 remediation integration on 2026-06-16                                                                          |
-|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation and completion slices merged to `origin/main` on 2026-06-17                                                                            |
-|                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                       |
-|                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                |
-|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                       |
-|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings |
+| Recommended order | Spec                                       | Scope                                                                             | Priority   | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------: | ------------------------------------------ | --------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|                 1 | #053 `authorization-correction`            | Correct global authorization and role/action enforcement                          | P0         | Merged to `main` with the Spec #054 remediation integration on 2026-06-16                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|                 2 | #056 `quality-gates-hardening` foundation  | App test visibility, docs freshness, toolchain and source conformance             | P1 enabler | Foundation and completion slices merged to `origin/main` on 2026-06-17                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                 3 | #055 `data-integrity-hardening` foundation | Atomic identity updates and soft-delete invariants required by migration work     | P1         | Foundation merged to `main` through the Spec #054 protected-data integration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27856129345` built, scanned, signed, and verified digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`. A 2026-06-20 local isolated smoke pulled that digest, applied migrations, confirmed Telegram `getMe`, started polling mode, and verified `/live` plus restricted `/ready`. T032 is not closed until the selected latest `main` digest passes real staging webhook/container smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
@@ -281,17 +290,17 @@ Production go/no-go requires:
 
 ## Phase Summary
 
-| Phase       | Scope                                               | Status                                                                                          |
-| ----------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Phase 0     | Workspace and monorepo foundation                   | Complete                                                                                        |
-| Phase 1     | Core bedrock packages                               | Complete; package inventory reconciled                                                          |
-| Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                        |
-| Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                                |
-| Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                        |
-| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                                 |
-| Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                     |
-| Phase 5     | Enterprise infrastructure                           | Not started                                                                                     |
-| Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection              |
+| Phase       | Scope                                               | Status                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 0     | Workspace and monorepo foundation                   | Complete                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Phase 1     | Core bedrock packages                               | Complete; package inventory reconciled                                                                                                                                                                                                                                                                                                                                                                                      |
+| Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                                                                                                                                                                                                                                                                                                                                                            |
+| Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                                                                                                                                                                                                                                                                                                                                                             |
+| Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                                                                                                                                                                                                                                                                                          |
 | Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
@@ -349,31 +358,33 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 
 ## Business Modules
 
-| Module                | Spec | Status      |
-| --------------------- | ---- | ----------- |
-| `user-management`     | #025 | Implemented |
-| `template-management` | #039 | Implemented |
-| `settings-management` | #045 | Implemented |
-| `notification-center` | #046 | Implemented |
-| `content-management`  | #047 | Implemented |
-| `audit-viewer`        | #048 | Implemented |
-| `help-center`         | #049 | Implemented |
+| Module                  | Spec | Status                                |
+| ----------------------- | ---- | ------------------------------------- |
+| `user-management`       | #025 | Implemented                           |
+| `template-management`   | #039 | Implemented                           |
+| `settings-management`   | #045 | Implemented                           |
+| `notification-center`   | #046 | Implemented                           |
+| `content-management`    | #047 | Implemented                           |
+| `audit-viewer`          | #048 | Implemented                           |
+| `help-center`           | #049 | Implemented                           |
+| `membership-management` | #058 | Implemented on current feature branch |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
 
 Baseline module strategy documented by Spec #036:
 
-| Module                | Type          | Status                                                  |
-| --------------------- | ------------- | ------------------------------------------------------- |
-| `user-management`     | Core platform | Implemented                                             |
-| `template-management` | Product       | Implemented                                             |
-| `bot-management`      | Operational   | Lightweight registry now; future SaaS bridge            |
-| `content-management`  | Product       | Implemented baseline                                    |
-| `notification-center` | Operational   | Implemented baseline                                    |
-| `audit-viewer`        | Operational   | Implemented baseline plus recent bot problem inspection |
-| `settings-management` | Core platform | Implemented baseline                                    |
-| `help-center`         | Core platform | Implemented baseline                                    |
+| Module                  | Type          | Status                                                                                             |
+| ----------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| `user-management`       | Core platform | Implemented                                                                                        |
+| `template-management`   | Product       | Implemented                                                                                        |
+| `bot-management`        | Operational   | Lightweight registry now; future SaaS bridge                                                       |
+| `content-management`    | Product       | Implemented baseline                                                                               |
+| `notification-center`   | Operational   | Implemented baseline                                                                               |
+| `audit-viewer`          | Operational   | Implemented baseline plus recent bot problem inspection                                            |
+| `settings-management`   | Core platform | Implemented baseline                                                                               |
+| `help-center`           | Core platform | Implemented baseline                                                                               |
+| `membership-management` | Core platform | Implemented on current feature branch for membership request review and bot access gate operations |
 
 ## Architecture and Governance Artifacts
 

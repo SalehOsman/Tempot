@@ -23,6 +23,7 @@ const deps = {
   commandModuleMap: {},
   auditLog: vi.fn().mockResolvedValue(undefined),
   sentryReporter: undefined,
+  getAccessMode: vi.fn().mockReturnValue('private'),
   t: (key: string) => key,
 };
 
@@ -36,6 +37,6 @@ describe('createBot', () => {
 
     createBot('12345:testtoken', deps);
 
-    expect(useSpy).toHaveBeenCalledTimes(9);
+    expect(useSpy).toHaveBeenCalledTimes(10);
   });
 });

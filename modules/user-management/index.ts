@@ -3,11 +3,14 @@ import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/modul
 import type { ProtectedDataService } from '@tempot/database';
 import { registerDeps } from './deps.context.js';
 import { initUserService } from './services/user-service.context.js';
+import { UserRepository } from './repositories/user.repository.js';
+import { MembershipApprovalProfileService } from './services/membership-approval-profile.service.js';
 import { startCommand } from './commands/start.command.js';
 import { profileCommand } from './commands/profile.command.js';
 import { usersCommand } from './commands/users.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
 import { handleTextInput } from './handlers/text.handler.js';
+import { createMembershipApprovalHandler } from './events/membership-approval.handler.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -19,6 +22,10 @@ export interface ModuleLogger {
 
 export interface ModuleEventBus {
   publish: (event: string, payload: Record<string, unknown>) => Promise<{ isOk: () => boolean }>;
+  subscribe: (
+    event: string,
+    handler: (payload: unknown) => void,
+  ) => Promise<{ isOk: () => boolean }>;
 }
 
 export interface ModuleSessionProvider {
@@ -97,12 +104,37 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   );
   bot.on('callback_query:data', handleCallbackQuery);
   bot.on('message:text', handleTextInput);
+  await registerMembershipApprovalHandler(deps);
 
   deps.logger.info({
     msg: 'user-management handlers registered',
     commandCount: deps.config.commands.length,
   });
 };
+
+async function registerMembershipApprovalHandler(deps: ModuleDeps): Promise<void> {
+  const repository = new UserRepository(
+    {
+      log: async (data: Record<string, unknown>) => {
+        deps.logger.info({ msg: 'user-management.audit', ...data });
+      },
+    },
+    undefined,
+    deps.protectedData,
+  );
+  const service = new MembershipApprovalProfileService(repository, {
+    log: async (data: Record<string, unknown>) => {
+      deps.logger.info({ msg: 'user-management.audit', ...data });
+    },
+  });
+  const result = await deps.eventBus.subscribe(
+    'membership-management.request.approved',
+    createMembershipApprovalHandler(service, deps.logger),
+  );
+  if (!result.isOk()) {
+    deps.logger.warn({ msg: 'membership_approval_subscription_failed' });
+  }
+}
 
 export default setup;
 export { userManagementAbilities, abilityDefinition } from './abilities.js';

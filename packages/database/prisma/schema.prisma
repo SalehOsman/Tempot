@@ -360,6 +360,40 @@ model TemplateSubscription {
   @@map("template_subscriptions")
 }
 
+// From ..\..\modules\membership-management\database\schema.prisma
+// membership-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/058-bot-access-mode-membership-gate/data-model.md
+
+model MembershipRequest {
+  id                   String    @id @default(cuid())
+  telegramId           BigInt    @map("telegram_id")
+  telegramUsername     String?   @map("telegram_username")
+  telegramFirstName    String?   @map("telegram_first_name")
+  telegramLastName     String?   @map("telegram_last_name")
+  telegramLanguageCode String?   @map("telegram_language_code")
+  status               String    @default("PENDING")
+  requestMessage       String?   @map("request_message")
+  reviewerUserId       String?   @map("reviewer_user_id")
+  reviewerNote         String?   @map("reviewer_note")
+  rejectionReason      String?   @map("rejection_reason")
+  createdUserProfileId String?   @map("created_user_profile_id")
+  requestedAt          DateTime  @default(now()) @map("requested_at")
+  reviewedAt           DateTime? @map("reviewed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  createdBy            String?   @map("created_by")
+  updatedBy            String?   @map("updated_by")
+  isDeleted            Boolean   @default(false) @map("is_deleted")
+  deletedAt            DateTime? @map("deleted_at")
+  deletedBy            String?   @map("deleted_by")
+
+  @@index([telegramId], map: "idx_membership_requests_telegram")
+  @@index([status], map: "idx_membership_requests_status")
+  @@index([isDeleted], map: "idx_membership_requests_deleted")
+  @@map("membership_requests")
+}
+
 // From ..\..\modules\bot-management\database\schema.prisma
 // bot-management module schema
 // Extends the root schema in packages/database/prisma/schema.prisma

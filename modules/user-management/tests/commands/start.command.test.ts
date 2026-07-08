@@ -61,7 +61,7 @@ describe('startCommand', () => {
     expect(ctx.reply).toHaveBeenCalledWith('user-management.errors.no_user');
   });
 
-  it('should reply with registration prompt when user does not exist', async () => {
+  it('should reply with membership request prompt when user does not exist', async () => {
     vi.mocked(getUserService).mockReturnValue({
       getByTelegramId: vi.fn().mockResolvedValue({
         isErr: () => true,
@@ -72,7 +72,11 @@ describe('startCommand', () => {
 
     await startCommand(ctx);
 
-    expect(ctx.reply).toHaveBeenCalledWith('user-management.errors.register_first');
+    expect(MainMenuFactory.create).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('user-management.membership.request_prompt', {
+      parse_mode: 'HTML',
+      reply_markup: expect.any(Object),
+    });
   });
 
   it('should reply with welcome message and menu when user exists', async () => {
@@ -156,6 +160,65 @@ describe('startCommand', () => {
     await startCommand(ctx);
 
     expect(navigation.getMainMenuItems).toHaveBeenCalledWith('USER');
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t }, navigationEntries);
+  });
+
+  it('should prefer ability-filtered navigation when the provider supports it', async () => {
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      language: 'ar',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const navigationEntries = [
+      {
+        id: 'profile',
+        labelKey: 'user-management.menu.button.profile',
+        callbackData: 'profile:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.profile',
+        row: 0,
+        order: 10,
+      },
+    ] as const;
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: mockUser,
+      }),
+    } as never);
+    const keyboard = { inline_keyboard: [] };
+    vi.mocked(MainMenuFactory.create).mockReturnValue(keyboard as never);
+    const navigation = {
+      getMainMenuItems: vi.fn().mockReturnValue([]),
+      getVisibleMainMenuItems: vi.fn().mockReturnValue(navigationEntries),
+    };
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t },
+      eventBus: { publish },
+      sessionProvider: { getSession: vi.fn() },
+      settings: { get: vi.fn() },
+      navigation,
+      config: {} as never,
+    });
+    const ctx = {
+      ...createContext(),
+      ability: { rules: [{ action: 'read', subject: 'profile' }] },
+    } as unknown as Context;
+
+    await startCommand(ctx);
+
+    expect(navigation.getVisibleMainMenuItems).toHaveBeenCalledWith({
+      role: 'USER',
+      abilities: ['read.profile'],
+    });
+    expect(navigation.getMainMenuItems).not.toHaveBeenCalled();
     expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t }, navigationEntries);
   });
 });

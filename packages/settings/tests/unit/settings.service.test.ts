@@ -12,6 +12,8 @@ const mockStatic: StaticSettings = {
   superAdminIds: [1],
   defaultLanguage: 'ar',
   defaultCountry: 'EG',
+  botAccessMode: 'private',
+  protectedDataKeys: null,
 };
 
 function createMockDynamic(): DynamicSettingsService {
