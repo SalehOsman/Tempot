@@ -16,7 +16,7 @@
 ### 2.1 المراحل
 
 1. **base** (Alpine + Node 22.12 + pnpm): تركيب `openssl` و`libc6-compat` لـ Prisma library engine.
-2. **builder**: 
+2. **builder**:
    - تركيب `python3 make g++` لـ native bindings.
    - `pnpm install --frozen-lockfile` (بـ cache mount).
    - `pnpm --filter @tempot/database exec prisma generate` (للسماح لـ tsc بحل أنواع Prisma).
