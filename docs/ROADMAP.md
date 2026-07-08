@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-07.
+> Last updated: 2026-07-08.
 
 ## Current Technical Baseline
 
@@ -111,6 +111,12 @@ Recently completed:
 - Spec #055: data-integrity hardening completion with repository-only startup
   data access, aggregate pagination counts, explicit privileged deleted-record
   recovery, and governed direct-Prisma boundary checks.
+- Spec #058: bot access mode and membership gate implemented and merged to
+  `main`, including private and public bot modes, bootstrap-only visitor
+  access, pending-member denial, stale callback denial, membership request
+  review, approval-driven `user-management` profile activation, role-filtered
+  navigation snapshots, administrator-controlled access-mode settings,
+  membership authorization coverage, and runtime manifest/build integration.
 - Repository branch hygiene was reconciled on 2026-06-20. Obsolete remote
   branches were deleted, `origin/main` is the only long-lived remote branch,
   and the local Git branch set is reduced to `main`, the current documentation
@@ -142,10 +148,14 @@ Active or next work:
    and a 2026-06-20 local isolated smoke pulled that digest, applied
    migrations, confirmed Telegram `getMe`, started polling mode, and verified
    `/live` plus restricted `/ready`. Later documentation-only merges may
-   publish newer signed digests, so staging must record the exact selected
-   digest immediately before deployment. External staging deploy, real Telegram
-   webhook smoke, monitoring/alert evidence, rollback rehearsal, and final
-   review gates remain open.
+   publish newer signed digests. The latest successful `main` Docker workflow
+   verified on 2026-07-08 is run `28950023763` for commit
+   `47f59ea9080ac58c698d16bbf6c117cb3c74237a`, which built, scanned, signed,
+   and verified
+   `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
+   Staging must record the exact selected digest immediately before deployment.
+   External staging deploy, real Telegram webhook smoke, monitoring/alert
+   evidence, rollback rehearsal, and final review gates remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
@@ -162,15 +172,6 @@ Active or next work:
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
-7. Finish Spec #058 merge readiness by resolving final review findings and
-   re-running the broad gates required by the merge owner. The current feature
-   branch implements private and public bot modes, bootstrap-only visitor
-   access, pending-member denial, stale callback denial, membership request
-   review, approval-driven `user-management` profile activation, role-filtered
-   navigation snapshots, and administrator-controlled access-mode settings.
-   Focused access-mode scenario coverage, affected TypeScript builds,
-   lint/prettier checks for modified files, docs checks, and
-   `pnpm spec:validate` pass locally.
 
 ## Production Readiness Remediation Program
 
@@ -198,7 +199,7 @@ remediation gate is complete and verified.
 |                 4 | #054 `sensitive-data-protection` cutover   | Encrypt protected data, minimize audit, migrate and rotate keys                   | P0         | Merged to `origin/main`; target backup rehearsal, staging verification, and production cutover gates remain blocked                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |                 5 | #055 `data-integrity-hardening` completion | Repository boundaries, aggregate counts, and pagination                           | P1         | Merged to `main` and published to `origin/main` on 2026-06-17 after final local verification                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |                 6 | #056 `quality-gates-hardening` completion  | Close component coverage debt and make the coverage job blocking                  | P1         | Merged to `main` and published to `origin/main` on 2026-06-17; coverage is blocking, 107 governed components pass with zero blocking failures and seven repository warnings                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27856129345` built, scanned, signed, and verified digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`. A 2026-06-20 local isolated smoke pulled that digest, applied migrations, confirmed Telegram `getMe`, started polling mode, and verified `/live` plus restricted `/ready`. T032 is not closed until the selected latest `main` digest passes real staging webhook/container smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
+|                 7 | #057 `production-delivery-hardening`       | Startup, HTTP, health, dependencies, image, supply chain, deployment and recovery | P1         | T004-T031 plus Docker scan/sign/signature workflow are merged to `origin/main`. PR #23 fixed the runtime-image `zod` dependency defect, hardened Compose local bindings, updated deployment/cutover docs, and recorded local migration plus backup/restore rehearsal. PR #24 recorded post-fix Docker evidence. Docker run `27856129345` built, scanned, signed, and verified digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`. A 2026-06-20 local isolated smoke pulled that digest, applied migrations, confirmed Telegram `getMe`, started polling mode, and verified `/live` plus restricted `/ready`. The 2026-07-08 `main` Docker run `28950023763` built, scanned, signed, and verified digest `sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae` after the Spec #058 merge and bot-runtime build repair. T032 is not closed until the selected latest `main` digest passes real staging webhook/container smoke. External staging, monitoring, rollback, review, and final go/no-go gates remain blocked |
 
 Spec #057 merged evidence as of 2026-06-18:
 
@@ -221,6 +222,9 @@ Spec #057 merged evidence as of 2026-06-18:
 - `origin/main` is green after the 2026-06-19 PR #24 merge: GitHub Actions CI
   run `27843468722` and Docker run `27843468718` both passed on commit
   `45f88bf146ad0f18e93330b71b21fe3c5a4507a6`.
+- `origin/main` is green after the 2026-07-08 Spec #058 CI repair: GitHub
+  Actions CI run `28950023839` and Docker run `28950023763` both passed on
+  commit `47f59ea9080ac58c698d16bbf6c117cb3c74237a`.
 
 Spec #057 runtime artifact branch evidence as of 2026-06-19:
 
@@ -297,11 +301,11 @@ Production go/no-go requires:
 | Phase 2     | Module infrastructure and bot-server reconstruction | Complete                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Phase 3     | Business modules                                    | Started; `user-management` and `template-management` implemented                                                                                                                                                                                                                                                                                                                                                            |
 | Phase 3A    | Architecture isolation and SaaS readiness           | Complete                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure complete                                                                                                                                                                                                                                                                                                                                                                             |
+| Phase 3B    | Next business module and supporting packages        | Started; `template-management` closure and `membership-management` access gate are complete on `main`                                                                                                                                                                                                                                                                                                                        |
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                                                                                                                                                                                                                                                                                          |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; the latest 2026-07-08 signed candidate digest is `sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
 
@@ -367,7 +371,7 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | `content-management`    | #047 | Implemented                           |
 | `audit-viewer`          | #048 | Implemented                           |
 | `help-center`           | #049 | Implemented                           |
-| `membership-management` | #058 | Implemented on current feature branch |
+| `membership-management` | #058 | Implemented and merged to `main` |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
@@ -384,7 +388,7 @@ Baseline module strategy documented by Spec #036:
 | `audit-viewer`          | Operational   | Implemented baseline plus recent bot problem inspection                                            |
 | `settings-management`   | Core platform | Implemented baseline                                                                               |
 | `help-center`           | Core platform | Implemented baseline                                                                               |
-| `membership-management` | Core platform | Implemented on current feature branch for membership request review and bot access gate operations |
+| `membership-management` | Core platform | Implemented on `main` for membership request review and bot access gate operations |
 
 ## Architecture and Governance Artifacts
 
