@@ -166,4 +166,40 @@ describe('createWebhookRoute', () => {
     expect(response.status).toBe(400);
     expect(deps.bot.handleUpdate).not.toHaveBeenCalled();
   });
+
+  it('returns 400 when body has update_id without a Telegram payload', async () => {
+    const app = createTestApp(deps);
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ update_id: 1 }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(deps.bot.handleUpdate).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 with sanitized logging when bot update handling fails', async () => {
+    deps.bot.handleUpdate.mockRejectedValue(new Error('handler failed'));
+    const app = createTestApp(deps);
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ update_id: 1, message: { text: 'hello' } }),
+    });
+
+    expect(response.status).toBe(500);
+    expect(deps.logger.error).toHaveBeenCalledWith({
+      msg: 'webhook_update_failed',
+      error: 'handler failed',
+    });
+  });
 });

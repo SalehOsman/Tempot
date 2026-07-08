@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-08.
+> Last updated: 2026-07-09.
 
 ## Current Technical Baseline
 
@@ -155,9 +155,14 @@ Active or next work:
    `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
    Documentation-only evidence commits also publish images, so staging must
    resolve and record the exact latest successful `main` digest after all
-   documentation commits land and immediately before deployment. External
-   staging deploy, real Telegram webhook smoke, monitoring/alert evidence,
-   rollback rehearsal, and final review gates remain open.
+   documentation commits land and immediately before deployment. A 2026-07-09
+   Cloudflare Quick Tunnel smoke on `codex/fix-webhook-bot-init` exposed and
+   fixed webhook-mode bot initialization plus malformed signed update handling;
+   see `docs/operations/evidence/2026-07-09-cloudflare-quick-tunnel-webhook-smoke.md`.
+   That evidence is local staging-style validation only. External staging
+   deploy from the next signed `main` digest, real Telegram webhook command
+   smoke, monitoring/alert evidence, rollback rehearsal, and final review gates
+   remain open.
 2. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.

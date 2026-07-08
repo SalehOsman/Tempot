@@ -113,12 +113,12 @@ describe('createHonoApp hardening', () => {
     const first = await app.request('/webhook', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ update_id: 1 }),
+      body: JSON.stringify({ update_id: 1, message: { text: 'first' } }),
     });
     const second = await app.request('/webhook', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ update_id: 2 }),
+      body: JSON.stringify({ update_id: 2, message: { text: 'second' } }),
     });
 
     expect(first.status).toBe(200);
