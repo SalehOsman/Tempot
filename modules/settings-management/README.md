@@ -8,6 +8,9 @@ configuration surfaces.
 - Required package: `@tempot/settings`
 - Optional package: `@tempot/ux-helpers`
 - Main callback namespace: `settings:*`
+- Regional settings expose only implemented actions. The language surface links
+  to the existing `profile:edit:language` account language editor; timezone and
+  regional defaults are not shown until they have implemented behavior.
 
 ```bash
 pnpm --filter @tempot/settings-management build

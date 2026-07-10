@@ -4,6 +4,7 @@ import { registerDeps } from '../../deps.context.js';
 import { MainMenuFactory } from '../../menus/main-menu.factory.js';
 import { getUserService } from '../../services/user-service.context.js';
 import { startCommand } from '../../commands/start.command.js';
+import { sessionContext } from '@tempot/shared';
 
 vi.mock('../../services/user-service.context.js', () => ({
   getUserService: vi.fn(),
@@ -220,5 +221,62 @@ describe('startCommand', () => {
     });
     expect(navigation.getMainMenuItems).not.toHaveBeenCalled();
     expect(MainMenuFactory.create).toHaveBeenCalledWith(mockUser, { t }, navigationEntries);
+  });
+
+  it('should render known users with the persisted profile language when session language is stale', async () => {
+    const staleSession = {
+      userId: '123456789',
+      chatId: '123456789',
+      role: 'USER',
+      status: 'ACTIVE',
+      language: 'ar',
+      activeConversation: null,
+      metadata: null,
+      schemaVersion: 1,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const saveSession = vi.fn().mockResolvedValue({ isOk: () => true });
+    const profile = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      language: 'en',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const localeAwareT = vi.fn((key: string, options?: Record<string, unknown>) => {
+      const locale = sessionContext.getStore()?.locale ?? 'none';
+      return options?.['name'] ? `${locale}:${key}:${String(options['name'])}` : `${locale}:${key}`;
+    });
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({ isErr: () => false, value: profile }),
+    } as never);
+    vi.mocked(MainMenuFactory.create).mockReturnValue({ inline_keyboard: [] } as never);
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t: localeAwareT },
+      eventBus: { publish },
+      sessionProvider: {
+        getSession: vi.fn().mockResolvedValue(staleSession),
+        saveSession,
+      },
+      settings: { get: vi.fn() },
+      config: {} as never,
+    });
+    const ctx = createContext();
+
+    await sessionContext.run({ userId: '1', locale: 'ar' }, async () => {
+      await startCommand(ctx);
+    });
+
+    expect(ctx.reply).toHaveBeenCalledWith('en:user-management.menu.welcome:testuser', {
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: [] },
+    });
+    expect(saveSession).toHaveBeenCalledWith(expect.objectContaining({ language: 'en' }));
   });
 });

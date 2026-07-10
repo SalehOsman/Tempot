@@ -84,7 +84,7 @@ describe('buildBotFactory', () => {
     await expect(botDeps?.getAccessMode()).resolves.toBe('public');
   });
 
-  it('preserves the production session role and status in actor context', async () => {
+  it('preserves the production session role, status, and language in actor context', async () => {
     const deps = createDeps();
     deps.sessionProvider.getSession.mockResolvedValue({
       isErr: () => false,
@@ -92,6 +92,7 @@ describe('buildBotFactory', () => {
         userId: 'user-123',
         role: 'ADMIN',
         status: 'BANNED',
+        language: 'en',
       },
     });
     const createRuntimeBot = buildBotFactory(deps as never);
@@ -103,6 +104,7 @@ describe('buildBotFactory', () => {
       id: 'user-123',
       role: 'ADMIN',
       status: 'BANNED',
+      language: 'en',
     });
   });
 

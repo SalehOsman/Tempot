@@ -14,6 +14,7 @@ import { loadModuleHandlers } from './module-loader.js';
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
+import { buildModuleSessionProviderAdapter } from './module-session-provider.adapter.js';
 import { AbilityRegistry } from '../authorization/ability-registry.js';
 import { AbilityFactory, RoleEnum, type SessionUser } from '@tempot/auth-core';
 import type { OrchestratorDeps } from './orchestrator.js';
@@ -57,7 +58,7 @@ function buildModuleHandlersDep(
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
       logger: opts.log,
       eventBus: buildModuleEventBusAdapter(opts),
-      sessionProvider: buildModuleSessionProviderAdapter(opts),
+      sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
       i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
       settings: buildSettingsProvider(opts.settingsService),
       protectedData: opts.protectedDataService,
@@ -101,15 +102,6 @@ function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
   };
 }
 
-function buildModuleSessionProviderAdapter(opts: AssembleDepsOptions) {
-  return {
-    getSession: async (userId: string, chatId: string) => {
-      const result = await opts.sessionProvider.getSession(userId, chatId);
-      return result.isOk() ? result.value : null;
-    },
-  };
-}
-
 function buildAuthorizationContextResolver(
   opts: AssembleDepsOptions,
   abilityRegistry: AbilityRegistry,
@@ -138,6 +130,7 @@ function resolveCurrentActor(
     id: result.value.userId,
     role: result.value.role,
     status: result.value.status,
+    language: result.value.language,
   };
 }
 
