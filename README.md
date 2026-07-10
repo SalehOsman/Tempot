@@ -52,6 +52,24 @@ pnpm docker:dev
 Docker Compose. The bot container applies pending Prisma migrations before the
 runtime starts.
 
+### Local Docker Webhook Runtime
+
+Use this workflow when you want Docker to run the code from the current local
+checkout instead of a published GHCR image. The webhook override builds the
+`bot-server` image locally and tags it as `tempot-bot-server:local`.
+
+```powershell
+pnpm build:bot-runtime
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot up -d --build bot-server
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot ps
+docker logs -f tempot-bot
+```
+
+`docker-compose.webhook.yml` also runs `cloudflared` against the Compose
+service URL `http://bot-server:3000`. Quick Tunnel URLs are temporary; when the
+URL changes, update `WEBHOOK_URL` in `.env` and register the Telegram webhook
+again before testing Telegram delivery.
+
 Set the required environment values in `.env` before starting the stack:
 
 - `BOT_TOKEN`

@@ -4,6 +4,7 @@ import type { AuthDeps } from '../../../src/bot/middleware/auth.middleware.js';
 import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
 import { createMongoAbility } from '@casl/ability';
 import type { AbilityDefinition } from '@tempot/auth-core';
+import { sessionContext } from '@tempot/shared';
 
 interface MockContext {
   from: { id: number } | undefined;
@@ -63,6 +64,35 @@ describe('createAuthMiddleware', () => {
     expect(next).toHaveBeenCalledOnce();
     expect(ctx['sessionUser']).toEqual(sessionUser);
     expect(ctx['ability']).toBeDefined();
+  });
+
+  it('runs downstream handlers inside the resolved session language context', async () => {
+    const sessionUser = {
+      id: 'user-1',
+      role: RoleEnum.USER,
+      status: 'ACTIVE' as const,
+      language: 'en',
+    };
+    const deps = createDeps({
+      getSessionUser: vi.fn().mockResolvedValue(sessionUser),
+    });
+    const middleware = createAuthMiddleware(deps);
+    const ctx = createMockContext();
+    let observedStore: ReturnType<typeof sessionContext.getStore>;
+    const contextAwareNext = vi.fn(async () => {
+      observedStore = sessionContext.getStore();
+    });
+
+    await middleware(ctx as never, contextAwareNext);
+
+    expect(contextAwareNext).toHaveBeenCalledOnce();
+    expect(observedStore).toEqual(
+      expect.objectContaining({
+        userId: 'user-1',
+        userRole: RoleEnum.USER,
+        locale: 'en',
+      }),
+    );
   });
 
   it('blocks a BANNED session even when its ability contains manage all', async () => {

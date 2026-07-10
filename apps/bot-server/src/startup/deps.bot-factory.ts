@@ -121,18 +121,7 @@ function createRuntimeBotDeps(
       const result = deps.settingsService.getStatic();
       return result.isOk() ? result.value.botAccessMode : 'private';
     },
-    getSessionUser: async (userId: number) => {
-      const result = await deps.sessionProvider.getSession(String(userId), String(userId));
-      if (result.isErr()) {
-        if (result.error.code === 'session-manager.not_found') return null;
-        throw result.error;
-      }
-      return {
-        id: result.value.userId,
-        role: result.value.role,
-        status: result.value.status,
-      };
-    },
+    getSessionUser: (userId: number) => getRuntimeSessionUser(deps, userId),
     abilityDefinitions: abilityRegistry.getRuntimeDefinitions(),
     commandScopeMap: new Map(),
     commandModuleMap: buildCommandModuleMap(validatedModules),
@@ -142,5 +131,22 @@ function createRuntimeBotDeps(
       logger: deps.log,
     }),
     sentryReporter: deps.sentryReporter,
+  };
+}
+
+async function getRuntimeSessionUser(
+  deps: BotFactoryDeps,
+  userId: number,
+): Promise<SessionUser | null> {
+  const result = await deps.sessionProvider.getSession(String(userId), String(userId));
+  if (result.isErr()) {
+    if (result.error.code === 'session-manager.not_found') return null;
+    throw result.error;
+  }
+  return {
+    id: result.value.userId,
+    role: result.value.role,
+    status: result.value.status,
+    language: result.value.language,
   };
 }

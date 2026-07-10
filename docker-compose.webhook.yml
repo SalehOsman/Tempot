@@ -1,0 +1,40 @@
+# Tempot local webhook stack.
+# Use together with docker-compose.yml:
+# docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot up -d --build
+#
+# This file intentionally keeps the bot-server build inherited from
+# docker-compose.yml and tags the locally built image as tempot-bot-server:local.
+# Do not put a GHCR digest here when using --build; Docker build tags cannot
+# contain image digests.
+
+services:
+  bot-server:
+    image: tempot-bot-server:local
+    environment:
+      NODE_ENV: production
+      BOT_MODE: webhook
+      DATABASE_URL: postgresql://tempot:tempot_password@postgres:5432/tempot_db
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      WEBHOOK_SECRET_TOKEN: ${WEBHOOK_SECRET_TOKEN}
+      TEMPOT_READINESS_TOKEN: ${TEMPOT_READINESS_TOKEN}
+      SUPER_ADMIN_IDS: ${SUPER_ADMIN_IDS:-}
+      TEMPOT_INPUT: 'true'
+      TEMPOT_DYNAMIC_CMS: 'true'
+      TEMPOT_SEARCH: 'true'
+      TEMPOT_DOCUMENTS: 'true'
+      TEMPOT_IMPORT: 'true'
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: tempot-cloudflared
+    restart: unless-stopped
+    command:
+      - tunnel
+      - --url
+      - http://bot-server:3000
+    depends_on:
+      bot-server:
+        condition: service_started

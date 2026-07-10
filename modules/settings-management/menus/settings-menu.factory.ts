@@ -35,9 +35,6 @@ function createProfileSettingsMenu(t: TranslationFn): InlineKeyboard {
 function createRegionalSettingsMenu(t: TranslationFn): InlineKeyboard {
   return new InlineKeyboard()
     .text(t('settings-management.menu.language'), 'settings:regional:language')
-    .text(t('settings-management.menu.timezone'), 'settings:regional:timezone')
-    .row()
-    .text(t('settings-management.menu.defaults'), 'settings:regional:defaults')
     .row()
     .text(t('settings-management.menu.settings'), 'settings:view')
     .text(t('settings-management.menu.back'), 'menu:main');
@@ -45,6 +42,8 @@ function createRegionalSettingsMenu(t: TranslationFn): InlineKeyboard {
 
 function createRegionalLeafMenu(t: TranslationFn): InlineKeyboard {
   return new InlineKeyboard()
+    .text(t('settings-management.menu.change_language'), 'profile:edit:language')
+    .row()
     .text(t('settings-management.menu.regional'), 'settings:regional')
     .row()
     .text(t('settings-management.menu.settings'), 'settings:view')

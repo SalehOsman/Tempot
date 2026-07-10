@@ -5,6 +5,10 @@ import { InlineKeyboard } from 'grammy';
 import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
 import { MainMenuFactory } from '../menus/main-menu.factory.js';
+import {
+  runWithProfileLanguage,
+  syncSessionLanguage,
+} from '../services/session-language-sync.service.js';
 import type { UserProfile } from '../types/index.js';
 
 const BOT_ACCESS_MODE_KEY = 'bot_access_mode';
@@ -79,6 +83,14 @@ async function replyToUnknownVisitor(ctx: Context): Promise<void> {
 }
 
 async function replyToKnownUser(input: KnownUserReplyInput): Promise<void> {
+  const { ctx, user, fallbackName, telegramId } = input;
+  await syncSessionLanguage(ctx, user.language);
+  await runWithProfileLanguage(user.language, async () => {
+    await renderKnownUserReply({ ctx, user, fallbackName, telegramId });
+  });
+}
+
+async function renderKnownUserReply(input: KnownUserReplyInput): Promise<void> {
   const { ctx, user, fallbackName, telegramId } = input;
   const i18n = getI18n();
   const navigation = getDeps().navigation;

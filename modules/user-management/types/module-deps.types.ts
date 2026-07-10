@@ -24,6 +24,22 @@ export interface ModuleEventBus {
 
 export interface ModuleSessionProvider {
   getSession: (userId: string, chatId: string) => Promise<unknown>;
+  saveSession?: (session: ModuleSessionRecord) => Promise<unknown>;
+}
+
+export interface ModuleSessionRecord {
+  userId: string;
+  chatId: string;
+  role: 'GUEST' | 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+  status: 'ACTIVE' | 'BANNED' | 'PENDING';
+  language: string;
+  activeConversation: string | null;
+  metadata: Record<string, unknown> | null;
+  schemaVersion: number;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  [key: string]: unknown;
 }
 
 export interface ModuleI18n {

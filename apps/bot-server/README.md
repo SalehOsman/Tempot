@@ -64,6 +64,32 @@ pnpm --filter bot-server dev
 pnpm --filter bot-server start
 ```
 
+## Local Docker Webhook Build
+
+Run this from the repository root when testing the current local checkout in
+Docker webhook mode:
+
+```powershell
+pnpm build:bot-runtime
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot up -d --build bot-server
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot ps
+docker logs -f tempot-bot
+```
+
+This builds `apps/bot-server/Dockerfile` locally through Compose and tags the
+runtime image as `tempot-bot-server:local`. It does not pull or run the
+published GHCR digest.
+
+The webhook stack expects these `.env` values to be set:
+
+- `WEBHOOK_URL`
+- `WEBHOOK_SECRET_TOKEN`
+- `TEMPOT_READINESS_TOKEN`
+
+When using a Cloudflare Quick Tunnel, read the current URL from
+`tempot-cloudflared` logs, update `WEBHOOK_URL`, recreate `bot-server`, and
+register the Telegram webhook again.
+
 ## Health And Shutdown
 
 `GET /health` and `GET /live` return minimal public liveness only. Detailed

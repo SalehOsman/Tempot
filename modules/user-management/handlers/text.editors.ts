@@ -2,6 +2,10 @@ import type { Context } from 'grammy';
 import { RoleEnum } from '@tempot/auth-core';
 import { getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
+import {
+  runWithProfileLanguage,
+  syncSessionLanguage,
+} from '../services/session-language-sync.service.js';
 import type { UserProfile } from '../types/index.js';
 
 export async function replyUpdated(ctx: Context, fieldKey: string, value: string): Promise<void> {
@@ -97,7 +101,10 @@ export async function handleEditLanguage(
   }
 
   log.info({ msg: 'language_updated', userId: user.id });
-  await replyUpdated(ctx, 'language', i18n.t(`user-management.language.${lang}`));
+  await syncSessionLanguage(ctx, lang);
+  await runWithProfileLanguage(lang, async () => {
+    await replyUpdated(ctx, 'language', i18n.t(`user-management.language.${lang}`));
+  });
 }
 
 export async function handleEditRole(ctx: Context, user: UserProfile, text: string): Promise<void> {

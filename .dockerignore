@@ -4,6 +4,7 @@
 .gemini
 node_modules
 apps/*/node_modules
+modules/*/node_modules
 packages/*/node_modules
 apps/docs/src/content/docs
 dist

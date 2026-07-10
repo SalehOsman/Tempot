@@ -2,6 +2,7 @@ import type { Context, NextFunction } from 'grammy';
 import { createMongoAbility, type AnyAbility } from '@casl/ability';
 import type { SessionUser, AbilityDefinition } from '@tempot/auth-core';
 import { RoleEnum, AbilityFactory } from '@tempot/auth-core';
+import { sessionContext, type ContextSession } from '@tempot/shared';
 
 export interface AuthDeps {
   getSessionUser: (userId: number) => Promise<SessionUser | null>;
@@ -60,7 +61,15 @@ export function createAuthMiddleware(
     }
 
     (ctx as unknown as Record<string, unknown>)['ability'] = abilityResult;
-    await next();
+    await sessionContext.run(contextFromSessionUser(sessionUser), next);
+  };
+}
+
+function contextFromSessionUser(user: SessionUser): ContextSession {
+  return {
+    userId: String(user.id),
+    userRole: String(user.role),
+    locale: user.language,
   };
 }
 

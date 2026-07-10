@@ -146,7 +146,7 @@ describe('settings-management runtime', () => {
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it('renders a regional submenu instead of the general settings menu', async () => {
+  it('renders only functional regional settings actions', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
     const ctx = {
       callbackQuery: { data: 'settings:regional', message: { message_id: 10 } },
@@ -161,7 +161,8 @@ describe('settings-management runtime', () => {
     const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
     const callbacks = callbackDataFrom(options.reply_markup);
     expect(callbacks).toContain('settings:regional:language');
-    expect(callbacks).toContain('settings:regional:timezone');
+    expect(callbacks).not.toContain('settings:regional:timezone');
+    expect(callbacks).not.toContain('settings:regional:defaults');
     expect(callbacks).not.toContain('settings:regional');
   });
 
@@ -184,10 +185,10 @@ describe('settings-management runtime', () => {
     expect(callbacks).not.toContain('settings:profile');
   });
 
-  it('renders a regional leaf page without repeating the selected callback action', async () => {
+  it('renders language settings with a real profile language edit action', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
     const ctx = {
-      callbackQuery: { data: 'settings:regional:timezone', message: { message_id: 10 } },
+      callbackQuery: { data: 'settings:regional:language', message: { message_id: 10 } },
       answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
       editMessageText: vi.fn().mockResolvedValue(undefined),
       reply: vi.fn().mockResolvedValue(undefined),
@@ -197,13 +198,14 @@ describe('settings-management runtime', () => {
 
     const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
     expect(editMessageText).toHaveBeenCalledWith(
-      'settings-management.view.regional_timezone',
+      'settings-management.view.regional_language',
       expect.any(Object),
     );
     const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
     const callbacks = callbackDataFrom(options.reply_markup);
+    expect(callbacks).toContain('profile:edit:language');
     expect(callbacks).toContain('settings:regional');
-    expect(callbacks).not.toContain('settings:regional:timezone');
+    expect(callbacks).not.toContain('settings:regional:language');
   });
 
   it('renders access-mode controls for authorized super administrators', async () => {

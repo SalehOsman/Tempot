@@ -16,8 +16,6 @@ const VIEW_KEYS: Readonly<Record<string, string>> = {
   profile: 'settings-management.view.profile',
   regional: 'settings-management.view.regional',
   'regional:language': 'settings-management.view.regional_language',
-  'regional:timezone': 'settings-management.view.regional_timezone',
-  'regional:defaults': 'settings-management.view.regional_defaults',
 };
 
 export async function handleCallbackQuery(
@@ -51,13 +49,14 @@ export async function handleCallbackQuery(
 
 async function showSettingsPage(ctx: Context, action: string): Promise<void> {
   const { i18n } = getDeps();
-  const key = VIEW_KEYS[action] ?? 'settings-management.view.title';
+  const normalizedAction = normalizeSettingsAction(action);
+  const key = VIEW_KEYS[normalizedAction] ?? 'settings-management.view.title';
 
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: i18n.t(key),
     viewKey: key,
     parseMode: 'HTML',
-    replyMarkup: createSettingsMenu(i18n.t, resolveMenuSurface(action)),
+    replyMarkup: createSettingsMenu(i18n.t, resolveMenuSurface(normalizedAction)),
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;
@@ -168,4 +167,10 @@ function resolveMenuSurface(action: string): SettingsMenuSurface {
     return section;
   }
   return 'main';
+}
+
+function normalizeSettingsAction(action: string): string {
+  if (action === 'regional:language') return action;
+  if (action.startsWith('regional:')) return 'regional';
+  return action;
 }

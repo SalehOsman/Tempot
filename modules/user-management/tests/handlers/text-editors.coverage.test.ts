@@ -1,7 +1,7 @@
 import type { Context } from 'grammy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RoleEnum } from '@tempot/auth-core';
-import { AppError } from '@tempot/shared';
+import { AppError, sessionContext } from '@tempot/shared';
 import { err, ok } from 'neverthrow';
 import { registerDeps } from '../../deps.context.js';
 import {
@@ -126,6 +126,64 @@ describe('basic text editors', () => {
       'user-management.validation.role.invalid:{"valid":"USER, ADMIN, SUPER_ADMIN"}',
     );
     expect(vi.mocked(getUserService)().updateRole).toHaveBeenCalledWith('user-1', RoleEnum.ADMIN);
+  });
+
+  it('uses the newly selected language for the language update confirmation', async () => {
+    const currentSession = {
+      userId: '123456789',
+      chatId: '456',
+      role: RoleEnum.USER,
+      status: 'ACTIVE' as const,
+      language: 'ar',
+      activeConversation: null,
+      metadata: null,
+      schemaVersion: 1,
+      version: 1,
+      createdAt: new Date('2026-06-17T00:00:00.000Z'),
+      updatedAt: new Date('2026-06-17T00:00:00.000Z'),
+    };
+    const saveSession = vi.fn().mockResolvedValue(ok(undefined));
+    registerDeps({
+      logger: createLogger(),
+      i18n: {
+        t: vi.fn((key: string, options?: Record<string, unknown>) => {
+          const locale = sessionContext.getStore()?.locale ?? 'none';
+          return `${locale}:${key}:${JSON.stringify(options ?? {})}`;
+        }),
+      },
+      eventBus: { publish: vi.fn() },
+      sessionProvider: {
+        getSession: vi.fn().mockResolvedValue(currentSession),
+        saveSession,
+      },
+      settings: { get: vi.fn() },
+      authorization: { guard: vi.fn(), enforce: vi.fn().mockResolvedValue(true) },
+      config: {} as never,
+    });
+    const ctx = {
+      reply: vi.fn().mockResolvedValue(undefined),
+      from: { id: 123456789 },
+      chat: { id: 456 },
+    } as unknown as Context;
+    vi.mocked(getUserService).mockReturnValue({
+      updateLanguage: vi.fn().mockResolvedValue(ok(undefined)),
+    } as never);
+
+    await sessionContext.run({ userId: 'user-1', locale: 'ar' }, async () => {
+      await handleEditLanguage(ctx, user(), 'EN');
+    });
+
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('en:user-management.profile.updated'),
+      { parse_mode: 'HTML' },
+    );
+    expect(saveSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: '123456789',
+        chatId: '456',
+        language: 'en',
+      }),
+    );
   });
 });
 
