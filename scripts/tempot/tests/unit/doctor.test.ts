@@ -14,13 +14,20 @@ describe('Tempot doctor quick mode', () => {
       gitBranch: 'codex/tempot-doctor',
       hasLockfile: true,
       hasNodeModules: true,
+      methodologyLintPassed: true,
       nodeVersion: 'v22.12.0',
       pnpmVersion: '10.32.1',
     });
 
     expect(report.title).toBe('Tempot Doctor');
-    expect(report.checks).toHaveLength(4);
-    expect(report.checks.map((check) => check.status)).toEqual(['pass', 'pass', 'pass', 'pass']);
+    expect(report.checks).toHaveLength(5);
+    expect(report.checks.map((check) => check.status)).toEqual([
+      'pass',
+      'pass',
+      'pass',
+      'pass',
+      'pass',
+    ]);
     expect(report.hasBlockingFailure).toBe(false);
   });
 
@@ -30,11 +37,18 @@ describe('Tempot doctor quick mode', () => {
       gitBranch: '',
       hasLockfile: false,
       hasNodeModules: false,
+      methodologyLintPassed: false,
       nodeVersion: 'v20.11.0',
       pnpmVersion: '9.15.0',
     });
 
-    expect(report.checks.map((check) => check.status)).toEqual(['fail', 'fail', 'fail', 'fail']);
+    expect(report.checks.map((check) => check.status)).toEqual([
+      'fail',
+      'fail',
+      'fail',
+      'fail',
+      'fail',
+    ]);
     expect(report.hasBlockingFailure).toBe(true);
   });
 
@@ -44,6 +58,7 @@ describe('Tempot doctor quick mode', () => {
       gitBranch: 'main',
       hasLockfile: true,
       hasNodeModules: true,
+      methodologyLintPassed: true,
       nodeVersion: 'v22.12.0',
       pnpmVersion: '10.32.1',
     });
@@ -55,6 +70,7 @@ describe('Tempot doctor quick mode', () => {
     expect(output).toContain('[pass] pnpm');
     expect(output).toContain('[pass] Git branch');
     expect(output).toContain('[pass] Install state');
+    expect(output).toContain('[pass] Methodology lint');
     expect(output).not.toContain('BOT_TOKEN');
     expect(output).not.toContain('TELEGRAM_TOKEN');
   });

@@ -25,6 +25,7 @@ export interface QuickDoctorInput {
   readonly gitBranch: string;
   readonly hasLockfile: boolean;
   readonly hasNodeModules: boolean;
+  readonly methodologyLintPassed: boolean;
 }
 
 interface VersionRequirement {
@@ -37,7 +38,13 @@ const MIN_NODE: VersionRequirement = { major: 22, minor: 12, patch: 0 };
 const MIN_PNPM: VersionRequirement = { major: 10, minor: 0, patch: 0 };
 
 export function createQuickDoctorReport(input: QuickDoctorInput): DoctorReport {
-  const checks = [checkNode(input), checkPnpm(input), checkGit(input), checkInstall(input)];
+  const checks = [
+    checkNode(input),
+    checkPnpm(input),
+    checkGit(input),
+    checkInstall(input),
+    checkMethodologyLint(input),
+  ];
 
   return {
     title: 'Tempot Doctor',
@@ -57,6 +64,11 @@ export function collectQuickDoctorInput(cwd = process.cwd()): QuickDoctorInput {
     gitBranch: readCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD']),
     hasLockfile: existsSync(join(cwd, 'pnpm-lock.yaml')),
     hasNodeModules: existsSync(join(cwd, 'node_modules')),
+    methodologyLintPassed: commandSucceeds(
+      process.execPath,
+      ['--import', 'tsx', join(cwd, 'scripts', 'ci', 'methodology-lint.ts'), '--quick', '--silent'],
+      cwd,
+    ),
   };
 }
 
@@ -118,6 +130,20 @@ function checkInstall(input: QuickDoctorInput): DoctorCheck {
   };
 }
 
+function checkMethodologyLint(input: QuickDoctorInput): DoctorCheck {
+  return {
+    name: 'Methodology lint',
+    status: input.methodologyLintPassed ? 'pass' : 'fail',
+    summary: input.methodologyLintPassed
+      ? 'Quick methodology lint passed.'
+      : 'Quick methodology lint failed.',
+    suggestion: input.methodologyLintPassed
+      ? 'No action needed.'
+      : 'Run pnpm methodology:lint:quick and fix reported violations.',
+    blocking: true,
+  };
+}
+
 function isAtLeast(version: string, minimum: VersionRequirement): boolean {
   const parsed = parseVersion(version);
 
@@ -154,5 +180,17 @@ function readCommand(command: string, args: readonly string[]): string {
     }).trim();
   } catch {
     return '';
+  }
+}
+
+function commandSucceeds(command: string, args: readonly string[], cwd?: string): boolean {
+  try {
+    execFileSync(command, [...args], {
+      cwd,
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
+    return true;
+  } catch {
+    return false;
   }
 }

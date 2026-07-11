@@ -39,7 +39,7 @@ Remove this "Usage Instructions" section from the final prompt.
 Read and comply with these before any action:
 
 - Constitution: `.specify/memory/constitution.md` — especially Rules LXXIX–LXXXIX (Methodology)
-- Workflow: `docs/developer/workflow-guide.md` — "مرحلة المواصفات (SpecKit)" section
+- Workflow: `docs/developer/workflow-guide.md` — "Specification Phase (SpecKit)" section
 
 ## What This Package Does
 
