@@ -25,6 +25,8 @@
     "test:coverage": "vitest run --coverage --reporter=verbose && tsx scripts/ci/coverage-policy.ts coverage/coverage-summary.json",
     "lint": "eslint .",
     "boundary:audit": "tsx scripts/ci/import-boundary-audit.cli.ts",
+    "methodology:lint": "tsx scripts/ci/methodology-lint.ts",
+    "methodology:lint:quick": "tsx scripts/ci/methodology-lint.ts --quick",
     "authorization:check": "tsx scripts/ci/authorization-coverage-audit.ts",
     "module:checklist": "tsx scripts/ci/module-package-checklist-audit.ts",
     "source:conformance": "tsx scripts/ci/source-conformance-audit.ts",

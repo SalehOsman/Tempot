@@ -163,19 +163,25 @@ Active or next work:
    deploy from the next signed `main` digest, real Telegram webhook command
    smoke, monitoring/alert evidence, rollback rehearsal, and final review gates
    remain open.
-2. Keep Spec #054 irreversible production cutover blocked until target backup
+2. Complete Spec #059 methodology lint coverage. The active implementation adds
+   `pnpm methodology:lint`, time-boxed debt allowlist validation, Rule XL
+   language-policy enforcement, stale artifact detection, eslint-disable
+   suppression detection, CI JSON reporting, pre-commit quick checks, and
+   `pnpm tempot doctor --quick` integration. The initial allowlist contains 28
+   entries owned by Spec #060 and Spec #061 and expires on 2026-10-09.
+3. Keep Spec #054 irreversible production cutover blocked until target backup
    rehearsal, staging migration verification, and key-rotation evidence are
    reviewed for the target environment.
-3. Keep `template-management` useful as a product capability and developer
+4. Keep `template-management` useful as a product capability and developer
    reference, but avoid marketplace or SaaS-only expansion until the single-bot
    template experience is complete.
-4. `bot-management` (Spec #040) remains a future-facing operational module.
+5. `bot-management` (Spec #040) remains a future-facing operational module.
    Keep it useful as a lightweight bot profile registry for the template, but
    do not let multi-bot SaaS management displace the current single-bot
    framework priority.
-5. Consider future RAG evaluation expansion for latency, token usage, and cost
+6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-6. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+7. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.

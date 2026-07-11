@@ -128,6 +128,7 @@ pnpm test:coverage
 pnpm spec:validate
 pnpm cms:check
 pnpm boundary:audit
+pnpm methodology:lint
 pnpm module:checklist
 pnpm source:conformance
 pnpm toolchain:audit
@@ -137,6 +138,13 @@ pnpm audit --audit-level=high
 
 Run the subset that matches the change while developing. Run the full relevant
 set before merge.
+
+`pnpm methodology:lint` is the consolidated methodology lint entry point for
+Rule XL language policy enforcement, stale artifact detection, eslint-disable
+suppression detection, and time-boxed debt allowlist validation. See
+`docs/developer/methodology-lint.md` for the allowlist schema, output formats,
+and audit extension process. The pre-commit hook runs
+`pnpm methodology:lint:quick` against staged or changed files.
 
 CI verifies full builds and unit tests on Node.js 22.12.0 and Node.js 24.
 Corepack resolves the repository-pinned pnpm 10.33.3 release, which supports the

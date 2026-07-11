@@ -1,0 +1,209 @@
+{
+  "languagePolicy": {
+    "entries": [
+      {
+        "pattern": "docs/analysis-2026-06-10/**",
+        "reason": "Legacy Arabic analysis set scheduled for translation or removal by the Arabic documentation remediation specification.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/analysis-2026-06-23/**",
+        "reason": "Legacy Arabic analysis set scheduled for translation or removal by the Arabic documentation remediation specification.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/architecture/tempot_architecture.md",
+        "reason": "Legacy Arabic architecture source is tracked as documentation translation debt for follow-up remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/archive/**",
+        "reason": "Archived legacy Arabic planning material is retained temporarily until the documentation remediation pass decides retention or deletion.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/code-review-2025-05-18/**",
+        "reason": "Legacy Arabic code-review package is retained temporarily until translated or removed by the documentation remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/development/devlog/**",
+        "reason": "Legacy Arabic devlog entries are retained temporarily until translated or removed by the documentation remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/guides/**",
+        "reason": "Legacy Arabic guide fragments are retained temporarily until translated or removed by the documentation remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/product/ar/**",
+        "reason": "Arabic product documentation is retained temporarily pending the dedicated translation policy decision and remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/product/en/guides/creating-a-module.md",
+        "reason": "English product guide contains legacy Arabic fragments scheduled for documentation remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/product/en/user-guide/getting-started.md",
+        "reason": "English product guide contains legacy Arabic fragments scheduled for documentation remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/prompt/**",
+        "reason": "Legacy Arabic prompt documents are retained temporarily until translated or removed by the documentation remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "docs/troubleshooting/PROFILE_DISPLAY_ISSUES.md",
+        "reason": "Legacy Arabic troubleshooting document is retained temporarily until translated or removed by the documentation remediation work.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "modules/user-management/**",
+        "reason": "Legacy Arabic developer-facing text in user-management is tracked for workspace cleanup remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "060-workspace-cleanup"
+      },
+      {
+        "pattern": "packages/input-engine/src/fields/numbers/arabic-numerals.helper.ts",
+        "reason": "Legacy Arabic numeral helper text is tracked for workspace cleanup remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "060-workspace-cleanup"
+      },
+      {
+        "pattern": "packages/regional-engine/README.md",
+        "reason": "Legacy Arabic package README content is tracked for documentation remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "scripts/tempot/module-generator.templates.ts",
+        "reason": "Legacy Arabic module template examples are tracked for workspace cleanup remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "060-workspace-cleanup"
+      },
+      {
+        "pattern": "specs/007-i18n-core-package/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/009-regional-engine-package/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/011-input-engine-package/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/015-ai-core-package/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/021-documentation-system/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/023-fix-documentation-drift/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/025-user-management/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/031-ai-core-rag-runtime-wiring/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/039-template-management/**",
+        "reason": "Legacy Arabic SpecKit artifacts are retained temporarily until the documentation remediation pass resolves them.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      },
+      {
+        "pattern": "specs/060-workspace-cleanup/**",
+        "reason": "Spec 060 still references Arabic debt examples that are being cleaned by the same workspace cleanup track.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "060-workspace-cleanup"
+      },
+      {
+        "pattern": "specs/061-arabic-docs-translation-or-removal/**",
+        "reason": "Spec 061 still references Arabic debt examples that are being cleaned by the same documentation remediation track.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "061-arabic-docs-translation-or-removal"
+      }
+    ]
+  },
+  "staleArtifacts": {
+    "entries": []
+  },
+  "eslintDisable": {
+    "entries": [
+      {
+        "pattern": "apps/bot-server/scripts/webhook-manager.ts",
+        "reason": "Existing webhook management script uses temporary lint suppressions tracked for workspace cleanup remediation.",
+        "added_at": "2026-07-11",
+        "expires_at": "2026-10-09",
+        "owner_spec": "060-workspace-cleanup"
+      }
+    ]
+  }
+}

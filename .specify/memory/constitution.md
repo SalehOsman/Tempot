@@ -235,6 +235,7 @@ ZERO hardcoded user-facing text in source code. All user-visible strings via i18
 - **Everything developers see:** English (code, comments, docs, ADRs, variables, README, SpecKit files)
 - **Everything users see:** from i18n system in user's chosen language
 - **No human-readable text written directly in code — ever**
+- **Enforcement:** `pnpm methodology:lint` runs `language-policy-audit` to block unapproved non-English developer-facing text.
 
 ### XLI. Default Languages
 
@@ -671,7 +672,8 @@ Packages formally marked as **"Not started / Deferred"** in `docs/ROADMAP.md` ar
 
 ---
 
-**Version**: 2.5.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-04-28
+**Version**: 2.6.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-07-11
+**Amendment 2.6.0**: Added Rule XL enforcement marker for `pnpm methodology:lint` and its `language-policy-audit`, making the existing English-only developer-facing text rule automatically enforceable. Approved by the Project Manager on 2026-07-11.
 **Amendment 2.5.0**: Phase 3 documentation restructure � promoted active guides from archive to dedicated root directories (docs/architecture, docs/developer, docs/security, docs/ROADMAP.md). docs/archive/ is now strictly for historical records. Updated all Constitution references to point to new active locations. Total: 90 rules (+ 1 reserved).
 **Amendment 2.4.1**: Raised the project runtime baseline to Node.js 22.12+ to support Astro 6/Starlight security updates and corrected Rule LXII to mark the documentation site as active under `apps/docs`.
 **Amendment 2.4.0**: Added Rule XC — Deferred Package Exception. Formalizes the distinction between roadmap-deferred packages (informational spec:validate failures) and active packages (full compliance required). Resolves methodology ambiguity identified in project audit 2026-04-24. Total: 90 rules (+ 1 reserved).

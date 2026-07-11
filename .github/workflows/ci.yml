@@ -30,6 +30,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Run methodology lint coverage
+        run: pnpm --silent methodology:lint --format=json > methodology-lint-report.json
+      - name: Upload methodology lint report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: methodology-lint-report
+          path: methodology-lint-report.json
       - run: pnpm spec:validate
       - run: pnpm cms:check
       - run: pnpm boundary:audit
