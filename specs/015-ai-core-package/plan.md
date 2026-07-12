@@ -49,9 +49,9 @@
 │   + bulkhead)                                                        │
 ├──────────┴──────────────┴───────────────┴─────────────────────────────┤
 │                                                                       │
-│  DeveloperRAG          CLIAssistant                                   │
-│  (pnpm ai:dev          (pnpm ai:review                                │
-│   "question")           --module {name})                              │
+│  DeveloperAssistant    ModuleReviewer                                 │
+│  (service class)       (service class)                                │
+│  CLI wiring is future activation work                                │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,7 +59,7 @@
 
 - **Phase 1A — Foundation**: Package scaffolding, types, AIProviderFactory, AIConfig, ResilienceService, EmbeddingService, AICache middleware, RateLimiterService, AuditService, Pluggable Toggle
 - **Phase 1B — Intelligence**: RAGPipeline, ContentIngestionService, ToolRegistry, CASLToolFilter, RoleSystemPrompts, IntentRouter, ConfirmationEngine
-- **Phase 1C — Interaction + Developer**: TelegramAssistantUI, ConversationMemory, AlternativeSuggestions, DeveloperRAG, CLIAssistant
+- **Phase 1C — Interaction + Developer**: TelegramAssistantUI, ConversationMemory, AlternativeSuggestions, DeveloperAssistant, ModuleReviewer service classes
 
 ---
 
@@ -1901,16 +1901,19 @@ export interface TelegramAssistantDeps {
 
 ---
 
-## Task 18 — Developer RAG and CLI Tools
+## Task 18 — Developer RAG and Assistant Services
 
 ### FR Covered: FR-016
 
 ### Files
 
-- `src/cli/dev.assistant.ts` — `pnpm ai:dev "question"` handler
-- `src/cli/module.reviewer.ts` — `pnpm ai:review --module {name}` handler
+- `src/cli/dev.assistant.ts` - developer assistant service class
+- `src/cli/module.reviewer.ts` - module reviewer service class
 
-> **Implementation Note**: CLI tools reuse `AIProviderFactory`, `EmbeddingService`, and `RAGPipeline` but run outside the Telegram context. They read `developer-docs` content from the vector store. Exact CLI integration depends on the project's script runner configuration.
+> **Implementation Note**: These service classes reuse `AIProviderFactory`,
+> `EmbeddingService`, and `RAGPipeline` without Telegram dependencies. Root
+> scripts such as `pnpm ai:dev` and `pnpm ai:review` are not currently exposed
+> and require a separate activation slice before operators can run them.
 
 ---
 

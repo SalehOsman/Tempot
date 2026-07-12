@@ -2,11 +2,15 @@
 
 **Feature Branch**: `032-ai-core-rag-evaluation-fixtures`
 **Created**: 2026-05-05
-**Status**: Draft
+**Status**: Complete
 **Input**: Build RAG evaluation fixtures for `ai-core` after Spec #031. Scope is fixtures,
 test helpers, and unit tests that measure retrieval hit, citation coverage, unauthorized
 source leakage, and no-context correctness. No new CLI, evaluator service, deferred package
 activation, provider calls, or database schema changes.
+
+**Completion Note**: Completed as deterministic `@tempot/ai-core` test fixtures. Runtime bot
+activation and operational evaluation expansion remain separate work tracked in
+`docs/architecture/ai-rag-runtime-activation-plan.md`.
 
 ## User Scenarios & Testing
 

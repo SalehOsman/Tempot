@@ -9,6 +9,8 @@
 - `DrizzleVectorRepository` -- abstract repository for pgvector similarity search via Drizzle ORM
 - Prisma client with global soft delete via `$extends()` (not middleware)
 - Drizzle client for pgvector similarity search only (HNSW indexed)
+- Committed pgvector migration evidence for the AI/RAG `embeddings` table and
+  halfvec HNSW index
 - `TransactionManager` for atomic multi-repository operations
 - Modular schema orchestration -- merges `modules/*/database/*.prisma` into central schema
 
@@ -63,6 +65,12 @@ pnpm db:migrate    # Run pending Prisma migrations
 pnpm db:studio     # Open Prisma Studio
 pnpm db:reset      # Drop + recreate DB (dev only)
 ```
+
+The AI/RAG embeddings table is physically prepared by the committed raw SQL
+migration under
+`prisma/migrations/20260712000000_add_ai_rag_embeddings/migration.sql`. Drizzle
+remains the schema owner for pgvector operations; no Prisma model is defined for
+embeddings.
 
 ## ADRs
 

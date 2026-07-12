@@ -73,7 +73,7 @@
       `packages/ai-core/src/index.ts`
 - [x] T021 Update `packages/ai-core/README.md` with `retrieveWithPlan` and
       `buildAnswerState` usage examples
-- [x] T022 Update `docs/archive/ROADMAP.md`
+- [x] T022 Update `docs/ROADMAP.md`
       - move Spec #031 to "Recently completed"
       - update "Active or next work" to reflect evaluation fixtures as next step
 - [x] T023 Add changeset for `@tempot/ai-core` (minor bump)

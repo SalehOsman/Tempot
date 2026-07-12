@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-09.
+> Last updated: 2026-07-12.
 
 ## Current Technical Baseline
 
@@ -52,6 +52,8 @@ Recently completed:
   optional `rag_search` audit logging.
 - Spec #032: `ai-core` RAG evaluation fixtures with deterministic retrieval hit,
   citation coverage, unauthorized leakage, and no-context scoring tests.
+- Spec #062: AI/RAG vector storage activation started with committed database
+  migration evidence for the pgvector `embeddings` table and halfvec HNSW index.
 - Spec #013: `notifier` package - queue producer, delivery processor, worker
   factory, Telegram adapter, rate policy, and full unit test coverage.
 - Spec #016: `document-engine` package with typed export contracts,
@@ -181,7 +183,16 @@ Active or next work:
    framework priority.
 6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-7. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
+7. Activate AI/RAG only through the documented runtime activation plan in
+   `docs/architecture/ai-rag-runtime-activation-plan.md`. The current
+   `@tempot/ai-core` package is a completed foundation package, but no active
+   Telegram bot module currently exposes a production AI/RAG flow. Activation
+   has started with Spec #062 vector storage migration evidence. Remaining
+   activation requires staging migration smoke, operational docs ingestion,
+   runtime composition, one governed module with `hasAI: true` and
+   `aiDegradationMode`, fixture-backed leakage/no-context tests, and full
+   staging smoke evidence.
+8. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
@@ -411,6 +422,8 @@ Current active references:
 - ADR index: `docs/architecture/adr/README.md`
 - Boundary audit: `docs/architecture/boundaries/`
 - AI RAG methodology: `docs/architecture/ai-rag-methodology.md`
+- AI/RAG runtime activation plan:
+  `docs/architecture/ai-rag-runtime-activation-plan.md`
 - SaaS readiness: `docs/architecture/saas-readiness.md`
 - SaaS migration map: `docs/architecture/saas-migration-map.md`
 - Telegram Managed Bots assessment:
