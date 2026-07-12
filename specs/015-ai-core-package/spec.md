@@ -4,6 +4,23 @@
 **Created**: 2026-03-19
 **Clarified**: 2026-04-02
 **Status**: Complete
+
+## Current Operational Status
+
+This spec is complete as the `@tempot/ai-core` foundation package. The package
+contains provider configuration, resilience, rate limiting, embeddings, content
+ingestion, RAG pipeline contracts, retrieval-plan runtime wiring, answer-state
+contracts, evaluation fixtures, and service classes for future assistant flows.
+
+This spec does not mean that AI/RAG is currently activated as a Telegram bot
+runtime feature. Current active modules remain configured with `hasAI: false`.
+Runtime activation requires a separate governed feature that wires the AI/RAG
+composition boundary, selects one owning module, defines `aiDegradationMode`,
+indexes real content, and proves leakage/no-context behavior in tests and
+staging smoke.
+
+Runtime activation is tracked in
+`docs/architecture/ai-rag-runtime-activation-plan.md`.
 **Input**: User description: "Build an integrated AI assistant for the Tempot Telegram bot — intent routing via tool calling, constrained RAG from bot knowledge, data analysis via natural language, role-aware with CASL tool filtering, multimodal embeddings, developer RAG, and CLI tools."
 
 ## User Scenarios & Testing _(mandatory)_
@@ -78,12 +95,13 @@ As a developer using the Tempot framework, I want to ask questions about the cod
 
 **Why this priority**: Developer productivity — secondary to core user-facing assistant but high value for framework adoption.
 
-**Independent Test**: Run `pnpm ai:dev "how does the event bus work?"` and verify it returns an answer citing indexed `developer-docs` content.
+**Independent Test**: Instantiate the developer assistant service with indexed `developer-docs`
+content and verify it returns an answer citing the retrieved context.
 
 **Acceptance Scenarios**:
 
-1. **Given** a developer runs `pnpm ai:dev "question"`, **When** relevant `developer-docs` content exists, **Then** the CLI returns an answer citing retrieved context.
-2. **Given** a developer runs `pnpm ai:review --module users`, **When** the module exists, **Then** the CLI checks module.config.ts completeness, discovers missing events, reviews UX compliance, checks i18n key completeness, and suggests test cases.
+1. **Given** a developer asks a codebase question through the developer assistant service, **When** relevant `developer-docs` content exists, **Then** the service returns an answer citing retrieved context.
+2. **Given** a developer reviews a module through the module reviewer service, **When** the module exists, **Then** the service checks module.config.ts completeness, discovers missing events, reviews UX compliance, checks i18n key completeness, and suggests test cases.
 
 ---
 
@@ -250,7 +268,7 @@ When limit is reached: clear i18n message, no more AI until the next day. Super 
 - **FR-013**: System MUST provide a `ContentIngestionService` for automatic indexing (module metadata on registration, Prisma schema changes) and manual upload (Super Admin uploads via storage-engine). Content is chunked (configurable, default ~500 tokens with 50-token overlap), sanitized (PII removed), and embedded.
 - **FR-014**: System MUST provide alternative suggestions when intent cannot be resolved: "هل تقصد...؟" with up to 3 options based on available tools and recent user actions.
 - **FR-015**: System MUST provide a `TelegramAssistantUI` with `/ai` command and inline button for entering conversation mode. Uses grammY conversation for multi-turn interaction. Supports one active AI conversation per user.
-- **FR-016**: System MUST provide developer assistant tools: `pnpm ai:dev "question"` for codebase questions (RAG from `developer-docs` content type) and `pnpm ai:review --module {name}` for AI-powered module review (config completeness, missing events, UX compliance, i18n completeness, test suggestions).
+- **FR-016**: System MUST provide developer assistant service classes for codebase questions (RAG from `developer-docs` content type) and AI-powered module review (config completeness, missing events, UX compliance, i18n completeness, test suggestions). Root CLI commands are not currently exposed and must be specified separately before activation.
 - **FR-017**: System MUST support a `TEMPOT_AI` environment variable (`true`/`false`, default `true`) to enable/disable the ai-core package per Constitution Rule XVI (Pluggable Architecture). When disabled, all AI service methods return `err(AppError('ai-core.disabled'))`.
 - **FR-018**: System MUST respond in the user's configured language (via i18n settings). Arabic is the primary language, English secondary. RAG content is stored in its original language; queries use the user's language.
 - **FR-019**: System MUST provide `AICache` middleware using cache-manager to cache identical AI responses. Cache key is computed from prompt hash + tool set hash + role. TTL configurable (default 24 hours).

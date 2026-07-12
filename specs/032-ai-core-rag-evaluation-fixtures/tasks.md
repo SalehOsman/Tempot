@@ -45,7 +45,7 @@
 
 - [x] T016 Refactor test helper and fixture files for readability while keeping each file under constitution line limits
 - [x] T017 Update `packages/ai-core/README.md` only if implementation adds a developer-facing test workflow that package maintainers must know
-- [x] T018 Update `docs/archive/ROADMAP.md` to move Spec #032 into completed work and identify the next roadmap item after implementation passes
+- [x] T018 Update `docs/ROADMAP.md` to move Spec #032 into completed work and identify the next roadmap item after implementation passes
 - [x] T019 Confirm no changeset is required because the planned change is test-only and does not alter runtime package behavior
 - [x] T020 Run `$speckit-analyze` or equivalent cross-artifact analysis and resolve any critical findings
 

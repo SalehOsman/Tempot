@@ -2,8 +2,11 @@
 
 > Feature reference: `specs/027-tempot-multimodal-rag-methodology/`
 >
-> Status: Planning methodology. This document does not activate deferred
-> packages or introduce a runtime dependency on HKUDS/RAG-Anything.
+> Status: methodology and architecture guidance. This document does not activate
+> a bot runtime AI/RAG feature, does not introduce a runtime dependency on
+> HKUDS/RAG-Anything, and must be read together with
+> `docs/architecture/ai-rag-runtime-activation-plan.md` for the current
+> activation plan.
 
 ## Purpose
 
@@ -17,6 +20,17 @@ The useful methodology is:
 3. Retrieve with a hybrid plan instead of vector-only assumptions.
 4. Generate answers only from authorized, cited context.
 5. Measure retrieval quality, grounding, latency, and cost.
+
+## Current Implementation State
+
+`@tempot/ai-core` has implemented the foundation slices for content block
+contracts, retrieval planning, RAG runtime selection, answer-state contracts,
+and deterministic RAG evaluation fixtures.
+
+The current Telegram bot runtime does not yet expose a production AI/RAG flow.
+Active business modules remain non-AI modules until a separate SpecKit feature
+selects one module, sets `hasAI: true`, defines `aiDegradationMode`, wires the
+runtime composition boundary, and verifies the selected flow.
 
 ## Non-Goals
 
@@ -119,3 +133,11 @@ This methodology suggests but does not activate deferred packages.
   Tempot content blocks.
 
 Each activation requires its own SpecKit feature and Superpowers execution flow.
+
+## Runtime Activation Reference
+
+The practical activation sequence is maintained in
+`docs/architecture/ai-rag-runtime-activation-plan.md`. That plan is the
+execution reference for vector migration evidence, docs ingestion composition,
+runtime service wiring, first bot-flow activation, evaluation, and staging
+readiness.

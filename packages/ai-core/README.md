@@ -1,79 +1,94 @@
 # @tempot/ai-core
 
-> Vercel AI SDK abstraction layer. Gemini is the default provider — swap to OpenAI via configuration.
+> Vercel AI SDK abstraction layer for Tempot AI foundations. Gemini is the
+> default chat provider; OpenAI can be selected for chat through configuration.
 
 ## Purpose
 
-Provider-agnostic AI capabilities behind a unified interface:
+`@tempot/ai-core` provides provider-agnostic AI foundation capabilities behind a
+unified Tempot package boundary:
 
-- `ai-provider.factory` — pluggable provider registry (Gemini default, OpenAI alternative)
-- `resilience.service` — circuit breaker + retry + timeout + bulkhead via cockatiel
-- `rate-limiter.service` — per-role rate limiting via rate-limiter-flexible + Redis
-- `embedding.service` — embed and search vectors via Drizzle + pgvector (3072-dim, halfvec HNSW)
-- `rag-pipeline.service` — role-based RAG with content type access matrix and post-filtering
-- `retrieval-plan.validation` — public retrieval planning and grounded answer state contracts
-- RAG evaluation fixtures — deterministic test-only retrieval, citation, leakage, and no-context scoring cases
-- `intent.router` — multi-step agentic generation with tool use, CASL filtering, and confirmation gates
-- `confirmation.engine` — 5-minute TTL pending confirmations with 6-digit codes (Rule LXVII)
-- `audit.service` — fire-and-log pattern for AI action auditing
-- `content-ingestion.service` — chunk documents and store embeddings with text metadata
-- `conversation-memory.service` — summarize and store session memories
-- `dev.assistant` — RAG-powered developer Q&A CLI tool
-- `module.reviewer` — RAG-powered module review CLI tool
-- Toggle guard — enabled by default (`AIConfig.enabled = true`), disable via `TEMPOT_AI=false`
+- `ai-provider.factory`: pluggable provider registry for Gemini and OpenAI chat
+  providers.
+- `resilience.service`: circuit breaker, retry, timeout, and bulkhead behavior
+  via cockatiel.
+- `rate-limiter.service`: per-role rate limiting via rate-limiter-flexible.
+- `embedding.service`: embedding storage and similarity search through Drizzle
+  and pgvector.
+- `rag-pipeline.service`: role-aware RAG retrieval with content-type access
+  filtering.
+- `retrieval-plan.validation`: retrieval planning and grounded answer-state
+  contracts.
+- RAG evaluation fixtures: deterministic test-only retrieval, citation,
+  leakage, and no-context scoring cases.
+- `intent.router`: multi-step generation with tool use, CASL filtering, and
+  confirmation gates.
+- `confirmation.engine`: pending confirmations with TTL and escalated codes.
+- `audit.service`: fire-and-log AI action auditing.
+- `content-ingestion.service`: document chunking and embedding ingestion.
+- `conversation-memory.service`: conversation summary storage.
+- `dev.assistant`: developer Q&A service class for future CLI wiring.
+- `module.reviewer`: module review service class for future CLI wiring.
+- Toggle guard: enabled by default and disabled with `TEMPOT_AI=false`.
+
+This package is implemented as a foundation package. It is not yet wired as a
+user-facing Telegram bot AI/RAG flow in the current runtime.
 
 ## Phase
 
-Phase 1 — Core Infrastructure
+Phase 1 - Core Infrastructure.
+
+Runtime activation is tracked in:
+
+- `docs/architecture/ai-rag-runtime-activation-plan.md`
 
 ## Dependencies
 
-| Package                     | Purpose                                               |
-| --------------------------- | ----------------------------------------------------- |
-| `ai` 6.x (Vercel AI SDK)    | Provider-agnostic abstraction — ADR-016, ADR-037      |
-| `@ai-sdk/google`            | Gemini adapter (default provider)                     |
-| `@ai-sdk/openai`            | OpenAI adapter (alternative provider)                 |
-| `drizzle-orm`               | pgvector storage and similarity search                |
-| `cockatiel` 3.x             | Circuit breaker, retry, timeout, bulkhead             |
-| `rate-limiter-flexible` 5.x | Per-role rate limiting with Redis backend             |
-| `langfuse`                  | AI observability (optional)                           |
-| `@tempot/shared`            | Result types, AppError, AsyncResult                   |
-| `@tempot/database`          | DrizzleVectorRepository, embeddings table, DB_CONFIG  |
-| `@tempot/event-bus`         | AI event types (generation, embedding, failure, etc.) |
-| `@tempot/logger`            | Pino logger interface                                 |
+| Package | Purpose |
+| --- | --- |
+| `ai` 6.x | Vercel AI SDK provider abstraction |
+| `@ai-sdk/google` | Gemini adapter |
+| `@ai-sdk/openai` | OpenAI adapter |
+| `drizzle-orm` | pgvector storage and similarity search |
+| `cockatiel` 3.x | Circuit breaker, retry, timeout, and bulkhead |
+| `rate-limiter-flexible` 5.x | Per-role rate limiting |
+| `langfuse` | Optional AI observability |
+| `@tempot/shared` | Result types, `AppError`, and `AsyncResult` |
+| `@tempot/database` | `DrizzleVectorRepository`, embeddings table, and DB config |
+| `@tempot/event-bus` | AI event payload types |
+| `@tempot/logger` | Pino logger interface |
 
 ## Provider Configuration
 
 ```env
 TEMPOT_AI=true
-TEMPOT_AI_PROVIDER=gemini          # gemini | openai
+TEMPOT_AI_PROVIDER=gemini
 AI_EMBEDDING_MODEL=gemini-embedding-2-preview
 AI_EMBEDDING_DIMENSIONS=3072
-GEMINI_API_KEY=AIza...
+GEMINI_API_KEY=...
+OPENAI_API_KEY=...
 ```
 
-Provider switching is configuration-only through `TEMPOT_AI_PROVIDER`. The
-package defaults to Gemini when the variable is omitted.
+`TEMPOT_AI_PROVIDER` selects the chat provider. The package defaults to Gemini
+when the variable is omitted.
+
+Embedding generation currently uses `AI_EMBEDDING_MODEL`, with
+`gemini-embedding-2-preview` as the default. Embedding-provider changes require
+re-indexing because vectors from different providers are not compatible.
 
 ## API
 
 ```typescript
 import {
   AIProviderFactory,
-  ResilienceService,
   EmbeddingService,
   RAGPipeline,
-  IntentRouter,
-  ConfirmationEngine,
-  TelegramAssistantUI,
   buildAnswerState,
   validateRetrievalPlan,
 } from '@tempot/ai-core';
 
-// Create provider registry
 const registry = AIProviderFactory.create({ provider: 'gemini' });
 
-// Embed content
 const result = await embeddingService.embedAndStore({
   contentId: 'doc-1',
   contentType: 'ui-guide',
@@ -81,14 +96,12 @@ const result = await embeddingService.embedAndStore({
   metadata: { title: 'Dashboard Guide' },
 });
 
-// Search similar content
 const searchResult = await embeddingService.searchSimilar({
   query: 'how to use dashboard',
   contentTypes: ['ui-guide'],
   limit: 5,
 });
 
-// Execute the Spec #031 RAG runtime path with retrieval-plan wiring
 const pipeline = new RAGPipeline({ embeddingService, auditService });
 const retrievalResult = await pipeline.retrieveWithPlan({
   requestId: 'request-1',
@@ -104,7 +117,6 @@ if (retrievalResult.isOk()) {
   const answerState = buildAnswerState(retrievalResult.value);
 }
 
-// Validate retrieval plan contracts before execution
 const planResult = validateRetrievalPlan({
   planId: 'plan-1',
   requestId: 'request-1',
@@ -130,25 +142,43 @@ const planResult = validateRetrievalPlan({
 });
 ```
 
+## Operational Status
+
+| Capability | Current status |
+| --- | --- |
+| Provider configuration | Implemented for chat provider selection |
+| Embedding service | Implemented against Drizzle pgvector storage |
+| Content ingestion service | Implemented as a package service |
+| RAG runtime selection | Implemented through `retrieveWithPlan()` |
+| Answer-state contracts | Implemented through `buildAnswerState()` |
+| Evaluation fixtures | Implemented as deterministic test-only fixtures |
+| Telegram bot AI flow | Not activated in the current bot runtime |
+| Root `pnpm ai:dev` script | Not currently exposed |
+| Root `pnpm ai:review` script | Not currently exposed |
+| Docs ingestion CLI | Partial: reusable ingestion functions exist; live dependency composition is pending |
+
 ## Degradation Modes
 
-| Component            | Behaviour                                                          |
-| -------------------- | ------------------------------------------------------------------ |
-| `guardEnabled`       | Returns `err(DISABLED)` when AI feature toggle is off              |
-| `ResilienceService`  | Circuit breaker opens after threshold failures, auto-recovers      |
-| `RAGPipeline`        | Graceful degradation — continues without context on search failure |
-| `RateLimiterService` | Super Admin = unlimited; per-role limits with Redis backend        |
+| Component | Behaviour |
+| --- | --- |
+| `guardEnabled` | Returns `err(DISABLED)` when AI feature toggle is off |
+| `ResilienceService` | Circuit breaker opens after threshold failures and auto-recovers |
+| `RAGPipeline` | Graceful degradation for supported retrieval failure paths |
+| `RateLimiterService` | Super Admin unlimited; per-role limits for other roles |
 
 ## ADRs
 
-- ADR-016 — Vercel AI SDK for provider abstraction
-- ADR-017 — Drizzle ORM for pgvector
-- ADR-037 — Vercel AI SDK v6 upgrade
+- ADR-016: Vercel AI SDK for provider abstraction.
+- ADR-017: Drizzle ORM for pgvector.
+- ADR-037: Vercel AI SDK v6 upgrade.
 
 ## Status
 
-Complete baseline and active RAG contract expansion on 2026-05-05.
+Complete foundation baseline and RAG contract expansion as of 2026-05-05.
+Runtime activation remains pending until a bot module opts in with `hasAI: true`,
+defines `aiDegradationMode`, and uses the RAG service from a governed runtime
+composition point.
 
-- 36 source files under `src/`
-- 30 unit test files under `tests/unit/`
-- Public exports are maintained through `src/index.ts`
+- 36 source files under `src/`.
+- 30 unit test files under `tests/unit/`.
+- Public exports are maintained through `src/index.ts`.

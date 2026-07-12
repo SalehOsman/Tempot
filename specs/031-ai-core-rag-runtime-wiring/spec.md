@@ -2,10 +2,13 @@
 
 **Feature Branch**: `031-ai-core-rag-runtime-wiring`
 **Created**: 2026-04-30
-**Status**: Draft
+**Status**: Complete
 **Input**: Wire the `RetrievalPlan` and `RAGAnswerState` contracts from Spec #030 into the
 existing `RAGPipeline` so runtime retrieval uses the validated plan model, enforces access
 filtering, and returns structured answer states instead of raw context strings.
+
+**Completion Note**: Completed as an `@tempot/ai-core` foundation slice. Runtime bot activation
+is tracked separately in `docs/architecture/ai-rag-runtime-activation-plan.md`.
 
 ## User Scenarios & Testing
 

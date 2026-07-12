@@ -80,11 +80,11 @@
 - **Rationale:** Embedding models have token limits (8192 for gemini-embedding-2-preview). Chunking with overlap ensures context continuity across boundaries. 500-token chunks balance precision (smaller = more precise matching) with context (larger = more context per result).
 - **Alternatives rejected:** No chunking (exceeds model token limits for large documents). Sentence-level splitting (too granular, loses paragraph context). Page-level splitting (too coarse for precise retrieval).
 
-### 14. Developer RAG and CLI Tools
+### 14. Developer RAG and Assistant Services
 
-- **Decision:** Two CLI commands: `pnpm ai:dev "question"` for codebase Q&A (RAG from `developer-docs` content type) and `pnpm ai:review --module {name}` for module review. Both use the same `AIProviderFactory` and `EmbeddingService` as the bot, but run in a CLI context without Telegram dependencies.
-- **Rationale:** Developers benefit from AI-assisted codebase navigation and module quality checks. CLI tools reuse the same AI infrastructure, avoiding duplication. The `developer-docs` content type is indexed from markdown files and code comments.
-- **Alternatives rejected:** Separate developer AI package (duplicates infrastructure). Web-based developer portal (overkill for current needs). IDE extensions (platform-specific, maintenance burden).
+- **Decision:** Provide developer assistant and module reviewer service classes for codebase Q&A and module review. Root CLI commands are not currently exposed and must be specified separately before activation.
+- **Rationale:** Developers benefit from AI-assisted codebase navigation and module quality checks. Service classes reuse the same AI infrastructure, avoiding duplication. The `developer-docs` content type is indexed from markdown files and code comments when operational ingestion is activated.
+- **Alternatives rejected:** Separate developer AI package (duplicates infrastructure). Web-based developer portal (overkill for current needs). IDE extensions (platform-specific, maintenance burden). Claiming root CLI scripts before script wiring exists (misleading operational documentation).
 
 ### 15. PII Sanitization Before Embedding
 
