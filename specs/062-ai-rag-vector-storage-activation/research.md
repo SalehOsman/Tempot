@@ -31,4 +31,3 @@ for the required extension, table, vector dimension, and halfvec index.
 **Rationale**: This provides fast local regression protection without requiring a
 container for every unit run. Existing integration tests already prove vector
 search behavior with pgvector.
-

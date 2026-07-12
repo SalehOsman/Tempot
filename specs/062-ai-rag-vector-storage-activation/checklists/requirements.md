@@ -18,4 +18,3 @@
 - [x] `research.md` exists.
 - [x] `data-model.md` exists.
 - [x] `tasks.md` exists.
-

@@ -27,4 +27,3 @@ The index uses HNSW over the expression:
 Drizzle remains the source owner for the pgvector table definition. The
 committed SQL migration is operational evidence that the physical database can
 be prepared consistently.
-

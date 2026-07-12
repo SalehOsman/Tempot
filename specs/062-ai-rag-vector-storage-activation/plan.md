@@ -79,4 +79,3 @@ change active module configuration.
 - AI provider calls.
 - Embedding re-index jobs.
 - Prisma model generation for embeddings.
-

@@ -62,4 +62,3 @@ HNSW index.
 - **SC-003**: `pnpm --filter @tempot/database build` passes.
 - **SC-004**: `tsx scripts/spec-validate/index.ts --all` reports zero critical issues.
 - **SC-005**: `git diff --check` reports no whitespace errors.
-
