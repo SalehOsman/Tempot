@@ -29,15 +29,39 @@ Requires Node.js 22.12+ because Astro 6 is the documentation runtime.
 ## Scripts
 
 ```bash
-pnpm --filter @tempot/docs dev        # Start dev server
-pnpm --filter @tempot/docs build      # Build for production
-pnpm --filter @tempot/docs preview    # Preview production build
+pnpm --filter docs dev        # Start dev server
+pnpm --filter docs build      # Build for production
+pnpm --filter docs preview    # Preview production build
 ```
 
 `build` removes the generated API reference directory before running Astro so
 TypeDoc pages are recreated without duplicate Starlight IDs. Set `DOCS_SITE` to
 the deployed documentation URL when building outside the default GitHub Pages
 target.
+
+## RAG Ingestion
+
+Preview documentation indexing without writes:
+
+```bash
+pnpm --filter docs docs:ingest -- --dry-run
+```
+
+Write embeddings to the configured PostgreSQL + pgvector store:
+
+```bash
+pnpm --filter docs docs:ingest -- --write
+```
+
+Force a complete re-index:
+
+```bash
+pnpm --filter docs docs:ingest -- --write --full
+```
+
+Write mode requires `DATABASE_URL`, `TEMPOT_AI`, `TEMPOT_AI_PROVIDER`,
+`AI_EMBEDDING_MODEL`, and the provider credentials required by the selected
+Vercel AI SDK provider. Hashes are saved only for successfully ingested files.
 
 ## Status
 

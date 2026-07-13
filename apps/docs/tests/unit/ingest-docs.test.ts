@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ok } from 'neverthrow';
+import { err, ok } from 'neverthrow';
 import type { DocChunkMetadata } from '../../scripts/docs.types.js';
 
 vi.mock('node:fs/promises');
@@ -19,6 +19,7 @@ describe('ingestDocs', () => {
   let shouldSkipFile: typeof import('../../scripts/ingest-docs.js').shouldSkipFile;
   let parseIngestCliArgs: typeof import('../../scripts/ingest-docs.js').parseIngestCliArgs;
   let ingestFile: typeof import('../../scripts/ingest-docs.js').ingestFile;
+  let runDocsIngestion: typeof import('../../scripts/ingest-docs.js').runDocsIngestion;
   let readdir: typeof import('node:fs/promises').readdir;
   let existsSync: typeof import('node:fs').existsSync;
   let chunkMarkdown: typeof import('@tempot/ai-core').chunkMarkdown;
@@ -34,6 +35,8 @@ describe('ingestDocs', () => {
 
     const aiCore = await import('@tempot/ai-core');
     chunkMarkdown = aiCore.chunkMarkdown;
+    vi.clearAllMocks();
+    vi.mocked(existsSync).mockReturnValue(true);
 
     const mod = await import('../../scripts/ingest-docs.js');
     discoverDocFiles = mod.discoverDocFiles;
@@ -44,6 +47,7 @@ describe('ingestDocs', () => {
     shouldSkipFile = mod.shouldSkipFile;
     parseIngestCliArgs = mod.parseIngestCliArgs;
     ingestFile = mod.ingestFile;
+    runDocsIngestion = mod.runDocsIngestion;
   });
 
   it('discoverDocFiles returns ok([]) when directory exists', () => {
@@ -194,19 +198,126 @@ describe('ingestDocs', () => {
   it('parseIngestCliArgs extracts --full flag', () => {
     const args = parseIngestCliArgs(['--full']);
     expect(args.full).toBe(true);
-    expect(args.dryRun).toBe(false);
+    expect(args.dryRun).toBe(true);
+    expect(args.write).toBe(false);
   });
 
   it('parseIngestCliArgs extracts --dry-run flag', () => {
     const args = parseIngestCliArgs(['--dry-run']);
     expect(args.full).toBe(false);
     expect(args.dryRun).toBe(true);
+    expect(args.write).toBe(false);
   });
 
-  it('parseIngestCliArgs defaults to incremental non-dry-run', () => {
-    const args = parseIngestCliArgs([]);
+  it('parseIngestCliArgs extracts --write flag', () => {
+    const args = parseIngestCliArgs(['--write']);
     expect(args.full).toBe(false);
     expect(args.dryRun).toBe(false);
+    expect(args.write).toBe(true);
+  });
+
+  it('parseIngestCliArgs defaults to safe incremental dry-run', () => {
+    const args = parseIngestCliArgs([]);
+    expect(args.full).toBe(false);
+    expect(args.dryRun).toBe(true);
+    expect(args.write).toBe(false);
+  });
+
+  describe('runDocsIngestion', () => {
+    it('does not save hashes or create runtime dependencies in dry-run mode', async () => {
+      const logs: unknown[] = [];
+      const saveHashes = vi.fn();
+      const createRuntime = vi.fn();
+
+      vi.mocked(chunkMarkdown).mockReturnValueOnce(
+        ok([{ text: 'chunk', chunkIndex: 0, totalChunks: 1, metadata: {} }]),
+      );
+
+      const result = await runDocsIngestion(parseIngestCliArgs(['--dry-run']), {
+        discoverFiles: async () => ok(['en/test.md']),
+        readFileContent: async () => '# Test',
+        loadHashes: async () => ({}),
+        saveHashes,
+        createRuntime,
+        log: (record) => logs.push(record),
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(saveHashes).not.toHaveBeenCalled();
+      expect(createRuntime).not.toHaveBeenCalled();
+      expect(logs).toContainEqual(
+        expect.objectContaining({
+          msg: 'dry-run',
+          file: 'en/test.md',
+          chunkCount: 1,
+        }),
+      );
+    });
+
+    it('writes only successful file hashes in write mode', async () => {
+      const { AppError } = await import('@tempot/shared');
+      const mockIngest = vi
+        .fn()
+        .mockResolvedValueOnce(ok(1))
+        .mockResolvedValueOnce(err(new AppError('EMBED_FAILED')));
+      const saveHashes = vi.fn();
+
+      vi.mocked(chunkMarkdown)
+        .mockReturnValueOnce(ok([{ text: 'ok', chunkIndex: 0, totalChunks: 1, metadata: {} }]))
+        .mockReturnValueOnce(ok([{ text: 'bad', chunkIndex: 0, totalChunks: 1, metadata: {} }]));
+
+      const result = await runDocsIngestion(parseIngestCliArgs(['--write']), {
+        discoverFiles: async () => ok(['en/ok.md', 'en/bad.md']),
+        readFileContent: async (filePath) => `# ${filePath}`,
+        loadHashes: async () => ({}),
+        saveHashes,
+        createRuntime: async () =>
+          ok({
+            ingestionService: {
+              ingest: mockIngest,
+            } as unknown as import('@tempot/ai-core').ContentIngestionService,
+            close: vi.fn(),
+          }),
+        log: vi.fn(),
+      });
+
+      expect(result.isOk()).toBe(false);
+      expect(saveHashes).toHaveBeenCalledTimes(1);
+      expect(saveHashes).toHaveBeenCalledWith({
+        'en/ok.md': computeContentHash('# en/ok.md'),
+      });
+    });
+
+    it('processes unchanged files when write mode uses --full', async () => {
+      const mockIngest = vi.fn().mockResolvedValue(ok(1));
+      const existingHash = computeContentHash('# Same');
+
+      vi.mocked(chunkMarkdown).mockReturnValueOnce(
+        ok([{ text: 'same', chunkIndex: 0, totalChunks: 1, metadata: {} }]),
+      );
+
+      const result = await runDocsIngestion(parseIngestCliArgs(['--write', '--full']), {
+        discoverFiles: async () => ok(['en/same.md']),
+        readFileContent: async () => '# Same',
+        loadHashes: async () => ({ 'en/same.md': existingHash }),
+        saveHashes: vi.fn(),
+        createRuntime: async () =>
+          ok({
+            ingestionService: {
+              ingest: mockIngest,
+            } as unknown as import('@tempot/ai-core').ContentIngestionService,
+            close: vi.fn(),
+          }),
+        log: vi.fn(),
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(mockIngest).toHaveBeenCalledTimes(1);
+      if (result.isOk()) {
+        expect(result.value.processed).toBe(1);
+        expect(result.value.skipped).toBe(0);
+      }
+    });
   });
 
   describe('ingestFile', () => {
@@ -269,14 +380,13 @@ describe('ingestDocs', () => {
       expect(mockIngest).not.toHaveBeenCalled();
     });
 
-    it('continues on partial ingestion failures (best-effort)', async () => {
-      const { err: errFn } = await import('neverthrow');
+    it('returns err when any chunk ingestion fails', async () => {
       const { AppError } = await import('@tempot/shared');
 
       const mockIngest = vi
         .fn()
         .mockResolvedValueOnce(ok(1))
-        .mockResolvedValueOnce(errFn(new AppError('EMBED_FAILED')))
+        .mockResolvedValueOnce(err(new AppError('EMBED_FAILED')))
         .mockResolvedValueOnce(ok(1));
 
       const deps = {
@@ -294,9 +404,9 @@ describe('ingestDocs', () => {
       );
 
       const result = await ingestFile('en/partial.md', 'content', deps);
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value).toBe(2); // 2 of 3 succeeded
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe('DOCS.INGEST_FAILED');
       }
     });
 

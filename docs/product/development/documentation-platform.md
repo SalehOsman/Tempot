@@ -88,9 +88,37 @@ inventory.
 
 ## RAG Ingestion
 
-Documentation ingestion into `@tempot/ai-core` for retrieval-augmented
-generation is intentionally deferred. It will be implemented as a separate
-SpecKit feature with its own spec, plan, and acceptance criteria.
+Documentation ingestion into `@tempot/ai-core` is governed by
+`specs/063-docs-ingestion-runtime-composition/`.
 
-Do not implement RAG ingestion as part of the documentation platform restructure.
-See `specs/038-documentation-platform-restructure/research.md` for the rationale.
+Preview the indexing scope without provider or database writes:
+
+```bash
+pnpm --filter docs docs:ingest -- --dry-run
+```
+
+Write documentation embeddings to the configured vector store:
+
+```bash
+pnpm --filter docs docs:ingest -- --write
+```
+
+Force a complete re-index after changing the embedding model, resetting the
+vector table, or recovering from a failed deployment:
+
+```bash
+pnpm --filter docs docs:ingest -- --write --full
+```
+
+Write mode requires the Spec #062 vector migration to be applied and these
+environment variables to be configured:
+
+- `DATABASE_URL`
+- `TEMPOT_AI`
+- `TEMPOT_AI_PROVIDER`
+- `AI_EMBEDDING_MODEL`
+- Provider credentials required by the selected Vercel AI SDK provider
+
+The command updates `apps/docs/.docs-hashes.json` only for files ingested
+successfully. Failed files emit structured JSON errors and remain retryable on
+the next incremental write run.

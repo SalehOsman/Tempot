@@ -3,7 +3,7 @@
 > Status: execution plan for activating the existing `@tempot/ai-core`
 > foundation as a real bot capability.
 >
-> Date: 2026-07-12
+> Date: 2026-07-13
 >
 > Related artifacts:
 >
@@ -13,6 +13,8 @@
 > - `specs/030-ai-core-retrieval-planning-and-grounding/`
 > - `specs/031-ai-core-rag-runtime-wiring/`
 > - `specs/032-ai-core-rag-evaluation-fixtures/`
+> - `specs/062-ai-rag-vector-storage-activation/`
+> - `specs/063-docs-ingestion-runtime-composition/`
 
 ## Current State
 
@@ -60,9 +62,8 @@ Tasks:
   roadmap already show completion.
 - Keep Spec #027 as methodology and architecture guidance, not runtime
   activation.
-- Document that `docs:ingest` currently has reusable ingestion functions, but
-  the CLI entry point does not yet compose live database and AI provider
-  dependencies.
+- Document that Spec #063 moves `docs:ingest` from reusable ingestion helpers
+  to an operator-safe CLI with explicit dry-run and write modes.
 - Document that root scripts `ai:dev` and `ai:review` are not currently exposed.
 
 Exit criteria:
@@ -104,21 +105,39 @@ Exit criteria:
 
 Goal: turn documentation ingestion into an operator-safe command.
 
+Current evidence:
+
+- Spec #063 adds an explicit `--write` mode for live database/provider writes.
+- The default and `--dry-run` modes preview discovery and chunk counts without
+  updating `.docs-hashes.json`.
+- Write mode composes `ContentIngestionService`, `EmbeddingService`, the AI
+  provider registry, and a PostgreSQL/Drizzle connection.
+- Hashes are persisted only for successfully ingested files. Failed files emit
+  structured JSON errors and remain retryable.
+- Focused unit coverage verifies dry-run, write mode, partial failure, and
+  forced re-index behavior.
+
 Tasks:
 
-- Add a dependency composition layer for the docs ingestion CLI.
+- Add a dependency composition layer for the docs ingestion CLI. **Implemented
+  in Spec #063.**
 - Support `--dry-run` for discovery and chunk preview without writes.
+  **Implemented in Spec #063.**
 - Support a write mode that instantiates `ContentIngestionService` and
   `EmbeddingService`, connects to the configured database, stores embeddings,
-  and records hashes only after successful writes.
+  and records hashes only after successful writes. **Implemented in Spec #063.**
 - Document required environment variables, failure behavior, and rollback or
-  re-index procedure.
+  re-index procedure. **Implemented in Spec #063 quickstart and docs update.**
+- Run a staging write smoke against the target PostgreSQL 16 + pgvector
+  environment and record the command output as release evidence.
 
 Exit criteria:
 
 - Operators can run one documented command to index docs into the vector store.
 - Failed files report structured errors and do not silently update hashes as if
   ingestion succeeded.
+- Staging readiness still requires a real write smoke after credentials and the
+  target vector database are selected.
 
 ## Workstream 4: Runtime Composition
 
@@ -219,6 +238,6 @@ Any future embedding-provider switch must include:
 | Bot runtime AI/RAG flow | Not active | Add one governed module flow |
 | Active module `hasAI` usage | Not active | Set only for selected module |
 | Vector schema | Drizzle schema and committed migration evidence exist | Staging migration smoke |
-| Docs ingestion CLI | Partial | Compose real dependencies and write embeddings |
+| Docs ingestion CLI | Implemented locally by Spec #063; staging write smoke pending | Run documented command against target vector store |
 | Evaluation fixtures | Deterministic test-only fixtures exist | Extend for activated flow |
 | Staging readiness | Not ready for AI/RAG | Complete Workstreams 2-6 |

@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
+import { dirname, resolve } from 'node:path';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
@@ -10,16 +12,24 @@ import type { IngestOptions } from '@tempot/ai-core';
 import { parseFrontmatter } from './parse-frontmatter.js';
 import type {
   DocChunkMetadata,
+  DocsIngestionRunnerDeps,
   IngestCliArgs,
   IngestFileDeps,
   ChunkMetadataInput,
   ProcessFilesResult,
 } from './docs.types.js';
 
-export type { IngestCliArgs, IngestFileDeps, ChunkMetadataInput } from './docs.types.js';
+export type {
+  DocsIngestionRunnerDeps,
+  IngestCliArgs,
+  IngestFileDeps,
+  ChunkMetadataInput,
+} from './docs.types.js';
 
-const DOCS_PRODUCT_DIR = 'docs/product';
-const HASHES_FILE = 'apps/docs/.docs-hashes.json';
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(SCRIPT_DIR, '../../..');
+const DOCS_PRODUCT_DIR = resolve(REPO_ROOT, 'docs/product');
+const HASHES_FILE = resolve(REPO_ROOT, 'apps/docs/.docs-hashes.json');
 
 /** Discover .md files under docs/product/ — sync existence check */
 export function discoverDocFiles(): Result<string[], AppError> {
@@ -92,7 +102,8 @@ async function saveHashes(hashes: Record<string, string>): Promise<void> {
 
 /** Parse CLI arguments */
 export function parseIngestCliArgs(args: string[]): IngestCliArgs {
-  return { full: args.includes('--full'), dryRun: args.includes('--dry-run') };
+  const write = args.includes('--write');
+  return { full: args.includes('--full'), dryRun: args.includes('--dry-run') || !write, write };
 }
 
 /** Ingest a single file: chunk with chunkMarkdown, store via ContentIngestionService */
@@ -116,73 +127,66 @@ export async function ingestFile(
       source: 'auto',
     };
     const result = await deps.ingestionService.ingest(options);
-    if (result.isOk()) totalStored += result.value;
+    if (result.isErr()) {
+      return err(
+        new AppError('DOCS.INGEST_FAILED', {
+          filePath,
+          contentId,
+          code: result.error.code,
+          details: result.error.details,
+        }),
+      );
+    }
+    if (result.value < 1) {
+      return err(new AppError('DOCS.INGEST_FAILED', { filePath, contentId, stored: 0 }));
+    }
+    totalStored += result.value;
   }
   return ok(totalStored);
 }
 
-/** Process discovered files: hash, skip unchanged, log dry-run info */
-async function processFiles(
-  files: string[],
+/** Process discovered files: hash, skip unchanged, preview or write changed files. */
+export async function runDocsIngestion(
   args: IngestCliArgs,
-  existingHashes: Record<string, string>,
-): Promise<ProcessFilesResult> {
-  const hashes: Record<string, string> = {};
-  let processed = 0;
-  let skipped = 0;
-  for (const file of files) {
-    const content = await readFile(`${DOCS_PRODUCT_DIR}/${file}`, 'utf-8');
-    const hash = computeContentHash(content);
-    hashes[file] = hash;
-    if (!args.full && shouldSkipFile(file, hash, existingHashes)) {
-      skipped++;
-      continue;
-    }
-    if (args.dryRun) {
-      const fm = extractFrontmatter(content);
-      process.stderr.write(
-        JSON.stringify({
-          level: 'info',
-          msg: 'dry-run',
-          file,
-          language: deriveLanguage(file),
-          package: (fm?.['package'] as string | undefined) ?? null,
-          contentType: 'developer-docs',
-          hash,
-        }) + '\n',
-      );
-    }
-    processed++;
-  }
-  return { processed, skipped, hashes };
+  deps: DocsIngestionRunnerDeps,
+): AsyncResult<ProcessFilesResult, AppError> {
+  const runner = await import('./ingest-runner.js');
+  return runner.runDocsIngestion(args, deps);
 }
 
 /** CLI entry point */
 async function main(): Promise<void> {
   const args = parseIngestCliArgs(process.argv.slice(2));
-  const filesResult = await discoverDocFilesAsync();
-  if (filesResult.isErr()) {
+  const result = await runDocsIngestion(args, {
+    discoverFiles: discoverDocFilesAsync,
+    readFileContent: async (file) => readFile(`${DOCS_PRODUCT_DIR}/${file}`, 'utf-8'),
+    loadHashes,
+    saveHashes,
+    log: (record) => {
+      process.stderr.write(JSON.stringify(record) + '\n');
+    },
+  });
+
+  if (result.isErr()) {
     process.stderr.write(
       JSON.stringify({
         level: 'error',
-        msg: filesResult.error.code,
-        details: filesResult.error.details,
+        msg: result.error.code,
+        details: result.error.details,
       }) + '\n',
     );
     process.exitCode = 1;
     return;
   }
-  const existingHashes = args.full ? {} : await loadHashes();
-  const { processed, skipped, hashes } = await processFiles(
-    filesResult.value,
-    args,
-    existingHashes,
-  );
-  await saveHashes(hashes);
+
   process.stderr.write(
     JSON.stringify({
       level: 'info',
-      msg: `Ingestion complete: ${String(processed)} processed, ${String(skipped)} skipped.`,
+      msg: 'ingestion-complete',
+      processed: result.value.processed,
+      skipped: result.value.skipped,
+      failed: result.value.failed,
+      hashesWritten: result.value.hashesWritten,
     }) + '\n',
   );
 }
@@ -190,7 +194,7 @@ async function main(): Promise<void> {
 const isDirectExecution =
   typeof process !== 'undefined' &&
   process.argv[1] &&
-  (process.argv[1].includes('ingest-docs') || process.argv[1].includes('tsx'));
+  /ingest-docs\.(ts|js)$/.test(process.argv[1].replace(/\\/g, '/'));
 
 if (isDirectExecution) {
   main().catch((error: unknown) => {
