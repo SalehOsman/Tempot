@@ -1,5 +1,5 @@
 {
-  "feature": "062-ai-rag-vector-storage-activation",
-  "feature_directory": "specs/062-ai-rag-vector-storage-activation",
-  "specPath": "specs/062-ai-rag-vector-storage-activation/spec.md"
+  "feature": "063-docs-ingestion-runtime-composition",
+  "feature_directory": "specs/063-docs-ingestion-runtime-composition",
+  "specPath": "specs/063-docs-ingestion-runtime-composition/spec.md"
 }

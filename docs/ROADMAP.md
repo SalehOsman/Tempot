@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-12.
+> Last updated: 2026-07-13.
 
 ## Current Technical Baseline
 
@@ -54,6 +54,10 @@ Recently completed:
   citation coverage, unauthorized leakage, and no-context scoring tests.
 - Spec #062: AI/RAG vector storage activation started with committed database
   migration evidence for the pgvector `embeddings` table and halfvec HNSW index.
+- Spec #063: AI/RAG documentation ingestion runtime composition added explicit
+  dry-run and write modes for `docs:ingest`, live AI/database dependency
+  composition, successful-file-only hash persistence, structured file failure
+  reporting, and focused unit coverage.
 - Spec #013: `notifier` package - queue producer, delivery processor, worker
   factory, Telegram adapter, rate policy, and full unit test coverage.
 - Spec #016: `document-engine` package with typed export contracts,
@@ -187,11 +191,11 @@ Active or next work:
    `docs/architecture/ai-rag-runtime-activation-plan.md`. The current
    `@tempot/ai-core` package is a completed foundation package, but no active
    Telegram bot module currently exposes a production AI/RAG flow. Activation
-   has started with Spec #062 vector storage migration evidence. Remaining
-   activation requires staging migration smoke, operational docs ingestion,
-   runtime composition, one governed module with `hasAI: true` and
-   `aiDegradationMode`, fixture-backed leakage/no-context tests, and full
-   staging smoke evidence.
+   has started with Spec #062 vector storage migration evidence and Spec #063
+   documentation ingestion runtime composition. Remaining activation requires
+   staging migration and docs-ingestion write smoke, bot runtime composition,
+   one governed module with `hasAI: true` and `aiDegradationMode`,
+   fixture-backed leakage/no-context tests, and full staging smoke evidence.
 8. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and

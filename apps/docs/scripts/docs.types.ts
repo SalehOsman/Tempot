@@ -1,3 +1,5 @@
+import type { AsyncResult } from '@tempot/shared';
+import type { AppError } from '@tempot/shared';
 import type { ContentIngestionService } from '@tempot/ai-core';
 
 /** Frontmatter schema for all documentation pages */
@@ -47,11 +49,37 @@ export interface FreshnessReport {
 export interface IngestCliArgs {
   full: boolean;
   dryRun: boolean;
+  write: boolean;
 }
 
 /** Dependencies injected into ingestFile for testability */
 export interface IngestFileDeps {
   ingestionService: ContentIngestionService;
+}
+
+/** Runtime dependencies for write-mode documentation ingestion */
+export interface DocsIngestionRuntime extends IngestFileDeps {
+  close: () => Promise<void>;
+}
+
+/** Structured operator log record for docs ingestion */
+export interface DocsIngestionLogRecord {
+  readonly level: 'info' | 'warn' | 'error';
+  readonly msg: string;
+  readonly file?: string;
+  readonly code?: string;
+  readonly details?: unknown;
+  readonly [key: string]: unknown;
+}
+
+/** Injectable dependencies for docs ingestion orchestration */
+export interface DocsIngestionRunnerDeps {
+  discoverFiles: () => AsyncResult<string[], AppError>;
+  readFileContent: (filePath: string) => Promise<string>;
+  loadHashes: () => Promise<Record<string, string>>;
+  saveHashes: (hashes: Record<string, string>) => Promise<void>;
+  createRuntime?: () => AsyncResult<DocsIngestionRuntime, AppError>;
+  log: (record: DocsIngestionLogRecord) => void;
 }
 
 /** Input for building chunk metadata */
@@ -66,7 +94,9 @@ export interface ChunkMetadataInput {
 export interface ProcessFilesResult {
   readonly processed: number;
   readonly skipped: number;
+  readonly failed: number;
   readonly hashes: Record<string, string>;
+  readonly hashesWritten: boolean;
 }
 
 /** Discovered package metadata for documentation generation */

@@ -21,6 +21,9 @@
     "@tempot/database": "workspace:*",
     "@tempot/shared": "workspace:*",
     "astro": "^6.4.6",
+    "drizzle-orm": "^0.45.2",
+    "neverthrow": "8.2.0",
+    "pg": "^8.20.0",
     "starlight-typedoc": "^0.21.5",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0"
@@ -28,11 +31,9 @@
   "devDependencies": {
     "@testcontainers/postgresql": "^12.0.3",
     "@types/node": "^22.19.17",
+    "@types/pg": "8.20.0",
     "cheerio": "^1.0.0",
     "drizzle-kit": "^0.31.10",
-    "drizzle-orm": "^0.45.2",
-    "neverthrow": "8.2.0",
-    "pg": "^8.0.0",
     "tsx": "^4.0.0",
     "vitest": "4.1.0",
     "zod": "^3.24.0"
