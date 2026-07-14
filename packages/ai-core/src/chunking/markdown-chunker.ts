@@ -143,6 +143,6 @@ function splitAtParagraphs(text: string, maxChars: number): string[] {
 
 /** Derive language code from filePath (first segment: ar/ or en/) */
 function deriveLanguage(filePath: string): string {
-  const firstSegment = filePath.split('/')[0];
+  const firstSegment = filePath.replace(/\\/g, '/').split('/')[0];
   return firstSegment === 'ar' || firstSegment === 'en' ? firstSegment : 'unknown';
 }

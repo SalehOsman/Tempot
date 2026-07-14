@@ -80,6 +80,15 @@ describe('chunkMarkdown', () => {
       const chunks = result._unsafeUnwrap();
       expect(chunks[0].metadata['language']).toBe('ar');
     });
+
+    it('derives language from Windows-style file paths', () => {
+      const markdown = '## Overview\nContent.';
+      const result = chunkMarkdown(markdown, { filePath: 'ar\\guides\\creating-a-module.md' });
+      expect(result.isOk()).toBe(true);
+
+      const chunks = result._unsafeUnwrap();
+      expect(chunks[0].metadata['language']).toBe('ar');
+    });
   });
 
   describe('frontmatter handling', () => {

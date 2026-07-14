@@ -103,7 +103,13 @@ async function saveHashes(hashes: Record<string, string>): Promise<void> {
 /** Parse CLI arguments */
 export function parseIngestCliArgs(args: string[]): IngestCliArgs {
   const write = args.includes('--write');
-  return { full: args.includes('--full'), dryRun: args.includes('--dry-run') || !write, write };
+  const pathIndex = args.indexOf('--path');
+  return {
+    full: args.includes('--full'),
+    dryRun: args.includes('--dry-run') || !write,
+    write,
+    path: pathIndex >= 0 ? args[pathIndex + 1] : undefined,
+  };
 }
 
 /** Ingest a single file: chunk with chunkMarkdown, store via ContentIngestionService */
