@@ -36,6 +36,11 @@ const eventBus: AIEventBus = {
   subscribe: () => undefined,
 };
 
+type ProviderRegistryCandidate = {
+  languageModel?: AIRegistry['languageModel'];
+  embeddingModel?: AIRegistry['textEmbeddingModel'];
+};
+
 /** Compose live docs ingestion dependencies for explicit write mode. */
 export async function createDocsIngestionRuntime(): AsyncResult<DocsIngestionRuntime, AppError> {
   const config = loadAIConfig();
@@ -49,18 +54,18 @@ export async function createDocsIngestionRuntime(): AsyncResult<DocsIngestionRun
 
     const registry = createAIProviderRegistry(config.value);
     if (registry.isErr()) return err(registry.error);
-    const registryCandidate = registry.value as unknown as Partial<AIRegistry>;
+    const registryCandidate = registry.value as unknown as ProviderRegistryCandidate;
     if (
       typeof registryCandidate.languageModel !== 'function' ||
-      typeof registryCandidate.textEmbeddingModel !== 'function'
+      typeof registryCandidate.embeddingModel !== 'function'
     ) {
       return err(new AppError('DOCS.AI_REGISTRY_INVALID'));
     }
-    const languageModel = registryCandidate.languageModel;
-    const textEmbeddingModel = registryCandidate.textEmbeddingModel;
+    const languageModel = registryCandidate.languageModel.bind(registryCandidate);
+    const embeddingModel = registryCandidate.embeddingModel.bind(registryCandidate);
     const aiRegistry: AIRegistry = {
       languageModel: (id) => languageModel(id),
-      textEmbeddingModel: (id) => textEmbeddingModel(id),
+      textEmbeddingModel: (id) => embeddingModel(id),
     };
 
     const pool = new Pool({ connectionString: databaseUrl });

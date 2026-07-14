@@ -200,6 +200,7 @@ describe('ingestDocs', () => {
     expect(args.full).toBe(true);
     expect(args.dryRun).toBe(true);
     expect(args.write).toBe(false);
+    expect(args.path).toBeUndefined();
   });
 
   it('parseIngestCliArgs extracts --dry-run flag', () => {
@@ -207,6 +208,7 @@ describe('ingestDocs', () => {
     expect(args.full).toBe(false);
     expect(args.dryRun).toBe(true);
     expect(args.write).toBe(false);
+    expect(args.path).toBeUndefined();
   });
 
   it('parseIngestCliArgs extracts --write flag', () => {
@@ -214,6 +216,12 @@ describe('ingestDocs', () => {
     expect(args.full).toBe(false);
     expect(args.dryRun).toBe(false);
     expect(args.write).toBe(true);
+    expect(args.path).toBeUndefined();
+  });
+
+  it('parseIngestCliArgs extracts --path value', () => {
+    const args = parseIngestCliArgs(['--write', '--path', 'en/guides']);
+    expect(args.path).toBe('en/guides');
   });
 
   it('parseIngestCliArgs defaults to safe incremental dry-run', () => {
@@ -221,6 +229,7 @@ describe('ingestDocs', () => {
     expect(args.full).toBe(false);
     expect(args.dryRun).toBe(true);
     expect(args.write).toBe(false);
+    expect(args.path).toBeUndefined();
   });
 
   describe('runDocsIngestion', () => {
@@ -317,6 +326,32 @@ describe('ingestDocs', () => {
         expect(result.value.processed).toBe(1);
         expect(result.value.skipped).toBe(0);
       }
+    });
+
+    it('limits processing to a requested path', async () => {
+      const logs: unknown[] = [];
+
+      vi.mocked(chunkMarkdown)
+        .mockReturnValueOnce(ok([{ text: 'one', chunkIndex: 0, totalChunks: 1, metadata: {} }]))
+        .mockReturnValueOnce(ok([{ text: 'two', chunkIndex: 0, totalChunks: 1, metadata: {} }]));
+
+      const result = await runDocsIngestion(parseIngestCliArgs(['--dry-run', '--path', 'en']), {
+        discoverFiles: async () => ok(['en/index.md', 'ar/index.md', 'en/guides/module.md']),
+        readFileContent: async (filePath) => `# ${filePath}`,
+        loadHashes: async () => ({}),
+        saveHashes: vi.fn(),
+        createRuntime: vi.fn(),
+        log: (record) => logs.push(record),
+      });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.processed).toBe(2);
+      }
+      expect(logs).toEqual([
+        expect.objectContaining({ file: 'en/index.md' }),
+        expect.objectContaining({ file: 'en/guides/module.md' }),
+      ]);
     });
   });
 

@@ -130,6 +130,15 @@ function buildResult(args: IngestCliArgs, state: IngestionState): ProcessFilesRe
   };
 }
 
+function filterFilesByPath(files: string[], path: string | undefined): string[] {
+  if (!path) return files;
+  const normalizedPath = path.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  return files.filter((file) => {
+    const normalizedFile = file.replace(/\\/g, '/');
+    return normalizedFile === normalizedPath || normalizedFile.startsWith(`${normalizedPath}/`);
+  });
+}
+
 export async function runDocsIngestion(
   args: IngestCliArgs,
   deps: DocsIngestionRunnerDeps,
@@ -139,11 +148,12 @@ export async function runDocsIngestion(
   }
   const filesResult = await deps.discoverFiles();
   if (filesResult.isErr()) return err(filesResult.error);
+  const files = filterFilesByPath(filesResult.value, args.path);
   const existingHashes = args.full ? {} : await deps.loadHashes();
   const state = { processed: 0, skipped: 0, failed: 0, hashes: { ...existingHashes } };
   const runtime = await loadRuntime(args, deps);
   if (runtime.isErr()) return err(runtime.error);
-  for (const file of filesResult.value) {
+  for (const file of files) {
     const content = await readContent(file, deps, state);
     if (content === undefined) continue;
     const hash = computeContentHash(content);

@@ -50,6 +50,7 @@ export interface IngestCliArgs {
   full: boolean;
   dryRun: boolean;
   write: boolean;
+  path: string | undefined;
 }
 
 /** Dependencies injected into ingestFile for testability */
