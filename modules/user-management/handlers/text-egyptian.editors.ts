@@ -11,18 +11,18 @@ export async function handleEditNationalId(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
   if (!/^[123]\d{13}$/.test(text)) {
     await ctx.reply(i18n.t('user-management.validation.national_id.invalid'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateNationalId(user.id, text, user.countryCode);
   if (result.isErr()) {
     await replyError(ctx, 'edit_national_id_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'national_id_updated', userId: user.id, extracted: result.value.extracted });
@@ -42,36 +42,38 @@ export async function handleEditNationalId(
       parse_mode: 'HTML',
     });
   }
+  return true;
 }
 
 export async function handleEditMobile(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
   const clean = text.replace(/[\s-]/g, '');
   if (!/^(\+?20)?01[0125]\d{8}$/.test(clean)) {
     await ctx.reply(i18n.t('user-management.validation.mobile.invalid'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateMobileNumber(user.id, clean);
   if (result.isErr()) {
     await replyError(ctx, 'edit_mobile_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'mobile_updated', userId: user.id });
   await replyUpdated(ctx, 'mobile', clean);
+  return true;
 }
 
 export async function handleEditBirthDate(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
   let date: Date | null = null;
@@ -85,31 +87,32 @@ export async function handleEditBirthDate(
 
   if (!date || isNaN(date.getTime())) {
     await ctx.reply(i18n.t('user-management.validation.birth_date.invalid'));
-    return;
+    return false;
   }
 
   const now = new Date();
   const age = now.getFullYear() - date.getFullYear();
   if (age < 10 || age > 120) {
     await ctx.reply(i18n.t('user-management.validation.birth_date.out_of_range'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateBirthDate(user.id, date);
   if (result.isErr()) {
     await replyError(ctx, 'edit_birth_date_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'birth_date_updated', userId: user.id });
   await replyUpdated(ctx, 'birth_date', date.toLocaleDateString('ar-EG'));
+  return true;
 }
 
 export async function handleEditGender(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
   const input = text.toLowerCase().trim();
@@ -120,62 +123,65 @@ export async function handleEditGender(
 
   if (!gender) {
     await ctx.reply(i18n.t('user-management.validation.gender.invalid'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateGender(user.id, gender);
   if (result.isErr()) {
     await replyError(ctx, 'edit_gender_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'gender_updated', userId: user.id });
   await replyUpdated(ctx, 'gender', i18n.t(`user-management.gender.${gender}`));
+  return true;
 }
 
 export async function handleEditGovernorate(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
 
   const input = text.trim();
   if (input.length < 2 || input.length > 50) {
     await ctx.reply(i18n.t('user-management.validation.governorate.invalid'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateGovernorate(user.id, input);
   if (result.isErr()) {
     await replyError(ctx, 'edit_governorate_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'governorate_updated', userId: user.id });
   await replyUpdated(ctx, 'governorate', input);
+  return true;
 }
 
 export async function handleEditCountryCode(
   ctx: Context,
   user: UserProfile,
   text: string,
-): Promise<void> {
+): Promise<boolean> {
   const i18n = getI18n();
   const log = getLogger().child({ handler: 'text-egyptian-editors' });
   const clean = text.trim().startsWith('+') ? text.trim() : `+${text.trim()}`;
   if (!/^\+\d{1,4}$/.test(clean)) {
     await ctx.reply(i18n.t('user-management.validation.country_code.invalid'));
-    return;
+    return false;
   }
 
   const result = await getUserService().updateCountryCode(user.id, clean);
   if (result.isErr()) {
     await replyError(ctx, 'edit_country_code_failed', { userId: user.id });
-    return;
+    return false;
   }
 
   log.info({ msg: 'country_code_updated', userId: user.id });
   await replyUpdated(ctx, 'country_code', clean);
+  return true;
 }

@@ -89,6 +89,37 @@ describe('chunkMarkdown', () => {
       const chunks = result._unsafeUnwrap();
       expect(chunks[0].metadata['language']).toBe('ar');
     });
+
+    it('classifies generated reference docs as English', () => {
+      const markdown = '## API Reference\nContent.';
+      const result = chunkMarkdown(markdown, { filePath: 'reference/ai-core/README.md' });
+      expect(result.isOk()).toBe(true);
+
+      const chunks = result._unsafeUnwrap();
+      expect(chunks[0].metadata['language']).toBe('en');
+    });
+
+    it('adds corpus metadata for generated reference and source-of-truth docs', () => {
+      const markdown = '## Overview\nContent.';
+      const reference = chunkMarkdown(markdown, {
+        filePath: 'reference/ai-core/README.md',
+      });
+      const governance = chunkMarkdown(markdown, {
+        filePath: 'governance/source-of-truth.md',
+      });
+
+      expect(reference.isOk()).toBe(true);
+      expect(governance.isOk()).toBe(true);
+
+      const referenceMetadata = reference._unsafeUnwrap()[0].metadata;
+      const governanceMetadata = governance._unsafeUnwrap()[0].metadata;
+      expect(referenceMetadata['corpusSegment']).toBe('generated-reference');
+      expect(referenceMetadata['sourcePriority']).toBe(20);
+      expect(referenceMetadata['sourceOfTruth']).toBe(false);
+      expect(governanceMetadata['corpusSegment']).toBe('source-of-truth');
+      expect(governanceMetadata['sourcePriority']).toBe(100);
+      expect(governanceMetadata['sourceOfTruth']).toBe(true);
+    });
   });
 
   describe('frontmatter handling', () => {

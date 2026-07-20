@@ -10,6 +10,7 @@ export const BOT_SERVER_ERRORS = {
   MODULE_HANDLER_FAILED: 'bot-server.module.handler_failed',
   MODULE_SETUP_MISSING: 'bot-server.module.setup_missing',
   WEBHOOK_UNAUTHORIZED: 'bot-server.webhook.unauthorized',
+  WEBHOOK_MANAGER_INVALID_ACTION: 'bot-server.webhook_manager.invalid_action',
   HEALTH_CHECK_TIMEOUT: 'bot-server.health.timeout',
   SUPER_ADMIN_BOOTSTRAP_FAILED: 'bot-server.bootstrap.super_admin_failed',
   CACHE_WARMING_FAILED: 'bot-server.startup.cache_warming_failed',

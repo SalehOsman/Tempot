@@ -89,7 +89,7 @@ export async function usersCommand(ctx: Context): Promise<void> {
   }
 
   const users = usersResult.value;
-  const keyboard = UsersMenuFactory.createList(i18n);
+  const keyboard = UsersMenuFactory.createList(users, i18n);
   const message = formatUsersList(users, i18n);
 
   await ctx.reply(message, { parse_mode: 'HTML', reply_markup: keyboard });

@@ -77,6 +77,9 @@ export class UserService {
   }
 
   async updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
+    const guardResult = await this.ensureRoleChangeAllowed(userId, newRole);
+    if (guardResult.isErr()) return err(guardResult.error);
+
     this.invalidateCacheByUserId(userId);
     return this.repository.updateRole(userId, newRole);
   }
@@ -173,5 +176,23 @@ export class UserService {
         return;
       }
     }
+  }
+
+  private async ensureRoleChangeAllowed(
+    userId: string,
+    newRole: RoleEnum,
+  ): Promise<Result<void, AppError>> {
+    if (newRole === RoleEnum.SUPER_ADMIN) return ok(undefined);
+
+    const targetResult = await this.repository.findById(userId);
+    if (targetResult.isErr()) return err(targetResult.error);
+    if (targetResult.value.role !== RoleEnum.SUPER_ADMIN) return ok(undefined);
+
+    const countResult = await this.repository.countActiveSuperAdmins();
+    if (countResult.isErr()) return err(countResult.error);
+    if (countResult.value <= 1) {
+      return err(new AppError('user-management.users.role.last_super_admin'));
+    }
+    return ok(undefined);
   }
 }

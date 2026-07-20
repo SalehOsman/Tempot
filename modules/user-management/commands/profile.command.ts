@@ -6,6 +6,7 @@ import type { Context } from 'grammy';
 import { getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
 import { ProfileMenuFactory } from '../menus/profile-menu.factory.js';
+import { formatRegionalLabel } from '../services/user-display.service.js';
 import type { UserProfile } from '../types/index.js';
 
 function calculateAge(birthDate: Date): number {
@@ -48,7 +49,7 @@ function buildProfileMessage(user: UserProfile, i18n: ReturnType<typeof getI18n>
     birthDate,
     age,
     gender,
-    governorate: user.governorate ?? undef,
+    governorate: formatRegionalLabel(user.governorate, i18n, undef),
     countryCode: user.countryCode ?? undef,
   });
 }

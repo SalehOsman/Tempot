@@ -15,6 +15,8 @@ import {
   parseTelegramId,
   type MembershipRequestRecord,
 } from './membership-request.mapper.js';
+import { logTransitionAudit } from './membership-request-audit.js';
+import { requestDetailsUpdateData } from './membership-request.persistence-data.js';
 import type {
   ApproveMembershipRequestInput,
   ListPendingMembershipRequestsInput,
@@ -91,15 +93,38 @@ export class PrismaMembershipRequestRepository
     const result = await super.create({
       id: randomUUID(),
       telegramId: parsed.value,
+      fullName: input.fullName ?? null,
+      nickname: input.nickname ?? null,
+      mobileNumber: input.mobileNumber ?? null,
       telegramUsername: input.telegramUsername ?? null,
       telegramFirstName: input.telegramFirstName ?? null,
       telegramLastName: input.telegramLastName ?? null,
       telegramLanguageCode: input.telegramLanguageCode ?? null,
+      requestMessage: input.requestMessage ?? null,
       status: 'PENDING',
     });
     if (result.isErr()) return err(result.error);
 
     return ok(mapRecord(result.value));
+  }
+
+  async updatePendingDetails(
+    requestId: string,
+    input: SubmitMembershipRequestInput,
+  ): AsyncResult<MembershipRequest, AppError> {
+    try {
+      const result = await this.db.membershipRequest.updateMany({
+        where: { id: requestId, status: 'PENDING', isDeleted: false },
+        data: requestDetailsUpdateData(input),
+      });
+      if (result.count === 0) {
+        return err(new AppError('membership-management.request_not_pending', { requestId }));
+      }
+
+      return this.findRequestById(requestId);
+    } catch (error: unknown) {
+      return err(new AppError('membership-management.update_failed', error));
+    }
   }
 
   async markApproved(
@@ -185,37 +210,16 @@ export class PrismaMembershipRequestRepository
       const after = await this.findRequestById(requestId);
       if (after.isErr()) return err(after.error);
 
-      await this.logTransitionAudit(before.value, after.value);
+      await logTransitionAudit({
+        auditLogger: this.auditLogger,
+        context: this.getContext(),
+        before: before.value,
+        after: after.value,
+      });
 
       return ok(after.value);
     } catch (error) {
       return err(new AppError('membership-management.update_failed', error));
     }
-  }
-
-  private async logTransitionAudit(
-    before: MembershipRequest,
-    after: MembershipRequest,
-  ): Promise<void> {
-    const { userId, userRole } = this.getContext();
-    await this.auditLogger.log({
-      userId,
-      userRole,
-      action: 'membership-management.membershipRequest.transition',
-      module: 'membership-management',
-      targetId: after.id,
-      targetTelegramId: after.telegramId,
-      before: {
-        status: before.status,
-        reviewerUserId: before.reviewerUserId,
-      },
-      after: {
-        status: after.status,
-        reviewerUserId: after.reviewerUserId,
-        reviewedAt: after.reviewedAt?.toISOString() ?? null,
-        createdUserProfileId: after.createdUserProfileId,
-      },
-      status: 'SUCCESS',
-    });
   }
 }

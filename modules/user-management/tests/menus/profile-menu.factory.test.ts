@@ -37,6 +37,23 @@ function formatArabicNumber(value: number): string {
 }
 
 describe('ProfileMenuFactory.createStats', () => {
+  it('should not show role editing to regular members', () => {
+    const i18n = createI18n();
+
+    const result = ProfileMenuFactory.createEdit(createUser({ role: RoleEnum.USER }), i18n);
+
+    expect(callbackDataFrom(result)).not.toContain('profile:edit:role');
+    expect(callbackDataFrom(result)).toContain('profile:edit:language');
+  });
+
+  it('should show role editing only to users with management roles', () => {
+    const i18n = createI18n();
+
+    const result = ProfileMenuFactory.createEdit(createUser({ role: RoleEnum.ADMIN }), i18n);
+
+    expect(callbackDataFrom(result)).toContain('profile:edit:role');
+  });
+
   it('renders professional profile indicators from actual user data', () => {
     const i18n = createI18n();
 
@@ -79,3 +96,18 @@ describe('ProfileMenuFactory.createStats', () => {
     expect(result.message).not.toContain('user-management.profile.activity_unavailable');
   });
 });
+
+interface InlineCallbackButton {
+  readonly callback_data?: string;
+}
+
+interface InlineKeyboardMarkupLike {
+  readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
+}
+
+function callbackDataFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) =>
+    row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
+  );
+}

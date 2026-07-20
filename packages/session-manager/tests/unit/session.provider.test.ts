@@ -102,6 +102,21 @@ describe('SessionProvider', () => {
       );
     });
 
+    it('should read the in-memory fallback when cache misses after a degraded save', async () => {
+      mockCache.set.mockResolvedValue(err(new AppError('shared.cache_set_failed')));
+      mockBus.publish.mockResolvedValue(ok(undefined));
+      await provider.saveSession(mockSession);
+
+      mockCache.get.mockResolvedValue(ok(null));
+      mockRepo.findById.mockResolvedValue(err(new AppError('session-manager.not_found')));
+
+      const result = await provider.getSession('user-1', 'chat-1');
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap()).toEqual(expect.objectContaining({ userId: 'user-1' }));
+      expect(mockRepo.findById).not.toHaveBeenCalled();
+    });
+
     it('should fallback to repository if cache fails', async () => {
       mockCache.get.mockResolvedValue(err(new AppError('session.redis_error')));
       mockRepo.findById.mockResolvedValue(ok(mockSession));

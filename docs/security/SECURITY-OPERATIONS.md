@@ -61,7 +61,9 @@ curl https://your-domain.com/health
 
 ## gitleaks Configuration
 
-gitleaks is planned to scan every commit for accidentally committed secrets. It is **not yet configured** — no `.gitleaks.toml`, CI/CD pipeline, or pre-commit hook exists yet. The planned configuration at `.gitleaks.toml`:
+Gitleaks runs as a blocking CI job for pushes and pull requests through `.github/workflows/ci.yml`.
+
+Tempot currently relies on the default Gitleaks ruleset. Add a `.gitleaks.toml` only when project-specific rules or allowlisted false positives are reviewed and approved. A future project-specific configuration may start from:
 
 ```toml
 [extend]
@@ -80,7 +82,7 @@ regex = '''AIza[0-9A-Za-z_-]{35}'''
 tags = ["google", "ai"]
 ```
 
-When gitleaks is configured and finds a secret:
+When Gitleaks finds a secret:
 
 ```bash
 # 1. Immediately revoke the exposed secret at the provider
@@ -110,7 +112,7 @@ Annual penetration test covering:
 - [ ] Test environment only (never production)
 - [ ] Backup taken before testing
 - [ ] Rate limiters configured as in production
-- [ ] gitleaks running
+- [ ] Gitleaks CI gate passed
 - [ ] Sentry enabled and monitoring (when configured)
 
 ### Common Attack Vectors to Test

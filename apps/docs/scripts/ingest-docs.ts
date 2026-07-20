@@ -18,6 +18,11 @@ import type {
   ChunkMetadataInput,
   ProcessFilesResult,
 } from './docs.types.js';
+import {
+  deriveCorpusProfileFromDocPath,
+  deriveLanguageFromDocPath,
+  discoverMarkdownFilesSync,
+} from './doc-discovery.js';
 
 export type {
   DocsIngestionRunnerDeps,
@@ -36,7 +41,11 @@ export function discoverDocFiles(): Result<string[], AppError> {
   if (!existsSync(DOCS_PRODUCT_DIR)) {
     return err(new AppError('DOCS.DISCOVER_FAILED', { reason: `Not found: ${DOCS_PRODUCT_DIR}` }));
   }
-  return ok([]);
+  try {
+    return ok(discoverMarkdownFilesSync(DOCS_PRODUCT_DIR));
+  } catch (error: unknown) {
+    return err(new AppError('DOCS.DISCOVER_FAILED', { reason: String(error) }));
+  }
 }
 
 /** Async discovery — reads directory recursively */
@@ -64,16 +73,19 @@ export function computeContentHash(content: string): string {
 
 /** Derive language from file path (first segment: ar/ or en/) */
 export function deriveLanguage(filePath: string): string {
-  const first = filePath.replace(/\\/g, '/').split('/')[0];
-  return first === 'ar' || first === 'en' ? first : 'unknown';
+  return deriveLanguageFromDocPath(filePath);
 }
 
 /** Build metadata for a chunk — hash from actual file content */
 export function buildChunkMetadata(input: ChunkMetadataInput): DocChunkMetadata {
+  const corpusProfile = deriveCorpusProfileFromDocPath(input.filePath);
   return {
     filePath: input.filePath,
     section: input.section,
     language: deriveLanguage(input.filePath),
+    corpusSegment: corpusProfile.corpusSegment,
+    sourcePriority: corpusProfile.sourcePriority,
+    sourceOfTruth: corpusProfile.sourceOfTruth,
     package: input.packageName,
     contentHash: computeContentHash(input.fileContent),
   };
@@ -131,6 +143,7 @@ export async function ingestFile(
       content: chunk.text,
       metadata: { ...chunk.metadata, chunkIndex: chunk.chunkIndex, totalChunks: chunk.totalChunks },
       source: 'auto',
+      strict: true,
     };
     const result = await deps.ingestionService.ingest(options);
     if (result.isErr()) {

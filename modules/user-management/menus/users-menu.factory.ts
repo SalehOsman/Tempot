@@ -1,10 +1,21 @@
 import { InlineKeyboard } from 'grammy';
-import { UserProfile } from '../types/index.js';
+import type { UserProfile } from '../types/index.js';
 import type { ModuleI18n } from '../types/module-deps.types.js';
 
 export class UsersMenuFactory {
-  static createList(i18n: ModuleI18n): InlineKeyboard {
+  static createList(users: readonly UserProfile[], i18n: ModuleI18n): InlineKeyboard {
     const keyboard = new InlineKeyboard();
+
+    users.forEach((user) => {
+      keyboard
+        .text(
+          i18n.t('user-management.users.button.user', {
+            name: user.username || user.telegramId,
+          }),
+          `users:view:${user.id}`,
+        )
+        .row();
+    });
 
     keyboard
       .text(i18n.t('user-management.users.button.search'), 'users:search')
@@ -14,7 +25,7 @@ export class UsersMenuFactory {
     return keyboard;
   }
 
-  static createSearchResults(users: UserProfile[], i18n: ModuleI18n): InlineKeyboard {
+  static createSearchResults(users: readonly UserProfile[], i18n: ModuleI18n): InlineKeyboard {
     const keyboard = new InlineKeyboard();
 
     users.forEach((user, index) => {
@@ -40,12 +51,8 @@ export class UsersMenuFactory {
 
     keyboard
       .text(i18n.t('user-management.users.button.role_user'), `users:role:${user.id}:USER`)
-      .text(
-        i18n.t('user-management.users.button.role_moderator'),
-        `users:role:${user.id}:MODERATOR`,
-      )
-      .row()
       .text(i18n.t('user-management.users.button.role_admin'), `users:role:${user.id}:ADMIN`)
+      .row()
       .text(
         i18n.t('user-management.users.button.role_super_admin'),
         `users:role:${user.id}:SUPER_ADMIN`,
@@ -54,6 +61,64 @@ export class UsersMenuFactory {
       .text(i18n.t('user-management.menu.back'), `users:view:${user.id}`);
 
     return keyboard;
+  }
+
+  static createRoleConfirm(userId: string, role: string, i18n: ModuleI18n): InlineKeyboard {
+    return new InlineKeyboard()
+      .text(i18n.t('user-management.common.yes'), `users:role-confirm:${userId}:${role}`)
+      .text(i18n.t('user-management.common.no'), `users:role-cancel:${userId}`);
+  }
+
+  static createUserDetail(user: UserProfile, i18n: ModuleI18n): InlineKeyboard {
+    const keyboard = new InlineKeyboard();
+
+    keyboard
+      .text(i18n.t('user-management.profile.button.edit'), `users:edit:${user.id}`)
+      .row()
+      .text(i18n.t('user-management.users.role.change'), `users:roles:${user.id}`)
+      .row()
+      .text(i18n.t('user-management.users.button.activity'), `users:activity:${user.id}`)
+      .text(i18n.t('user-management.users.button.notifications'), `users:notifications:${user.id}`)
+      .row()
+      .text(
+        i18n.t('user-management.users.button.test_notification'),
+        `users:test-notification:${user.id}`,
+      )
+      .row()
+      .text(i18n.t('user-management.menu.back'), 'users:list');
+
+    return keyboard;
+  }
+
+  static createUserEdit(userId: string, i18n: ModuleI18n): InlineKeyboard {
+    return new InlineKeyboard()
+      .text(i18n.t('user-management.profile.button.name'), `users:edit:${userId}:name`)
+      .text(i18n.t('user-management.profile.button.email'), `users:edit:${userId}:email`)
+      .row()
+      .text(i18n.t('user-management.profile.button.language'), `users:edit:${userId}:language`)
+      .row()
+      .text(
+        i18n.t('user-management.profile.button.national_id'),
+        `users:edit:${userId}:national_id`,
+      )
+      .row()
+      .text(i18n.t('user-management.profile.button.mobile'), `users:edit:${userId}:mobile`)
+      .row()
+      .text(i18n.t('user-management.profile.button.birth_date'), `users:edit:${userId}:birth_date`)
+      .row()
+      .text(i18n.t('user-management.profile.button.gender'), `users:edit:${userId}:gender`)
+      .row()
+      .text(
+        i18n.t('user-management.profile.button.governorate'),
+        `users:edit:${userId}:governorate`,
+      )
+      .row()
+      .text(
+        i18n.t('user-management.profile.button.country_code'),
+        `users:edit:${userId}:country_code`,
+      )
+      .row()
+      .text(i18n.t('user-management.menu.back'), `users:view:${userId}`);
   }
 
   static createConfirm(action: string, i18n: ModuleI18n): InlineKeyboard {

@@ -106,6 +106,14 @@
       "more": "... and {{count}} more",
       "search": "Search Users",
       "view": "User Details",
+      "detail_message": "<b>User Details</b>\n\nName: {{username}}\nTelegram ID: {{telegramId}}\nEmail: {{email}}\nLanguage: {{language}}\nRole: {{role}}\n\nPersonal Data\nNational ID: {{nationalId}}\nMobile: {{mobile}}\nBirth Date: {{birthDate}}\nGender: {{gender}}\nGovernorate: {{governorate}}\nCountry Code: {{countryCode}}\n\nRegistered: {{createdAt}}\nLast Updated: {{updatedAt}}",
+      "edit_prompt": "<b>Edit User Information</b>\n\nChoose the field you want to update:",
+      "activity_unavailable": "<b>User Activity</b>\n\nNo activity timeline is available for this user yet.",
+      "notifications_unavailable": "<b>User Notifications</b>\n\nNo notification history is available for this user yet.",
+      "test_notification_requested": "<b>Test Notification Requested</b>\n\nA test notification request was sent for the selected user.",
+      "test_notification_message": "<b>Test Notification</b>\n\nThis is a test notification from the administration console.",
+      "test_notification_failed": "<b>Test Notification Failed</b>\n\nThe bot could not deliver the test notification to the selected user.",
+      "test_notification_failed_detail": "<b>Test Notification Failed</b>\n\nThe bot could not deliver the test notification to the selected user.\n\nReason: {{reason}}",
       "fetch_error": "Could not load users list. Please try again later.",
       "not_found": "No users found",
       "unauthorized": "You do not have permission to access this feature.",
@@ -119,13 +127,17 @@
         "role_user": "User",
         "role_moderator": "Moderator",
         "role_admin": "Admin",
-        "role_super_admin": "Super Admin"
+        "role_super_admin": "Super Admin",
+        "activity": "Activity",
+        "notifications": "Notifications",
+        "test_notification": "Test Notification"
       },
       "role": {
         "change": "Change Role",
-        "confirm": "Confirm Role Change",
+        "confirm": "<b>Confirm Role Change</b>\n\nAre you sure you want to change this user's role to <b>{{role}}</b>?",
         "success": "Role updated successfully",
-        "error": "Error updating role"
+        "error": "Error updating role",
+        "last_super_admin": "This action is blocked because at least one active Super Admin must remain."
       }
     },
     "validation": {

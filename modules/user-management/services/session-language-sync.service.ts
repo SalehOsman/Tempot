@@ -1,7 +1,10 @@
 import type { Context } from 'grammy';
 import { sessionContext } from '@tempot/shared';
 import { getDeps } from '../deps.context.js';
-import type { ModuleSessionRecord } from '../types/module-deps.types.js';
+import type { ModuleSessionProvider, ModuleSessionRecord } from '../types/module-deps.types.js';
+import type { UserProfile } from '../types/index.js';
+
+const CURRENT_SESSION_SCHEMA_VERSION = 1;
 
 export async function syncSessionLanguage(ctx: Context, lang: string): Promise<void> {
   const telegramId = ctx.from?.id.toString();
@@ -15,6 +18,53 @@ export async function syncSessionLanguage(ctx: Context, lang: string): Promise<v
   if (session === null) return;
 
   await sessionProvider.saveSession({ ...session, language: lang });
+}
+
+export async function syncProfileSession(ctx: Context, user: UserProfile): Promise<void> {
+  const telegramId = ctx.from?.id.toString() ?? user.telegramId;
+  const chatId = ctx.chat?.id.toString() ?? telegramId;
+
+  await saveProfileSession({
+    sessionProvider: getDeps().sessionProvider,
+    user,
+    chatId,
+  });
+}
+
+export async function saveProfileSession(input: {
+  readonly sessionProvider: ModuleSessionProvider;
+  readonly user: Pick<UserProfile, 'telegramId' | 'role' | 'language'>;
+  readonly chatId?: string;
+}): Promise<void> {
+  const { sessionProvider, user } = input;
+  if (sessionProvider.saveSession === undefined) return;
+
+  const chatId = input.chatId ?? user.telegramId;
+  const existing = sessionFromProviderResult(
+    await sessionProvider.getSession(user.telegramId, chatId),
+  );
+  const now = new Date();
+  const session: ModuleSessionRecord =
+    existing ??
+    ({
+      userId: user.telegramId,
+      chatId,
+      activeConversation: null,
+      metadata: null,
+      schemaVersion: CURRENT_SESSION_SCHEMA_VERSION,
+      version: 0,
+      createdAt: now,
+      updatedAt: now,
+    } as ModuleSessionRecord);
+
+  await sessionProvider.saveSession({
+    ...session,
+    userId: user.telegramId,
+    chatId,
+    role: user.role,
+    status: 'ACTIVE',
+    language: user.language,
+  });
 }
 
 export async function runWithProfileLanguage<T>(
@@ -34,7 +84,12 @@ function sessionFromProviderResult(value: unknown): ModuleSessionRecord | null {
 
 function isSessionRecord(value: unknown): value is ModuleSessionRecord {
   return (
-    isRecord(value) && typeof value['userId'] === 'string' && typeof value['chatId'] === 'string'
+    isRecord(value) &&
+    typeof value['userId'] === 'string' &&
+    typeof value['chatId'] === 'string' &&
+    typeof value['role'] === 'string' &&
+    typeof value['status'] === 'string' &&
+    typeof value['language'] === 'string'
   );
 }
 

@@ -14,16 +14,22 @@ function logger() {
 
 describe('createMembershipApprovalHandler', () => {
   it('should activate a user profile from a membership approval event', async () => {
+    const saveSession = vi.fn().mockResolvedValue(ok(undefined));
     const service = {
-      ensureProfileFromApproval: vi
-        .fn()
-        .mockResolvedValue(ok({ created: true, user: { id: 'u1' } })),
+      ensureProfileFromApproval: vi.fn().mockResolvedValue(
+        ok({
+          created: true,
+          user: {
+            id: 'u1',
+            telegramId: '9500000000001',
+            role: 'USER',
+            language: 'en',
+          },
+        }),
+      ),
     };
 
-    await createMembershipApprovalHandler(
-      service,
-      logger(),
-    )({
+    await createMembershipApprovalHandler(service, logger(), { getSession: vi.fn(), saveSession })({
       requestId: 'request-1',
       telegramId: '9500000000001',
       telegramUsername: 'visitor',
@@ -38,6 +44,15 @@ describe('createMembershipApprovalHandler', () => {
       telegramLanguageCode: 'ar',
       reviewerUserId: 'admin-1',
     });
+    expect(saveSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: '9500000000001',
+        chatId: '9500000000001',
+        role: 'USER',
+        status: 'ACTIVE',
+        language: 'en',
+      }),
+    );
   });
 
   it('should reject malformed approval payloads before calling the service', async () => {

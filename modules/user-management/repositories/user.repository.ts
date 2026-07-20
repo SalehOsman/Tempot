@@ -20,20 +20,18 @@ import {
 import { UserProtectionMapper } from './user-protection.mapper.js';
 import {
   buildUserSearchWhere,
+  countActiveSuperAdmins,
   countUsers,
   normalizeNationalId,
   parseTelegramId,
   requireProtectionLookup,
 } from './user-search.operations.js';
-
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
   protected entityName = 'userProfile';
-
   protected get model() {
     return this.db.userProfile;
   }
-
   constructor(
     auditLogger: IAuditLogger,
     db?: DatabaseClient,
@@ -46,19 +44,15 @@ export class UserRepository extends BaseRepository<UserProfile> {
       this.protectionOptions.readMode,
     );
   }
-
   private readonly protectionMapper: UserProtectionMapper;
   private readonly protectionOptions: UserRepositoryProtectionOptions;
-
   override withTransaction(tx: Prisma.TransactionClient): this {
     return new UserRepository(this.auditLogger, tx, this.protectionOptions) as this;
   }
-
   override async findById(id: string): Promise<Result<UserProfile, AppError>> {
     const result = await super.findById(id);
     return result.andThen((user) => this.recoverProtectedFields(user));
   }
-
   override async create(data: Record<string, unknown>): Promise<Result<UserProfile, AppError>> {
     const recordId = typeof data['id'] === 'string' ? data['id'] : randomUUID();
     const protectedInput = this.protectionMapper.protectInput({ ...data, id: recordId }, recordId);
@@ -107,6 +101,9 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return result.andThen((user) => this.recoverProtectedFields(user));
   }
 
+  countActiveSuperAdmins(): Promise<Result<number, AppError>> {
+    return countActiveSuperAdmins(this.model);
+  }
   async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
     const conditions = this.protectionMapper.createLookupConditions(nationalId, 'nationalId');
     if (conditions.isErr()) return err(conditions.error);
@@ -151,41 +148,39 @@ export class UserRepository extends BaseRepository<UserProfile> {
       pageSize,
     });
   }
-
-  updateUsername(userId: string, newUsername: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'username', newUsername);
+  updateUsername(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'username', value);
   }
-  updateEmail(userId: string, newEmail: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'email', newEmail);
+  updateEmail(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'email', value);
   }
-  updateLanguage(userId: string, newLanguage: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'language', newLanguage);
+  updateLanguage(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'language', value);
   }
-  updateRole(userId: string, newRole: RoleEnum): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'role', newRole);
+  updateRole(userId: string, value: RoleEnum): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'role', value);
   }
-  updateIdentity(userId: string, identity: IdentityUpdateData): Promise<Result<void, AppError>> {
-    return this.updateFields(userId, { ...identity });
+  updateIdentity(userId: string, value: IdentityUpdateData): Promise<Result<void, AppError>> {
+    return this.updateFields(userId, { ...value });
   }
-  updateNationalId(userId: string, nationalId: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'nationalId', nationalId);
+  updateNationalId(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'nationalId', value);
   }
-  updateMobileNumber(userId: string, mobileNumber: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'mobileNumber', mobileNumber);
+  updateMobileNumber(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'mobileNumber', value);
   }
-  updateBirthDate(userId: string, birthDate: Date): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'birthDate', birthDate);
+  updateBirthDate(userId: string, value: Date): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'birthDate', value);
   }
-  updateGender(userId: string, gender: 'male' | 'female'): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'gender', gender);
+  updateGender(userId: string, value: 'male' | 'female'): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'gender', value);
   }
-  updateGovernorate(userId: string, governorate: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'governorate', governorate);
+  updateGovernorate(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'governorate', value);
   }
-  updateCountryCode(userId: string, countryCode: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'countryCode', countryCode);
+  updateCountryCode(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'countryCode', value);
   }
-
   private async persistUpdate(
     id: string,
     data: Record<string, unknown>,
@@ -204,7 +199,6 @@ export class UserRepository extends BaseRepository<UserProfile> {
   private recoverProtectedFields(user: UserProfile): Result<UserProfile, AppError> {
     return this.protectionMapper.recover(user);
   }
-
   private updateField(
     userId: string,
     field: string,
@@ -212,7 +206,6 @@ export class UserRepository extends BaseRepository<UserProfile> {
   ): Promise<Result<void, AppError>> {
     return this.updateFields(userId, { [field]: value });
   }
-
   private async updateFields(
     userId: string,
     data: Record<string, unknown>,

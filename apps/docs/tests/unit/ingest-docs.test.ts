@@ -5,6 +5,7 @@ import type { DocChunkMetadata } from '../../scripts/docs.types.js';
 vi.mock('node:fs/promises');
 vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => true),
+  readdirSync: vi.fn(),
 }));
 vi.mock('@tempot/ai-core', () => ({
   chunkMarkdown: vi.fn(),
@@ -22,6 +23,7 @@ describe('ingestDocs', () => {
   let runDocsIngestion: typeof import('../../scripts/ingest-docs.js').runDocsIngestion;
   let readdir: typeof import('node:fs/promises').readdir;
   let existsSync: typeof import('node:fs').existsSync;
+  let readdirSync: typeof import('node:fs').readdirSync;
   let chunkMarkdown: typeof import('@tempot/ai-core').chunkMarkdown;
 
   beforeEach(async () => {
@@ -32,6 +34,7 @@ describe('ingestDocs', () => {
 
     const fs = await import('node:fs');
     existsSync = fs.existsSync;
+    readdirSync = fs.readdirSync;
 
     const aiCore = await import('@tempot/ai-core');
     chunkMarkdown = aiCore.chunkMarkdown;
@@ -50,12 +53,21 @@ describe('ingestDocs', () => {
     runDocsIngestion = mod.runDocsIngestion;
   });
 
-  it('discoverDocFiles returns ok([]) when directory exists', () => {
+  it('discoverDocFiles returns markdown files recursively when directory exists', () => {
     vi.mocked(existsSync).mockReturnValueOnce(true);
+    vi.mocked(readdirSync).mockReturnValueOnce([
+      { name: 'en', isDirectory: () => true, isFile: () => false },
+      { name: 'README.md', isDirectory: () => false, isFile: () => true },
+    ] as unknown as ReturnType<typeof readdirSync>);
+    vi.mocked(readdirSync).mockReturnValueOnce([
+      { name: 'guide.md', isDirectory: () => false, isFile: () => true },
+      { name: 'notes.txt', isDirectory: () => false, isFile: () => true },
+    ] as unknown as ReturnType<typeof readdirSync>);
+
     const result = discoverDocFiles();
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      expect(result.value).toEqual([]);
+      expect(result.value).toEqual(['README.md', 'en/guide.md']);
     }
   });
 
@@ -174,6 +186,46 @@ describe('ingestDocs', () => {
     expect(unknownMeta.language).toBe('unknown');
   });
 
+  it('classifies generated reference and top-level product docs as English', () => {
+    const referenceMeta = buildChunkMetadata({
+      filePath: 'reference/ai-core/README.md',
+      section: 'API Reference',
+      packageName: 'ai-core',
+      fileContent: 'content',
+    });
+    expect(referenceMeta.language).toBe('en');
+
+    const governanceMeta = buildChunkMetadata({
+      filePath: 'governance/source-of-truth.md',
+      section: 'Source Of Truth',
+      packageName: undefined,
+      fileContent: 'content',
+    });
+    expect(governanceMeta.language).toBe('en');
+  });
+
+  it('classifies corpus segment, priority, and source-of-truth state', () => {
+    const referenceMeta = buildChunkMetadata({
+      filePath: 'reference/ai-core/README.md',
+      section: 'API Reference',
+      packageName: 'ai-core',
+      fileContent: 'content',
+    });
+    const governanceMeta = buildChunkMetadata({
+      filePath: 'governance/source-of-truth.md',
+      section: 'Source Of Truth',
+      packageName: undefined,
+      fileContent: 'content',
+    });
+
+    expect(referenceMeta.corpusSegment).toBe('generated-reference');
+    expect(referenceMeta.sourcePriority).toBe(20);
+    expect(referenceMeta.sourceOfTruth).toBe(false);
+    expect(governanceMeta.corpusSegment).toBe('source-of-truth');
+    expect(governanceMeta.sourcePriority).toBe(100);
+    expect(governanceMeta.sourceOfTruth).toBe(true);
+  });
+
   it('skips files with unchanged content hashes in incremental mode', () => {
     const existingHashes: Record<string, string> = {
       'en/tutorials/getting-started.md': 'abc123def456',
@@ -258,6 +310,9 @@ describe('ingestDocs', () => {
         expect.objectContaining({
           msg: 'dry-run',
           file: 'en/test.md',
+          corpusSegment: 'localized-product',
+          sourcePriority: 70,
+          sourceOfTruth: false,
           chunkCount: 1,
         }),
       );
@@ -393,6 +448,7 @@ describe('ingestDocs', () => {
           contentType: 'developer-docs',
           content: 'chunk-0',
           source: 'auto',
+          strict: true,
         }),
       );
     });

@@ -7,10 +7,14 @@ import type {
 export interface MembershipRequestRecord {
   id: string;
   telegramId: bigint;
+  fullName?: string | null;
+  nickname?: string | null;
+  mobileNumber?: string | null;
   telegramUsername: string | null;
   telegramFirstName: string | null;
   telegramLastName: string | null;
   telegramLanguageCode: string | null;
+  requestMessage?: string | null;
   status: string;
   requestedAt: Date;
   reviewedAt: Date | null;
@@ -38,10 +42,14 @@ export function mapRecord(record: MembershipRequestRecord): MembershipRequest {
   return {
     id: record.id,
     telegramId: record.telegramId.toString(),
+    fullName: record.fullName ?? null,
+    nickname: record.nickname ?? null,
+    mobileNumber: record.mobileNumber ?? null,
     telegramUsername: record.telegramUsername,
     telegramFirstName: record.telegramFirstName,
     telegramLastName: record.telegramLastName,
     telegramLanguageCode: record.telegramLanguageCode,
+    requestMessage: record.requestMessage ?? null,
     status: mapStatus(record.status),
     requestedAt: record.requestedAt,
     reviewedAt: record.reviewedAt,

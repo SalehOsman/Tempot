@@ -30,6 +30,19 @@ export interface ModuleEventBus {
 
 export interface ModuleSessionProvider {
   getSession: (userId: string, chatId: string) => Promise<unknown>;
+  saveSession?: (session: {
+    userId: string;
+    chatId: string;
+    role: 'GUEST' | 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+    status: 'ACTIVE' | 'BANNED' | 'PENDING';
+    language: string;
+    activeConversation: string | null;
+    metadata: Record<string, unknown> | null;
+    schemaVersion: number;
+    version: number;
+    createdAt: Date;
+    updatedAt: Date;
+  }) => Promise<unknown>;
 }
 
 export interface ModuleI18n {
@@ -42,6 +55,10 @@ export interface ModuleSettings {
 
 export interface ModuleNavigationProvider {
   getMainMenuItems: (role: UserRole) => readonly ModuleNavigationItem[];
+  getVisibleMainMenuItems?: (actor: {
+    role: UserRole;
+    abilities: readonly string[];
+  }) => readonly ModuleNavigationItem[];
 }
 
 export interface ModuleAuthorizationPolicy {
@@ -129,7 +146,7 @@ async function registerMembershipApprovalHandler(deps: ModuleDeps): Promise<void
   });
   const result = await deps.eventBus.subscribe(
     'membership-management.request.approved',
-    createMembershipApprovalHandler(service, deps.logger),
+    createMembershipApprovalHandler(service, deps.logger, deps.sessionProvider),
   );
   if (!result.isOk()) {
     deps.logger.warn({ msg: 'membership_approval_subscription_failed' });

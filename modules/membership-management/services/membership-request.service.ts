@@ -1,5 +1,5 @@
 import type { AsyncResult } from '@tempot/shared';
-import { AppError, err, ok } from '@tempot/shared';
+import { AppError, err } from '@tempot/shared';
 import type { MembershipEventBus } from '../types/module-deps.types.js';
 import type {
   MembershipRequest,
@@ -41,7 +41,9 @@ export class MembershipRequestService {
   async submit(input: SubmitMembershipRequestInput): AsyncResult<MembershipRequest, AppError> {
     const existing = await this.deps.repository.findActiveByTelegramId(input.telegramId);
     if (existing.isErr()) return err(existing.error);
-    if (existing.value !== null) return ok(existing.value);
+    if (existing.value !== null) {
+      return this.deps.repository.updatePendingDetails(existing.value.id, input);
+    }
 
     const created = await this.deps.repository.createRequest(input);
     if (created.isErr()) return err(created.error);

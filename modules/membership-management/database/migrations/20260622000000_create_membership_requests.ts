@@ -5,6 +5,9 @@ export const up = async (prisma: Prisma.TransactionClient): Promise<void> => {
     CREATE TABLE IF NOT EXISTS "membership_requests" (
       "id" TEXT NOT NULL PRIMARY KEY,
       "telegram_id" BIGINT NOT NULL,
+      "full_name" TEXT,
+      "nickname" TEXT,
+      "mobile_number" TEXT,
       "telegram_username" TEXT,
       "telegram_first_name" TEXT,
       "telegram_last_name" TEXT,

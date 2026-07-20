@@ -85,6 +85,34 @@ describe('PrismaMembershipRequestRepository', () => {
     }
   });
 
+  it('should update pending request details for repeated membership submission', async () => {
+    const created = await repository.createRequest({
+      telegramId: '9500000000004',
+      telegramUsername: 'repeat-visitor',
+    });
+    expect(created.isOk()).toBe(true);
+    if (created.isErr()) return;
+
+    const updated = await repository.updatePendingDetails(created.value.id, {
+      telegramId: '9500000000004',
+      fullName: 'Repeat Visitor',
+      nickname: 'Repeat',
+      mobileNumber: '01012345678',
+      requestMessage: 'Need access',
+    });
+
+    expect(updated.isOk()).toBe(true);
+    if (updated.isOk()) {
+      expect(updated.value).toMatchObject({
+        id: created.value.id,
+        fullName: 'Repeat Visitor',
+        nickname: 'Repeat',
+        mobileNumber: '01012345678',
+        requestMessage: 'Need access',
+      });
+    }
+  });
+
   it('should allow exactly one terminal decision during concurrent review', async () => {
     const created = await repository.createRequest({
       telegramId: '9500000000003',

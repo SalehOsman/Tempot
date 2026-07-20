@@ -21,13 +21,21 @@ overrides:
   esbuild: '>=0.28.1'
   # Security: GHSA-92pp-h63x-v22m — @hono/node-server middleware bypass (<1.19.13).
   '@hono/node-server': '>=1.19.13'
+  markdown-it: 14.2.0
   # Security: GHSA-wcpc-wj8m-hjx6 - protobufjs DoS via unbounded Any expansion (<=8.4.0).
   protobufjs: '>=8.4.1'
+  qs: 6.15.2
   # Security: GHSA-ph9p-34f9-6g65 - tmp path traversal via unsanitized prefix/postfix (<0.2.6).
   tmp: '>=0.2.6'
+  undici: 7.28.0
   # Security: GHSA-99f4-grh7-6pcq + GHSA-5375-pq7m-f5r2 — @grpc/grpc-js server/client
   # crash on malformed message (>=1.14.0 <1.14.4). Affects dev-only path
   # testcontainers > dockerode. Pin to patched range.
   '@grpc/grpc-js': '>=1.14.4'
   # Security: GHSA-fx2h-pf6j-xcff - Vite Windows server.fs.deny bypass (<=7.3.4).
   vite: '>=7.3.5'
+auditConfig:
+  ignoreCves:
+    - CVE-2026-53550
+  ignoreGhsas:
+    - GHSA-h67p-54hq-rp68

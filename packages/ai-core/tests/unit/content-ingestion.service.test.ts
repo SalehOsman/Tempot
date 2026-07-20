@@ -140,6 +140,30 @@ describe('ContentIngestionService', () => {
       );
     });
 
+    it('returns err when strict ingestion encounters a failed chunk', async () => {
+      const longContent = 'word '.repeat(1000);
+
+      embeddingService.embedAndStore
+        .mockResolvedValueOnce(ok('emb-id-success'))
+        .mockResolvedValueOnce(err(new AppError(AI_ERRORS.EMBEDDING_FAILED, 'chunk failed')));
+
+      const result = await service.ingest({
+        contentId: 'doc-strict',
+        contentType: 'developer-docs',
+        content: longContent,
+        strict: true,
+      });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(AI_ERRORS.CONTENT_CHUNK_FAILED);
+      }
+      expect(eventBus.publish).not.toHaveBeenCalledWith(
+        'ai-core.content.indexed',
+        expect.objectContaining({ contentId: 'doc-strict' }),
+      );
+    });
+
     it('emits ai-core.content.indexed event after ingestion', async () => {
       await service.ingest({
         contentId: 'doc-event',

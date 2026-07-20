@@ -25,6 +25,14 @@ export interface IngestOptions {
   content: string;
   metadata?: Record<string, unknown>;
   source?: 'auto' | 'manual';
+  strict?: boolean;
+}
+
+interface FailedChunkContext {
+  contentId: string;
+  chunkIndex: number;
+  errorCode: string;
+  strict: boolean;
 }
 
 export class ContentIngestionService {
@@ -43,7 +51,7 @@ export class ContentIngestionService {
 
   /** Ingest content: validate → sanitize → chunk → embed → store */
   async ingest(options: IngestOptions): AsyncResult<number, AppError> {
-    const { contentId, contentType, content, metadata, source = 'auto' } = options;
+    const { contentId, contentType, content, metadata, source = 'auto', strict = false } = options;
 
     // 1. Validate size
     const sizeBytes = Buffer.byteLength(content, 'utf8');
@@ -82,12 +90,13 @@ export class ContentIngestionService {
 
       const result = await this.embeddingService.embedAndStore(input);
       if (result.isErr()) {
-        this.logger.warn({
-          code: AI_ERRORS.CONTENT_CHUNK_FAILED,
+        const failure = await this.handleFailedChunk({
           contentId,
           chunkIndex: chunk.chunkIndex,
-          error: result.error.code,
+          errorCode: result.error.code,
+          strict,
         });
+        if (failure.isErr()) return err(failure.error);
         continue; // Best-effort: skip failed chunks
       }
       storedCount++;
@@ -102,6 +111,25 @@ export class ContentIngestionService {
     });
 
     return ok(storedCount);
+  }
+
+  private async handleFailedChunk(failure: FailedChunkContext): AsyncResult<void, AppError> {
+    this.logger.warn({
+      code: AI_ERRORS.CONTENT_CHUNK_FAILED,
+      contentId: failure.contentId,
+      chunkIndex: failure.chunkIndex,
+      error: failure.errorCode,
+    });
+    if (!failure.strict) return ok(undefined);
+
+    await this.embeddingService.deleteByContentId(failure.contentId);
+    return err(
+      new AppError(AI_ERRORS.CONTENT_CHUNK_FAILED, {
+        contentId: failure.contentId,
+        chunkIndex: failure.chunkIndex,
+        error: failure.errorCode,
+      }),
+    );
   }
 
   // Arabic text approximation: 4 chars/token may produce chunks ~50-100% larger in token count.

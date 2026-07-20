@@ -4,6 +4,7 @@ import { ok } from '@tempot/shared';
 import { registerDeps } from '../../deps.context.js';
 import { handleCallbackQuery } from '../../handlers/callback.handler.js';
 import type { ModuleAuthorizationProvider } from '../../index.js';
+import { MembershipRequestDraftStore } from '../../services/membership-request-draft.store.js';
 import type { MembershipRequestService } from '../../services/membership-request.service.js';
 
 type AuthorizationMock = ModuleAuthorizationProvider & {
@@ -14,6 +15,9 @@ function request(overrides: Record<string, unknown> = {}) {
   return {
     id: 'request-1',
     telegramId: '123',
+    fullName: 'Visitor User',
+    nickname: 'Visitor',
+    mobileNumber: '01012345678',
     telegramUsername: 'visitor',
     telegramFirstName: 'Visitor',
     telegramLastName: null,
@@ -37,6 +41,9 @@ function createService(): Pick<
       ok({
         id: 'request-1',
         telegramId: '123',
+        fullName: 'Visitor User',
+        nickname: 'Visitor',
+        mobileNumber: '01012345678',
         telegramUsername: 'visitor',
         telegramFirstName: 'Visitor',
         telegramLastName: null,
@@ -82,25 +89,26 @@ describe('membership-management callback handler', () => {
       guard: vi.fn<ModuleAuthorizationProvider['guard']>(() => vi.fn()),
     };
     registerDeps({
+      adminNotifier: { notifySubmitted: vi.fn().mockResolvedValue(undefined) },
       authorization,
       i18n: { t: (key: string) => key },
       membershipRequests: service,
+      requestDrafts: new MembershipRequestDraftStore(),
     });
   });
 
-  it('should submit membership request for membership request callback', async () => {
+  it('should start membership data collection for membership request callback', async () => {
     const ctx = createContext();
 
     await handleCallbackQuery(ctx);
 
-    expect(service.submit).toHaveBeenCalledWith({
-      telegramId: '123',
-      telegramUsername: 'visitor',
-      telegramFirstName: 'Visitor',
-    });
-    expect(ctx.editMessageText).toHaveBeenCalledWith('membership-management.request.submitted', {
-      parse_mode: 'HTML',
-    });
+    expect(service.submit).not.toHaveBeenCalled();
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      'membership-management.request.prompt.full_name',
+      {
+        parse_mode: 'HTML',
+      },
+    );
   });
 
   it('should enforce bootstrap authorization before submitting membership request', async () => {

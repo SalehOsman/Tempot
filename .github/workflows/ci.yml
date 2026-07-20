@@ -221,6 +221,21 @@ jobs:
           DATABASE_URL: postgresql://tempot:tempot_test@localhost:5432/tempot_test
       - run: pnpm test:coverage
 
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   audit:
     name: Security Audit
     runs-on: ubuntu-latest

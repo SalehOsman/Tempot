@@ -18,6 +18,7 @@ describe('RAGPipeline runtime wiring (Spec #031)', () => {
     expect(outcome.timings.map((timing) => timing.stage)).toEqual([
       'vector',
       'access-filter',
+      'rerank',
       'context-assembly',
     ]);
     expect(searchSimilar).toHaveBeenCalledWith({
@@ -26,6 +27,54 @@ describe('RAGPipeline runtime wiring (Spec #031)', () => {
       limit: 5,
       confidenceThreshold: 0.7,
     });
+  });
+
+  it('reranks generated reference docs behind governed documentation when scores are close', async () => {
+    const { service } = createEmbeddingService([
+      scoredSearchResult('reference-1', 'developer-docs', {
+        metadata: { filePath: 'reference/ai-core/README.md' },
+        score: 0.94,
+      }),
+      scoredSearchResult('governance-1', 'developer-docs', {
+        metadata: { filePath: 'governance/source-of-truth.md' },
+        score: 0.92,
+      }),
+      scoredSearchResult('architecture-1', 'developer-docs', {
+        metadata: { filePath: 'architecture/tempot_architecture.md' },
+        score: 0.91,
+      }),
+    ]);
+
+    const result = await new RAGPipeline(service).retrieveWithPlan(
+      createRequest({ allowedContentTypes: ['developer-docs'] }),
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().selectedBlockIds).toEqual([
+      'governance-1',
+      'architecture-1',
+      'reference-1',
+    ]);
+  });
+
+  it('uses explicit sourcePriority metadata for reranking when filePath is absent', async () => {
+    const { service } = createEmbeddingService([
+      scoredSearchResult('reference-1', 'developer-docs', {
+        metadata: { sourcePriority: 20 },
+        score: 0.94,
+      }),
+      scoredSearchResult('governance-1', 'developer-docs', {
+        metadata: { sourcePriority: 100 },
+        score: 0.92,
+      }),
+    ]);
+
+    const result = await new RAGPipeline(service).retrieveWithPlan(
+      createRequest({ allowedContentTypes: ['developer-docs'] }),
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().selectedBlockIds).toEqual(['governance-1', 'reference-1']);
   });
 
   it('request with no authorized content types returns ok(outcome) with empty selectedBlockIds', async () => {
@@ -142,10 +191,7 @@ function createRequest(overrides: Partial<RetrievalRequest> = {}): RetrievalRequ
   };
 }
 
-function createOutcome(
-  selectedBlockIds: readonly string[],
-  degraded = false,
-): RetrievalOutcome {
+function createOutcome(selectedBlockIds: readonly string[], degraded = false): RetrievalOutcome {
   return {
     outcomeId: 'outcome-1',
     planId: 'plan-1',
@@ -180,4 +226,22 @@ function searchResult(
   metadata: Record<string, unknown> | null,
 ): EmbeddingSearchResult {
   return { contentId, contentType, score: 0.9, metadata };
+}
+
+interface ScoredSearchResultOptions {
+  metadata: Record<string, unknown> | null;
+  score: number;
+}
+
+function scoredSearchResult(
+  contentId: string,
+  contentType: EmbeddingSearchResult['contentType'],
+  options: ScoredSearchResultOptions,
+): EmbeddingSearchResult {
+  return {
+    contentId,
+    contentType,
+    score: options.score,
+    metadata: options.metadata,
+  };
 }

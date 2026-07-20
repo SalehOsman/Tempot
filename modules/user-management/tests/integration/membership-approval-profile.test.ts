@@ -32,7 +32,7 @@ describe('membership approval profile activation', () => {
     if (result.isErr()) return;
     expect(result.value.created).toBe(true);
     expect(result.value.user).toMatchObject({
-      telegramId: 9500000000101n,
+      telegramId: '9500000000101',
       username: 'approved_visitor',
       language: 'ar',
       role: RoleEnum.USER,
@@ -69,7 +69,7 @@ describe('membership approval profile activation', () => {
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       expect(result.value.created).toBe(false);
-      expect(result.value.user.telegramId).toBe(9500000000102n);
+      expect(result.value.user.telegramId).toBe('9500000000102');
     }
 
     const profiles = await testDb.prisma.userProfile.findMany({

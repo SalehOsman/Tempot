@@ -12,7 +12,18 @@
       "approved": "Your membership request has been approved.",
       "rejected": "Your membership request was rejected.",
       "identity_missing": "We could not read your Telegram identity. Please try again from your Telegram account.",
-      "failed": "We could not submit your membership request. Please try again later."
+      "failed": "We could not submit your membership request. Please try again later.",
+      "skip_reason_button": "Skip reason",
+      "prompt": {
+        "full_name": "Please send your full name.",
+        "nickname": "Please send your nickname.",
+        "mobile_number": "Please send your mobile number.",
+        "reason": "You may send the reason for requesting membership, or skip this step."
+      },
+      "validation": {
+        "required": "This field is required. Please send a value.",
+        "mobile_number": "Please send a valid mobile number using digits, spaces, hyphens, or a leading plus sign."
+      }
     },
     "admin": {
       "list": {
@@ -20,7 +31,10 @@
       },
       "detail": {
         "title": "Membership request details",
-        "body": "Membership request details\nTelegram ID: {{telegramId}}\nUsername: {{username}}\nLanguage: {{language}}\nRequested at: {{requestedAt}}"
+        "body": "Membership request details\nName: {{fullName}}\nNickname: {{nickname}}\nMobile: {{mobileNumber}}\nTelegram ID: {{telegramId}}\nUsername: {{username}}\nLanguage: {{language}}\nReason: {{requestMessage}}\nRequested at: {{requestedAt}}"
+      },
+      "notification": {
+        "submitted": "New membership request\nName: {{fullName}}\nNickname: {{nickname}}\nMobile: {{mobileNumber}}\nTelegram ID: {{telegramId}}\nUsername: {{username}}\nReason: {{requestMessage}}\nRequested at: {{requestedAt}}"
       },
       "approve_button": "Approve",
       "reject_button": "Reject",

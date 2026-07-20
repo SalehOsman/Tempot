@@ -7,6 +7,7 @@ import { handleUsersAction } from './users.callback.handler.js';
 import { handleProfileAction } from './profile.callback.handler.js';
 import { safeEditMessageText } from './callback-shared.handler.js';
 import type { ModuleAuthorizationPolicy } from '../types/module-deps.types.js';
+import { abilityTokensFromContext } from '../services/ability-token.service.js';
 
 function parseCallbackData(data: string): { action: string; params: string[] } {
   const [action, ...params] = data.split(':');
@@ -64,12 +65,19 @@ async function handleCallbackQuery(ctx: Context, next: NextFunction = noopNext):
 
 function resolveAuthorizationPolicy(action: string, params: string[]): ModuleAuthorizationPolicy {
   if (action === 'menu') return createPolicy('bootstrap', 'read', 'bootstrap');
+  if (action === 'users' && isRoleManagementAction(params)) {
+    return createPolicy('protected', 'manage', 'roles');
+  }
   if (action === 'users') return createPolicy('protected', 'manage', 'users');
   if (params.join(':') === 'edit:role') {
-    return createPolicy('protected', 'manage', 'users');
+    return createPolicy('protected', 'manage', 'roles');
   }
   if (params[0] === 'edit') return createPolicy('protected', 'update', 'profile');
   return createPolicy('protected', 'read', 'profile');
+}
+
+function isRoleManagementAction(params: string[]): boolean {
+  return params[0] === 'roles' || params[0] === 'role' || params[0] === 'role-confirm';
 }
 
 function createPolicy(
@@ -105,7 +113,14 @@ async function dispatchCallbackAction(
 async function handleMenuAction(ctx: Context, user: UserProfile, params: string[]): Promise<void> {
   const i18n = getI18n();
   if (params[0] === 'main') {
-    const menuEntries = getDeps().navigation?.getMainMenuItems(user.role) ?? [];
+    const navigation = getDeps().navigation;
+    const menuEntries =
+      navigation?.getVisibleMainMenuItems?.({
+        role: user.role,
+        abilities: abilityTokensFromContext(ctx),
+      }) ??
+      navigation?.getMainMenuItems(user.role) ??
+      [];
     const msg = i18n.t('user-management.menu.welcome', {
       name: user.username ?? user.telegramId,
       role: i18n.t(`user-management.role.${user.role}`),

@@ -13,7 +13,7 @@ import { AbilityBuilder, createMongoAbility, type AnyAbility } from '@casl/abili
 import { RoleEnum } from '@tempot/auth-core';
 import type { SessionUser } from '@tempot/auth-core';
 
-export type UserManagementSubject = 'bootstrap' | 'profile' | 'users' | 'all';
+export type UserManagementSubject = 'bootstrap' | 'profile' | 'users' | 'roles' | 'all';
 export type UserManagementAction = 'read' | 'update' | 'manage';
 
 /**

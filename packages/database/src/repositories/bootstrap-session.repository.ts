@@ -26,8 +26,22 @@ interface BootstrapSessionDelegate {
   }): Promise<unknown>;
 }
 
+interface BootstrapUserProfileDelegate {
+  upsert(args: {
+    where: { telegramId: bigint };
+    update: { role: string; language: string };
+    create: {
+      telegramId: bigint;
+      username: null;
+      language: string;
+      role: string;
+    };
+  }): Promise<unknown>;
+}
+
 interface BootstrapSessionDatabaseClient {
   session: BootstrapSessionDelegate;
+  userProfile: BootstrapUserProfileDelegate;
 }
 
 export class BootstrapSessionRepository {
@@ -45,6 +59,16 @@ export class BootstrapSessionRepository {
           role: input.role,
           status: input.status,
           language: input.language,
+        },
+      });
+      await this.db.userProfile.upsert({
+        where: { telegramId: BigInt(input.userId) },
+        update: { role: input.role, language: input.language },
+        create: {
+          telegramId: BigInt(input.userId),
+          username: null,
+          language: input.language,
+          role: input.role,
         },
       });
       return ok(undefined);

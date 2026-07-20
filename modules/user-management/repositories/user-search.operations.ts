@@ -1,4 +1,5 @@
 import { PROTECTED_DATA_ERRORS, enforceActiveRecordScope } from '@tempot/database';
+import { RoleEnum } from '@tempot/auth-core';
 import { AppError } from '@tempot/shared';
 import { err, ok, type Result } from 'neverthrow';
 import type { UserSearchDelegate } from '../types/index.js';
@@ -44,6 +45,10 @@ export async function countUsers(
   } catch (error) {
     return err(new AppError('user-management.search_count_failed', error));
   }
+}
+
+export function countActiveSuperAdmins(model: unknown): Promise<Result<number, AppError>> {
+  return countUsers(model, { role: RoleEnum.SUPER_ADMIN });
 }
 
 export function requireProtectionLookup<T>(value: T | undefined): Result<T, AppError> {

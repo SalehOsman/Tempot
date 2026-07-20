@@ -189,6 +189,35 @@ describe('startCommand access-mode scenarios', () => {
     });
   });
 
+  it('should render regional Arabic locale with the base language label', async () => {
+    t.mockImplementation((key: string, options?: Record<string, unknown>) => {
+      if (key === 'user-management.language.ar') return 'Arabic';
+      if (options?.['name']) return `${key}:${String(options['name'])}`;
+      return key;
+    });
+    const approvedUser = {
+      id: 'user-1',
+      username: 'approved-user',
+      email: 'approved@example.com',
+      language: 'ar-EG',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date('2026-07-07T00:00:00.000Z'),
+      updatedAt: new Date('2026-07-07T00:00:00.000Z'),
+    };
+    vi.mocked(getUserService).mockReturnValue(knownUserService(approvedUser) as never);
+    vi.mocked(MainMenuFactory.create).mockReturnValue({ inline_keyboard: [] } as never);
+
+    await startCommand(createContext());
+
+    expect(t).toHaveBeenCalledWith(
+      'user-management.menu.welcome',
+      expect.objectContaining({
+        language: 'Arabic',
+      }),
+    );
+  });
+
   it('should preserve super-admin bootstrap menu visibility', async () => {
     const superAdmin = {
       id: 'admin-1',

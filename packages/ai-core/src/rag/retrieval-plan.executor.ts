@@ -11,10 +11,9 @@ import type {
   RetrievalRequest,
   RetrievalStageTiming,
 } from './retrieval-plan.types.js';
-import {
-  validateRetrievalOutcome,
-  validateRetrievalPlan,
-} from './retrieval-plan.validation.js';
+import { validateRetrievalOutcome, validateRetrievalPlan } from './retrieval-plan.validation.js';
+import { rankRetrievalResults } from './retrieval-ranking.js';
+import type { EmbeddingSearchResult } from '../ai-core.types.js';
 
 interface OutcomeDraft {
   planId: string;
@@ -44,7 +43,7 @@ export async function executeRetrievalPlan(
 
   const timings: RetrievalStageTiming[] = [];
   const rejectedBlocks: RetrievalRejectedBlock[] = [];
-  const selectedBlockIds: string[] = [];
+  const authorizedResults: EmbeddingSearchResult[] = [];
 
   // Step: vector
   const vectorStart = Date.now();
@@ -70,7 +69,7 @@ export async function executeRetrievalPlan(
     const authorized = isAuthorized(result.contentType, meta, request);
 
     if (authorized) {
-      selectedBlockIds.push(result.contentId);
+      authorizedResults.push(result);
     } else {
       rejectedBlocks.push({
         blockId: result.contentId,
@@ -81,8 +80,14 @@ export async function executeRetrievalPlan(
   }
   timings.push({ stage: 'access-filter', durationMs: Date.now() - accessStart });
 
+  // Step: rerank
+  const rerankStart = Date.now();
+  const rankedResults = rankRetrievalResults(authorizedResults);
+  timings.push({ stage: 'rerank', durationMs: Date.now() - rerankStart });
+
   // Step: context-assembly
   const assemblyStart = Date.now();
+  const selectedBlockIds = rankedResults.map((result) => result.contentId);
   timings.push({ stage: 'context-assembly', durationMs: Date.now() - assemblyStart });
 
   return buildOutcome({

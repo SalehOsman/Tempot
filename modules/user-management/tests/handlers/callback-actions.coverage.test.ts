@@ -189,28 +189,35 @@ describe('users callback actions', () => {
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith('user-management.users.fetch_error:{}');
   });
 
-  it('acknowledges pending user actions and unknown actions', async () => {
+  it('handles user search, view, role change, and unknown actions', async () => {
     const ctx = createContext();
+    const service = {
+      getById: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: user({ id: 'user-2', role: RoleEnum.USER }),
+      }),
+      updateRole: vi.fn().mockResolvedValue(ok(undefined)),
+    };
+    vi.mocked(getUserService).mockReturnValue(service as never);
 
     await handleUsersAction(ctx, user(), ['search']);
     await handleUsersAction(ctx, user(), ['view', 'user-2']);
     await handleUsersAction(ctx, user(), ['role', 'user-2', 'ADMIN']);
+    await handleUsersAction(ctx, user(), ['role-confirm', 'user-2', 'ADMIN']);
     await handleUsersAction(ctx, user(), ['other']);
 
     expect(ctx.answerCallbackQuery).toHaveBeenNthCalledWith(
       1,
       'user-management.users.search_pending:{}',
     );
-    expect(ctx.answerCallbackQuery).toHaveBeenNthCalledWith(
-      2,
-      'user-management.users.view_pending:{"id":"user-2"}',
+    expect(service.getById).toHaveBeenCalledWith('user-2');
+    expect(service.updateRole).toHaveBeenCalledWith('user-2', RoleEnum.ADMIN);
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      'user-management.users.role.confirm:{"role":"user-management.role.ADMIN:{}"}',
+      expect.objectContaining({ parse_mode: 'HTML' }),
     );
-    expect(ctx.answerCallbackQuery).toHaveBeenNthCalledWith(
-      3,
-      'user-management.users.role_pending:{"id":"user-2","role":"ADMIN"}',
-    );
-    expect(ctx.answerCallbackQuery).toHaveBeenNthCalledWith(
-      4,
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith('user-management.users.role.success:{}');
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       'user-management.errors.unknown_action:{}',
     );
   });

@@ -47,7 +47,7 @@ function commandCapability(command: string): AccessCapability {
 
 function callbackCapability(data: string): AccessCapability {
   const namespace = data.split(':', 1)[0] ?? 'callback';
-  if (data === 'membership:request') {
+  if (data === 'membership:request' || data === 'membership:request:reason:skip') {
     return { id: 'callback.membership.request', classification: 'bootstrap' };
   }
   if (namespace === 'membership') {
@@ -57,11 +57,23 @@ function callbackCapability(data: string): AccessCapability {
       requiredAbility: 'manage.membership-request',
     };
   }
+  if (namespace === 'users' && isUsersRoleCallback(data)) {
+    return {
+      id: 'callback.users',
+      classification: 'admin',
+      requiredAbility: 'manage.roles',
+    };
+  }
   return {
     id: `callback.${namespace}`,
     classification: ADMIN_CAPABILITIES.has(namespace) ? 'admin' : 'protected',
     requiredAbility: requiredAbilityForCapability(namespace),
   };
+}
+
+function isUsersRoleCallback(data: string): boolean {
+  const action = data.split(':')[1];
+  return action === 'roles' || action === 'role' || action === 'role-confirm';
 }
 
 function requiredAbilityForCapability(capability: string): string | undefined {

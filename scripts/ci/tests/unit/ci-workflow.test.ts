@@ -72,4 +72,17 @@ describe('CI workflow quality gates', () => {
     expect(coverageJob).not.toContain('continue-on-error');
     expect(coverageJob).toContain('pnpm test:coverage');
   });
+
+  it('should block pull requests and pushes on secret scanning findings', () => {
+    const workflow = readFileSync(CI_WORKFLOW_PATH, 'utf8');
+    const secretScanJob = workflow.slice(
+      workflow.indexOf('  secret-scan:'),
+      workflow.indexOf('  audit:'),
+    );
+
+    expect(secretScanJob).toContain('name: Secret Scan');
+    expect(secretScanJob).toContain('fetch-depth: 0');
+    expect(secretScanJob).toContain('gitleaks/gitleaks-action@v3');
+    expect(secretScanJob).not.toContain('continue-on-error');
+  });
 });

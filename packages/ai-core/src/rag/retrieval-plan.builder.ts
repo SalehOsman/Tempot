@@ -2,7 +2,7 @@ import { ok, err } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { Result } from '@tempot/shared';
 import { randomUUID } from 'node:crypto';
-import type { RetrievalPlan, RetrievalRequest } from './retrieval-plan.types.js';
+import type { RetrievalPlan, RetrievalRequest, RetrievalStep } from './retrieval-plan.types.js';
 import { validateRetrievalPlan } from './retrieval-plan.validation.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
 
@@ -22,34 +22,7 @@ export function buildDefaultRetrievalPlan(
       requireAccessFilter: true,
       allowDegradedContext: false,
     },
-    steps: [
-      {
-        id: 'step-vector',
-        kind: 'vector',
-        outputRef: 'vector-results',
-        required: true,
-        params: {
-          limit: request.maxResults,
-          confidenceThreshold: request.confidenceThreshold,
-        },
-      },
-      {
-        id: 'step-access',
-        kind: 'access-filter',
-        inputRefs: ['vector-results'],
-        outputRef: 'filtered-results',
-        required: true,
-        params: { userScope: request.userScope },
-      },
-      {
-        id: 'step-assembly',
-        kind: 'context-assembly',
-        inputRefs: ['filtered-results'],
-        outputRef: 'context',
-        required: true,
-        params: {},
-      },
-    ],
+    steps: buildDefaultSteps(request),
   };
 
   const validated = validateRetrievalPlan(plan);
@@ -58,4 +31,43 @@ export function buildDefaultRetrievalPlan(
   }
 
   return ok(validated.value);
+}
+
+function buildDefaultSteps(request: RetrievalRequest): RetrievalStep[] {
+  return [
+    {
+      id: 'step-vector',
+      kind: 'vector',
+      outputRef: 'vector-results',
+      required: true,
+      params: {
+        limit: request.maxResults,
+        confidenceThreshold: request.confidenceThreshold,
+      },
+    },
+    {
+      id: 'step-access',
+      kind: 'access-filter',
+      inputRefs: ['vector-results'],
+      outputRef: 'filtered-results',
+      required: true,
+      params: { userScope: request.userScope },
+    },
+    {
+      id: 'step-rerank',
+      kind: 'rerank',
+      inputRefs: ['filtered-results'],
+      outputRef: 'ranked-results',
+      required: true,
+      params: { policy: 'governed-docs-first' },
+    },
+    {
+      id: 'step-assembly',
+      kind: 'context-assembly',
+      inputRefs: ['ranked-results'],
+      outputRef: 'context',
+      required: true,
+      params: {},
+    },
+  ];
 }

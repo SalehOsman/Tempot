@@ -1,6 +1,7 @@
 import type { AsyncResult } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 import type { ContentIngestionService } from '@tempot/ai-core';
+import type { DocCorpusSegment } from './doc-discovery.js';
 
 /** Frontmatter schema for all documentation pages */
 export interface DocFrontmatter {
@@ -31,6 +32,9 @@ export interface DocChunkMetadata {
   filePath: string;
   section: string;
   language: string;
+  corpusSegment: DocCorpusSegment;
+  sourcePriority: number;
+  sourceOfTruth: boolean;
   package?: string;
   contentHash: string;
 }

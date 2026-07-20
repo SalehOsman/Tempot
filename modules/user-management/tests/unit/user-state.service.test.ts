@@ -47,7 +47,7 @@ describe('user input state service', () => {
     const deps = createDeps(ok({ metadata: { existing: true } }));
     registerDeps(deps);
 
-    await setUserInputState('123', '456', 'edit_email');
+    await setUserInputState({ telegramId: '123', chatId: '456', action: 'edit_email' });
 
     expect(deps.eventBus.publish).toHaveBeenCalledWith('user-management.state.set', {
       telegramId: '123',
@@ -64,7 +64,11 @@ describe('user input state service', () => {
     vi.spyOn(Date, 'now').mockReturnValue(2_000);
     registerDeps(createDeps(null));
 
-    await setUserInputState('fallback-user', 'chat-1', 'edit_name');
+    await setUserInputState({
+      telegramId: 'fallback-user',
+      chatId: 'chat-1',
+      action: 'edit_name',
+    });
     const state = await getUserInputState('fallback-user', 'chat-1');
 
     expect(state).toEqual({ action: 'edit_name', timestamp: 2_000 });
@@ -102,7 +106,11 @@ describe('user input state service', () => {
   it('clears fallback state and publishes a clear event', async () => {
     const deps = createDeps(null);
     registerDeps(deps);
-    await setUserInputState('clear-user', 'chat-1', 'edit_language');
+    await setUserInputState({
+      telegramId: 'clear-user',
+      chatId: 'chat-1',
+      action: 'edit_language',
+    });
 
     await clearUserInputState('clear-user', 'chat-1');
     await expect(getUserInputState('clear-user', 'chat-1')).resolves.toBeNull();

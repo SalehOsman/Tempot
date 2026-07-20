@@ -1,4 +1,3 @@
-import type { AnyAbility, RawRuleOf } from '@casl/ability';
 import type { ModuleNavigationItem } from '@tempot/module-registry';
 import type { Context } from 'grammy';
 import { InlineKeyboard } from 'grammy';
@@ -7,8 +6,9 @@ import { getUserService } from '../services/user-service.context.js';
 import { MainMenuFactory } from '../menus/main-menu.factory.js';
 import {
   runWithProfileLanguage,
-  syncSessionLanguage,
+  syncProfileSession,
 } from '../services/session-language-sync.service.js';
+import { abilityTokensFromContext } from '../services/ability-token.service.js';
 import type { UserProfile } from '../types/index.js';
 
 const BOT_ACCESS_MODE_KEY = 'bot_access_mode';
@@ -84,7 +84,7 @@ async function replyToUnknownVisitor(ctx: Context): Promise<void> {
 
 async function replyToKnownUser(input: KnownUserReplyInput): Promise<void> {
   const { ctx, user, fallbackName, telegramId } = input;
-  await syncSessionLanguage(ctx, user.language);
+  await syncProfileSession(ctx, user);
   await runWithProfileLanguage(user.language, async () => {
     await renderKnownUserReply({ ctx, user, fallbackName, telegramId });
   });
@@ -93,14 +93,7 @@ async function replyToKnownUser(input: KnownUserReplyInput): Promise<void> {
 async function renderKnownUserReply(input: KnownUserReplyInput): Promise<void> {
   const { ctx, user, fallbackName, telegramId } = input;
   const i18n = getI18n();
-  const navigation = getDeps().navigation;
-  const menuEntries =
-    navigation?.getVisibleMainMenuItems?.({
-      role: user.role,
-      abilities: abilityTokensFromContext(ctx),
-    }) ??
-    navigation?.getMainMenuItems(user.role) ??
-    [];
+  const menuEntries = mainMenuEntriesForUser(ctx, user);
   const keyboard = MainMenuFactory.create(user, i18n, menuEntries);
 
   const displayName = user.username ?? fallbackName;
@@ -109,7 +102,7 @@ async function renderKnownUserReply(input: KnownUserReplyInput): Promise<void> {
     i18n.t('user-management.menu.welcome', {
       name: displayName,
       role: i18n.t(`user-management.role.${user.role}`),
-      language: i18n.t(`user-management.language.${user.language}`),
+      language: i18n.t(languageLabelKey(user.language)),
     }),
     { parse_mode: 'HTML', reply_markup: keyboard },
   );
@@ -130,6 +123,18 @@ function publicNavigationEntries(): readonly ModuleNavigationItem[] {
       .navigation?.getVisibleMainMenuItems?.({ role: 'GUEST', abilities: [] })
       .filter((entry) => entry.accessClassification === 'public') ?? []
   );
+}
+
+function mainMenuEntriesForUser(ctx: Context, user: UserProfile): readonly ModuleNavigationItem[] {
+  const navigation = getDeps().navigation;
+  if (navigation === undefined) return [];
+
+  const abilities = abilityTokensFromContext(ctx);
+  if (abilities.length > 0 && navigation.getVisibleMainMenuItems !== undefined) {
+    return navigation.getVisibleMainMenuItems({ role: user.role, abilities });
+  }
+
+  return navigation.getMainMenuItems(user.role);
 }
 
 function createMembershipRequestKeyboard(i18n: { t: (key: string) => string }): InlineKeyboard {
@@ -161,24 +166,11 @@ function readAccessMode(value: unknown): BotAccessMode {
   return value === 'public' ? 'public' : 'private';
 }
 
+function languageLabelKey(language: string): string {
+  const [baseLanguage] = language.split('-');
+  return `user-management.language.${baseLanguage ?? language}`;
+}
+
 function sessionUserFromContext(ctx: Context): SessionUserSnapshot | undefined {
   return (ctx as unknown as { sessionUser?: SessionUserSnapshot }).sessionUser;
-}
-
-function abilityTokensFromContext(ctx: Context): readonly string[] {
-  const ability = (ctx as unknown as { ability?: AnyAbility }).ability;
-  if (ability === undefined) return [];
-
-  return ability.rules.flatMap((rule: RawRuleOf<AnyAbility>) => {
-    const action = singleAbilityPart(rule.action);
-    const subject = singleAbilityPart(rule.subject);
-    if (action === null || subject === null) return [];
-    return [`${action}.${subject}`];
-  });
-}
-
-function singleAbilityPart(value: unknown): string | null {
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value) && value.length === 1 && typeof value[0] === 'string') return value[0];
-  return null;
 }

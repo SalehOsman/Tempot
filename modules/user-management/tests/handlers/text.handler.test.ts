@@ -240,7 +240,7 @@ describe('handleTextInput', () => {
       module: 'user-management',
       classification: 'protected',
       action: 'manage',
-      subject: 'users',
+      subject: 'roles',
     });
     expect(getUserService).not.toHaveBeenCalled();
     expect(handleEditRole).not.toHaveBeenCalled();

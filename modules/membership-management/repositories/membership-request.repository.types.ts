@@ -31,6 +31,10 @@ export interface MembershipRequestRepository {
     input: ListPendingMembershipRequestsInput,
   ): AsyncResult<MembershipRequest[], AppError>;
   createRequest(input: SubmitMembershipRequestInput): AsyncResult<MembershipRequest, AppError>;
+  updatePendingDetails(
+    requestId: string,
+    input: SubmitMembershipRequestInput,
+  ): AsyncResult<MembershipRequest, AppError>;
   markApproved(input: ApproveMembershipRequestInput): AsyncResult<MembershipRequest, AppError>;
   markRejected(input: RejectMembershipRequestInput): AsyncResult<MembershipRequest, AppError>;
   markCancelled(input: ResolveMembershipRequestInput): AsyncResult<MembershipRequest, AppError>;

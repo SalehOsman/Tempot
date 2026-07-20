@@ -15,6 +15,7 @@ import type {
   IngestCliArgs,
   ProcessFilesResult,
 } from './docs.types.js';
+import { deriveCorpusProfileFromDocPath } from './doc-discovery.js';
 
 interface IngestionState {
   processed: number;
@@ -86,11 +87,15 @@ async function handleDryRun(input: FileIngestionInput, context: RunnerContext): 
     });
     return;
   }
+  const corpusProfile = deriveCorpusProfileFromDocPath(input.file);
   context.deps.log({
     level: 'info',
     msg: 'dry-run',
     file: input.file,
     language: deriveLanguage(input.file),
+    corpusSegment: corpusProfile.corpusSegment,
+    sourcePriority: corpusProfile.sourcePriority,
+    sourceOfTruth: corpusProfile.sourceOfTruth,
     package: (fm?.['package'] as string | undefined) ?? null,
     contentType: 'developer-docs',
     hash: input.hash,

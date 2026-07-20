@@ -1,5 +1,5 @@
 {
-  "feature": "063-docs-ingestion-runtime-composition",
-  "feature_directory": "specs/063-docs-ingestion-runtime-composition",
-  "specPath": "specs/063-docs-ingestion-runtime-composition/spec.md"
+  "feature": "064-admin-user-access-console",
+  "feature_directory": "specs/064-admin-user-access-console",
+  "specPath": "specs/064-admin-user-access-console/spec.md"
 }

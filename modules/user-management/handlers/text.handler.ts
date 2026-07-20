@@ -3,7 +3,11 @@ import { getDeps, getI18n, getLogger } from '../deps.context.js';
 import type { UserProfile } from '../types/index.js';
 import type { ModuleAuthorizationPolicy } from '../types/module-deps.types.js';
 import { getUserService } from '../services/user-service.context.js';
-import { getUserInputState, clearUserInputState } from './user-state.service.js';
+import {
+  getUserInputState,
+  clearUserInputState,
+  type PendingInputState,
+} from './user-state.service.js';
 import {
   handleEditName,
   handleEditEmail,
@@ -28,40 +32,31 @@ async function dispatchTextAction(
   ctx: Context,
   user: UserProfile,
   payload: DispatchPayload,
-): Promise<void> {
+): Promise<boolean> {
   const { action, text } = payload;
   switch (action) {
     case 'edit_name':
-      await handleEditName(ctx, user, text);
-      break;
+      return handleEditName(ctx, user, text);
     case 'edit_email':
-      await handleEditEmail(ctx, user, text);
-      break;
+      return handleEditEmail(ctx, user, text);
     case 'edit_language':
-      await handleEditLanguage(ctx, user, text);
-      break;
+      return handleEditLanguage(ctx, user, text);
     case 'edit_role':
-      await handleEditRole(ctx, user, text);
-      break;
+      return handleEditRole(ctx, user, text);
     case 'edit_national_id':
-      await handleEditNationalId(ctx, user, text);
-      break;
+      return handleEditNationalId(ctx, user, text);
     case 'edit_mobile':
-      await handleEditMobile(ctx, user, text);
-      break;
+      return handleEditMobile(ctx, user, text);
     case 'edit_birth_date':
-      await handleEditBirthDate(ctx, user, text);
-      break;
+      return handleEditBirthDate(ctx, user, text);
     case 'edit_gender':
-      await handleEditGender(ctx, user, text);
-      break;
+      return handleEditGender(ctx, user, text);
     case 'edit_governorate':
-      await handleEditGovernorate(ctx, user, text);
-      break;
+      return handleEditGovernorate(ctx, user, text);
     case 'edit_country_code':
-      await handleEditCountryCode(ctx, user, text);
-      break;
+      return handleEditCountryCode(ctx, user, text);
   }
+  return false;
 }
 
 export async function handleTextInput(ctx: Context): Promise<void> {
@@ -81,7 +76,7 @@ export async function handleTextInput(ctx: Context): Promise<void> {
 
   const state = await getUserInputState(telegramId, chatId);
   if (!state) return;
-  const policy = resolveAuthorizationPolicy(state.action);
+  const policy = resolveAuthorizationPolicy(state);
   if (!(await getDeps().authorization.enforce(ctx, policy))) return;
 
   const userResult = await getUserService().getByTelegramId(telegramId);
@@ -91,12 +86,51 @@ export async function handleTextInput(ctx: Context): Promise<void> {
     return;
   }
 
-  await dispatchTextAction(ctx, userResult.value, { action: state.action, text });
+  const editableUser = await resolveEditableUser(ctx, userResult.value, state);
+  if (!editableUser) return;
+
+  const updated = await dispatchTextAction(ctx, editableUser, { action: state.action, text });
+  if (updated) await publishAdminUpdateEvent(userResult.value, state);
   await clearUserInputState(telegramId, chatId);
 }
 
-function resolveAuthorizationPolicy(action: string): ModuleAuthorizationPolicy {
-  if (action === 'edit_role') {
+async function publishAdminUpdateEvent(
+  actor: UserProfile,
+  state: PendingInputState,
+): Promise<void> {
+  if (!state.targetUserId) return;
+  await getDeps().eventBus.publish('user-management.user.admin_updated', {
+    actorUserId: actor.id,
+    targetUserId: state.targetUserId,
+    action: state.action,
+    status: 'success',
+  });
+}
+
+async function resolveEditableUser(
+  ctx: Context,
+  actor: UserProfile,
+  state: PendingInputState,
+): Promise<UserProfile | null> {
+  if (!state.targetUserId) return actor;
+  const targetResult = await getUserService().getById(state.targetUserId);
+  if (targetResult.isErr()) {
+    await ctx.reply(getI18n().t('user-management.profile.not_found'));
+    return null;
+  }
+  return targetResult.value;
+}
+
+function resolveAuthorizationPolicy(state: PendingInputState): ModuleAuthorizationPolicy {
+  if (state.action === 'edit_role') {
+    return {
+      module: 'user-management',
+      classification: 'protected',
+      action: 'manage',
+      subject: 'roles',
+    };
+  }
+  if (state.targetUserId) {
     return {
       module: 'user-management',
       classification: 'protected',

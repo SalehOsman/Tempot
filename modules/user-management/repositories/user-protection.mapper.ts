@@ -46,6 +46,7 @@ export class UserProtectionMapper {
 
   recover(user: UserProfile): Result<UserProfile, AppError> {
     const record: Record<string, unknown> = { ...user };
+    normalizeTelegramId(record);
     for (const [fieldId, protectedColumn] of PROTECTED_FIELDS) {
       const result = this.recoverField({
         record,
@@ -177,6 +178,13 @@ function invalidPayload(fieldId: ProtectedFieldId, recordId: string): Result<nev
       recordId,
     }),
   );
+}
+
+function normalizeTelegramId(record: Record<string, unknown>): void {
+  const telegramId = record['telegramId'];
+  if (typeof telegramId === 'bigint') {
+    record['telegramId'] = telegramId.toString();
+  }
 }
 
 function isProtectedPayload(value: unknown): value is ProtectedPayload {

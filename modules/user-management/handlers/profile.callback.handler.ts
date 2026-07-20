@@ -2,7 +2,7 @@ import { Context, InlineKeyboard } from 'grammy';
 import { ProfileMenuFactory } from '../menus/profile-menu.factory.js';
 import { getI18n } from '../deps.context.js';
 import type { UserProfile } from '../types/index.js';
-import { setUserInputState } from './user-state.service.js';
+import { setUserInputState, type UserInputAction } from './user-state.service.js';
 import { buildProfileMessage } from '../commands/profile.command.js';
 import { safeEditMessageText } from './callback-shared.handler.js';
 
@@ -34,7 +34,7 @@ async function promptInput(ctx: Context, action: string, backCallback: string): 
   const telegramId = ctx.from!.id.toString();
   const chatId = ctx.chat?.id.toString() ?? telegramId;
 
-  await setUserInputState(telegramId, chatId, action as Parameters<typeof setUserInputState>[2]);
+  await setUserInputState({ telegramId, chatId, action: action as UserInputAction });
 
   const promptText = i18n.t(PROMPT_KEYS[action] ?? 'user-management.profile.prompt.generic');
   const keyboard = new InlineKeyboard().text(i18n.t('user-management.common.cancel'), backCallback);
@@ -86,11 +86,11 @@ async function handleProfileView(ctx: Context, user: UserProfile): Promise<void>
   });
 }
 
-async function handleProfileEdit(ctx: Context, _user: UserProfile): Promise<void> {
+async function handleProfileEdit(ctx: Context, user: UserProfile): Promise<void> {
   const i18n = getI18n();
   await safeEditMessageText(ctx, i18n.t('user-management.profile.edit_prompt'), {
     parse_mode: 'HTML',
-    reply_markup: ProfileMenuFactory.createEdit(i18n),
+    reply_markup: ProfileMenuFactory.createEdit(user, i18n),
   });
 }
 

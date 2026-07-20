@@ -131,6 +131,7 @@ describe('UserService identity updates', () => {
     vi.spyOn(UserRepository.prototype, 'updateEmail').mockResolvedValue(ok(undefined));
     vi.spyOn(UserRepository.prototype, 'updateLanguage').mockResolvedValue(ok(undefined));
     vi.spyOn(UserRepository.prototype, 'updateRole').mockResolvedValue(ok(undefined));
+    vi.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(ok(userProfile()));
     const service = new UserService({ log: vi.fn().mockResolvedValue(undefined) });
 
     await expect(service.updateEmail('user-1', 'new@example.com')).resolves.toEqual(ok(undefined));
@@ -140,6 +141,22 @@ describe('UserService identity updates', () => {
     expect(UserRepository.prototype.updateEmail).toHaveBeenCalledWith('user-1', 'new@example.com');
     expect(UserRepository.prototype.updateLanguage).toHaveBeenCalledWith('user-1', 'en');
     expect(UserRepository.prototype.updateRole).toHaveBeenCalledWith('user-1', RoleEnum.ADMIN);
+  });
+
+  it('blocks demoting the last active super admin', async () => {
+    vi.spyOn(UserRepository.prototype, 'findById').mockResolvedValue(
+      ok(userProfile({ role: RoleEnum.SUPER_ADMIN })),
+    );
+    vi.spyOn(UserRepository.prototype, 'countActiveSuperAdmins').mockResolvedValue(ok(1));
+    vi.spyOn(UserRepository.prototype, 'updateRole').mockResolvedValue(ok(undefined));
+    const service = new UserService({ log: vi.fn().mockResolvedValue(undefined) });
+
+    const result = await service.updateRole('user-1', RoleEnum.ADMIN);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isOk()) return;
+    expect(result.error.code).toBe('user-management.users.role.last_super_admin');
+    expect(UserRepository.prototype.updateRole).not.toHaveBeenCalled();
   });
 
   it('delegates regional profile updates to the repository', async () => {

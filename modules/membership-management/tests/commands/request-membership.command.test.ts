@@ -1,9 +1,10 @@
 import type { Context } from 'grammy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { err, ok, AppError } from '@tempot/shared';
+import { ok } from '@tempot/shared';
 import { registerDeps, type MembershipManagementDeps } from '../../deps.context.js';
 import { requestMembershipCommand } from '../../commands/request-membership.command.js';
 import type { ModuleAuthorizationProvider } from '../../index.js';
+import { MembershipRequestDraftStore } from '../../services/membership-request-draft.store.js';
 
 type MembershipRequestServicePort = MembershipManagementDeps['membershipRequests'];
 
@@ -64,25 +65,21 @@ describe('requestMembershipCommand', () => {
     vi.clearAllMocks();
     service = createService();
     registerDeps({
+      adminNotifier: { notifySubmitted: vi.fn().mockResolvedValue(undefined) },
       authorization: createAuthorization(),
       i18n: { t: (key: string) => key },
       membershipRequests: service,
+      requestDrafts: new MembershipRequestDraftStore(),
     });
   });
 
-  it('should submit a membership request from Telegram identity', async () => {
+  it('should start membership data collection from Telegram identity', async () => {
     const ctx = createContext();
 
     await requestMembershipCommand(ctx);
 
-    expect(service.submit).toHaveBeenCalledWith({
-      telegramId: '123',
-      telegramUsername: 'visitor',
-      telegramFirstName: 'Visitor',
-      telegramLastName: 'User',
-      telegramLanguageCode: 'en',
-    });
-    expect(ctx.reply).toHaveBeenCalledWith('membership-management.request.submitted', {
+    expect(service.submit).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith('membership-management.request.prompt.full_name', {
       parse_mode: 'HTML',
     });
   });
@@ -94,16 +91,5 @@ describe('requestMembershipCommand', () => {
 
     expect(service.submit).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith('membership-management.request.identity_missing');
-  });
-
-  it('should reply with failure message when submission fails', async () => {
-    service.submit = vi
-      .fn()
-      .mockResolvedValue(err(new AppError('membership-management.create_failed')));
-    const ctx = createContext();
-
-    await requestMembershipCommand(ctx);
-
-    expect(ctx.reply).toHaveBeenCalledWith('membership-management.request.failed');
   });
 });

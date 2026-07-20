@@ -2,22 +2,15 @@
   "languagePolicy": {
     "entries": [
       {
-        "pattern": "docs/analysis-2026-06-10/**",
+        "pattern": "docs/project-analysis/analysis-2026-06-10/**",
         "reason": "Legacy Arabic analysis set scheduled for translation or removal by the Arabic documentation remediation specification.",
         "added_at": "2026-07-11",
         "expires_at": "2026-10-09",
         "owner_spec": "061-arabic-docs-translation-or-removal"
       },
       {
-        "pattern": "docs/analysis-2026-06-23/**",
+        "pattern": "docs/project-analysis/analysis-2026-06-23/**",
         "reason": "Legacy Arabic analysis set scheduled for translation or removal by the Arabic documentation remediation specification.",
-        "added_at": "2026-07-11",
-        "expires_at": "2026-10-09",
-        "owner_spec": "061-arabic-docs-translation-or-removal"
-      },
-      {
-        "pattern": "docs/architecture/tempot_architecture.md",
-        "reason": "Legacy Arabic architecture source is tracked as documentation translation debt for follow-up remediation.",
         "added_at": "2026-07-11",
         "expires_at": "2026-10-09",
         "owner_spec": "061-arabic-docs-translation-or-removal"
@@ -30,7 +23,7 @@
         "owner_spec": "061-arabic-docs-translation-or-removal"
       },
       {
-        "pattern": "docs/code-review-2025-05-18/**",
+        "pattern": "docs/project-analysis/code-review-2025-05-18/**",
         "reason": "Legacy Arabic code-review package is retained temporarily until translated or removed by the documentation remediation work.",
         "added_at": "2026-07-11",
         "expires_at": "2026-10-09",
@@ -196,14 +189,6 @@
     "entries": []
   },
   "eslintDisable": {
-    "entries": [
-      {
-        "pattern": "apps/bot-server/scripts/webhook-manager.ts",
-        "reason": "Existing webhook management script uses temporary lint suppressions tracked for workspace cleanup remediation.",
-        "added_at": "2026-07-11",
-        "expires_at": "2026-10-09",
-        "owner_spec": "060-workspace-cleanup"
-      }
-    ]
+    "entries": []
   }
 }

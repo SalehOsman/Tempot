@@ -2,6 +2,11 @@ import type { Context, NextFunction } from 'grammy';
 import { getDeps } from '../deps.context.js';
 import type { ModuleAuthorizationPolicy } from '../index.js';
 import {
+  MEMBERSHIP_REASON_SKIP_CALLBACK,
+  skipMembershipRequestReason,
+  startMembershipRequestFlow,
+} from './membership-request-flow.handler.js';
+import {
   createBackToListMenu,
   createPendingRequestsMenu,
   createReviewActionsMenu,
@@ -38,7 +43,13 @@ export async function handleCallbackQuery(
 
   if (data === 'membership:request') {
     if (!(await getDeps().authorization.enforce(ctx, REQUEST_POLICY))) return;
-    await submitMembershipRequest(ctx);
+    await startMembershipRequestFlow(ctx);
+    return;
+  }
+
+  if (data === MEMBERSHIP_REASON_SKIP_CALLBACK) {
+    if (!(await getDeps().authorization.enforce(ctx, REQUEST_POLICY))) return;
+    await skipMembershipRequestReason(ctx);
     return;
   }
 
@@ -47,32 +58,6 @@ export async function handleCallbackQuery(
   if (handled) return;
 
   await next();
-}
-
-async function submitMembershipRequest(ctx: Context): Promise<void> {
-  const { i18n, membershipRequests } = getDeps();
-  const telegramUser = ctx.from;
-  if (telegramUser === undefined) {
-    await ctx.reply(i18n.t('membership-management.request.identity_missing'));
-    return;
-  }
-
-  const result = await membershipRequests.submit({
-    telegramId: String(telegramUser.id),
-    telegramUsername: telegramUser.username,
-    telegramFirstName: telegramUser.first_name,
-    telegramLastName: telegramUser.last_name,
-    telegramLanguageCode: telegramUser.language_code,
-  });
-
-  if (result.isErr()) {
-    await ctx.reply(i18n.t('membership-management.request.failed'));
-    return;
-  }
-
-  await ctx.editMessageText(i18n.t('membership-management.request.submitted'), {
-    parse_mode: 'HTML',
-  });
 }
 
 async function handleAdminMembershipCallback(ctx: Context, data: string): Promise<boolean> {
@@ -115,8 +100,12 @@ async function showRequestDetail(ctx: Context, requestId: string): Promise<boole
   await ctx.editMessageText(
     i18n.t('membership-management.admin.detail.body', {
       telegramId: request.telegramId,
+      fullName: request.fullName ?? '-',
+      nickname: request.nickname ?? '-',
+      mobileNumber: request.mobileNumber ?? '-',
       username: request.telegramUsername ?? '-',
       language: request.telegramLanguageCode ?? '-',
+      requestMessage: request.requestMessage ?? '-',
       requestedAt: request.requestedAt.toISOString(),
     }),
     {

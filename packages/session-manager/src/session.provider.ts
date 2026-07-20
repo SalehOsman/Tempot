@@ -70,6 +70,9 @@ export class SessionProvider implements ISessionProvider {
     }
 
     // 2. Try Repository (PostgreSQL — async persistence source)
+    const fallbackSession = this.memoryStore.get(key);
+    if (fallbackSession) return ok(fallbackSession);
+
     const id = `${userId}:${chatId}`;
     const repoResult = await this.deps.repository.findById(id);
 

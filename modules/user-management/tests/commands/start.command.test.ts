@@ -279,4 +279,64 @@ describe('startCommand', () => {
     });
     expect(saveSession).toHaveBeenCalledWith(expect.objectContaining({ language: 'en' }));
   });
+
+  it('should create an active session for approved users when no session exists yet', async () => {
+    const saveSession = vi.fn().mockResolvedValue({ isOk: () => true });
+    const navigationEntries = [
+      {
+        id: 'profile',
+        labelKey: 'user-management.menu.button.profile',
+        callbackData: 'profile:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.profile',
+        row: 0,
+        order: 10,
+      },
+    ] as const;
+    const navigation = {
+      getMainMenuItems: vi.fn().mockReturnValue(navigationEntries),
+      getVisibleMainMenuItems: vi.fn().mockReturnValue([]),
+    };
+    const profile = {
+      id: '1',
+      username: 'approved',
+      email: 'approved@example.com',
+      language: 'en',
+      role: 'USER',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    vi.mocked(getUserService).mockReturnValue({
+      getByTelegramId: vi.fn().mockResolvedValue({ isErr: () => false, value: profile }),
+    } as never);
+    vi.mocked(MainMenuFactory.create).mockReturnValue({ inline_keyboard: [] } as never);
+    registerDeps({
+      logger: createLogger(),
+      i18n: { t },
+      eventBus: { publish },
+      sessionProvider: {
+        getSession: vi.fn().mockResolvedValue({ isOk: () => false }),
+        saveSession,
+      },
+      settings: { get: vi.fn() },
+      navigation,
+      config: {} as never,
+    });
+
+    await startCommand(createContext());
+
+    expect(saveSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: '123456789',
+        chatId: '123456789',
+        role: 'USER',
+        status: 'ACTIVE',
+        language: 'en',
+      }),
+    );
+    expect(navigation.getMainMenuItems).toHaveBeenCalledWith('USER');
+    expect(MainMenuFactory.create).toHaveBeenCalledWith(profile, { t }, navigationEntries);
+  });
 });

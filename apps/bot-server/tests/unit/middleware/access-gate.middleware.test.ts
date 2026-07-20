@@ -254,6 +254,20 @@ describe('createAccessGateMiddleware', () => {
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
+  it('should allow membership request reason skip callbacks for unresolved guests', async () => {
+    const deps = createDeps();
+    const ctx = createContext({
+      message: undefined,
+      callbackQuery: { data: 'membership:request:reason:skip' },
+    });
+    const next = vi.fn().mockResolvedValue(undefined);
+
+    await createAccessGateMiddleware(deps)(ctx as never, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
   it('should deny membership administration callbacks for unresolved guests', async () => {
     const deps = createDeps();
     const ctx = createContext({

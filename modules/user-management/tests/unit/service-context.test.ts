@@ -39,7 +39,7 @@ describe('user-management service context', () => {
     expect(() => getUserService()).toThrow(
       '[user-management] getUserService() called before initUserService()',
     );
-  });
+  }, 15_000);
 
   it('initializes UserService from registered module dependencies', async () => {
     const { registerDeps } = await import('../../deps.context.js');

@@ -6,10 +6,10 @@
 ## CI Security Gates
 
 - `pnpm audit --audit-level=high` is blocking.
+- Gitleaks secret scanning is blocking for pull requests and pushes.
 - High and critical vulnerabilities require remediation or a dated exception.
 - `pnpm cms:check` blocks hardcoded user-facing text and locale drift.
 - Future dependency review should run on PRs.
-- Future secret scanning should run on PRs and pushes.
 
 ## Secret Handling
 

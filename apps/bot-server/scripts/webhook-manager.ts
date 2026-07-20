@@ -1,88 +1,108 @@
-/* eslint-disable no-console */
-/* eslint-disable max-lines-per-function */
-import * as dotenv from 'dotenv';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Bot } from 'grammy';
+import type { WebhookInfo } from 'grammy/types';
+import { resolveWebhookManagerConfig } from './webhook-manager.config.js';
+import type { WebhookManagerConfig } from './webhook-manager.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const WEBHOOK_PATH = '/bot';
 
-// Load .env from workspace root
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
-
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const WEBHOOK_URL = process.env.WEBHOOK_URL;
-const BOT_MODE = process.env.BOT_MODE;
-const TEST_WEBHOOK_SECRET = process.env.TEST_WEBHOOK_SECRET || 'fallback_secret_token';
-
-if (!BOT_TOKEN) {
-  console.error('Error: BOT_TOKEN is missing in environment variables.');
-  process.exit(1);
+function loadRootEnvFile(): void {
+  const envPath = path.resolve(__dirname, '../../../.env');
+  if (existsSync(envPath) && typeof process.loadEnvFile === 'function') {
+    process.loadEnvFile(envPath);
+  }
 }
 
-const bot = new Bot(BOT_TOKEN);
-const action = process.argv[2];
+loadRootEnvFile();
 
-async function main() {
+function writeOutput(message: string): void {
+  process.stdout.write(`${message}\n`);
+}
+
+function writeError(message: string): void {
+  process.stderr.write(`${message}\n`);
+}
+
+function webhookEndpoint(webhookUrl: string): string {
+  return `${webhookUrl.replace(/\/$/, '')}${WEBHOOK_PATH}`;
+}
+
+async function runWebhookAction(config: WebhookManagerConfig): Promise<void> {
+  const bot = new Bot(config.botToken);
+  if (config.action === 'set') {
+    await setWebhook(bot, config);
+    return;
+  }
+  if (config.action === 'delete') {
+    await deleteWebhook(bot);
+    return;
+  }
+  await printWebhookInfo(bot);
+}
+
+async function setWebhook(bot: Bot, config: WebhookManagerConfig): Promise<void> {
+  if (!config.webhookUrl || !config.webhookSecret) {
+    throw new Error('Webhook URL and secret are required for set action.');
+  }
+  const endpoint = webhookEndpoint(config.webhookUrl);
+  writeOutput(`Setting webhook to ${endpoint}...`);
+  await bot.api.setWebhook(endpoint, { secret_token: config.webhookSecret });
+  writeOutput('Webhook set successfully.');
+}
+
+async function deleteWebhook(bot: Bot): Promise<void> {
+  writeOutput('Deleting webhook...');
+  await bot.api.deleteWebhook({ drop_pending_updates: false });
+  writeOutput('Webhook deleted successfully.');
+}
+
+async function printWebhookInfo(bot: Bot): Promise<void> {
+  writeOutput('Fetching webhook info...');
+  renderWebhookInfo(await bot.api.getWebhookInfo());
+}
+
+function renderWebhookInfo(info: WebhookInfo): void {
+  writeOutput('');
+  writeOutput('--- Webhook Info ---');
+  writeOutput(`URL: ${info.url || '(none)'}`);
+  writeOutput(`Has Custom Certificate: ${String(info.has_custom_certificate)}`);
+  writeOutput(`Pending Update Count: ${String(info.pending_update_count)}`);
+  if (info.ip_address) writeOutput(`IP Address: ${info.ip_address}`);
+  if (info.last_error_date) {
+    writeOutput(`Last Error Date: ${new Date(info.last_error_date * 1000).toLocaleString()}`);
+  }
+  if (info.last_error_message) writeOutput(`Last Error Message: ${info.last_error_message}`);
+  if (info.last_synchronization_error_date) {
+    writeOutput(
+      `Last Sync Error Date: ${new Date(info.last_synchronization_error_date * 1000).toLocaleString()}`,
+    );
+  }
+  if (info.max_connections) writeOutput(`Max Connections: ${String(info.max_connections)}`);
+  if (info.allowed_updates) writeOutput(`Allowed Updates: ${info.allowed_updates.join(', ')}`);
+  writeOutput('--------------------');
+  writeOutput('');
+}
+
+async function main(): Promise<void> {
+  const configResult = resolveWebhookManagerConfig({
+    action: process.argv[2],
+    env: process.env,
+  });
+  if (configResult.isErr()) {
+    writeError(`Error: ${configResult.error.code}`);
+    process.exitCode = 1;
+    return;
+  }
+
   try {
-    switch (action) {
-      case 'set':
-        if (BOT_MODE !== 'webhook') {
-          console.error('Error: BOT_MODE must be set to "webhook" to set a webhook.');
-          process.exit(1);
-        }
-        if (!WEBHOOK_URL) {
-          console.error('Error: WEBHOOK_URL is missing in environment variables.');
-          process.exit(1);
-        }
-
-        console.log(`Setting webhook to ${WEBHOOK_URL}/bot...`);
-        await bot.api.setWebhook(`${WEBHOOK_URL}/bot`, {
-          secret_token: TEST_WEBHOOK_SECRET,
-        });
-        console.log('Webhook set successfully.');
-        break;
-
-      case 'delete':
-        console.log('Deleting webhook...');
-        await bot.api.deleteWebhook({ drop_pending_updates: false });
-        console.log('Webhook deleted successfully.');
-        break;
-
-      case 'info': {
-        console.log('Fetching webhook info...');
-        const info = await bot.api.getWebhookInfo();
-        console.log('\n--- Webhook Info ---');
-        console.log(`URL: ${info.url || '(none)'}`);
-        console.log(`Has Custom Certificate: ${info.has_custom_certificate}`);
-        console.log(`Pending Update Count: ${info.pending_update_count}`);
-        if (info.ip_address) console.log(`IP Address: ${info.ip_address}`);
-        if (info.last_error_date) {
-          console.log(`Last Error Date: ${new Date(info.last_error_date * 1000).toLocaleString()}`);
-        }
-        if (info.last_error_message) {
-          console.log(`Last Error Message: ${info.last_error_message}`);
-        }
-        if (info.last_synchronization_error_date) {
-          console.log(
-            `Last Sync Error Date: ${new Date(info.last_synchronization_error_date * 1000).toLocaleString()}`,
-          );
-        }
-        if (info.max_connections) console.log(`Max Connections: ${info.max_connections}`);
-        if (info.allowed_updates)
-          console.log(`Allowed Updates: ${info.allowed_updates.join(', ')}`);
-        console.log('--------------------\n');
-        break;
-      }
-
-      default:
-        console.error(`Error: Unknown action "${action}". Valid actions are: set, delete, info.`);
-        process.exit(1);
-    }
+    await runWebhookAction(configResult.value);
   } catch (error) {
-    console.error('Error executing webhook manager:', error);
-    process.exit(1);
+    writeError(`Error executing webhook manager: ${String(error)}`);
+    process.exitCode = 1;
   }
 }
 

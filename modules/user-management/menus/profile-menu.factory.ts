@@ -26,13 +26,18 @@ export class ProfileMenuFactory {
       .text(i18n.t('user-management.menu.back'), 'menu:main');
   }
 
-  static createEdit(i18n: ModuleI18n): InlineKeyboard {
-    return new InlineKeyboard()
+  static createEdit(user: UserProfile, i18n: ModuleI18n): InlineKeyboard {
+    const keyboard = new InlineKeyboard()
       .text(i18n.t('user-management.profile.button.name'), 'profile:edit:name')
       .text(i18n.t('user-management.profile.button.email'), 'profile:edit:email')
       .row()
-      .text(i18n.t('user-management.profile.button.language'), 'profile:edit:language')
-      .text(i18n.t('user-management.profile.button.role'), 'profile:edit:role')
+      .text(i18n.t('user-management.profile.button.language'), 'profile:edit:language');
+
+    if (canManageUsers(user)) {
+      keyboard.text(i18n.t('user-management.profile.button.role'), 'profile:edit:role');
+    }
+
+    return keyboard
       .row()
       .text(i18n.t('user-management.profile.button.personal'), 'profile:edit:personal')
       .row()
@@ -164,4 +169,8 @@ function hasActivityMetrics(user: UserProfile): boolean {
     hasValue(user.activeTime) ||
     hasValue(user.rating)
   );
+}
+
+function canManageUsers(user: UserProfile): boolean {
+  return user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
 }

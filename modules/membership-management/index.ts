@@ -3,9 +3,12 @@ import type { ModuleConfig } from '@tempot/module-registry';
 import { AppError, err, ok } from '@tempot/shared';
 import { PrismaMembershipRequestRepository } from './repositories/membership-request.repository.js';
 import { MembershipRequestService } from './services/membership-request.service.js';
+import { createMembershipAdminNotifier } from './services/membership-admin-notifier.js';
+import { MembershipRequestDraftStore } from './services/membership-request-draft.store.js';
 import { registerDeps } from './deps.context.js';
 import { requestMembershipCommand } from './commands/request-membership.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
+import { handleMembershipText } from './handlers/membership-request-flow.handler.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -58,11 +61,19 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
       },
     },
   });
+  const adminNotifier = createMembershipAdminNotifier({
+    api: bot.api,
+    logger: deps.logger,
+    superAdminIds: readSuperAdminIds(),
+    t: deps.i18n.t,
+  });
 
   registerDeps({
+    adminNotifier,
     authorization: deps.authorization,
     i18n: deps.i18n,
     membershipRequests,
+    requestDrafts: new MembershipRequestDraftStore(),
   });
 
   bot.command(
@@ -76,11 +87,21 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
     requestMembershipCommand,
   );
   bot.on('callback_query:data', handleCallbackQuery);
+  bot.on('message:text', handleMembershipText);
   deps.logger.info({
     msg: 'membership-management handlers registered',
     commandCount: deps.config.commands.length,
   });
 };
+
+function readSuperAdminIds(): number[] {
+  const raw = process.env['SUPER_ADMIN_IDS'];
+  if (raw === undefined || raw.trim() === '') return [];
+  return raw
+    .split(',')
+    .map((value) => Number(value.trim()))
+    .filter((value) => Number.isInteger(value));
+}
 
 export default setup;
 export { membershipAbilityDefinition as abilityDefinition } from './abilities.js';

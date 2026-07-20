@@ -4,7 +4,8 @@ import type {
   MembershipApprovalProfileInput,
   MembershipApprovalProfileResult,
 } from '../services/membership-approval-profile.service.js';
-import type { ModuleLogger } from '../types/module-deps.types.js';
+import { saveProfileSession } from '../services/session-language-sync.service.js';
+import type { ModuleLogger, ModuleSessionProvider } from '../types/module-deps.types.js';
 
 export interface MembershipApprovalProfileServicePort {
   ensureProfileFromApproval(
@@ -15,6 +16,7 @@ export interface MembershipApprovalProfileServicePort {
 export function createMembershipApprovalHandler(
   service: MembershipApprovalProfileServicePort,
   logger: ModuleLogger,
+  sessionProvider?: ModuleSessionProvider,
 ): (payload: unknown) => Promise<void> {
   return async (payload: unknown): Promise<void> => {
     const parsed = parsePayload(payload);
@@ -31,6 +33,10 @@ export function createMembershipApprovalHandler(
         errorCode: result.error.code,
       });
       return;
+    }
+
+    if (sessionProvider !== undefined) {
+      await saveProfileSession({ sessionProvider, user: result.value.user });
     }
 
     logger.info({

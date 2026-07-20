@@ -25,21 +25,29 @@ const STATE_TTL_MS = 5 * 60 * 1000;
 export interface PendingInputState {
   action: UserInputAction;
   timestamp: number;
+  targetUserId?: string;
 }
 
-export async function setUserInputState(
-  telegramId: string,
-  chatId: string,
-  action: UserInputAction,
-): Promise<void> {
+interface SetUserInputStateRequest {
+  telegramId: string;
+  chatId: string;
+  action: UserInputAction;
+  targetUserId?: string;
+}
+
+export async function setUserInputState(request: SetUserInputStateRequest): Promise<void> {
+  const { telegramId, chatId, action, targetUserId } = request;
   const deps = getDeps();
   const sessionResult = await deps.sessionProvider.getSession(telegramId, chatId);
 
   if (sessionResult && typeof sessionResult === 'object' && 'isOk' in sessionResult) {
-    const result = sessionResult as { isOk: () => boolean; value: { metadata: Record<string, unknown> | null; [k: string]: unknown } };
+    const result = sessionResult as {
+      isOk: () => boolean;
+      value: { metadata: Record<string, unknown> | null; [k: string]: unknown };
+    };
     if (result.isOk()) {
       const session = result.value;
-      const state: PendingInputState = { action, timestamp: Date.now() };
+      const state = createPendingState(action, targetUserId);
       const metadata: Record<string, unknown> = {
         ...(session.metadata ?? {}),
         pendingInputState: state,
@@ -54,7 +62,12 @@ export async function setUserInputState(
     }
   }
 
-  localFallbackStore.set(telegramId, { action, timestamp: Date.now() });
+  localFallbackStore.set(telegramId, createPendingState(action, targetUserId));
+}
+
+function createPendingState(action: UserInputAction, targetUserId?: string): PendingInputState {
+  const baseState = { action, timestamp: Date.now() };
+  return targetUserId ? { ...baseState, targetUserId } : baseState;
 }
 
 export async function getUserInputState(
@@ -65,7 +78,10 @@ export async function getUserInputState(
   const sessionResult = await deps.sessionProvider.getSession(telegramId, chatId);
 
   if (sessionResult && typeof sessionResult === 'object' && 'isOk' in sessionResult) {
-    const result = sessionResult as { isOk: () => boolean; value: { metadata: Record<string, unknown> | null } };
+    const result = sessionResult as {
+      isOk: () => boolean;
+      value: { metadata: Record<string, unknown> | null };
+    };
     if (result.isOk()) {
       const meta = result.value.metadata;
       if (meta && typeof meta['pendingInputState'] === 'object' && meta['pendingInputState']) {

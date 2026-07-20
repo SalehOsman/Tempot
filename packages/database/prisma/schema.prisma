@@ -368,6 +368,9 @@ model TemplateSubscription {
 model MembershipRequest {
   id                   String    @id @default(cuid())
   telegramId           BigInt    @map("telegram_id")
+  fullName             String?   @map("full_name")
+  nickname             String?   @map("nickname")
+  mobileNumber         String?   @map("mobile_number")
   telegramUsername     String?   @map("telegram_username")
   telegramFirstName    String?   @map("telegram_first_name")
   telegramLastName     String?   @map("telegram_last_name")

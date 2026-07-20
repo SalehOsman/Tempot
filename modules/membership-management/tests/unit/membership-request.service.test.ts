@@ -59,6 +59,26 @@ function repository(
         createdUserProfileId: null,
       }),
     ),
+    updatePendingDetails: vi.fn().mockImplementation(async (requestId, input) =>
+      ok({
+        id: requestId,
+        telegramId: input.telegramId,
+        fullName: input.fullName ?? null,
+        nickname: input.nickname ?? null,
+        mobileNumber: input.mobileNumber ?? null,
+        telegramUsername: input.telegramUsername ?? null,
+        telegramFirstName: input.telegramFirstName ?? null,
+        telegramLastName: input.telegramLastName ?? null,
+        telegramLanguageCode: input.telegramLanguageCode ?? null,
+        requestMessage: input.requestMessage ?? null,
+        status: 'PENDING',
+        requestedAt: new Date('2026-06-22T00:00:00.000Z'),
+        reviewedAt: null,
+        reviewerUserId: null,
+        rejectionReason: null,
+        createdUserProfileId: null,
+      }),
+    ),
     markApproved: vi.fn().mockResolvedValue(
       ok({
         id: 'request-1',
@@ -179,7 +199,7 @@ describe('MembershipRequestService', () => {
     expect(repo.findRequestById).toHaveBeenCalledWith('request-1');
   });
 
-  it('should return existing pending request without creating duplicate', async () => {
+  it('should update existing pending request without creating duplicate', async () => {
     const existing = {
       id: 'request-existing',
       telegramId: '123',
@@ -199,13 +219,28 @@ describe('MembershipRequestService', () => {
     });
     const service = new MembershipRequestService({ repository: repo, eventBus: eventBus() });
 
-    const result = await service.submit({ telegramId: '123' });
+    const result = await service.submit({
+      telegramId: '123',
+      fullName: 'Visitor User',
+      nickname: 'Visitor',
+      mobileNumber: '01012345678',
+      requestMessage: 'Need access',
+    });
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       expect(result.value.id).toBe('request-existing');
+      expect(result.value.fullName).toBe('Visitor User');
+      expect(result.value.mobileNumber).toBe('01012345678');
     }
     expect(repo.createRequest).not.toHaveBeenCalled();
+    expect(repo.updatePendingDetails).toHaveBeenCalledWith('request-existing', {
+      telegramId: '123',
+      fullName: 'Visitor User',
+      nickname: 'Visitor',
+      mobileNumber: '01012345678',
+      requestMessage: 'Need access',
+    });
   });
 
   it('should approve pending request and publish approval event', async () => {

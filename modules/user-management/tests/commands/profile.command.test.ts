@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerDeps } from '../../deps.context.js';
 import { ProfileMenuFactory } from '../../menus/profile-menu.factory.js';
 import { getUserService } from '../../services/user-service.context.js';
-import { profileCommand } from '../../commands/profile.command.js';
+import { buildProfileMessage, profileCommand } from '../../commands/profile.command.js';
 
 vi.mock('../../services/user-service.context.js', () => ({
   getUserService: vi.fn(),
@@ -101,5 +101,31 @@ describe('profileCommand', () => {
       parse_mode: 'HTML',
       reply_markup: keyboard,
     });
+  });
+
+  it('should localize regional profile labels instead of rendering raw keys', () => {
+    const profileT = vi.fn((key: string, options?: Record<string, unknown>) => {
+      if (key === 'eg.governorates.cairo') return 'Cairo';
+      if (key === 'user-management.profile.view_message') {
+        return String(options?.['governorate']);
+      }
+      return options?.['username'] ? `${key}:${String(options['username'])}` : key;
+    });
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      language: 'en',
+      role: 'USER',
+      telegramId: '123456789',
+      governorate: 'eg.governorates.cairo',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const message = buildProfileMessage(mockUser, { t: profileT });
+
+    expect(message).toBe('Cairo');
+    expect(message).not.toContain('eg.governorates.cairo');
   });
 });

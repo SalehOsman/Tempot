@@ -39,4 +39,19 @@ describe('UserProtectionMapper protected-read cutover', () => {
     if (result.isErr()) return;
     expect(result.value.email).toBe('legacy@example.invalid');
   });
+
+  it('should normalize Prisma BigInt Telegram IDs to strings', () => {
+    const mapper = new UserProtectionMapper(undefined, 'legacy-compatible');
+    const storedUser = {
+      ...legacyUser(),
+      email: undefined,
+      telegramId: 6639814946n,
+    } as unknown as UserProfile;
+
+    const result = mapper.recover(storedUser);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    expect(result.value.telegramId).toBe('6639814946');
+  });
 });
