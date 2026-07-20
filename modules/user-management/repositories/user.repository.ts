@@ -148,39 +148,17 @@ export class UserRepository extends BaseRepository<UserProfile> {
       pageSize,
     });
   }
-  updateUsername(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'username', value);
-  }
-  updateEmail(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'email', value);
-  }
-  updateLanguage(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'language', value);
-  }
-  updateRole(userId: string, value: RoleEnum): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'role', value);
-  }
-  updateIdentity(userId: string, value: IdentityUpdateData): Promise<Result<void, AppError>> {
-    return this.updateFields(userId, { ...value });
-  }
-  updateNationalId(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'nationalId', value);
-  }
-  updateMobileNumber(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'mobileNumber', value);
-  }
-  updateBirthDate(userId: string, value: Date): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'birthDate', value);
-  }
-  updateGender(userId: string, value: 'male' | 'female'): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'gender', value);
-  }
-  updateGovernorate(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'governorate', value);
-  }
-  updateCountryCode(userId: string, value: string): Promise<Result<void, AppError>> {
-    return this.updateField(userId, 'countryCode', value);
-  }
+  updateUsername = (id: string, val: string) => this.updateField(id, 'username', val);
+  updateEmail = (id: string, val: string) => this.updateField(id, 'email', val);
+  updateLanguage = (id: string, val: string) => this.updateField(id, 'language', val);
+  updateRole = (id: string, val: RoleEnum) => this.updateField(id, 'role', val);
+  updateIdentity = (id: string, val: IdentityUpdateData) => this.updateFields(id, { ...val });
+  updateNationalId = (id: string, val: string) => this.updateField(id, 'nationalId', val);
+  updateMobileNumber = (id: string, val: string) => this.updateField(id, 'mobileNumber', val);
+  updateBirthDate = (id: string, val: Date) => this.updateField(id, 'birthDate', val);
+  updateGender = (id: string, val: 'male' | 'female') => this.updateField(id, 'gender', val);
+  updateGovernorate = (id: string, val: string) => this.updateField(id, 'governorate', val);
+  updateCountryCode = (id: string, val: string) => this.updateField(id, 'countryCode', val);
   private async persistUpdate(
     id: string,
     data: Record<string, unknown>,
