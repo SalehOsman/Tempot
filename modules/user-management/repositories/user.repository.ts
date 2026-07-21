@@ -22,9 +22,8 @@ import {
   buildUserSearchWhere,
   countActiveSuperAdmins,
   countUsers,
-  normalizeNationalId,
+  findByNationalIdOp,
   parseTelegramId,
-  requireProtectionLookup,
 } from './user-search.operations.js';
 export class UserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management';
@@ -105,25 +104,7 @@ export class UserRepository extends BaseRepository<UserProfile> {
     return countActiveSuperAdmins(this.model);
   }
   async findByNationalId(nationalId: string): Promise<Result<UserProfile, AppError>> {
-    const conditions = this.protectionMapper.createLookupConditions(nationalId, 'nationalId');
-    if (conditions.isErr()) return err(conditions.error);
-    const protectedLookup = requireProtectionLookup(conditions.value);
-    if (protectedLookup.isErr()) return err(protectedLookup.error);
-
-    const result = await super.findMany({ where: protectedLookup.value });
-    if (result.isErr()) return err(result.error);
-
-    const normalizedNationalId = normalizeNationalId(nationalId);
-    if (normalizedNationalId.isErr()) return err(normalizedNationalId.error);
-    for (const candidate of result.value) {
-      const recovery = this.recoverProtectedFields(candidate);
-      if (recovery.isErr()) return err(recovery.error);
-      if (recovery.value.nationalId === undefined) continue;
-      const normalizedCandidate = normalizeNationalId(recovery.value.nationalId);
-      if (normalizedCandidate.isErr()) return err(normalizedCandidate.error);
-      if (normalizedCandidate.value === normalizedNationalId.value) return recovery;
-    }
-    return err(new AppError('user-management.not_found'));
+    return findByNationalIdOp(nationalId, this.protectionMapper, (a) => super.findMany(a));
   }
 
   async search(
@@ -148,17 +129,39 @@ export class UserRepository extends BaseRepository<UserProfile> {
       pageSize,
     });
   }
-  updateUsername = (id: string, val: string) => this.updateField(id, 'username', val);
-  updateEmail = (id: string, val: string) => this.updateField(id, 'email', val);
-  updateLanguage = (id: string, val: string) => this.updateField(id, 'language', val);
-  updateRole = (id: string, val: RoleEnum) => this.updateField(id, 'role', val);
-  updateIdentity = (id: string, val: IdentityUpdateData) => this.updateFields(id, { ...val });
-  updateNationalId = (id: string, val: string) => this.updateField(id, 'nationalId', val);
-  updateMobileNumber = (id: string, val: string) => this.updateField(id, 'mobileNumber', val);
-  updateBirthDate = (id: string, val: Date) => this.updateField(id, 'birthDate', val);
-  updateGender = (id: string, val: 'male' | 'female') => this.updateField(id, 'gender', val);
-  updateGovernorate = (id: string, val: string) => this.updateField(id, 'governorate', val);
-  updateCountryCode = (id: string, val: string) => this.updateField(id, 'countryCode', val);
+  updateUsername(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'username', value);
+  }
+  updateEmail(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'email', value);
+  }
+  updateLanguage(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'language', value);
+  }
+  updateRole(userId: string, value: RoleEnum): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'role', value);
+  }
+  updateIdentity(userId: string, value: IdentityUpdateData): Promise<Result<void, AppError>> {
+    return this.updateFields(userId, { ...value });
+  }
+  updateNationalId(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'nationalId', value);
+  }
+  updateMobileNumber(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'mobileNumber', value);
+  }
+  updateBirthDate(userId: string, value: Date): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'birthDate', value);
+  }
+  updateGender(userId: string, value: 'male' | 'female'): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'gender', value);
+  }
+  updateGovernorate(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'governorate', value);
+  }
+  updateCountryCode(userId: string, value: string): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'countryCode', value);
+  }
   private async persistUpdate(
     id: string,
     data: Record<string, unknown>,

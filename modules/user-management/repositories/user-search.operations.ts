@@ -2,7 +2,7 @@ import { PROTECTED_DATA_ERRORS, enforceActiveRecordScope } from '@tempot/databas
 import { RoleEnum } from '@tempot/auth-core';
 import { AppError } from '@tempot/shared';
 import { err, ok, type Result } from 'neverthrow';
-import type { UserSearchDelegate } from '../types/index.js';
+import type { UserProfile, UserSearchDelegate } from '../types/index.js';
 import { canonicalizeUserLookupValue } from './user-lookup.normalizer.js';
 import type { UserProtectionMapper } from './user-protection.mapper.js';
 
@@ -54,4 +54,30 @@ export function countActiveSuperAdmins(model: unknown): Promise<Result<number, A
 export function requireProtectionLookup<T>(value: T | undefined): Result<T, AppError> {
   if (!value) return err(new AppError(PROTECTED_DATA_ERRORS.NOT_CONFIGURED));
   return ok(value);
+}
+
+export async function findByNationalIdOp(
+  nationalId: string,
+  protectionMapper: Pick<UserProtectionMapper, 'createLookupConditions' | 'recover'>,
+  findMany: (args: Record<string, unknown>) => Promise<Result<UserProfile[], AppError>>,
+): Promise<Result<UserProfile, AppError>> {
+  const conditions = protectionMapper.createLookupConditions(nationalId, 'nationalId');
+  if (conditions.isErr()) return err(conditions.error);
+  const protectedLookup = requireProtectionLookup(conditions.value);
+  if (protectedLookup.isErr()) return err(protectedLookup.error);
+
+  const result = await findMany({ where: protectedLookup.value });
+  if (result.isErr()) return err(result.error);
+
+  const normalizedNationalId = normalizeNationalId(nationalId);
+  if (normalizedNationalId.isErr()) return err(normalizedNationalId.error);
+  for (const candidate of result.value) {
+    const recovery = protectionMapper.recover(candidate);
+    if (recovery.isErr()) return err(recovery.error);
+    if (recovery.value.nationalId === undefined) continue;
+    const normalizedCandidate = normalizeNationalId(recovery.value.nationalId);
+    if (normalizedCandidate.isErr()) return err(normalizedCandidate.error);
+    if (normalizedCandidate.value === normalizedNationalId.value) return recovery;
+  }
+  return err(new AppError('user-management.not_found'));
 }

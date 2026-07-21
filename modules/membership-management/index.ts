@@ -8,7 +8,7 @@ import { MembershipRequestDraftStore } from './services/membership-request-draft
 import { registerDeps } from './deps.context.js';
 import { requestMembershipCommand } from './commands/request-membership.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
-import { handleMembershipText } from './handlers/membership-request-flow.handler.js';
+import { handleMembershipTextGuarded } from './handlers/text.handler.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -87,7 +87,7 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
     requestMembershipCommand,
   );
   bot.on('callback_query:data', handleCallbackQuery);
-  bot.on('message:text', handleMembershipText);
+  bot.on('message:text', handleMembershipTextGuarded);
   deps.logger.info({
     msg: 'membership-management handlers registered',
     commandCount: deps.config.commands.length,
