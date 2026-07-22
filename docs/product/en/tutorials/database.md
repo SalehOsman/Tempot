@@ -9,7 +9,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: beginner
-lastVerified: 2026-06-17
+lastVerified: 2026-07-22
 ---
 
 ## Prerequisites
@@ -21,7 +21,7 @@ Before you begin, make sure you have:
 - Basic understanding of Prisma and TypeScript
 
 This tutorial was verified against the active modular schema merge and Prisma 7
-workflow on 2026-06-17.
+workflow on 2026-07-22.
 
 If an entity contains classified identity, contact, credential, or payment
 data, stop before adding it to the model and define its protected envelope,
@@ -92,6 +92,11 @@ authorized domain mapping.
 For searchable protected fields, generate exact tokens for every readable key
 version and query the indexed token column with `IN`. Do not implement a
 rotation fallback that scans or decrypts unrelated records.
+
+If your use case is a startup bootstrap operation rather than a normal domain
+entity, still keep the Prisma access inside `@tempot/database`. Follow the
+`BootstrapSessionRepository` pattern: expose a small input contract, perform the
+upsert in the database package, and return `Result<void, AppError>`.
 
 ### Step 3: Add a Custom Query
 

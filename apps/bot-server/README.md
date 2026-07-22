@@ -48,7 +48,8 @@ apps/bot-server/
 - `WEBHOOK_URL` and `WEBHOOK_SECRET_TOKEN` when webhook mode is enabled
 - Optional HTTP operations hardening: `TEMPOT_READINESS_TOKEN`,
   `TEMPOT_HTTP_BODY_LIMIT_BYTES`, `TEMPOT_HTTP_RATE_LIMIT_MAX`,
-  `TEMPOT_HTTP_RATE_LIMIT_WINDOW_MS`, `TEMPOT_DISK_FREE_THRESHOLD_BYTES`
+  `TEMPOT_HTTP_RATE_LIMIT_WINDOW_MS`, `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER`,
+  `TEMPOT_DISK_FREE_THRESHOLD_BYTES`
 
 See the root `.env.example` for the complete configuration reference.
 
@@ -89,6 +90,10 @@ The webhook stack expects these `.env` values to be set:
 When using a Cloudflare Quick Tunnel, read the current URL from
 `tempot-cloudflared` logs, update `WEBHOOK_URL`, recreate `bot-server`, and
 register the Telegram webhook again.
+
+Set `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip` only when every
+webhook request reaches the app through Cloudflare. Leave it empty for direct
+local Docker tests.
 
 ## Health And Shutdown
 

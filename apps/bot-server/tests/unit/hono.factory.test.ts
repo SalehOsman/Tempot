@@ -26,7 +26,13 @@ function createProbes(): HealthProbes {
   };
 }
 
-function createApp(options: { bodyLimitBytes?: number; rateLimitMaxRequests?: number } = {}) {
+function createApp(
+  options: {
+    bodyLimitBytes?: number;
+    rateLimitMaxRequests?: number;
+    trustedClientIpHeader?: 'cf-connecting-ip' | 'x-real-ip';
+  } = {},
+) {
   const bot = { handleUpdate: vi.fn().mockResolvedValue(undefined) };
   const app = createHonoApp({
     bot: bot as never,
@@ -41,7 +47,11 @@ function createApp(options: { bodyLimitBytes?: number; rateLimitMaxRequests?: nu
     httpRateLimit:
       options.rateLimitMaxRequests === undefined
         ? undefined
-        : { maxRequests: options.rateLimitMaxRequests, windowMs: 60_000 },
+        : {
+            maxRequests: options.rateLimitMaxRequests,
+            windowMs: 60_000,
+            trustedClientIpHeader: options.trustedClientIpHeader,
+          },
   });
   return { app, bot };
 }
@@ -125,5 +135,60 @@ describe('createHonoApp hardening', () => {
     expect(second.status).toBe(429);
     expect(await second.json()).toEqual({ error: 'rate_limited' });
     expect(bot.handleUpdate).toHaveBeenCalledOnce();
+  });
+
+  it('does not let spoofed client IP headers bypass webhook rate limits by default', async () => {
+    const { app, bot } = createApp({ rateLimitMaxRequests: 1 });
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+    };
+
+    const first = await app.request('/webhook', {
+      method: 'POST',
+      headers: { ...headers, 'x-real-ip': '192.0.2.10' },
+      body: JSON.stringify({ update_id: 1, message: { text: 'first' } }),
+    });
+    const second = await app.request('/webhook', {
+      method: 'POST',
+      headers: { ...headers, 'x-real-ip': '192.0.2.11' },
+      body: JSON.stringify({ update_id: 2, message: { text: 'second' } }),
+    });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(429);
+    expect(bot.handleUpdate).toHaveBeenCalledOnce();
+  });
+
+  it('uses the configured trusted client IP header for webhook rate limit buckets', async () => {
+    const { app, bot } = createApp({
+      rateLimitMaxRequests: 1,
+      trustedClientIpHeader: 'cf-connecting-ip',
+    });
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+    };
+
+    const first = await app.request('/webhook', {
+      method: 'POST',
+      headers: { ...headers, 'cf-connecting-ip': '192.0.2.10' },
+      body: JSON.stringify({ update_id: 1, message: { text: 'first' } }),
+    });
+    const second = await app.request('/webhook', {
+      method: 'POST',
+      headers: { ...headers, 'cf-connecting-ip': '192.0.2.11' },
+      body: JSON.stringify({ update_id: 2, message: { text: 'second' } }),
+    });
+    const third = await app.request('/webhook', {
+      method: 'POST',
+      headers: { ...headers, 'cf-connecting-ip': '192.0.2.10' },
+      body: JSON.stringify({ update_id: 3, message: { text: 'third' } }),
+    });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(third.status).toBe(429);
+    expect(bot.handleUpdate).toHaveBeenCalledTimes(2);
   });
 });

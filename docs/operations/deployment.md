@@ -52,6 +52,7 @@ cp .env.example .env
 | `SENTRY_RELEASE`     | unset        | Git SHA, image digest, or semver release |
 | `SENTRY_ENVIRONMENT` | `production` | Sentry environment tag                   |
 | `LOG_LEVEL`          | `info`       | Pino log level                           |
+| `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER` | unset | Trusted proxy header for webhook rate-limit buckets: `cf-connecting-ip` or `x-real-ip` |
 
 Generate webhook secrets outside the repository:
 
@@ -113,6 +114,7 @@ Required `.env` values for this local webhook stack:
 | `WEBHOOK_URL`            | Current public HTTPS tunnel URL without `/webhook`         |
 | `WEBHOOK_SECRET_TOKEN`   | Secret sent by Telegram and validated by the webhook route |
 | `TEMPOT_READINESS_TOKEN` | Secret required by `GET /ready`                            |
+| `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER` | Optional. Use `cf-connecting-ip` only when all webhook traffic goes through Cloudflare |
 
 Cloudflare Quick Tunnel URLs are temporary. If the `tempot-cloudflared` service
 prints a new `trycloudflare.com` URL, update `WEBHOOK_URL`, recreate the

@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-17
+lastVerified: 2026-07-22
 ---
 
 ## Overview
@@ -18,7 +18,7 @@ lastVerified: 2026-06-17
 The `@tempot/database` package enforces the repository pattern for all data access. This guide covers extending `BaseRepository` for your entities, using transactions, working with soft-delete behavior, and performing vector similarity searches.
 
 The commands and APIs in this guide were verified against the active package on
-2026-06-17. Run database commands through
+2026-07-22. Run database commands through
 `pnpm --filter @tempot/database <script>`.
 
 ## Extending BaseRepository
@@ -57,6 +57,11 @@ When an exact lookup must survive key rotation, use
 readable, and retiring versions while excluding retired versions. Query the
 indexed token column only; never fetch all records from an older key version
 for in-memory decryption.
+
+For startup flows, create a narrow repository contract instead of calling Prisma
+from the application layer. `BootstrapSessionRepository` is the reference
+example: it upserts the configured super-admin session and matching profile
+through a database package boundary.
 
 ## Adding Custom Queries
 

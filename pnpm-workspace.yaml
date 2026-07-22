@@ -34,6 +34,23 @@ overrides:
   '@grpc/grpc-js': '>=1.14.4'
   # Security: GHSA-fx2h-pf6j-xcff - Vite Windows server.fs.deny bypass (<=7.3.4).
   vite: '>=7.3.5'
+  # Security: GHSA-3jxr-9vmj-r5cp - brace expansion DoS in glob/minimatch paths.
+  brace-expansion@1: 1.1.16
+  brace-expansion@2: 2.1.2
+  brace-expansion@5: 5.0.7
+  # Security: GHSA-52cp-r559-cp3m - js-yaml quadratic CPU consumption.
+  js-yaml@3: 3.15.0
+  js-yaml@4: 4.3.0
+  # Security: GHSA-4c8g-83qw-93j6 and GHSA-v2hh-gcrm-f6hx - fast-uri host confusion.
+  fast-uri: 3.1.4
+  # Security: GHSA-vj59-8hwv-xxmv - Astro authorization bypass.
+  astro: 6.4.8
+  # Security: GHSA-v245-v573-v5vm - linkify-it mailto validator DoS.
+  linkify-it: 5.0.2
+  # Security: GHSA-2p49-hgcm-8545 - SVGO removeScripts incomplete removal.
+  svgo: 4.0.2
+  # Security: GHSA-f88m-g3jw-g9cj - sharp inherited libvips vulnerabilities.
+  sharp: 0.35.0
 auditConfig:
   ignoreCves:
     - CVE-2026-53550

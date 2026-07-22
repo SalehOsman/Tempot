@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-07-22
 ---
 
 ## Overview
@@ -18,7 +18,7 @@ lastVerified: 2026-06-08
 The `@tempot/event-bus` package provides decoupled inter-module communication via typed events. This guide covers initializing the orchestrator, publishing and subscribing to events, defining new event types, and configuring the connection watcher.
 
 The examples were verified against the `publish()` and `subscribe()` APIs on
-2026-06-08. Redis Pub/Sub provides cross-instance delivery but is not a durable
+2026-07-22. Redis Pub/Sub provides cross-instance delivery but is not a durable
 queue; consumers requiring retries or persistence must use the queue layer.
 
 ## Initializing the Orchestrator
@@ -68,7 +68,7 @@ Event names must follow the `{module}.{entity}.{action}` pattern. Invalid names 
 
 ## Subscribing to Events
 
-Register handlers with `subscribe()`. Handlers are always registered on both the local and Redis buses:
+Register handlers with `subscribe()`. Handlers are registered locally first, then on Redis when Redis is available:
 
 ```typescript
 await eventBus.subscribe('storage.file.uploaded', (payload) => {
@@ -77,7 +77,7 @@ await eventBus.subscribe('storage.file.uploaded', (payload) => {
 });
 ```
 
-Dual subscription ensures delivery regardless of which bus is currently routing. If the orchestrator switches from Redis to local (or vice versa), your handler still receives events.
+Local-first subscription ensures same-process delivery during Redis outages. If Redis is unavailable, the orchestrator keeps the Redis subscription pending and synchronizes it after the connection watcher marks Redis as stable again.
 
 ### Listener Isolation
 
@@ -135,7 +135,7 @@ The watcher uses an asymmetric policy:
 - **Recovery** — Redis is marked available only after 5 consecutive successful `PING` responses
 - **Failure** — A single failed `PING` immediately marks Redis as unavailable
 
-This prevents flapping on unstable connections. When Redis becomes unavailable, the orchestrator falls back to local dispatch and logs the degradation.
+This prevents flapping on unstable connections. When Redis becomes unavailable, Redis commands fail fast and the orchestrator falls back to local dispatch instead of blocking request handling.
 
 ## Using the Toggle Guard
 

@@ -10,7 +10,7 @@ audience:
   - bot-developer
 contentType: developer-docs
 difficulty: intermediate
-lastVerified: 2026-06-08
+lastVerified: 2026-07-22
 ---
 
 ## What is the Event Bus?
@@ -18,7 +18,7 @@ lastVerified: 2026-06-08
 The `@tempot/event-bus` package provides decoupled inter-module communication. Modules never call each other directly. All communication flows through typed events, enabling loose coupling and independent deployment.
 
 This page was verified against the active orchestrator, local bus, and Redis bus
-on 2026-06-08.
+on 2026-07-22.
 
 ## Three-Level Architecture
 
@@ -40,7 +40,7 @@ The orchestrator routes events based on Redis availability:
 
 - **Redis available**: `publish()` sends through `RedisEventBus`
 - **Redis unavailable**: `publish()` falls back to `LocalEventBus`
-- **subscribe()**: Always registers handlers on both buses, ensuring delivery regardless of routing mode
+- **subscribe()**: Registers handlers locally first. When Redis is available, it also registers them with Redis. When Redis is unavailable, subscriptions are kept pending and synchronized after Redis recovers.
 
 ## Event Naming Convention
 
@@ -95,7 +95,7 @@ When publishing or subscribing to a known event name, TypeScript enforces the co
 
 The `ConnectionWatcher` monitors Redis health via periodic `PING` commands. It uses a stabilization threshold: Redis is marked available only after N consecutive successful pings (default: 5). A single failure immediately marks Redis as unavailable. This asymmetric policy prevents flapping on unstable connections.
 
-When Redis becomes unavailable, the orchestrator falls back to local dispatch and logs the degradation. When Redis recovers (passes the stabilization threshold), the orchestrator resumes distributed dispatch.
+When Redis becomes unavailable, the orchestrator falls back to local dispatch and logs the degradation. Redis commands fail fast instead of waiting indefinitely on an offline queue. When Redis recovers (passes the stabilization threshold), the orchestrator resumes distributed dispatch and flushes subscriptions that were registered during the outage.
 
 ## Toggle Guard
 

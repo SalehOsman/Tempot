@@ -27,6 +27,7 @@ export class EventBusOrchestrator {
   private watcher: ConnectionWatcher;
   private logger: LoggerInterface;
   private shutdownManager?: ShutdownManager;
+  private pendingRedisSubscriptions: Map<string, Array<(payload: unknown) => void>> = new Map();
 
   constructor(config: OrchestratorConfig) {
     this.localBus = new LocalEventBus();
@@ -52,6 +53,12 @@ export class EventBusOrchestrator {
         });
       } else {
         this.logger.info({ code: 'event_bus.redis_restored', mode: 'distributed' });
+        this.flushPendingRedisSubscriptions().catch((error: unknown) => {
+          this.logger.error({
+            code: 'event_bus.redis_resubscribe_failed',
+            error: String(error),
+          });
+        });
       }
     });
   }
@@ -82,7 +89,15 @@ export class EventBusOrchestrator {
     if (disabled) return disabled;
 
     if (this.watcher.isRedisAvailable()) {
-      return this.redisBus.publish(eventName, payload);
+      const redisResult = await this.redisBus.publish(eventName, payload);
+      if (redisResult.isOk() || redisResult.error.code === 'event_bus.invalid_name') {
+        return redisResult;
+      }
+      this.logger.error({
+        code: 'event_bus.redis_publish_degraded',
+        eventName,
+        error: redisResult.error.code,
+      });
     }
     return this.localBus.publish(eventName, payload);
   }
@@ -99,7 +114,22 @@ export class EventBusOrchestrator {
       return errAsync(localResult.error);
     }
 
-    return this.redisBus.subscribe(eventName, handler);
+    if (!this.watcher.isRedisAvailable()) {
+      this.addPendingRedisSubscription(eventName, handler as (payload: unknown) => void);
+      return okAsync(undefined);
+    }
+
+    const redisResult = await this.redisBus.subscribe(eventName, handler);
+    if (redisResult.isOk() || redisResult.error.code === 'event_bus.invalid_name') {
+      return redisResult;
+    }
+    this.addPendingRedisSubscription(eventName, handler as (payload: unknown) => void);
+    this.logger.error({
+      code: 'event_bus.redis_subscribe_degraded',
+      eventName,
+      error: redisResult.error.code,
+    });
+    return okAsync(undefined);
   }
 
   public getRedisClient(): Redis {
@@ -117,5 +147,43 @@ export class EventBusOrchestrator {
     } catch (error) {
       return errAsync(new AppError('event_bus.dispose_failed', error));
     }
+  }
+
+  private addPendingRedisSubscription(
+    eventName: string,
+    handler: (payload: unknown) => void,
+  ): void {
+    const handlers = this.pendingRedisSubscriptions.get(eventName) ?? [];
+    handlers.push(handler);
+    this.pendingRedisSubscriptions.set(eventName, handlers);
+  }
+
+  private async flushPendingRedisSubscriptions(): Promise<void> {
+    for (const [eventName, handlers] of this.pendingRedisSubscriptions.entries()) {
+      const remaining = await this.subscribePendingHandlers(eventName, handlers);
+      if (remaining.length > 0) {
+        this.pendingRedisSubscriptions.set(eventName, remaining);
+        return;
+      }
+      this.pendingRedisSubscriptions.delete(eventName);
+    }
+  }
+
+  private async subscribePendingHandlers(
+    eventName: string,
+    handlers: Array<(payload: unknown) => void>,
+  ): Promise<Array<(payload: unknown) => void>> {
+    for (let index = 0; index < handlers.length; index++) {
+      const result = await this.redisBus.subscribe(eventName, handlers[index]);
+      if (result.isErr()) {
+        this.logger.error({
+          code: 'event_bus.redis_resubscribe_failed',
+          eventName,
+          error: result.error.code,
+        });
+        return handlers.slice(index);
+      }
+    }
+    return [];
   }
 }

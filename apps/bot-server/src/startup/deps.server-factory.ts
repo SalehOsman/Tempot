@@ -1,4 +1,4 @@
-import { createHonoApp } from '../server/hono.factory.js';
+import { createHonoApp, type HttpRateLimitOptions } from '../server/hono.factory.js';
 import { buildHealthProbes } from './health.probes.js';
 import { serve } from '@hono/node-server';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
@@ -67,14 +67,23 @@ export function buildHttpServerFactory(
   };
 }
 
-function buildHttpRateLimitFromEnv(): { maxRequests: number; windowMs: number } | undefined {
+function buildHttpRateLimitFromEnv(): HttpRateLimitOptions | undefined {
   const maxRequests = positiveIntegerEnv('TEMPOT_HTTP_RATE_LIMIT_MAX');
   const windowMs = positiveIntegerEnv('TEMPOT_HTTP_RATE_LIMIT_WINDOW_MS');
-  if (maxRequests === undefined && windowMs === undefined) return undefined;
+  const trustedClientIpHeader = trustedClientIpHeaderEnv();
+  if (maxRequests === undefined && windowMs === undefined && !trustedClientIpHeader)
+    return undefined;
   return {
     maxRequests: maxRequests ?? 60,
     windowMs: windowMs ?? 60_000,
+    trustedClientIpHeader,
   };
+}
+
+function trustedClientIpHeaderEnv(): 'cf-connecting-ip' | 'x-real-ip' | undefined {
+  const raw = process.env['TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER'];
+  if (raw === 'cf-connecting-ip' || raw === 'x-real-ip') return raw;
+  return undefined;
 }
 
 function positiveIntegerEnv(name: string): number | undefined {
