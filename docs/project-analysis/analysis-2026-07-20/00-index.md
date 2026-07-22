@@ -29,6 +29,7 @@ The analysis is organized into focused, specialized documents to help the develo
 | [13-roadmap-and-implementation.md](file:///f:/Tempot/docs/project-analysis/analysis-2026-07-20/13-roadmap-and-implementation.md) | Section 14: Project Roadmap spanning Stabilization, Refactoring, Testing, and Production. | **Technical Project Manager** |
 | [14-30-60-90-day-plan.md](file:///f:/Tempot/docs/project-analysis/analysis-2026-07-20/14-30-60-90-day-plan.md) | Section 15: Execution plan for immediate 30-day, mid-term 60-day, and long-term 90-day windows. | **Technical Project Manager** |
 | [15-final-recommendations.md](file:///f:/Tempot/docs/project-analysis/analysis-2026-07-20/15-final-recommendations.md) | Section 16: Operational recommendations and executive go/no-go conditions. | **Technical Project Manager** |
+| [18-conversation-changes-and-troubleshooting.md](file:///f:/Tempot/docs/project-analysis/analysis-2026-07-20/18-conversation-changes-and-troubleshooting.md) | Session Report: Detailed changes, CI/CD issues, root cause analysis, and solutions from the active conversation. | **Code Reviewer / Backend Lead** |
 | [improvement-proposals.md](file:///f:/Tempot/docs/project-analysis/analysis-2026-07-20/improvement-proposals.md) | Professional improvement proposals (IP-001 through IP-010) covering platform additions. | **Senior Software Architect** |
 
 ---
