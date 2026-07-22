@@ -11,6 +11,14 @@ type AuthorizationMock = ModuleAuthorizationProvider & {
   enforce: ReturnType<typeof vi.fn<ModuleAuthorizationProvider['enforce']>>;
 };
 
+interface InlineCallbackButton {
+  readonly callback_data?: string;
+}
+
+interface InlineKeyboardMarkupLike {
+  readonly inline_keyboard: ReadonlyArray<ReadonlyArray<InlineCallbackButton>>;
+}
+
 function request(overrides: Record<string, unknown> = {}) {
   return {
     id: 'request-1',
@@ -72,6 +80,13 @@ function createContext(data = 'membership:request'): Context {
     editMessageText: vi.fn().mockResolvedValue(undefined),
     reply: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
+}
+
+function callbackDataFrom(markup: unknown): string[] {
+  const keyboard = markup as InlineKeyboardMarkupLike;
+  return keyboard.inline_keyboard.flatMap((row) =>
+    row.flatMap((button) => (button.callback_data ? [button.callback_data] : [])),
+  );
 }
 
 describe('membership-management callback handler', () => {
@@ -143,6 +158,22 @@ describe('membership-management callback handler', () => {
       parse_mode: 'HTML',
       reply_markup: expect.any(Object),
     });
+  });
+
+  it('should render an explicit empty state when no membership requests are pending', async () => {
+    vi.mocked(service.listPending).mockResolvedValueOnce(ok([]));
+    const ctx = createContext('membership:list');
+
+    await handleCallbackQuery(ctx);
+
+    expect(service.listPending).toHaveBeenCalledWith({ limit: 10 });
+    expect(ctx.editMessageText).toHaveBeenCalledWith('membership-management.admin.list.empty', {
+      parse_mode: 'HTML',
+      reply_markup: expect.any(Object),
+    });
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const options = editMessageText.mock.calls[0]?.[1] as { reply_markup?: unknown };
+    expect(callbackDataFrom(options.reply_markup)).toEqual(['menu:main']);
   });
 
   it('should not load pending membership requests when administrator authorization is denied', async () => {

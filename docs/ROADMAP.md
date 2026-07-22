@@ -253,6 +253,9 @@ Spec #057 merged evidence as of 2026-06-18:
 - `origin/main` is green after the 2026-07-08 Spec #058 CI repair: GitHub
   Actions CI run `28950023839` and Docker run `28950023763` both passed on
   commit `47f59ea9080ac58c698d16bbf6c117cb3c74237a`.
+- `origin/main` is green after the 2026-07-22 CI/Docker gate repair: GitHub
+  Actions CI run `29938145196` and Docker run `29938143344` both passed on
+  commit `cb2280d93a9a110d3b2465bde4f118190a88c6fe`.
 
 Spec #057 runtime artifact branch evidence as of 2026-06-19:
 
@@ -309,6 +312,16 @@ Spec #057 runtime artifact branch evidence as of 2026-06-19:
   `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`.
   That does not close T032 because external staging deployment and webhook
   delivery through a public URL still have not been executed.
+- On 2026-07-22, the signed-digest webhook smoke in
+  `docs/operations/evidence/2026-07-22-signed-digest-webhook-smoke.md` pulled
+  Docker run #49 digest
+  `sha256:58372801ba25189835e4c89a43257d9b830e9078179c5c71259b004939f6dec0`,
+  applied migration deploy with no pending migrations, started the immutable
+  image on Docker Desktop, verified local `/live`, `/health`, restricted
+  `/ready`, Cloudflare Quick Tunnel `/live`, Telegram webhook registration, and
+  a signed local `/start` webhook update. T032 remains open until a real
+  Telegram two-account membership journey, backup/restore, key rotation,
+  monitoring, and rollback evidence are captured.
 
 Production go/no-go requires:
 

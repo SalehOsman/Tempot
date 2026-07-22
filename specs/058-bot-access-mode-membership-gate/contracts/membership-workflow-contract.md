@@ -46,6 +46,7 @@ This contract defines how visitors request membership and how administrators rev
 
 - Paginated list of pending requests.
 - No protected personal data beyond what the administrator is permitted to view.
+- Explicit empty state with a back action when no pending requests exist.
 
 ### Inspect Request
 
@@ -123,6 +124,7 @@ Implementation must introduce locale keys for:
 - Access denied for unknown visitor
 - Access denied for pending visitor
 - Admin list title
+- Admin empty-list state
 - Admin request details
 - Approve action
 - Reject action

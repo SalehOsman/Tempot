@@ -49,7 +49,9 @@ export function createAuthMiddleware(
         status: sessionUser.status,
         reason: 'session_banned',
       });
-      await ctx.reply(deps.t('bot-server.unauthorized'));
+      await sessionContext.run(contextFromSessionUser(sessionUser), async () => {
+        await ctx.reply(deps.t('bot-server.account_blocked'));
+      });
       return;
     }
 

@@ -17,15 +17,11 @@ export class MainMenuFactory {
     entries: readonly ModuleNavigationItem[] = [],
   ): InlineKeyboard {
     const keyboard = new InlineKeyboard();
-    let currentRow: number | null = null;
     let hasButtons = false;
 
     for (const entry of this.visibleEntries(user.role, entries)) {
-      if (hasButtons && currentRow !== entry.row) {
-        keyboard.row();
-      }
+      if (hasButtons) keyboard.row();
       keyboard.text(i18n.t(entry.labelKey), entry.callbackData);
-      currentRow = entry.row;
       hasButtons = true;
     }
 

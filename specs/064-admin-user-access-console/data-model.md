@@ -25,13 +25,16 @@ Relevant attributes:
 - `gender`
 - `governorate`
 - `countryCode`
-- status field if available in the current profile/session model
+- `status`
 
 Required behavior:
 
 - Regional stored values can remain stable internal identifiers.
 - Rendered values must be localized human labels.
 - Role values must remain inside the constitutional role set.
+- Status values are limited to `ACTIVE`, `BANNED`, and `PENDING`.
+- `BANNED` status prevents bot interaction and membership re-application.
+- Unblocking changes `BANNED` accounts back to `ACTIVE`; access after unblocking is still governed by the user's role and permissions.
 
 ## New Or Extended Entities
 
@@ -131,7 +134,8 @@ Initial permission tokens:
 
 ## State And Safety Rules
 
-- Last active super admin protection applies to role changes and account disabling.
+- Last active super admin protection applies to role changes and account blocking.
+- Account status controls render as one contextual action: block for active accounts and unblock for banned accounts.
 - Revoked permissions are inactive immediately on the next interaction.
 - Disabled optional modules hide dependent actions from menus.
 - Audit records are required for every administrative mutation.

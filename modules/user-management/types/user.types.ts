@@ -11,6 +11,7 @@ export interface UserProfile {
   email?: string;
   language: string;
   role: RoleEnum;
+  status?: UserStatus;
   createdAt: Date;
   updatedAt: Date;
 
@@ -31,6 +32,7 @@ export interface UserProfile {
 
 /** نوع الدور يُشير مباشرة إلى RoleEnum — لا تكرار */
 export type UserRole = RoleEnum;
+export type UserStatus = 'ACTIVE' | 'BANNED' | 'PENDING';
 
 export interface IdentityUpdateData {
   nationalId?: string;
@@ -44,6 +46,7 @@ export interface UpdateUserData {
   email?: string;
   language?: string;
   role?: RoleEnum;
+  status?: UserStatus;
   nationalId?: string;
   mobileNumber?: string;
   birthDate?: Date;

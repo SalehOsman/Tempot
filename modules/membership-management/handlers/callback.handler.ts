@@ -8,6 +8,7 @@ import {
 } from './membership-request-flow.handler.js';
 import {
   createBackToListMenu,
+  createEmptyRequestsMenu,
   createPendingRequestsMenu,
   createReviewActionsMenu,
 } from '../menus/admin-membership-menu.factory.js';
@@ -79,6 +80,14 @@ async function showPendingRequests(ctx: Context): Promise<void> {
   const result = await membershipRequests.listPending({ limit: 10 });
   if (result.isErr()) {
     await ctx.reply(i18n.t('membership-management.admin.failed'));
+    return;
+  }
+
+  if (result.value.length === 0) {
+    await ctx.editMessageText(i18n.t('membership-management.admin.list.empty'), {
+      parse_mode: 'HTML',
+      reply_markup: createEmptyRequestsMenu(i18n.t),
+    });
     return;
   }
 

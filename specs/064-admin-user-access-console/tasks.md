@@ -16,6 +16,7 @@
 - [ ] T006 Add failing tests proving non-constitutional role choices are not rendered.
 - [ ] T007 Remove invalid role choices from role change menus.
 - [ ] T008 Verify no raw i18n or regional keys appear in affected bot messages.
+- [x] T008a Add start-menu UX regression tests and render readable single-button rows.
 
 ## Phase 2: User Detail Console
 
@@ -44,6 +45,9 @@
 - [x] T025 Implement last active super admin protection in the role/status service boundary.
 - [x] T026 Add authorization tests for role management permission.
 - [x] T027 Implement role-management authorization checks.
+- [x] T027a Add guest re-application and blocked-session regression tests.
+- [x] T027b Implement super-admin user block action and blocked-session sync.
+- [x] T027c Add unblock action and human blocked-account messaging.
 
 ## Phase 5: Access Management Module
 
@@ -95,7 +99,7 @@
 - FR-009: T020, T021
 - FR-010: T022, T023
 - FR-011: T006, T007
-- FR-012: T024, T025
+- FR-012: T024, T025, T027a, T027b, T027c
 - FR-013: T026, T027
 - FR-014: T028, T029, T034, T035
 - FR-015: T030, T031, T032, T033, T035
@@ -117,6 +121,6 @@
 - SC-003: T006, T007, T022
 - SC-004: T020, T021, T030, T031, T032, T033
 - SC-005: T038, T039, T040
-- SC-006: T024, T025
+- SC-006: T024, T025, T027a, T027b, T027c
 - SC-007: T014, T015, T016, T017, T018, T019
 - SC-008: T045, T046

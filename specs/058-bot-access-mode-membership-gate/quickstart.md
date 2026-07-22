@@ -27,10 +27,11 @@ This quickstart describes expected verification after implementation.
 3. Verify pending status is shown and internal features remain hidden.
 4. From the super-admin account, open the administration menu.
 5. Open membership management.
-6. Inspect the pending request.
-7. Approve the request.
-8. From the visitor account, send `/start`.
-9. Verify the member menu appears according to `USER` permissions.
+6. Verify an empty-state message with a back action appears if no pending requests exist.
+7. Inspect the pending request when one exists.
+8. Approve the request.
+9. From the visitor account, send `/start`.
+10. Verify the member menu appears according to `USER` permissions.
 
 ## Scenario 3: Role-Filtered Menus
 

@@ -12,6 +12,8 @@ The module provides inline-keyboard-first profile management, administrator user
 - Profile editing
 - Administrator user management
 - Role changes with authorization checks
+- Super-admin user blocking with last-active-super-admin protection
+- Guest users can submit a new membership request from `/start`
 - User search for administrators
 
 ## UI/UX
@@ -19,6 +21,7 @@ The module provides inline-keyboard-first profile management, administrator user
 - **Primary**: Inline Keyboards
 - **Secondary**: command shortcuts
 - **Navigation**: hierarchical menu screens with back actions
+- **Start menu**: one action per row with leading icons for narrow Telegram clients
 
 ## Commands
 
@@ -48,7 +51,9 @@ Implemented. Current hardening focus: package checklist compliance, documentatio
 
 ## Authorization
 
-`/start` is an explicit bootstrap policy. Profile reads and edits use separate
-CASL actions, while user administration and role changes require `manage
-users`. Callback and text-state denials occur before service calls or pending
-state mutation.
+`/start` is an explicit bootstrap policy. Known `GUEST` profiles are routed
+back to the membership request path instead of receiving an empty protected
+menu. Profile reads and edits use separate CASL actions, while user
+administration and role or block actions require protected management
+authorization. Callback and text-state denials occur before service calls or
+pending state mutation.

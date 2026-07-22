@@ -16,6 +16,7 @@ import {
   type UserProfile,
   type UserRepositoryProtectionOptions,
   type UserSearchResult,
+  type UserStatus,
 } from '../types/index.js';
 import { UserProtectionMapper } from './user-protection.mapper.js';
 import {
@@ -140,6 +141,9 @@ export class UserRepository extends BaseRepository<UserProfile> {
   }
   updateRole(userId: string, value: RoleEnum): Promise<Result<void, AppError>> {
     return this.updateField(userId, 'role', value);
+  }
+  updateStatus(userId: string, value: UserStatus): Promise<Result<void, AppError>> {
+    return this.updateField(userId, 'status', value);
   }
   updateIdentity(userId: string, value: IdentityUpdateData): Promise<Result<void, AppError>> {
     return this.updateFields(userId, { ...value });

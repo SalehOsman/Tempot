@@ -62,6 +62,7 @@ Implemented:
 - `user-management` subscribes to `membership-management.request.approved` and creates an idempotent default `USER` profile through its own repository boundary.
 - Administrator review callbacks are implemented for pending list, request detail, approval, and rejection.
 - Membership review menus are implemented with list, approve/reject, and back-to-list actions.
+- Empty membership request lists render an explicit empty-state message with a back-to-main-menu action.
 - Main-menu navigation now carries access classification and required-ability metadata.
 - `/start` prefers ability-filtered navigation when the runtime provider exposes it.
 - The navigation provider filters by role and required CASL ability; `manage.all` satisfies ability-gated entries.

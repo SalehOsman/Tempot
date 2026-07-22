@@ -77,7 +77,17 @@ function resolveAuthorizationPolicy(action: string, params: string[]): ModuleAut
 }
 
 function isRoleManagementAction(params: string[]): boolean {
-  return params[0] === 'roles' || params[0] === 'role' || params[0] === 'role-confirm';
+  return [
+    'roles',
+    'role',
+    'role-confirm',
+    'block',
+    'block-confirm',
+    'block-cancel',
+    'unblock',
+    'unblock-confirm',
+    'unblock-cancel',
+  ].includes(params[0] ?? '');
 }
 
 function createPolicy(

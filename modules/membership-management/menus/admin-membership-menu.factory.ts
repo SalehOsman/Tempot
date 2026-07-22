@@ -26,6 +26,10 @@ export function createBackToListMenu(t: TranslationFn): InlineKeyboard {
   return new InlineKeyboard().text(t('membership-management.admin.back_button'), 'membership:list');
 }
 
+export function createEmptyRequestsMenu(t: TranslationFn): InlineKeyboard {
+  return new InlineKeyboard().text(t('membership-management.admin.back_main_button'), 'menu:main');
+}
+
 function displayRequestLabel(request: MembershipRequest): string {
   return request.fullName ?? request.telegramUsername ?? request.telegramId;
 }

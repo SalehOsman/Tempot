@@ -50,7 +50,10 @@ export class UsersMenuFactory {
     const keyboard = new InlineKeyboard();
 
     keyboard
+      .text(i18n.t('user-management.users.button.role_guest'), `users:role:${user.id}:GUEST`)
+      .row()
       .text(i18n.t('user-management.users.button.role_user'), `users:role:${user.id}:USER`)
+      .row()
       .text(i18n.t('user-management.users.button.role_admin'), `users:role:${user.id}:ADMIN`)
       .row()
       .text(
@@ -78,14 +81,24 @@ export class UsersMenuFactory {
       .text(i18n.t('user-management.users.role.change'), `users:roles:${user.id}`)
       .row()
       .text(i18n.t('user-management.users.button.activity'), `users:activity:${user.id}`)
+      .row()
       .text(i18n.t('user-management.users.button.notifications'), `users:notifications:${user.id}`)
       .row()
       .text(
         i18n.t('user-management.users.button.test_notification'),
         `users:test-notification:${user.id}`,
       )
-      .row()
-      .text(i18n.t('user-management.menu.back'), 'users:list');
+      .row();
+
+    if (user.status === 'BANNED') {
+      keyboard
+        .text(i18n.t('user-management.users.button.unblock'), `users:unblock:${user.id}`)
+        .row();
+    } else {
+      keyboard.text(i18n.t('user-management.users.button.block'), `users:block:${user.id}`).row();
+    }
+
+    keyboard.text(i18n.t('user-management.menu.back'), 'users:list');
 
     return keyboard;
   }
@@ -129,5 +142,20 @@ export class UsersMenuFactory {
       .text(i18n.t('user-management.common.no'), `${action}:cancel`);
 
     return keyboard;
+  }
+
+  static createBlockConfirm(userId: string, i18n: ModuleI18n): InlineKeyboard {
+    return new InlineKeyboard()
+      .text(i18n.t('user-management.users.button.confirm_block'), `users:block-confirm:${userId}`)
+      .text(i18n.t('user-management.common.cancel'), `users:block-cancel:${userId}`);
+  }
+
+  static createUnblockConfirm(userId: string, i18n: ModuleI18n): InlineKeyboard {
+    return new InlineKeyboard()
+      .text(
+        i18n.t('user-management.users.button.confirm_unblock'),
+        `users:unblock-confirm:${userId}`,
+      )
+      .text(i18n.t('user-management.common.cancel'), `users:unblock-cancel:${userId}`);
   }
 }

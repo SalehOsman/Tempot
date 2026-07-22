@@ -112,7 +112,7 @@ describe('createAuthMiddleware', () => {
     await middleware(ctx as never, next);
 
     expect(next).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.unauthorized');
+    expect(ctx.reply).toHaveBeenCalledWith('translated:bot-server.account_blocked');
     expect(deps.logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         msg: 'access_denied',

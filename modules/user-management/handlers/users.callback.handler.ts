@@ -1,5 +1,4 @@
 import type { Context } from 'grammy';
-import { RoleEnum } from '@tempot/auth-core';
 import { getUserService } from '../services/user-service.context.js';
 import { UsersMenuFactory } from '../menus/users-menu.factory.js';
 import { getI18n } from '../deps.context.js';
@@ -12,12 +11,17 @@ import {
   handleUsersNotificationsAction,
   handleUsersTestNotificationAction,
 } from './users-support.callback.handler.js';
-
-const MANAGEABLE_ROLES: Record<string, RoleEnum> = {
-  USER: RoleEnum.USER,
-  ADMIN: RoleEnum.ADMIN,
-  SUPER_ADMIN: RoleEnum.SUPER_ADMIN,
-};
+import {
+  handleUsersBlockConfirmAction,
+  handleUsersBlockPromptAction,
+  handleUsersUnblockConfirmAction,
+  handleUsersUnblockPromptAction,
+} from './users-block.callback.handler.js';
+import {
+  handleUsersRoleConfirmAction,
+  handleUsersRoleMenuAction,
+  handleUsersRoleSelectionAction,
+} from './users-role.callback.handler.js';
 
 export async function handleUsersAction(
   ctx: Context,
@@ -30,44 +34,91 @@ export async function handleUsersAction(
     return;
   }
 
-  const subAction = params[0];
+  await dispatchUsersAction(ctx, user, params);
+}
 
-  switch (subAction) {
+async function dispatchUsersAction(
+  ctx: Context,
+  user: UserProfile,
+  params: string[],
+): Promise<void> {
+  if (await handlePrimaryUsersAction(ctx, params)) return;
+  if (await handleSupportUsersAction(ctx, user, params)) return;
+  await ctx.answerCallbackQuery(getI18n().t('user-management.errors.unknown_action'));
+}
+
+async function handlePrimaryUsersAction(ctx: Context, params: string[]): Promise<boolean> {
+  switch (params[0]) {
     case 'list':
       await handleUsersListAction(ctx);
-      break;
+      return true;
     case 'search':
-      await ctx.answerCallbackQuery(i18n.t('user-management.users.search_pending'));
-      break;
+      await ctx.answerCallbackQuery(getI18n().t('user-management.users.search_pending'));
+      return true;
     case 'view':
       await handleUsersViewAction(ctx, params[1]);
-      break;
+      return true;
     case 'edit':
       await handleUsersEditAction(ctx, params.slice(1));
-      break;
+      return true;
     case 'roles':
       await handleUsersRoleMenuAction(ctx, params[1]);
-      break;
+      return true;
     case 'role':
       await handleUsersRoleSelectionAction(ctx, params[1], params[2]);
-      break;
+      return true;
     case 'role-confirm':
-      await handleUsersRoleConfirmAction(ctx, params[1], params[2]);
-      break;
+      if (await handleUsersRoleConfirmAction(ctx, params[1], params[2])) {
+        await handleUsersViewAction(ctx, params[1]);
+      }
+      return true;
     case 'role-cancel':
       await handleUsersViewAction(ctx, params[1]);
-      break;
+      return true;
+    default:
+      return false;
+  }
+}
+
+async function handleSupportUsersAction(
+  ctx: Context,
+  user: UserProfile,
+  params: string[],
+): Promise<boolean> {
+  switch (params[0]) {
     case 'activity':
       await handleUsersActivityAction(ctx, params[1]);
-      break;
+      return true;
     case 'notifications':
       await handleUsersNotificationsAction(ctx, params[1]);
-      break;
+      return true;
     case 'test-notification':
       await handleUsersTestNotificationAction(ctx, user, params[1]);
-      break;
+      return true;
+    case 'block':
+      await handleUsersBlockPromptAction(ctx, user, params[1]);
+      return true;
+    case 'block-confirm':
+      if (await handleUsersBlockConfirmAction(ctx, user, params[1])) {
+        await handleUsersViewAction(ctx, params[1]);
+      }
+      return true;
+    case 'block-cancel':
+      await handleUsersViewAction(ctx, params[1]);
+      return true;
+    case 'unblock':
+      await handleUsersUnblockPromptAction(ctx, user, params[1]);
+      return true;
+    case 'unblock-confirm':
+      if (await handleUsersUnblockConfirmAction(ctx, user, params[1])) {
+        await handleUsersViewAction(ctx, params[1]);
+      }
+      return true;
+    case 'unblock-cancel':
+      await handleUsersViewAction(ctx, params[1]);
+      return true;
     default:
-      await ctx.answerCallbackQuery(i18n.t('user-management.errors.unknown_action'));
+      return false;
   }
 }
 
@@ -108,79 +159,6 @@ async function handleUsersViewAction(ctx: Context, userId: string | undefined): 
     parse_mode: 'HTML',
     reply_markup: UsersMenuFactory.createUserDetail(targetUser, i18n),
   });
-}
-
-async function handleUsersRoleMenuAction(ctx: Context, userId: string | undefined): Promise<void> {
-  const i18n = getI18n();
-  if (!userId) {
-    await ctx.answerCallbackQuery(i18n.t('user-management.errors.invalid_callback'));
-    return;
-  }
-
-  const userResult = await getUserService().getById(userId);
-  if (userResult.isErr()) {
-    await ctx.answerCallbackQuery(i18n.t('user-management.profile.not_found'));
-    return;
-  }
-
-  const targetUser = userResult.value;
-  await safeEditMessageText(ctx, i18n.t('user-management.users.role.change'), {
-    parse_mode: 'HTML',
-    reply_markup: UsersMenuFactory.createRoleChange(targetUser, i18n),
-  });
-}
-
-async function handleUsersRoleSelectionAction(
-  ctx: Context,
-  userId: string | undefined,
-  role: string | undefined,
-): Promise<void> {
-  const i18n = getI18n();
-  const newRole = role ? MANAGEABLE_ROLES[role] : undefined;
-  if (!userId || !newRole) {
-    await ctx.answerCallbackQuery(i18n.t('user-management.validation.role.invalid'));
-    return;
-  }
-
-  await safeEditMessageText(
-    ctx,
-    i18n.t('user-management.users.role.confirm', {
-      role: i18n.t(`user-management.role.${newRole}`),
-    }),
-    {
-      parse_mode: 'HTML',
-      reply_markup: UsersMenuFactory.createRoleConfirm(userId, newRole, i18n),
-    },
-  );
-}
-
-async function handleUsersRoleConfirmAction(
-  ctx: Context,
-  userId: string | undefined,
-  role: string | undefined,
-): Promise<void> {
-  const i18n = getI18n();
-  const newRole = role ? MANAGEABLE_ROLES[role] : undefined;
-  if (!userId || !newRole) {
-    await ctx.answerCallbackQuery(i18n.t('user-management.validation.role.invalid'));
-    return;
-  }
-
-  const updateResult = await getUserService().updateRole(userId, newRole);
-  if (updateResult.isErr()) {
-    await ctx.answerCallbackQuery(roleErrorMessage(updateResult.error.code, i18n));
-    return;
-  }
-
-  await ctx.answerCallbackQuery(i18n.t('user-management.users.role.success'));
-  await handleUsersViewAction(ctx, userId);
-}
-
-function roleErrorMessage(errorCode: string, i18n: ReturnType<typeof getI18n>): string {
-  if (errorCode === 'user-management.users.role.last_super_admin') {
-    return i18n.t('user-management.users.role.last_super_admin');
-  }
-  return i18n.t('user-management.users.role.error');
 }
 
 function formatUsersList(users: UserProfile[], i18n: ReturnType<typeof getI18n>): string {

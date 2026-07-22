@@ -20,6 +20,7 @@ A super admin can open the Users area, browse registered users, search by known 
 1. **Given** a super admin and at least one registered user, **When** the super admin opens Users, **Then** the system shows a paginated user list with name, role, status, language, and registration date.
 2. **Given** a user with governorate stored as an internal regional key, **When** any profile detail screen is rendered, **Then** the governorate is displayed as a localized human label and never as the raw key.
 3. **Given** a super admin selects a user from search results, **When** the user detail screen opens, **Then** the screen shows identity, contact, regional, role, status, registration, and administrative metadata sections.
+4. **Given** an authorized user opens `/start` on a narrow Telegram client, **When** the main menu is rendered, **Then** each action appears in a readable single-button row with a leading visual icon and no clipped labels.
 
 ---
 
@@ -49,9 +50,13 @@ A super admin can promote or demote users between the constitution-approved role
 
 **Acceptance Scenarios**:
 
-1. **Given** a super admin opens a user's role screen, **When** the role choices are shown, **Then** only `USER`, `ADMIN`, and `SUPER_ADMIN` are available for assignment where allowed.
+1. **Given** a super admin opens a user's role screen, **When** the role choices are shown, **Then** only `GUEST`, `USER`, `ADMIN`, and `SUPER_ADMIN` are available for assignment where allowed.
 2. **Given** the last active super admin, **When** any action would demote, ban, or disable that account, **Then** the system blocks the action with a clear localized message.
 3. **Given** an admin without role-management permission, **When** they attempt to change a user role, **Then** the system denies the action and records the denial.
+4. **Given** a known account is demoted to `GUEST`, **When** that account runs `/start`, **Then** the system offers the membership request path again instead of a protected menu with unavailable actions.
+5. **Given** a super admin blocks a user, **When** the blocked user sends any command or membership request callback, **Then** the bot denies the interaction before any feature logic runs.
+6. **Given** a super admin opens a blocked user profile, **When** the account status action is shown, **Then** the same status-control position offers unblock instead of block.
+7. **Given** a super admin confirms unblocking a blocked user, **When** the update succeeds, **Then** the user status returns to `ACTIVE` and the next interaction proceeds according to the user's role and permissions.
 
 ---
 
@@ -89,6 +94,9 @@ A super admin or delegated admin can review a user's operational activity, permi
 
 - Existing approved users may have incomplete profile fields; detail screens must display stable placeholders rather than raw nulls or internal keys.
 - A super admin must not be able to remove the last active super admin path.
+- Demoted `GUEST` users remain eligible to submit a new membership request unless their profile status is blocked.
+- Blocked users must not be able to bypass the block by using `/start` or membership request callbacks.
+- Blocked users must receive a human-readable blocked-account message rather than a generic permission or internal error response.
 - An admin must not grant themselves new permissions unless they already have explicit permission delegation authority.
 - Permission revocation must affect both newly rendered menus and stale callbacks.
 - Disabled optional modules must not leave broken buttons in user details.

@@ -202,8 +202,8 @@ describe('users callback actions', () => {
 
     await handleUsersAction(ctx, user(), ['search']);
     await handleUsersAction(ctx, user(), ['view', 'user-2']);
-    await handleUsersAction(ctx, user(), ['role', 'user-2', 'ADMIN']);
-    await handleUsersAction(ctx, user(), ['role-confirm', 'user-2', 'ADMIN']);
+    await handleUsersAction(ctx, user(), ['role', 'user-2', 'GUEST']);
+    await handleUsersAction(ctx, user(), ['role-confirm', 'user-2', 'GUEST']);
     await handleUsersAction(ctx, user(), ['other']);
 
     expect(ctx.answerCallbackQuery).toHaveBeenNthCalledWith(
@@ -211,9 +211,9 @@ describe('users callback actions', () => {
       'user-management.users.search_pending:{}',
     );
     expect(service.getById).toHaveBeenCalledWith('user-2');
-    expect(service.updateRole).toHaveBeenCalledWith('user-2', RoleEnum.ADMIN);
+    expect(service.updateRole).toHaveBeenCalledWith('user-2', RoleEnum.GUEST);
     expect(ctx.editMessageText).toHaveBeenCalledWith(
-      'user-management.users.role.confirm:{"role":"user-management.role.ADMIN:{}"}',
+      'user-management.users.role.confirm:{"role":"user-management.role.GUEST:{}"}',
       expect.objectContaining({ parse_mode: 'HTML' }),
     );
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith('user-management.users.role.success:{}');

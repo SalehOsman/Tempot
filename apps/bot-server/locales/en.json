@@ -3,6 +3,7 @@
   "bot-server.rate_limit_reply_failed": "Failed to send rate limit warning",
   "bot-server.validation_failed": "The provided input is invalid. Please check your command and try again.",
   "bot-server.access_denied": "You do not have permission to use this feature.",
+  "bot-server.account_blocked": "Your access to this bot has been blocked by administration. You cannot use bot features or submit membership requests. Contact an administrator if you believe this is a mistake.",
   "bot-server.error_message": "An unexpected error occurred. Reference code: {{referenceCode}}",
   "bot-server.callback_unhandled": "This button is no longer available. Open the menu again and try once more.",
   "bot-server.callback_unchanged": "This screen is already open.",

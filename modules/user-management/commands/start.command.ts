@@ -1,4 +1,5 @@
 import type { ModuleNavigationItem } from '@tempot/module-registry';
+import { RoleEnum } from '@tempot/auth-core';
 import type { Context } from 'grammy';
 import { InlineKeyboard } from 'grammy';
 import { getDeps, getI18n, getLogger } from '../deps.context.js';
@@ -86,8 +87,21 @@ async function replyToKnownUser(input: KnownUserReplyInput): Promise<void> {
   const { ctx, user, fallbackName, telegramId } = input;
   await syncProfileSession(ctx, user);
   await runWithProfileLanguage(user.language, async () => {
+    if (user.status === 'BANNED') {
+      await replyToBlockedUser(ctx);
+      return;
+    }
+    if (user.role === RoleEnum.GUEST) {
+      await replyToUnknownVisitor(ctx);
+      return;
+    }
     await renderKnownUserReply({ ctx, user, fallbackName, telegramId });
   });
+}
+
+async function replyToBlockedUser(ctx: Context): Promise<void> {
+  const i18n = getI18n();
+  await ctx.reply(i18n.t('user-management.membership.blocked_status'), { parse_mode: 'HTML' });
 }
 
 async function renderKnownUserReply(input: KnownUserReplyInput): Promise<void> {

@@ -84,6 +84,7 @@ As an administrator, I want to review, approve, or reject membership requests fr
 2. **Given** a pending request, **When** the admin approves it, **Then** an active user profile is created or activated through the user-management boundary and the visitor can access the member menu on the next interaction.
 3. **Given** a pending request, **When** the admin rejects it with a reason, **Then** the visitor sees only the rejection state and allowed resubmission options according to policy.
 4. **Given** a non-admin member, **When** they open menus, **Then** membership management is not visible.
+5. **Given** no pending requests exist, **When** an admin opens membership management, **Then** the bot shows an explicit empty state with a back action instead of an empty request list title.
 
 ---
 
@@ -152,7 +153,7 @@ As a visitor, I want public mode to show only capabilities intended for public u
 - **FR-013**: The system MUST provide a membership request submission flow for unknown visitors.
 - **FR-014**: The system MUST enforce at most one active pending membership request per Telegram identity.
 - **FR-015**: The system MUST show pending status to pending visitors without exposing internal features.
-- **FR-016**: The system MUST provide administrator flows to list, inspect, approve, and reject membership requests.
+- **FR-016**: The system MUST provide administrator flows to list, inspect, approve, and reject membership requests, including an explicit empty state when no pending requests exist.
 - **FR-017**: The system MUST create or activate an active user profile after approval through the user-management boundary.
 - **FR-018**: The membership-management module MUST NOT directly import or mutate user-management internals.
 - **FR-019**: Module-to-module state changes MUST use the event bus or an approved boundary contract consistent with the constitution.

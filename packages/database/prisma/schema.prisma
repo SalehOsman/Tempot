@@ -21,6 +21,7 @@ model UserProfile {
   email      String?
   language   String  @default("ar")
   role       String  @default("USER")
+  status     String  @default("ACTIVE")
 
   // Additional identity fields
   nationalId                     String?   @unique
@@ -54,6 +55,7 @@ model UserProfile {
   @@index([email])
   @@index([emailLookupToken])
   @@index([role])
+  @@index([status])
   @@index([nationalId])
   @@index([nationalIdLookupToken])
   @@index([mobileNumber])

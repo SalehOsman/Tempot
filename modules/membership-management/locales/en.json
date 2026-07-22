@@ -4,7 +4,7 @@
       "join": "Request membership"
     },
     "menu": {
-      "button": "Membership"
+      "button": "🪪 Membership"
     },
     "request": {
       "submitted": "Your membership request has been submitted.",
@@ -27,7 +27,8 @@
     },
     "admin": {
       "list": {
-        "title": "Pending membership requests"
+        "title": "Pending membership requests",
+        "empty": "There are no pending membership requests right now."
       },
       "detail": {
         "title": "Membership request details",
@@ -39,6 +40,7 @@
       "approve_button": "Approve",
       "reject_button": "Reject",
       "back_button": "Back to requests",
+      "back_main_button": "↩ Back",
       "approved": "Membership request approved.",
       "rejected": "Membership request rejected.",
       "failed": "Could not process the membership request. Please try again later."

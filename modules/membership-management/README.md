@@ -11,6 +11,7 @@ This module owns membership request persistence and review state transitions. It
 - Visitor callback handler for `membership:request`.
 - Administrator review callbacks for pending list, detail, approve, and reject.
 - Administrator review inline menus.
+- Empty pending-list state with a back-to-main-menu action.
 - PostgreSQL persistence through `PrismaMembershipRequestRepository`.
 - Pending request lookup by Telegram id.
 - Submit, approve, and reject service methods.

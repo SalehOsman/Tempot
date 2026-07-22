@@ -84,6 +84,19 @@ export class UserService {
     return this.repository.updateRole(userId, newRole);
   }
 
+  async blockUser(userId: string): Promise<Result<void, AppError>> {
+    const guardResult = await this.ensureStatusChangeAllowed(userId);
+    if (guardResult.isErr()) return err(guardResult.error);
+
+    this.invalidateCacheByUserId(userId);
+    return this.repository.updateStatus(userId, 'BANNED');
+  }
+
+  async unblockUser(userId: string): Promise<Result<void, AppError>> {
+    this.invalidateCacheByUserId(userId);
+    return this.repository.updateStatus(userId, 'ACTIVE');
+  }
+
   // ─── Update — الحقول المصرية ─────────────────────────────────────────────────
 
   async updateNationalId(
@@ -183,7 +196,14 @@ export class UserService {
     newRole: RoleEnum,
   ): Promise<Result<void, AppError>> {
     if (newRole === RoleEnum.SUPER_ADMIN) return ok(undefined);
+    return this.ensureLastSuperAdminPreserved(userId);
+  }
 
+  private async ensureStatusChangeAllowed(userId: string): Promise<Result<void, AppError>> {
+    return this.ensureLastSuperAdminPreserved(userId);
+  }
+
+  private async ensureLastSuperAdminPreserved(userId: string): Promise<Result<void, AppError>> {
     const targetResult = await this.repository.findById(userId);
     if (targetResult.isErr()) return err(targetResult.error);
     if (targetResult.value.role !== RoleEnum.SUPER_ADMIN) return ok(undefined);

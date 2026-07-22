@@ -2,7 +2,7 @@ import type { Context } from 'grammy';
 import { sessionContext } from '@tempot/shared';
 import { getDeps } from '../deps.context.js';
 import type { ModuleSessionProvider, ModuleSessionRecord } from '../types/module-deps.types.js';
-import type { UserProfile } from '../types/index.js';
+import type { UserProfile, UserStatus } from '../types/index.js';
 
 const CURRENT_SESSION_SCHEMA_VERSION = 1;
 
@@ -33,7 +33,9 @@ export async function syncProfileSession(ctx: Context, user: UserProfile): Promi
 
 export async function saveProfileSession(input: {
   readonly sessionProvider: ModuleSessionProvider;
-  readonly user: Pick<UserProfile, 'telegramId' | 'role' | 'language'>;
+  readonly user: Pick<UserProfile, 'telegramId' | 'role' | 'language'> & {
+    readonly status?: UserStatus;
+  };
   readonly chatId?: string;
 }): Promise<void> {
   const { sessionProvider, user } = input;
@@ -62,7 +64,7 @@ export async function saveProfileSession(input: {
     userId: user.telegramId,
     chatId,
     role: user.role,
-    status: 'ACTIVE',
+    status: user.status ?? 'ACTIVE',
     language: user.language,
   });
 }

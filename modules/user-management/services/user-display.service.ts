@@ -20,6 +20,7 @@ export function buildUserDetailMessage(user: UserProfile, i18n: ModuleI18n): str
     email: user.email ?? undef,
     language: i18n.t(`user-management.language.${user.language}`),
     role: i18n.t(`user-management.role.${user.role}`),
+    status: i18n.t(`user-management.status.${user.status ?? 'ACTIVE'}`),
     nationalId: user.nationalId ?? undef,
     mobile: user.mobileNumber ?? undef,
     birthDate: formatDate(user.birthDate, undef),

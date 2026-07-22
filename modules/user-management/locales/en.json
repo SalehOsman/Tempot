@@ -2,9 +2,9 @@
   "user-management": {
     "common": {
       "undefined": "Not set",
-      "yes": "Yes",
-      "no": "No",
-      "cancel": "Cancel"
+      "yes": "✓ Yes",
+      "no": "✕ No",
+      "cancel": "↩ Cancel"
     },
     "errors": {
       "no_user": "Could not identify you. Please try again.",
@@ -17,23 +17,24 @@
     "menu": {
       "main": "Welcome to Tempot",
       "welcome": "Hello <b>{{name}}</b>!\n\nRole: {{role}}\nLanguage: {{language}}\n\nChoose from the menu below:",
-      "back": "Back",
+      "back": "↩ Back",
       "help": "Help",
       "button": {
-        "profile": "Profile",
-        "settings": "Settings",
-        "notifications": "Notifications",
-        "messages": "Messages",
-        "users": "Users",
-        "stats": "Stats",
-        "help": "Help"
+        "profile": "👤 Profile",
+        "settings": "⚙ Settings",
+        "notifications": "🔔 Alerts",
+        "messages": "✉ Messages",
+        "users": "👥 Users",
+        "stats": "📊 Stats",
+        "help": "❓ Help"
       }
     },
     "membership": {
       "request_prompt": "<b>Membership Required</b>\n\nYour account was not found. You can submit a membership request for administrator review.",
       "pending_status": "<b>Membership Request Pending</b>\n\nYour membership request is waiting for administrator review. You will receive access after approval.",
+      "blocked_status": "<b>Access Blocked</b>\n\nThis account is blocked by administration and cannot use the bot.",
       "public_prompt": "<b>Limited Access</b>\n\nYou can use the public options below or submit a membership request for full access.",
-      "request_button": "Request Membership"
+      "request_button": "📝 Request Membership"
     },
     "profile": {
       "view": "Your Profile",
@@ -55,19 +56,19 @@
       "auto_extracted": "Your data was automatically extracted from the national ID.",
       "national_id_extracted": "National ID saved and data extracted automatically:\nGender: {{gender}}\nBirth Date: {{birthDate}}\nGovernorate: {{governorate}}",
       "button": {
-        "edit": "Edit",
-        "stats": "Stats",
-        "name": "Name",
-        "email": "Email",
-        "language": "Language",
-        "role": "Role",
-        "personal": "Personal Data",
-        "national_id": "National ID",
-        "mobile": "Mobile",
-        "birth_date": "Birth Date",
-        "gender": "Gender",
-        "governorate": "Governorate",
-        "country_code": "Country Code"
+        "edit": "✏ Edit",
+        "stats": "📊 Stats",
+        "name": "👤 Name",
+        "email": "✉ Email",
+        "language": "🌐 Language",
+        "role": "🛡 Role",
+        "personal": "🪪 Personal Data",
+        "national_id": "🪪 National ID",
+        "mobile": "☎ Mobile",
+        "birth_date": "📅 Birth Date",
+        "gender": "⚧ Gender",
+        "governorate": "📍 Governorate",
+        "country_code": "🌍 Country Code"
       },
       "field": {
         "name": "Name",
@@ -85,7 +86,7 @@
         "name": "Enter the new name:\n\n<i>Maximum 50 characters</i>",
         "email": "Enter the new email address:\n\n<i>Example: name@example.com</i>",
         "language": "Enter the new language:\n\n<i>ar - Arabic\nen - English</i>",
-        "role": "Enter the new role:\n\n<i>USER / ADMIN / SUPER_ADMIN</i>",
+        "role": "Enter the new role:\n\n<i>GUEST / USER / ADMIN / SUPER_ADMIN</i>",
         "national_id": "Enter the national ID:\n\n<i>14 digits. Example: 29901011234567</i>",
         "mobile": "Enter the mobile number:\n\n<i>Example: 01012345678 or +201012345678</i>",
         "birth_date": "Enter the birth date:\n\n<i>Format: YYYY-MM-DD or DD/MM/YYYY\nExample: 1990-01-15</i>",
@@ -106,7 +107,7 @@
       "more": "... and {{count}} more",
       "search": "Search Users",
       "view": "User Details",
-      "detail_message": "<b>User Details</b>\n\nName: {{username}}\nTelegram ID: {{telegramId}}\nEmail: {{email}}\nLanguage: {{language}}\nRole: {{role}}\n\nPersonal Data\nNational ID: {{nationalId}}\nMobile: {{mobile}}\nBirth Date: {{birthDate}}\nGender: {{gender}}\nGovernorate: {{governorate}}\nCountry Code: {{countryCode}}\n\nRegistered: {{createdAt}}\nLast Updated: {{updatedAt}}",
+      "detail_message": "<b>User Details</b>\n\nName: {{username}}\nTelegram ID: {{telegramId}}\nEmail: {{email}}\nLanguage: {{language}}\nRole: {{role}}\nStatus: {{status}}\n\nPersonal Data\nNational ID: {{nationalId}}\nMobile: {{mobile}}\nBirth Date: {{birthDate}}\nGender: {{gender}}\nGovernorate: {{governorate}}\nCountry Code: {{countryCode}}\n\nRegistered: {{createdAt}}\nLast Updated: {{updatedAt}}",
       "edit_prompt": "<b>Edit User Information</b>\n\nChoose the field you want to update:",
       "activity_unavailable": "<b>User Activity</b>\n\nNo activity timeline is available for this user yet.",
       "notifications_unavailable": "<b>User Notifications</b>\n\nNo notification history is available for this user yet.",
@@ -121,23 +122,38 @@
       "view_pending": "User {{id}} details are under development.",
       "role_pending": "Changing user {{id}} role to {{role}} is under development.",
       "button": {
-        "search": "Search",
-        "list": "List",
+        "search": "🔎 Search",
+        "list": "📋 List",
         "user": "{{name}}",
-        "role_user": "User",
+        "role_guest": "🚪 Guest",
+        "role_user": "👤 User",
         "role_moderator": "Moderator",
-        "role_admin": "Admin",
-        "role_super_admin": "Super Admin",
-        "activity": "Activity",
-        "notifications": "Notifications",
-        "test_notification": "Test Notification"
+        "role_admin": "🛡 Admin",
+        "role_super_admin": "👑 Super Admin",
+        "activity": "📈 Activity",
+        "notifications": "🔔 Alerts",
+        "test_notification": "🧪 Test Alert",
+        "block": "⛔ Block User",
+        "unblock": "✅ Unblock User",
+        "confirm_block": "⛔ Confirm Block",
+        "confirm_unblock": "✅ Confirm Unblock"
       },
       "role": {
-        "change": "Change Role",
+        "change": "🛡 Change Role",
         "confirm": "<b>Confirm Role Change</b>\n\nAre you sure you want to change this user's role to <b>{{role}}</b>?",
         "success": "Role updated successfully",
         "error": "Error updating role",
         "last_super_admin": "This action is blocked because at least one active Super Admin must remain."
+      },
+      "block": {
+        "confirm": "<b>Confirm User Block</b>\n\nThis user will not be able to send commands, use features, or submit membership requests.",
+        "success": "User blocked successfully",
+        "error": "Error blocking user"
+      },
+      "unblock": {
+        "confirm": "<b>Confirm User Unblock</b>\n\nThis user will be able to use bot features again according to their role.",
+        "success": "User unblocked successfully",
+        "error": "Error unblocking user"
       }
     },
     "validation": {
@@ -182,6 +198,11 @@
       "MODERATOR": "Moderator",
       "ADMIN": "Admin",
       "SUPER_ADMIN": "Super Admin"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "BANNED": "Blocked",
+      "PENDING": "Pending"
     },
     "gender": {
       "male": "Male",
