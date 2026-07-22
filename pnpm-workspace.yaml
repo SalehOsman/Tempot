@@ -19,8 +19,8 @@ overrides:
   # Security: GHSA-gv7w-rqvm-qjhr allows binary replacement through a custom
   # registry in Deno-backed tooling. Affects drizzle-kit (dev-only).
   esbuild: '>=0.28.1'
-  # Security: GHSA-92pp-h63x-v22m — @hono/node-server middleware bypass (<1.19.13).
-  '@hono/node-server': '>=1.19.13'
+  # Security: GHSA-frvp-7c67-39w9 — @hono/node-server Windows serve-static bypass (<2.0.5).
+  '@hono/node-server': '>=2.0.5'
   markdown-it: 14.2.0
   # Security: GHSA-wcpc-wj8m-hjx6 - protobufjs DoS via unbounded Any expansion (<=8.4.0).
   protobufjs: '>=8.4.1'
