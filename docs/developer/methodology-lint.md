@@ -25,6 +25,17 @@ files.
 | `language-policy` | Rule XL | Blocks Arabic Unicode in developer-facing Markdown, comments, and non-test TypeScript strings outside the allowlist. Locale files and test data strings are exempt. |
 | `stale-artifacts` | Rule LXXVIII | Blocks stale JavaScript artifacts under source trees and empty `modules/*/utils/` directories. |
 | `eslint-disable` | Rule I | Blocks ESLint suppression comments outside tests, while ignoring regex/string references to the directive text. |
+| `telegram-keyboard-ux` | Rule LXVI | Blocks crowded Telegram inline keyboard rows, long button labels, and missing Arabic or English button locale keys in module menu factories. |
+
+Run the Telegram keyboard audit directly when changing bot menus:
+
+```bash
+pnpm telegram-keyboard-ux:check
+```
+
+The audit enforces a maximum of three buttons per row, Arabic labels up to 20
+visible characters, English labels up to 24 visible characters, and locale
+coverage in both `ar.json` and `en.json`.
 
 ## Allowlist
 

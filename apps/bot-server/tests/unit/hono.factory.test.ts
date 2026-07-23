@@ -113,6 +113,24 @@ describe('createHonoApp hardening', () => {
     expect(bot.handleUpdate).not.toHaveBeenCalled();
   });
 
+  it('rejects oversized webhook payloads when content-length is absent', async () => {
+    const { app, bot } = createApp({ bodyLimitBytes: 128 });
+    const request = new Request('http://tempot.local/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ update_id: 1, message: { text: 'x'.repeat(200) } }),
+    });
+
+    const response = await app.fetch(request);
+
+    expect(response.status).toBe(413);
+    expect(await response.json()).toEqual({ error: 'payload_too_large' });
+    expect(bot.handleUpdate).not.toHaveBeenCalled();
+  });
+
   it('rate limits webhook requests before repeated bot processing', async () => {
     const { app, bot } = createApp({ rateLimitMaxRequests: 1 });
     const headers = {
@@ -190,5 +208,25 @@ describe('createHonoApp hardening', () => {
     expect(second.status).toBe(200);
     expect(third.status).toBe(429);
     expect(bot.handleUpdate).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects webhook requests when the configured trusted client IP header is missing', async () => {
+    const { app, bot } = createApp({
+      rateLimitMaxRequests: 1,
+      trustedClientIpHeader: 'cf-connecting-ip',
+    });
+
+    const response = await app.request('/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret-token',
+      },
+      body: JSON.stringify({ update_id: 1, message: { text: 'first' } }),
+    });
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ error: 'trusted_client_ip_missing' });
+    expect(bot.handleUpdate).not.toHaveBeenCalled();
   });
 });
