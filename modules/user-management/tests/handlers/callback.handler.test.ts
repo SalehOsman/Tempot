@@ -1,6 +1,7 @@
 import type { Context } from 'grammy';
 import { RoleEnum } from '@tempot/auth-core';
-import { ok } from 'neverthrow';
+import { AppError } from '@tempot/shared';
+import { err, ok } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerDeps } from '../../deps.context.js';
 import { handleCallbackQuery } from '../../handlers/callback.handler.js';
@@ -203,6 +204,98 @@ describe('handleCallbackQuery', () => {
       'user-management.users.role.confirm',
       expect.objectContaining({ parse_mode: 'HTML' }),
     );
+  });
+
+  it('answers invalid role management callbacks without loading target users', async () => {
+    const service = {
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile('SUPER_ADMIN'),
+      }),
+      getById: vi.fn(),
+      updateRole: vi.fn(),
+    };
+    vi.mocked(getUserService).mockReturnValue(service as never);
+    const missingUser = createContext('users:roles');
+    const invalidRole = createContext('users:role:user-2:OWNER');
+    const invalidConfirmation = createContext('users:role-confirm:user-2:OWNER');
+
+    await handleCallbackQuery(missingUser);
+    await handleCallbackQuery(invalidRole);
+    await handleCallbackQuery(invalidConfirmation);
+
+    expect(service.getById).not.toHaveBeenCalled();
+    expect(service.updateRole).not.toHaveBeenCalled();
+    expect(missingUser.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.errors.invalid_callback',
+    );
+    expect(invalidRole.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.validation.role.invalid',
+    );
+    expect(invalidConfirmation.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.validation.role.invalid',
+    );
+  });
+
+  it('reports missing users from the role selection menu', async () => {
+    const service = {
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile('SUPER_ADMIN'),
+      }),
+      getById: vi.fn().mockResolvedValue(err(new AppError('user-management.not_found'))),
+    };
+    vi.mocked(getUserService).mockReturnValue(service as never);
+    const ctx = createContext('users:roles:user-2');
+
+    await handleCallbackQuery(ctx);
+
+    expect(service.getById).toHaveBeenCalledWith('user-2');
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith('user-management.profile.not_found');
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
+  });
+
+  it('reports role update failures without redrawing the selected user', async () => {
+    const service = {
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile('SUPER_ADMIN'),
+      }),
+      updateRole: vi
+        .fn()
+        .mockResolvedValue(err(new AppError('user-management.users.role.update_failed'))),
+      getById: vi.fn(),
+    };
+    vi.mocked(getUserService).mockReturnValue(service as never);
+    const ctx = createContext('users:role-confirm:user-2:ADMIN');
+
+    await handleCallbackQuery(ctx);
+
+    expect(service.updateRole).toHaveBeenCalledWith('user-2', RoleEnum.ADMIN);
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith('user-management.users.role.error');
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
+  });
+
+  it('reports the guarded last-super-admin role failure explicitly', async () => {
+    const service = {
+      getByTelegramId: vi.fn().mockResolvedValue({
+        isErr: () => false,
+        value: createUserProfile('SUPER_ADMIN'),
+      }),
+      updateRole: vi
+        .fn()
+        .mockResolvedValue(err(new AppError('user-management.users.role.last_super_admin'))),
+      getById: vi.fn(),
+    };
+    vi.mocked(getUserService).mockReturnValue(service as never);
+    const ctx = createContext('users:role-confirm:user-2:USER');
+
+    await handleCallbackQuery(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+      'user-management.users.role.last_super_admin',
+    );
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 
   it('updates target user roles only after confirmation', async () => {
