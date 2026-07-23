@@ -8,6 +8,7 @@ import { formatHumanResult, type AuditResult } from './lib/audit-result.js';
 import { parseAuditArgs, runAudit } from './lib/audit-runner.js';
 import { formatJsonReport, formatSarifReport, type JsonReport } from './lib/report-formatter.js';
 import { auditStaleArtifacts } from './stale-artifacts-audit.js';
+import { auditTelegramKeyboardUx } from './telegram-keyboard-ux-audit.js';
 
 interface AllowlistSummaryInput {
   total: number;
@@ -63,8 +64,17 @@ async function collectAuditResults(
   const eslintDisable = await runAudit('eslint-disable', () =>
     auditEslintDisable({ repositoryRoot, allowlist, files }),
   );
+  const telegramKeyboardUx = await runAudit('telegram-keyboard-ux', () =>
+    auditTelegramKeyboardUx({ repositoryRoot, files }),
+  );
 
-  return [allowlistMeta.result, language.result, stale.result, eslintDisable.result];
+  return [
+    allowlistMeta.result,
+    language.result,
+    stale.result,
+    eslintDisable.result,
+    telegramKeyboardUx.result,
+  ];
 }
 
 function summarizeAllowlist(allowlist: Allowlist): AllowlistSummaryInput {

@@ -18,6 +18,9 @@ export interface HttpRateLimitOptions {
 }
 
 type TrustedClientIpHeader = 'cf-connecting-ip' | 'x-real-ip';
+type ClientRateLimitKeyResult =
+  | { ok: true; key: string }
+  | { ok: false; error: 'trusted_client_ip_missing' };
 
 interface HonoFactoryDeps {
   bot: Bot<GrammyContext>;
@@ -73,7 +76,12 @@ function createRateLimitMiddleware(options: HttpRateLimitOptions) {
     }
 
     const now = Date.now();
-    const key = clientRateLimitKey(c, options.trustedClientIpHeader);
+    const keyResult = clientRateLimitKey(c, options.trustedClientIpHeader);
+    if (!keyResult.ok) {
+      return c.json({ error: keyResult.error }, 502);
+    }
+
+    const key = keyResult.key;
     const bucket = buckets.get(key);
     if (!bucket || bucket.resetAt <= now) {
       buckets.set(key, { count: 1, resetAt: now + options.windowMs });
@@ -93,10 +101,11 @@ function createRateLimitMiddleware(options: HttpRateLimitOptions) {
 function clientRateLimitKey(
   c: HonoContext,
   trustedHeader: TrustedClientIpHeader | undefined,
-): string {
-  if (!trustedHeader) return 'unknown-client';
+): ClientRateLimitKeyResult {
+  if (!trustedHeader) return { ok: true, key: 'unknown-client' };
   const clientIp = c.req.header(trustedHeader)?.trim();
-  return clientIp ? `${trustedHeader}:${clientIp}` : 'unknown-client';
+  if (!clientIp) return { ok: false, error: 'trusted_client_ip_missing' };
+  return { ok: true, key: `${trustedHeader}:${clientIp}` };
 }
 
 async function secureHeadersMiddleware(c: HonoContext, next: Next): Promise<void> {

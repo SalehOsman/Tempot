@@ -17,6 +17,7 @@
 - [ ] T007 Remove invalid role choices from role change menus.
 - [ ] T008 Verify no raw i18n or regional keys appear in affected bot messages.
 - [x] T008a Add start-menu UX regression tests and render readable single-button rows.
+- [x] T008b Add methodology lint coverage for Telegram menu button rows and label length.
 
 ## Phase 2: User Detail Console
 

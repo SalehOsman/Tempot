@@ -39,6 +39,7 @@ dated exception is approved.
 - [ ] Public liveness smoke passed.
 - [ ] Restricted readiness smoke passed.
 - [ ] Webhook smoke passed.
+- [ ] `pnpm smoke:staging:webhook` evidence stored under `docs/operations/evidence/`.
 - [ ] Graceful shutdown smoke passed.
 - [ ] Metrics visible.
 - [ ] Alert path tested.

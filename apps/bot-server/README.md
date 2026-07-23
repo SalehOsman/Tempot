@@ -95,6 +95,12 @@ Set `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip` only when every
 webhook request reaches the app through Cloudflare. Leave it empty for direct
 local Docker tests.
 
+Webhook request bodies are limited by `TEMPOT_HTTP_BODY_LIMIT_BYTES`; the
+default is 65,536 bytes. Oversized requests return `413` before the Telegram
+update handler runs. When `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER` is configured
+and the trusted header is missing, `/webhook` returns `502` instead of grouping
+traffic under a shared fallback rate-limit bucket.
+
 ## Health And Shutdown
 
 `GET /health` and `GET /live` return minimal public liveness only. Detailed

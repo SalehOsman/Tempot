@@ -106,6 +106,8 @@ external staging and passes real webhook/container smoke.
 - [ ] T037 [US4] Add independent alert fallback configuration and failure tests
 - [x] T038 [US4] Harden `docker-compose.yml` as explicit local-only infrastructure with safe bindings
 - [x] T039 [US4] Update production deployment, backup/restore, migration, incident, and rollback runbooks
+- [x] T039a [US4] Add staging webhook smoke automation and release evidence output support
+- [x] T039b [US4] Reject missing trusted proxy client headers before rate-limit bucket mutation
 - [ ] T040 [US4] Execute staging deployment and rollback/forward-fix rehearsal
 
 **Independent Test**: The same digest is promoted and a simulated failed release is recovered safely with observable evidence.
