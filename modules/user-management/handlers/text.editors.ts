@@ -7,6 +7,7 @@ import {
   syncSessionLanguage,
 } from '../services/session-language-sync.service.js';
 import type { UserProfile } from '../types/index.js';
+import { formatLanguageLabel } from '../services/user-display.service.js';
 
 export async function replyUpdated(ctx: Context, fieldKey: string, value: string): Promise<void> {
   const i18n = getI18n();
@@ -109,7 +110,7 @@ export async function handleEditLanguage(
   log.info({ msg: 'language_updated', userId: user.id });
   await syncSessionLanguage(ctx, lang);
   await runWithProfileLanguage(lang, async () => {
-    await replyUpdated(ctx, 'language', i18n.t(`user-management.language.${lang}`));
+    await replyUpdated(ctx, 'language', formatLanguageLabel(lang, i18n));
   });
   return true;
 }

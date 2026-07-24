@@ -12,13 +12,22 @@ export function formatRegionalLabel(
   return humanizeKey(value);
 }
 
+export function languageLabelKey(language: string): string {
+  const [baseLanguage] = language.split('-');
+  return `user-management.language.${baseLanguage ?? language}`;
+}
+
+export function formatLanguageLabel(language: string, i18n: ModuleI18n): string {
+  return i18n.t(languageLabelKey(language));
+}
+
 export function buildUserDetailMessage(user: UserProfile, i18n: ModuleI18n): string {
   const undef = i18n.t('user-management.common.undefined');
   return i18n.t('user-management.users.detail_message', {
     username: user.username ?? undef,
     telegramId: user.telegramId,
     email: user.email ?? undef,
-    language: i18n.t(`user-management.language.${user.language}`),
+    language: formatLanguageLabel(user.language, i18n),
     role: i18n.t(`user-management.role.${user.role}`),
     status: i18n.t(`user-management.status.${user.status ?? 'ACTIVE'}`),
     nationalId: user.nationalId ?? undef,

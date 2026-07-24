@@ -6,7 +6,7 @@ import type { Context } from 'grammy';
 import { getI18n, getLogger } from '../deps.context.js';
 import { getUserService } from '../services/user-service.context.js';
 import { ProfileMenuFactory } from '../menus/profile-menu.factory.js';
-import { formatRegionalLabel } from '../services/user-display.service.js';
+import { formatLanguageLabel, formatRegionalLabel } from '../services/user-display.service.js';
 import type { UserProfile } from '../types/index.js';
 
 function calculateAge(birthDate: Date): number {
@@ -41,7 +41,7 @@ function buildProfileMessage(user: UserProfile, i18n: ReturnType<typeof getI18n>
   return i18n.t('user-management.profile.view_message', {
     username: user.username ?? undef,
     email: user.email ?? undef,
-    language: i18n.t(`user-management.language.${user.language}`),
+    language: formatLanguageLabel(user.language, i18n),
     role: i18n.t(`user-management.role.${user.role}`),
     createdAt: new Date(user.createdAt).toLocaleDateString('ar-EG'),
     nationalId: user.nationalId ?? undef,

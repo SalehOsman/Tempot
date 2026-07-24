@@ -1,6 +1,7 @@
 import { InlineKeyboard } from 'grammy';
 import type { UserProfile } from '../types/index.js';
 import type { ModuleI18n } from '../types/module-deps.types.js';
+import { formatLanguageLabel } from '../services/user-display.service.js';
 
 const STATS_LOCALE = 'ar-EG';
 const PROFILE_COMPLETENESS_FIELDS: ReadonlyArray<(user: UserProfile) => unknown> = [
@@ -83,7 +84,7 @@ function buildStatsViewModel(user: UserProfile, i18n: ModuleI18n): Record<string
     updatedAt: formatDate(user.updatedAt),
     accountAgeDays: formatNumber(daysSince(user.createdAt)),
     role: i18n.t(`user-management.role.${user.role}`),
-    language: i18n.t(`user-management.language.${user.language}`),
+    language: formatLanguageLabel(user.language, i18n),
     completedFields: formatNumber(completedFields),
     totalFields: formatNumber(totalFields),
     completionPercent: formatPercent(completedFields, totalFields),

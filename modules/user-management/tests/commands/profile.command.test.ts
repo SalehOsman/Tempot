@@ -128,4 +128,28 @@ describe('profileCommand', () => {
     expect(message).toBe('Cairo');
     expect(message).not.toContain('eg.governorates.cairo');
   });
+
+  it('should localize regional language codes instead of rendering raw keys', () => {
+    const profileT = vi.fn((key: string, options?: Record<string, unknown>) => {
+      if (key === 'user-management.language.ar') return 'Arabic';
+      if (key === 'user-management.profile.view_message') {
+        return String(options?.['language']);
+      }
+      return key;
+    });
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      language: 'ar-EG',
+      role: 'SUPER_ADMIN',
+      telegramId: '123456789',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const message = buildProfileMessage(mockUser, { t: profileT });
+
+    expect(message).toBe('Arabic');
+    expect(message).not.toContain('user-management.language.ar-EG');
+  });
 });

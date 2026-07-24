@@ -10,6 +10,7 @@ import {
   syncProfileSession,
 } from '../services/session-language-sync.service.js';
 import { abilityTokensFromContext } from '../services/ability-token.service.js';
+import { languageLabelKey } from '../services/user-display.service.js';
 import type { UserProfile } from '../types/index.js';
 
 const BOT_ACCESS_MODE_KEY = 'bot_access_mode';
@@ -178,11 +179,6 @@ function createUnknownVisitorKeyboard(
 
 function readAccessMode(value: unknown): BotAccessMode {
   return value === 'public' ? 'public' : 'private';
-}
-
-function languageLabelKey(language: string): string {
-  const [baseLanguage] = language.split('-');
-  return `user-management.language.${baseLanguage ?? language}`;
 }
 
 function sessionUserFromContext(ctx: Context): SessionUserSnapshot | undefined {

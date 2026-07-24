@@ -6,6 +6,7 @@ import type { UserProfile } from '../types/index.js';
 import { handleUsersAction } from './users.callback.handler.js';
 import { handleProfileAction } from './profile.callback.handler.js';
 import { safeEditMessageText } from './callback-shared.handler.js';
+import { formatLanguageLabel } from '../services/user-display.service.js';
 import type { ModuleAuthorizationPolicy } from '../types/module-deps.types.js';
 import { abilityTokensFromContext } from '../services/ability-token.service.js';
 
@@ -134,7 +135,7 @@ async function handleMenuAction(ctx: Context, user: UserProfile, params: string[
     const msg = i18n.t('user-management.menu.welcome', {
       name: user.username ?? user.telegramId,
       role: i18n.t(`user-management.role.${user.role}`),
-      language: i18n.t(`user-management.language.${user.language}`),
+      language: formatLanguageLabel(user.language, i18n),
     });
     await safeEditMessageText(ctx, msg, {
       parse_mode: 'HTML',
