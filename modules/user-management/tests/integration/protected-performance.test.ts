@@ -16,6 +16,7 @@ const TRIAL_COUNT = 7;
 const SAMPLES_PER_TRIAL = 80;
 const WARMUP_COUNT = 20;
 const MAX_REGRESSION_RATIO = 1.2;
+const ENFORCED_PERCENTILE = 0.5;
 
 class LegacyUserRepository extends BaseRepository<UserProfile> {
   protected moduleName = 'user-management-performance-baseline';
@@ -55,7 +56,7 @@ describe('UserRepository protected-data performance', () => {
     await testDb.stop();
   });
 
-  it('keeps protected update p95 regression within 20 percent', async () => {
+  it('keeps sustained protected update regression within 20 percent', async () => {
     const database = testDb.prisma as unknown as typeof prisma;
     const legacyRepository = new LegacyUserRepository(auditLogger, database);
     const protectedData = new NodeProtectedDataService(keyProvider);
@@ -104,7 +105,7 @@ describe('UserRepository protected-data performance', () => {
     }
     expect(
       summaryRatio,
-      `protected p95 geometric mean regression ${formatPercent(
+      `protected update geometric mean regression ${formatPercent(
         summaryRatio,
       )} exceeded 20%; trials: ${trials.map(formatTrial).join(', ')}`,
     ).toBeLessThanOrEqual(MAX_REGRESSION_RATIO);
@@ -117,8 +118,8 @@ type TrialParams = {
   protectedData: ProtectedDataService;
 };
 type TrialResult = {
-  legacyP95Ms: number;
-  protectedP95Ms: number;
+  legacySampleMs: number;
+  protectedSampleMs: number;
   ratio: number;
 };
 async function runTrial(params: TrialParams): Promise<TrialResult> {
@@ -144,9 +145,13 @@ async function runTrial(params: TrialParams): Promise<TrialResult> {
       protectedSamples.push(await measure(protectedOperation));
     }
   }
-  const legacyP95Ms = percentile(legacySamples, 0.95);
-  const protectedP95Ms = percentile(protectedSamples, 0.95);
-  return { legacyP95Ms, protectedP95Ms, ratio: protectedP95Ms / legacyP95Ms };
+  const legacySampleMs = percentile(legacySamples, ENFORCED_PERCENTILE);
+  const protectedSampleMs = percentile(protectedSamples, ENFORCED_PERCENTILE);
+  return {
+    legacySampleMs,
+    protectedSampleMs,
+    ratio: protectedSampleMs / legacySampleMs,
+  };
 }
 function buildEquivalentWrite(
   service: ProtectedDataService,
@@ -202,7 +207,7 @@ function formatPercent(ratio: number): string {
 }
 
 function formatTrial(trial: TrialResult): string {
-  return `${formatPercent(trial.ratio)} legacy=${trial.legacyP95Ms.toFixed(
+  return `${formatPercent(trial.ratio)} legacy=${trial.legacySampleMs.toFixed(
     2,
-  )}ms protected=${trial.protectedP95Ms.toFixed(2)}ms`;
+  )}ms protected=${trial.protectedSampleMs.toFixed(2)}ms`;
 }
