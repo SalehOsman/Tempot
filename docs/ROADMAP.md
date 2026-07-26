@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-13.
+> Last updated: 2026-07-26.
 
 ## Current Technical Baseline
 
@@ -91,6 +91,10 @@ Recently completed:
 - The `test-module` diagnostic scaffold has been removed.
 - CI pipeline aligned to pnpm 10.33.3 and high-severity audit vulnerabilities
   resolved via dependency overrides.
+- CI and Docker recovered again on 2026-07-26 after the dependency audit and
+  runtime image scan failures on commit `e7df3b4`; PR #37 merged commit
+  `1c852bcbf8a670a2e8be9db80a8b4a2ee802f540`, and GitHub Actions CI run
+  `30204972837` plus Docker run `30204972822` passed on `main`.
 - Spec #039: `template-management` closure hardening completed with repository
   contract fixes, module manifests for implemented modules, Module Doctor
   readiness, and passing module unit and integration tests.
@@ -155,10 +159,10 @@ Active or next work:
    migrations, confirmed Telegram `getMe`, started polling mode, and verified
    `/live` plus restricted `/ready`. Later documentation-only merges may
    publish newer signed digests. The latest successful `main` Docker workflow
-   captured before this evidence update was run `28950023763` for commit
-   `47f59ea9080ac58c698d16bbf6c117cb3c74237a`, which built, scanned, signed,
+   captured before this evidence update was run `30204972822` for commit
+   `1c852bcbf8a670a2e8be9db80a8b4a2ee802f540`, which built, scanned, signed,
    and verified
-   `ghcr.io/salehosman/tempot-bot-server@sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`.
+   `ghcr.io/salehosman/tempot-bot-server@sha256:e3c28b445dc0dd92e502591568573e3af3e1dd1b8fe043d7594774fc37066815`.
    Documentation-only evidence commits also publish images, so staging must
    resolve and record the exact latest successful `main` digest after all
    documentation commits land and immediately before deployment. A 2026-07-09
@@ -256,6 +260,18 @@ Spec #057 merged evidence as of 2026-06-18:
 - `origin/main` is green after the 2026-07-22 CI/Docker gate repair: GitHub
   Actions CI run `29938145196` and Docker run `29938143344` both passed on
   commit `cb2280d93a9a110d3b2465bde4f118190a88c6fe`.
+- `origin/main` is green after the 2026-07-26 audit and Docker scan recovery:
+  GitHub Actions CI run `30204972837` and Docker run `30204972822` both passed
+  on commit `1c852bcbf8a670a2e8be9db80a8b4a2ee802f540`. The signed candidate
+  digest is
+  `ghcr.io/salehosman/tempot-bot-server@sha256:e3c28b445dc0dd92e502591568573e3af3e1dd1b8fe043d7594774fc37066815`.
+- On 2026-07-26, the same signed digest was pulled and run on Docker Desktop
+  against the existing local PostgreSQL and Redis services. Migration deploy
+  found eight migrations with no pending migrations, startup completed with
+  nine loaded modules, local `/live` and `/health` returned `200`, unauthenticated
+  `/ready` returned `403`, and token-authenticated `/ready` returned `200`
+  with `degraded` status because queue manager and AI provider probes were
+  unconfigured in the local smoke environment.
 
 Spec #057 runtime artifact branch evidence as of 2026-06-19:
 
@@ -346,7 +362,7 @@ Production go/no-go requires:
 | Phase 4     | Dashboard, mini apps, and additional frontends      | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 5     | Enterprise infrastructure                           | Not started                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Phase 6     | Observability and developer experience expansion    | Active through DX tooling, bot runtime observability, and admin problem inspection                                                                                                                                                                                                                                                                                                                                          |
-| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; the captured 2026-07-08 signed candidate digest before this evidence update is `sha256:a1424b3d42d69a0117c6b2612b54b60ae4710c9439b3d2f05cf7872c34a10bae`, but staging must re-resolve the latest successful `main` digest after documentation commits land; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
+| Remediation | Specs #053-#057 production-readiness corrections    | Specs #053-#056 and Spec #057 T003-T031 are published to `origin/main`; published-image local smoke evidence exists for digest `sha256:75c4150d377e4b2821b343fc1e7b30f6e49ba5083a150d9b343177a5e8405176`; the captured 2026-07-26 signed candidate digest before this evidence update is `sha256:e3c28b445dc0dd92e502591568573e3af3e1dd1b8fe043d7594774fc37066815`, but staging must re-resolve the latest successful `main` digest after documentation commits land; T032 plus external staging webhook smoke, rollback, review, and final release gates remain blocked. Local isolated backup/restore evidence exists, but target staging/production backup evidence remains required |
 
 ## Package Status
 
