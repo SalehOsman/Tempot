@@ -34,10 +34,12 @@ overrides:
   '@grpc/grpc-js': '>=1.14.4'
   # Security: GHSA-fx2h-pf6j-xcff - Vite Windows server.fs.deny bypass (<=7.3.4).
   vite: '>=7.3.5'
+  # Security: GHSA-r28c-9q8g-f849 - PostCSS previous source map path traversal.
+  postcss: '>=8.5.18'
   # Security: GHSA-3jxr-9vmj-r5cp - brace expansion DoS in glob/minimatch paths.
-  brace-expansion@1: 1.1.16
-  brace-expansion@2: 2.1.2
-  brace-expansion@5: 5.0.7
+  brace-expansion@1: 5.0.8
+  brace-expansion@2: 5.0.8
+  brace-expansion@5: 5.0.8
   # Security: GHSA-52cp-r559-cp3m - js-yaml quadratic CPU consumption.
   js-yaml@3: 3.15.0
   js-yaml@4: 4.3.0
