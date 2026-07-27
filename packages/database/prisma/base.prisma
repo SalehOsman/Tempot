@@ -183,6 +183,92 @@ model Attachment {
   @@index([isDeleted])
 }
 
+model BackupJob {
+  id                 String    @id
+  requestedBy        String    @map("requested_by")
+  scope              String
+  status             String
+  sourceEnvironment  String    @map("source_environment")
+  requestedAt        DateTime  @map("requested_at")
+  startedAt          DateTime? @map("started_at")
+  completedAt        DateTime? @map("completed_at")
+  failureCategory    String?   @map("failure_category")
+  safeFailureMessage String?   @map("safe_failure_message")
+
+  artifacts  BackupArtifact[]
+  rehearsals RestoreRehearsal[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([status, requestedAt], map: "idx_backup_jobs_status_requested")
+  @@index([requestedBy], map: "idx_backup_jobs_requested_by")
+  @@index([isDeleted], map: "idx_backup_jobs_deleted")
+  @@map("backup_jobs")
+}
+
+model BackupArtifact {
+  id                  String @id @default(cuid())
+  backupJobId         String @map("backup_job_id")
+  artifactType        String @map("artifact_type")
+  checksum            String
+  encrypted           Boolean
+  sizeBytes           Int    @map("size_bytes")
+  storageAttachmentId String? @map("storage_attachment_id")
+  storageReference    String? @map("storage_reference")
+  storageProvider     String? @map("storage_provider")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_backup_artifacts_job")
+  @@index([artifactType], map: "idx_backup_artifacts_type")
+  @@index([isDeleted], map: "idx_backup_artifacts_deleted")
+  @@map("backup_artifacts")
+}
+
+model RestoreRehearsal {
+  id                  String    @id
+  backupJobId          String    @map("backup_job_id")
+  confirmedBy          String    @map("confirmed_by")
+  targetClassification String    @map("target_classification")
+  status               String
+  requestedAt          DateTime  @map("requested_at")
+  completedAt          DateTime? @map("completed_at")
+  schemaCheck          String    @map("schema_check")
+  dataCheck            String    @map("data_check")
+  protectedDataCheck   String    @map("protected_data_check")
+  fileCoverageCheck    String    @map("file_coverage_check")
+  safeFailureMessage   String?   @map("safe_failure_message")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_restore_rehearsals_backup")
+  @@index([status, requestedAt], map: "idx_restore_rehearsals_status_requested")
+  @@index([isDeleted], map: "idx_restore_rehearsals_deleted")
+  @@map("restore_rehearsals")
+}
+
 model Setting {
   key         String  @id
   value       String

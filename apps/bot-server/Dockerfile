@@ -29,8 +29,9 @@ FROM node:22.12-alpine AS base
 ARG PNPM_VERSION
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-# Prisma library engine requires openssl + libc compat on Alpine
-RUN apk upgrade --no-cache && apk add --no-cache openssl libc6-compat
+# Prisma library engine requires openssl + libc compat on Alpine.
+# Backup execution requires PostgreSQL client tools for pg_dump and pg_restore.
+RUN apk upgrade --no-cache && apk add --no-cache openssl libc6-compat postgresql16-client
 RUN npm install -g "pnpm@${PNPM_VERSION}"
 
 # ---------------------------------------------------------------------------
@@ -148,6 +149,8 @@ RUN rm -rf \
 # Create non-root user (Constitution Rule X)
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 hono --ingroup nodejs
+RUN mkdir -p /app/backups /app/restore-rehearsals && \
+    chown -R hono:nodejs /app/backups /app/restore-rehearsals
 USER hono
 
 EXPOSE 3000

@@ -1,5 +1,5 @@
 {
-  "feature": "064-admin-user-access-console",
-  "feature_directory": "specs/064-admin-user-access-console",
-  "specPath": "specs/064-admin-user-access-console/spec.md"
+  "feature": "065-backup-management",
+  "feature_directory": "specs/065-backup-management",
+  "specPath": "specs/065-backup-management/spec.md"
 }
