@@ -49,3 +49,4 @@
 | 043 | [Interaction Observability Package](ADR-043-interaction-observability-package.md)   | Accepted |
 | 044 | [Versioned Sensitive Data Protection](ADR-044-sensitive-data-protection.md)         | Accepted |
 | 045 | [Runtime Manifest and Signed Bot Image](ADR-045-runtime-manifest-and-signed-image.md) | Accepted |
+| 046 | [Backup Engine And Backup Management Split](ADR-046-backup-engine-and-management.md) | Accepted |

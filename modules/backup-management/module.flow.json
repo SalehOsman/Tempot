@@ -1,0 +1,81 @@
+{
+  "moduleName": "backup-management",
+  "entryPoints": ["backups"],
+  "surfaces": [
+    {
+      "surfaceId": "backups.main",
+      "surfaceType": "parent",
+      "openedBy": "backups:view",
+      "visibleActions": [
+        "backups:request",
+        "backups:history",
+        "backups:restore",
+        "backups:retention",
+        "menu:main"
+      ]
+    },
+    {
+      "surfaceId": "backups.history",
+      "surfaceType": "leaf",
+      "openedBy": "backups:history",
+      "visibleActions": ["backups:view", "menu:main"]
+    },
+    {
+      "surfaceId": "backups.confirm",
+      "surfaceType": "confirmation",
+      "openedBy": "backups:request",
+      "visibleActions": ["backups:confirm_request", "backups:view"]
+    },
+    {
+      "surfaceId": "backups.restore-confirm",
+      "surfaceType": "confirmation",
+      "openedBy": "backups:restore",
+      "visibleActions": ["backups:confirm_restore", "backups:view"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "backups:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.button"
+    },
+    {
+      "callbackData": "backups:request",
+      "actionKind": "confirmation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.request"
+    },
+    {
+      "callbackData": "backups:confirm_request",
+      "actionKind": "mutation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.confirm_request"
+    },
+    {
+      "callbackData": "backups:history",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.history"
+    },
+    {
+      "callbackData": "backups:restore",
+      "actionKind": "confirmation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.restore"
+    },
+    {
+      "callbackData": "backups:confirm_restore",
+      "actionKind": "mutation",
+      "handlerStatus": "handled",
+      "labelKey": "backup-management.menu.confirm_restore"
+    },
+    {
+      "callbackData": "backups:retention",
+      "actionKind": "confirmation",
+      "handlerStatus": "planned",
+      "labelKey": "backup-management.menu.retention"
+    }
+  ],
+  "exitPaths": ["menu:main"]
+}

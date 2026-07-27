@@ -57,6 +57,9 @@ Modules must not:
 - Put user-facing text in TypeScript.
 - Add module behavior to `apps/bot-server` except registration/composition.
 - Reimplement package capabilities locally when an approved package exists.
+- Call external delivery or storage providers directly when a Tempot package
+  already owns that capability, such as `@tempot/notifier` for notifications or
+  `@tempot/storage-engine` for attachments and backup artifacts.
 - Bypass the package reuse standard without a documented `Custom Approved`
   rationale in the active feature plan.
 
@@ -75,7 +78,10 @@ Before editing a module:
    `Extend Package`, or `Custom Approved`.
 9. Use `@tempot/input-engine` for structured multi-step Telegram inputs unless
    an approved exception exists.
-10. Run the module test and relevant root gates.
+10. Confirm notification, storage, import, export, search, AI, backup, and
+    settings behavior is delegated to the approved package owner or has a
+    documented exception.
+11. Run the module test and relevant root gates.
 
 ## New Module Checklist
 
@@ -100,3 +106,8 @@ A new module should include:
 - Are all user-facing strings in locale files?
 - Are database calls isolated in repositories?
 - Does it communicate outward through events?
+- Does it reuse the approved package owner for each reusable capability instead
+  of recreating a local shortcut?
+- If the module sends notifications or stores files, does it use
+  `@tempot/notifier` and `@tempot/storage-engine` instead of direct provider
+  calls?

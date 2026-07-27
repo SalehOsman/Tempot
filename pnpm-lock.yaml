@@ -127,6 +127,9 @@ importers:
       '@tempot/auth-core':
         specifier: workspace:*
         version: link:../../packages/auth-core
+      '@tempot/backup-engine':
+        specifier: workspace:*
+        version: link:../../packages/backup-engine
       '@tempot/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -163,6 +166,9 @@ importers:
       '@tempot/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@tempot/storage-engine':
+        specifier: workspace:*
+        version: link:../../packages/storage-engine
       '@tempot/ux-helpers':
         specifier: workspace:*
         version: link:../../packages/ux-helpers
@@ -283,6 +289,31 @@ importers:
       neverthrow:
         specifier: 8.2.0
         version: 8.2.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@8.0.16(@types/node@24.12.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
+  modules/backup-management:
+    dependencies:
+      '@tempot/backup-engine':
+        specifier: workspace:*
+        version: link:../../packages/backup-engine
+      '@tempot/module-registry':
+        specifier: workspace:*
+        version: link:../../packages/module-registry
+      '@tempot/ux-helpers':
+        specifier: workspace:*
+        version: link:../../packages/ux-helpers
+    devDependencies:
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.1
+      grammy:
+        specifier: ^1.41.1
+        version: 1.41.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -680,6 +711,25 @@ importers:
       vitest:
         specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(vite@8.0.16(@types/node@22.19.17)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
+
+  packages/backup-engine:
+    dependencies:
+      '@tempot/database':
+        specifier: workspace:*
+        version: link:../database
+      '@tempot/shared':
+        specifier: workspace:*
+        version: link:../shared
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.3)(vite@8.0.16(@types/node@24.12.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.4))
 
   packages/cms-engine:
     dependencies:

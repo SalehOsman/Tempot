@@ -24,6 +24,8 @@ capability.
 - [ ] `plan.md` contains a capability decision table using `Reuse`, `Compose`,
       `Extend Package`, or `Custom Approved`.
 - [ ] Every `Custom Approved` capability has a completed exception rationale.
+- [ ] Every enabled `module.config.ts` capability flag maps to an approved
+      package, injected port, or documented `Custom Approved` exception.
 - [ ] Telegram-facing modules have a flow map covering entry points, surfaces,
       callbacks, unavailable actions, role rules, and exit paths.
 
@@ -69,6 +71,14 @@ Create only when needed:
       when the AI pack is selected.
 - [ ] Search, import, export, notification, CMS, and settings behavior use the
       approved packages instead of local ad hoc implementations.
+- [ ] Notification delivery uses `@tempot/notifier`, an injected notifier port,
+      or an event-backed notifier adapter; modules do not call Telegram delivery
+      APIs directly for notifications.
+- [ ] File and attachment behavior uses `@tempot/storage-engine`; modules do
+      not call storage providers directly.
+- [ ] Backup and restore behavior is split between a reusable engine package
+      and an operator module; the module must not implement backup execution as
+      local Telegram handler code.
 - [ ] Structured multi-step Telegram forms use `@tempot/input-engine` unless an
       approved custom exception is documented.
 - [ ] Telegram commands act as entry points for managed flows; inline menus are

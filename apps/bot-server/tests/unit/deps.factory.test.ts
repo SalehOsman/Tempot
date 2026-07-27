@@ -60,6 +60,7 @@ vi.mock('@tempot/database', () => ({
   AuditLogRepository: vi.fn().mockImplementation(function () {
     return { findMany: vi.fn().mockResolvedValue(ok([])) };
   }),
+  BaseRepository: class {},
   BootstrapSessionRepository: vi.fn().mockImplementation(function () {
     return { upsertSuperAdminSession: vi.fn().mockResolvedValue(ok(undefined)) };
   }),

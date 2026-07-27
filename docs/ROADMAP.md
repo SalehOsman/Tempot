@@ -204,6 +204,14 @@ Active or next work:
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
    `bot-management`.
+9. Specify and implement Spec #065 `backup-management` as the next operational
+   recovery capability. Existing project documentation already requires
+   encrypted backups, restore rehearsal, verification, backup failure alerts,
+   and production evidence, but no `@tempot/backup-engine` package or
+   `backup-management` module exists yet. The approved direction is a
+   package-first split: `@tempot/backup-engine` for reusable execution and
+   restore rehearsal, plus `modules/backup-management` for Telegram/admin
+   operator workflows.
 
 ## Production Readiness Remediation Program
 
@@ -366,6 +374,12 @@ Production go/no-go requires:
 
 ## Package Status
 
+### Active
+
+- `@tempot/backup-engine` - foundation active under Spec #065 for backup job
+  contracts, safe manifests, restore rehearsal safety, retention preview, queue
+  orchestration, and repository-backed backup metadata.
+
 ### Complete
 
 - `@tempot/shared`
@@ -429,6 +443,7 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | `audit-viewer`          | #048 | Implemented                           |
 | `help-center`           | #049 | Implemented                           |
 | `membership-management` | #058 | Implemented and merged to `main` |
+| `backup-management`     | #065 | Active; encrypted backup creation, isolated restore rehearsal, history, storage-engine local artifact persistence, Docker restore database, and Telegram operator UX are implemented. Notifier delivery, schedule settings, retention execution, and staging evidence remain open |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
