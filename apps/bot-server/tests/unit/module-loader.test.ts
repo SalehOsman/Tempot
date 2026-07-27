@@ -45,6 +45,38 @@ const mockI18n = { t: vi.fn().mockReturnValue('translated') };
 const mockSettings = { get: vi.fn().mockResolvedValue(null) };
 const mockAuditLog = { findMany: vi.fn().mockResolvedValue([]) };
 const mockInteractionEvents = { findMany: vi.fn().mockResolvedValue([]) };
+const mockBackups = {
+  listBackups: vi.fn().mockResolvedValue({ success: true, value: { jobs: [], limit: 5 } }),
+  requestBackup: vi.fn().mockResolvedValue({
+    success: true,
+    value: {
+      job: {
+        id: 'backup-1',
+        requestedBy: '123',
+        requestedAt: '2026-07-27T00:00:00.000Z',
+        scope: 'complete',
+        sourceEnvironment: 'staging',
+        status: 'succeeded',
+      },
+      storageReference: '/app/backups/backup-1.backup.enc',
+    },
+  }),
+  restoreLatest: vi.fn().mockResolvedValue({
+    success: true,
+    value: {
+      id: 'restore-1',
+      backupJobId: 'backup-1',
+      confirmedBy: '123',
+      targetClassification: 'isolated-restore',
+      status: 'passed',
+      requestedAt: '2026-07-27T00:00:00.000Z',
+      schemaCheck: 'passed',
+      dataCheck: 'passed',
+      protectedDataCheck: 'passed',
+      fileCoverageCheck: 'passed',
+    },
+  }),
+};
 
 function createDeps(importer: ModuleImporter) {
   return {
@@ -55,6 +87,7 @@ function createDeps(importer: ModuleImporter) {
     settings: mockSettings,
     auditLog: mockAuditLog,
     interactionEvents: mockInteractionEvents,
+    backups: mockBackups,
     resolveAuthorizationContext: vi.fn().mockResolvedValue(null),
     abilityRegistry: { register: vi.fn() },
     importer,
@@ -206,6 +239,7 @@ describe('loadModuleHandlers', () => {
         settings: mockSettings,
         auditLog: mockAuditLog,
         interactionEvents: mockInteractionEvents,
+        backups: mockBackups,
         config: mod.config,
       }),
     );

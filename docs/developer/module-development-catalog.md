@@ -50,6 +50,7 @@ belongs in `packages/`; runtime surfaces belong in `apps/`.
 | `notification-center` | Operational | Notification channels, preferences, delivery views, and notification events. | `notifier`, `settings`, `event-bus`, `logger` |
 | `audit-viewer` | Operational | Read-only audit and activity exploration for admins and dashboard users. | `logger`, `search-engine`, `auth-core` |
 | `settings-management` | Core platform | Module, system, and user-facing settings workflows above `@tempot/settings`. | `settings`, `auth-core`, `cms-engine`, `logger` |
+| `backup-management` | Operational | Operator-controlled backup, restore rehearsal, retention, and evidence workflows. | `backup-engine`, `storage-engine`, `database`, `notifier`, `event-bus`, `logger`, `auth-core`, `ux-helpers` |
 
 ## Module Types
 
@@ -156,6 +157,7 @@ Tempot does not use `/speckit.implement` for production execution.
 | Exports | `@tempot/document-engine` | Use export request contracts and storage upload flows. |
 | AI and RAG | `@tempot/ai-core` | Require audit, access policy, grounded answers, and no hallucinated authority. |
 | Files | `@tempot/storage-engine` | Use storage providers and attachment contracts. |
+| Backup and restore | Future `@tempot/backup-engine` composed with `@tempot/storage-engine` | Keep backup execution, manifest generation, checksums, encryption coordination, retention, and restore rehearsal out of Telegram handlers. |
 | Telegram UX | `@tempot/ux-helpers` | Use common menus, pagination, callback, confirmation, and mobile-aware button helpers. Treat raw Telegram keyboard assembly as an exception path. |
 | Module metadata | `@tempot/module-registry` | Register config and toggle behavior through public contracts. |
 

@@ -38,6 +38,35 @@ as one of:
 
 `Custom Approved` is an exception path, not a convenience path.
 
+## Package-First Requirement
+
+Future modules must start from the existing Tempot package catalog before adding
+local services, direct provider calls, or new abstractions. A module may
+orchestrate business behavior, but it must not reimplement shared capability
+owners.
+
+The package-first requirement applies even when the local implementation looks
+small. Short direct calls create inconsistent behavior, bypass retries and audit
+surfaces, and make later module reuse harder.
+
+Mandatory examples:
+
+| Capability | Required package path | Prohibited local shortcut |
+| --- | --- | --- |
+| Notification delivery | `@tempot/notifier` through an injected port or event-backed adapter | Direct `ctx.api.sendMessage()` for module notifications |
+| File and attachment storage | `@tempot/storage-engine` | Direct S3, Drive, Telegram file, or filesystem provider calls from a module |
+| Database access | `@tempot/database` repository contracts | Direct Prisma calls in handlers or services |
+| Authorization | `@tempot/auth-core` ability contracts | Local role-level comparisons as the primary authorization mechanism |
+| Structured input | `@tempot/input-engine` | Local ad hoc conversation maps for multi-step forms |
+| Search and filtering | `@tempot/search-engine` | Repeated generic filter engines inside modules |
+| Export generation | `@tempot/document-engine` | Local PDF or spreadsheet pipelines for supported outputs |
+| Import processing | `@tempot/import-engine` | Local CSV or spreadsheet parsers for supported import workflows |
+
+If an existing module currently contains a shortcut, future work must treat it
+as technical debt. New modules must not copy that shortcut. The correct path is
+to add the missing adapter or port and migrate the module to the package-owned
+capability.
+
 ## Decision Ladder
 
 Use this decision sequence for every meaningful module capability:
@@ -108,6 +137,43 @@ Reviewers must ask:
 | Module metadata, activation, command registration contracts                | `@tempot/module-registry`                                  | Local registry copies, duplicate enable/disable discovery logic                                                                                                                                |
 | Runtime diagnostics, logging, and audit-capable log surfaces               | `@tempot/logger` plus bot-server interaction observability | Ad hoc logger wrappers, silent callback failures, or production `console.*` calls                                                                                                              |
 | Shared errors, `Result`, cache wrapper, queue factory, shutdown helpers    | `@tempot/shared`                                           | Local equivalents of existing foundational primitives                                                                                                                                          |
+
+## Cross-Package Composition Examples
+
+Modules often need more than one package. In that case, the module remains the
+business orchestrator and each package keeps its own technical responsibility.
+
+| Module scenario | Required composition | Ownership rule |
+| --- | --- | --- |
+| Administrator sends a test notification to a selected user | `auth-core` for permission, `database` repository for target lookup, `notifier` for delivery, `event-bus` for lifecycle events, `ux-helpers` for the result surface | The module must not deliver the Telegram message directly. |
+| Backup management creates a full system backup | `backup-engine` for backup workflow, `database` for metadata and protected-data boundaries, `storage-engine` for backup artifact storage, `notifier` for operator alerts, `event-bus` for lifecycle events, `document-engine` for optional evidence reports | The module owns operator UX and approvals only. |
+| Import workflow accepts a spreadsheet and reports invalid rows | `storage-engine` for uploaded file access, `import-engine` for parsing and batching, `document-engine` for invalid-row reports, `event-bus` for destination-module handoff | The destination module owns persistence and duplicate handling. |
+| Searchable admin list | `search-engine` for query planning, `database` repository for scoped reads, `ux-helpers` for pagination, `auth-core` for access | The module owns domain filters and labels, not generic search machinery. |
+
+These examples are normative for future module planning. A new module plan must
+explain any deviation through the `Custom Approved` exception template.
+
+## Backup Management Reference Standard
+
+Backup and restore must not be implemented as a module-only feature. The
+expected shape is:
+
+- `@tempot/backup-engine` owns backup creation, restore rehearsal, artifact
+  manifest generation, checksums, encryption coordination, retention execution,
+  and failure classification.
+- `modules/backup-management` owns Telegram/admin UX, role-scoped operations,
+  confirmation flows, status views, and operator-facing evidence summaries.
+- `@tempot/storage-engine` stores backup artifacts and future attachment
+  snapshots through provider contracts.
+- `@tempot/notifier` sends success, warning, and failure notifications.
+- `@tempot/event-bus` publishes `backup.*` and `restore.*` lifecycle events.
+- `@tempot/database` owns repositories, protected-data boundaries, and metadata
+  persistence.
+
+The first production-safe restore path should be restore rehearsal into an
+isolated target. Direct restore over a production database is a high-risk
+operation and requires explicit specification, approval, audit logging, and a
+separate rollback plan.
 
 ## Telegram Interaction Standard
 

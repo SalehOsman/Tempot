@@ -1,4 +1,12 @@
 import type { AnyAbility } from '@casl/ability';
+import type {
+  BackupArtifact,
+  BackupJob,
+  BackupListResult,
+  DatabaseFactoryResetResult,
+  ProductionRestoreResult,
+  RestoreRehearsal,
+} from '@tempot/backup-engine';
 import type { SessionUser } from '@tempot/auth-core';
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
@@ -17,6 +25,7 @@ export interface ModuleDependencyContainer {
   protectedData?: ProtectedDataService;
   auditLog: AuditLogProvider;
   interactionEvents: InteractionEventProvider;
+  backups?: BackupOperationsProvider;
   navigation: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
@@ -156,6 +165,39 @@ export interface InteractionEventProviderRecord {
   metadata?: unknown;
   occurredAt: Date;
   createdAt: Date;
+}
+
+export type BackupOperationResult<T> =
+  | {
+      success: true;
+      value: T;
+    }
+  | {
+      success: false;
+      error: { code: string };
+    };
+
+export interface BackupOperationsProvider {
+  requestBackup: (actorId: string) => Promise<
+    BackupOperationResult<{
+      job: BackupJob;
+      artifact?: BackupArtifact;
+      storageReference?: string;
+    }>
+  >;
+  listBackups: (limit: number) => Promise<BackupOperationResult<BackupListResult>>;
+  restoreLatest: (actorId: string) => Promise<BackupOperationResult<RestoreRehearsal>>;
+  restoreBackup: (
+    backupJobId: string,
+    actorId: string,
+  ) => Promise<BackupOperationResult<RestoreRehearsal>>;
+  restoreProductionBackup: (
+    backupJobId: string,
+    actorId: string,
+  ) => Promise<BackupOperationResult<ProductionRestoreResult>>;
+  factoryResetDatabase: (
+    actorId: string,
+  ) => Promise<BackupOperationResult<DatabaseFactoryResetResult>>;
 }
 
 /** Active module navigation available to interface modules */

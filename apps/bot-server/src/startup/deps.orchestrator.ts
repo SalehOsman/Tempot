@@ -10,6 +10,7 @@ import {
 import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
+import { buildBackupOperationsProvider } from './backup-operations.provider.js';
 
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
@@ -54,6 +55,11 @@ function buildModuleHandlersDep(
 ): OrchestratorDeps['loadModuleHandlers'] {
   const auditLogRepository = new AuditLogRepository();
   const interactionEventRepository = new InteractionEventRepository();
+  const backups = buildBackupOperationsProvider({
+    auditLogRepository,
+    eventBus: opts.eventBus,
+    logger: opts.log,
+  });
   return (bot, validated) =>
     loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
       logger: opts.log,
@@ -76,6 +82,7 @@ function buildModuleHandlersDep(
           return result.value as InteractionEventProviderRecord[];
         },
       },
+      backups,
       resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
       abilityRegistry,
       importer: async (p: string) => {

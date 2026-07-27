@@ -28,6 +28,7 @@ interface ModuleLoaderDeps {
   protectedData: ModuleDependencyContainer['protectedData'];
   auditLog: ModuleDependencyContainer['auditLog'];
   interactionEvents: ModuleDependencyContainer['interactionEvents'];
+  backups?: ModuleDependencyContainer['backups'];
   resolveAuthorizationContext: AuthorizationContextResolver;
   abilityRegistry: { register: (moduleName: string, definition: AbilityDefinition) => void };
   importer: ModuleImporter;
@@ -165,6 +166,7 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
     protectedData: deps.protectedData,
     auditLog: deps.auditLog,
     interactionEvents: deps.interactionEvents,
+    backups: deps.backups,
     navigation,
     authorization: createModuleAuthorizationProvider({
       logger: childLogger,
