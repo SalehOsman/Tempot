@@ -19,7 +19,7 @@ describe('knowledge operations provider', () => {
     const deps = createDeps();
     const provider = createKnowledgeOperationsProvider(deps);
 
-    const result = await provider.runDryRun('1', 'product-help');
+    const result = await provider.runDryRun('1', 'product');
 
     expect(result.success).toBe(true);
     expect(deps.ingestContent).not.toHaveBeenCalled();
@@ -36,6 +36,42 @@ describe('knowledge operations provider', () => {
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error.code).toBe('knowledge.profile_not_allowed');
+  });
+
+  it('exposes product, operations, architecture, analysis, and full project profiles', async () => {
+    const provider = createKnowledgeOperationsProvider(createDeps());
+
+    const result = await provider.listSourceProfiles('1');
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.map((item) => item.id)).toEqual([
+      'product',
+      'operations',
+      'architecture',
+      'analysis',
+      'full-project',
+    ]);
+  });
+
+  it('stores custom profiles only for safe relative mounted roots', async () => {
+    const deps = createDeps();
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    const accepted = await provider.addCustomProfile('1', {
+      name: 'Finance Docs',
+      root: 'docs/finance',
+      description: 'Finance module docs',
+    });
+    const rejected = await provider.addCustomProfile('1', {
+      name: 'Secrets',
+      root: '../.env',
+      description: 'invalid',
+    });
+
+    expect(accepted.success).toBe(true);
+    expect(rejected.success).toBe(false);
+    expect(deps.saveCustomProfiles).toHaveBeenCalledTimes(1);
   });
 
   it('returns a safe failure when write ingestion fails', async () => {
@@ -76,6 +112,8 @@ function createDeps() {
       ]),
     ),
     ingestContent: vi.fn().mockResolvedValue(undefined),
+    loadCustomProfiles: vi.fn().mockResolvedValue([]),
+    saveCustomProfiles: vi.fn().mockResolvedValue(undefined),
     logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
   };
 }

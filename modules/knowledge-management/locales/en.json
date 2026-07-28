@@ -1,7 +1,8 @@
 {
   "knowledge-management": {
     "commands": {
-      "knowledge": "Knowledge management"
+      "knowledge": "Knowledge management",
+      "knowledge_custom": "Add a custom knowledge source"
     },
     "menu": {
       "button": "🧠 Knowledge",
@@ -12,6 +13,7 @@
       "full_reindex": "♻️ Full reindex",
       "history": "📜 History",
       "test_query": "❓ Test query",
+      "custom_source": "➕ Custom source",
       "confirm_write": "✅ Confirm write",
       "confirm_reindex": "✅ Confirm reindex",
       "cancel": "↩️ Cancel",
@@ -26,6 +28,8 @@
       "sources_empty": "No approved knowledge source profiles are configured.",
       "sources_failed": "Knowledge source profiles could not be loaded.",
       "source_item": "{{index}}. {{name}}\nRoots: {{roots}}\nMounted: {{mounted}}",
+      "source_detail": "{{name}}\nRoots: {{roots}}\nMounted: {{mounted}}\nChoose the required operation.",
+      "source_missing": "The selected knowledge source is no longer available.",
       "dry_run_completed": "Dry-run completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nSkipped: {{skipped}}\nFailed: {{failed}}\nChunks: {{chunks}}",
       "dry_run_failed": "Dry-run could not be completed. Check source mounts and AI/RAG configuration.",
       "write_confirm": "Confirm writing the index.\nDry-run job: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
@@ -33,6 +37,10 @@
       "write_blocked": "Write indexing is blocked until a recent successful dry-run exists for the selected source profile.",
       "write_completed": "Write indexing completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
       "write_failed": "Write indexing could not be completed. Review AI provider and database logs.",
+      "operation_failed": "Knowledge operation failed unexpectedly. Review the service logs and try again.",
+      "custom_hint": "Add a custom knowledge source with:\n/knowledge_custom Name | relative/path | Description\nExample:\n/knowledge_custom Finance Docs | docs/finance | Finance module documentation",
+      "custom_created": "Custom knowledge source was added.\nName: {{name}}\nRoot: {{root}}",
+      "custom_failed": "Custom knowledge source could not be added. Use a relative mounted path inside the project knowledge sources.",
       "history_title": "Recent knowledge jobs",
       "history_item": "{{index}}. {{id}}",
       "history_empty": "No knowledge ingestion jobs are available yet.",
@@ -42,8 +50,10 @@
     },
     "source": {
       "product_help": "Product help",
-      "admin_ops": "Admin operations",
-      "developer_docs": "Developer docs",
+      "operations": "Operations",
+      "architecture": "Architecture",
+      "analysis": "Analysis",
+      "custom": "Custom",
       "full_project": "Full project"
     },
     "value": {

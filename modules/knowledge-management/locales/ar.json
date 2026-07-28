@@ -1,7 +1,8 @@
 {
   "knowledge-management": {
     "commands": {
-      "knowledge": "إدارة المعرفة"
+      "knowledge": "إدارة المعرفة",
+      "knowledge_custom": "إضافة مصدر معرفة مخصص"
     },
     "menu": {
       "button": "🧠 المعرفة",
@@ -12,6 +13,7 @@
       "full_reindex": "♻️ إعادة فهرسة",
       "history": "📜 السجل",
       "test_query": "❓ اختبار سؤال",
+      "custom_source": "➕ مصدر مخصص",
       "confirm_write": "✅ تأكيد البناء",
       "confirm_reindex": "✅ تأكيد الفهرسة",
       "cancel": "↩️ إلغاء",
@@ -26,6 +28,8 @@
       "sources_empty": "لا توجد مصادر معرفة معتمدة.",
       "sources_failed": "تعذر تحميل مصادر المعرفة.",
       "source_item": "{{index}}. {{name}}\nالمسارات: {{roots}}\nمركب: {{mounted}}",
+      "source_detail": "{{name}}\nالمسارات: {{roots}}\nمركب: {{mounted}}\nاختر العملية المطلوبة.",
+      "source_missing": "مصدر المعرفة المحدد لم يعد متاحًا.",
       "dry_run_completed": "اكتمل الفحص بدون حفظ.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمتجاوزة: {{skipped}}\nالفاشلة: {{failed}}\nالمقاطع: {{chunks}}",
       "dry_run_failed": "تعذر إكمال الفحص بدون حفظ. راجع ربط مجلدات المصادر وإعدادات RAG.",
       "write_confirm": "تأكيد بناء الفهرس.\nعملية الفحص: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
@@ -33,6 +37,10 @@
       "write_blocked": "بناء الفهرس موقوف حتى يوجد فحص ناجح حديث لنفس المصدر.",
       "write_completed": "اكتمل بناء الفهرس.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
       "write_failed": "تعذر إكمال بناء الفهرس. راجع إعداد موفر الذكاء الاصطناعي وسجلات قاعدة البيانات.",
+      "operation_failed": "تعذرت عملية المعرفة بشكل غير متوقع. راجع سجلات الخدمة ثم حاول مرة أخرى.",
+      "custom_hint": "أضف مصدر معرفة مخصص بهذا الشكل:\n/knowledge_custom الاسم | المسار/النسبي | الوصف\nمثال:\n/knowledge_custom توثيق المالية | docs/finance | توثيق موديول المالية",
+      "custom_created": "تمت إضافة مصدر المعرفة المخصص.\nالاسم: {{name}}\nالمسار: {{root}}",
+      "custom_failed": "تعذرت إضافة مصدر المعرفة المخصص. استخدم مسارًا نسبيًا مركبًا داخل مصادر معرفة المشروع.",
       "history_title": "آخر عمليات المعرفة",
       "history_item": "{{index}}. {{id}}",
       "history_empty": "لا يوجد سجل عمليات معرفة حتى الآن.",
@@ -42,8 +50,10 @@
     },
     "source": {
       "product_help": "مساعدة المنتج",
-      "admin_ops": "تشغيل الإدارة",
-      "developer_docs": "توثيق المطورين",
+      "operations": "التشغيل",
+      "architecture": "المعمارية",
+      "analysis": "التحليلات",
+      "custom": "مخصص",
       "full_project": "المشروع الكامل"
     },
     "value": {

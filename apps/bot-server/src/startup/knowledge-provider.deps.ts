@@ -2,6 +2,7 @@ import type { AIContentType } from '@tempot/ai-core';
 import type { Result } from 'neverthrow';
 import type { ContentChunk } from '@tempot/ai-core';
 import type { ModuleLogger } from '../bot-server.types.js';
+import type { InternalKnowledgeProfile } from './knowledge-source-profiles.js';
 
 export interface KnowledgeIngestInput {
   readonly contentId: string;
@@ -24,5 +25,7 @@ export interface KnowledgeProviderDeps {
     filePath: string,
   ) => Promise<Result<ContentChunk[], never>>;
   readonly ingestContent: (input: KnowledgeIngestInput) => Promise<void>;
+  readonly loadCustomProfiles: () => Promise<InternalKnowledgeProfile[]>;
+  readonly saveCustomProfiles: (profiles: readonly InternalKnowledgeProfile[]) => Promise<void>;
   readonly logger: Pick<ModuleLogger, 'info' | 'warn' | 'error' | 'debug'>;
 }

@@ -6,6 +6,10 @@ import type { AIEventBus, AILogger, AIRegistry } from '@tempot/ai-core';
 import type { ModuleEventBus, ModuleLogger } from '../bot-server.types.js';
 import type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 import { discoverMarkdownFiles, readKnowledgeTextFile } from './knowledge-file-discovery.js';
+import {
+  loadCustomKnowledgeProfiles,
+  saveCustomKnowledgeProfiles,
+} from './knowledge-custom-profiles.store.js';
 
 type ProviderRegistryCandidate = {
   languageModel?: AIRegistry['languageModel'];
@@ -31,6 +35,8 @@ export function liveKnowledgeDeps(opts: {
       return aiCore.chunkMarkdown(content, { filePath });
     },
     ingestContent: (input) => ingestLive(input, opts),
+    loadCustomProfiles: () => loadCustomKnowledgeProfiles(opts.logger),
+    saveCustomProfiles: saveCustomKnowledgeProfiles,
     logger: opts.logger,
   };
 }

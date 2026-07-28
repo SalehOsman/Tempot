@@ -5,11 +5,14 @@ import type { KnowledgeSourceProfile } from '../module-providers.types.js';
 export interface InternalKnowledgeProfile {
   readonly id: string;
   readonly labelKey: string;
+  readonly displayName?: string;
+  readonly description?: string;
   readonly roots: readonly string[];
   readonly contentType: AIContentType;
   readonly languagePolicy: string;
   readonly sourcePriority: number;
   readonly sourceOfTruth: boolean;
+  readonly custom: boolean;
 }
 
 export const knowledgeSourceRoot =
@@ -17,7 +20,7 @@ export const knowledgeSourceRoot =
 
 export const knowledgeProfiles: readonly InternalKnowledgeProfile[] = [
   profile({
-    id: 'product-help',
+    id: 'product',
     labelKey: 'knowledge-management.source.product_help',
     roots: ['docs/product'],
     contentType: 'ui-guide',
@@ -25,17 +28,25 @@ export const knowledgeProfiles: readonly InternalKnowledgeProfile[] = [
     sourceOfTruth: false,
   }),
   profile({
-    id: 'admin-ops',
-    labelKey: 'knowledge-management.source.admin_ops',
-    roots: ['docs/operations', 'docs/architecture'],
+    id: 'operations',
+    labelKey: 'knowledge-management.source.operations',
+    roots: ['docs/operations'],
     contentType: 'developer-docs',
     sourcePriority: 80,
     sourceOfTruth: true,
   }),
   profile({
-    id: 'developer-docs',
-    labelKey: 'knowledge-management.source.developer_docs',
-    roots: ['specs', 'packages', 'modules'],
+    id: 'architecture',
+    labelKey: 'knowledge-management.source.architecture',
+    roots: ['docs/architecture'],
+    contentType: 'developer-docs',
+    sourcePriority: 85,
+    sourceOfTruth: true,
+  }),
+  profile({
+    id: 'analysis',
+    labelKey: 'knowledge-management.source.analysis',
+    roots: ['docs/project-analysis'],
     contentType: 'developer-docs',
     sourcePriority: 75,
     sourceOfTruth: false,
@@ -50,11 +61,9 @@ export const knowledgeProfiles: readonly InternalKnowledgeProfile[] = [
   }),
 ];
 
-export function findKnowledgeProfile(id: string): InternalKnowledgeProfile | undefined {
-  return knowledgeProfiles.find((item) => item.id === id);
-}
-
 export function toSafeKnowledgeRoot(root: string): string {
+  if (path.isAbsolute(root) || root.includes('..'))
+    throw new Error('knowledge.profile_not_allowed');
   const base = path.resolve(knowledgeSourceRoot);
   const resolved = path.resolve(base, root);
   if (!resolved.startsWith(base)) throw new Error('knowledge.profile_not_allowed');
@@ -75,6 +84,8 @@ export function toPublicProfile(
 function profile(input: {
   readonly id: string;
   readonly labelKey: string;
+  readonly displayName?: string;
+  readonly description?: string;
   readonly roots: readonly string[];
   readonly contentType: AIContentType;
   readonly sourcePriority: number;
@@ -83,10 +94,13 @@ function profile(input: {
   return {
     id: input.id,
     labelKey: input.labelKey,
+    displayName: input.displayName,
+    description: input.description,
     roots: input.roots,
     contentType: input.contentType,
     languagePolicy: 'mixed',
     sourcePriority: input.sourcePriority,
     sourceOfTruth: input.sourceOfTruth,
+    custom: false,
   };
 }

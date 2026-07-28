@@ -6,7 +6,13 @@ const config: ModuleConfig = {
   requiredRole: 'SUPER_ADMIN',
   isActive: true,
   isCore: false,
-  commands: [{ command: 'knowledge', description: 'knowledge-management.commands.knowledge' }],
+  commands: [
+    { command: 'knowledge', description: 'knowledge-management.commands.knowledge' },
+    {
+      command: 'knowledge_custom',
+      description: 'knowledge-management.commands.knowledge_custom',
+    },
+  ],
   navigation: {
     mainMenu: [
       {

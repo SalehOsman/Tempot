@@ -12,12 +12,12 @@ import type { ModuleEventBus, ModuleLogger } from '../bot-server.types.js';
 import type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 import { scanKnowledgeProfile } from './knowledge-ingestion-runner.js';
 import { liveKnowledgeDeps } from './knowledge-live-runtime.js';
+import { toPublicProfile, toSafeKnowledgeRoot } from './knowledge-source-profiles.js';
 import {
+  addCustomKnowledgeProfile,
+  allKnowledgeProfiles,
   findKnowledgeProfile,
-  knowledgeProfiles,
-  toPublicProfile,
-  toSafeKnowledgeRoot,
-} from './knowledge-source-profiles.js';
+} from './knowledge-custom-profile.actions.js';
 
 export type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 
@@ -38,6 +38,7 @@ export function createKnowledgeOperationsProvider(
   return {
     getReadiness: async () => readiness(deps),
     listSourceProfiles: async () => okValue(await publicProfiles(deps)),
+    addCustomProfile: async (_actorId, input) => addCustomKnowledgeProfile(deps, input),
     runDryRun: async (_actorId, profileId) => run(state, profileId, false),
     requestWrite: async (_actorId, profileId) => requestWrite(deps, confirmations, profileId),
     confirmWrite: async (_actorId, token) => confirmWrite(state, confirmations, token),
@@ -106,7 +107,7 @@ async function run(
   write: boolean,
 ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>> {
   try {
-    const selected = findKnowledgeProfile(profileId);
+    const selected = await findKnowledgeProfile(state.deps, profileId);
     if (!selected) return fail('knowledge.profile_not_allowed');
     const summary = await scanKnowledgeProfile(state.deps, selected, write);
     state.jobs.unshift(summary);
@@ -124,7 +125,7 @@ async function run(
 
 async function publicProfiles(deps: KnowledgeProviderDeps): Promise<KnowledgeSourceProfile[]> {
   const profiles: KnowledgeSourceProfile[] = [];
-  for (const item of knowledgeProfiles) {
+  for (const item of await allKnowledgeProfiles(deps)) {
     profiles.push(toPublicProfile(item, await allRootsMounted(deps, item.roots)));
   }
   return profiles;

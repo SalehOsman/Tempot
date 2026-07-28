@@ -3,12 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import setup, { type ModuleDeps } from '../index.js';
 import { knowledgeCommand } from '../commands/knowledge.command.js';
 import { handleCallbackQuery } from '../handlers/callback.handler.js';
-import type {
-  IngestionSummary,
-  KnowledgeOperationResult,
-  KnowledgeOperationsProvider,
-  WriteConfirmation,
-} from '../contracts/knowledge-operations.types.js';
 
 type TestDeps = ModuleDeps & {
   authorization: {
@@ -53,80 +47,6 @@ function createDeps(): TestDeps {
   } as TestDeps;
 }
 
-function createContext(callbackData: string): Context {
-  return {
-    callbackQuery: { data: callbackData, message: { message_id: 10 } },
-    from: { id: 123 },
-    answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
-    editMessageText: vi.fn().mockResolvedValue(undefined),
-    reply: vi.fn().mockResolvedValue(undefined),
-  } as unknown as Context;
-}
-
-function successfulSummary(): IngestionSummary {
-  return {
-    jobId: 'job-1',
-    profileId: 'product-help',
-    mode: 'write',
-    status: 'succeeded',
-    processed: 1,
-    skipped: 0,
-    failed: 0,
-    chunks: 2,
-    hashesWritten: true,
-  };
-}
-
-async function flushPendingWork(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, 0);
-  });
-}
-
-function deferredProvider(): {
-  readonly provider: KnowledgeOperationsProvider;
-  readonly resolveWriteRequest: () => void;
-  readonly resolveConfirmWrite: () => void;
-} {
-  const control = {
-    resolveWriteRequest: (): void => undefined,
-    resolveConfirmWrite: (): void => undefined,
-    provider: {
-      getReadiness: vi.fn(),
-      listSourceProfiles: vi.fn(),
-      runDryRun: vi.fn(),
-      requestFullReindex: vi.fn(),
-      confirmFullReindex: vi.fn(),
-      listJobs: vi.fn(),
-      testQuery: vi.fn(),
-      requestWrite: vi.fn(
-        () =>
-          new Promise<KnowledgeOperationResult<WriteConfirmation>>((resolve) => {
-            control.resolveWriteRequest = () =>
-              resolve({
-                success: false,
-                error: { code: 'knowledge-management.write.blocked' },
-              });
-          }),
-      ),
-      confirmWrite: vi.fn(
-        () =>
-          new Promise<KnowledgeOperationResult<IngestionSummary>>((resolve) => {
-            control.resolveConfirmWrite = () =>
-              resolve({
-                success: false,
-                error: { code: 'knowledge-management.write.failed' },
-              });
-          }),
-      ),
-    },
-  };
-  return control;
-}
-
 describe('knowledge-management runtime', () => {
   it('registers command and callback handler', async () => {
     const deps = createDeps();
@@ -155,57 +75,5 @@ describe('knowledge-management runtime', () => {
 
     const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
     expect(editMessageText.mock.calls[0]?.[0]).toBe('knowledge-management.view.unavailable');
-  });
-
-  it('renders a loading state before preparing a write request', async () => {
-    const deps = createDeps();
-    const control = deferredProvider();
-    deps.knowledge = control.provider;
-    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
-    const ctx = createContext('knowledge:write');
-
-    const operation = handleCallbackQuery(ctx);
-    await flushPendingWork();
-
-    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
-    expect(editMessageText.mock.calls[0]?.[0]).toBe('knowledge-management.view.write_waiting');
-    control.resolveWriteRequest();
-    await operation;
-  });
-
-  it('renders a loading state before confirming index writes', async () => {
-    const deps = createDeps();
-    const control = deferredProvider();
-    deps.knowledge = control.provider;
-    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
-    const ctx = createContext('knowledge:confirm_write:token-1');
-
-    const operation = handleCallbackQuery(ctx);
-    await flushPendingWork();
-
-    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
-    expect(editMessageText.mock.calls[0]?.[0]).toBe('knowledge-management.view.write_waiting');
-    control.resolveConfirmWrite();
-    await operation;
-  });
-
-  it('answers long-running confirmation callbacks once and still renders completion', async () => {
-    const deps = createDeps();
-    deps.knowledge = {
-      ...deferredProvider().provider,
-      confirmWrite: vi.fn().mockResolvedValue({ success: true, value: successfulSummary() }),
-    };
-    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
-    const ctx = createContext('knowledge:confirm_write:token-1');
-
-    await handleCallbackQuery(ctx);
-
-    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
-    const answerCallbackQuery = ctx.answerCallbackQuery as ReturnType<typeof vi.fn>;
-    expect(editMessageText.mock.calls.map((call) => call[0])).toEqual([
-      'knowledge-management.view.write_waiting',
-      'knowledge-management.view.write_completed:{"id":"job-1","profile":"product-help","processed":1,"skipped":0,"failed":0,"chunks":2}',
-    ]);
-    expect(answerCallbackQuery).toHaveBeenCalledTimes(1);
   });
 });

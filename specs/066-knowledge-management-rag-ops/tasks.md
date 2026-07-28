@@ -28,6 +28,7 @@
 | FR-022 | T013, T036 |
 | FR-023 | T037 |
 | FR-024 | T038 |
+| FR-025 | T043-T046 |
 
 ## Success Criteria Traceability
 
@@ -105,3 +106,12 @@
 - [x] T041 Run `pnpm lint`, focused tests, `pnpm build:bot-runtime`, and
       `pnpm spec:validate`.
 - [ ] T042 Capture local Docker evidence after source mounts are configured.
+
+## Phase H: Source-Specific And Custom Knowledge Builds
+
+- [x] T043 Add Product, Operations, Architecture, Analysis, and Full Project
+      build profiles with mounted-root validation.
+- [x] T044 Add source selection and source-scoped build callbacks to the bot UX.
+- [x] T045 Run long knowledge operations in the background and send completion
+      as a separate bot message.
+- [x] T046 Add super-admin custom source registration using safe relative paths.

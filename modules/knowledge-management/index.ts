@@ -2,6 +2,7 @@ import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig } from '@tempot/module-registry';
 import { registerDeps } from './deps.context.js';
 import { knowledgeCommand } from './commands/knowledge.command.js';
+import { knowledgeCustomCommand } from './commands/knowledge-custom.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
 import type { KnowledgeOperationsProvider } from './contracts/knowledge-operations.types.js';
 
@@ -48,6 +49,11 @@ const knowledgePolicy: ModuleAuthorizationPolicy = {
 const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
   registerDeps(deps);
   bot.command('knowledge', deps.authorization.guard(knowledgePolicy), knowledgeCommand);
+  bot.command(
+    'knowledge_custom',
+    deps.authorization.guard(knowledgePolicy),
+    knowledgeCustomCommand,
+  );
   bot.on('callback_query:data', handleCallbackQuery);
   deps.logger.info({ msg: 'knowledge-management handlers registered' });
 };
