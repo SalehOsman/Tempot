@@ -24,7 +24,12 @@ export async function handleCallbackQuery(
   if (!(await canManageKnowledge(ctx))) return;
 
   const { i18n } = getDeps();
-  if (isLongOperation(data)) await sendView(ctx, loadingView(i18n.t));
+  if (isLongOperation(data)) {
+    await sendView(ctx, loadingView(i18n.t));
+    const view = await resolveView(ctx, data);
+    await sendFinalView(ctx, view);
+    return;
+  }
   const view = await resolveView(ctx, data);
   await sendView(ctx, view);
 }
@@ -40,8 +45,23 @@ async function sendView(ctx: Context, view: KnowledgeView): Promise<void> {
   if (result.isErr()) throw result.error;
 }
 
+async function sendFinalView(ctx: Context, view: KnowledgeView): Promise<void> {
+  const { i18n, logger } = getDeps();
+  const replyMarkup = createKnowledgeMenu(i18n.t, view.surface, view.token);
+  try {
+    await ctx.editMessageText(view.text, { parse_mode: 'HTML', reply_markup: replyMarkup });
+  } catch (error) {
+    logger.warn({ msg: 'knowledge_final_edit_failed', error: safeError(error) });
+    await ctx.reply(view.text, { parse_mode: 'HTML', reply_markup: replyMarkup });
+  }
+}
+
 function isLongOperation(callbackData: string): boolean {
   return callbackData === 'knowledge:write' || callbackData.startsWith('knowledge:confirm_write:');
+}
+
+function safeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function loadingView(t: (key: string, options?: Record<string, unknown>) => string): KnowledgeView {

@@ -63,6 +63,20 @@ function createContext(callbackData: string): Context {
   } as unknown as Context;
 }
 
+function successfulSummary(): IngestionSummary {
+  return {
+    jobId: 'job-1',
+    profileId: 'product-help',
+    mode: 'write',
+    status: 'succeeded',
+    processed: 1,
+    skipped: 0,
+    failed: 0,
+    chunks: 2,
+    hashesWritten: true,
+  };
+}
+
 async function flushPendingWork(): Promise<void> {
   await Promise.resolve();
   await Promise.resolve();
@@ -173,5 +187,25 @@ describe('knowledge-management runtime', () => {
     expect(editMessageText.mock.calls[0]?.[0]).toBe('knowledge-management.view.write_waiting');
     control.resolveConfirmWrite();
     await operation;
+  });
+
+  it('answers long-running confirmation callbacks once and still renders completion', async () => {
+    const deps = createDeps();
+    deps.knowledge = {
+      ...deferredProvider().provider,
+      confirmWrite: vi.fn().mockResolvedValue({ success: true, value: successfulSummary() }),
+    };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createContext('knowledge:confirm_write:token-1');
+
+    await handleCallbackQuery(ctx);
+
+    const editMessageText = ctx.editMessageText as ReturnType<typeof vi.fn>;
+    const answerCallbackQuery = ctx.answerCallbackQuery as ReturnType<typeof vi.fn>;
+    expect(editMessageText.mock.calls.map((call) => call[0])).toEqual([
+      'knowledge-management.view.write_waiting',
+      'knowledge-management.view.write_completed:{"id":"job-1","profile":"product-help","processed":1,"skipped":0,"failed":0,"chunks":2}',
+    ]);
+    expect(answerCallbackQuery).toHaveBeenCalledTimes(1);
   });
 });
