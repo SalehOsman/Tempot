@@ -34,6 +34,7 @@
 | `/stats` | audit-viewer | protected | read | audit | ADMIN, SUPER_ADMIN | command registration | runtime + ability tests |
 | `/help` | help-center | protected | read | help | USER, ADMIN, SUPER_ADMIN | command registration | runtime + ability tests |
 | `/join` | membership-management | bootstrap | create | membership-request | GUEST, USER, ADMIN, SUPER_ADMIN | command registration | runtime registration + callback denial |
+| `/backups` | backup-management | admin | manage | backups | SUPER_ADMIN | command registration | runtime + ability tests |
 
 ## Callback Coverage
 
@@ -64,6 +65,7 @@
 | `help:view`, `help:commands`, `help:support` | help-center | protected | read | help | USER, ADMIN, SUPER_ADMIN | callback policy resolver | N/A |
 | `membership:request` | membership-management | bootstrap | create | membership-request | GUEST, USER, ADMIN, SUPER_ADMIN | callback policy resolver | request submission denied |
 | `membership:list`, `membership:detail:*`, `membership:approve:*`, `membership:reject:*` | membership-management | protected | manage | membership-request | ADMIN, SUPER_ADMIN | callback policy resolver | request review denied |
+| `backups:*` | backup-management | admin | manage | backups | SUPER_ADMIN | callback policy resolver | backup, restore, factory reset, and retention actions denied |
 
 ## Stateful Text and Conversation Coverage
 
