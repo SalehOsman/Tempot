@@ -158,7 +158,13 @@ function safeError(error: unknown): string {
 
 function publicReason(error: unknown): string {
   const message = safeError(error);
-  if (message.includes('ai-core.embedding.failed')) return 'embedding_failed';
+  if (isEmbeddingFailure(message)) return 'embedding_failed';
   if (message.includes('database')) return 'database_failed';
   return 'unknown';
+}
+
+function isEmbeddingFailure(message: string): boolean {
+  return (
+    message.includes('ai-core.embedding.failed') || message.includes('ai-core.content.chunk_failed')
+  );
 }

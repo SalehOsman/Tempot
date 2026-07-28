@@ -99,6 +99,18 @@ describe('knowledge operations provider', () => {
     expect(result.error.reason).toBe('embedding_failed');
     expect(deps.logger.warn).toHaveBeenCalled();
   });
+
+  it('maps content chunk failures to embedding provider failures', async () => {
+    const deps = createDeps();
+    deps.ingestContent.mockRejectedValue(new Error('ai-core.content.chunk_failed'));
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    const result = await provider.writeIndex('1', 'product');
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.reason).toBe('embedding_failed');
+  });
 });
 
 function createDeps() {

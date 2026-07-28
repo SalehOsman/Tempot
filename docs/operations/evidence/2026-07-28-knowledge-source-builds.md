@@ -56,3 +56,11 @@ Docker logs showed a `knowledge_ingestion_failed` event while writing
 while processing `knowledge:full-project:docs/ONBOARDING.md:6`. The bot now
 surfaces this as an embedding provider/vector creation failure instead of a
 generic database-oriented message.
+
+Later Docker evidence showed the same path can surface as
+`ai-core.content.chunk_failed` while the previous log line carries
+`ai-core.embedding.failed`. The provider now maps both errors to the same
+localized embedding-provider failure reason. Runtime checks confirmed
+`GOOGLE_GENERATIVE_AI_API_KEY`, `TEMPOT_AI_PROVIDER`, and `DATABASE_URL` are
+present inside the container, so the remaining failure is provider/model/quota
+or outbound connectivity rather than a missing environment variable.
