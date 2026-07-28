@@ -63,3 +63,86 @@ export type HelpAssistantResult =
 export interface HelpAssistantProvider {
   ask(input: HelpAssistantQuestion): Promise<HelpAssistantResult>;
 }
+
+export type KnowledgeOperationResult<T> =
+  | { success: true; value: T }
+  | { success: false; error: { code: string } };
+
+export interface KnowledgeSourceProfile {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly rootLabels: readonly string[];
+  readonly contentType: string;
+  readonly languagePolicy: string;
+  readonly sourcePriority: number;
+  readonly sourceOfTruth: boolean;
+  readonly mounted: boolean;
+}
+
+export interface RagReadinessSnapshot {
+  readonly aiEnabled: boolean;
+  readonly providerConfigured: boolean;
+  readonly databaseConfigured: boolean;
+  readonly vectorReady: boolean;
+  readonly embeddingsCount: number;
+  readonly mountedProfiles: number;
+  readonly profileCount: number;
+}
+
+export interface KnowledgeIngestionSummary {
+  readonly jobId: string;
+  readonly profileId: string;
+  readonly mode: 'dry-run' | 'write' | 'full-reindex';
+  readonly status: 'succeeded' | 'failed';
+  readonly processed: number;
+  readonly skipped: number;
+  readonly failed: number;
+  readonly chunks: number;
+  readonly hashesWritten: boolean;
+}
+
+export interface KnowledgeWriteConfirmation {
+  readonly token: string;
+  readonly profileId: string;
+  readonly summary: KnowledgeIngestionSummary;
+}
+
+export interface KnowledgeTestQueryResult {
+  readonly state: 'answered' | 'no-context' | 'degraded';
+  readonly resultCount: number;
+  readonly citations: readonly string[];
+}
+
+export interface KnowledgeOperationsProvider {
+  getReadiness(actorId: string): Promise<KnowledgeOperationResult<RagReadinessSnapshot>>;
+  listSourceProfiles(actorId: string): Promise<KnowledgeOperationResult<KnowledgeSourceProfile[]>>;
+  runDryRun(
+    actorId: string,
+    profileId: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>>;
+  requestWrite(
+    actorId: string,
+    profileId: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeWriteConfirmation>>;
+  confirmWrite(
+    actorId: string,
+    token: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>>;
+  requestFullReindex(
+    actorId: string,
+    profileId: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeWriteConfirmation>>;
+  confirmFullReindex(
+    actorId: string,
+    token: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>>;
+  listJobs(
+    actorId: string,
+    limit: number,
+  ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary[]>>;
+  testQuery(
+    actorId: string,
+    question: string,
+    profileId?: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeTestQueryResult>>;
+}

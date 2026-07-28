@@ -33,6 +33,7 @@ interface ModuleLoaderDeps {
   interactionEvents: ModuleDependencyContainer['interactionEvents'];
   backups?: ModuleDependencyContainer['backups'];
   aiAssistant?: ModuleDependencyContainer['aiAssistant'];
+  knowledge?: ModuleDependencyContainer['knowledge'];
   resolveAuthorizationContext: AuthorizationContextResolver;
   abilityRegistry: { register: (moduleName: string, definition: AbilityDefinition) => void };
   importer: ModuleImporter;
@@ -128,6 +129,7 @@ function buildModuleContainer(params: BuildModuleContainerParams): ModuleDepende
     interactionEvents: deps.interactionEvents,
     backups: deps.backups,
     aiAssistant: deps.aiAssistant,
+    knowledge: deps.knowledge,
     navigation,
     authorization: createModuleAuthorizationProvider({
       logger: childLogger,

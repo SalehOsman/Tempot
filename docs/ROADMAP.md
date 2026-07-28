@@ -3,7 +3,7 @@
 > Single source of truth for project status. Updated after every merge.
 > Constitutional reference: Rule LXXXIX.
 >
-> Last updated: 2026-07-26.
+> Last updated: 2026-07-28.
 
 ## Current Technical Baseline
 
@@ -215,6 +215,12 @@ Active or next work:
    package-first split: `@tempot/backup-engine` for reusable execution and
    restore rehearsal, plus `modules/backup-management` for Telegram/admin
    operator workflows.
+10. Specify and implement Spec #066 `knowledge-management` as the operational
+    AI/RAG console for super admins. The module must reuse `@tempot/ai-core`
+    through bot-server composition, expose approved source profiles only, run
+    dry-run previews before writes, require confirmations for indexing and full
+    reindex operations, and capture retrieval smoke evidence so `/ask` is backed
+    by indexed project knowledge instead of an empty corpus.
 
 ## Production Readiness Remediation Program
 
@@ -447,6 +453,7 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | `help-center`           | #049 | Implemented with retrieval-grounded `/ask` AI assistant slice |
 | `membership-management` | #058 | Implemented and merged to `main` |
 | `backup-management`     | #065 | Active; encrypted backup creation, isolated restore rehearsal, history, storage-engine local artifact persistence, Docker restore database, and Telegram operator UX are implemented. Notifier delivery, schedule settings, retention execution, and staging evidence remain open |
+| `knowledge-management`  | #066 | Specified; approved as the super-admin AI/RAG operations console for source profiles, dry-run ingestion, write indexing, full reindex, history, readiness, and test queries |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.
@@ -464,6 +471,7 @@ Baseline module strategy documented by Spec #036:
 | `settings-management`   | Core platform | Implemented baseline                                                                               |
 | `help-center`           | Core platform | Implemented baseline plus retrieval-grounded `/ask` AI assistant slice |
 | `membership-management` | Core platform | Implemented on `main` for membership request review and bot access gate operations |
+| `knowledge-management`  | Operational   | Specified as the AI/RAG corpus operations console that makes `help-center` retrieval useful |
 
 ## Architecture and Governance Artifacts
 

@@ -1,0 +1,53 @@
+{
+  "knowledge-management": {
+    "commands": {
+      "knowledge": "Knowledge management"
+    },
+    "menu": {
+      "button": "🧠 Knowledge",
+      "status": "📊 Status",
+      "sources": "📚 Sources",
+      "dry_run": "🧪 Dry run",
+      "write": "🧱 Write index",
+      "full_reindex": "♻️ Full reindex",
+      "history": "📜 History",
+      "test_query": "❓ Test query",
+      "confirm_write": "✅ Confirm write",
+      "confirm_reindex": "✅ Confirm reindex",
+      "cancel": "↩️ Cancel",
+      "back": "↩️ Back"
+    },
+    "view": {
+      "title": "Knowledge management",
+      "unavailable": "Knowledge operations are not available in this runtime. Review AI/RAG service configuration and try again.",
+      "status_failed": "RAG status could not be loaded. Review AI, database, and pgvector configuration.",
+      "status": "RAG readiness\nAI enabled: {{ai}}\nProvider: {{provider}}\nDatabase: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nMounted sources: {{mounted}}",
+      "sources_title": "Approved knowledge sources: {{count}}",
+      "sources_empty": "No approved knowledge source profiles are configured.",
+      "sources_failed": "Knowledge source profiles could not be loaded.",
+      "source_item": "{{index}}. {{name}}\nRoots: {{roots}}\nMounted: {{mounted}}",
+      "dry_run_completed": "Dry-run completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nSkipped: {{skipped}}\nFailed: {{failed}}\nChunks: {{chunks}}",
+      "dry_run_failed": "Dry-run could not be completed. Check source mounts and AI/RAG configuration.",
+      "write_confirm": "Confirm writing the index.\nDry-run job: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
+      "write_blocked": "Write indexing is blocked until a recent successful dry-run exists for the selected source profile.",
+      "write_completed": "Write indexing completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
+      "write_failed": "Write indexing could not be completed. Review AI provider and database logs.",
+      "history_title": "Recent knowledge jobs",
+      "history_item": "{{index}}. {{id}}",
+      "history_empty": "No knowledge ingestion jobs are available yet.",
+      "history_failed": "Knowledge ingestion history could not be loaded.",
+      "full_reindex_planned": "Full reindex requires two confirmations and will be enabled after the write path is verified.",
+      "test_query_hint": "Use /ask followed by a question to test retrieval after indexing is complete."
+    },
+    "source": {
+      "product_help": "Product help",
+      "admin_ops": "Admin operations",
+      "developer_docs": "Developer docs",
+      "full_project": "Full project"
+    },
+    "value": {
+      "yes": "Yes",
+      "no": "No"
+    }
+  }
+}

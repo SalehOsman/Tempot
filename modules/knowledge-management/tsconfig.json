@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "composite": false,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": false
+  },
+  "include": [
+    "module.config.ts",
+    "module.manifest.ts",
+    "index.ts",
+    "abilities.ts",
+    "deps.context.ts",
+    "commands/**/*.ts",
+    "contracts/**/*.ts",
+    "handlers/**/*.ts",
+    "menus/**/*.ts",
+    "services/**/*.ts",
+    "shared/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": ["dist", "node_modules"]
+}

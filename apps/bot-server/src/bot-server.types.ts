@@ -3,11 +3,16 @@ import type { SessionUser } from '@tempot/auth-core';
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import type { ProtectedDataService } from '@tempot/database';
-import type { BackupOperationsProvider, HelpAssistantProvider } from './module-providers.types.js';
+import type {
+  BackupOperationsProvider,
+  HelpAssistantProvider,
+  KnowledgeOperationsProvider,
+} from './module-providers.types.js';
 
 export type {
   BackupOperationResult,
   BackupOperationsProvider,
+  KnowledgeOperationsProvider,
   HelpAssistantAnswer,
   HelpAssistantProvider,
   HelpAssistantQuestion,
@@ -26,6 +31,7 @@ export interface ModuleDependencyContainer {
   interactionEvents: InteractionEventProvider;
   backups?: BackupOperationsProvider;
   aiAssistant?: HelpAssistantProvider;
+  knowledge?: KnowledgeOperationsProvider;
   navigation: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;

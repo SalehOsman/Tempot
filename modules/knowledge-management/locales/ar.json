@@ -1,0 +1,53 @@
+{
+  "knowledge-management": {
+    "commands": {
+      "knowledge": "إدارة المعرفة"
+    },
+    "menu": {
+      "button": "🧠 المعرفة",
+      "status": "📊 الحالة",
+      "sources": "📚 المصادر",
+      "dry_run": "🧪 فحص بدون حفظ",
+      "write": "🧱 بناء الفهرس",
+      "full_reindex": "♻️ إعادة فهرسة",
+      "history": "📜 السجل",
+      "test_query": "❓ اختبار سؤال",
+      "confirm_write": "✅ تأكيد البناء",
+      "confirm_reindex": "✅ تأكيد الفهرسة",
+      "cancel": "↩️ إلغاء",
+      "back": "↩️ العودة"
+    },
+    "view": {
+      "title": "إدارة المعرفة",
+      "unavailable": "إدارة المعرفة غير متاحة في بيئة التشغيل الحالية. راجع إعداد خدمة الذكاء الاصطناعي وRAG ثم حاول مرة أخرى.",
+      "status_failed": "تعذر تحميل حالة RAG. راجع إعداد الذكاء الاصطناعي وقاعدة البيانات وpgvector.",
+      "status": "جاهزية RAG\nالذكاء الاصطناعي: {{ai}}\nالموفر: {{provider}}\nقاعدة البيانات: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nالمصادر المركبة: {{mounted}}",
+      "sources_title": "مصادر المعرفة المعتمدة: {{count}}",
+      "sources_empty": "لا توجد مصادر معرفة معتمدة.",
+      "sources_failed": "تعذر تحميل مصادر المعرفة.",
+      "source_item": "{{index}}. {{name}}\nالمسارات: {{roots}}\nمركب: {{mounted}}",
+      "dry_run_completed": "اكتمل الفحص بدون حفظ.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمتجاوزة: {{skipped}}\nالفاشلة: {{failed}}\nالمقاطع: {{chunks}}",
+      "dry_run_failed": "تعذر إكمال الفحص بدون حفظ. راجع ربط مجلدات المصادر وإعدادات RAG.",
+      "write_confirm": "تأكيد بناء الفهرس.\nعملية الفحص: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
+      "write_blocked": "بناء الفهرس موقوف حتى يوجد فحص ناجح حديث لنفس المصدر.",
+      "write_completed": "اكتمل بناء الفهرس.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
+      "write_failed": "تعذر إكمال بناء الفهرس. راجع إعداد موفر الذكاء الاصطناعي وسجلات قاعدة البيانات.",
+      "history_title": "آخر عمليات المعرفة",
+      "history_item": "{{index}}. {{id}}",
+      "history_empty": "لا يوجد سجل عمليات معرفة حتى الآن.",
+      "history_failed": "تعذر تحميل سجل عمليات المعرفة.",
+      "full_reindex_planned": "إعادة الفهرسة الكاملة تحتاج تأكيدين وسيتم تفعيلها بعد التحقق من مسار البناء.",
+      "test_query_hint": "استخدم /ask ثم اكتب السؤال لاختبار الاسترجاع بعد اكتمال بناء الفهرس."
+    },
+    "source": {
+      "product_help": "مساعدة المنتج",
+      "admin_ops": "تشغيل الإدارة",
+      "developer_docs": "توثيق المطورين",
+      "full_project": "المشروع الكامل"
+    },
+    "value": {
+      "yes": "نعم",
+      "no": "لا"
+    }
+  }
+}
