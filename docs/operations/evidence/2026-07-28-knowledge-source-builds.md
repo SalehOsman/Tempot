@@ -72,3 +72,10 @@ logs and maps `ai-core.content.chunk_failed` plus nested
 `ai-core.embedding.failed` to the localized embedding-provider failure text.
 `docker compose build bot-server` passed, and image inspection confirmed
 `knowledge-ingestion-error-reason.js` is present in `/app/dist/startup/`.
+
+Runtime embedding probe from inside `tempot-bot` reproduced the provider
+failure with Google Gemini reporting quota exhaustion for
+`embed_content_free_tier_requests` on `gemini-embedding-2`. `ai-core` now
+preserves the original embedding-provider error under the strict
+`ai-core.content.chunk_failed` details, and Knowledge Management maps quota or
+rate-limit signals to a dedicated localized `quota_exceeded` reason.

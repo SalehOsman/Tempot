@@ -5,6 +5,7 @@ const embeddingFailureSignals = [
 
 export function knowledgeIngestionFailureReason(error: unknown): string {
   const signals = collectErrorSignals(error);
+  if (signals.some(hasQuotaFailureSignal)) return 'quota_exceeded';
   if (signals.some(hasEmbeddingFailureSignal)) return 'embedding_failed';
   if (signals.some(hasDatabaseFailureSignal)) return 'database_failed';
   return 'unknown';
@@ -19,8 +20,8 @@ function collectErrorSignals(error: unknown): string[] {
 function collectNativeErrorSignals(error: Error): string[] {
   const signals = [error.message];
   const cause = (error as Error & { cause?: unknown }).cause;
-  if (cause === undefined) return signals;
-  return [...signals, ...collectErrorSignals(cause)];
+  const details = (error as Error & { details?: unknown }).details;
+  return [...signals, ...collectOptionalSignals(cause), ...collectOptionalSignals(details)];
 }
 
 function collectRecordSignals(error: Record<string, unknown>): string[] {
@@ -44,6 +45,15 @@ function collectNestedSignals(error: Record<string, unknown>, signals: string[])
 
 function stringSignal(value: unknown): string[] {
   return typeof value === 'string' ? [value] : [];
+}
+
+function collectOptionalSignals(value: unknown): string[] {
+  return value === undefined ? [] : collectErrorSignals(value);
+}
+
+function hasQuotaFailureSignal(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes('quota') || lower.includes('rate limit');
 }
 
 function hasEmbeddingFailureSignal(message: string): boolean {

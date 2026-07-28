@@ -62,6 +62,7 @@
       "no": "No"
     },
     "reason": {
+      "quota_exceeded": "The embedding provider quota or rate limit has been exceeded. Review the AI provider usage limits, billing, or wait for quota reset before rebuilding the index.",
       "embedding_failed": "The embedding provider failed while creating vectors. Check the AI provider key, quota, model, and network access.",
       "database_failed": "The database operation failed. Check PostgreSQL, pgvector, and migration status.",
       "unknown": "The service reported an unexpected failure. Check bot-server logs for the detailed reference."

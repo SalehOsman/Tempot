@@ -159,6 +159,7 @@ function boolLabel(t: TranslationFn, value: boolean): string {
 }
 
 function failureReason(t: TranslationFn, reason: string | undefined): string {
+  if (reason === 'quota_exceeded') return t('knowledge-management.reason.quota_exceeded');
   if (reason === 'embedding_failed') return t('knowledge-management.reason.embedding_failed');
   if (reason === 'database_failed') return t('knowledge-management.reason.database_failed');
   return t('knowledge-management.reason.unknown');

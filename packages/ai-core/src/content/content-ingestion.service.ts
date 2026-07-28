@@ -31,7 +31,7 @@ export interface IngestOptions {
 interface FailedChunkContext {
   contentId: string;
   chunkIndex: number;
-  errorCode: string;
+  error: AppError;
   strict: boolean;
 }
 
@@ -93,7 +93,7 @@ export class ContentIngestionService {
         const failure = await this.handleFailedChunk({
           contentId,
           chunkIndex: chunk.chunkIndex,
-          errorCode: result.error.code,
+          error: result.error,
           strict,
         });
         if (failure.isErr()) return err(failure.error);
@@ -118,7 +118,7 @@ export class ContentIngestionService {
       code: AI_ERRORS.CONTENT_CHUNK_FAILED,
       contentId: failure.contentId,
       chunkIndex: failure.chunkIndex,
-      error: failure.errorCode,
+      error: failure.error.code,
     });
     if (!failure.strict) return ok(undefined);
 
@@ -127,7 +127,8 @@ export class ContentIngestionService {
       new AppError(AI_ERRORS.CONTENT_CHUNK_FAILED, {
         contentId: failure.contentId,
         chunkIndex: failure.chunkIndex,
-        error: failure.errorCode,
+        error: failure.error.code,
+        cause: failure.error,
       }),
     );
   }
