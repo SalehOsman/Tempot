@@ -37,6 +37,22 @@ describe('knowledge operations provider', () => {
     if (result.success) return;
     expect(result.error.code).toBe('knowledge.profile_not_allowed');
   });
+
+  it('returns a safe failure when write ingestion fails', async () => {
+    const deps = createDeps();
+    deps.ingestContent.mockRejectedValue(new Error('provider failed'));
+    const provider = createKnowledgeOperationsProvider(deps);
+    const confirmation = await provider.requestWrite('1', 'product-help');
+    expect(confirmation.success).toBe(true);
+    if (!confirmation.success) return;
+
+    const result = await provider.confirmWrite('1', confirmation.value.token);
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.code).toBe('knowledge.ingestion_failed');
+    expect(deps.logger.warn).toHaveBeenCalled();
+  });
 });
 
 function createDeps() {

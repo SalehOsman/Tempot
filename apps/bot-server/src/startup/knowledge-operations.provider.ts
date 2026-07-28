@@ -105,11 +105,21 @@ async function run(
   profileId: string,
   write: boolean,
 ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>> {
-  const selected = findKnowledgeProfile(profileId);
-  if (!selected) return fail('knowledge.profile_not_allowed');
-  const summary = await scanKnowledgeProfile(state.deps, selected, write);
-  state.jobs.unshift(summary);
-  return okValue(summary);
+  try {
+    const selected = findKnowledgeProfile(profileId);
+    if (!selected) return fail('knowledge.profile_not_allowed');
+    const summary = await scanKnowledgeProfile(state.deps, selected, write);
+    state.jobs.unshift(summary);
+    return okValue(summary);
+  } catch (error) {
+    state.deps.logger.warn({
+      msg: 'knowledge_ingestion_failed',
+      error: safeError(error),
+      mode: write ? 'write' : 'dry-run',
+      profileId,
+    });
+    return fail('knowledge.ingestion_failed');
+  }
 }
 
 async function publicProfiles(deps: KnowledgeProviderDeps): Promise<KnowledgeSourceProfile[]> {

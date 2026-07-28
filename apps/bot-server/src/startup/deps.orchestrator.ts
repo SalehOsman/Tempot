@@ -1,4 +1,5 @@
 import { ok, err } from 'neverthrow';
+import type { Bot as GrammyBot, Context as GrammyContext } from 'grammy';
 import { AppError } from '@tempot/shared';
 import {
   AuditLogRepository,
@@ -13,7 +14,6 @@ import { loadModuleHandlers } from './module-loader.js';
 import { buildBackupOperationsProvider } from './backup-operations.provider.js';
 import { buildHelpAiAssistantProvider } from './help-ai-assistant.provider.js';
 import { buildKnowledgeOperationsProvider } from './knowledge-operations.provider.js';
-
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
@@ -26,7 +26,6 @@ import type {
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
 } from '../bot-server.types.js';
-
 import type { ShutdownManager, CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { SessionProvider } from '@tempot/session-manager';
@@ -36,7 +35,6 @@ import type { SentryReporter } from '@tempot/sentry';
 import { buildSettingsProvider } from './deps.settings-provider.js';
 
 type LoaderDeps = Parameters<typeof loadModuleHandlers>[2];
-
 export interface AssembleDepsOptions {
   loadConfig: typeof import('./config.loader.js').loadConfig;
   log: typeof import('@tempot/logger').logger;
@@ -65,11 +63,7 @@ function buildModuleHandlersDep(
     interactionEventRepository,
   });
   return (bot, validated) =>
-    loadModuleHandlers(
-      bot as import('grammy').Bot<import('grammy').Context>,
-      validated,
-      loaderDeps,
-    );
+    loadModuleHandlers(bot as GrammyBot<GrammyContext>, validated, loaderDeps);
 }
 
 function buildLoaderDeps(input: {

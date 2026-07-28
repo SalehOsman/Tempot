@@ -24,7 +24,13 @@ export async function handleCallbackQuery(
   if (!(await canManageKnowledge(ctx))) return;
 
   const { i18n } = getDeps();
+  if (isLongOperation(data)) await sendView(ctx, loadingView(i18n.t));
   const view = await resolveView(ctx, data);
+  await sendView(ctx, view);
+}
+
+async function sendView(ctx: Context, view: KnowledgeView): Promise<void> {
+  const { i18n } = getDeps();
   const result = await editOrSend(ctx as unknown as Parameters<typeof editOrSend>[0], {
     text: view.text,
     parseMode: 'HTML',
@@ -32,6 +38,17 @@ export async function handleCallbackQuery(
     unchangedCallbackText: i18n.t('bot-server.callback_unchanged'),
   });
   if (result.isErr()) throw result.error;
+}
+
+function isLongOperation(callbackData: string): boolean {
+  return callbackData === 'knowledge:write' || callbackData.startsWith('knowledge:confirm_write:');
+}
+
+function loadingView(t: (key: string, options?: Record<string, unknown>) => string): KnowledgeView {
+  return {
+    text: t('knowledge-management.view.write_waiting'),
+    surface: 'leaf',
+  };
 }
 
 async function canManageKnowledge(ctx: Context): Promise<boolean> {

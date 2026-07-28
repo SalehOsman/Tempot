@@ -29,6 +29,7 @@
       "dry_run_completed": "Dry-run completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nSkipped: {{skipped}}\nFailed: {{failed}}\nChunks: {{chunks}}",
       "dry_run_failed": "Dry-run could not be completed. Check source mounts and AI/RAG configuration.",
       "write_confirm": "Confirm writing the index.\nDry-run job: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
+      "write_waiting": "⏳ Knowledge indexing is running.\nPlease wait until the operation completes.",
       "write_blocked": "Write indexing is blocked until a recent successful dry-run exists for the selected source profile.",
       "write_completed": "Write indexing completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
       "write_failed": "Write indexing could not be completed. Review AI provider and database logs.",
