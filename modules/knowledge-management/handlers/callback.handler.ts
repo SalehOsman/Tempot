@@ -75,9 +75,7 @@ async function sendReplyView(ctx: Context, view: KnowledgeView): Promise<void> {
 
 function isLongOperation(callbackData: string): boolean {
   return (
-    callbackData.startsWith('knowledge:dry_run:') ||
-    callbackData.startsWith('knowledge:write:') ||
-    callbackData.startsWith('knowledge:confirm_write:')
+    callbackData.startsWith('knowledge:dry_run:') || callbackData.startsWith('knowledge:write:')
   );
 }
 
@@ -128,13 +126,8 @@ async function resolveView(ctx: Context, callbackData: string): Promise<Knowledg
     };
   }
   if (isSourceCallback(callbackData)) return resolveSourceView(context, callbackData);
-  if (callbackData.startsWith('knowledge:dry_run:')) {
-    const profileId = callbackData.replace('knowledge:dry_run:', '');
-    return {
-      text: await context.service.renderDryRun(context.t, context.actorId, profileId),
-      surface: 'leaf',
-    };
-  }
+  if (callbackData.startsWith('knowledge:dry_run:'))
+    return resolveDryRunView(context, callbackData);
   if (callbackData === 'knowledge:history') {
     return {
       text: await context.service.renderHistory(context.t, context.actorId),
@@ -144,22 +137,7 @@ async function resolveView(ctx: Context, callbackData: string): Promise<Knowledg
   if (callbackData === 'knowledge:write' || callbackData === 'knowledge:dry_run') {
     return resolveSourcesList(context);
   }
-  if (callbackData.startsWith('knowledge:write:')) {
-    return writeConfirmationView({
-      service: context.service,
-      t: context.t,
-      actorId: context.actorId,
-      profileId: callbackData.replace('knowledge:write:', ''),
-    });
-  }
-  if (callbackData.startsWith('knowledge:confirm_write:')) {
-    return confirmWriteView({
-      service: context.service,
-      t: context.t,
-      actorId: context.actorId,
-      callbackData,
-    });
-  }
+  if (callbackData.startsWith('knowledge:write:')) return resolveWriteView(context, callbackData);
   if (callbackData.startsWith('knowledge:full_reindex')) {
     return { text: i18n.t('knowledge-management.view.full_reindex_planned'), surface: 'leaf' };
   }
@@ -194,25 +172,24 @@ async function resolveSourcesList(context: ResolveContext): Promise<KnowledgeVie
   return { text: view.text, surface: 'sources', profiles: view.profiles };
 }
 
-async function writeConfirmationView(input: {
-  readonly service: KnowledgeViewService;
-  readonly t: (key: string, options?: Record<string, unknown>) => string;
-  readonly actorId: string;
-  readonly profileId: string;
-}): Promise<KnowledgeView> {
-  const view = await input.service.renderWriteRequest(input.t, input.actorId, input.profileId);
-  return { text: view.text, token: view.token, surface: view.token ? 'confirm-write' : 'leaf' };
+async function resolveDryRunView(
+  context: ResolveContext,
+  callbackData: string,
+): Promise<KnowledgeView> {
+  const profileId = callbackData.replace('knowledge:dry_run:', '');
+  return {
+    text: await context.service.renderDryRun(context.t, context.actorId, profileId),
+    surface: 'leaf',
+  };
 }
 
-async function confirmWriteView(input: {
-  readonly service: KnowledgeViewService;
-  readonly t: (key: string, options?: Record<string, unknown>) => string;
-  readonly actorId: string;
-  readonly callbackData: string;
-}): Promise<KnowledgeView> {
-  const token = input.callbackData.replace('knowledge:confirm_write:', '');
+async function resolveWriteView(
+  context: ResolveContext,
+  callbackData: string,
+): Promise<KnowledgeView> {
+  const profileId = callbackData.replace('knowledge:write:', '');
   return {
-    text: await input.service.renderConfirmWrite(input.t, input.actorId, token),
+    text: await context.service.renderWriteIndex(context.t, context.actorId, profileId),
     surface: 'leaf',
   };
 }

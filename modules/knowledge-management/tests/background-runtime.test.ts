@@ -6,7 +6,6 @@ import type {
   IngestionSummary,
   KnowledgeOperationResult,
   KnowledgeOperationsProvider,
-  WriteConfirmation,
 } from '../contracts/knowledge-operations.types.js';
 
 type TestDeps = ModuleDeps & {
@@ -64,12 +63,10 @@ function createContext(callbackData: string): Context {
 
 function deferredProvider() {
   const control = {
-    resolveWriteRequest: (): void => undefined,
-    resolveConfirmWrite: (): void => undefined,
+    resolveWriteIndex: (): void => undefined,
     provider: baseProvider(),
   };
-  control.provider.requestWrite = vi.fn(() => writePromise(control));
-  control.provider.confirmWrite = vi.fn(() => confirmPromise(control));
+  control.provider.writeIndex = vi.fn(() => writePromise(control));
   return control;
 }
 
@@ -80,6 +77,7 @@ function baseProvider(): KnowledgeOperationsProvider {
     addCustomProfile: vi.fn(),
     runDryRun: vi.fn(),
     requestWrite: vi.fn(),
+    writeIndex: vi.fn(),
     confirmWrite: vi.fn(),
     requestFullReindex: vi.fn(),
     confirmFullReindex: vi.fn(),
@@ -89,21 +87,14 @@ function baseProvider(): KnowledgeOperationsProvider {
 }
 
 function writePromise(control: ReturnType<typeof deferredProvider>) {
-  return new Promise<KnowledgeOperationResult<WriteConfirmation>>((resolve) => {
-    control.resolveWriteRequest = () =>
-      resolve({ success: false, error: { code: 'knowledge-management.write.blocked' } });
-  });
-}
-
-function confirmPromise(control: ReturnType<typeof deferredProvider>) {
   return new Promise<KnowledgeOperationResult<IngestionSummary>>((resolve) => {
-    control.resolveConfirmWrite = () =>
+    control.resolveWriteIndex = () =>
       resolve({ success: false, error: { code: 'knowledge-management.write.failed' } });
   });
 }
 
 describe('knowledge-management background operations', () => {
-  it('returns after showing loading for write preparation', async () => {
+  it('returns after showing loading for one-step write indexing', async () => {
     const deps = createDeps();
     const control = deferredProvider();
     deps.knowledge = control.provider;
@@ -115,29 +106,14 @@ describe('knowledge-management background operations', () => {
 
     expect(firstEdit(ctx)).toBe('knowledge-management.view.write_waiting');
     await expect(Promise.race([operation.then(() => 'done'), immediate()])).resolves.toBe('done');
-    control.resolveWriteRequest();
-  });
-
-  it('returns after showing loading for write confirmation', async () => {
-    const deps = createDeps();
-    const control = deferredProvider();
-    deps.knowledge = control.provider;
-    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
-    const ctx = createContext('knowledge:confirm_write:token-1');
-
-    const operation = handleCallbackQuery(ctx);
-    await flushPendingWork();
-
-    expect(firstEdit(ctx)).toBe('knowledge-management.view.write_waiting');
-    await expect(Promise.race([operation.then(() => 'done'), immediate()])).resolves.toBe('done');
-    control.resolveConfirmWrite();
+    control.resolveWriteIndex();
   });
 
   it('sends completion as a separate message', async () => {
     const deps = createDeps();
-    deps.knowledge = { ...baseProvider(), confirmWrite: vi.fn().mockResolvedValue(success()) };
+    deps.knowledge = { ...baseProvider(), writeIndex: vi.fn().mockResolvedValue(success()) };
     await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
-    const ctx = createContext('knowledge:confirm_write:token-1');
+    const ctx = createContext('knowledge:write:product');
 
     await handleCallbackQuery(ctx);
     await flushPendingWork();

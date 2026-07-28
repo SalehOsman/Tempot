@@ -66,7 +66,7 @@ export interface HelpAssistantProvider {
 
 export type KnowledgeOperationResult<T> =
   | { success: true; value: T }
-  | { success: false; error: { code: string } };
+  | { success: false; error: { code: string; reason?: string } };
 
 export interface KnowledgeSourceProfile {
   readonly id: string;
@@ -137,6 +137,10 @@ export interface KnowledgeOperationsProvider {
     actorId: string,
     profileId: string,
   ): Promise<KnowledgeOperationResult<KnowledgeWriteConfirmation>>;
+  writeIndex(
+    actorId: string,
+    profileId: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>>;
   confirmWrite(
     actorId: string,
     token: string,

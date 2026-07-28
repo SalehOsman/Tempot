@@ -86,6 +86,17 @@ export class KnowledgeViewService {
     };
   }
 
+  async renderWriteIndex(t: TranslationFn, actorId: string, profileId: string): Promise<string> {
+    if (!this.provider) return t('knowledge-management.view.unavailable');
+    const result = await this.provider.writeIndex(actorId, profileId);
+    if (!result.success) {
+      return t('knowledge-management.view.write_failed_reason', {
+        reason: failureReason(t, result.error.reason),
+      });
+    }
+    return formatSummary(t, 'knowledge-management.view.write_completed', result.value);
+  }
+
   async renderCustomCreated(
     t: TranslationFn,
     actorId: string,
@@ -145,4 +156,10 @@ function formatSummary(t: TranslationFn, titleKey: string, summary: IngestionSum
 
 function boolLabel(t: TranslationFn, value: boolean): string {
   return t(value ? 'knowledge-management.value.yes' : 'knowledge-management.value.no');
+}
+
+function failureReason(t: TranslationFn, reason: string | undefined): string {
+  if (reason === 'embedding_failed') return t('knowledge-management.reason.embedding_failed');
+  if (reason === 'database_failed') return t('knowledge-management.reason.database_failed');
+  return t('knowledge-management.reason.unknown');
 }

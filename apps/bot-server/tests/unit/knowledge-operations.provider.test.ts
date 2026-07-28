@@ -74,19 +74,29 @@ describe('knowledge operations provider', () => {
     expect(deps.saveCustomProfiles).toHaveBeenCalledTimes(1);
   });
 
-  it('returns a safe failure when write ingestion fails', async () => {
+  it('runs one-step write and records the ingestion job', async () => {
     const deps = createDeps();
-    deps.ingestContent.mockRejectedValue(new Error('provider failed'));
     const provider = createKnowledgeOperationsProvider(deps);
-    const confirmation = await provider.requestWrite('1', 'product-help');
-    expect(confirmation.success).toBe(true);
-    if (!confirmation.success) return;
 
-    const result = await provider.confirmWrite('1', confirmation.value.token);
+    const result = await provider.writeIndex('1', 'product');
+    const jobs = await provider.listJobs('1', 1);
+
+    expect(result.success).toBe(true);
+    expect(deps.ingestContent).toHaveBeenCalled();
+    expect(jobs.success).toBe(true);
+  });
+
+  it('returns a safe failure reason when write ingestion fails', async () => {
+    const deps = createDeps();
+    deps.ingestContent.mockRejectedValue(new Error('ai-core.embedding.failed'));
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    const result = await provider.writeIndex('1', 'product');
 
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error.code).toBe('knowledge.ingestion_failed');
+    expect(result.error.reason).toBe('embedding_failed');
     expect(deps.logger.warn).toHaveBeenCalled();
   });
 });

@@ -21,7 +21,8 @@ The bot exposes these build profiles from the Knowledge menu:
 
 Long-running dry-run and write operations run in the background. The bot sends
 an immediate waiting message, then sends a separate completion or failure message
-when the operation finishes.
+when the operation finishes. `Write index` is a one-step operation from the bot
+menu; the older confirmation contract remains available only for compatibility.
 
 ## Custom Profiles
 

@@ -37,6 +37,7 @@
       "write_blocked": "Write indexing is blocked until a recent successful dry-run exists for the selected source profile.",
       "write_completed": "Write indexing completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
       "write_failed": "Write indexing could not be completed. Review AI provider and database logs.",
+      "write_failed_reason": "Write indexing could not be completed.\nReason: {{reason}}",
       "operation_failed": "Knowledge operation failed unexpectedly. Review the service logs and try again.",
       "custom_hint": "Add a custom knowledge source with:\n/knowledge_custom Name | relative/path | Description\nExample:\n/knowledge_custom Finance Docs | docs/finance | Finance module documentation",
       "custom_created": "Custom knowledge source was added.\nName: {{name}}\nRoot: {{root}}",
@@ -59,6 +60,11 @@
     "value": {
       "yes": "Yes",
       "no": "No"
+    },
+    "reason": {
+      "embedding_failed": "The embedding provider failed while creating vectors. Check the AI provider key, quota, model, and network access.",
+      "database_failed": "The database operation failed. Check PostgreSQL, pgvector, and migration status.",
+      "unknown": "The service reported an unexpected failure. Check bot-server logs for the detailed reference."
     }
   }
 }

@@ -28,7 +28,7 @@
 | FR-022 | T013, T036 |
 | FR-023 | T037 |
 | FR-024 | T038 |
-| FR-025 | T043-T046 |
+| FR-025 | T043-T047 |
 
 ## Success Criteria Traceability
 
@@ -115,3 +115,5 @@
 - [x] T045 Run long knowledge operations in the background and send completion
       as a separate bot message.
 - [x] T046 Add super-admin custom source registration using safe relative paths.
+- [x] T047 Replace write confirmation UX with one-step source indexing and
+      localized failure reasons.

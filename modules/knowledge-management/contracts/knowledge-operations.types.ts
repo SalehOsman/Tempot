@@ -1,6 +1,6 @@
 export type KnowledgeOperationResult<T> =
   | { success: true; value: T }
-  | { success: false; error: { code: string } };
+  | { success: false; error: { code: string; reason?: string } };
 
 export interface KnowledgeSourceProfile {
   readonly id: string;
@@ -71,6 +71,10 @@ export interface KnowledgeOperationsProvider {
     actorId: string,
     profileId: string,
   ): Promise<KnowledgeOperationResult<WriteConfirmation>>;
+  writeIndex(
+    actorId: string,
+    profileId: string,
+  ): Promise<KnowledgeOperationResult<IngestionSummary>>;
   confirmWrite(actorId: string, token: string): Promise<KnowledgeOperationResult<IngestionSummary>>;
   requestFullReindex(
     actorId: string,

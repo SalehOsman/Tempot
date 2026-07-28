@@ -41,6 +41,7 @@ export function createKnowledgeOperationsProvider(
     addCustomProfile: async (_actorId, input) => addCustomKnowledgeProfile(deps, input),
     runDryRun: async (_actorId, profileId) => run(state, profileId, false),
     requestWrite: async (_actorId, profileId) => requestWrite(deps, confirmations, profileId),
+    writeIndex: async (_actorId, profileId) => run(state, profileId, true),
     confirmWrite: async (_actorId, token) => confirmWrite(state, confirmations, token),
     requestFullReindex: async (_actorId, profileId) => requestWrite(deps, confirmations, profileId),
     confirmFullReindex: async (_actorId, token) => confirmWrite(state, confirmations, token),
@@ -119,7 +120,7 @@ async function run(
       mode: write ? 'write' : 'dry-run',
       profileId,
     });
-    return fail('knowledge.ingestion_failed');
+    return fail('knowledge.ingestion_failed', publicReason(error));
   }
 }
 
@@ -147,10 +148,17 @@ function okValue<T>(value: T): KnowledgeOperationResult<T> {
   return { success: true, value };
 }
 
-function fail<T>(code: string): KnowledgeOperationResult<T> {
-  return { success: false, error: { code } };
+function fail<T>(code: string, reason?: string): KnowledgeOperationResult<T> {
+  return { success: false, error: { code, reason } };
 }
 
 function safeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function publicReason(error: unknown): string {
+  const message = safeError(error);
+  if (message.includes('ai-core.embedding.failed')) return 'embedding_failed';
+  if (message.includes('database')) return 'database_failed';
+  return 'unknown';
 }
