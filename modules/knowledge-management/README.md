@@ -36,3 +36,17 @@ The path must be relative to `TEMPOT_KNOWLEDGE_SOURCES_ROOT`, must not contain
 `..`, and must be mounted into the bot container. In local Docker Desktop,
 custom definitions are stored in `data/knowledge-custom-profiles.json` through
 `TEMPOT_KNOWLEDGE_CUSTOM_PROFILES_FILE`.
+
+## AI Providers
+
+The Knowledge menu includes AI provider controls for super admins. These
+controls update dynamic settings only; API keys are still read from runtime
+environment variables.
+
+| Capability | Supported providers |
+| --- | --- |
+| Chat | Gemini, OpenAI, DeepSeek |
+| Embeddings | Gemini, OpenAI |
+
+Changing the embedding provider or model requires rebuilding the knowledge
+index before relying on `/ask` answers.

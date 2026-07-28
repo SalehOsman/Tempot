@@ -3,6 +3,7 @@ import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type {
   AIConfig,
+  AIEmbeddingProviderType,
   AIProviderType,
   ResilienceConfig,
   RateLimitConfig,
@@ -22,7 +23,7 @@ export function loadAIConfig(): Result<AIConfig, AppError> {
   const provider = parseProvider(process.env.TEMPOT_AI_PROVIDER, DEFAULT_AI_CONFIG.provider);
   if (provider.isErr()) return err(provider.error);
 
-  const embeddingProvider = parseProvider(
+  const embeddingProvider = parseEmbeddingProvider(
     process.env.AI_EMBEDDING_PROVIDER,
     DEFAULT_AI_CONFIG.embeddingProvider,
   );
@@ -52,6 +53,16 @@ function parseProvider(
   fallback: AIProviderType,
 ): Result<AIProviderType, AppError> {
   const provider = (raw ?? fallback) as AIProviderType;
+  if (provider === 'gemini' || provider === 'openai') return ok(provider);
+  if (provider === 'deepseek') return ok(provider);
+  return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
+}
+
+function parseEmbeddingProvider(
+  raw: string | undefined,
+  fallback: AIEmbeddingProviderType,
+): Result<AIEmbeddingProviderType, AppError> {
+  const provider = raw ?? fallback;
   if (provider === 'gemini' || provider === 'openai') return ok(provider);
   return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
 }

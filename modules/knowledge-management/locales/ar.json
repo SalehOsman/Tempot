@@ -17,13 +17,23 @@
       "confirm_write": "✅ تأكيد البناء",
       "confirm_reindex": "✅ تأكيد الفهرسة",
       "cancel": "↩️ إلغاء",
-      "back": "↩️ العودة"
+      "back": "↩️ العودة",
+      "providers": "⚙️ مزودات الذكاء",
+      "chat_provider": "💬 مزود المحادثة",
+      "embedding_provider": "🧠 التضمينات",
+      "embedding_model": "🧬 نموذج التضمين",
+      "provider_gemini": "✨ Gemini",
+      "provider_openai": "🔷 OpenAI",
+      "provider_deepseek": "🔎 DeepSeek",
+      "model_gemini_v2": "🧠 Gemini v2",
+      "model_openai_small": "🧠 OpenAI صغير",
+      "model_openai_large": "🧠 OpenAI كبير"
     },
     "view": {
       "title": "إدارة المعرفة",
       "unavailable": "إدارة المعرفة غير متاحة في بيئة التشغيل الحالية. راجع إعداد خدمة الذكاء الاصطناعي وRAG ثم حاول مرة أخرى.",
       "status_failed": "تعذر تحميل حالة RAG. راجع إعداد الذكاء الاصطناعي وقاعدة البيانات وpgvector.",
-      "status": "جاهزية RAG\nالذكاء الاصطناعي: {{ai}}\nالموفر: {{provider}}\nقاعدة البيانات: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nالمصادر المركبة: {{mounted}}",
+      "status": "جاهزية RAG\nالذكاء الاصطناعي: {{ai}}\nمفتاح التضمينات جاهز: {{provider}}\nمزود المحادثة: {{chatProvider}} ({{chatProviderReady}})\nمزود التضمينات: {{embeddingProvider}}\nنموذج التضمين: {{embeddingModel}}\nقاعدة البيانات: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nالمصادر المركبة: {{mounted}}",
       "sources_title": "مصادر المعرفة المعتمدة: {{count}}",
       "sources_empty": "لا توجد مصادر معرفة معتمدة.",
       "sources_failed": "تعذر تحميل مصادر المعرفة.",
@@ -47,7 +57,13 @@
       "history_empty": "لا يوجد سجل عمليات معرفة حتى الآن.",
       "history_failed": "تعذر تحميل سجل عمليات المعرفة.",
       "full_reindex_planned": "إعادة الفهرسة الكاملة تحتاج تأكيدين وسيتم تفعيلها بعد التحقق من مسار البناء.",
-      "test_query_hint": "استخدم /ask ثم اكتب السؤال لاختبار الاسترجاع بعد اكتمال بناء الفهرس."
+      "test_query_hint": "استخدم /ask ثم اكتب السؤال لاختبار الاسترجاع بعد اكتمال بناء الفهرس.",
+      "providers": "إعدادات مزودات الذكاء\nالمحادثة: {{chat}} ({{chatReady}})\nالتضمينات: {{embedding}} ({{embeddingReady}})\nنموذج التضمين: {{model}}\n\nمفاتيح API تقرأ من بيئة التشغيل ولا يتم تخزينها من تيليجرام.",
+      "providers_failed": "تعذر تحميل إعدادات مزودات الذكاء.",
+      "provider_updated": "تم تحديث مزود المحادثة إلى {{provider}}.",
+      "embedding_provider_updated": "تم تحديث مزود التضمينات إلى {{provider}}.\nأعد بناء فهرس المعرفة قبل استخدام إجابات البحث.",
+      "embedding_model_updated": "تم تحديث نموذج التضمين إلى {{model}}.\nأعد بناء فهرس المعرفة قبل استخدام إجابات البحث.",
+      "provider_update_failed": "تعذر تحديث إعدادات مزود الذكاء. راجع تخزين إعدادات التشغيل ثم حاول مرة أخرى."
     },
     "source": {
       "product_help": "مساعدة المنتج",

@@ -19,6 +19,12 @@ import {
   findKnowledgeProfile,
 } from './knowledge-custom-profile.actions.js';
 import { knowledgeIngestionFailureReason } from './knowledge-ingestion-error-reason.js';
+import {
+  readProviderSettings,
+  updateChatProvider,
+  updateEmbeddingModel,
+  updateEmbeddingProvider,
+} from './knowledge-provider-settings.operations.js';
 
 export type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 
@@ -48,12 +54,18 @@ export function createKnowledgeOperationsProvider(
     confirmFullReindex: async (_actorId, token) => confirmWrite(state, confirmations, token),
     listJobs: async (_actorId, limit) => okValue(jobs.slice(0, limit)),
     testQuery: async () => testQueryResult(),
+    getProviderSettings: async () => readProviderSettings(deps),
+    setChatProvider: async (actorId, provider) => updateChatProvider(deps, actorId, provider),
+    setEmbeddingProvider: async (actorId, provider) =>
+      updateEmbeddingProvider(deps, actorId, provider),
+    setEmbeddingModel: async (actorId, model) => updateEmbeddingModel(deps, actorId, model),
   };
 }
 
 export function buildKnowledgeOperationsProvider(opts: {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
+  settings?: import('../bot-server.types.js').SettingsProvider;
 }): KnowledgeOperationsProvider {
   return createKnowledgeOperationsProvider(liveKnowledgeDeps(opts));
 }
@@ -63,9 +75,14 @@ async function readiness(
 ): Promise<KnowledgeOperationResult<RagReadinessSnapshot>> {
   try {
     const visibleProfiles = await publicProfiles(deps);
+    const providerSettings = await deps.providerSettings();
     return okValue({
       aiEnabled: deps.aiEnabled(),
-      providerConfigured: deps.providerConfigured(),
+      providerConfigured: await deps.providerConfigured(),
+      chatProvider: providerSettings.chatProvider,
+      chatProviderConfigured: providerSettings.chatProviderConfigured,
+      embeddingProvider: providerSettings.embeddingProvider,
+      embeddingModel: providerSettings.embeddingModel,
       databaseConfigured: deps.databaseConfigured(),
       vectorReady: await deps.vectorReady(),
       embeddingsCount: await deps.countEmbeddings(),

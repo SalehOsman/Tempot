@@ -149,7 +149,17 @@ describe('knowledge operations provider', () => {
 function createDeps() {
   return {
     aiEnabled: () => true,
-    providerConfigured: () => true,
+    providerConfigured: vi.fn().mockResolvedValue(true),
+    providerSettings: vi.fn().mockResolvedValue({
+      chatProvider: 'gemini',
+      chatProviderConfigured: true,
+      embeddingProvider: 'gemini',
+      embeddingProviderConfigured: true,
+      embeddingModel: 'gemini-embedding-2-preview',
+    }),
+    setChatProvider: vi.fn().mockResolvedValue(true),
+    setEmbeddingProvider: vi.fn().mockResolvedValue(true),
+    setEmbeddingModel: vi.fn().mockResolvedValue(true),
     databaseConfigured: () => true,
     vectorReady: vi.fn().mockResolvedValue(true),
     countEmbeddings: vi.fn().mockResolvedValue(3),

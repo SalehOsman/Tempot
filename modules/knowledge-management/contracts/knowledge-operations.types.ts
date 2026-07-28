@@ -25,6 +25,10 @@ export interface KnowledgeCustomProfileInput {
 export interface RagReadinessSnapshot {
   readonly aiEnabled: boolean;
   readonly providerConfigured: boolean;
+  readonly chatProvider?: string;
+  readonly chatProviderConfigured?: boolean;
+  readonly embeddingProvider?: string;
+  readonly embeddingModel?: string;
   readonly databaseConfigured: boolean;
   readonly vectorReady: boolean;
   readonly embeddingsCount: number;
@@ -54,6 +58,22 @@ export interface RagTestQueryResult {
   readonly state: 'answered' | 'no-context' | 'degraded';
   readonly resultCount: number;
   readonly citations: readonly string[];
+}
+
+export type KnowledgeChatProvider = 'gemini' | 'openai' | 'deepseek';
+export type KnowledgeEmbeddingProvider = 'gemini' | 'openai';
+export type KnowledgeEmbeddingModel =
+  | 'gemini-embedding-2-preview'
+  | 'gemini-embedding-2'
+  | 'text-embedding-3-small'
+  | 'text-embedding-3-large';
+
+export interface KnowledgeProviderSettingsSnapshot {
+  readonly chatProvider: KnowledgeChatProvider;
+  readonly chatProviderConfigured: boolean;
+  readonly embeddingProvider: KnowledgeEmbeddingProvider;
+  readonly embeddingProviderConfigured: boolean;
+  readonly embeddingModel: KnowledgeEmbeddingModel | string;
 }
 
 export interface KnowledgeOperationsProvider {
@@ -90,4 +110,19 @@ export interface KnowledgeOperationsProvider {
     question: string,
     profileId?: string,
   ): Promise<KnowledgeOperationResult<RagTestQueryResult>>;
+  getProviderSettings(
+    actorId: string,
+  ): Promise<KnowledgeOperationResult<KnowledgeProviderSettingsSnapshot>>;
+  setChatProvider(
+    actorId: string,
+    provider: KnowledgeChatProvider,
+  ): Promise<KnowledgeOperationResult<void>>;
+  setEmbeddingProvider(
+    actorId: string,
+    provider: KnowledgeEmbeddingProvider,
+  ): Promise<KnowledgeOperationResult<void>>;
+  setEmbeddingModel(
+    actorId: string,
+    model: KnowledgeEmbeddingModel,
+  ): Promise<KnowledgeOperationResult<void>>;
 }

@@ -9,6 +9,13 @@ const labels: Record<string, string> = {
   'knowledge-management.menu.full_reindex': 'Full reindex',
   'knowledge-management.menu.history': 'History',
   'knowledge-management.menu.test_query': 'Test query',
+  'knowledge-management.menu.providers': 'Providers',
+  'knowledge-management.menu.chat_provider': 'Chat provider',
+  'knowledge-management.menu.embedding_provider': 'Embedding provider',
+  'knowledge-management.menu.embedding_model': 'Embedding model',
+  'knowledge-management.menu.provider_gemini': 'Gemini',
+  'knowledge-management.menu.provider_openai': 'OpenAI',
+  'knowledge-management.menu.provider_deepseek': 'DeepSeek',
   'knowledge-management.menu.custom_source': 'Custom source',
   'knowledge-management.menu.back': 'Back',
   'knowledge-management.source.product_help': 'Product',
@@ -39,7 +46,7 @@ describe('createKnowledgeMenu', () => {
   it('renders each narrow-menu action on a separate row', () => {
     const renderedRows = rows(createKnowledgeMenu(t));
 
-    expect(renderedRows).toHaveLength(6);
+    expect(renderedRows).toHaveLength(7);
     expect(renderedRows.every((row) => row.length === 1)).toBe(true);
     expect(renderedRows.flat().map((button) => button.callback_data)).toEqual([
       'knowledge:status',
@@ -47,6 +54,7 @@ describe('createKnowledgeMenu', () => {
       'knowledge:sources',
       'knowledge:history',
       'knowledge:test_query',
+      'knowledge:providers',
       'menu:main',
     ]);
   });
@@ -98,6 +106,29 @@ describe('createKnowledgeMenu', () => {
       'knowledge:write:analysis',
       'knowledge:full_reindex:analysis',
       'knowledge:sources',
+    ]);
+  });
+
+  it('renders provider settings actions on separate rows', () => {
+    const renderedRows = rows(createKnowledgeMenu(t, 'providers'));
+
+    expect(renderedRows.every((row) => row.length === 1)).toBe(true);
+    expect(renderedRows.flat().map((button) => button.callback_data)).toEqual([
+      'knowledge:providers:chat',
+      'knowledge:providers:embedding',
+      'knowledge:providers:model',
+      'knowledge:view',
+    ]);
+  });
+
+  it('renders chat provider choices including deepseek', () => {
+    const renderedRows = rows(createKnowledgeMenu(t, 'chat-providers'));
+
+    expect(renderedRows.flat().map((button) => button.callback_data)).toEqual([
+      'knowledge:providers:chat:set:gemini',
+      'knowledge:providers:chat:set:openai',
+      'knowledge:providers:chat:set:deepseek',
+      'knowledge:providers',
     ]);
   });
 });

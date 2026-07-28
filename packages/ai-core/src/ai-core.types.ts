@@ -3,7 +3,8 @@ import type { AsyncResult, Result } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
 /** AI provider identifier */
-export type AIProviderType = 'gemini' | 'openai';
+export type AIProviderType = 'gemini' | 'openai' | 'deepseek';
+export type AIEmbeddingProviderType = 'gemini' | 'openai';
 
 /** RAG content type discriminator */
 export type AIContentType =
@@ -21,7 +22,7 @@ export type ConfirmationLevel = 'none' | 'simple' | 'detailed' | 'escalated';
 export interface AIConfig {
   enabled: boolean;
   provider: AIProviderType;
-  embeddingProvider: AIProviderType;
+  embeddingProvider: AIEmbeddingProviderType;
   embeddingModel: string;
   embeddingDimensions: number;
   confidenceThreshold: number;

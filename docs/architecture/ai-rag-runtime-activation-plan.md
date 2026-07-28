@@ -221,8 +221,15 @@ Exit criteria:
 
 ## Provider Policy
 
-`TEMPOT_AI_PROVIDER` controls the chat provider. `AI_EMBEDDING_PROVIDER`
-controls the embedding provider and supports `gemini` or `openai`. The current
+`TEMPOT_AI_PROVIDER` controls the default chat provider. The knowledge
+management bot UI can override the active chat provider through dynamic settings
+without storing API keys. Supported chat providers are `gemini`, `openai`, and
+`deepseek`. DeepSeek uses the OpenAI-compatible provider path with
+`DEEPSEEK_API_KEY` and is limited to chat/generation, not embeddings.
+
+`AI_EMBEDDING_PROVIDER` controls the default embedding provider and supports
+`gemini` or `openai`. The knowledge management bot UI can override the active
+embedding provider and embedding model through dynamic settings. The current
 embedding default is Google Gemini through
 `AI_EMBEDDING_MODEL=gemini-embedding-2-preview`. OpenAI embeddings are enabled
 with `AI_EMBEDDING_PROVIDER=openai`, `AI_EMBEDDING_MODEL=text-embedding-3-large`,

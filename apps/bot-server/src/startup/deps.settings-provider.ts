@@ -27,6 +27,16 @@ function isBotAccessMode(value: unknown): value is DynamicSettingDefinitions['bo
   return value === BOT_ACCESS_MODES.private || value === BOT_ACCESS_MODES.public;
 }
 
+function isAIChatProvider(value: unknown): value is DynamicSettingDefinitions['ai_chat_provider'] {
+  return value === 'env' || value === 'gemini' || value === 'openai' || value === 'deepseek';
+}
+
+function isAIEmbeddingProvider(
+  value: unknown,
+): value is DynamicSettingDefinitions['ai_embedding_provider'] {
+  return value === 'env' || value === 'gemini' || value === 'openai';
+}
+
 function isDynamicSettingValue<K extends DynamicSettingKey>(
   key: K,
   value: unknown,
@@ -37,6 +47,8 @@ function isDynamicSettingValue<K extends DynamicSettingKey>(
   if (key === 'bot_access_mode') {
     return isBotAccessMode(value);
   }
+  if (key === 'ai_chat_provider') return isAIChatProvider(value);
+  if (key === 'ai_embedding_provider') return isAIEmbeddingProvider(value);
   return typeof value === typeof DYNAMIC_SETTING_DEFAULTS[key];
 }
 

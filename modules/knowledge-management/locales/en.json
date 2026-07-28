@@ -17,13 +17,23 @@
       "confirm_write": "✅ Confirm write",
       "confirm_reindex": "✅ Confirm reindex",
       "cancel": "↩️ Cancel",
-      "back": "↩️ Back"
+      "back": "↩️ Back",
+      "providers": "⚙️ AI providers",
+      "chat_provider": "💬 Chat provider",
+      "embedding_provider": "🧠 Embeddings",
+      "embedding_model": "🧬 Embedding model",
+      "provider_gemini": "✨ Gemini",
+      "provider_openai": "🔷 OpenAI",
+      "provider_deepseek": "🔎 DeepSeek",
+      "model_gemini_v2": "🧠 Gemini v2",
+      "model_openai_small": "🧠 OpenAI small",
+      "model_openai_large": "🧠 OpenAI large"
     },
     "view": {
       "title": "Knowledge management",
       "unavailable": "Knowledge operations are not available in this runtime. Review AI/RAG service configuration and try again.",
       "status_failed": "RAG status could not be loaded. Review AI, database, and pgvector configuration.",
-      "status": "RAG readiness\nAI enabled: {{ai}}\nProvider: {{provider}}\nDatabase: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nMounted sources: {{mounted}}",
+      "status": "RAG readiness\nAI enabled: {{ai}}\nEmbedding key ready: {{provider}}\nChat provider: {{chatProvider}} ({{chatProviderReady}})\nEmbedding provider: {{embeddingProvider}}\nEmbedding model: {{embeddingModel}}\nDatabase: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nMounted sources: {{mounted}}",
       "sources_title": "Approved knowledge sources: {{count}}",
       "sources_empty": "No approved knowledge source profiles are configured.",
       "sources_failed": "Knowledge source profiles could not be loaded.",
@@ -47,7 +57,13 @@
       "history_empty": "No knowledge ingestion jobs are available yet.",
       "history_failed": "Knowledge ingestion history could not be loaded.",
       "full_reindex_planned": "Full reindex requires two confirmations and will be enabled after the write path is verified.",
-      "test_query_hint": "Use /ask followed by a question to test retrieval after indexing is complete."
+      "test_query_hint": "Use /ask followed by a question to test retrieval after indexing is complete.",
+      "providers": "AI provider settings\nChat: {{chat}} ({{chatReady}})\nEmbeddings: {{embedding}} ({{embeddingReady}})\nEmbedding model: {{model}}\n\nAPI keys are read from the runtime environment and are never stored from Telegram.",
+      "providers_failed": "AI provider settings could not be loaded.",
+      "provider_updated": "AI chat provider was updated to {{provider}}.",
+      "embedding_provider_updated": "Embedding provider was updated to {{provider}}.\nRebuild the knowledge index before using search answers.",
+      "embedding_model_updated": "Embedding model was updated to {{model}}.\nRebuild the knowledge index before using search answers.",
+      "provider_update_failed": "AI provider settings could not be updated. Review runtime settings storage and try again."
     },
     "source": {
       "product_help": "Product help",

@@ -3,26 +3,44 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { ok } from 'neverthrow';
 import type { AIEventBus, AILogger, AIRegistry } from '@tempot/ai-core';
-import type { ModuleEventBus, ModuleLogger } from '../bot-server.types.js';
+import type { ModuleEventBus, ModuleLogger, SettingsProvider } from '../bot-server.types.js';
 import type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 import { discoverMarkdownFiles, readKnowledgeTextFile } from './knowledge-file-discovery.js';
 import {
   loadCustomKnowledgeProfiles,
   saveCustomKnowledgeProfiles,
 } from './knowledge-custom-profiles.store.js';
+import {
+  applyKnowledgeAISettings,
+  resolveKnowledgeAISettings,
+  setKnowledgeChatProvider,
+  setKnowledgeEmbeddingModel,
+  setKnowledgeEmbeddingProvider,
+} from './knowledge-ai-settings.js';
 
 type ProviderRegistryCandidate = {
   languageModel?: AIRegistry['languageModel'];
   embeddingModel?: AIRegistry['textEmbeddingModel'];
 };
 
-export function liveKnowledgeDeps(opts: {
+type LiveKnowledgeOptions = {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
-}): KnowledgeProviderDeps {
+  settings?: SettingsProvider;
+};
+
+export function liveKnowledgeDeps(opts: LiveKnowledgeOptions): KnowledgeProviderDeps {
   return {
     aiEnabled: () => process.env['TEMPOT_AI'] !== 'false',
-    providerConfigured: () => embeddingProviderConfigured(),
+    providerConfigured: async () =>
+      (await resolveKnowledgeAISettings(opts.settings)).embeddingProviderConfigured,
+    providerSettings: () => resolveKnowledgeAISettings(opts.settings),
+    setChatProvider: (provider, actorId) =>
+      setKnowledgeChatProvider(opts.settings, provider, actorId),
+    setEmbeddingProvider: (provider, actorId) =>
+      setKnowledgeEmbeddingProvider(opts.settings, provider, actorId),
+    setEmbeddingModel: (model, actorId) =>
+      setKnowledgeEmbeddingModel(opts.settings, model, actorId),
     databaseConfigured: () => Boolean(process.env['DATABASE_URL']),
     vectorReady: () =>
       queryBoolean("select exists (select 1 from pg_extension where extname = 'vector')"),
@@ -41,15 +59,9 @@ export function liveKnowledgeDeps(opts: {
   };
 }
 
-function embeddingProviderConfigured(): boolean {
-  const provider = process.env['AI_EMBEDDING_PROVIDER'] ?? 'gemini';
-  if (provider === 'openai') return Boolean(process.env['OPENAI_API_KEY']);
-  return Boolean(process.env['GOOGLE_GENERATIVE_AI_API_KEY']);
-}
-
 async function ingestLive(
   input: Parameters<KnowledgeProviderDeps['ingestContent']>[0],
-  opts: { logger: ModuleLogger; eventBus: ModuleEventBus },
+  opts: LiveKnowledgeOptions,
 ): Promise<void> {
   const aiCore = await import('@tempot/ai-core');
   const runtime = await createIngestionRuntime(opts, aiCore);
@@ -62,12 +74,13 @@ async function ingestLive(
 }
 
 async function createIngestionRuntime(
-  opts: { logger: ModuleLogger; eventBus: ModuleEventBus },
+  opts: LiveKnowledgeOptions,
   aiCore: typeof import('@tempot/ai-core'),
 ) {
   const config = aiCore.loadAIConfig();
   if (config.isErr()) throw config.error;
-  const registry = aiCore.createAIProviderRegistry(config.value);
+  const runtimeConfig = await applyKnowledgeAISettings(config.value, opts.settings);
+  const registry = aiCore.createAIProviderRegistry(runtimeConfig);
   if (registry.isErr()) throw registry.error;
   const pool = new Pool({ connectionString: process.env['DATABASE_URL'] });
   const db = drizzle(pool);
@@ -77,7 +90,7 @@ async function createIngestionRuntime(
     toAiEventBus(opts.eventBus),
   );
   const embeddingService = new aiCore.EmbeddingService(db, {
-    config: config.value,
+    config: runtimeConfig,
     resilience,
     registry: toAiRegistry(registry.value),
   });

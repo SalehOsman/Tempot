@@ -5,6 +5,8 @@ const mocks = vi.hoisted(() => ({
   wrapLanguageModel: vi.fn(),
   google: { chat: vi.fn() },
   openai: { chat: vi.fn() },
+  createOpenAI: vi.fn(),
+  deepseek: { chat: vi.fn() },
 }));
 
 vi.mock('ai', () => ({
@@ -18,6 +20,7 @@ vi.mock('@ai-sdk/google', () => ({
 
 vi.mock('@ai-sdk/openai', () => ({
   openai: mocks.openai,
+  createOpenAI: mocks.createOpenAI,
 }));
 
 import {
@@ -32,6 +35,7 @@ import { DEFAULT_AI_CONFIG } from '../../src/ai-core.types.js';
 describe('AIProviderFactory', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.createOpenAI.mockReturnValue(mocks.deepseek);
   });
 
   describe('createAIProviderRegistry', () => {
@@ -41,9 +45,14 @@ describe('AIProviderFactory', () => {
 
       const result = createAIProviderRegistry(DEFAULT_AI_CONFIG);
       expect(result.isOk()).toBe(true);
+      expect(mocks.createOpenAI).toHaveBeenCalledWith({
+        baseURL: 'https://api.deepseek.com',
+        apiKey: '',
+      });
       expect(mocks.createProviderRegistry).toHaveBeenCalledWith({
         google: mocks.google,
         openai: mocks.openai,
+        deepseek: mocks.deepseek,
       });
     });
 
@@ -72,6 +81,11 @@ describe('AIProviderFactory', () => {
     it('returns openai:gpt-4o for openai chat', () => {
       const config: AIConfig = { ...DEFAULT_AI_CONFIG, provider: 'openai' };
       expect(getModelId(config, 'chat')).toBe('openai:gpt-4o');
+    });
+
+    it('returns deepseek:deepseek-v4-flash for deepseek chat', () => {
+      const config: AIConfig = { ...DEFAULT_AI_CONFIG, provider: 'deepseek' };
+      expect(getModelId(config, 'chat')).toBe('deepseek:deepseek-v4-flash');
     });
 
     it('returns google:{embeddingModel} for gemini embedding', () => {

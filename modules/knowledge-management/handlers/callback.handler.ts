@@ -1,25 +1,15 @@
 import type { Context, NextFunction } from 'grammy';
 import { editOrSend } from '@tempot/ux-helpers';
 import { getDeps } from '../deps.context.js';
-import { createKnowledgeMenu, type KnowledgeMenuSurface } from '../menus/knowledge-menu.factory.js';
+import { createKnowledgeMenu } from '../menus/knowledge-menu.factory.js';
 import { KnowledgeViewService } from '../services/knowledge-view.service.js';
-import type { KnowledgeSourceProfile } from '../contracts/knowledge-operations.types.js';
+import type { KnowledgeView, ResolveContext } from './knowledge-view.types.js';
+import {
+  isProviderSettingsCallback,
+  resolveProviderSettingsView,
+} from './provider-settings.callback.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
-
-interface KnowledgeView {
-  readonly text: string;
-  readonly surface: KnowledgeMenuSurface;
-  readonly token?: string;
-  readonly profileId?: string;
-  readonly profiles?: readonly KnowledgeSourceProfile[];
-}
-
-interface ResolveContext {
-  readonly t: (key: string, options?: Record<string, unknown>) => string;
-  readonly actorId: string;
-  readonly service: KnowledgeViewService;
-}
 
 export async function handleCallbackQuery(
   ctx: Context,
@@ -119,6 +109,9 @@ async function resolveView(ctx: Context, callbackData: string): Promise<Knowledg
     actorId: ctx.from?.id ? String(ctx.from.id) : 'unknown',
     service: new KnowledgeViewService(knowledge),
   };
+  if (isProviderSettingsCallback(callbackData)) {
+    return resolveProviderSettingsView(context, callbackData);
+  }
   if (callbackData === 'knowledge:status') {
     return {
       text: await context.service.renderStatus(context.t, context.actorId),

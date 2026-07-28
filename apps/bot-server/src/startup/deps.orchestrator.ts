@@ -73,6 +73,7 @@ function buildLoaderDeps(input: {
   readonly interactionEventRepository: InteractionEventRepository;
 }): LoaderDeps {
   const { opts, abilityRegistry, auditLogRepository, interactionEventRepository } = input;
+  const settings = buildSettingsProvider(opts.settingsService);
   const backups = buildBackupOperationsProvider({
     auditLogRepository,
     eventBus: opts.eventBus,
@@ -81,13 +82,14 @@ function buildLoaderDeps(input: {
   const knowledge = buildKnowledgeOperationsProvider({
     eventBus: buildModuleEventBusAdapter(opts),
     logger: opts.log,
+    settings,
   });
   return {
     logger: opts.log,
     eventBus: buildModuleEventBusAdapter(opts),
     sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
     i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
-    settings: buildSettingsProvider(opts.settingsService),
+    settings,
     protectedData: opts.protectedDataService,
     auditLog: {
       findMany: async (args: Record<string, unknown>) => {

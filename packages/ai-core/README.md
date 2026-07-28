@@ -66,18 +66,22 @@ Runtime activation is tracked in:
 ```env
 TEMPOT_AI=true
 TEMPOT_AI_PROVIDER=gemini
+AI_EMBEDDING_PROVIDER=gemini
 AI_EMBEDDING_MODEL=gemini-embedding-2-preview
 AI_EMBEDDING_DIMENSIONS=3072
 GEMINI_API_KEY=...
 OPENAI_API_KEY=...
+DEEPSEEK_API_KEY=...
 ```
 
-`TEMPOT_AI_PROVIDER` selects the chat provider. The package defaults to Gemini
-when the variable is omitted.
+`TEMPOT_AI_PROVIDER` selects the chat provider. Supported values are `gemini`,
+`openai`, and `deepseek`. DeepSeek uses the OpenAI-compatible provider path with
+`DEEPSEEK_API_KEY`.
 
-Embedding generation currently uses `AI_EMBEDDING_MODEL`, with
-`gemini-embedding-2-preview` as the default. Embedding-provider changes require
-re-indexing because vectors from different providers are not compatible.
+Embedding generation uses `AI_EMBEDDING_PROVIDER` and `AI_EMBEDDING_MODEL`, with
+Gemini and `gemini-embedding-2-preview` as the defaults. Embedding-provider or
+model changes require re-indexing because vectors from different providers are
+not compatible.
 
 ## API
 

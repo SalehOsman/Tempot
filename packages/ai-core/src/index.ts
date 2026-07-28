@@ -6,6 +6,7 @@ export { guardEnabled } from './ai-core.guard.js';
 // Types
 export type {
   AIProviderType,
+  AIEmbeddingProviderType,
   AIContentType,
   ConfirmationLevel,
   AIConfig,
@@ -76,10 +77,7 @@ export type {
   RetrieveOptions,
 } from './rag/rag-pipeline.service.js';
 export { buildDefaultRetrievalPlan } from './rag/retrieval-plan.builder.js';
-export {
-  executeRetrievalPlan,
-  RAG_MESSAGE_KEYS,
-} from './rag/retrieval-plan.executor.js';
+export { executeRetrievalPlan, RAG_MESSAGE_KEYS } from './rag/retrieval-plan.executor.js';
 export {
   validateContentBlock,
   validateContentSource,

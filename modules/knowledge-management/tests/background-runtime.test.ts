@@ -83,6 +83,10 @@ function baseProvider(): KnowledgeOperationsProvider {
     confirmFullReindex: vi.fn(),
     listJobs: vi.fn(),
     testQuery: vi.fn(),
+    getProviderSettings: vi.fn(),
+    setChatProvider: vi.fn(),
+    setEmbeddingProvider: vi.fn(),
+    setEmbeddingModel: vi.fn(),
   };
 }
 

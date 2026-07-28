@@ -50,6 +50,13 @@ describe('loadAIConfig', () => {
     expect(result._unsafeUnwrap().provider).toBe('openai');
   });
 
+  it('accepts deepseek provider for chat', () => {
+    process.env.TEMPOT_AI_PROVIDER = 'deepseek';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().provider).toBe('deepseek');
+  });
+
   it('returns err for invalid provider', () => {
     process.env.TEMPOT_AI_PROVIDER = 'anthropic';
     const result = loadAIConfig();
@@ -74,6 +81,13 @@ describe('loadAIConfig', () => {
 
   it('returns err for invalid embedding provider', () => {
     process.env.AI_EMBEDDING_PROVIDER = 'anthropic';
+    const result = loadAIConfig();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.PROVIDER_UNKNOWN);
+  });
+
+  it('rejects deepseek as an embedding provider', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'deepseek';
     const result = loadAIConfig();
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.PROVIDER_UNKNOWN);

@@ -1,10 +1,25 @@
 import type {
-  IngestionSummary,
   KnowledgeOperationsProvider,
   KnowledgeSourceProfile,
-  RagReadinessSnapshot,
   KnowledgeCustomProfileInput,
+  KnowledgeChatProvider,
+  KnowledgeEmbeddingProvider,
+  KnowledgeEmbeddingModel,
 } from '../contracts/knowledge-operations.types.js';
+import {
+  failureReason,
+  boolLabel,
+  formatProfile,
+  formatStatus,
+  formatSummary,
+  profileName,
+} from './knowledge-summary.presenter.js';
+import {
+  chatProviderUpdatedView,
+  embeddingModelUpdatedView,
+  embeddingProviderUpdatedView,
+  providerSettingsView,
+} from './provider-settings-view.presenter.js';
 
 type TranslationFn = (key: string, options?: Record<string, unknown>) => string;
 
@@ -16,6 +31,44 @@ export class KnowledgeViewService {
     const result = await this.provider.getReadiness(actorId);
     if (!result.success) return t('knowledge-management.view.status_failed');
     return formatStatus(t, result.value);
+  }
+
+  async renderProviderSettings(t: TranslationFn, actorId: string): Promise<string> {
+    return providerSettingsView(this.provider, t, actorId);
+  }
+
+  async renderSetChatProvider(
+    t: TranslationFn,
+    actorId: string,
+    provider: KnowledgeChatProvider,
+  ): Promise<string> {
+    return chatProviderUpdatedView({
+      provider: this.provider,
+      t,
+      actorId,
+      nextProvider: provider,
+    });
+  }
+
+  async renderSetEmbeddingProvider(
+    t: TranslationFn,
+    actorId: string,
+    provider: KnowledgeEmbeddingProvider,
+  ): Promise<string> {
+    return embeddingProviderUpdatedView({
+      provider: this.provider,
+      t,
+      actorId,
+      nextProvider: provider,
+    });
+  }
+
+  async renderSetEmbeddingModel(
+    t: TranslationFn,
+    actorId: string,
+    model: KnowledgeEmbeddingModel,
+  ): Promise<string> {
+    return embeddingModelUpdatedView({ provider: this.provider, t, actorId, model });
   }
 
   async renderSources(t: TranslationFn, actorId: string): Promise<string> {
@@ -117,50 +170,4 @@ export class KnowledgeViewService {
     if (!result.success) return t('knowledge-management.view.write_failed');
     return formatSummary(t, 'knowledge-management.view.write_completed', result.value);
   }
-}
-
-function formatStatus(t: TranslationFn, status: RagReadinessSnapshot): string {
-  return t('knowledge-management.view.status', {
-    ai: boolLabel(t, status.aiEnabled),
-    provider: boolLabel(t, status.providerConfigured),
-    database: boolLabel(t, status.databaseConfigured),
-    vector: boolLabel(t, status.vectorReady),
-    embeddings: status.embeddingsCount,
-    mounted: `${status.mountedProfiles}/${status.profileCount}`,
-  });
-}
-
-function formatProfile(t: TranslationFn, profile: KnowledgeSourceProfile, index: number): string {
-  return t('knowledge-management.view.source_item', {
-    index,
-    name: profileName(t, profile),
-    roots: profile.rootLabels.join(', '),
-    mounted: boolLabel(t, profile.mounted),
-  });
-}
-
-function profileName(t: TranslationFn, profile: KnowledgeSourceProfile): string {
-  return profile.displayName ?? t(profile.labelKey);
-}
-
-function formatSummary(t: TranslationFn, titleKey: string, summary: IngestionSummary): string {
-  return t(titleKey, {
-    id: summary.jobId,
-    profile: summary.profileId,
-    processed: summary.processed,
-    skipped: summary.skipped,
-    failed: summary.failed,
-    chunks: summary.chunks,
-  });
-}
-
-function boolLabel(t: TranslationFn, value: boolean): string {
-  return t(value ? 'knowledge-management.value.yes' : 'knowledge-management.value.no');
-}
-
-function failureReason(t: TranslationFn, reason: string | undefined): string {
-  if (reason === 'quota_exceeded') return t('knowledge-management.reason.quota_exceeded');
-  if (reason === 'embedding_failed') return t('knowledge-management.reason.embedding_failed');
-  if (reason === 'database_failed') return t('knowledge-management.reason.database_failed');
-  return t('knowledge-management.reason.unknown');
 }

@@ -4,7 +4,7 @@ import {
 } from 'ai';
 import type { LanguageModel, LanguageModelMiddleware } from 'ai';
 import { google } from '@ai-sdk/google';
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI, openai } from '@ai-sdk/openai';
 import { ok, err } from 'neverthrow';
 import type { Result } from 'neverthrow';
 import { AppError } from '@tempot/shared';
@@ -28,7 +28,15 @@ export function createAIProviderRegistry(config: AIConfig): Result<ProviderRegis
   }
 
   try {
-    const registry = createProviderRegistry({ google, openai } as unknown as ProvidersMap);
+    const deepseek = createOpenAI({
+      baseURL: 'https://api.deepseek.com',
+      apiKey: process.env['DEEPSEEK_API_KEY'] ?? '',
+    });
+    const registry = createProviderRegistry({
+      google,
+      openai,
+      deepseek,
+    } as unknown as ProvidersMap);
 
     return ok(registry);
   } catch (error: unknown) {
@@ -47,12 +55,14 @@ export function getModelId(config: AIConfig, purpose: 'chat' | 'embedding'): str
       return 'google:gemini-2.0-flash';
     case 'openai':
       return 'openai:gpt-4o';
+    case 'deepseek':
+      return 'deepseek:deepseek-v4-flash';
     default:
       return 'google:gemini-2.0-flash';
   }
 }
 
-function providerPrefix(provider: AIConfig['provider']): string {
+function providerPrefix(provider: AIConfig['embeddingProvider']): string {
   return provider === 'gemini' ? 'google' : 'openai';
 }
 
