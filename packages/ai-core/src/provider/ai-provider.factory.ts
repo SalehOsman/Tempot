@@ -39,7 +39,7 @@ export function createAIProviderRegistry(config: AIConfig): Result<ProviderRegis
 /** Get model ID string for the configured provider */
 export function getModelId(config: AIConfig, purpose: 'chat' | 'embedding'): string {
   if (purpose === 'embedding') {
-    return `google:${config.embeddingModel}`;
+    return `${providerPrefix(config.embeddingProvider)}:${config.embeddingModel}`;
   }
 
   switch (config.provider) {
@@ -50,6 +50,10 @@ export function getModelId(config: AIConfig, purpose: 'chat' | 'embedding'): str
     default:
       return 'google:gemini-2.0-flash';
   }
+}
+
+function providerPrefix(provider: AIConfig['provider']): string {
+  return provider === 'gemini' ? 'google' : 'openai';
 }
 
 /** Wrap a model with a chain of middleware (applied innermost-first) — design doc Concern 6 */

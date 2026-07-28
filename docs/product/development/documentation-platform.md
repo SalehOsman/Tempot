@@ -116,6 +116,7 @@ environment variables to be configured:
 - `DATABASE_URL`
 - `TEMPOT_AI`
 - `TEMPOT_AI_PROVIDER`
+- `AI_EMBEDDING_PROVIDER`
 - `AI_EMBEDDING_MODEL`
 - Provider credentials required by the selected Vercel AI SDK provider
 

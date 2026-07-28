@@ -12,6 +12,7 @@ describe('ai-core.types', () => {
     it('has correct default values', () => {
       expect(DEFAULT_AI_CONFIG.enabled).toBe(true);
       expect(DEFAULT_AI_CONFIG.provider).toBe('gemini');
+      expect(DEFAULT_AI_CONFIG.embeddingProvider).toBe('gemini');
       expect(DEFAULT_AI_CONFIG.embeddingModel).toBe('gemini-embedding-2-preview');
       expect(DEFAULT_AI_CONFIG.embeddingDimensions).toBe(3072);
       expect(DEFAULT_AI_CONFIG.confidenceThreshold).toBe(0.7);

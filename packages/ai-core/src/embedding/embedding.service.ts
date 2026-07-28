@@ -14,6 +14,7 @@ import type {
 import type { ResilienceService } from '../resilience/resilience.service.js';
 import type { AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
+import { getModelId } from '../provider/ai-provider.factory.js';
 
 /** Dependencies for EmbeddingService (max-params = 3) */
 export interface EmbeddingServiceDeps {
@@ -45,7 +46,7 @@ export class EmbeddingService extends DrizzleVectorRepository {
     // Generate embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
       const { embedding } = await embed({
-        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
+        model: this.registry.textEmbeddingModel(getModelId(this.config, 'embedding')),
         value: formattedContent,
       });
       return embedding;
@@ -82,7 +83,7 @@ export class EmbeddingService extends DrizzleVectorRepository {
     // Generate query embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
       const { embedding } = await embed({
-        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
+        model: this.registry.textEmbeddingModel(getModelId(this.config, 'embedding')),
         value: formattedQuery,
       });
       return embedding;

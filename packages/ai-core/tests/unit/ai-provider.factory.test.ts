@@ -74,8 +74,17 @@ describe('AIProviderFactory', () => {
       expect(getModelId(config, 'chat')).toBe('openai:gpt-4o');
     });
 
-    it('returns google:{embeddingModel} for embedding (always google)', () => {
+    it('returns google:{embeddingModel} for gemini embedding', () => {
       expect(getModelId(DEFAULT_AI_CONFIG, 'embedding')).toBe('google:gemini-embedding-2-preview');
+    });
+
+    it('returns openai:{embeddingModel} for openai embedding', () => {
+      const config: AIConfig = {
+        ...DEFAULT_AI_CONFIG,
+        embeddingProvider: 'openai',
+        embeddingModel: 'text-embedding-3-large',
+      };
+      expect(getModelId(config, 'embedding')).toBe('openai:text-embedding-3-large');
     });
   });
 

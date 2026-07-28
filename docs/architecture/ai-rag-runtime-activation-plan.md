@@ -221,10 +221,16 @@ Exit criteria:
 
 ## Provider Policy
 
-`TEMPOT_AI_PROVIDER` controls the chat provider. The current embedding default
-is Google Gemini through `AI_EMBEDDING_MODEL=gemini-embedding-2-preview`.
+`TEMPOT_AI_PROVIDER` controls the chat provider. `AI_EMBEDDING_PROVIDER`
+controls the embedding provider and supports `gemini` or `openai`. The current
+embedding default is Google Gemini through
+`AI_EMBEDDING_MODEL=gemini-embedding-2-preview`. OpenAI embeddings are enabled
+with `AI_EMBEDDING_PROVIDER=openai`, `AI_EMBEDDING_MODEL=text-embedding-3-large`,
+and `OPENAI_API_KEY`.
+
 Embedding provider changes are not safe as a live runtime fallback because
-different providers produce incompatible vector spaces.
+different providers produce incompatible vector spaces. Switching provider or
+model requires rebuilding the vector index.
 
 Any future embedding-provider switch must include:
 

@@ -79,3 +79,13 @@ failure with Google Gemini reporting quota exhaustion for
 preserves the original embedding-provider error under the strict
 `ai-core.content.chunk_failed` details, and Knowledge Management maps quota or
 rate-limit signals to a dedicated localized `quota_exceeded` reason.
+
+OpenAI embedding routing was added after Gemini quota exhaustion. `ai-core`
+now supports `AI_EMBEDDING_PROVIDER=openai` with
+`AI_EMBEDDING_MODEL=text-embedding-3-large` and `OPENAI_API_KEY`. The runtime
+builds embedding model IDs from the configured embedding provider instead of
+hardcoding Google, while preserving the requirement to rebuild vectors after
+provider or model changes.
+Docker runtime verification with temporary environment overrides confirmed
+`embeddingProvider=openai` resolves to
+`embeddingModelId=openai:text-embedding-3-large`.

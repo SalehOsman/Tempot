@@ -22,7 +22,7 @@ export function liveKnowledgeDeps(opts: {
 }): KnowledgeProviderDeps {
   return {
     aiEnabled: () => process.env['TEMPOT_AI'] !== 'false',
-    providerConfigured: () => Boolean(process.env['GOOGLE_GENERATIVE_AI_API_KEY']),
+    providerConfigured: () => embeddingProviderConfigured(),
     databaseConfigured: () => Boolean(process.env['DATABASE_URL']),
     vectorReady: () =>
       queryBoolean("select exists (select 1 from pg_extension where extname = 'vector')"),
@@ -39,6 +39,12 @@ export function liveKnowledgeDeps(opts: {
     saveCustomProfiles: saveCustomKnowledgeProfiles,
     logger: opts.logger,
   };
+}
+
+function embeddingProviderConfigured(): boolean {
+  const provider = process.env['AI_EMBEDDING_PROVIDER'] ?? 'gemini';
+  if (provider === 'openai') return Boolean(process.env['OPENAI_API_KEY']);
+  return Boolean(process.env['GOOGLE_GENERATIVE_AI_API_KEY']);
 }
 
 async function ingestLive(

@@ -21,6 +21,7 @@ export type ConfirmationLevel = 'none' | 'simple' | 'detailed' | 'escalated';
 export interface AIConfig {
   enabled: boolean;
   provider: AIProviderType;
+  embeddingProvider: AIProviderType;
   embeddingModel: string;
   embeddingDimensions: number;
   confidenceThreshold: number;
@@ -114,6 +115,7 @@ export interface ContentChunk {
 export const DEFAULT_AI_CONFIG: AIConfig = {
   enabled: true,
   provider: 'gemini',
+  embeddingProvider: 'gemini',
   embeddingModel: 'gemini-embedding-2-preview',
   embeddingDimensions: 3072,
   confidenceThreshold: 0.7,

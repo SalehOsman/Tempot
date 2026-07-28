@@ -24,6 +24,7 @@ describe('loadAIConfig', () => {
     const config = result._unsafeUnwrap();
     expect(config.enabled).toBe(true);
     expect(config.provider).toBe('gemini');
+    expect(config.embeddingProvider).toBe('gemini');
     expect(config.embeddingModel).toBe('gemini-embedding-2-preview');
     expect(config.embeddingDimensions).toBe(3072);
   });
@@ -60,6 +61,22 @@ describe('loadAIConfig', () => {
     process.env.AI_EMBEDDING_MODEL = 'custom-model';
     const result = loadAIConfig();
     expect(result._unsafeUnwrap().embeddingModel).toBe('custom-model');
+  });
+
+  it('accepts openai embedding provider from env', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'openai';
+    process.env.AI_EMBEDDING_MODEL = 'text-embedding-3-large';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().embeddingProvider).toBe('openai');
+    expect(result._unsafeUnwrap().embeddingModel).toBe('text-embedding-3-large');
+  });
+
+  it('returns err for invalid embedding provider', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'anthropic';
+    const result = loadAIConfig();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.PROVIDER_UNKNOWN);
   });
 
   it('overrides embedding dimensions from env', () => {

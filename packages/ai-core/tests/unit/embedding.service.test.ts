@@ -57,6 +57,7 @@ vi.mock('drizzle-orm', () => ({
 const testConfig: AIConfig = {
   enabled: true,
   provider: 'gemini',
+  embeddingProvider: 'gemini',
   embeddingModel: 'gemini-embedding-2-preview',
   embeddingDimensions: 3072,
   confidenceThreshold: 0.7,
@@ -193,6 +194,29 @@ describe('EmbeddingService', () => {
 
       // create should not be called when embedding fails
       expect(mockCreate).not.toHaveBeenCalled();
+    });
+
+    it('uses configured openai embedding model when embedding provider is openai', async () => {
+      const { EmbeddingService } = await import('../../src/embedding/embedding.service.js');
+      const openaiService = new EmbeddingService(db as never, {
+        config: {
+          ...testConfig,
+          embeddingProvider: 'openai',
+          embeddingModel: 'text-embedding-3-large',
+        },
+        resilience: resilience as never,
+        registry,
+      });
+
+      await openaiService.embedAndStore({
+        contentId: 'doc-openai',
+        contentType: 'developer-docs',
+        content: 'OpenAI embedding content',
+      });
+      const embeddingFn = resilience.executeEmbedding.mock.calls[0][0] as () => Promise<unknown>;
+      await embeddingFn();
+
+      expect(registry.textEmbeddingModel).toHaveBeenCalledWith('openai:text-embedding-3-large');
     });
   });
 
