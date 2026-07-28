@@ -24,7 +24,7 @@ Telegram bot.
 | Check | Result |
 | --- | --- |
 | `pnpm --filter @tempot/knowledge-management test` after one-step write | Passed, 10 tests. |
-| `pnpm --dir apps/bot-server exec vitest run tests/unit/knowledge-operations.provider.test.ts` | Passed, 7 tests. |
+| `pnpm --dir apps/bot-server exec vitest run tests/unit/knowledge-operations.provider.test.ts` | Passed, 9 tests. |
 | `pnpm --filter @tempot/knowledge-management build` | Passed. |
 | `pnpm lint` | Passed. |
 | `pnpm cms:check` | Passed. |
@@ -64,3 +64,11 @@ localized embedding-provider failure reason. Runtime checks confirmed
 `GOOGLE_GENERATIVE_AI_API_KEY`, `TEMPOT_AI_PROVIDER`, and `DATABASE_URL` are
 present inside the container, so the remaining failure is provider/model/quota
 or outbound connectivity rather than a missing environment variable.
+
+Follow-up verification covered structured `AppError`-style failures where the
+error code is carried on `code/details/cause` instead of a plain message. The
+bot-server runtime now records the public `reason` in `knowledge_ingestion_failed`
+logs and maps `ai-core.content.chunk_failed` plus nested
+`ai-core.embedding.failed` to the localized embedding-provider failure text.
+`docker compose build bot-server` passed, and image inspection confirmed
+`knowledge-ingestion-error-reason.js` is present in `/app/dist/startup/`.

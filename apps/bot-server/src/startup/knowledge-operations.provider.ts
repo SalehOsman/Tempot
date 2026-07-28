@@ -18,6 +18,7 @@ import {
   allKnowledgeProfiles,
   findKnowledgeProfile,
 } from './knowledge-custom-profile.actions.js';
+import { knowledgeIngestionFailureReason } from './knowledge-ingestion-error-reason.js';
 
 export type { KnowledgeProviderDeps } from './knowledge-provider.deps.js';
 
@@ -114,13 +115,15 @@ async function run(
     state.jobs.unshift(summary);
     return okValue(summary);
   } catch (error) {
+    const reason = knowledgeIngestionFailureReason(error);
     state.deps.logger.warn({
       msg: 'knowledge_ingestion_failed',
       error: safeError(error),
+      reason,
       mode: write ? 'write' : 'dry-run',
       profileId,
     });
-    return fail('knowledge.ingestion_failed', publicReason(error));
+    return fail('knowledge.ingestion_failed', reason);
   }
 }
 
@@ -154,17 +157,4 @@ function fail<T>(code: string, reason?: string): KnowledgeOperationResult<T> {
 
 function safeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function publicReason(error: unknown): string {
-  const message = safeError(error);
-  if (isEmbeddingFailure(message)) return 'embedding_failed';
-  if (message.includes('database')) return 'database_failed';
-  return 'unknown';
-}
-
-function isEmbeddingFailure(message: string): boolean {
-  return (
-    message.includes('ai-core.embedding.failed') || message.includes('ai-core.content.chunk_failed')
-  );
 }

@@ -111,6 +111,21 @@ describe('knowledge operations provider', () => {
     if (result.success) return;
     expect(result.error.reason).toBe('embedding_failed');
   });
+
+  it('maps structured content chunk errors to embedding provider failures', async () => {
+    const deps = createDeps();
+    deps.ingestContent.mockRejectedValue({
+      code: 'ai-core.content.chunk_failed',
+      details: { error: 'ai-core.embedding.failed' },
+    });
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    const result = await provider.writeIndex('1', 'product');
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.reason).toBe('embedding_failed');
+  });
 });
 
 function createDeps() {
