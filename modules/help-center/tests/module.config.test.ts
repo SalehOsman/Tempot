@@ -8,4 +8,10 @@ describe('help-center module config', () => {
     expect(config.isCore).toBe(false);
     expect(config.navigation?.mainMenu[0]?.callbackData).toBe('help:view');
   });
+
+  it('should declare graceful AI support through approved packages', () => {
+    expect(config.features.hasAI).toBe(true);
+    expect(config.aiDegradationMode).toBe('graceful');
+    expect(config.requires.packages).toContain('@tempot/ai-core');
+  });
 });

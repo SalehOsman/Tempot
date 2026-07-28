@@ -11,17 +11,17 @@ import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
 import { buildBackupOperationsProvider } from './backup-operations.provider.js';
+import { buildHelpAiAssistantProvider } from './help-ai-assistant.provider.js';
 
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
 import { buildModuleSessionProviderAdapter } from './module-session-provider.adapter.js';
+import { buildAuthorizationContextResolver } from './module-authorization-context.resolver.js';
 import { AbilityRegistry } from '../authorization/ability-registry.js';
-import { AbilityFactory, RoleEnum, type SessionUser } from '@tempot/auth-core';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createStartupStateStore } from './startup-state.js';
 import type {
-  AuthorizationContextResolver,
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
 } from '../bot-server.types.js';
@@ -83,6 +83,10 @@ function buildModuleHandlersDep(
         },
       },
       backups,
+      aiAssistant: buildHelpAiAssistantProvider({
+        logger: opts.log,
+        eventBus: buildModuleEventBusAdapter(opts),
+      }),
       resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
       abilityRegistry,
       importer: async (p: string) => {
@@ -106,38 +110,6 @@ function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
       await opts.eventBus.subscribe(event, handler);
       return { isOk: () => true };
     },
-  };
-}
-
-function buildAuthorizationContextResolver(
-  opts: AssembleDepsOptions,
-  abilityRegistry: AbilityRegistry,
-): AuthorizationContextResolver {
-  return async (ctx) => {
-    const telegramId = ctx.from?.id;
-    if (telegramId === undefined) return null;
-    const chatId = ctx.chat?.id ?? telegramId;
-    const result = await opts.sessionProvider.getSession(String(telegramId), String(chatId));
-    const actor = resolveCurrentActor(result, telegramId);
-    const ability = AbilityFactory.build(actor, abilityRegistry.getRuntimeDefinitions());
-    if (ability.isErr()) throw ability.error;
-    return { actor, ability: ability.value };
-  };
-}
-
-function resolveCurrentActor(
-  result: Awaited<ReturnType<SessionProvider['getSession']>>,
-  telegramId: number,
-): SessionUser {
-  if (result.isErr()) {
-    if (result.error.code !== 'session-manager.not_found') throw result.error;
-    return { id: String(telegramId), role: RoleEnum.GUEST, status: 'UNRESOLVED' };
-  }
-  return {
-    id: result.value.userId,
-    role: result.value.role,
-    status: result.value.status,
-    language: result.value.language,
   };
 }
 

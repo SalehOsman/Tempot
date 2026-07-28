@@ -23,9 +23,12 @@ configuration, resilience, rate limiting, embeddings, content ingestion,
 retrieval planning, RAG runtime selection, answer-state contracts, deterministic
 evaluation fixtures, tool routing primitives, and Telegram assistant UI classes.
 
-The package is not yet activated as a user-facing Telegram bot capability. The
-current bot runtime and active business modules do not instantiate the AI/RAG
-runtime path, and active modules remain configured with `hasAI: false`.
+The first user-facing Telegram runtime slice is now wired through
+`help-center` and `bot-server`: authorized users can use `/ask <question>` to
+receive a retrieval-grounded answer snippet or a localized no-context/degraded
+response. Full AI/RAG production activation remains open until staging
+ingestion, retrieval smoke evidence, leakage/no-context release evidence, and
+any future generative synthesis gates are completed.
 
 ## Activation Definition
 
@@ -235,8 +238,8 @@ Any future embedding-provider switch must include:
 | Area | Current status | Activation requirement |
 | --- | --- | --- |
 | `@tempot/ai-core` package | Implemented foundation | Keep as service package |
-| Bot runtime AI/RAG flow | Not active | Add one governed module flow |
-| Active module `hasAI` usage | Not active | Set only for selected module |
+| Bot runtime AI/RAG flow | First retrieval-grounded help-center flow wired | Staging retrieval smoke |
+| Active module `hasAI` usage | `help-center` declares `hasAI: true` with graceful degradation | Keep limited to governed flows |
 | Vector schema | Drizzle schema and committed migration evidence exist | Staging migration smoke |
 | Docs ingestion CLI | Implemented locally by Spec #063; staging write smoke pending | Run documented command against target vector store |
 | Evaluation fixtures | Deterministic test-only fixtures exist | Extend for activated flow |

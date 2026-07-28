@@ -58,6 +58,10 @@ Recently completed:
   dry-run and write modes for `docs:ingest`, live AI/database dependency
   composition, successful-file-only hash persistence, structured file failure
   reporting, and focused unit coverage.
+- Spec #049: `help-center` now exposes the first governed Telegram AI/RAG
+  runtime slice through `/ask <question>`, with bot-server injected
+  `@tempot/ai-core` retrieval, localized no-context/degraded responses,
+  citations, `hasAI: true`, and `aiDegradationMode: graceful`.
 - Spec #013: `notifier` package - queue producer, delivery processor, worker
   factory, Telegram adapter, rate policy, and full unit test coverage.
 - Spec #016: `document-engine` package with typed export contracts,
@@ -191,15 +195,14 @@ Active or next work:
    framework priority.
 6. Consider future RAG evaluation expansion for latency, token usage, and cost
    only after a separate Product Manager decision.
-7. Activate AI/RAG only through the documented runtime activation plan in
+7. Continue AI/RAG activation through the documented runtime activation plan in
    `docs/architecture/ai-rag-runtime-activation-plan.md`. The current
-   `@tempot/ai-core` package is a completed foundation package, but no active
-   Telegram bot module currently exposes a production AI/RAG flow. Activation
-   has started with Spec #062 vector storage migration evidence and Spec #063
-   documentation ingestion runtime composition. Remaining activation requires
-   staging migration and docs-ingestion write smoke, bot runtime composition,
-   one governed module with `hasAI: true` and `aiDegradationMode`,
-   fixture-backed leakage/no-context tests, and full staging smoke evidence.
+   `@tempot/ai-core` package is a completed foundation package, and
+   `help-center` now exposes the first retrieval-grounded Telegram `/ask`
+   runtime slice through bot-server composition. Remaining activation requires
+   staging migration and docs-ingestion write smoke, retrieval smoke evidence,
+   fixture-backed leakage/no-context release evidence, and any future
+   generative answer synthesis gates.
 8. Roll out governed `module.flow.json` maps and bot runtime flow tests to the
    remaining active modules one module at a time, starting with
    `content-management`, `user-management`, `template-management`, and
@@ -441,7 +444,7 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | `notification-center`   | #046 | Implemented                           |
 | `content-management`    | #047 | Implemented                           |
 | `audit-viewer`          | #048 | Implemented                           |
-| `help-center`           | #049 | Implemented                           |
+| `help-center`           | #049 | Implemented with retrieval-grounded `/ask` AI assistant slice |
 | `membership-management` | #058 | Implemented and merged to `main` |
 | `backup-management`     | #065 | Active; encrypted backup creation, isolated restore rehearsal, history, storage-engine local artifact persistence, Docker restore database, and Telegram operator UX are implemented. Notifier delivery, schedule settings, retention execution, and staging evidence remain open |
 
@@ -459,7 +462,7 @@ Baseline module strategy documented by Spec #036:
 | `notification-center`   | Operational   | Implemented baseline                                                                               |
 | `audit-viewer`          | Operational   | Implemented baseline plus recent bot problem inspection                                            |
 | `settings-management`   | Core platform | Implemented baseline                                                                               |
-| `help-center`           | Core platform | Implemented baseline                                                                               |
+| `help-center`           | Core platform | Implemented baseline plus retrieval-grounded `/ask` AI assistant slice |
 | `membership-management` | Core platform | Implemented on `main` for membership request review and bot access gate operations |
 
 ## Architecture and Governance Artifacts

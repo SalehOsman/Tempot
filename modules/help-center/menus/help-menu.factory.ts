@@ -13,6 +13,8 @@ export function createHelpMenu(
 
 function createHelpMainMenu(t: TranslationFn): InlineKeyboard {
   return new InlineKeyboard()
+    .text(t('help-center.menu.assistant'), 'help:assistant')
+    .row()
     .text(t('help-center.menu.commands'), 'help:commands')
     .text(t('help-center.menu.support'), 'help:support')
     .row()

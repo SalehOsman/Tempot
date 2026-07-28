@@ -1,13 +1,15 @@
 {
   "help-center": {
     "commands": {
-      "help": "Help"
+      "help": "Help",
+      "ask": "Ask AI"
     },
     "menu": {
       "button": "❓ Help",
-      "commands": "Commands",
-      "support": "Support",
-      "back": "Back"
+      "assistant": "🤖 AI Help",
+      "commands": "📋 Commands",
+      "support": "🛟 Support",
+      "back": "↩️ Back"
     },
     "view": {
       "title": "<b>Help</b>\n\nFind available actions and support guidance for this bot.",
@@ -24,6 +26,16 @@
       "support_intro": "Send the issue description, the button you pressed, and a screenshot of the latest bot message.",
       "support_context": "User ID: <code>{{userId}}</code>\nChat ID: <code>{{chatId}}</code>",
       "support_steps": "If the issue is about a failed action, include the error reference or the tracking ID from Statistics > Timeline."
+    },
+    "assistant": {
+      "prompt": "<b>AI Help</b>\n\nSend your question with <code>/ask</code> followed by the question.\n\nExample:\n<code>/ask How do I request a backup?</code>",
+      "missing_question": "<b>AI Help</b>\n\nWrite the question after <code>/ask</code> so the assistant can search the project documentation.",
+      "answer": "<b>AI Help</b>\n\n{{answer}}\n\nConfidence: <code>{{confidence}}%</code>",
+      "no_context": "<b>AI Help</b>\n\nNo reliable documentation context was found for this question. Try a more specific question or ask an administrator to ingest the latest documentation.",
+      "degraded": "<b>AI Help</b>\n\nThe AI assistant is not available right now. Reason: <code>{{reason}}</code>.",
+      "citations_title": "<b>Sources</b>",
+      "citation_item": "{{number}}. <code>{{source}}</code>",
+      "citations_empty": "<b>Sources</b>\nNo citation was returned for this answer."
     }
   }
 }

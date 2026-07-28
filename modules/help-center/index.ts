@@ -2,7 +2,9 @@ import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import { registerDeps } from './deps.context.js';
 import { helpCommand } from './commands/help.command.js';
+import { askCommand } from './commands/ask.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
+import type { HelpAssistantProvider } from './contracts/assistant.types.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -38,6 +40,7 @@ export interface ModuleDeps {
   sessionProvider: { getSession: (userId: string, chatId: string) => Promise<unknown> };
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
   settings: { get: (key: string) => Promise<unknown> };
+  aiAssistant?: HelpAssistantProvider;
   navigation?: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
@@ -54,6 +57,16 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
       subject: 'help',
     }),
     helpCommand,
+  );
+  bot.command(
+    'ask',
+    deps.authorization.guard({
+      module: 'help-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'help',
+    }),
+    askCommand,
   );
   bot.on('callback_query:data', handleCallbackQuery);
   deps.logger.info({ msg: 'help-center handlers registered' });
