@@ -74,19 +74,20 @@ function buildLoaderDeps(input: {
 }): LoaderDeps {
   const { opts, abilityRegistry, auditLogRepository, interactionEventRepository } = input;
   const settings = buildSettingsProvider(opts.settingsService);
+  const eventBus = buildModuleEventBusAdapter(opts);
   const backups = buildBackupOperationsProvider({
     auditLogRepository,
     eventBus: opts.eventBus,
     logger: opts.log,
   });
   const knowledge = buildKnowledgeOperationsProvider({
-    eventBus: buildModuleEventBusAdapter(opts),
+    eventBus,
     logger: opts.log,
     settings,
   });
   return {
     logger: opts.log,
-    eventBus: buildModuleEventBusAdapter(opts),
+    eventBus,
     sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
     i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
     settings,
@@ -107,10 +108,7 @@ function buildLoaderDeps(input: {
     },
     backups,
     knowledge,
-    aiAssistant: buildHelpAiAssistantProvider({
-      logger: opts.log,
-      eventBus: buildModuleEventBusAdapter(opts),
-    }),
+    aiAssistant: buildHelpAiAssistantProvider({ logger: opts.log, eventBus, settings }),
     resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
     abilityRegistry,
     importer: moduleImporter,

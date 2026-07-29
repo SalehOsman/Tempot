@@ -86,6 +86,38 @@ describe('help AI assistant runtime provider', () => {
 
     expect(aiMocks.embeddingModel).toHaveBeenCalledWith('google:gemini-embedding-2-preview');
   });
+
+  it('uses dynamic knowledge embedding settings for ask retrieval', async () => {
+    const { buildHelpAiAssistantProvider } =
+      await import('../../src/startup/help-ai-assistant.provider.js');
+    const provider = buildHelpAiAssistantProvider({
+      logger: createLogger(),
+      eventBus: { publish: async () => ({ isOk: () => true }) },
+      settings: {
+        get: vi.fn(async (key: string) => {
+          if (key === 'ai_embedding_provider') return 'openai';
+          if (key === 'ai_embedding_model') return 'text-embedding-3-large';
+          return null;
+        }),
+        set: vi.fn(),
+      },
+    });
+
+    await provider.ask({
+      question: 'How do backups work?',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'en',
+    });
+
+    expect(aiMocks.createAIProviderRegistry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        embeddingProvider: 'openai',
+        embeddingModel: 'text-embedding-3-large',
+      }),
+    );
+  });
 });
 
 function buildProviderRegistry(): RegistryLike {

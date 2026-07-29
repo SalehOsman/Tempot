@@ -49,4 +49,6 @@ environment variables.
 | Embeddings | Gemini, OpenAI |
 
 Changing the embedding provider or model requires rebuilding the knowledge
-index before relying on `/ask` answers.
+index before relying on `/ask` answers. The help assistant uses the same dynamic
+embedding settings for retrieval, so indexing and asking stay in one vector
+space.

@@ -9,7 +9,9 @@ import type {
   HelpAssistantResult,
   ModuleLogger,
   ModuleEventBus,
+  SettingsProvider,
 } from '../bot-server.types.js';
+import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
 
 interface RetrieveOptions {
   query: string;
@@ -38,6 +40,7 @@ export interface HelpRagRetriever {
 interface LiveProviderDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
+  settings?: SettingsProvider;
 }
 
 type ProviderRegistryCandidate = {
@@ -78,7 +81,8 @@ async function createRuntime(deps: LiveProviderDeps) {
   const aiCore = await import('@tempot/ai-core');
   const config = aiCore.loadAIConfig();
   if (config.isErr()) return { success: false as const, error: config.error };
-  const registry = aiCore.createAIProviderRegistry(config.value);
+  const runtimeConfig = await applyKnowledgeAISettings(config.value, deps.settings);
+  const registry = aiCore.createAIProviderRegistry(runtimeConfig);
   if (registry.isErr()) return { success: false as const, error: registry.error };
 
   const pool = new Pool({ connectionString: databaseUrl });
@@ -89,7 +93,7 @@ async function createRuntime(deps: LiveProviderDeps) {
     toAiEventBus(deps.eventBus),
   );
   const embeddingService = new aiCore.EmbeddingService(db, {
-    config: config.value,
+    config: runtimeConfig,
     resilience,
     registry: toAiRegistry(registry.value),
   });
