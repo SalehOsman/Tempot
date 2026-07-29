@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import setup, { type ModuleDeps } from '../index.js';
 import { helpCommand } from '../commands/help.command.js';
 import { askCommand } from '../commands/ask.command.js';
+import { handleTextMessage } from '../handlers/text-message.handler.js';
 
 type TestDeps = ModuleDeps & {
   aiAssistant?: { ask: ReturnType<typeof vi.fn> };
@@ -24,7 +25,7 @@ function createDeps(): TestDeps {
   return {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() },
     eventBus: { publish: vi.fn().mockResolvedValue({ isOk: () => true }) },
-    sessionProvider: { getSession: vi.fn() },
+    sessionProvider: { getSession: vi.fn(), saveSession: vi.fn() },
     i18n: {
       t: (key: string, options?: Record<string, unknown>) =>
         options ? `${key}:${JSON.stringify(options)}` : key,
@@ -109,6 +110,47 @@ describe('help-center AI assistant runtime', () => {
     );
   });
 
+  it.each([
+    ['ask/ how do I rebuild docker?', 'how do I rebuild docker?'],
+    ['ask how do I rebuild docker?', 'how do I rebuild docker?'],
+    ['/\u0627\u0633\u0623\u0644 \u0643\u064a\u0641?', '\u0643\u064a\u0641?'],
+    ['\u0627\u0633\u0627\u0644 \u0643\u064a\u0641?', '\u0643\u064a\u0641?'],
+  ])('answers smart ask input: %s', async (text, question) => {
+    const deps = createDeps();
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createAskContext(text);
+
+    await handleTextMessage(ctx, vi.fn());
+
+    expect(deps.aiAssistant?.ask).toHaveBeenCalledWith(expect.objectContaining({ question }));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('help-center.assistant.answer'),
+      expect.any(Object),
+    );
+  });
+
+  it('answers the next plain text message after question mode is enabled', async () => {
+    const deps = createDeps();
+    const session = sessionRecord({ helpCenterAwaitingQuestion: true });
+    deps.sessionProvider = {
+      getSession: vi.fn().mockResolvedValue(session),
+      saveSession: vi.fn().mockResolvedValue(undefined),
+    };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createAskContext('\u0643\u064a\u0641?');
+
+    await handleTextMessage(ctx, vi.fn());
+
+    expect(deps.aiAssistant?.ask).toHaveBeenCalledWith(
+      expect.objectContaining({ question: '\u0643\u064a\u0641?' }),
+    );
+    expect(deps.sessionProvider.saveSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ helpCenterAwaitingQuestion: false }),
+      }),
+    );
+  });
+
   it('renders a degraded answer when the AI assistant is unavailable', async () => {
     const deps = createDeps();
     deps.aiAssistant = undefined;
@@ -131,4 +173,20 @@ function createAskContext(text: string): Context {
     message: { text },
     reply: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
+}
+
+function sessionRecord(metadata: Record<string, unknown>): Record<string, unknown> {
+  return {
+    userId: '123',
+    chatId: '456',
+    role: 'USER',
+    status: 'ACTIVE',
+    language: 'ar-EG',
+    activeConversation: null,
+    metadata,
+    schemaVersion: 1,
+    version: 1,
+    createdAt: new Date('2026-07-29T00:00:00.000Z'),
+    updatedAt: new Date('2026-07-29T00:00:00.000Z'),
+  };
 }

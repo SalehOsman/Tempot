@@ -5,6 +5,7 @@ import { getDeps } from '../deps.context.js';
 import { createHelpMenu } from '../menus/help-menu.factory.js';
 import { HelpContentService } from '../services/help-content.service.js';
 import { HelpAssistantResponseService } from '../services/help-assistant-response.service.js';
+import { markAwaitingQuestion } from '../services/help-question-session.service.js';
 
 const noopNext: NextFunction = () => Promise.resolve();
 
@@ -54,7 +55,10 @@ async function resolveHelpText(ctx: Context, action: string): Promise<string> {
   if (action === 'support') {
     return service.renderSupport(deps.i18n.t, ctx.from?.id, ctx.chat?.id);
   }
-  if (action === 'assistant') return new HelpAssistantResponseService().renderPrompt(deps.i18n.t);
+  if (action === 'assistant') {
+    await markAwaitingQuestion(ctx, deps.sessionProvider);
+    return new HelpAssistantResponseService().renderPrompt(deps.i18n.t);
+  }
   return deps.i18n.t('help-center.view.title');
 }
 

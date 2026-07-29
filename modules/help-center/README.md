@@ -5,6 +5,7 @@ support information, and the first governed AI/RAG assistant entry point inside
 Telegram.
 
 - Commands: `/help`, `/ask <question>`
+- Smart question entry: `help:assistant` button, `/ask`, `ask/`, `ask`, and Arabic ask aliases.
 - Minimum role: `USER`
 - Required runtime packages: `@tempot/i18n-core`, `@tempot/ai-core`
 - Optional package: `@tempot/search-engine`
@@ -16,9 +17,10 @@ response rendering. It receives an optional `HelpAssistantProvider` from
 `bot-server`; it does not instantiate AI infrastructure directly.
 
 The current assistant implementation is retrieval-grounded. When the runtime
-RAG provider returns context, `/ask` renders the best grounded snippet with
-citations. If AI is unavailable or no authorized context is found, the module
-renders localized graceful fallback messages.
+RAG provider returns context, the assistant renders the best grounded snippet
+with citations. Users can ask through the inline button or command-style text.
+If AI is unavailable or no authorized context is found, the module renders
+localized graceful fallback messages.
 
 ```bash
 pnpm --filter @tempot/help-center build

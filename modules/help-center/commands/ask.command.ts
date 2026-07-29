@@ -3,14 +3,17 @@ import type { UserRole } from '@tempot/module-registry';
 import { getDeps } from '../deps.context.js';
 import { createHelpMenu } from '../menus/help-menu.factory.js';
 import { HelpAssistantResponseService } from '../services/help-assistant-response.service.js';
+import { extractHelpQuestion } from '../services/help-question-parser.service.js';
 import type { HelpAssistantQuestion } from '../contracts/assistant.types.js';
 
 const responseService = new HelpAssistantResponseService();
-const ASK_COMMAND_PATTERN = /^\/ask(?:@\S+)?\s*/u;
 
 export async function askCommand(ctx: Context): Promise<void> {
+  await answerHelpQuestion(ctx, extractHelpQuestion(ctx.message?.text));
+}
+
+export async function answerHelpQuestion(ctx: Context, question: string): Promise<void> {
   const deps = getDeps();
-  const question = extractQuestion(ctx.message?.text);
   if (!question) {
     await reply(ctx, responseService.renderMissingQuestion(deps.i18n.t));
     return;
@@ -26,10 +29,6 @@ export async function askCommand(ctx: Context): Promise<void> {
     ? responseService.renderAnswer(deps.i18n.t, result.value)
     : responseService.renderFailure(deps.i18n.t, result.error.code);
   await reply(ctx, text);
-}
-
-function extractQuestion(text: string | undefined): string {
-  return text?.replace(ASK_COMMAND_PATTERN, '').trim() ?? '';
 }
 
 async function buildQuestion(ctx: Context, question: string): Promise<HelpAssistantQuestion> {

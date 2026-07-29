@@ -6,7 +6,7 @@
     },
     "menu": {
       "button": "❓ Help",
-      "assistant": "🤖 AI Help",
+      "assistant": "❓ Ask question",
       "commands": "📋 Commands",
       "support": "🛟 Support",
       "back": "↩️ Back"
@@ -28,7 +28,7 @@
       "support_steps": "If the issue is about a failed action, include the error reference or the tracking ID from Statistics > Timeline."
     },
     "assistant": {
-      "prompt": "<b>AI Help</b>\n\nSend your question with <code>/ask</code> followed by the question.\n\nExample:\n<code>/ask How do I request a backup?</code>",
+      "prompt": "<b>AI Help</b>\n\nWrite your question now and the assistant will search the project knowledge.\n\nYou can also use <code>/ask</code>, <code>ask/</code>, or <code>ask</code> followed by the question.",
       "missing_question": "<b>AI Help</b>\n\nWrite the question after <code>/ask</code> so the assistant can search the project documentation.",
       "answer": "<b>AI Help</b>\n\n{{answer}}\n\nConfidence: <code>{{confidence}}%</code>",
       "no_context": "<b>AI Help</b>\n\nNo reliable documentation context was found for this question. Try a more specific question or ask an administrator to ingest the latest documentation.",
