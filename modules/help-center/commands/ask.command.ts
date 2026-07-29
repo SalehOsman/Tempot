@@ -5,6 +5,7 @@ import { createHelpMenu } from '../menus/help-menu.factory.js';
 import { HelpAssistantResponseService } from '../services/help-assistant-response.service.js';
 import { extractHelpQuestion } from '../services/help-question-parser.service.js';
 import type { HelpAssistantQuestion } from '../contracts/assistant.types.js';
+import type { HelpMenuSurface } from '../menus/help-menu.factory.js';
 
 const responseService = new HelpAssistantResponseService();
 
@@ -12,15 +13,19 @@ export async function askCommand(ctx: Context): Promise<void> {
   await answerHelpQuestion(ctx, extractHelpQuestion(ctx.message?.text));
 }
 
-export async function answerHelpQuestion(ctx: Context, question: string): Promise<void> {
+export async function answerHelpQuestion(
+  ctx: Context,
+  question: string,
+  surface: HelpMenuSurface = 'leaf',
+): Promise<void> {
   const deps = getDeps();
   if (!question) {
-    await reply(ctx, responseService.renderMissingQuestion(deps.i18n.t));
+    await reply(ctx, responseService.renderMissingQuestion(deps.i18n.t), surface);
     return;
   }
 
   if (!deps.aiAssistant) {
-    await reply(ctx, responseService.renderUnavailable(deps.i18n.t));
+    await reply(ctx, responseService.renderUnavailable(deps.i18n.t), surface);
     return;
   }
 
@@ -28,7 +33,7 @@ export async function answerHelpQuestion(ctx: Context, question: string): Promis
   const text = result.success
     ? responseService.renderAnswer(deps.i18n.t, result.value)
     : responseService.renderFailure(deps.i18n.t, result.error.code);
-  await reply(ctx, text);
+  await reply(ctx, text, surface);
 }
 
 async function buildQuestion(ctx: Context, question: string): Promise<HelpAssistantQuestion> {
@@ -75,9 +80,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-async function reply(ctx: Context, text: string): Promise<void> {
+async function reply(ctx: Context, text: string, surface: HelpMenuSurface): Promise<void> {
   await ctx.reply(text, {
     parse_mode: 'HTML',
-    reply_markup: createHelpMenu(getDeps().i18n.t, 'leaf'),
+    reply_markup: createHelpMenu(getDeps().i18n.t, surface),
   });
 }

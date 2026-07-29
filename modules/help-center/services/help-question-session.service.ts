@@ -1,6 +1,7 @@
 import type { Context } from 'grammy';
 
-const AWAITING_KEY = 'helpCenterAwaitingQuestion';
+const SESSION_KEY = 'helpCenterAssistantSession';
+const LEGACY_AWAITING_KEY = 'helpCenterAwaitingQuestion';
 
 export interface HelpSessionRecord {
   readonly userId: string;
@@ -21,21 +22,29 @@ export interface HelpSessionProvider {
   readonly saveSession?: (session: HelpSessionRecord) => Promise<unknown>;
 }
 
-export async function markAwaitingQuestion(
+export async function openAssistantSession(
   ctx: Context,
   provider: HelpSessionProvider,
 ): Promise<void> {
   await saveQuestionState(ctx, provider, true);
 }
 
-export async function consumeAwaitingQuestion(
+export async function closeAssistantSession(
+  ctx: Context,
+  provider: HelpSessionProvider,
+): Promise<void> {
+  await saveQuestionState(ctx, provider, false);
+}
+
+export async function isAssistantSessionOpen(
   ctx: Context,
   provider: HelpSessionProvider,
 ): Promise<boolean> {
   const session = await readSession(ctx, provider);
-  if (!session || session.metadata?.[AWAITING_KEY] !== true) return false;
-  await saveSession(provider, session, false);
-  return true;
+  if (!session) return false;
+  return (
+    session.metadata?.[SESSION_KEY] === true || session.metadata?.[LEGACY_AWAITING_KEY] === true
+  );
 }
 
 async function saveQuestionState(
@@ -68,7 +77,11 @@ async function saveSession(
   if (!provider.saveSession) return;
   await provider.saveSession({
     ...session,
-    metadata: { ...(session.metadata ?? {}), [AWAITING_KEY]: awaiting },
+    metadata: {
+      ...(session.metadata ?? {}),
+      [SESSION_KEY]: awaiting,
+      [LEGACY_AWAITING_KEY]: false,
+    },
   });
 }
 

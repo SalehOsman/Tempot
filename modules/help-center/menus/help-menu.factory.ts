@@ -1,12 +1,13 @@
 import { InlineKeyboard } from 'grammy';
 
 type TranslationFn = (key: string) => string;
-export type HelpMenuSurface = 'main' | 'leaf';
+export type HelpMenuSurface = 'main' | 'leaf' | 'assistant-session';
 
 export function createHelpMenu(
   t: TranslationFn,
   surface: HelpMenuSurface = 'main',
 ): InlineKeyboard {
+  if (surface === 'assistant-session') return createAssistantSessionMenu(t);
   if (surface === 'leaf') return createHelpLeafMenu(t);
   return createHelpMainMenu(t);
 }
@@ -26,4 +27,11 @@ function createHelpLeafMenu(t: TranslationFn): InlineKeyboard {
     .text(t('help-center.menu.button'), 'help:view')
     .row()
     .text(t('help-center.menu.back'), 'menu:main');
+}
+
+function createAssistantSessionMenu(t: TranslationFn): InlineKeyboard {
+  return new InlineKeyboard()
+    .text(t('help-center.menu.close_assistant'), 'help:assistant:close')
+    .row()
+    .text(t('help-center.menu.back'), 'help:view');
 }

@@ -13,7 +13,7 @@ type TestDeps = ModuleDeps & {
 describe('help-center question mode', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('stores question mode when users press the smart assistant button', async () => {
+  it('opens a persistent assistant session when users press the smart assistant button', async () => {
     const deps = createDeps();
     deps.sessionProvider = {
       getSession: vi.fn().mockResolvedValue(sessionRecord()),
@@ -25,8 +25,30 @@ describe('help-center question mode', () => {
 
     expect(deps.sessionProvider.saveSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        metadata: expect.objectContaining({ helpCenterAwaitingQuestion: true }),
+        metadata: expect.objectContaining({ helpCenterAssistantSession: true }),
       }),
+    );
+  });
+
+  it('closes the persistent assistant session from the close button', async () => {
+    const deps = createDeps();
+    deps.sessionProvider = {
+      getSession: vi.fn().mockResolvedValue(sessionRecord({ helpCenterAssistantSession: true })),
+      saveSession: vi.fn().mockResolvedValue(undefined),
+    };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = callbackContext('help:assistant:close');
+
+    await handleCallbackQuery(ctx);
+
+    expect(deps.sessionProvider.saveSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ helpCenterAssistantSession: false }),
+      }),
+    );
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      'help-center.assistant.closed',
+      expect.any(Object),
     );
   });
 });
@@ -70,18 +92,18 @@ function createDeps(): TestDeps {
   } as TestDeps;
 }
 
-function callbackContext(): Context {
+function callbackContext(data = 'help:assistant'): Context {
   return {
     from: { id: 123 },
     chat: { id: 456 },
-    callbackQuery: { data: 'help:assistant', message: { message_id: 10 } },
+    callbackQuery: { data, message: { message_id: 10 } },
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     reply: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
 }
 
-function sessionRecord(): Record<string, unknown> {
+function sessionRecord(metadata: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     userId: '123',
     chatId: '456',
@@ -89,7 +111,7 @@ function sessionRecord(): Record<string, unknown> {
     status: 'ACTIVE',
     language: 'ar-EG',
     activeConversation: null,
-    metadata: {},
+    metadata,
     schemaVersion: 1,
     version: 1,
     createdAt: new Date('2026-07-29T00:00:00.000Z'),

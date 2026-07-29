@@ -129,9 +129,9 @@ describe('help-center AI assistant runtime', () => {
     );
   });
 
-  it('answers the next plain text message after question mode is enabled', async () => {
+  it('keeps answering plain text while the assistant session is open', async () => {
     const deps = createDeps();
-    const session = sessionRecord({ helpCenterAwaitingQuestion: true });
+    const session = sessionRecord({ helpCenterAssistantSession: true });
     deps.sessionProvider = {
       getSession: vi.fn().mockResolvedValue(session),
       saveSession: vi.fn().mockResolvedValue(undefined),
@@ -144,11 +144,7 @@ describe('help-center AI assistant runtime', () => {
     expect(deps.aiAssistant?.ask).toHaveBeenCalledWith(
       expect.objectContaining({ question: '\u0643\u064a\u0641?' }),
     );
-    expect(deps.sessionProvider.saveSession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({ helpCenterAwaitingQuestion: false }),
-      }),
-    );
+    expect(deps.sessionProvider.saveSession).not.toHaveBeenCalled();
   });
 
   it('renders a degraded answer when the AI assistant is unavailable', async () => {

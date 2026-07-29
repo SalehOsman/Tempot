@@ -6,6 +6,7 @@ Telegram.
 
 - Commands: `/help`, `/ask <question>`
 - Smart question entry: `help:assistant` button, `/ask`, `ask/`, `ask`, and Arabic ask aliases.
+- Assistant sessions remain open for follow-up questions until the user presses `help:assistant:close`.
 - Minimum role: `USER`
 - Required runtime packages: `@tempot/i18n-core`, `@tempot/ai-core`
 - Optional package: `@tempot/search-engine`
