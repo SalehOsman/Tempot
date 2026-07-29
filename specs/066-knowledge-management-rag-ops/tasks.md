@@ -29,6 +29,7 @@
 | FR-023 | T037 |
 | FR-024 | T038 |
 | FR-025 | T048 |
+| FR-026 | T049 |
 
 ## Success Criteria Traceability
 
@@ -119,3 +120,5 @@
       localized failure reasons.
 - [x] T048 Add local Ollama EmbeddingGemma support for quota-free knowledge
   indexing from Docker Desktop.
+- [x] T049 Add a safe one-step write chunk limit so Full Project indexing cannot
+  starve bot responsiveness.

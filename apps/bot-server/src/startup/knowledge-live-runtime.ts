@@ -45,6 +45,7 @@ export function liveKnowledgeDeps(opts: LiveKnowledgeOptions): KnowledgeProvider
     vectorReady: () =>
       queryBoolean("select exists (select 1 from pg_extension where extname = 'vector')"),
     countEmbeddings: () => queryNumber('select count(*) as count from embeddings'),
+    maxWriteChunks: () => maxWriteChunks(),
     pathExists: async (rootPath) => existsSync(rootPath),
     discoverMarkdownFiles,
     readTextFile: readKnowledgeTextFile,
@@ -57,6 +58,11 @@ export function liveKnowledgeDeps(opts: LiveKnowledgeOptions): KnowledgeProvider
     saveCustomProfiles: saveCustomKnowledgeProfiles,
     logger: opts.logger,
   };
+}
+
+function maxWriteChunks(): number {
+  const configured = Number(process.env['TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS']);
+  return Number.isSafeInteger(configured) && configured > 0 ? configured : 500;
 }
 
 async function ingestLive(

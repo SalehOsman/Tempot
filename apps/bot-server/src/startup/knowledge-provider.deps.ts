@@ -30,6 +30,7 @@ export interface KnowledgeProviderDeps {
   readonly databaseConfigured: () => boolean;
   readonly vectorReady: () => Promise<boolean>;
   readonly countEmbeddings: () => Promise<number>;
+  readonly maxWriteChunks: () => number;
   readonly pathExists: (rootPath: string) => Promise<boolean>;
   readonly discoverMarkdownFiles: (rootPath: string) => Promise<string[]>;
   readonly readTextFile: (filePath: string) => Promise<string>;

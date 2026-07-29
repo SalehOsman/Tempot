@@ -54,6 +54,17 @@ describe('liveKnowledgeDeps', () => {
 
     await expect(deps.providerConfigured()).resolves.toBe(true);
   });
+
+  it('uses TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS for safe bot-side writes', () => {
+    process.env.TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS = '125';
+
+    const deps = liveKnowledgeDeps({
+      logger: createLogger(),
+      eventBus: { publish: vi.fn() },
+    } as never);
+
+    expect(deps.maxWriteChunks()).toBe(125);
+  });
 });
 
 function createLogger() {

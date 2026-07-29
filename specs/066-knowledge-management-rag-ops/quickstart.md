@@ -52,6 +52,13 @@ docker exec tempot-bot wget -qO- http://host.docker.internal:11434/api/tags
 After switching to Ollama, rebuild the selected knowledge index from the bot
 before relying on `/ask` answers.
 
+`Full Project` can contain thousands of documentation files. Bot-triggered write
+indexing is protected by `TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS` and fails before
+embedding calls when the selected source is too large. Build `Product`,
+`Operations`, `Architecture`, and `Analysis` separately first, then raise the
+limit only for a planned long background run if a full-project index is still
+required.
+
 ## Manual Fallback
 
 Until the bot operations module is implemented, local ingestion can still be run

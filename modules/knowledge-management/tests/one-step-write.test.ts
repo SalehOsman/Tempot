@@ -59,6 +59,23 @@ describe('knowledge-management one-step write', () => {
       'knowledge-management.view.write_completed:{"id":"job-1","profile":"product","processed":1,"skipped":0,"failed":0,"chunks":2}',
     ]);
   });
+
+  it('shows a specific reason when the selected source is too large to index safely', async () => {
+    const knowledge = provider();
+    knowledge.writeIndex = vi.fn().mockResolvedValue({
+      success: false,
+      error: { code: 'knowledge.ingestion_too_large', reason: 'too_large' },
+    });
+    await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps(knowledge));
+    const ctx = context('knowledge:write:full-project');
+
+    await handleCallbackQuery(ctx);
+    await flushPendingWork();
+
+    expect(replies(ctx)).toEqual([
+      'knowledge-management.view.write_failed_reason:{"reason":"knowledge-management.reason.too_large"}',
+    ]);
+  });
 });
 
 function context(callbackData: string): Context {

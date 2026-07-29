@@ -212,6 +212,9 @@ answered, no-context, and degraded states without exposing raw provider errors.
 - **FR-025**: The feature MUST support local Ollama embeddings for knowledge
   indexing through `AI_EMBEDDING_PROVIDER=ollama` without requiring external
   provider quota.
+- **FR-026**: One-step write ingestion MUST enforce a configurable maximum chunk
+  limit and fail with a localized remediation message before embedding provider
+  calls when the selected source exceeds the safe bot-side indexing limit.
 
 ### Key Entities
 

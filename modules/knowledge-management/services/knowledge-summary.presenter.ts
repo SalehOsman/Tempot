@@ -61,5 +61,6 @@ export function failureReason(t: TranslationFn, reason: string | undefined): str
   if (reason === 'quota_exceeded') return t('knowledge-management.reason.quota_exceeded');
   if (reason === 'embedding_failed') return t('knowledge-management.reason.embedding_failed');
   if (reason === 'database_failed') return t('knowledge-management.reason.database_failed');
+  if (reason === 'too_large') return t('knowledge-management.reason.too_large');
   return t('knowledge-management.reason.unknown');
 }

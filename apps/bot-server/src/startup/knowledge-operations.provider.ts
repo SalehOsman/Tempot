@@ -48,7 +48,7 @@ export function createKnowledgeOperationsProvider(
     addCustomProfile: async (_actorId, input) => addCustomKnowledgeProfile(deps, input),
     runDryRun: async (_actorId, profileId) => run(state, profileId, false),
     requestWrite: async (_actorId, profileId) => requestWrite(deps, confirmations, profileId),
-    writeIndex: async (_actorId, profileId) => run(state, profileId, true),
+    writeIndex: async (_actorId, profileId) => writeIndex(state, profileId),
     confirmWrite: async (_actorId, token) => confirmWrite(state, confirmations, token),
     requestFullReindex: async (_actorId, profileId) => requestWrite(deps, confirmations, profileId),
     confirmFullReindex: async (_actorId, token) => confirmWrite(state, confirmations, token),
@@ -68,6 +68,25 @@ export function buildKnowledgeOperationsProvider(opts: {
   settings?: import('../bot-server.types.js').SettingsProvider;
 }): KnowledgeOperationsProvider {
   return createKnowledgeOperationsProvider(liveKnowledgeDeps(opts));
+}
+
+async function writeIndex(
+  state: RuntimeState,
+  profileId: string,
+): Promise<KnowledgeOperationResult<KnowledgeIngestionSummary>> {
+  const estimate = await run({ deps: state.deps, jobs: [] }, profileId, false);
+  if (!estimate.success) return estimate;
+  const maxWriteChunks = state.deps.maxWriteChunks();
+  if (estimate.value.chunks > maxWriteChunks) {
+    state.deps.logger.warn({
+      msg: 'knowledge_ingestion_too_large',
+      profileId,
+      chunks: estimate.value.chunks,
+      maxWriteChunks,
+    });
+    return fail('knowledge.ingestion_too_large', 'too_large');
+  }
+  return run(state, profileId, true);
 }
 
 async function readiness(
@@ -102,6 +121,8 @@ async function requestWrite(
 ): Promise<KnowledgeOperationResult<KnowledgeWriteConfirmation>> {
   const dryRun = await run({ deps, jobs: [] }, profileId, false);
   if (!dryRun.success || dryRun.value.failed > 0) return fail('knowledge.write_blocked');
+  if (dryRun.value.chunks > deps.maxWriteChunks())
+    return fail('knowledge.ingestion_too_large', 'too_large');
   const token = randomUUID();
   confirmations.set(token, { profileId, expiresAt: Date.now() + confirmationTtlMs });
   return okValue({ token, profileId, summary: dryRun.value });

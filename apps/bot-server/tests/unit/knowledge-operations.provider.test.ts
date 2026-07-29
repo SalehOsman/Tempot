@@ -86,6 +86,36 @@ describe('knowledge operations provider', () => {
     expect(jobs.success).toBe(true);
   });
 
+  it('blocks one-step write before embedding when chunk count exceeds the safe limit', async () => {
+    const deps = createDeps();
+    deps.maxWriteChunks = () => 1;
+    deps.chunkMarkdown.mockResolvedValue(
+      ok([
+        {
+          text: 'First chunk.',
+          chunkIndex: 0,
+          totalChunks: 2,
+          metadata: { filePath: 'docs/product/large.md' },
+        },
+        {
+          text: 'Second chunk.',
+          chunkIndex: 1,
+          totalChunks: 2,
+          metadata: { filePath: 'docs/product/large.md' },
+        },
+      ]),
+    );
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    const result = await provider.writeIndex('1', 'product');
+
+    expect(result.success).toBe(false);
+    expect(deps.ingestContent).not.toHaveBeenCalled();
+    if (result.success) return;
+    expect(result.error.code).toBe('knowledge.ingestion_too_large');
+    expect(result.error.reason).toBe('too_large');
+  });
+
   it('returns a safe failure reason when write ingestion fails', async () => {
     const deps = createDeps();
     deps.ingestContent.mockRejectedValue(new Error('ai-core.embedding.failed'));
@@ -163,6 +193,7 @@ function createDeps() {
     databaseConfigured: () => true,
     vectorReady: vi.fn().mockResolvedValue(true),
     countEmbeddings: vi.fn().mockResolvedValue(3),
+    maxWriteChunks: vi.fn().mockReturnValue(500),
     pathExists: vi.fn().mockResolvedValue(true),
     discoverMarkdownFiles: vi.fn().mockResolvedValue(['getting-started.md']),
     readTextFile: vi.fn().mockResolvedValue('## Start\n\nUse /ask for help.'),

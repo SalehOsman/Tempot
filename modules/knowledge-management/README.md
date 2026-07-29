@@ -23,6 +23,10 @@ Long-running dry-run and write operations run in the background. The bot sends
 an immediate waiting message, then sends a separate completion or failure message
 when the operation finishes. `Write index` is a one-step operation from the bot
 menu; the older confirmation contract remains available only for compatibility.
+One-step writes are capped by `TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS` so large
+sources, especially Full Project, do not starve Telegram responsiveness. Build
+large knowledge bases section by section, or raise the limit only for a planned
+long background run.
 
 ## Custom Profiles
 
@@ -61,4 +65,5 @@ AI_EMBEDDING_PROVIDER=ollama
 AI_EMBEDDING_MODEL=embeddinggemma
 AI_EMBEDDING_DIMENSIONS=768
 OLLAMA_BASE_URL=http://host.docker.internal:11434
+TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS=500
 ```

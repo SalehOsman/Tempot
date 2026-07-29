@@ -141,7 +141,13 @@ export class KnowledgeViewService {
   ): Promise<{ text: string; token?: string }> {
     if (!this.provider) return { text: t('knowledge-management.view.unavailable') };
     const result = await this.provider.requestWrite(actorId, profileId);
-    if (!result.success) return { text: t('knowledge-management.view.write_blocked') };
+    if (!result.success) {
+      return {
+        text: t('knowledge-management.view.write_failed_reason', {
+          reason: failureReason(t, result.error.reason),
+        }),
+      };
+    }
     return {
       token: result.value.token,
       text: formatSummary(t, 'knowledge-management.view.write_confirm', result.value.summary),
