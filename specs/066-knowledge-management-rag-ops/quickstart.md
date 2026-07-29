@@ -40,6 +40,7 @@ AI_EMBEDDING_PROVIDER=ollama
 AI_EMBEDDING_MODEL=embeddinggemma
 AI_EMBEDDING_DIMENSIONS=768
 OLLAMA_BASE_URL=http://host.docker.internal:11434
+TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD=
 ```
 
 Verify host access before indexing:
@@ -50,7 +51,9 @@ docker exec tempot-bot wget -qO- http://host.docker.internal:11434/api/tags
 ```
 
 After switching to Ollama, rebuild the selected knowledge index from the bot
-before relying on `/ask` answers.
+before relying on `/ask` answers. Leave
+`TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD` empty unless acceptance evidence shows
+that local retrieval needs a different threshold.
 
 `Full Project` can contain thousands of documentation files. Bot-triggered write
 indexing is protected by `TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS` and fails before

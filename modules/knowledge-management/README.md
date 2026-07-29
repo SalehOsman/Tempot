@@ -65,5 +65,10 @@ AI_EMBEDDING_PROVIDER=ollama
 AI_EMBEDDING_MODEL=embeddinggemma
 AI_EMBEDDING_DIMENSIONS=768
 OLLAMA_BASE_URL=http://host.docker.internal:11434
+TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD=
 TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS=500
 ```
+
+Leave `TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD` empty for the provider-aware
+default. Set it explicitly only when acceptance evidence shows that a specific
+deployment needs a tighter or looser retrieval threshold.

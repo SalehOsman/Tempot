@@ -215,6 +215,9 @@ answered, no-context, and degraded states without exposing raw provider errors.
 - **FR-026**: One-step write ingestion MUST enforce a configurable maximum chunk
   limit and fail with a localized remediation message before embedding provider
   calls when the selected source exceeds the safe bot-side indexing limit.
+- **FR-027**: Help assistant RAG retrieval MUST use a configurable confidence
+  threshold with provider-aware defaults so local Ollama embeddings can return
+  valid indexed context without lowering hosted-provider precision.
 
 ### Key Entities
 

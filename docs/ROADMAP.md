@@ -453,7 +453,7 @@ No package remains deferred under Rule XC after the Spec #008 activation.
 | `help-center`           | #049 | Implemented with retrieval-grounded `/ask` AI assistant slice |
 | `membership-management` | #058 | Implemented and merged to `main` |
 | `backup-management`     | #065 | Active; encrypted backup creation, isolated restore rehearsal, history, storage-engine local artifact persistence, Docker restore database, and Telegram operator UX are implemented. Notifier delivery, schedule settings, retention execution, and staging evidence remain open |
-| `knowledge-management`  | #066 | Specified; approved as the super-admin AI/RAG operations console for source profiles, dry-run ingestion, write indexing, full reindex, history, readiness, and test queries |
+| `knowledge-management`  | #066 | Active; super-admin source profiles, custom profiles, background indexing, Ollama EmbeddingGemma support, safe chunk limits, and provider-aware help retrieval thresholds are implemented. Staging evidence and advanced full-reindex orchestration remain open |
 
 The next business module must start with SpecKit artifacts, Superpowers
 execution, `pnpm boundary:audit`, and `pnpm module:checklist`.

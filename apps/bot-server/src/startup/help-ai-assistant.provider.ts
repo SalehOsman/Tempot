@@ -13,6 +13,7 @@ import type {
 } from '../bot-server.types.js';
 import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
 import { classifyHelpAiError } from './help-ai-error-classifier.js';
+import { resolveHelpRagConfidenceThreshold } from './help-rag-threshold.config.js';
 
 interface RetrieveOptions {
   query: string;
@@ -69,7 +70,13 @@ async function retrieveFromLiveRuntime(
   const runtime = await createRuntime(deps);
   if (runtime.success === false) return err(runtime.error);
   try {
-    return await runtime.pipeline.retrieve(options);
+    return await runtime.pipeline.retrieve({
+      ...options,
+      confidenceThreshold: resolveHelpRagConfidenceThreshold(
+        process.env,
+        runtime.embeddingProvider,
+      ),
+    });
   } finally {
     await runtime.close();
   }
@@ -101,6 +108,7 @@ async function createRuntime(deps: LiveProviderDeps) {
   return {
     success: true as const,
     pipeline: new aiCore.RAGPipeline({ embeddingService }),
+    embeddingProvider: runtimeConfig.embeddingProvider,
     close: () => pool.end(),
   };
 }
@@ -110,7 +118,7 @@ function toRetrieveOptions(input: HelpAssistantQuestion): RetrieveOptions {
     query: input.question,
     userId: input.userId,
     userRole: toAiRole(input.role),
-    confidenceThreshold: 0.7,
+    confidenceThreshold: resolveHelpRagConfidenceThreshold(),
   };
 }
 
@@ -156,8 +164,7 @@ function readSourceId(metadata: unknown): string | undefined {
 }
 
 function toAiRole(role: HelpAssistantQuestion['role']): string {
-  const map = { GUEST: 'guest', USER: 'user', ADMIN: 'admin', SUPER_ADMIN: 'super_admin' };
-  return map[role];
+  return { GUEST: 'guest', USER: 'user', ADMIN: 'admin', SUPER_ADMIN: 'super_admin' }[role];
 }
 
 function toAiRegistry(registry: unknown): AIRegistry {
@@ -196,5 +203,5 @@ function toAiEventBus(eventBus: ModuleEventBus): AIEventBus {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

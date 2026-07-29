@@ -30,6 +30,7 @@
 | FR-024 | T038 |
 | FR-025 | T048 |
 | FR-026 | T049 |
+| FR-027 | T050 |
 
 ## Success Criteria Traceability
 
@@ -122,3 +123,5 @@
   indexing from Docker Desktop.
 - [x] T049 Add a safe one-step write chunk limit so Full Project indexing cannot
   starve bot responsiveness.
+- [x] T050 Add provider-aware help assistant retrieval thresholds with an
+  environment override for local embedding deployments.

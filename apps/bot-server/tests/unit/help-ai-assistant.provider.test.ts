@@ -1,9 +1,27 @@
 import { ok, err } from 'neverthrow';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AppError } from '@tempot/shared';
-import { createHelpAiAssistantProvider } from '../../src/startup/help-ai-assistant.provider.js';
+import {
+  createHelpAiAssistantProvider,
+  type HelpRagRetriever,
+} from '../../src/startup/help-ai-assistant.provider.js';
+
+type CapturedRetrieveOptions = Parameters<HelpRagRetriever['retrieve']>[0];
+
+const originalEmbeddingProvider = process.env.AI_EMBEDDING_PROVIDER;
+const originalConfidenceThreshold = process.env.TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD;
 
 describe('help AI assistant provider', () => {
+  beforeEach(() => {
+    delete process.env.AI_EMBEDDING_PROVIDER;
+    delete process.env.TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD;
+  });
+
+  afterEach(() => {
+    restoreEnvValue('AI_EMBEDDING_PROVIDER', originalEmbeddingProvider);
+    restoreEnvValue('TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD', originalConfidenceThreshold);
+  });
+
   it('returns a grounded answer with citations when RAG has context', async () => {
     const provider = createHelpAiAssistantProvider({
       retrieve: async () =>
@@ -95,4 +113,55 @@ describe('help AI assistant provider', () => {
       error: { code: 'ai-core.provider.quota_exceeded' },
     });
   });
+
+  it('uses an Ollama-friendly retrieval threshold for local embeddings', async () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'ollama';
+    let capturedOptions: CapturedRetrieveOptions | undefined;
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async (options) => {
+        capturedOptions = options;
+        return ok({ hasResults: false, context: '', sources: [] });
+      },
+    });
+
+    await provider.ask({
+      question: 'How do backups work?',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'en',
+    });
+
+    expect(capturedOptions?.confidenceThreshold).toBe(0.35);
+  });
+
+  it('allows the help retrieval threshold to be configured from the environment', async () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'ollama';
+    process.env.TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD = '0.42';
+    let capturedOptions: CapturedRetrieveOptions | undefined;
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async (options) => {
+        capturedOptions = options;
+        return ok({ hasResults: false, context: '', sources: [] });
+      },
+    });
+
+    await provider.ask({
+      question: 'How do backups work?',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'en',
+    });
+
+    expect(capturedOptions?.confidenceThreshold).toBe(0.42);
+  });
 });
+
+function restoreEnvValue(key: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[key];
+    return;
+  }
+  process.env[key] = value;
+}
