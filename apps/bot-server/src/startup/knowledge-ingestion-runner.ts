@@ -68,9 +68,30 @@ async function ingestChunks(
       contentId: `knowledge:${context.selected.id}:${sourceId}:${chunk.chunkIndex}`,
       contentType: context.selected.contentType,
       content: chunk.text,
-      metadata: { ...chunk.metadata, sourceProfile: context.selected.id },
+      metadata: toKnowledgeMetadata(context.selected, chunk.metadata),
     });
   }
+}
+
+function toKnowledgeMetadata(
+  selected: InternalKnowledgeProfile,
+  metadata: ContentChunk['metadata'],
+): ContentChunk['metadata'] {
+  return {
+    ...metadata,
+    sourceProfile: selected.id,
+    sourcePriority: readNumber(metadata['sourcePriority']) ?? selected.sourcePriority,
+    sourceOfTruth: readBoolean(metadata['sourceOfTruth']) ?? selected.sourceOfTruth,
+    languagePolicy: selected.languagePolicy,
+  };
+}
+
+function readNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function readBoolean(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined;
 }
 
 function emptySummary(profileId: string, mode: KnowledgeIngestionSummary['mode']): MutableSummary {

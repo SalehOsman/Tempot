@@ -90,6 +90,19 @@ describe('chunkMarkdown', () => {
       expect(chunks[0].metadata['language']).toBe('ar');
     });
 
+    it('derives localized metadata from mounted product documentation paths', () => {
+      const markdown = '## Overview\nContent.';
+      const result = chunkMarkdown(markdown, {
+        filePath: 'docs/product/ar/user-guide/getting-started.md',
+      });
+      expect(result.isOk()).toBe(true);
+
+      const metadata = result._unsafeUnwrap()[0].metadata;
+      expect(metadata['language']).toBe('ar');
+      expect(metadata['corpusSegment']).toBe('localized-product');
+      expect(metadata['sourcePriority']).toBe(70);
+    });
+
     it('classifies generated reference docs as English', () => {
       const markdown = '## API Reference\nContent.';
       const result = chunkMarkdown(markdown, { filePath: 'reference/ai-core/README.md' });

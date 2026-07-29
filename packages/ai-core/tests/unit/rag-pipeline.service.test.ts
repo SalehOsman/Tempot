@@ -340,6 +340,23 @@ describe('RAGPipeline', () => {
       const ctx = result._unsafeUnwrap();
       expect(ctx.sources.map((source) => source.contentId)).toEqual(['chunk-a-1', 'chunk-b-1']);
     });
+
+    it('prefers localized Arabic context for Arabic questions when scores are close', async () => {
+      const searchResults: EmbeddingSearchResult[] = [
+        sourceResult('english-backup', 0.44, 'docs/architecture/adr/ADR-046-backup.md'),
+        sourceResult('arabic-backup', 0.41, 'docs/product/ar/user-guide/backup-management.md'),
+      ];
+      embeddingService.searchSimilar.mockResolvedValue(ok(searchResults));
+
+      const result = await pipeline.retrieve({
+        query: 'كيف يمكن عمل نسخة احتياطية؟',
+        userRole: 'super_admin',
+        userId: 'sa-1',
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(result._unsafeUnwrap().sources[0].contentId).toBe('arabic-backup');
+    });
   });
 });
 

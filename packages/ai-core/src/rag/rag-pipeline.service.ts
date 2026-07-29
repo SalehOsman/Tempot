@@ -12,6 +12,7 @@ import { executeRetrievalPlan } from './retrieval-plan.executor.js';
 import { validateRetrievalRequest } from './retrieval-plan.validation.js';
 import type { RetrievalOutcome, RetrievalRequest } from './retrieval-plan.types.js';
 import { RETRIEVAL_CANDIDATE_LIMIT, selectDiverseSources } from './rag-source-diversity.js';
+import { rankRetrievalResults } from './retrieval-ranking.js';
 
 /** RAG context result */
 export interface RAGContext {
@@ -120,7 +121,8 @@ export class RAGPipeline {
       return true;
     });
 
-    const diversified = selectDiverseSources(filtered);
+    const ranked = rankRetrievalResults(filtered, query);
+    const diversified = selectDiverseSources(ranked);
 
     if (diversified.length === 0) {
       return ok({ hasResults: false, context: '', sources: [] });

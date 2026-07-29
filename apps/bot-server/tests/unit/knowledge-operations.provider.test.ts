@@ -86,6 +86,23 @@ describe('knowledge operations provider', () => {
     expect(jobs.success).toBe(true);
   });
 
+  it('adds source profile metadata to bot-side ingested chunks', async () => {
+    const deps = createDeps();
+    const provider = createKnowledgeOperationsProvider(deps);
+
+    await provider.writeIndex('1', 'product');
+
+    expect(deps.ingestContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({
+          sourceProfile: 'product',
+          sourcePriority: 70,
+          sourceOfTruth: false,
+        }),
+      }),
+    );
+  });
+
   it('blocks one-step write before embedding when chunk count exceeds the safe limit', async () => {
     const deps = createDeps();
     deps.maxWriteChunks = () => 1;
