@@ -35,6 +35,7 @@
       "answer": "<b>AI Help</b>\n\n{{answer}}\n\nConfidence: <code>{{confidence}}%</code>",
       "no_context": "<b>AI Help</b>\n\nNo reliable documentation context was found for this question. Try a more specific question or ask an administrator to ingest the latest documentation.",
       "degraded": "<b>AI Help</b>\n\nThe AI assistant is not available right now. Reason: <code>{{reason}}</code>.",
+      "degraded_quota": "<b>AI Help</b>\n\nThe embedding provider reached its temporary usage limit. Wait a short time, rebuild with another configured embedding provider, or add billing capacity before trying again.",
       "citations_title": "<b>Sources</b>",
       "citation_item": "{{number}}. <code>{{source}}</code>",
       "citations_empty": "<b>Sources</b>\nNo citation was returned for this answer."

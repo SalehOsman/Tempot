@@ -74,4 +74,25 @@ describe('help AI assistant provider', () => {
 
     expect(result).toEqual({ success: false, error: { code: 'ai-core.rag_search_failed' } });
   });
+
+  it('classifies provider quota failures as a human-actionable error', async () => {
+    const quotaError = new Error('You exceeded your current quota for embed_content');
+    const providerError = new AppError('ai-core.provider.unavailable', quotaError);
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async () => err(new AppError('ai-core.rag.search_failed', providerError)),
+    });
+
+    const result = await provider.ask({
+      question: 'backup',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'en',
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: { code: 'ai-core.provider.quota_exceeded' },
+    });
+  });
 });

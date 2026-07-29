@@ -16,6 +16,8 @@ export class HelpAssistantResponseService {
   }
 
   renderFailure(t: TranslationFn, code: string): string {
+    if (code === 'ai-core.provider.quota_exceeded')
+      return t('help-center.assistant.degraded_quota');
     return t('help-center.assistant.degraded', { reason: code });
   }
 

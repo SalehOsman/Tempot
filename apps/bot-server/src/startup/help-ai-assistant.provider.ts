@@ -12,6 +12,7 @@ import type {
   SettingsProvider,
 } from '../bot-server.types.js';
 import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
+import { classifyHelpAiError } from './help-ai-error-classifier.js';
 
 interface RetrieveOptions {
   query: string;
@@ -117,7 +118,7 @@ function mapRetrievalResult(
   input: HelpAssistantQuestion,
   result: HelpRagResult,
 ): HelpAssistantResult {
-  if (result.isErr()) return { success: false, error: { code: result.error.code } };
+  if (result.isErr()) return { success: false, error: { code: classifyHelpAiError(result.error) } };
   if (!result.value.hasResults) {
     return {
       success: true,
