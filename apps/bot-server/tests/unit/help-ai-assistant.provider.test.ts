@@ -58,6 +58,79 @@ describe('help AI assistant provider', () => {
     });
   });
 
+  it('builds a useful answer from multiple grounded snippets', async () => {
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async () =>
+        ok({
+          hasResults: true,
+          context: '',
+          sources: [
+            source({
+              contentId: 'docs:backup:overview',
+              score: 0.41,
+              filePath: 'docs/product/ar/user-guide/backup-management.md',
+              text: 'إدارة النسخ الاحتياطي من صلاحيات المدير العام فقط.',
+            }),
+            source({
+              contentId: 'docs:backup:steps',
+              score: 0.39,
+              filePath: 'docs/product/ar/user-guide/backup-management.md',
+              text: 'لإنشاء نسخة احتياطية افتح القائمة الرئيسية ثم افتح قائمة النسخ الاحتياطي ثم اضغط إنشاء نسخة احتياطية وانتظر رسالة اكتمال العملية.',
+            }),
+          ],
+        }),
+    });
+
+    const result = await provider.ask({
+      question: 'كيف يمكن عمل نسخة احتياطية؟',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'ar-EG',
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.answer).toContain('إدارة النسخ الاحتياطي');
+    expect(result.value.answer).toContain('لإنشاء نسخة احتياطية');
+  });
+
+  it('prefers Arabic snippets from file paths when stored language metadata is stale', async () => {
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async () =>
+        ok({
+          hasResults: true,
+          context: '',
+          sources: [
+            source({
+              contentId: 'docs:backup:en',
+              score: 0.42,
+              filePath: 'docs/product/en/user-guide/backup-management.md',
+              text: 'Create a backup from the Backups menu.',
+            }),
+            source({
+              contentId: 'docs:backup:ar',
+              score: 0.39,
+              filePath: 'docs/product/ar/user-guide/backup-management.md',
+              text: 'افتح قائمة النسخ الاحتياطي ثم اضغط إنشاء نسخة احتياطية.',
+            }),
+          ],
+        }),
+    });
+
+    const result = await provider.ask({
+      question: 'كيف يمكن عمل نسخة احتياطية؟',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'ar-EG',
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.answer.startsWith('افتح قائمة النسخ الاحتياطي')).toBe(true);
+  });
+
   it('returns no-context when RAG has no authorized results', async () => {
     const provider = createHelpAiAssistantProvider({
       retrieve: async () => ok({ hasResults: false, context: '', sources: [] }),
@@ -157,6 +230,22 @@ describe('help AI assistant provider', () => {
     expect(capturedOptions?.confidenceThreshold).toBe(0.42);
   });
 });
+
+interface TestSourceInput {
+  readonly contentId: string;
+  readonly score: number;
+  readonly filePath: string;
+  readonly text: string;
+}
+
+function source(input: TestSourceInput) {
+  return {
+    contentId: input.contentId,
+    contentType: 'developer-docs',
+    score: input.score,
+    metadata: { filePath: input.filePath, text: input.text },
+  };
+}
 
 function restoreEnvValue(key: string, value: string | undefined): void {
   if (value === undefined) {

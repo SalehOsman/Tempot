@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { err, ok, type Result } from 'neverthrow';
+import { err, ok } from 'neverthrow';
 import { AppError } from '@tempot/shared';
 import type { AIEventBus, AILogger, AIRegistry } from '@tempot/ai-core';
 import type {
@@ -11,29 +11,11 @@ import type {
   ModuleEventBus,
   SettingsProvider,
 } from '../bot-server.types.js';
+import { buildHelpAssistantAnswer } from './help-ai-answer.builder.js';
+import type { HelpRagResult, RAGContext, RetrieveOptions } from './help-ai-rag.types.js';
 import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
 import { classifyHelpAiError } from './help-ai-error-classifier.js';
 import { resolveHelpRagConfidenceThreshold } from './help-rag-threshold.config.js';
-
-interface RetrieveOptions {
-  query: string;
-  userRole: string;
-  userId: string;
-  confidenceThreshold?: number;
-}
-
-interface RAGContext {
-  hasResults: boolean;
-  context: string;
-  sources: Array<{
-    contentId: string;
-    contentType: string;
-    score: number;
-    metadata: unknown;
-  }>;
-}
-
-type HelpRagResult = Result<RAGContext, AppError>;
 
 export interface HelpRagRetriever {
   retrieve(options: RetrieveOptions): Promise<HelpRagResult>;
@@ -137,30 +119,7 @@ function mapRetrievalResult(
 }
 
 function toAnswer(input: HelpAssistantQuestion, context: RAGContext) {
-  const bestSource = context.sources[0];
-  return {
-    state: 'answered' as const,
-    answer: extractAnswer(context.context),
-    citations: context.sources.map((source) => ({
-      blockId: source.contentId,
-      sourceId: readSourceId(source.metadata),
-    })),
-    confidence: bestSource?.score ?? 0,
-  };
-}
-
-function extractAnswer(context: string): string {
-  const normalized = context
-    .replace(/\[[^\]]+\]\s*/u, '')
-    .replace(/^.*?:\n/u, '')
-    .trim();
-  return normalized.split(/\n\n/u)[0]?.trim() ?? '';
-}
-
-function readSourceId(metadata: unknown): string | undefined {
-  if (!isRecord(metadata)) return undefined;
-  const filePath = metadata['filePath'];
-  return typeof filePath === 'string' ? filePath : undefined;
+  return buildHelpAssistantAnswer(input, context);
 }
 
 function toAiRole(role: HelpAssistantQuestion['role']): string {

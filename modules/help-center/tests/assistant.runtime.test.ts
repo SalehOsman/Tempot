@@ -1,5 +1,5 @@
 import type { Context } from 'grammy';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import setup, { type ModuleDeps } from '../index.js';
 import { helpCommand } from '../commands/help.command.js';
 import { askCommand } from '../commands/ask.command.js';
@@ -80,6 +80,9 @@ function callbackDataFrom(markup: unknown): string[] {
 
 describe('help-center AI assistant runtime', () => {
   beforeEach(() => vi.clearAllMocks());
+  afterEach(() => {
+    delete process.env.TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS;
+  });
 
   it('shows the AI assistant entry from the help menu', async () => {
     await setup({ command: vi.fn(), on: vi.fn() } as never, createDeps());
@@ -166,6 +169,21 @@ describe('help-center AI assistant runtime', () => {
     deps.aiAssistant = undefined;
     await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
     const ctx = createAskContext('/ask backup runbook');
+
+    await askCommand(ctx);
+
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('help-center.assistant.degraded'),
+      expect.any(Object),
+    );
+  });
+
+  it('does not leave assistant questions hanging when the provider stalls', async () => {
+    process.env.TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS = '1';
+    const deps = createDeps();
+    deps.aiAssistant = { ask: vi.fn().mockReturnValue(new Promise(() => undefined)) };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createAskContext('/ask slow question');
 
     await askCommand(ctx);
 

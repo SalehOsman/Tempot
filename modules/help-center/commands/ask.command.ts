@@ -4,6 +4,7 @@ import { getDeps } from '../deps.context.js';
 import { createHelpMenu } from '../menus/help-menu.factory.js';
 import { HelpAssistantResponseService } from '../services/help-assistant-response.service.js';
 import { extractHelpQuestion } from '../services/help-question-parser.service.js';
+import { resolveAssistantResult } from '../services/help-assistant-timeout.service.js';
 import type { HelpAssistantQuestion } from '../contracts/assistant.types.js';
 import type { HelpMenuSurface } from '../menus/help-menu.factory.js';
 
@@ -42,7 +43,8 @@ export async function answerHelpQuestion(
   }
 
   const status = await reply(ctx, deps.i18n.t('help-center.assistant.searching'), surface);
-  const result = await deps.aiAssistant.ask(await buildQuestion(ctx, question));
+  const request = await buildQuestion(ctx, question);
+  const result = await resolveAssistantResult(deps.aiAssistant.ask(request));
   const text = result.success
     ? responseService.renderAnswer(deps.i18n.t, result.value)
     : responseService.renderFailure(deps.i18n.t, result.error.code);
