@@ -16,6 +16,7 @@ const labels: Record<string, string> = {
   'knowledge-management.menu.provider_gemini': 'Gemini',
   'knowledge-management.menu.provider_openai': 'OpenAI',
   'knowledge-management.menu.provider_deepseek': 'DeepSeek',
+  'knowledge-management.menu.current_option': 'Current: {{label}}',
   'knowledge-management.menu.custom_source': 'Custom source',
   'knowledge-management.menu.back': 'Back',
   'knowledge-management.source.product_help': 'Product',
@@ -34,8 +35,13 @@ interface KeyboardShape {
   inline_keyboard: KeyboardButton[][];
 }
 
-function t(key: string): string {
-  return labels[key] ?? key;
+function t(key: string, options?: Record<string, unknown>): string {
+  const label = labels[key] ?? key;
+  if (!options) return label;
+  return Object.entries(options).reduce(
+    (text, [name, value]) => text.replace(`{{${name}}}`, String(value)),
+    label,
+  );
 }
 
 function rows(keyboard: unknown): KeyboardButton[][] {
@@ -130,5 +136,29 @@ describe('createKnowledgeMenu', () => {
       'knowledge:providers:chat:set:deepseek',
       'knowledge:providers',
     ]);
+  });
+
+  it('marks the active chat provider clearly', () => {
+    const renderedRows = rows(
+      createKnowledgeMenu(t, 'chat-providers', {
+        providerSettings: {
+          chatProvider: 'openai',
+          chatProviderConfigured: true,
+          embeddingProvider: 'gemini',
+          embeddingProviderConfigured: true,
+          embeddingModel: 'gemini-embedding-2-preview',
+        },
+      }),
+    );
+
+    expect(renderedRows.flat().map((button) => button.text)).toEqual([
+      'Gemini',
+      'Current: OpenAI',
+      'DeepSeek',
+      'Back',
+    ]);
+    expect(renderedRows.flat().map((button) => button.callback_data)).toContain(
+      'knowledge:providers',
+    );
   });
 });

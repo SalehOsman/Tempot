@@ -3,6 +3,7 @@ import type {
   KnowledgeEmbeddingModel,
   KnowledgeEmbeddingProvider,
   KnowledgeOperationsProvider,
+  KnowledgeProviderSettingsSnapshot,
 } from '../contracts/knowledge-operations.types.js';
 
 type TranslationFn = (key: string, options?: Record<string, unknown>) => string;
@@ -13,21 +14,37 @@ interface ProviderViewInput {
   readonly actorId: string;
 }
 
+export interface ProviderSettingsView {
+  readonly text: string;
+  readonly providerSettings?: KnowledgeProviderSettingsSnapshot;
+}
+
 export async function providerSettingsView(
   provider: KnowledgeOperationsProvider | undefined,
   t: TranslationFn,
   actorId: string,
 ): Promise<string> {
-  if (!provider) return t('knowledge-management.view.unavailable');
+  return (await providerSettingsViewData(provider, t, actorId)).text;
+}
+
+export async function providerSettingsViewData(
+  provider: KnowledgeOperationsProvider | undefined,
+  t: TranslationFn,
+  actorId: string,
+): Promise<ProviderSettingsView> {
+  if (!provider) return { text: t('knowledge-management.view.unavailable') };
   const result = await provider.getProviderSettings(actorId);
-  if (!result.success) return t('knowledge-management.view.providers_failed');
-  return t('knowledge-management.view.providers', {
-    chat: result.value.chatProvider,
-    chatReady: boolLabel(t, result.value.chatProviderConfigured),
-    embedding: result.value.embeddingProvider,
-    embeddingReady: boolLabel(t, result.value.embeddingProviderConfigured),
-    model: result.value.embeddingModel,
-  });
+  if (!result.success) return { text: t('knowledge-management.view.providers_failed') };
+  return {
+    providerSettings: result.value,
+    text: t('knowledge-management.view.providers', {
+      chat: result.value.chatProvider,
+      chatReady: boolLabel(t, result.value.chatProviderConfigured),
+      embedding: result.value.embeddingProvider,
+      embeddingReady: boolLabel(t, result.value.embeddingProviderConfigured),
+      model: result.value.embeddingModel,
+    }),
+  };
 }
 
 export async function chatProviderUpdatedView(

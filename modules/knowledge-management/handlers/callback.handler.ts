@@ -90,6 +90,7 @@ function menuState(view: KnowledgeView): Parameters<typeof createKnowledgeMenu>[
     token: view.token,
     profileId: view.profileId,
     profiles: view.profiles,
+    providerSettings: view.providerSettings,
   };
 }
 

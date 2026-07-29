@@ -35,8 +35,10 @@ async function providerSettings(
   context: ResolveContext,
   surface: KnowledgeView['surface'],
 ): Promise<KnowledgeView> {
+  const view = await context.service.renderProviderSettingsView(context.t, context.actorId);
   return {
-    text: await context.service.renderProviderSettings(context.t, context.actorId),
+    text: view.text,
+    providerSettings: view.providerSettings,
     surface,
   };
 }

@@ -19,6 +19,8 @@ import {
   embeddingModelUpdatedView,
   embeddingProviderUpdatedView,
   providerSettingsView,
+  providerSettingsViewData,
+  type ProviderSettingsView,
 } from './provider-settings-view.presenter.js';
 
 type TranslationFn = (key: string, options?: Record<string, unknown>) => string;
@@ -35,6 +37,13 @@ export class KnowledgeViewService {
 
   async renderProviderSettings(t: TranslationFn, actorId: string): Promise<string> {
     return providerSettingsView(this.provider, t, actorId);
+  }
+
+  async renderProviderSettingsView(
+    t: TranslationFn,
+    actorId: string,
+  ): Promise<ProviderSettingsView> {
+    return providerSettingsViewData(this.provider, t, actorId);
   }
 
   async renderSetChatProvider(

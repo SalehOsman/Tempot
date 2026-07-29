@@ -25,6 +25,7 @@
       "provider_gemini": "✨ Gemini",
       "provider_openai": "🔷 OpenAI",
       "provider_deepseek": "🔎 DeepSeek",
+      "current_option": "✅ الحالي: {{label}}",
       "model_gemini_v2": "🧠 Gemini v2",
       "model_openai_small": "🧠 OpenAI صغير",
       "model_openai_large": "🧠 OpenAI كبير"

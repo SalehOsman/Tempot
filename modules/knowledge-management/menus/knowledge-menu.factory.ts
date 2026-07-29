@@ -1,5 +1,14 @@
 import { InlineKeyboard } from 'grammy';
-import type { KnowledgeSourceProfile } from '../contracts/knowledge-operations.types.js';
+import type {
+  KnowledgeProviderSettingsSnapshot,
+  KnowledgeSourceProfile,
+} from '../contracts/knowledge-operations.types.js';
+import {
+  createChatProvidersMenu,
+  createEmbeddingModelsMenu,
+  createEmbeddingProvidersMenu,
+  createProviderSettingsMenu,
+} from './provider-menu.factory.js';
 
 type TranslationFn = (key: string, options?: Record<string, unknown>) => string;
 export type KnowledgeMenuSurface =
@@ -18,6 +27,7 @@ export interface KnowledgeMenuState {
   readonly token?: string;
   readonly profileId?: string;
   readonly profiles?: readonly KnowledgeSourceProfile[];
+  readonly providerSettings?: KnowledgeProviderSettingsSnapshot;
 }
 
 export function createKnowledgeMenu(
@@ -28,9 +38,10 @@ export function createKnowledgeMenu(
   if (surface === 'confirm-write') return createConfirmMenu(t, 'confirm_write', state.token);
   if (surface === 'confirm-reindex') return createConfirmMenu(t, 'confirm_reindex', state.token);
   if (surface === 'providers') return createProviderSettingsMenu(t);
-  if (surface === 'chat-providers') return createChatProvidersMenu(t);
-  if (surface === 'embedding-providers') return createEmbeddingProvidersMenu(t);
-  if (surface === 'embedding-models') return createEmbeddingModelsMenu(t);
+  if (surface === 'chat-providers') return createChatProvidersMenu(t, state.providerSettings);
+  if (surface === 'embedding-providers')
+    return createEmbeddingProvidersMenu(t, state.providerSettings);
+  if (surface === 'embedding-models') return createEmbeddingModelsMenu(t, state.providerSettings);
   if (surface === 'sources') return createSourcesMenu(t, state.profiles ?? []);
   if (surface === 'source-actions') return createSourceActionsMenu(t, state.profileId);
   if (surface === 'leaf') return createLeafMenu(t);
@@ -78,63 +89,6 @@ function createSourceActionsMenu(t: TranslationFn, profileId?: string): InlineKe
     .text(t('knowledge-management.menu.full_reindex'), `knowledge:full_reindex:${profileId}`)
     .row()
     .text(t('knowledge-management.menu.back'), 'knowledge:sources');
-}
-
-function createProviderSettingsMenu(t: TranslationFn): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(t('knowledge-management.menu.chat_provider'), 'knowledge:providers:chat')
-    .row()
-    .text(t('knowledge-management.menu.embedding_provider'), 'knowledge:providers:embedding')
-    .row()
-    .text(t('knowledge-management.menu.embedding_model'), 'knowledge:providers:model')
-    .row()
-    .text(t('knowledge-management.menu.back'), 'knowledge:view');
-}
-
-function createChatProvidersMenu(t: TranslationFn): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(t('knowledge-management.menu.provider_gemini'), 'knowledge:providers:chat:set:gemini')
-    .row()
-    .text(t('knowledge-management.menu.provider_openai'), 'knowledge:providers:chat:set:openai')
-    .row()
-    .text(t('knowledge-management.menu.provider_deepseek'), 'knowledge:providers:chat:set:deepseek')
-    .row()
-    .text(t('knowledge-management.menu.back'), 'knowledge:providers');
-}
-
-function createEmbeddingProvidersMenu(t: TranslationFn): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(
-      t('knowledge-management.menu.provider_gemini'),
-      'knowledge:providers:embedding:set:gemini',
-    )
-    .row()
-    .text(
-      t('knowledge-management.menu.provider_openai'),
-      'knowledge:providers:embedding:set:openai',
-    )
-    .row()
-    .text(t('knowledge-management.menu.back'), 'knowledge:providers');
-}
-
-function createEmbeddingModelsMenu(t: TranslationFn): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(
-      t('knowledge-management.menu.model_gemini_v2'),
-      'knowledge:providers:model:set:gemini-embedding-2-preview',
-    )
-    .row()
-    .text(
-      t('knowledge-management.menu.model_openai_small'),
-      'knowledge:providers:model:set:text-embedding-3-small',
-    )
-    .row()
-    .text(
-      t('knowledge-management.menu.model_openai_large'),
-      'knowledge:providers:model:set:text-embedding-3-large',
-    )
-    .row()
-    .text(t('knowledge-management.menu.back'), 'knowledge:providers');
 }
 
 function createLeafMenu(t: TranslationFn): InlineKeyboard {
