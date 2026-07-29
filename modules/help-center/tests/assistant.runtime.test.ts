@@ -110,6 +110,20 @@ describe('help-center AI assistant runtime', () => {
     );
   });
 
+  it('shows a searching status before answering slow assistant questions', async () => {
+    const deps = createDeps();
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createAskContext('/ask slow question');
+
+    await askCommand(ctx);
+
+    expect(ctx.reply).toHaveBeenNthCalledWith(
+      1,
+      'help-center.assistant.searching',
+      expect.any(Object),
+    );
+  });
+
   it.each([
     ['ask/ how do I rebuild docker?', 'how do I rebuild docker?'],
     ['ask how do I rebuild docker?', 'how do I rebuild docker?'],

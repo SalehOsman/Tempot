@@ -9,6 +9,18 @@ import type { HelpMenuSurface } from '../menus/help-menu.factory.js';
 
 const responseService = new HelpAssistantResponseService();
 
+interface StatusMessage {
+  readonly chatId: number | string;
+  readonly messageId: number;
+}
+
+interface FinalReplyInput {
+  readonly ctx: Context;
+  readonly text: string;
+  readonly surface: HelpMenuSurface;
+  readonly status: StatusMessage | null;
+}
+
 export async function askCommand(ctx: Context): Promise<void> {
   await answerHelpQuestion(ctx, extractHelpQuestion(ctx.message?.text));
 }
@@ -29,11 +41,12 @@ export async function answerHelpQuestion(
     return;
   }
 
+  const status = await reply(ctx, deps.i18n.t('help-center.assistant.searching'), surface);
   const result = await deps.aiAssistant.ask(await buildQuestion(ctx, question));
   const text = result.success
     ? responseService.renderAnswer(deps.i18n.t, result.value)
     : responseService.renderFailure(deps.i18n.t, result.error.code);
-  await reply(ctx, text, surface);
+  await finishReply({ ctx, text, surface, status: readStatusMessage(ctx, status) });
 }
 
 async function buildQuestion(ctx: Context, question: string): Promise<HelpAssistantQuestion> {
@@ -80,9 +93,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-async function reply(ctx: Context, text: string, surface: HelpMenuSurface): Promise<void> {
-  await ctx.reply(text, {
+async function reply(ctx: Context, text: string, surface: HelpMenuSurface): Promise<unknown> {
+  return ctx.reply(text, {
     parse_mode: 'HTML',
     reply_markup: createHelpMenu(getDeps().i18n.t, surface),
   });
+}
+
+async function finishReply(input: FinalReplyInput): Promise<void> {
+  if (!input.status) {
+    await reply(input.ctx, input.text, input.surface);
+    return;
+  }
+  try {
+    await input.ctx.api.editMessageText(input.status.chatId, input.status.messageId, input.text, {
+      parse_mode: 'HTML',
+      reply_markup: createHelpMenu(getDeps().i18n.t, input.surface),
+    });
+  } catch (error) {
+    getDeps().logger.warn({ msg: 'help_assistant_status_edit_failed', error: safeError(error) });
+    await reply(input.ctx, input.text, input.surface);
+  }
+}
+
+function readStatusMessage(ctx: Context, sent: unknown): StatusMessage | null {
+  const message = isRecord(sent) ? sent : {};
+  const chat = isRecord(message['chat']) ? message['chat'] : {};
+  const messageId = message['message_id'];
+  const chatId = chat['id'] ?? ctx.chat?.id;
+  if (typeof messageId !== 'number') return null;
+  if (typeof chatId !== 'number' && typeof chatId !== 'string') return null;
+  return { chatId, messageId };
+}
+
+function safeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

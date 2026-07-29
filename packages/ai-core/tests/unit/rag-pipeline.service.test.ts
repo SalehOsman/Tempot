@@ -230,6 +230,21 @@ describe('RAGPipeline', () => {
       };
       expect(calledOptions.confidenceThreshold).toBe(0.95);
     });
+
+    it('requests enough candidates to diversify final sources', async () => {
+      embeddingService.searchSimilar.mockResolvedValue(ok([]));
+
+      await pipeline.retrieve({
+        query: 'source diversity',
+        userRole: 'super_admin',
+        userId: 'sa-1',
+      });
+
+      const calledOptions = embeddingService.searchSimilar.mock.calls[0][0] as {
+        limit: number;
+      };
+      expect(calledOptions.limit).toBe(20);
+    });
   });
 
   describe('context formatting', () => {
@@ -305,4 +320,34 @@ describe('RAGPipeline', () => {
       expect(ctx.context).toContain('[ui-guide] doc-no-title (score: 0.75):');
     });
   });
+
+  describe('source diversity', () => {
+    it('keeps only the best chunk from each source file', async () => {
+      const searchResults: EmbeddingSearchResult[] = [
+        sourceResult('chunk-a-1', 0.95, 'docs/product/ar/user-guide/getting-started.md'),
+        sourceResult('chunk-a-2', 0.93, 'docs/product/ar/user-guide/getting-started.md'),
+        sourceResult('chunk-b-1', 0.91, 'docs/product/ar/user-guide/help.md'),
+      ];
+      embeddingService.searchSimilar.mockResolvedValue(ok(searchResults));
+
+      const result = await pipeline.retrieve({
+        query: 'bot functions',
+        userRole: 'user',
+        userId: 'user-1',
+      });
+
+      expect(result.isOk()).toBe(true);
+      const ctx = result._unsafeUnwrap();
+      expect(ctx.sources.map((source) => source.contentId)).toEqual(['chunk-a-1', 'chunk-b-1']);
+    });
+  });
 });
+
+function sourceResult(contentId: string, score: number, filePath: string): EmbeddingSearchResult {
+  return {
+    contentId,
+    contentType: 'ui-guide',
+    score,
+    metadata: { filePath, title: filePath, text: contentId },
+  };
+}

@@ -31,6 +31,7 @@
     "assistant": {
       "prompt": "<b>AI Help</b>\n\nWrite your question now and the assistant will search the project knowledge.\n\nYou can also use <code>/ask</code>, <code>ask/</code>, or <code>ask</code> followed by the question.",
       "closed": "<b>AI Help</b>\n\nThe assistant session has been closed. Regular messages will no longer be treated as questions.",
+      "searching": "<b>AI Help</b>\n\nSearching project knowledge. Please wait...",
       "missing_question": "<b>AI Help</b>\n\nWrite the question after <code>/ask</code> so the assistant can search the project documentation.",
       "answer": "<b>AI Help</b>\n\n{{answer}}\n\nConfidence: <code>{{confidence}}%</code>",
       "no_context": "<b>AI Help</b>\n\nNo reliable documentation context was found for this question. Try a more specific question or ask an administrator to ingest the latest documentation.",
