@@ -39,6 +39,8 @@ export function createEmbeddingProvidersMenu(
     .row()
     .text(embeddingLabel(t, settings, 'openai'), embeddingCallback(settings, 'openai'))
     .row()
+    .text(embeddingLabel(t, settings, 'ollama'), embeddingCallback(settings, 'ollama'))
+    .row()
     .text(t('knowledge-management.menu.back'), 'knowledge:providers');
 }
 
@@ -61,6 +63,8 @@ export function createEmbeddingModelsMenu(
       modelLabel(t, settings, 'text-embedding-3-large'),
       modelCallback(settings, 'text-embedding-3-large'),
     )
+    .row()
+    .text(modelLabel(t, settings, 'embeddinggemma'), modelCallback(settings, 'embeddinggemma'))
     .row()
     .text(t('knowledge-management.menu.back'), 'knowledge:providers');
 }
@@ -128,5 +132,6 @@ function providerKey(provider: string): string {
 function modelKey(model: string): string {
   if (model === 'text-embedding-3-small') return 'knowledge-management.menu.model_openai_small';
   if (model === 'text-embedding-3-large') return 'knowledge-management.menu.model_openai_large';
+  if (model === 'embeddinggemma') return 'knowledge-management.menu.model_ollama_embeddinggemma';
   return 'knowledge-management.menu.model_gemini_v2';
 }

@@ -72,16 +72,21 @@ AI_EMBEDDING_DIMENSIONS=3072
 GEMINI_API_KEY=...
 OPENAI_API_KEY=...
 DEEPSEEK_API_KEY=...
+OLLAMA_BASE_URL=http://host.docker.internal:11434
 ```
 
 `TEMPOT_AI_PROVIDER` selects the chat provider. Supported values are `gemini`,
 `openai`, and `deepseek`. DeepSeek uses the OpenAI-compatible provider path with
 `DEEPSEEK_API_KEY`.
 
-Embedding generation uses `AI_EMBEDDING_PROVIDER` and `AI_EMBEDDING_MODEL`, with
-Gemini and `gemini-embedding-2-preview` as the defaults. Embedding-provider or
-model changes require re-indexing because vectors from different providers are
-not compatible.
+Embedding generation uses `AI_EMBEDDING_PROVIDER` and `AI_EMBEDDING_MODEL`.
+Supported embedding providers are Gemini, OpenAI, and Ollama. Gemini with
+`gemini-embedding-2-preview` remains the default. For local Docker Desktop
+indexing with host-installed Ollama, use `AI_EMBEDDING_PROVIDER=ollama`,
+`AI_EMBEDDING_MODEL=embeddinggemma`, `AI_EMBEDDING_DIMENSIONS=768`, and
+`OLLAMA_BASE_URL=http://host.docker.internal:11434`. Embedding-provider or model
+changes require re-indexing because vectors from different providers are not
+compatible.
 
 ## API
 

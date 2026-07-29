@@ -10,6 +10,8 @@ vi.mock('ai', () => ({
   embed: (...args: unknown[]) => mockEmbed(...args),
 }));
 
+const mockFetch = vi.fn();
+
 // --- Mock: @tempot/database ---
 // We need to mock both DrizzleVectorRepository and embeddings.
 // DrizzleVectorRepository must be a real class that EmbeddingService can extend.
@@ -64,6 +66,8 @@ const testConfig: AIConfig = {
   generationTimeoutMs: 30_000,
   embeddingTimeoutMs: 10_000,
 };
+
+const normalizedTestVector = [0.1, 0.2, 0.3, ...Array(3069).fill(0)];
 
 // --- Mock: ResilienceService ---
 function createMockResilience() {
@@ -131,6 +135,11 @@ describe('EmbeddingService', () => {
 
     // By default, embed returns a fixed vector
     mockEmbed.mockResolvedValue({ embedding: [0.1, 0.2, 0.3] });
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ embeddings: [[0.1, 0.2]] }),
+    });
 
     // By default, create returns a stored embedding
     mockCreate.mockResolvedValue(
@@ -171,7 +180,7 @@ describe('EmbeddingService', () => {
       expect(mockCreate).toHaveBeenCalledWith({
         contentId: 'doc-1',
         contentType: 'ui-guide',
-        vector: [0.1, 0.2, 0.3],
+        vector: normalizedTestVector,
         metadata: { title: 'Dashboard Guide' },
       });
     });
@@ -217,6 +226,43 @@ describe('EmbeddingService', () => {
       await embeddingFn();
 
       expect(registry.textEmbeddingModel).toHaveBeenCalledWith('openai:text-embedding-3-large');
+    });
+
+    it('uses Ollama embed endpoint and pads vectors to database dimensions', async () => {
+      const { EmbeddingService } = await import('../../src/embedding/embedding.service.js');
+      const ollamaService = new EmbeddingService(db as never, {
+        config: {
+          ...testConfig,
+          embeddingProvider: 'ollama',
+          embeddingModel: 'embeddinggemma',
+          embeddingDimensions: 768,
+          embeddingBaseUrl: 'http://host.docker.internal:11434',
+        },
+        resilience: resilience as never,
+        registry,
+      });
+
+      const result = await ollamaService.embedAndStore({
+        contentId: 'doc-ollama',
+        contentType: 'developer-docs',
+        content: 'Local embedding content',
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://host.docker.internal:11434/api/embed',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            model: 'embeddinggemma',
+            input: 'title: doc-ollama | text: Local embedding content',
+          }),
+        }),
+      );
+      const stored = mockCreate.mock.calls[0][0] as { vector: number[] };
+      expect(stored.vector).toHaveLength(3072);
+      expect(stored.vector.slice(0, 3)).toEqual([0.1, 0.2, 0]);
+      expect(registry.textEmbeddingModel).not.toHaveBeenCalled();
     });
   });
 

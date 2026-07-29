@@ -85,7 +85,7 @@ function parseChatProvider(value: string): KnowledgeChatProvider | null {
 }
 
 function parseEmbeddingProvider(value: string): KnowledgeEmbeddingProvider | null {
-  if (value === 'gemini' || value === 'openai') return value;
+  if (value === 'gemini' || value === 'openai' || value === 'ollama') return value;
   return null;
 }
 
@@ -94,5 +94,6 @@ function parseEmbeddingModel(value: string): KnowledgeEmbeddingModel | null {
   if (value === 'gemini-embedding-2') return value;
   if (value === 'text-embedding-3-small') return value;
   if (value === 'text-embedding-3-large') return value;
+  if (value === 'embeddinggemma') return value;
   return null;
 }

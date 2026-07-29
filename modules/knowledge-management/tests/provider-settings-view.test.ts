@@ -37,6 +37,16 @@ describe('KnowledgeViewService provider settings', () => {
     );
     expect(operations.setEmbeddingProvider).toHaveBeenCalledWith('123', 'gemini');
   });
+
+  it('updates ollama as an embedding provider through the operations provider', async () => {
+    const operations = provider();
+    const service = new KnowledgeViewService(operations);
+
+    await expect(service.renderSetEmbeddingProvider(t, '123', 'ollama')).resolves.toBe(
+      'knowledge-management.view.embedding_provider_updated:{"provider":"ollama"}',
+    );
+    expect(operations.setEmbeddingProvider).toHaveBeenCalledWith('123', 'ollama');
+  });
 });
 
 function provider(): KnowledgeOperationsProvider {

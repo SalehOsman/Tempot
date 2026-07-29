@@ -30,7 +30,29 @@ operators rely on bot-triggered ingestion.
 8. Run a test question.
 9. Try `/ask <question>` in Help Center.
 
-## Current Manual Fallback
+## Local Ollama Embeddings
+
+When Ollama runs directly on the Windows host and the bot runs inside Docker
+Desktop, configure the bot runtime with:
+
+```env
+AI_EMBEDDING_PROVIDER=ollama
+AI_EMBEDDING_MODEL=embeddinggemma
+AI_EMBEDDING_DIMENSIONS=768
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+```
+
+Verify host access before indexing:
+
+```powershell
+curl http://localhost:11434/api/tags
+docker exec tempot-bot wget -qO- http://host.docker.internal:11434/api/tags
+```
+
+After switching to Ollama, rebuild the selected knowledge index from the bot
+before relying on `/ask` answers.
+
+## Manual Fallback
 
 Until the bot operations module is implemented, local ingestion can still be run
 from the workspace shell after environment variables are loaded:

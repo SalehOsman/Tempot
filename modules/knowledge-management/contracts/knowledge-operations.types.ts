@@ -61,12 +61,13 @@ export interface RagTestQueryResult {
 }
 
 export type KnowledgeChatProvider = 'gemini' | 'openai' | 'deepseek';
-export type KnowledgeEmbeddingProvider = 'gemini' | 'openai';
+export type KnowledgeEmbeddingProvider = 'gemini' | 'openai' | 'ollama';
 export type KnowledgeEmbeddingModel =
   | 'gemini-embedding-2-preview'
   | 'gemini-embedding-2'
   | 'text-embedding-3-small'
-  | 'text-embedding-3-large';
+  | 'text-embedding-3-large'
+  | 'embeddinggemma';
 
 export interface KnowledgeProviderSettingsSnapshot {
   readonly chatProvider: KnowledgeChatProvider;

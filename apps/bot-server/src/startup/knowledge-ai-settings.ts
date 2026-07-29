@@ -139,15 +139,17 @@ function parseChatProvider(value: unknown): KnowledgeChatProvider | null {
 }
 
 function parseEmbeddingProvider(value: unknown): KnowledgeEmbeddingProvider | null {
-  if (value === 'gemini' || value === 'openai') return value;
+  if (value === 'gemini' || value === 'openai' || value === 'ollama') return value;
   return null;
 }
 
 function defaultModel(provider: KnowledgeEmbeddingProvider): KnowledgeEmbeddingModel {
+  if (provider === 'ollama') return 'embeddinggemma';
   return provider === 'openai' ? 'text-embedding-3-large' : 'gemini-embedding-2-preview';
 }
 
 function modelProvider(model: KnowledgeEmbeddingModel): KnowledgeEmbeddingProvider {
+  if (model === 'embeddinggemma') return 'ollama';
   return model.startsWith('text-embedding-3') ? 'openai' : 'gemini';
 }
 
@@ -159,5 +161,6 @@ function chatProviderConfigured(provider: KnowledgeChatProvider): boolean {
 
 function embeddingProviderConfigured(provider: KnowledgeEmbeddingProvider): boolean {
   if (provider === 'openai') return Boolean(process.env['OPENAI_API_KEY']);
+  if (provider === 'ollama') return Boolean(process.env['OLLAMA_BASE_URL']);
   return Boolean(process.env['GOOGLE_GENERATIVE_AI_API_KEY']);
 }

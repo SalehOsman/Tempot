@@ -46,9 +46,19 @@ environment variables.
 | Capability | Supported providers |
 | --- | --- |
 | Chat | Gemini, OpenAI, DeepSeek |
-| Embeddings | Gemini, OpenAI |
+| Embeddings | Gemini, OpenAI, Ollama |
 
 Changing the embedding provider or model requires rebuilding the knowledge
 index before relying on `/ask` answers. The help assistant uses the same dynamic
 embedding settings for retrieval, so indexing and asking stay in one vector
 space.
+
+For local free indexing, run Ollama on the host machine and configure the bot
+container with:
+
+```env
+AI_EMBEDDING_PROVIDER=ollama
+AI_EMBEDDING_MODEL=embeddinggemma
+AI_EMBEDDING_DIMENSIONS=768
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+```

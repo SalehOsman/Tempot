@@ -31,7 +31,7 @@ export const BOT_ACCESS_MODES = {
 
 export type BotAccessMode = (typeof BOT_ACCESS_MODES)[keyof typeof BOT_ACCESS_MODES];
 export type AIChatProviderSetting = 'env' | 'gemini' | 'openai' | 'deepseek';
-export type AIEmbeddingProviderSetting = 'env' | 'gemini' | 'openai';
+export type AIEmbeddingProviderSetting = 'env' | 'gemini' | 'openai' | 'ollama';
 
 /** Known dynamic setting keys with their value types */
 export interface DynamicSettingDefinitions {

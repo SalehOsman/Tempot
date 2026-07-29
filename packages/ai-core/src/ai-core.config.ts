@@ -35,6 +35,7 @@ export function loadAIConfig(): Result<AIConfig, AppError> {
     provider: provider.value,
     embeddingProvider: embeddingProvider.value,
     embeddingModel: process.env.AI_EMBEDDING_MODEL ?? DEFAULT_AI_CONFIG.embeddingModel,
+    embeddingBaseUrl: process.env.OLLAMA_BASE_URL,
     embeddingDimensions:
       Number(process.env.AI_EMBEDDING_DIMENSIONS) || DEFAULT_AI_CONFIG.embeddingDimensions,
     confidenceThreshold:
@@ -63,7 +64,7 @@ function parseEmbeddingProvider(
   fallback: AIEmbeddingProviderType,
 ): Result<AIEmbeddingProviderType, AppError> {
   const provider = raw ?? fallback;
-  if (provider === 'gemini' || provider === 'openai') return ok(provider);
+  if (provider === 'gemini' || provider === 'openai' || provider === 'ollama') return ok(provider);
   return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
 }
 

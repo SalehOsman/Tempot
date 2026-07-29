@@ -209,6 +209,9 @@ answered, no-context, and degraded states without exposing raw provider errors.
   mounts or approved execution mode before write ingestion is considered ready.
 - **FR-024**: The feature MUST update AI/RAG activation documentation and roadmap
   status after implementation.
+- **FR-025**: The feature MUST support local Ollama embeddings for knowledge
+  indexing through `AI_EMBEDDING_PROVIDER=ollama` without requiring external
+  provider quota.
 
 ### Key Entities
 

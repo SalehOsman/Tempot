@@ -32,6 +32,20 @@ The Docker production image intentionally copies only runtime artifacts. It
 should not include the entire repository source tree. Local and staging
 ingestion should use explicit read-only mounts or a future ingestion worker.
 
+## Decision: local Ollama embeddings
+
+Knowledge indexing should support `ollama` as an embedding provider for local
+Docker Desktop operation. This lets operators build large documentation indexes
+without consuming Gemini or OpenAI embedding quota. Ollama is limited to
+embedding generation in this feature; chat generation remains controlled by the
+separate chat provider setting.
+
+The current database migration stores `vector(3072)`. Shorter local embedding
+vectors are zero-padded at the `ai-core` boundary before storage and retrieval,
+which preserves cosine similarity when both document and query vectors use the
+same provider and normalization path. Operators must rebuild the index after
+switching embedding provider or model.
+
 ## Alternatives Rejected
 
 | Alternative | Reason Rejected |
@@ -40,3 +54,4 @@ ingestion should use explicit read-only mounts or a future ingestion worker.
 | Put indexing inside `help-center` | Blurs user help with super-admin operations and makes permissions harder to reason about. |
 | Accept arbitrary path text from Telegram | High risk of reading `.env`, secrets, or unintended local files. |
 | Copy all docs/specs/modules/packages into the bot image | Increases runtime image size and source exposure, and conflicts with minimal runtime image policy. |
+| Replace chat providers with Ollama | The approved local requirement is quota-free indexing; chat quality and cost policy remain separate. |

@@ -63,6 +63,7 @@ export function getModelId(config: AIConfig, purpose: 'chat' | 'embedding'): str
 }
 
 function providerPrefix(provider: AIConfig['embeddingProvider']): string {
+  if (provider === 'ollama') return 'ollama';
   return provider === 'gemini' ? 'google' : 'openai';
 }
 

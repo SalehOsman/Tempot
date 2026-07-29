@@ -41,6 +41,19 @@ describe('liveKnowledgeDeps', () => {
 
     await expect(deps.providerConfigured()).resolves.toBe(true);
   });
+
+  it('uses OLLAMA_BASE_URL when the embedding provider is ollama', async () => {
+    delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    process.env.AI_EMBEDDING_PROVIDER = 'ollama';
+    process.env.OLLAMA_BASE_URL = 'http://host.docker.internal:11434';
+
+    const deps = liveKnowledgeDeps({
+      logger: createLogger(),
+      eventBus: { publish: vi.fn() },
+    } as never);
+
+    await expect(deps.providerConfigured()).resolves.toBe(true);
+  });
 });
 
 function createLogger() {

@@ -228,12 +228,15 @@ without storing API keys. Supported chat providers are `gemini`, `openai`, and
 `DEEPSEEK_API_KEY` and is limited to chat/generation, not embeddings.
 
 `AI_EMBEDDING_PROVIDER` controls the default embedding provider and supports
-`gemini` or `openai`. The knowledge management bot UI can override the active
-embedding provider and embedding model through dynamic settings. The current
-embedding default is Google Gemini through
+`gemini`, `openai`, or `ollama`. The knowledge management bot UI can override
+the active embedding provider and embedding model through dynamic settings. The
+current embedding default is Google Gemini through
 `AI_EMBEDDING_MODEL=gemini-embedding-2-preview`. OpenAI embeddings are enabled
 with `AI_EMBEDDING_PROVIDER=openai`, `AI_EMBEDDING_MODEL=text-embedding-3-large`,
-and `OPENAI_API_KEY`.
+and `OPENAI_API_KEY`. Local quota-free indexing is enabled with
+`AI_EMBEDDING_PROVIDER=ollama`, `AI_EMBEDDING_MODEL=embeddinggemma`, and
+`OLLAMA_BASE_URL=http://host.docker.internal:11434` when the bot runs in Docker
+Desktop and Ollama runs on the host.
 
 Embedding provider changes are not safe as a live runtime fallback because
 different providers produce incompatible vector spaces. Switching provider or

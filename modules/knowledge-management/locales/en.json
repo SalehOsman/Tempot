@@ -25,10 +25,12 @@
       "provider_gemini": "✨ Gemini",
       "provider_openai": "🔷 OpenAI",
       "provider_deepseek": "🔎 DeepSeek",
+      "provider_ollama": "🖥️ Ollama",
       "current_option": "✅ Current: {{label}}",
       "model_gemini_v2": "🧠 Gemini v2",
       "model_openai_small": "🧠 OpenAI small",
-      "model_openai_large": "🧠 OpenAI large"
+      "model_openai_large": "🧠 OpenAI large",
+      "model_ollama_embeddinggemma": "🧠 EmbeddingGemma"
     },
     "view": {
       "title": "Knowledge management",

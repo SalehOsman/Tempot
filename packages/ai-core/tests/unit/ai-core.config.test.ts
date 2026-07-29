@@ -79,6 +79,19 @@ describe('loadAIConfig', () => {
     expect(result._unsafeUnwrap().embeddingModel).toBe('text-embedding-3-large');
   });
 
+  it('accepts ollama embedding provider from env', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'ollama';
+    process.env.AI_EMBEDDING_MODEL = 'embeddinggemma';
+    process.env.AI_EMBEDDING_DIMENSIONS = '768';
+    process.env.OLLAMA_BASE_URL = 'http://host.docker.internal:11434';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().embeddingProvider).toBe('ollama');
+    expect(result._unsafeUnwrap().embeddingModel).toBe('embeddinggemma');
+    expect(result._unsafeUnwrap().embeddingDimensions).toBe(768);
+    expect(result._unsafeUnwrap().embeddingBaseUrl).toBe('http://host.docker.internal:11434');
+  });
+
   it('returns err for invalid embedding provider', () => {
     process.env.AI_EMBEDDING_PROVIDER = 'anthropic';
     const result = loadAIConfig();

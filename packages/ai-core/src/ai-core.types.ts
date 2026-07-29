@@ -4,7 +4,7 @@ import type { AppError } from '@tempot/shared';
 
 /** AI provider identifier */
 export type AIProviderType = 'gemini' | 'openai' | 'deepseek';
-export type AIEmbeddingProviderType = 'gemini' | 'openai';
+export type AIEmbeddingProviderType = 'gemini' | 'openai' | 'ollama';
 
 /** RAG content type discriminator */
 export type AIContentType =
@@ -25,6 +25,7 @@ export interface AIConfig {
   embeddingProvider: AIEmbeddingProviderType;
   embeddingModel: string;
   embeddingDimensions: number;
+  embeddingBaseUrl?: string;
   confidenceThreshold: number;
   generationTimeoutMs: number;
   embeddingTimeoutMs: number;

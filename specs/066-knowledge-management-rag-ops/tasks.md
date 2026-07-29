@@ -28,7 +28,7 @@
 | FR-022 | T013, T036 |
 | FR-023 | T037 |
 | FR-024 | T038 |
-| FR-025 | T043-T047 |
+| FR-025 | T048 |
 
 ## Success Criteria Traceability
 
@@ -117,3 +117,5 @@
 - [x] T046 Add super-admin custom source registration using safe relative paths.
 - [x] T047 Replace write confirmation UX with one-step source indexing and
       localized failure reasons.
+- [x] T048 Add local Ollama EmbeddingGemma support for quota-free knowledge
+  indexing from Docker Desktop.

@@ -16,6 +16,8 @@ const labels: Record<string, string> = {
   'knowledge-management.menu.provider_gemini': 'Gemini',
   'knowledge-management.menu.provider_openai': 'OpenAI',
   'knowledge-management.menu.provider_deepseek': 'DeepSeek',
+  'knowledge-management.menu.provider_ollama': 'Ollama',
+  'knowledge-management.menu.model_ollama_embeddinggemma': 'EmbeddingGemma',
   'knowledge-management.menu.current_option': 'Current: {{label}}',
   'knowledge-management.menu.custom_source': 'Custom source',
   'knowledge-management.menu.back': 'Back',
@@ -159,6 +161,25 @@ describe('createKnowledgeMenu', () => {
     ]);
     expect(renderedRows.flat().map((button) => button.callback_data)).toContain(
       'knowledge:providers',
+    );
+  });
+
+  it('renders ollama as an embedding provider choice', () => {
+    const renderedRows = rows(createKnowledgeMenu(t, 'embedding-providers'));
+
+    expect(renderedRows.flat().map((button) => button.callback_data)).toEqual([
+      'knowledge:providers:embedding:set:gemini',
+      'knowledge:providers:embedding:set:openai',
+      'knowledge:providers:embedding:set:ollama',
+      'knowledge:providers',
+    ]);
+  });
+
+  it('renders embeddinggemma as an embedding model choice', () => {
+    const renderedRows = rows(createKnowledgeMenu(t, 'embedding-models'));
+
+    expect(renderedRows.flat().map((button) => button.callback_data)).toContain(
+      'knowledge:providers:model:set:embeddinggemma',
     );
   });
 });

@@ -34,7 +34,7 @@ function isAIChatProvider(value: unknown): value is DynamicSettingDefinitions['a
 function isAIEmbeddingProvider(
   value: unknown,
 ): value is DynamicSettingDefinitions['ai_embedding_provider'] {
-  return value === 'env' || value === 'gemini' || value === 'openai';
+  return value === 'env' || value === 'gemini' || value === 'openai' || value === 'ollama';
 }
 
 function isDynamicSettingValue<K extends DynamicSettingKey>(
