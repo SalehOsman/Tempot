@@ -16,6 +16,7 @@ import type { HelpRagResult, RAGContext, RetrieveOptions } from './help-ai-rag.t
 import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
 import { classifyHelpAiError } from './help-ai-error-classifier.js';
 import { resolveHelpRagConfidenceThreshold } from './help-rag-threshold.config.js';
+import { hasUsableHelpContext } from './help-ai-context-quality.js';
 
 export interface HelpRagRetriever {
   retrieve(options: RetrieveOptions): Promise<HelpRagResult>;
@@ -109,7 +110,7 @@ function mapRetrievalResult(
   result: HelpRagResult,
 ): HelpAssistantResult {
   if (result.isErr()) return { success: false, error: { code: classifyHelpAiError(result.error) } };
-  if (!result.value.hasResults) {
+  if (!hasUsableHelpContext(input, result.value)) {
     return {
       success: true,
       value: { state: 'no-context', answer: '', citations: [], confidence: 0 },

@@ -131,6 +131,37 @@ describe('help AI assistant provider', () => {
     expect(result.value.answer.startsWith('افتح قائمة النسخ الاحتياطي')).toBe(true);
   });
 
+  it('returns no-context for weak cross-language matches', async () => {
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async () =>
+        ok({
+          hasResults: true,
+          context: '',
+          sources: [
+            source({
+              contentId: 'docs:managed-bots',
+              score: 0.38,
+              filePath: 'docs/architecture/telegram-managed-bots-assessment.md',
+              text: 'Telegram documents Managed Bots as a capability for manager bots.',
+            }),
+          ],
+        }),
+    });
+
+    const result = await provider.ask({
+      question: 'كيف يمكن إدارة المساعدة الذكية؟',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'ar-EG',
+    });
+
+    expect(result).toEqual({
+      success: true,
+      value: { state: 'no-context', answer: '', citations: [], confidence: 0 },
+    });
+  });
+
   it('returns no-context when RAG has no authorized results', async () => {
     const provider = createHelpAiAssistantProvider({
       retrieve: async () => ok({ hasResults: false, context: '', sources: [] }),
