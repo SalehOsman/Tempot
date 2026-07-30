@@ -22,7 +22,12 @@ export const knowledgeProfiles: readonly InternalKnowledgeProfile[] = [
   profile({
     id: 'product',
     labelKey: 'knowledge-management.source.product_help',
-    roots: ['docs/product'],
+    roots: [
+      'docs/product/ar',
+      'docs/product/en',
+      'docs/product/modules',
+      'docs/product/architecture',
+    ],
     contentType: 'ui-guide',
     sourcePriority: 70,
     sourceOfTruth: false,

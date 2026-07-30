@@ -54,6 +54,22 @@ describe('knowledge operations provider', () => {
     ]);
   });
 
+  it('keeps product indexing focused on user-facing documentation', async () => {
+    const provider = createKnowledgeOperationsProvider(createDeps());
+
+    const result = await provider.listSourceProfiles('1');
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const product = result.value.find((item) => item.id === 'product');
+    expect(product?.rootLabels).toEqual([
+      'docs/product/ar',
+      'docs/product/en',
+      'docs/product/modules',
+      'docs/product/architecture',
+    ]);
+  });
+
   it('stores custom profiles only for safe relative mounted roots', async () => {
     const deps = createDeps();
     const provider = createKnowledgeOperationsProvider(deps);

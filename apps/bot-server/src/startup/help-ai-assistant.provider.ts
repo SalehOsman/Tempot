@@ -16,7 +16,7 @@ import type { HelpRagResult, RAGContext, RetrieveOptions } from './help-ai-rag.t
 import { applyKnowledgeAISettings } from './knowledge-ai-settings.js';
 import { classifyHelpAiError } from './help-ai-error-classifier.js';
 import { resolveHelpRagConfidenceThreshold } from './help-rag-threshold.config.js';
-import { hasUsableHelpContext } from './help-ai-context-quality.js';
+import { filterUsableHelpContext, hasUsableHelpContext } from './help-ai-context-quality.js';
 
 export interface HelpRagRetriever {
   retrieve(options: RetrieveOptions): Promise<HelpRagResult>;
@@ -116,7 +116,7 @@ function mapRetrievalResult(
       value: { state: 'no-context', answer: '', citations: [], confidence: 0 },
     };
   }
-  return { success: true, value: toAnswer(input, result.value) };
+  return { success: true, value: toAnswer(input, filterUsableHelpContext(input, result.value)) };
 }
 
 function toAnswer(input: HelpAssistantQuestion, context: RAGContext) {

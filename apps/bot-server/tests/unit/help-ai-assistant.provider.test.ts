@@ -162,6 +162,49 @@ describe('help AI assistant provider', () => {
     });
   });
 
+  it('excludes weak cross-language sources when preferred-language context exists', async () => {
+    const provider = createHelpAiAssistantProvider({
+      retrieve: async () =>
+        ok({
+          hasResults: true,
+          context: '',
+          sources: [
+            source({
+              contentId: 'docs:knowledge:ar',
+              score: 0.41,
+              filePath: 'docs/product/ar/user-guide/knowledge-management.md',
+              text: 'Use the knowledge menu to build product and operations indexes.',
+            }),
+            source({
+              contentId: 'docs:managed-bots',
+              score: 0.38,
+              filePath: 'docs/architecture/telegram-managed-bots-assessment.md',
+              text: 'Telegram documents Managed Bots as a capability for manager bots.',
+            }),
+          ],
+        }),
+    });
+
+    const result = await provider.ask({
+      question: 'ÙƒÙŠÙ ÙŠÙ…ÙƒÙ† Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ø§Ù„Ø°ÙƒÙŠØ©ØŸ',
+      userId: '123',
+      chatId: '456',
+      role: 'SUPER_ADMIN',
+      locale: 'ar-EG',
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.answer).toContain('knowledge menu');
+    expect(result.value.answer).not.toContain('Managed Bots');
+    expect(result.value.citations).toEqual([
+      {
+        blockId: 'docs:knowledge:ar',
+        sourceId: 'docs/product/ar/user-guide/knowledge-management.md',
+      },
+    ]);
+  });
+
   it('returns no-context when RAG has no authorized results', async () => {
     const provider = createHelpAiAssistantProvider({
       retrieve: async () => ok({ hasResults: false, context: '', sources: [] }),
