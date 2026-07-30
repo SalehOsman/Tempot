@@ -81,6 +81,7 @@ function callbackDataFrom(markup: unknown): string[] {
 describe('help-center AI assistant runtime', () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(() => {
+    vi.useRealTimers();
     delete process.env.TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS;
   });
 
@@ -189,6 +190,42 @@ describe('help-center AI assistant runtime', () => {
 
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('help-center.assistant.degraded'),
+      expect.any(Object),
+    );
+  });
+
+  it('allows slower local RAG retrieval to complete within the default timeout', async () => {
+    vi.useFakeTimers();
+    const deps = createDeps();
+    deps.aiAssistant = {
+      ask: vi.fn().mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(
+              () =>
+                resolve({
+                  success: true,
+                  value: {
+                    state: 'answered',
+                    answer: 'Use the knowledge menu to ask questions.',
+                    citations: [],
+                    confidence: 0.74,
+                  },
+                }),
+              20_000,
+            );
+          }),
+      ),
+    };
+    await setup({ command: vi.fn(), on: vi.fn() } as never, deps);
+    const ctx = createAskContext('/ask how can I manage AI help?');
+
+    const pendingAnswer = askCommand(ctx);
+    await vi.advanceTimersByTimeAsync(20_000);
+    await pendingAnswer;
+
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('help-center.assistant.answer'),
       expect.any(Object),
     );
   });

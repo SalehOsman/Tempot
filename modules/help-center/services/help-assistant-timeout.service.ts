@@ -1,6 +1,6 @@
 import type { HelpAssistantResult } from '../contracts/assistant.types.js';
 
-const DEFAULT_RESPONSE_TIMEOUT_MS = 15_000;
+const DEFAULT_RESPONSE_TIMEOUT_MS = 60_000;
 const RESPONSE_TIMEOUT_KEY = 'TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS';
 
 export async function resolveAssistantResult(
