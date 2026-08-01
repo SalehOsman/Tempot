@@ -6,7 +6,10 @@ const config: ModuleConfig = {
   requiredRole: 'USER',
   isActive: true,
   isCore: false,
-  commands: [{ command: 'help', description: 'help-center.commands.help' }],
+  commands: [
+    { command: 'help', description: 'help-center.commands.help' },
+    { command: 'ask', description: 'help-center.commands.ask' },
+  ],
   navigation: {
     mainMenu: [
       {
@@ -26,15 +29,16 @@ const config: ModuleConfig = {
     hasNotifications: false,
     hasAttachments: false,
     hasExport: false,
-    hasAI: false,
+    hasAI: true,
     hasInputEngine: false,
     hasImport: false,
     hasSearch: false,
     hasDynamicCMS: false,
     hasRegional: false,
   },
+  aiDegradationMode: 'graceful',
   requires: {
-    packages: ['@tempot/i18n-core'],
+    packages: ['@tempot/i18n-core', '@tempot/ai-core'],
     optional: ['@tempot/search-engine'],
   },
 };

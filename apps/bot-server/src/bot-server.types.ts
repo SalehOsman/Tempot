@@ -1,21 +1,25 @@
 import type { AnyAbility } from '@casl/ability';
-import type {
-  BackupArtifact,
-  BackupJob,
-  BackupListResult,
-  DatabaseFactoryResetResult,
-  ProductionRestoreResult,
-  RestoreRehearsal,
-} from '@tempot/backup-engine';
 import type { SessionUser } from '@tempot/auth-core';
 import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import type { ProtectedDataService } from '@tempot/database';
+import type {
+  BackupOperationsProvider,
+  HelpAssistantProvider,
+  KnowledgeOperationsProvider,
+} from './module-providers.types.js';
 
-/** Operation mode for the bot */
+export type {
+  BackupOperationResult,
+  BackupOperationsProvider,
+  KnowledgeOperationsProvider,
+  HelpAssistantAnswer,
+  HelpAssistantProvider,
+  HelpAssistantQuestion,
+  HelpAssistantResult,
+} from './module-providers.types.js';
 export type BotMode = 'polling' | 'webhook';
 
-/** Dependencies passed to each module's setup function (D26 in spec.md) */
 export interface ModuleDependencyContainer {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
@@ -26,6 +30,8 @@ export interface ModuleDependencyContainer {
   auditLog: AuditLogProvider;
   interactionEvents: InteractionEventProvider;
   backups?: BackupOperationsProvider;
+  aiAssistant?: HelpAssistantProvider;
+  knowledge?: KnowledgeOperationsProvider;
   navigation: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
@@ -58,7 +64,6 @@ export type AuthorizationContextResolver = (
 /** Module setup function signature — default export from each module's index.ts */
 export type ModuleSetupFn = (bot: Bot<Context>, deps: ModuleDependencyContainer) => Promise<void>;
 
-/** Health check subsystem result */
 export interface SubsystemCheck {
   status: 'ok' | 'error' | 'degraded' | 'unconfigured';
   latency_ms?: number;
@@ -66,7 +71,6 @@ export interface SubsystemCheck {
   [key: string]: unknown;
 }
 
-/** Health check response shape (Architecture Spec Section 26.2) */
 export interface HealthCheckResponse {
   status: 'healthy' | 'degraded' | 'unhealthy';
   uptime: number;
@@ -80,7 +84,6 @@ export interface HealthCheckResponse {
   version: string;
 }
 
-/** Static configuration loaded from environment */
 export interface BotServerConfig {
   botToken: string;
   botMode: BotMode;
@@ -90,7 +93,6 @@ export interface BotServerConfig {
   superAdminIds: number[];
 }
 
-/** Minimal logger interface for startup components */
 export interface ModuleLogger {
   info: (data: unknown) => void;
   warn: (data: unknown) => void;
@@ -99,7 +101,6 @@ export interface ModuleLogger {
   child: (bindings: Record<string, unknown>) => ModuleLogger;
 }
 
-/** Minimal event bus interface for modules */
 export interface ModuleEventBus {
   publish: (event: string, payload: Record<string, unknown>) => Promise<{ isOk: () => boolean }>;
   subscribe: (
@@ -108,23 +109,19 @@ export interface ModuleEventBus {
   ) => Promise<{ isOk: () => boolean }>;
 }
 
-/** Session provider interface for modules */
 export interface SessionProvider {
   getSession: (userId: string, chatId: string) => Promise<unknown>;
 }
 
-/** i18n provider interface for modules */
 export interface I18nProvider {
   t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-/** Settings provider interface for modules */
 export interface SettingsProvider {
   get: (key: string) => Promise<unknown>;
   set: (key: string, value: unknown, updatedBy: string | null) => Promise<unknown>;
 }
 
-/** Audit log reader exposed to operational modules. */
 export interface AuditLogProvider {
   findMany: (args: Record<string, unknown>) => Promise<AuditLogProviderRecord[]>;
 }
@@ -138,7 +135,6 @@ export interface AuditLogProviderRecord {
   after?: unknown;
 }
 
-/** Detailed interaction event reader exposed to operational modules. */
 export interface InteractionEventProvider {
   findMany: (args: Record<string, unknown>) => Promise<InteractionEventProviderRecord[]>;
 }
@@ -167,40 +163,6 @@ export interface InteractionEventProviderRecord {
   createdAt: Date;
 }
 
-export type BackupOperationResult<T> =
-  | {
-      success: true;
-      value: T;
-    }
-  | {
-      success: false;
-      error: { code: string };
-    };
-
-export interface BackupOperationsProvider {
-  requestBackup: (actorId: string) => Promise<
-    BackupOperationResult<{
-      job: BackupJob;
-      artifact?: BackupArtifact;
-      storageReference?: string;
-    }>
-  >;
-  listBackups: (limit: number) => Promise<BackupOperationResult<BackupListResult>>;
-  restoreLatest: (actorId: string) => Promise<BackupOperationResult<RestoreRehearsal>>;
-  restoreBackup: (
-    backupJobId: string,
-    actorId: string,
-  ) => Promise<BackupOperationResult<RestoreRehearsal>>;
-  restoreProductionBackup: (
-    backupJobId: string,
-    actorId: string,
-  ) => Promise<BackupOperationResult<ProductionRestoreResult>>;
-  factoryResetDatabase: (
-    actorId: string,
-  ) => Promise<BackupOperationResult<DatabaseFactoryResetResult>>;
-}
-
-/** Active module navigation available to interface modules */
 export interface ModuleNavigationActor {
   role: UserRole;
   abilities: readonly string[];
@@ -211,10 +173,8 @@ export interface ModuleNavigationProvider {
   getVisibleMainMenuItems: (actor: ModuleNavigationActor) => readonly ModuleNavigationItem[];
 }
 
-/** Probe function for a single health check subsystem */
 export type SubsystemProbe = () => Promise<SubsystemCheck>;
 
-/** Probe registry matching HealthCheckResponse.checks subsystems */
 export interface HealthProbes {
   database: SubsystemProbe;
   redis: SubsystemProbe;

@@ -1,0 +1,72 @@
+{
+  "moduleName": "knowledge-management",
+  "entryPoints": ["knowledge"],
+  "surfaces": [
+    {
+      "surfaceId": "knowledge.main",
+      "surfaceType": "parent",
+      "openedBy": "knowledge:view",
+      "visibleActions": [
+        "knowledge:status",
+        "knowledge:sources",
+        "knowledge:dry_run",
+        "knowledge:write",
+        "knowledge:full_reindex",
+        "knowledge:history",
+        "knowledge:test_query",
+        "menu:main"
+      ]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "knowledge:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.button"
+    },
+    {
+      "callbackData": "knowledge:status",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.status"
+    },
+    {
+      "callbackData": "knowledge:sources",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.sources"
+    },
+    {
+      "callbackData": "knowledge:dry_run",
+      "actionKind": "mutation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.dry_run"
+    },
+    {
+      "callbackData": "knowledge:write",
+      "actionKind": "confirmation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.write"
+    },
+    {
+      "callbackData": "knowledge:full_reindex",
+      "actionKind": "confirmation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.full_reindex"
+    },
+    {
+      "callbackData": "knowledge:history",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.history"
+    },
+    {
+      "callbackData": "knowledge:test_query",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "knowledge-management.menu.test_query"
+    }
+  ],
+  "exitPaths": ["menu:main"]
+}

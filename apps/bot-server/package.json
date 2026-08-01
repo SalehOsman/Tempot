@@ -21,6 +21,7 @@
     "@grammyjs/conversations": "^2.1.1",
     "@hono/node-server": "^2.0.5",
     "@tempot/auth-core": "workspace:*",
+    "@tempot/ai-core": "workspace:*",
     "@tempot/backup-engine": "workspace:*",
     "@tempot/database": "workspace:*",
     "@tempot/event-bus": "workspace:*",
@@ -36,16 +37,19 @@
     "@tempot/shared": "workspace:*",
     "@tempot/storage-engine": "workspace:*",
     "@tempot/ux-helpers": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "grammy": "^1.41.1",
     "hono": "^4.12.27",
     "ioredis": "5.10.1",
     "neverthrow": "8.2.0",
+    "pg": "^8.20.0",
     "rate-limiter-flexible": "^5.0.4",
     "sanitize-html": "^2.17.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",
+    "@types/pg": "8.20.0",
     "@types/sanitize-html": "^2.13.0",
     "tsx": "^4.0.0",
     "vitest": "4.1.0"

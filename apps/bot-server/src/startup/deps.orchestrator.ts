@@ -1,4 +1,5 @@
 import { ok, err } from 'neverthrow';
+import type { Bot as GrammyBot, Context as GrammyContext } from 'grammy';
 import { AppError } from '@tempot/shared';
 import {
   AuditLogRepository,
@@ -11,21 +12,20 @@ import { bootstrapSuperAdmins } from './bootstrap.js';
 import { warmCaches } from './cache-warmer.js';
 import { loadModuleHandlers } from './module-loader.js';
 import { buildBackupOperationsProvider } from './backup-operations.provider.js';
-
+import { buildHelpAiAssistantProvider } from './help-ai-assistant.provider.js';
+import { buildKnowledgeOperationsProvider } from './knowledge-operations.provider.js';
 import { buildBotFactory } from './deps.bot-factory.js';
 import { buildHttpServerFactory } from './deps.server-factory.js';
 import { buildLifecycleFactory } from './deps.lifecycle.js';
 import { buildModuleSessionProviderAdapter } from './module-session-provider.adapter.js';
+import { buildAuthorizationContextResolver } from './module-authorization-context.resolver.js';
 import { AbilityRegistry } from '../authorization/ability-registry.js';
-import { AbilityFactory, RoleEnum, type SessionUser } from '@tempot/auth-core';
 import type { OrchestratorDeps } from './orchestrator.js';
 import { createStartupStateStore } from './startup-state.js';
 import type {
-  AuthorizationContextResolver,
   AuditLogProviderRecord,
   InteractionEventProviderRecord,
 } from '../bot-server.types.js';
-
 import type { ShutdownManager, CacheService } from '@tempot/shared';
 import type { EventBusOrchestrator } from '@tempot/event-bus';
 import type { SessionProvider } from '@tempot/session-manager';
@@ -34,6 +34,7 @@ import type { ModuleRegistry } from '@tempot/module-registry';
 import type { SentryReporter } from '@tempot/sentry';
 import { buildSettingsProvider } from './deps.settings-provider.js';
 
+type LoaderDeps = Parameters<typeof loadModuleHandlers>[2];
 export interface AssembleDepsOptions {
   loadConfig: typeof import('./config.loader.js').loadConfig;
   log: typeof import('@tempot/logger').logger;
@@ -55,45 +56,72 @@ function buildModuleHandlersDep(
 ): OrchestratorDeps['loadModuleHandlers'] {
   const auditLogRepository = new AuditLogRepository();
   const interactionEventRepository = new InteractionEventRepository();
+  const loaderDeps = buildLoaderDeps({
+    opts,
+    abilityRegistry,
+    auditLogRepository,
+    interactionEventRepository,
+  });
+  return (bot, validated) =>
+    loadModuleHandlers(bot as GrammyBot<GrammyContext>, validated, loaderDeps);
+}
+
+function buildLoaderDeps(input: {
+  readonly opts: AssembleDepsOptions;
+  readonly abilityRegistry: AbilityRegistry;
+  readonly auditLogRepository: AuditLogRepository;
+  readonly interactionEventRepository: InteractionEventRepository;
+}): LoaderDeps {
+  const { opts, abilityRegistry, auditLogRepository, interactionEventRepository } = input;
+  const settings = buildSettingsProvider(opts.settingsService);
+  const eventBus = buildModuleEventBusAdapter(opts);
   const backups = buildBackupOperationsProvider({
     auditLogRepository,
     eventBus: opts.eventBus,
     logger: opts.log,
   });
-  return (bot, validated) =>
-    loadModuleHandlers(bot as import('grammy').Bot<import('grammy').Context>, validated, {
-      logger: opts.log,
-      eventBus: buildModuleEventBusAdapter(opts),
-      sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
-      i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
-      settings: buildSettingsProvider(opts.settingsService),
-      protectedData: opts.protectedDataService,
-      auditLog: {
-        findMany: async (args: Record<string, unknown>) => {
-          const result = await auditLogRepository.findMany(args);
-          if (result.isErr()) throw result.error;
-          return result.value as AuditLogProviderRecord[];
-        },
+  const knowledge = buildKnowledgeOperationsProvider({
+    eventBus,
+    logger: opts.log,
+    settings,
+  });
+  return {
+    logger: opts.log,
+    eventBus,
+    sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
+    i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
+    settings,
+    protectedData: opts.protectedDataService,
+    auditLog: {
+      findMany: async (args: Record<string, unknown>) => {
+        const result = await auditLogRepository.findMany(args);
+        if (result.isErr()) throw result.error;
+        return result.value as AuditLogProviderRecord[];
       },
-      interactionEvents: {
-        findMany: async (args: Record<string, unknown>) => {
-          const result = await interactionEventRepository.findMany(args);
-          if (result.isErr()) throw result.error;
-          return result.value as InteractionEventProviderRecord[];
-        },
+    },
+    interactionEvents: {
+      findMany: async (args: Record<string, unknown>) => {
+        const result = await interactionEventRepository.findMany(args);
+        if (result.isErr()) throw result.error;
+        return result.value as InteractionEventProviderRecord[];
       },
-      backups,
-      resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
-      abilityRegistry,
-      importer: async (p: string) => {
-        const { pathToFileURL } = await import('node:url');
-        const entryPoint = pathToFileURL(`${p}/dist/index.js`).href;
-        return import(entryPoint) as Promise<{
-          default?: import('../bot-server.types.js').ModuleSetupFn;
-          abilityDefinition?: import('@tempot/auth-core').AbilityDefinition;
-        }>;
-      },
-    });
+    },
+    backups,
+    knowledge,
+    aiAssistant: buildHelpAiAssistantProvider({ logger: opts.log, eventBus, settings }),
+    resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
+    abilityRegistry,
+    importer: moduleImporter,
+  };
+}
+
+async function moduleImporter(p: string) {
+  const { pathToFileURL } = await import('node:url');
+  const entryPoint = pathToFileURL(`${p}/dist/index.js`).href;
+  return import(entryPoint) as Promise<{
+    default?: import('../bot-server.types.js').ModuleSetupFn;
+    abilityDefinition?: import('@tempot/auth-core').AbilityDefinition;
+  }>;
 }
 
 function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
@@ -106,38 +134,6 @@ function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
       await opts.eventBus.subscribe(event, handler);
       return { isOk: () => true };
     },
-  };
-}
-
-function buildAuthorizationContextResolver(
-  opts: AssembleDepsOptions,
-  abilityRegistry: AbilityRegistry,
-): AuthorizationContextResolver {
-  return async (ctx) => {
-    const telegramId = ctx.from?.id;
-    if (telegramId === undefined) return null;
-    const chatId = ctx.chat?.id ?? telegramId;
-    const result = await opts.sessionProvider.getSession(String(telegramId), String(chatId));
-    const actor = resolveCurrentActor(result, telegramId);
-    const ability = AbilityFactory.build(actor, abilityRegistry.getRuntimeDefinitions());
-    if (ability.isErr()) throw ability.error;
-    return { actor, ability: ability.value };
-  };
-}
-
-function resolveCurrentActor(
-  result: Awaited<ReturnType<SessionProvider['getSession']>>,
-  telegramId: number,
-): SessionUser {
-  if (result.isErr()) {
-    if (result.error.code !== 'session-manager.not_found') throw result.error;
-    return { id: String(telegramId), role: RoleEnum.GUEST, status: 'UNRESOLVED' };
-  }
-  return {
-    id: result.value.userId,
-    role: result.value.role,
-    status: result.value.status,
-    language: result.value.language,
   };
 }
 

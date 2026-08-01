@@ -77,6 +77,12 @@ const mockBackups = {
     },
   }),
 };
+const mockAiAssistant = {
+  ask: vi.fn().mockResolvedValue({
+    success: true,
+    value: { state: 'answered', answer: 'answer', citations: [], confidence: 1 },
+  }),
+};
 
 function createDeps(importer: ModuleImporter) {
   return {
@@ -88,6 +94,7 @@ function createDeps(importer: ModuleImporter) {
     auditLog: mockAuditLog,
     interactionEvents: mockInteractionEvents,
     backups: mockBackups,
+    aiAssistant: mockAiAssistant,
     resolveAuthorizationContext: vi.fn().mockResolvedValue(null),
     abilityRegistry: { register: vi.fn() },
     importer,
@@ -240,6 +247,7 @@ describe('loadModuleHandlers', () => {
         auditLog: mockAuditLog,
         interactionEvents: mockInteractionEvents,
         backups: mockBackups,
+        aiAssistant: mockAiAssistant,
         config: mod.config,
       }),
     );

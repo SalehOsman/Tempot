@@ -24,6 +24,7 @@ describe('loadAIConfig', () => {
     const config = result._unsafeUnwrap();
     expect(config.enabled).toBe(true);
     expect(config.provider).toBe('gemini');
+    expect(config.embeddingProvider).toBe('gemini');
     expect(config.embeddingModel).toBe('gemini-embedding-2-preview');
     expect(config.embeddingDimensions).toBe(3072);
   });
@@ -49,6 +50,13 @@ describe('loadAIConfig', () => {
     expect(result._unsafeUnwrap().provider).toBe('openai');
   });
 
+  it('accepts deepseek provider for chat', () => {
+    process.env.TEMPOT_AI_PROVIDER = 'deepseek';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().provider).toBe('deepseek');
+  });
+
   it('returns err for invalid provider', () => {
     process.env.TEMPOT_AI_PROVIDER = 'anthropic';
     const result = loadAIConfig();
@@ -60,6 +68,42 @@ describe('loadAIConfig', () => {
     process.env.AI_EMBEDDING_MODEL = 'custom-model';
     const result = loadAIConfig();
     expect(result._unsafeUnwrap().embeddingModel).toBe('custom-model');
+  });
+
+  it('accepts openai embedding provider from env', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'openai';
+    process.env.AI_EMBEDDING_MODEL = 'text-embedding-3-large';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().embeddingProvider).toBe('openai');
+    expect(result._unsafeUnwrap().embeddingModel).toBe('text-embedding-3-large');
+  });
+
+  it('accepts ollama embedding provider from env', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'ollama';
+    process.env.AI_EMBEDDING_MODEL = 'embeddinggemma';
+    process.env.AI_EMBEDDING_DIMENSIONS = '768';
+    process.env.OLLAMA_BASE_URL = 'http://host.docker.internal:11434';
+    const result = loadAIConfig();
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap().embeddingProvider).toBe('ollama');
+    expect(result._unsafeUnwrap().embeddingModel).toBe('embeddinggemma');
+    expect(result._unsafeUnwrap().embeddingDimensions).toBe(768);
+    expect(result._unsafeUnwrap().embeddingBaseUrl).toBe('http://host.docker.internal:11434');
+  });
+
+  it('returns err for invalid embedding provider', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'anthropic';
+    const result = loadAIConfig();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.PROVIDER_UNKNOWN);
+  });
+
+  it('rejects deepseek as an embedding provider', () => {
+    process.env.AI_EMBEDDING_PROVIDER = 'deepseek';
+    const result = loadAIConfig();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().code).toBe(AI_ERRORS.PROVIDER_UNKNOWN);
   });
 
   it('overrides embedding dimensions from env', () => {

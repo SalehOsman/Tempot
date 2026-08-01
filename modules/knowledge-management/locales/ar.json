@@ -1,0 +1,91 @@
+{
+  "knowledge-management": {
+    "commands": {
+      "knowledge": "إدارة المعرفة",
+      "knowledge_custom": "إضافة مصدر معرفة مخصص"
+    },
+    "menu": {
+      "button": "🧠 المعرفة",
+      "status": "📊 الحالة",
+      "sources": "📚 المصادر",
+      "dry_run": "🧪 فحص بدون حفظ",
+      "write": "🧱 بناء الفهرس",
+      "full_reindex": "♻️ إعادة فهرسة",
+      "history": "📜 السجل",
+      "test_query": "❓ اختبار سؤال",
+      "custom_source": "➕ مصدر مخصص",
+      "confirm_write": "✅ تأكيد البناء",
+      "confirm_reindex": "✅ تأكيد الفهرسة",
+      "cancel": "↩️ إلغاء",
+      "back": "↩️ العودة",
+      "providers": "⚙️ مزودات الذكاء",
+      "chat_provider": "💬 مزود المحادثة",
+      "embedding_provider": "🧠 التضمينات",
+      "embedding_model": "🧬 نموذج التضمين",
+      "provider_gemini": "✨ Gemini",
+      "provider_openai": "🔷 OpenAI",
+      "provider_deepseek": "🔎 DeepSeek",
+      "provider_ollama": "🖥️ Ollama",
+      "current_option": "✅ الحالي: {{label}}",
+      "model_gemini_v2": "🧠 Gemini v2",
+      "model_openai_small": "🧠 OpenAI صغير",
+      "model_openai_large": "🧠 OpenAI كبير",
+      "model_ollama_embeddinggemma": "🧠 EmbeddingGemma"
+    },
+    "view": {
+      "title": "إدارة المعرفة",
+      "unavailable": "إدارة المعرفة غير متاحة في بيئة التشغيل الحالية. راجع إعداد خدمة الذكاء الاصطناعي وRAG ثم حاول مرة أخرى.",
+      "status_failed": "تعذر تحميل حالة RAG. راجع إعداد الذكاء الاصطناعي وقاعدة البيانات وpgvector.",
+      "status": "جاهزية RAG\nالذكاء الاصطناعي: {{ai}}\nمفتاح التضمينات جاهز: {{provider}}\nمزود المحادثة: {{chatProvider}} ({{chatProviderReady}})\nمزود التضمينات: {{embeddingProvider}}\nنموذج التضمين: {{embeddingModel}}\nقاعدة البيانات: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nالمصادر المركبة: {{mounted}}",
+      "sources_title": "مصادر المعرفة المعتمدة: {{count}}",
+      "sources_empty": "لا توجد مصادر معرفة معتمدة.",
+      "sources_failed": "تعذر تحميل مصادر المعرفة.",
+      "source_item": "{{index}}. {{name}}\nالمسارات: {{roots}}\nمركب: {{mounted}}",
+      "source_detail": "{{name}}\nالمسارات: {{roots}}\nمركب: {{mounted}}\nاختر العملية المطلوبة.",
+      "source_missing": "مصدر المعرفة المحدد لم يعد متاحًا.",
+      "dry_run_completed": "اكتمل الفحص بدون حفظ.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمتجاوزة: {{skipped}}\nالفاشلة: {{failed}}\nالمقاطع: {{chunks}}",
+      "dry_run_failed": "تعذر إكمال الفحص بدون حفظ. راجع ربط مجلدات المصادر وإعدادات RAG.",
+      "write_confirm": "تأكيد بناء الفهرس.\nعملية الفحص: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
+      "write_waiting": "⏳ جاري بناء فهرس المعرفة.\nيرجى الانتظار حتى تكتمل العملية.",
+      "write_blocked": "بناء الفهرس موقوف حتى يوجد فحص ناجح حديث لنفس المصدر.",
+      "write_completed": "اكتمل بناء الفهرس.\nالعملية: {{id}}\nالمصدر: {{profile}}\nالملفات: {{processed}}\nالمقاطع: {{chunks}}",
+      "write_failed": "تعذر إكمال بناء الفهرس. راجع إعداد موفر الذكاء الاصطناعي وسجلات قاعدة البيانات.",
+      "write_failed_reason": "تعذر إكمال بناء الفهرس.\nالسبب: {{reason}}",
+      "operation_failed": "تعذرت عملية المعرفة بشكل غير متوقع. راجع سجلات الخدمة ثم حاول مرة أخرى.",
+      "custom_hint": "أضف مصدر معرفة مخصص بهذا الشكل:\n/knowledge_custom الاسم | المسار/النسبي | الوصف\nمثال:\n/knowledge_custom توثيق المالية | docs/finance | توثيق موديول المالية",
+      "custom_created": "تمت إضافة مصدر المعرفة المخصص.\nالاسم: {{name}}\nالمسار: {{root}}",
+      "custom_failed": "تعذرت إضافة مصدر المعرفة المخصص. استخدم مسارًا نسبيًا مركبًا داخل مصادر معرفة المشروع.",
+      "history_title": "آخر عمليات المعرفة",
+      "history_item": "{{index}}. {{id}}",
+      "history_empty": "لا يوجد سجل عمليات معرفة حتى الآن.",
+      "history_failed": "تعذر تحميل سجل عمليات المعرفة.",
+      "full_reindex_planned": "إعادة الفهرسة الكاملة تحتاج تأكيدين وسيتم تفعيلها بعد التحقق من مسار البناء.",
+      "test_query_hint": "استخدم /ask ثم اكتب السؤال لاختبار الاسترجاع بعد اكتمال بناء الفهرس.",
+      "providers": "إعدادات مزودات الذكاء\nالمحادثة: {{chat}} ({{chatReady}})\nالتضمينات: {{embedding}} ({{embeddingReady}})\nنموذج التضمين: {{model}}\n\nمفاتيح API تقرأ من بيئة التشغيل ولا يتم تخزينها من تيليجرام.",
+      "providers_failed": "تعذر تحميل إعدادات مزودات الذكاء.",
+      "provider_updated": "تم تحديث مزود المحادثة إلى {{provider}}.",
+      "embedding_provider_updated": "تم تحديث مزود التضمينات إلى {{provider}}.\nأعد بناء فهرس المعرفة قبل استخدام إجابات البحث.",
+      "embedding_model_updated": "تم تحديث نموذج التضمين إلى {{model}}.\nأعد بناء فهرس المعرفة قبل استخدام إجابات البحث.",
+      "provider_update_failed": "تعذر تحديث إعدادات مزود الذكاء. راجع تخزين إعدادات التشغيل ثم حاول مرة أخرى."
+    },
+    "source": {
+      "product_help": "مساعدة المنتج",
+      "operations": "التشغيل",
+      "architecture": "المعمارية",
+      "analysis": "التحليلات",
+      "custom": "مخصص",
+      "full_project": "المشروع الكامل"
+    },
+    "value": {
+      "yes": "نعم",
+      "no": "لا"
+    },
+    "reason": {
+      "quota_exceeded": "تم تجاوز حصة مزود التضمينات أو حد الاستخدام المؤقت. راجع حدود استخدام مزود الذكاء الاصطناعي أو الفوترة، أو انتظر إعادة ضبط الحصة قبل إعادة بناء الفهرس.",
+      "embedding_failed": "فشل موفر التضمينات أثناء إنشاء المتجهات. راجع مفتاح موفر الذكاء الاصطناعي والحصة والموديل واتصال الشبكة.",
+      "database_failed": "فشلت عملية قاعدة البيانات. راجع PostgreSQL وpgvector وحالة الترحيلات.",
+      "too_large": "المصدر المحدد كبير جدًا على الفهرسة الآمنة من داخل البوت. ابن الأقسام الأصغر أولًا أو ارفع TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS بعد التخطيط لتشغيل خلفي طويل.",
+      "unknown": "أبلغت الخدمة عن فشل غير متوقع. راجع سجلات bot-server لمعرفة المرجع التفصيلي."
+    }
+  }
+}

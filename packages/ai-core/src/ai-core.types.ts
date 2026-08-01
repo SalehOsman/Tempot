@@ -3,7 +3,8 @@ import type { AsyncResult, Result } from '@tempot/shared';
 import type { AppError } from '@tempot/shared';
 
 /** AI provider identifier */
-export type AIProviderType = 'gemini' | 'openai';
+export type AIProviderType = 'gemini' | 'openai' | 'deepseek';
+export type AIEmbeddingProviderType = 'gemini' | 'openai' | 'ollama';
 
 /** RAG content type discriminator */
 export type AIContentType =
@@ -21,8 +22,10 @@ export type ConfirmationLevel = 'none' | 'simple' | 'detailed' | 'escalated';
 export interface AIConfig {
   enabled: boolean;
   provider: AIProviderType;
+  embeddingProvider: AIEmbeddingProviderType;
   embeddingModel: string;
   embeddingDimensions: number;
+  embeddingBaseUrl?: string;
   confidenceThreshold: number;
   generationTimeoutMs: number;
   embeddingTimeoutMs: number;
@@ -114,6 +117,7 @@ export interface ContentChunk {
 export const DEFAULT_AI_CONFIG: AIConfig = {
   enabled: true,
   provider: 'gemini',
+  embeddingProvider: 'gemini',
   embeddingModel: 'gemini-embedding-2-preview',
   embeddingDimensions: 3072,
   confidenceThreshold: 0.7,

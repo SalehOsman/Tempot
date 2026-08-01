@@ -5,7 +5,19 @@
     {
       "surfaceId": "help.main",
       "surfaceType": "parent",
-      "visibleActions": ["help:commands", "help:support", "menu:main"]
+      "visibleActions": ["help:assistant", "help:commands", "help:support", "menu:main"]
+    },
+    {
+      "surfaceId": "help.assistant",
+      "surfaceType": "leaf",
+      "openedBy": "help:assistant",
+      "visibleActions": ["help:view", "menu:main"]
+    },
+    {
+      "callbackData": "help:assistant",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "help-center.menu.assistant"
     },
     {
       "surfaceId": "help.commands",

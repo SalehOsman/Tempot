@@ -30,6 +30,8 @@ export const BOT_ACCESS_MODES = {
 } as const;
 
 export type BotAccessMode = (typeof BOT_ACCESS_MODES)[keyof typeof BOT_ACCESS_MODES];
+export type AIChatProviderSetting = 'env' | 'gemini' | 'openai' | 'deepseek';
+export type AIEmbeddingProviderSetting = 'env' | 'gemini' | 'openai' | 'ollama';
 
 /** Known dynamic setting keys with their value types */
 export interface DynamicSettingDefinitions {
@@ -41,6 +43,9 @@ export interface DynamicSettingDefinitions {
   dynamic_default_language: string;
   notifications_enabled: boolean;
   bot_access_mode: BotAccessMode;
+  ai_chat_provider: AIChatProviderSetting;
+  ai_embedding_provider: AIEmbeddingProviderSetting;
+  ai_embedding_model: string;
 }
 
 /** Type-safe dynamic setting key */
@@ -109,4 +114,7 @@ export const DYNAMIC_SETTING_DEFAULTS: { [K in DynamicSettingKey]: DynamicSettin
     dynamic_default_language: '',
     notifications_enabled: true,
     bot_access_mode: BOT_ACCESS_MODES.private,
+    ai_chat_provider: 'env',
+    ai_embedding_provider: 'env',
+    ai_embedding_model: '',
   };

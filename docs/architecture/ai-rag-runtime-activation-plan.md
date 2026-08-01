@@ -23,9 +23,12 @@ configuration, resilience, rate limiting, embeddings, content ingestion,
 retrieval planning, RAG runtime selection, answer-state contracts, deterministic
 evaluation fixtures, tool routing primitives, and Telegram assistant UI classes.
 
-The package is not yet activated as a user-facing Telegram bot capability. The
-current bot runtime and active business modules do not instantiate the AI/RAG
-runtime path, and active modules remain configured with `hasAI: false`.
+The first user-facing Telegram runtime slice is now wired through
+`help-center` and `bot-server`: authorized users can use `/ask <question>` to
+receive a retrieval-grounded answer snippet or a localized no-context/degraded
+response. Full AI/RAG production activation remains open until staging
+ingestion, retrieval smoke evidence, leakage/no-context release evidence, and
+any future generative synthesis gates are completed.
 
 ## Activation Definition
 
@@ -218,10 +221,26 @@ Exit criteria:
 
 ## Provider Policy
 
-`TEMPOT_AI_PROVIDER` controls the chat provider. The current embedding default
-is Google Gemini through `AI_EMBEDDING_MODEL=gemini-embedding-2-preview`.
+`TEMPOT_AI_PROVIDER` controls the default chat provider. The knowledge
+management bot UI can override the active chat provider through dynamic settings
+without storing API keys. Supported chat providers are `gemini`, `openai`, and
+`deepseek`. DeepSeek uses the OpenAI-compatible provider path with
+`DEEPSEEK_API_KEY` and is limited to chat/generation, not embeddings.
+
+`AI_EMBEDDING_PROVIDER` controls the default embedding provider and supports
+`gemini`, `openai`, or `ollama`. The knowledge management bot UI can override
+the active embedding provider and embedding model through dynamic settings. The
+current embedding default is Google Gemini through
+`AI_EMBEDDING_MODEL=gemini-embedding-2-preview`. OpenAI embeddings are enabled
+with `AI_EMBEDDING_PROVIDER=openai`, `AI_EMBEDDING_MODEL=text-embedding-3-large`,
+and `OPENAI_API_KEY`. Local quota-free indexing is enabled with
+`AI_EMBEDDING_PROVIDER=ollama`, `AI_EMBEDDING_MODEL=embeddinggemma`, and
+`OLLAMA_BASE_URL=http://host.docker.internal:11434` when the bot runs in Docker
+Desktop and Ollama runs on the host.
+
 Embedding provider changes are not safe as a live runtime fallback because
-different providers produce incompatible vector spaces.
+different providers produce incompatible vector spaces. Switching provider or
+model requires rebuilding the vector index.
 
 Any future embedding-provider switch must include:
 
@@ -235,8 +254,8 @@ Any future embedding-provider switch must include:
 | Area | Current status | Activation requirement |
 | --- | --- | --- |
 | `@tempot/ai-core` package | Implemented foundation | Keep as service package |
-| Bot runtime AI/RAG flow | Not active | Add one governed module flow |
-| Active module `hasAI` usage | Not active | Set only for selected module |
+| Bot runtime AI/RAG flow | First retrieval-grounded help-center flow wired | Staging retrieval smoke |
+| Active module `hasAI` usage | `help-center` declares `hasAI: true` with graceful degradation | Keep limited to governed flows |
 | Vector schema | Drizzle schema and committed migration evidence exist | Staging migration smoke |
 | Docs ingestion CLI | Implemented locally by Spec #063; staging write smoke pending | Run documented command against target vector store |
 | Evaluation fixtures | Deterministic test-only fixtures exist | Extend for activated flow |

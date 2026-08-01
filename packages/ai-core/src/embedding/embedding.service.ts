@@ -1,4 +1,3 @@
-import { embed } from 'ai';
 import { and, inArray, sql } from 'drizzle-orm';
 import { ok, err } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
@@ -14,6 +13,8 @@ import type {
 import type { ResilienceService } from '../resilience/resilience.service.js';
 import type { AIRegistry } from '../ai-core.contracts.js';
 import { AI_ERRORS } from '../ai-core.errors.js';
+import { normalizeEmbeddingVector } from './embedding-vector-normalizer.js';
+import { createTextEmbedding } from './text-embedding.provider.js';
 
 /** Dependencies for EmbeddingService (max-params = 3) */
 export interface EmbeddingServiceDeps {
@@ -44,22 +45,24 @@ export class EmbeddingService extends DrizzleVectorRepository {
 
     // Generate embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
-      const { embedding } = await embed({
-        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
+      return createTextEmbedding({
+        config: this.config,
+        registry: this.registry,
         value: formattedContent,
       });
-      return embedding;
     });
 
     if (embeddingResult.isErr()) {
       return err(new AppError(AI_ERRORS.EMBEDDING_FAILED, embeddingResult.error));
     }
+    const vector = normalizeEmbeddingVector(embeddingResult.value, DB_CONFIG.VECTOR_DIMENSIONS);
+    if (vector.isErr()) return err(vector.error);
 
     // Store via parent class create method
     const createResult = await this.create({
       contentId: input.contentId,
       contentType: input.contentType,
-      vector: embeddingResult.value,
+      vector: vector.value,
       metadata: input.metadata ?? null,
     });
 
@@ -81,22 +84,24 @@ export class EmbeddingService extends DrizzleVectorRepository {
 
     // Generate query embedding with resilience
     const embeddingResult = await this.resilience.executeEmbedding(async () => {
-      const { embedding } = await embed({
-        model: this.registry.textEmbeddingModel(`google:${this.config.embeddingModel}`),
+      return createTextEmbedding({
+        config: this.config,
+        registry: this.registry,
         value: formattedQuery,
       });
-      return embedding;
     });
 
     if (embeddingResult.isErr()) {
       return err(new AppError(AI_ERRORS.RAG_SEARCH_FAILED, embeddingResult.error));
     }
+    const vector = normalizeEmbeddingVector(embeddingResult.value, DB_CONFIG.VECTOR_DIMENSIONS);
+    if (vector.isErr()) return err(vector.error);
 
     // Query with contentType filter and halfvec cosine distance.
     // Both column and query vector cast to halfvec for HNSW index utilization.
     try {
       const dims = DB_CONFIG.VECTOR_DIMENSIONS;
-      const similarity = sql<number>`1 - (${embeddings.vector}::halfvec(${sql.raw(String(dims))}) <=> ${JSON.stringify(embeddingResult.value)}::halfvec(${sql.raw(String(dims))}))`;
+      const similarity = sql<number>`1 - (${embeddings.vector}::halfvec(${sql.raw(String(dims))}) <=> ${JSON.stringify(vector.value)}::halfvec(${sql.raw(String(dims))}))`;
       const results = await this.db
         .select({
           contentId: embeddings.contentId,

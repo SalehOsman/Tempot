@@ -16,7 +16,7 @@ describe('Settings Type Definitions', () => {
     expect(publicMode).toBe('public');
   });
 
-  it('should export DYNAMIC_SETTING_DEFAULTS with all 8 known keys', () => {
+  it('should export DYNAMIC_SETTING_DEFAULTS with all AI provider keys', () => {
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('join_mode', 'AUTO');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('maintenance_mode', false);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('approval_role', '');
@@ -25,10 +25,13 @@ describe('Settings Type Definitions', () => {
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('dynamic_default_language', '');
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('notifications_enabled', true);
     expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('bot_access_mode', BOT_ACCESS_MODES.private);
+    expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('ai_chat_provider', 'env');
+    expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('ai_embedding_provider', 'env');
+    expect(DYNAMIC_SETTING_DEFAULTS).toHaveProperty('ai_embedding_model', '');
   });
 
-  it('should have exactly 8 dynamic setting keys', () => {
-    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(8);
+  it('should have exactly 11 dynamic setting keys', () => {
+    expect(Object.keys(DYNAMIC_SETTING_DEFAULTS)).toHaveLength(11);
   });
 
   it('should enforce type safety — defaults match DynamicSettingDefinitions', () => {
@@ -42,11 +45,17 @@ describe('Settings Type Definitions', () => {
       DYNAMIC_SETTING_DEFAULTS.notifications_enabled;
     const botAccessMode: DynamicSettingDefinitions['bot_access_mode'] =
       DYNAMIC_SETTING_DEFAULTS.bot_access_mode;
+    const aiChatProvider: DynamicSettingDefinitions['ai_chat_provider'] =
+      DYNAMIC_SETTING_DEFAULTS.ai_chat_provider;
+    const aiEmbeddingProvider: DynamicSettingDefinitions['ai_embedding_provider'] =
+      DYNAMIC_SETTING_DEFAULTS.ai_embedding_provider;
     expect(joinMode).toBe('AUTO');
     expect(maintenanceMode).toBe(false);
     expect(logRetention).toBe(90);
     expect(notificationsEnabled).toBe(true);
     expect(botAccessMode).toBe(BOT_ACCESS_MODES.private);
+    expect(aiChatProvider).toBe('env');
+    expect(aiEmbeddingProvider).toBe('env');
   });
 });
 

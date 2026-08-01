@@ -1,19 +1,22 @@
-import { ok, err } from 'neverthrow';
+import { err, ok } from 'neverthrow';
 import type { AsyncResult } from '@tempot/shared';
-import { AppError } from '@tempot/shared';
 import type { AbilityDefinition } from '@tempot/auth-core';
 import type { ModuleConfig } from '@tempot/module-registry';
 import type { Bot, Context } from 'grammy';
 import type {
-  ModuleLogger,
-  ModuleDependencyContainer,
-  ModuleSetupFn,
   AuthorizationContextResolver,
+  ModuleDependencyContainer,
+  ModuleLogger,
+  ModuleSetupFn,
 } from '../bot-server.types.js';
-import { BOT_SERVER_ERRORS } from '../bot-server.errors.js';
 import { createCallbackFallbackMiddleware } from '../bot/middleware/callback-fallback.middleware.js';
 import { createModuleAuthorizationProvider } from '../authorization/context-authorization.js';
 import { createModuleNavigationProvider } from './module-navigation.provider.js';
+import {
+  handleImportError,
+  handleMissingExport,
+  handleSetupError,
+} from './module-loader-errors.js';
 
 export type ModuleImporter = (
   path: string,
@@ -29,12 +32,14 @@ interface ModuleLoaderDeps {
   auditLog: ModuleDependencyContainer['auditLog'];
   interactionEvents: ModuleDependencyContainer['interactionEvents'];
   backups?: ModuleDependencyContainer['backups'];
+  aiAssistant?: ModuleDependencyContainer['aiAssistant'];
+  knowledge?: ModuleDependencyContainer['knowledge'];
   resolveAuthorizationContext: AuthorizationContextResolver;
   abilityRegistry: { register: (moduleName: string, definition: AbilityDefinition) => void };
   importer: ModuleImporter;
 }
 
-interface ValidatedModuleInput {
+export interface ValidatedModuleInput {
   path: string;
   config: ModuleConfig;
 }
@@ -49,12 +54,8 @@ export async function loadModuleHandlers(
 
   for (const mod of modules) {
     const result = await loadSingleModule({ bot, mod, deps, navigation });
-    if (result.isErr()) {
-      return err(result.error);
-    }
-    if (result.value !== undefined) {
-      loadedNames.push(result.value);
-    }
+    if (result.isErr()) return err(result.error);
+    if (result.value !== undefined) loadedNames.push(result.value);
   }
 
   bot.use(createCallbackFallbackMiddleware({ logger: deps.logger, t: deps.i18n.t }));
@@ -71,79 +72,19 @@ interface LoadSingleModuleParams {
 async function loadSingleModule(params: LoadSingleModuleParams): AsyncResult<string | undefined> {
   const { bot, mod, deps, navigation } = params;
   const childLogger = deps.logger.child({ module: mod.config.name });
-
   let imported: { default?: ModuleSetupFn; abilityDefinition?: AbilityDefinition };
+
   try {
     imported = await deps.importer(mod.path);
   } catch (error: unknown) {
     return handleImportError(mod, error, childLogger);
   }
 
-  if (!imported.default) {
-    return handleMissingExport(mod, childLogger);
-  }
-
+  if (!imported.default) return handleMissingExport(mod, childLogger);
   if (imported.abilityDefinition) {
     deps.abilityRegistry.register(mod.config.name, imported.abilityDefinition);
   }
-
   return executeSetup({ bot, mod, setupFn: imported.default, deps, navigation, childLogger });
-}
-
-function handleMissingExport(
-  mod: ValidatedModuleInput,
-  logger: ModuleLogger,
-): AsyncResult<string | undefined> {
-  if (mod.config.isCore) {
-    logger.error({ msg: 'Core module missing default export', module: mod.config.name });
-    return Promise.resolve(
-      err(
-        new AppError(BOT_SERVER_ERRORS.MODULE_SETUP_MISSING, {
-          module: mod.config.name,
-        }),
-      ),
-    );
-  }
-  logger.warn({ msg: 'Module missing default export, skipping', module: mod.config.name });
-  return Promise.resolve(ok(undefined));
-}
-
-function extractErrorDetails(error: unknown): Record<string, unknown> {
-  if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      code: (error as NodeJS.ErrnoException).code,
-      stack: error.stack?.split('\n').slice(0, 3).join(' → '),
-    };
-  }
-  return { error: String(error) };
-}
-
-function handleImportError(
-  mod: ValidatedModuleInput,
-  error: unknown,
-  logger: ModuleLogger,
-): AsyncResult<string | undefined> {
-  const details = extractErrorDetails(error);
-
-  if (mod.config.isCore) {
-    logger.error({ msg: 'Core module import failed', module: mod.config.name, ...details });
-    return Promise.resolve(
-      err(
-        new AppError(BOT_SERVER_ERRORS.CORE_MODULE_HANDLER_FAILED, {
-          module: mod.config.name,
-          ...details,
-        }),
-      ),
-    );
-  }
-  logger.warn({
-    msg: 'Non-core module import failed, skipping',
-    module: mod.config.name,
-    ...details,
-  });
-  return Promise.resolve(ok(undefined));
 }
 
 interface ExecuteSetupParams {
@@ -157,24 +98,7 @@ interface ExecuteSetupParams {
 
 async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | undefined> {
   const { bot, mod, setupFn, deps, navigation, childLogger } = params;
-  const container: ModuleDependencyContainer = {
-    logger: childLogger,
-    eventBus: deps.eventBus,
-    sessionProvider: deps.sessionProvider,
-    i18n: deps.i18n,
-    settings: deps.settings,
-    protectedData: deps.protectedData,
-    auditLog: deps.auditLog,
-    interactionEvents: deps.interactionEvents,
-    backups: deps.backups,
-    navigation,
-    authorization: createModuleAuthorizationProvider({
-      logger: childLogger,
-      t: deps.i18n.t,
-      resolveContext: deps.resolveAuthorizationContext,
-    }),
-    config: mod.config,
-  };
+  const container = buildModuleContainer({ deps, navigation, childLogger, mod });
 
   try {
     await setupFn(bot, container);
@@ -185,28 +109,33 @@ async function executeSetup(params: ExecuteSetupParams): AsyncResult<string | un
   }
 }
 
-function handleSetupError(
-  mod: ValidatedModuleInput,
-  error: unknown,
-  logger: ModuleLogger,
-): AsyncResult<string | undefined> {
-  const details = extractErrorDetails(error);
+interface BuildModuleContainerParams {
+  deps: ModuleLoaderDeps;
+  navigation: ModuleDependencyContainer['navigation'];
+  childLogger: ModuleLogger;
+  mod: ValidatedModuleInput;
+}
 
-  if (mod.config.isCore) {
-    logger.error({ msg: 'Core module setup failed', module: mod.config.name, ...details });
-    return Promise.resolve(
-      err(
-        new AppError(BOT_SERVER_ERRORS.CORE_MODULE_HANDLER_FAILED, {
-          module: mod.config.name,
-          ...details,
-        }),
-      ),
-    );
-  }
-  logger.warn({
-    msg: 'Non-core module setup failed, skipping',
-    module: mod.config.name,
-    ...details,
-  });
-  return Promise.resolve(ok(undefined));
+function buildModuleContainer(params: BuildModuleContainerParams): ModuleDependencyContainer {
+  const { deps, navigation, childLogger, mod } = params;
+  return {
+    logger: childLogger,
+    eventBus: deps.eventBus,
+    sessionProvider: deps.sessionProvider,
+    i18n: deps.i18n,
+    settings: deps.settings,
+    protectedData: deps.protectedData,
+    auditLog: deps.auditLog,
+    interactionEvents: deps.interactionEvents,
+    backups: deps.backups,
+    aiAssistant: deps.aiAssistant,
+    knowledge: deps.knowledge,
+    navigation,
+    authorization: createModuleAuthorizationProvider({
+      logger: childLogger,
+      t: deps.i18n.t,
+      resolveContext: deps.resolveAuthorizationContext,
+    }),
+    config: mod.config,
+  };
 }

@@ -31,8 +31,11 @@ unified Tempot package boundary:
 - `module.reviewer`: module review service class for future CLI wiring.
 - Toggle guard: enabled by default and disabled with `TEMPOT_AI=false`.
 
-This package is implemented as a foundation package. It is not yet wired as a
-user-facing Telegram bot AI/RAG flow in the current runtime.
+This package is implemented as a foundation package. The first Telegram bot
+runtime slice is wired through `help-center` and `bot-server` as a
+retrieval-grounded `/ask` assistant. Full AI/RAG production activation still
+requires staging ingestion, retrieval smoke evidence, and any future generative
+answer synthesis gates.
 
 ## Phase
 
@@ -63,18 +66,27 @@ Runtime activation is tracked in:
 ```env
 TEMPOT_AI=true
 TEMPOT_AI_PROVIDER=gemini
+AI_EMBEDDING_PROVIDER=gemini
 AI_EMBEDDING_MODEL=gemini-embedding-2-preview
 AI_EMBEDDING_DIMENSIONS=3072
 GEMINI_API_KEY=...
 OPENAI_API_KEY=...
+DEEPSEEK_API_KEY=...
+OLLAMA_BASE_URL=http://host.docker.internal:11434
 ```
 
-`TEMPOT_AI_PROVIDER` selects the chat provider. The package defaults to Gemini
-when the variable is omitted.
+`TEMPOT_AI_PROVIDER` selects the chat provider. Supported values are `gemini`,
+`openai`, and `deepseek`. DeepSeek uses the OpenAI-compatible provider path with
+`DEEPSEEK_API_KEY`.
 
-Embedding generation currently uses `AI_EMBEDDING_MODEL`, with
-`gemini-embedding-2-preview` as the default. Embedding-provider changes require
-re-indexing because vectors from different providers are not compatible.
+Embedding generation uses `AI_EMBEDDING_PROVIDER` and `AI_EMBEDDING_MODEL`.
+Supported embedding providers are Gemini, OpenAI, and Ollama. Gemini with
+`gemini-embedding-2-preview` remains the default. For local Docker Desktop
+indexing with host-installed Ollama, use `AI_EMBEDDING_PROVIDER=ollama`,
+`AI_EMBEDDING_MODEL=embeddinggemma`, `AI_EMBEDDING_DIMENSIONS=768`, and
+`OLLAMA_BASE_URL=http://host.docker.internal:11434`. Embedding-provider or model
+changes require re-indexing because vectors from different providers are not
+compatible.
 
 ## API
 
@@ -152,10 +164,10 @@ const planResult = validateRetrievalPlan({
 | RAG runtime selection | Implemented through `retrieveWithPlan()` |
 | Answer-state contracts | Implemented through `buildAnswerState()` |
 | Evaluation fixtures | Implemented as deterministic test-only fixtures |
-| Telegram bot AI flow | Not activated in the current bot runtime |
+| Telegram bot AI flow | First retrieval-grounded `/ask` flow activated through `help-center` |
 | Root `pnpm ai:dev` script | Not currently exposed |
 | Root `pnpm ai:review` script | Not currently exposed |
-| Docs ingestion CLI | Partial: reusable ingestion functions exist; live dependency composition is pending |
+| Docs ingestion CLI | Implemented with dry-run and write composition; staging write smoke pending |
 
 ## Degradation Modes
 
@@ -174,10 +186,12 @@ const planResult = validateRetrievalPlan({
 
 ## Status
 
-Complete foundation baseline and RAG contract expansion as of 2026-05-05.
-Runtime activation remains pending until a bot module opts in with `hasAI: true`,
-defines `aiDegradationMode`, and uses the RAG service from a governed runtime
-composition point.
+Complete foundation baseline and RAG contract expansion as of 2026-05-05. The
+first governed Telegram runtime slice is now exposed by `help-center` with
+`hasAI: true`, `aiDegradationMode: graceful`, and an injected bot-server
+provider. Production-grade AI/RAG readiness still depends on staging write
+smoke evidence, leakage/no-context release evidence, and any future generative
+answer synthesis specification.
 
 - 36 source files under `src/`.
 - 30 unit test files under `tests/unit/`.

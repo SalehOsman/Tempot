@@ -21,7 +21,7 @@ Use **Drizzle ORM v0.45.x** exclusively for pgvector operations, alongside Prism
 
 ## Critical Warning
 
-Embedding models from different providers are incompatible. Changing the embedding model or `TEMPOT_AI_PROVIDER` may require full re-indexing of all vector data. Keep re-indexing strategy documentation under `docs/architecture/` when it is formalized.
+Embedding models from different providers are incompatible. Changing the embedding model, `AI_EMBEDDING_PROVIDER`, or `TEMPOT_AI_PROVIDER` may require full re-indexing of all vector data. Keep re-indexing strategy documentation under `docs/architecture/` when it is formalized.
 
 ## Alternatives Rejected
 

@@ -208,8 +208,9 @@ is a starting point, not an exemption from constitution rules.
 
 `@tempot/ai-core` provides provider abstraction, tool registry contracts,
 content ingestion, embeddings, retrieval planning, grounded answer contracts,
-and RAG runtime wiring. Current AI/RAG status is foundation-ready, not fully
-activated in the Telegram bot runtime.
+and RAG runtime wiring. The first Telegram runtime slice is the
+retrieval-grounded help-center `/ask` flow. Full AI/RAG production readiness
+still depends on the activation evidence tracked in the runtime activation plan.
 
 RAG retrieval must apply:
 

@@ -2,7 +2,14 @@ import type { Bot, Context, MiddlewareFn } from 'grammy';
 import type { ModuleConfig, ModuleNavigationItem, UserRole } from '@tempot/module-registry';
 import { registerDeps } from './deps.context.js';
 import { helpCommand } from './commands/help.command.js';
+import { askCommand } from './commands/ask.command.js';
 import { handleCallbackQuery } from './handlers/callback.handler.js';
+import { handleTextMessage } from './handlers/text-message.handler.js';
+import type { HelpAssistantProvider } from './contracts/assistant.types.js';
+import type {
+  HelpSessionProvider,
+  HelpSessionRecord,
+} from './services/help-question-session.service.js';
 
 export interface ModuleLogger {
   info: (data: unknown) => void;
@@ -35,9 +42,10 @@ export interface ModuleAuthorizationProvider {
 export interface ModuleDeps {
   logger: ModuleLogger;
   eventBus: ModuleEventBus;
-  sessionProvider: { getSession: (userId: string, chatId: string) => Promise<unknown> };
+  sessionProvider: HelpSessionProvider;
   i18n: { t: (key: string, options?: Record<string, unknown>) => string };
   settings: { get: (key: string) => Promise<unknown> };
+  aiAssistant?: HelpAssistantProvider;
   navigation?: ModuleNavigationProvider;
   authorization: ModuleAuthorizationProvider;
   config: ModuleConfig;
@@ -55,9 +63,30 @@ const setup = async (bot: Bot<Context>, deps: ModuleDeps): Promise<void> => {
     }),
     helpCommand,
   );
+  bot.command(
+    'ask',
+    deps.authorization.guard({
+      module: 'help-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'help',
+    }),
+    askCommand,
+  );
   bot.on('callback_query:data', handleCallbackQuery);
+  bot.on(
+    'message:text',
+    deps.authorization.guard({
+      module: 'help-center',
+      classification: 'protected',
+      action: 'read',
+      subject: 'help',
+    }),
+    handleTextMessage,
+  );
   deps.logger.info({ msg: 'help-center handlers registered' });
 };
 
 export default setup;
 export { helpCenterAbilities, abilityDefinition } from './abilities.js';
+export type { HelpSessionRecord };

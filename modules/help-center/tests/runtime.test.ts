@@ -88,6 +88,11 @@ describe('help-center runtime', () => {
       helpCommand,
     );
     expect(bot.on).toHaveBeenCalledWith('callback_query:data', handleCallbackQuery);
+    expect(bot.on).toHaveBeenCalledWith(
+      'message:text',
+      deps.authorization.guard.mock.results[2]?.value,
+      expect.any(Function),
+    );
   });
 
   it('shows contextual help from command', async () => {

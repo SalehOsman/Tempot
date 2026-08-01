@@ -3,6 +3,8 @@ import type { Result } from '@tempot/shared';
 import { AppError } from '@tempot/shared';
 import type {
   AIConfig,
+  AIEmbeddingProviderType,
+  AIProviderType,
   ResilienceConfig,
   RateLimitConfig,
   ChunkingConfig,
@@ -18,17 +20,22 @@ import { AI_ERRORS } from './ai-core.errors.js';
 /** Load AI configuration from environment */
 export function loadAIConfig(): Result<AIConfig, AppError> {
   const enabled = process.env.TEMPOT_AI !== 'false';
-  const provider = (process.env.TEMPOT_AI_PROVIDER ?? 'gemini') as AIConfig['provider'];
+  const provider = parseProvider(process.env.TEMPOT_AI_PROVIDER, DEFAULT_AI_CONFIG.provider);
+  if (provider.isErr()) return err(provider.error);
 
-  if (provider !== 'gemini' && provider !== 'openai') {
-    return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
-  }
+  const embeddingProvider = parseEmbeddingProvider(
+    process.env.AI_EMBEDDING_PROVIDER,
+    DEFAULT_AI_CONFIG.embeddingProvider,
+  );
+  if (embeddingProvider.isErr()) return err(embeddingProvider.error);
 
   return ok({
     ...DEFAULT_AI_CONFIG,
     enabled,
-    provider,
+    provider: provider.value,
+    embeddingProvider: embeddingProvider.value,
     embeddingModel: process.env.AI_EMBEDDING_MODEL ?? DEFAULT_AI_CONFIG.embeddingModel,
+    embeddingBaseUrl: process.env.OLLAMA_BASE_URL,
     embeddingDimensions:
       Number(process.env.AI_EMBEDDING_DIMENSIONS) || DEFAULT_AI_CONFIG.embeddingDimensions,
     confidenceThreshold:
@@ -40,6 +47,25 @@ export function loadAIConfig(): Result<AIConfig, AppError> {
     defaultMaxOutputChars:
       Number(process.env.TEMPOT_AI_MAX_OUTPUT_CHARS) || DEFAULT_AI_CONFIG.defaultMaxOutputChars,
   });
+}
+
+function parseProvider(
+  raw: string | undefined,
+  fallback: AIProviderType,
+): Result<AIProviderType, AppError> {
+  const provider = (raw ?? fallback) as AIProviderType;
+  if (provider === 'gemini' || provider === 'openai') return ok(provider);
+  if (provider === 'deepseek') return ok(provider);
+  return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
+}
+
+function parseEmbeddingProvider(
+  raw: string | undefined,
+  fallback: AIEmbeddingProviderType,
+): Result<AIEmbeddingProviderType, AppError> {
+  const provider = raw ?? fallback;
+  if (provider === 'gemini' || provider === 'openai' || provider === 'ollama') return ok(provider);
+  return err(new AppError(AI_ERRORS.PROVIDER_UNKNOWN, { provider }));
 }
 
 /** Load resilience config from environment */

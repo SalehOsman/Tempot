@@ -48,6 +48,9 @@ services:
       - TEMPOT_BACKUP_RESTORE_DATABASE_URL=postgresql://tempot:tempot_password@restore-postgres:5432/tempot_restore_db
       - TEMPOT_BACKUP_RESTORE_FILES_PATH=/app/restore-rehearsals
       - TEMPOT_BACKUP_ACTIVE_JOB_STALE_AFTER_MS=900000
+      - TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS=60000
+      - TEMPOT_KNOWLEDGE_SOURCES_ROOT=/app/knowledge-sources
+      - TEMPOT_KNOWLEDGE_CUSTOM_PROFILES_FILE=/app/data/knowledge-custom-profiles.json
       # Provide via .env or shell: SUPER_ADMIN_IDS=<your_telegram_id>
       - SUPER_ADMIN_IDS=${SUPER_ADMIN_IDS:-}
       - TEMPOT_INPUT=true
@@ -63,6 +66,11 @@ services:
       - '127.0.0.1:3000:3000'
     volumes:
       - ./backups:/app/backups
+      - ./data:/app/data
+      - ./docs:/app/knowledge-sources/docs:ro
+      - ./specs:/app/knowledge-sources/specs:ro
+      - ./modules:/app/knowledge-sources/modules:ro
+      - ./packages:/app/knowledge-sources/packages:ro
       - restore_rehearsal_data:/app/restore-rehearsals
     healthcheck:
       test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/live']

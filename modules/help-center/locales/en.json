@@ -1,13 +1,16 @@
 {
   "help-center": {
     "commands": {
-      "help": "Help"
+      "help": "Help",
+      "ask": "Ask AI"
     },
     "menu": {
       "button": "❓ Help",
-      "commands": "Commands",
-      "support": "Support",
-      "back": "Back"
+      "assistant": "❓ Ask question",
+      "commands": "📋 Commands",
+      "support": "🛟 Support",
+      "close_assistant": "🔒 Close session",
+      "back": "↩️ Back"
     },
     "view": {
       "title": "<b>Help</b>\n\nFind available actions and support guidance for this bot.",
@@ -24,6 +27,20 @@
       "support_intro": "Send the issue description, the button you pressed, and a screenshot of the latest bot message.",
       "support_context": "User ID: <code>{{userId}}</code>\nChat ID: <code>{{chatId}}</code>",
       "support_steps": "If the issue is about a failed action, include the error reference or the tracking ID from Statistics > Timeline."
+    },
+    "assistant": {
+      "prompt": "<b>AI Help</b>\n\nWrite your question now and the assistant will search the project knowledge.\n\nYou can also use <code>/ask</code>, <code>ask/</code>, or <code>ask</code> followed by the question.",
+      "closed": "<b>AI Help</b>\n\nThe assistant session has been closed. Regular messages will no longer be treated as questions.",
+      "searching": "<b>AI Help</b>\n\nSearching project knowledge. Please wait...",
+      "missing_question": "<b>AI Help</b>\n\nWrite the question after <code>/ask</code> so the assistant can search the project documentation.",
+      "answer": "<b>AI Help</b>\n\n{{answer}}\n\nConfidence: <code>{{confidence}}%</code>",
+      "no_context": "<b>AI Help</b>\n\nNo reliable documentation context was found for this question. Try a more specific question or ask an administrator to ingest the latest documentation.",
+      "degraded": "<b>AI Help</b>\n\nThe AI assistant is not available right now. Reason: <code>{{reason}}</code>.",
+      "degraded_quota": "<b>AI Help</b>\n\nThe embedding provider reached its temporary usage limit. Wait a short time, rebuild with another configured embedding provider, or add billing capacity before trying again.",
+      "degraded_timeout": "<b>AI Help</b>\n\nThe assistant took too long to respond. Try again with a shorter question, or ask an administrator to check the AI provider and bot-server logs.",
+      "citations_title": "<b>Sources</b>",
+      "citation_item": "{{number}}. <code>{{source}}</code>",
+      "citations_empty": "<b>Sources</b>\nNo citation was returned for this answer."
     }
   }
 }

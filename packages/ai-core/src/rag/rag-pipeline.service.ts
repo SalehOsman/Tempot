@@ -11,6 +11,8 @@ import { buildDefaultRetrievalPlan } from './retrieval-plan.builder.js';
 import { executeRetrievalPlan } from './retrieval-plan.executor.js';
 import { validateRetrievalRequest } from './retrieval-plan.validation.js';
 import type { RetrievalOutcome, RetrievalRequest } from './retrieval-plan.types.js';
+import { RETRIEVAL_CANDIDATE_LIMIT, selectDiverseSources } from './rag-source-diversity.js';
+import { rankRetrievalResults } from './retrieval-ranking.js';
 
 /** RAG context result */
 export interface RAGContext {
@@ -62,9 +64,7 @@ export class RAGPipeline {
     this.embeddingService = input;
   }
 
-  async retrieveWithPlan(
-    request: RetrievalRequest,
-  ): AsyncResult<RetrievalOutcome, AppError> {
+  async retrieveWithPlan(request: RetrievalRequest): AsyncResult<RetrievalOutcome, AppError> {
     const startedAt = Date.now();
     const validatedRequest = validateRetrievalRequest(request);
     if (validatedRequest.isErr()) return err(validatedRequest.error);
@@ -97,7 +97,7 @@ export class RAGPipeline {
     const searchResult = await this.embeddingService.searchSimilar({
       query,
       contentTypes: allowedTypes,
-      limit: 5,
+      limit: RETRIEVAL_CANDIDATE_LIMIT,
       confidenceThreshold,
     });
 
@@ -121,12 +121,15 @@ export class RAGPipeline {
       return true;
     });
 
-    if (filtered.length === 0) {
+    const ranked = rankRetrievalResults(filtered, query);
+    const diversified = selectDiverseSources(ranked);
+
+    if (diversified.length === 0) {
       return ok({ hasResults: false, context: '', sources: [] });
     }
 
     // 4. Build context string from results (include chunk text for LLM)
-    const context = filtered
+    const context = diversified
       .map((r) => {
         const meta = r.metadata as Record<string, unknown> | null;
         const title = meta?.title ?? r.contentId;
@@ -135,7 +138,7 @@ export class RAGPipeline {
       })
       .join('\n\n');
 
-    return ok({ hasResults: true, context, sources: filtered });
+    return ok({ hasResults: true, context, sources: diversified });
   }
 
   /** Get content types accessible to a given role */
