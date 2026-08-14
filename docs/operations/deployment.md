@@ -94,6 +94,11 @@ docker compose run --rm bot-server sh -c "cd /app/node_modules/@tempot/database 
 docker compose up -d bot-server
 ```
 
+When more than one Tempot-based bot runs on the same Docker host, set a unique
+`COMPOSE_PROJECT_NAME` and non-conflicting host ports in `.env` before starting
+Compose. `docker-compose.yml` does not pin `container_name` or explicit volume
+names, so Compose isolates containers, networks, and volumes by project name.
+
 ### Local Webhook Compose
 
 Use this workflow for local staging-style webhook testing from the current
@@ -103,9 +108,9 @@ Tunnel services.
 
 ```powershell
 pnpm build:bot-runtime
-docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot up -d --build bot-server
-docker compose -f docker-compose.yml -f docker-compose.webhook.yml -p tempot ps
-docker logs -f tempot-bot
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml up -d --build bot-server
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml ps
+docker compose -f docker-compose.yml -f docker-compose.webhook.yml logs -f bot-server
 ```
 
 Required `.env` values for this local webhook stack:
@@ -117,7 +122,7 @@ Required `.env` values for this local webhook stack:
 | `TEMPOT_READINESS_TOKEN` | Secret required by `GET /ready`                            |
 | `TEMPOT_HTTP_TRUSTED_CLIENT_IP_HEADER` | Optional. Use `cf-connecting-ip` only when all webhook traffic goes through Cloudflare |
 
-Cloudflare Quick Tunnel URLs are temporary. If the `tempot-cloudflared` service
+Cloudflare Quick Tunnel URLs are temporary. If the `cloudflared` service
 prints a new `trycloudflare.com` URL, update `WEBHOOK_URL`, recreate the
 `bot-server` service, and register the Telegram webhook again.
 

@@ -20,6 +20,13 @@ Arabic is the primary language of the bot, with full English language support.
 
 ## Getting Started with the Bot
 
+If you are creating a new bot from the Tempot template, configure the bot
+instance identity before the first Docker start. Keep the default
+`COMPOSE_PROJECT_NAME=tempot` for a single local bot, or set a unique value and
+free host ports when running multiple bots on the same host. See
+`docs/product/en/guides/bot-template-instance-identity.md` for the full
+operator guide.
+
 ### Step 1: Find the Bot
 
 Search for the bot on Telegram using the username provided by your system operator, or use the direct link you received.

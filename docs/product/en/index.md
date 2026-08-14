@@ -20,6 +20,7 @@ Tempot is an enterprise Telegram bot framework built with TypeScript.
 ## Sections
 
 - **Start Here** - project orientation and source-of-truth map.
+- **Bot Template Setup** - cloning, naming, Docker identity, and local startup.
 - **Governance** - constitution, roles, SpecKit, Superpowers, and roadmap.
 - **Architecture** - system layers, ADRs, package boundaries, and graph context.
 - **Development** - contributor workflow, quality gates, and documentation policy.

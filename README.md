@@ -45,12 +45,25 @@ Update `.env` before connecting to Telegram:
 
 ```env
 BOT_TOKEN=your-telegram-bot-token
-DATABASE_URL=postgresql://tempot:tempot@localhost:5432/tempot
+DATABASE_URL=postgresql://tempot:tempot_password@localhost:5432/tempot_db
 REDIS_URL=redis://localhost:6379
 SUPER_ADMIN_IDS=123456789
 ```
 
 The exact environment list is documented in `.env.example`.
+
+Tempot also includes a default Docker project identity:
+
+```env
+COMPOSE_PROJECT_NAME=tempot
+BOT_HTTP_HOST_PORT=3000
+POSTGRES_HOST_PORT=5432
+RESTORE_POSTGRES_HOST_PORT=5433
+```
+
+If you create more than one bot from this template on the same Docker host,
+change `COMPOSE_PROJECT_NAME` and any conflicting host ports before running
+`pnpm docker:dev`.
 
 ## Common Commands
 
@@ -98,11 +111,17 @@ excluded from the public template through `.gitignore`.
 
 1. Clone or generate a new repository from this template.
 2. Copy `.env.example` to `.env`.
-3. Set `BOT_TOKEN`, database, Redis, and super-admin values.
-4. Start local services with `pnpm docker:dev`.
-5. Run the bot with `pnpm dev`.
-6. Add or customize modules under `modules/`.
-7. Run `pnpm build` before deployment.
+3. Keep the default `COMPOSE_PROJECT_NAME=tempot`, or set a unique project name
+   such as `my-customer-bot` before the first Docker start.
+4. Set `BOT_TOKEN`, database, Redis, and super-admin values.
+5. Start local services with `pnpm docker:dev`.
+6. Run the bot with `pnpm dev`.
+7. Add or customize modules under `modules/`.
+8. Run `pnpm build` before deployment.
+
+The Telegram display name and username are configured in BotFather. The Docker
+project name is only the local infrastructure identity used for containers,
+networks, volumes, and default image tags.
 
 ## Creating a Module
 
@@ -124,6 +143,19 @@ Start the local stack:
 pnpm docker:dev
 ```
 
+Run multiple bot instances on the same host by giving each checkout its own
+identity and free host ports:
+
+```env
+COMPOSE_PROJECT_NAME=my-customer-bot
+BOT_HTTP_HOST_PORT=3001
+POSTGRES_HOST_PORT=5434
+RESTORE_POSTGRES_HOST_PORT=5435
+```
+
+Docker Compose uses `COMPOSE_PROJECT_NAME` to isolate the local containers,
+networks, and volumes for each bot checkout.
+
 Stop it:
 
 ```bash
@@ -132,6 +164,9 @@ pnpm docker:down
 
 For webhook development, use `docker-compose.webhook.yml` together with the
 required `WEBHOOK_URL` and Telegram webhook commands provided by `bot-server`.
+
+Detailed instance naming guidance is documented in
+`docs/product/en/guides/bot-template-instance-identity.md`.
 
 ## Upgrade Strategy
 
