@@ -1,0 +1,284 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Global Audit Fields (Constitution Rule XXVII)
+// These should be copied to every model that needs audit/soft-delete
+// until Prisma supports native mixins or global fields.
+
+// User Management Module - User Profile
+model UserProfile {
+  id         String  @id @default(cuid())
+  telegramId BigInt  @unique
+  username   String?
+  email      String?
+  language   String  @default("ar")
+  role       String  @default("USER")
+  status     String  @default("ACTIVE")
+
+  // Additional identity fields
+  nationalId                     String?   @unique
+  mobileNumber                   String?
+  birthDate                      DateTime?
+  emailProtected                 Json?
+  emailLookupToken               String?
+  emailLookupKeyVersion          String?
+  emailNormalizationVersion      String?
+  nationalIdProtected            Json?
+  nationalIdLookupToken          String?
+  nationalIdLookupKeyVersion     String?
+  nationalIdNormalizationVersion String?
+  mobileNumberProtected          Json?
+  birthDateProtected             Json?
+  gender                         String? // 'male' | 'female'
+  governorate                    String?
+  countryCode                    String?   @default("+20")
+
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([telegramId])
+  @@index([username])
+  @@index([email])
+  @@index([emailLookupToken])
+  @@index([role])
+  @@index([status])
+  @@index([nationalId])
+  @@index([nationalIdLookupToken])
+  @@index([mobileNumber])
+  @@index([isDeleted])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userRole  String?
+  action    String
+  module    String
+  targetId  String?
+  before    Json?
+  after     Json?
+  status    String   @default("SUCCESS")
+  timestamp DateTime @default(now())
+
+  @@index([module, action])
+  @@index([userId])
+}
+
+model SensitiveDataMigrationCheckpoint {
+  migrationId    String   @id
+  phase          String
+  cursor         String?
+  processedCount Int      @default(0)
+  verifiedCount  Int      @default(0)
+  failureCount   Int      @default(0)
+  status         String
+  updatedAt      DateTime @updatedAt
+}
+
+model InteractionEvent {
+  id                String   @id @default(cuid())
+  traceId           String   @map("trace_id")
+  sequence          Int
+  updateId          Int?     @map("update_id")
+  updateType        String   @map("update_type")
+  command           String?
+  callbackData      String?  @map("callback_data")
+  callbackNamespace String?  @map("callback_namespace")
+  module            String
+  userId            String?  @map("user_id")
+  chatId            String?  @map("chat_id")
+  stage             String
+  status            String
+  action            String?
+  viewKey           String?  @map("view_key")
+  responseType      String?  @map("response_type")
+  reason            String?
+  errorCode         String?  @map("error_code")
+  referenceCode     String?  @map("reference_code")
+  metadata          Json?
+  occurredAt        DateTime @default(now()) @map("occurred_at")
+
+  // Audit fields
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@unique([traceId, sequence], map: "interaction_events_trace_sequence_key")
+  @@index([traceId, sequence], map: "idx_interaction_events_trace_sequence")
+  @@index([module, stage], map: "idx_interaction_events_module_stage")
+  @@index([status, occurredAt], map: "idx_interaction_events_status_time")
+  @@index([callbackNamespace], map: "idx_interaction_events_callback_namespace")
+  @@index([isDeleted], map: "idx_interaction_events_deleted")
+  @@map("interaction_events")
+}
+
+model Session {
+  id                 String  @id // Composite of userId:chatId
+  userId             String
+  chatId             String
+  role               String  @default("GUEST")
+  status             String  @default("ACTIVE")
+  language           String  @default("ar-EG")
+  activeConversation String?
+  metadata           Json?
+  schemaVersion      Int     @default(1)
+  version            Int     @default(1)
+
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([userId, chatId])
+  @@index([isDeleted])
+}
+
+model Attachment {
+  id           String  @id @default(cuid())
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  provider     String
+  providerKey  String  @unique
+  url          String?
+  metadata     Json?
+  moduleId     String?
+  entityId     String?
+  isEncrypted  Boolean @default(false)
+
+  // Audit fields (BaseEntity pattern)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([moduleId, entityId])
+  @@index([provider])
+  @@index([isDeleted])
+}
+
+model BackupJob {
+  id                 String    @id
+  requestedBy        String    @map("requested_by")
+  scope              String
+  status             String
+  sourceEnvironment  String    @map("source_environment")
+  requestedAt        DateTime  @map("requested_at")
+  startedAt          DateTime? @map("started_at")
+  completedAt        DateTime? @map("completed_at")
+  failureCategory    String?   @map("failure_category")
+  safeFailureMessage String?   @map("safe_failure_message")
+
+  artifacts  BackupArtifact[]
+  rehearsals RestoreRehearsal[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([status, requestedAt], map: "idx_backup_jobs_status_requested")
+  @@index([requestedBy], map: "idx_backup_jobs_requested_by")
+  @@index([isDeleted], map: "idx_backup_jobs_deleted")
+  @@map("backup_jobs")
+}
+
+model BackupArtifact {
+  id                  String @id @default(cuid())
+  backupJobId         String @map("backup_job_id")
+  artifactType        String @map("artifact_type")
+  checksum            String
+  encrypted           Boolean
+  sizeBytes           Int    @map("size_bytes")
+  storageAttachmentId String? @map("storage_attachment_id")
+  storageReference    String? @map("storage_reference")
+  storageProvider     String? @map("storage_provider")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_backup_artifacts_job")
+  @@index([artifactType], map: "idx_backup_artifacts_type")
+  @@index([isDeleted], map: "idx_backup_artifacts_deleted")
+  @@map("backup_artifacts")
+}
+
+model RestoreRehearsal {
+  id                  String    @id
+  backupJobId          String    @map("backup_job_id")
+  confirmedBy          String    @map("confirmed_by")
+  targetClassification String    @map("target_classification")
+  status               String
+  requestedAt          DateTime  @map("requested_at")
+  completedAt          DateTime? @map("completed_at")
+  schemaCheck          String    @map("schema_check")
+  dataCheck            String    @map("data_check")
+  protectedDataCheck   String    @map("protected_data_check")
+  fileCoverageCheck    String    @map("file_coverage_check")
+  safeFailureMessage   String?   @map("safe_failure_message")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_restore_rehearsals_backup")
+  @@index([status, requestedAt], map: "idx_restore_rehearsals_status_requested")
+  @@index([isDeleted], map: "idx_restore_rehearsals_deleted")
+  @@map("restore_rehearsals")
+}
+
+model Setting {
+  key         String  @id
+  value       String
+  description String?
+
+  // Audit fields (Constitution Rule XXVII)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@map("settings")
+}

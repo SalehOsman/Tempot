@@ -1,0 +1,57 @@
+{
+  "moduleName": "settings-management",
+  "entryPoints": ["settings"],
+  "surfaces": [
+    {
+      "surfaceId": "settings.main",
+      "surfaceType": "parent",
+      "openedBy": "settings:view",
+      "visibleActions": ["settings:profile", "settings:regional", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.profile",
+      "surfaceType": "leaf",
+      "openedBy": "settings:profile",
+      "visibleActions": ["profile:view", "settings:view", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.regional",
+      "surfaceType": "parent",
+      "openedBy": "settings:regional",
+      "visibleActions": ["settings:regional:language", "settings:view", "menu:main"]
+    },
+    {
+      "surfaceId": "settings.regional.language",
+      "surfaceType": "leaf",
+      "openedBy": "settings:regional:language",
+      "visibleActions": ["profile:edit:language", "settings:regional", "settings:view", "menu:main"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "settings:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.settings"
+    },
+    {
+      "callbackData": "settings:profile",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.profile"
+    },
+    {
+      "callbackData": "settings:regional",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.regional"
+    },
+    {
+      "callbackData": "settings:regional:language",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "settings-management.menu.language"
+    }
+  ],
+  "exitPaths": ["profile:view", "profile:edit:language", "menu:main"]
+}

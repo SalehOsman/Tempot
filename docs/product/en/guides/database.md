@@ -1,0 +1,228 @@
+---
+title: Using the Database Package
+description: Practical guide to repositories, transactions, soft-delete, and vector search in Tempot
+tags:
+  - guide
+  - database
+  - prisma
+audience:
+  - package-developer
+  - bot-developer
+contentType: developer-docs
+difficulty: intermediate
+lastVerified: 2026-07-22
+---
+
+## Overview
+
+The `@tempot/database` package enforces the repository pattern for all data access. This guide covers extending `BaseRepository` for your entities, using transactions, working with soft-delete behavior, and performing vector similarity searches.
+
+The commands and APIs in this guide were verified against the active package on
+2026-07-22. Run database commands through
+`pnpm --filter @tempot/database <script>`.
+
+## Extending BaseRepository
+
+Create a concrete repository by extending `BaseRepository` and implementing three abstract members:
+
+```typescript
+import { BaseRepository, prisma, type IAuditLogger } from '@tempot/database';
+import type { Invoice } from '@prisma/client';
+
+export class InvoiceRepository extends BaseRepository<Invoice> {
+  protected moduleName = 'invoices';
+  protected entityName = 'invoice';
+
+  constructor(auditLogger: IAuditLogger) {
+    super(auditLogger);
+  }
+
+  protected get model() {
+    return this.db.invoice;
+  }
+}
+```
+
+The base class provides public `findById`, `create`, `update`, and `delete`
+methods plus protected `findMany` support for domain-specific repository
+queries. All return `Result<T, AppError>`. Audit fields (`createdBy`,
+`updatedBy`, `deletedBy`) are populated automatically from `sessionContext`.
+
+Audit snapshots use an explicit safe-field policy. Classified identity and
+contact fields are omitted and represented only by non-sensitive change
+markers. A repository must not opt protected fields back into audit snapshots.
+
+When an exact lookup must survive key rotation, use
+`ProtectedDataService.createLookupTokens()`. It returns tokens for active,
+readable, and retiring versions while excluding retired versions. Query the
+indexed token column only; never fetch all records from an older key version
+for in-memory decryption.
+
+For startup flows, create a narrow repository contract instead of calling Prisma
+from the application layer. `BootstrapSessionRepository` is the reference
+example: it upserts the configured super-admin session and matching profile
+through a database package boundary.
+
+## Adding Custom Queries
+
+Add domain-specific queries as methods on your repository subclass:
+
+```typescript
+export class InvoiceRepository extends BaseRepository<Invoice> {
+  // ... abstract members
+
+  async findByCustomer(customerId: string): Promise<Result<Invoice[], AppError>> {
+    return this.findMany({ customerId });
+  }
+
+  async findOverdue(): Promise<Result<Invoice[], AppError>> {
+    return this.findMany({
+      dueDate: { lt: new Date() },
+      status: 'PENDING',
+    });
+  }
+}
+```
+
+The `findMany` method automatically applies `isDeleted: false` filtering, so your custom queries never return soft-deleted records.
+
+## Using TransactionManager
+
+Wrap multi-repository operations in `TransactionManager.run()` for atomicity:
+
+```typescript
+import { TransactionManager } from '@tempot/database';
+import { ok } from 'neverthrow';
+
+const result = await TransactionManager.run(async (tx) => {
+  const invoiceRepo = invoiceRepository.withTransaction(tx);
+  const paymentRepo = paymentRepository.withTransaction(tx);
+
+  const invoice = await invoiceRepo.create({ amount: 500, customerId: 'c_1' });
+  if (invoice.isErr()) return invoice;
+
+  const payment = await paymentRepo.create({
+    invoiceId: invoice.value.id,
+    amount: 500,
+  });
+  if (payment.isErr()) return payment;
+
+  return ok(invoice.value);
+});
+```
+
+Each `withTransaction(tx)` call returns a new repository instance bound to the transaction client. If any step returns `Result.Err`, the transaction rolls back automatically.
+
+## Understanding Soft-Delete
+
+Soft-delete is enforced globally via Prisma client extensions. You do not need to handle it manually.
+
+### What Happens on Delete
+
+When your repository calls `delete(id)`, the Prisma extension converts it to:
+
+```typescript
+// Your code calls:
+await invoiceRepo.delete('inv_123');
+
+// Prisma extension executes:
+// UPDATE invoices SET "isDeleted" = true, "deletedAt" = NOW() WHERE id = 'inv_123'
+```
+
+Physical deletion never occurs through the repository API.
+
+### What Happens on Read
+
+Normal reads of soft-deletable models enforce `isDeleted: false` after all
+caller criteria:
+
+```typescript
+// Repository code calls the protected helper:
+return this.findMany({ status: 'PENDING' });
+
+// Prisma extension adds:
+// WHERE status = 'PENDING' AND "isDeleted" = false
+```
+
+Caller-supplied `isDeleted` criteria cannot override this scope. Deleted-record
+maintenance or recovery requires a separate purpose-specific repository
+contract; it must not be exposed through normal filter arguments. Models that
+do not implement soft delete are left unfiltered.
+
+## Working with Audit Fields
+
+The `BaseEntity` defines eight standard fields. Six are managed automatically:
+
+| Field       | Set By                 | When   |
+| ----------- | ---------------------- | ------ |
+| `id`        | Prisma default         | INSERT |
+| `createdAt` | Prisma `@default(now)` | INSERT |
+| `updatedAt` | Prisma `@updatedAt`    | UPDATE |
+| `createdBy` | `sessionContext`       | INSERT |
+| `updatedBy` | `sessionContext`       | UPDATE |
+| `deletedBy` | `sessionContext`       | DELETE |
+
+The repository reads the current user from `sessionContext` (set at the middleware boundary) and injects it into the appropriate field. No manual attribution is needed.
+
+## Using the Vector Repository
+
+For AI-powered similarity search, extend `DrizzleVectorRepository`:
+
+```typescript
+import { DrizzleVectorRepository } from '@tempot/database';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
+export class DocumentVectorRepo extends DrizzleVectorRepository {
+  constructor(db: NodePgDatabase) {
+    super(db);
+  }
+}
+```
+
+Store and search embeddings:
+
+```typescript
+// Store an embedding
+const createResult = await vectorRepo.create({
+  sourceId: 'doc_123',
+  sourceType: 'document',
+  content: 'Original text chunk',
+  embedding: vectorArray, // number[] with 3072 dimensions
+});
+
+// Search by similarity
+const searchResult = await vectorRepo.search(queryVector, 10);
+if (searchResult.isOk()) {
+  const similar = searchResult.value; // top 10 matches by cosine similarity
+}
+```
+
+The repository uses HNSW indexing with `halfvec` casts, supporting vectors up to 4000 dimensions. The default dimension is 3072, configured via `DB_CONFIG.VECTOR_DIMENSIONS`.
+
+## Implementing IAuditLogger
+
+Every `BaseRepository` requires an `IAuditLogger` for audit trail logging. Provide the `AuditLogger` from `@tempot/logger`:
+
+```typescript
+import { AuditLogRepository } from '@tempot/database';
+import { AuditLogger } from '@tempot/logger';
+
+const auditLogRepo = new AuditLogRepository({
+  log: async () => {},
+});
+const auditLogger = new AuditLogger(auditLogRepo);
+
+const invoiceRepo = new InvoiceRepository(auditLogger);
+```
+
+The `AuditLogRepository` itself takes a no-op audit logger to prevent infinite recursion (an audit log entry logging itself).
+
+## Best Practices
+
+- Never call Prisma directly in service code; always go through a repository
+- Use `withTransaction(tx)` to bind repositories to a shared transaction
+- Let soft-delete and audit fields work automatically via extensions and `sessionContext`
+- Implement domain queries as repository methods, not as raw Prisma calls in services
+- Use the shared protected-data service for classified values and approved
+  exact-match tokens; never add plaintext or reversible indexes for them
+- Keep deleted-record maintenance and recovery behind explicit privileged repository methods

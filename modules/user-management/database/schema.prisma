@@ -1,0 +1,25 @@
+// user-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/025-user-management/data-model.md
+
+// Models for this module are merged into the root Prisma schema at build time.
+// This file serves as the module-level schema reference and validator gate.
+
+// Placeholder — replace with actual models when implementing the module.
+// Example:
+//
+// model UserProfile {
+//   id        String   @id @default(cuid())
+//   userId    String   @unique
+//   bio       String?
+//
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   createdBy String?
+//   updatedBy String?
+//   isDeleted Boolean  @default(false)
+//   deletedAt DateTime?
+//   deletedBy String?
+//
+//   @@index([isDeleted])
+// }

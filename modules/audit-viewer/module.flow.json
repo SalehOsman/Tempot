@@ -1,0 +1,75 @@
+{
+  "moduleName": "audit-viewer",
+  "entryPoints": ["stats"],
+  "surfaces": [
+    {
+      "surfaceId": "stats.main",
+      "surfaceType": "parent",
+      "openedBy": "stats:view",
+      "visibleActions": [
+        "stats:modules",
+        "stats:runtime",
+        "stats:problems",
+        "stats:timeline",
+        "menu:main"
+      ]
+    },
+    {
+      "surfaceId": "stats.modules",
+      "surfaceType": "leaf",
+      "openedBy": "stats:modules",
+      "visibleActions": ["stats:view", "menu:main"]
+    },
+    {
+      "surfaceId": "stats.runtime",
+      "surfaceType": "leaf",
+      "openedBy": "stats:runtime",
+      "visibleActions": ["stats:view", "menu:main"]
+    },
+    {
+      "surfaceId": "stats.problems",
+      "surfaceType": "leaf",
+      "openedBy": "stats:problems",
+      "visibleActions": ["stats:view", "menu:main"]
+    },
+    {
+      "surfaceId": "stats.timeline",
+      "surfaceType": "leaf",
+      "openedBy": "stats:timeline",
+      "visibleActions": ["stats:view", "menu:main"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "stats:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "audit-viewer.menu.button"
+    },
+    {
+      "callbackData": "stats:modules",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "audit-viewer.menu.modules"
+    },
+    {
+      "callbackData": "stats:runtime",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "audit-viewer.menu.runtime"
+    },
+    {
+      "callbackData": "stats:problems",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "audit-viewer.menu.problems"
+    },
+    {
+      "callbackData": "stats:timeline",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "audit-viewer.menu.timeline"
+    }
+  ],
+  "exitPaths": ["menu:main"]
+}

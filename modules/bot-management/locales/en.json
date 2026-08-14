@@ -1,0 +1,82 @@
+{
+  "bot-management": {
+    "commands": {
+      "bots": "Manage bots",
+      "new_bot": "Create a new bot profile"
+    },
+    "menu": {
+      "title": "Bot Management",
+      "list": "Managed Bots",
+      "create": "➕ New bot",
+      "back": "↩️ Back",
+      "refresh": "🔄 Refresh",
+      "previous": "⬅️ Previous",
+      "next": "➡️ Next",
+      "empty": "No managed bots found. Create the first bot profile.",
+      "list_title": "Managed Bots ({count})",
+      "bot_entry": "🤖 {name}",
+      "row": "{index}. {name} (@{username}) - {status}",
+      "lifecycle": "🔁 Lifecycle",
+      "settings": "⚙️ Settings",
+      "modules": "📦 Modules"
+    },
+    "detail": {
+      "view": "Bot: {name}\nUsername: @{username}\nStatus: {status}\nRuntime: {runtimeMode}\nOwner: {ownerId}\nLocale: {locale}\nCountry: {country}\nTimezone: {timezone}\nHealth: {health}\nCredential: {credential}"
+    },
+    "create": {
+      "prompt": {
+        "display_name": "Send the bot display name.",
+        "telegram_username": "Send the Telegram bot username without @.",
+        "token": "Send the Telegram bot token. It will be fingerprinted and redacted."
+      },
+      "cancelled": "Bot creation cancelled. No bot profile was created."
+    },
+    "health": {
+      "unknown": "Unknown",
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unhealthy": "Unhealthy"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "CONFIGURED": "Configured",
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "MAINTENANCE": "Maintenance",
+      "ARCHIVED": "Archived"
+    },
+    "actions": {
+      "configure": "⚙️ Configure",
+      "activate": "▶️ Activate",
+      "pause": "⏸️ Pause",
+      "resume": "▶️ Resume",
+      "maintenance": "⚙️ Maintenance",
+      "archive": "🗄️ Archive",
+      "confirm_archive": "🗄️ Confirm archive",
+      "export": "Export",
+      "import": "Import"
+    },
+    "lifecycle": {
+      "archive_confirmation": "Archive this bot profile? A reason will be required before the change is recorded.",
+      "reason_prompt": "Send the operational reason for this lifecycle change.",
+      "reason_cancelled": "Lifecycle change cancelled. No bot state was changed."
+    },
+    "notification": {
+      "lifecycle_changed": "Bot status changed",
+      "health_changed": "Bot health changed",
+      "provisioned": "Bot profile created from template"
+    },
+    "error": {
+      "not_found": "Bot profile not found",
+      "unauthorized": "You are not authorized for this action",
+      "invalid_transition": "This lifecycle transition is not allowed",
+      "missing_reason": "A reason is required for this transition",
+      "credential_redacted": "Credential values are redacted",
+      "list_failed": "Could not load managed bots",
+      "no_user": "Could not identify the Telegram user",
+      "duplicate_username": "A managed bot with this Telegram username already exists",
+      "create_failed": "Could not create the managed bot profile",
+      "section_unavailable": "This bot management section is not available yet."
+    }
+  }
+}

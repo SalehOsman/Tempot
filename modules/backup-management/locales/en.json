@@ -1,0 +1,64 @@
+{
+  "backup-management": {
+    "commands": {
+      "backups": "Backup management"
+    },
+    "menu": {
+      "button": "🗄️ Backups",
+      "request": "📦 Create backup",
+      "history": "📜 Backup history",
+      "restore": "📥 Restore saved backup",
+      "retention": "🧹 Retention",
+      "confirm_request": "✅ Confirm backup",
+      "confirm_restore": "📥 Restore backup",
+      "production_restore": "⚠️ Live restore",
+      "confirm_production_restore": "⚠️ Confirm live restore",
+      "factory_reset": "♻️ Factory reset",
+      "confirm_factory_reset": "⚠️ Confirm reset",
+      "cancel": "↩️ Cancel",
+      "back": "↩️ Back",
+      "restore_item": "📦 {{createdAt}}"
+    },
+    "view": {
+      "title": "Backup management",
+      "request_confirm": "Confirm creating a complete backup now. The request will be recorded and processed by the backup service.",
+      "request_submitted": "Backup completed.\nReference: {{id}}\nLocation: {{storageReference}}",
+      "request_failed": "Backup request could not be submitted. Review backup service configuration and try again.",
+      "request_unavailable": "Backup service is not available in this runtime. Enable backup execution before requesting a backup.",
+      "history_title": "Recent backup history: {{count}}",
+      "history_item": "{{index}}. {{id}} - {{status}} - {{scope}}",
+      "history_empty": "No backup history is available yet.",
+      "history_unavailable": "Backup history is not available in this runtime.",
+      "restore_confirm": "Confirm restoring the selected saved backup.\nBackup: {{id}}\nThe live database will not be overwritten during the safety check.",
+      "restore_completed": "Saved backup restore check completed.\nCheck: {{id}}\nBackup: {{backupId}}",
+      "production_restore_warning": "Live restore warning.\nBackup: {{id}}\nA fresh backup will be created first, then the live database and configured live files will be replaced.",
+      "production_restore_final_warning": "Final live restore confirmation.\nBackup: {{id}}\nThis action changes the live environment. Continue only if you are ready to restore this backup now.",
+      "production_restore_completed": "Live restore completed.\nRestore: {{id}}\nBackup: {{backupId}}\nPre-restore backup: {{preRestoreBackupId}}",
+      "production_restore_failed": "Live restore could not be completed. Review backup service configuration and restore logs, then try again.",
+      "production_restore_unavailable": "Live restore is not available in this runtime.",
+      "factory_reset_warning": "Factory reset warning.\nA fresh backup will be created first. Then all database data, including users, memberships, messages, settings, and audit records, will be removed.",
+      "factory_reset_final_warning": "Final factory reset confirmation.\nThe database will return to a clean migrated state. Super admins will be recreated from SUPER_ADMIN_IDS after the bot restarts.",
+      "factory_reset_completed": "Factory reset completed.\nReset: {{id}}\nPre-reset backup: {{preResetBackupId}}\nRestart the bot container so SUPER_ADMIN_IDS bootstrap runs again.",
+      "factory_reset_failed": "Factory reset could not be completed. Review backup service configuration and database logs, then try again.",
+      "factory_reset_unavailable": "Factory reset is not available in this runtime.",
+      "restore_failed": "Saved backup restore could not be completed. Check the isolated restore database configuration and try again.",
+      "restore_unavailable": "Saved backup restore is not available in this runtime.",
+      "retention_summary": "Retention actions require a configured policy and at least one recorded backup.",
+      "restore_select": "Select the saved backup to restore: {{count}}",
+      "restore_empty": "No successful saved backups are available for restore."
+    },
+    "scope": {
+      "complete": "Complete",
+      "database": "Database",
+      "files": "Files"
+    },
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "warning": "Warning",
+      "cancelled": "Cancelled"
+    }
+  }
+}

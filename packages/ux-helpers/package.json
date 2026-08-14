@@ -1,0 +1,39 @@
+{
+  "name": "@tempot/ux-helpers",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/testing/mock.context.js",
+      "types": "./dist/testing/mock.context.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev:watch": "tsc --watch --preserveWatchOutput",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "grammy": "1.41.1",
+    "neverthrow": "8.2.0",
+    "@tempot/interaction-observability": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "@tempot/i18n-core": "workspace:*",
+    "@tempot/logger": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

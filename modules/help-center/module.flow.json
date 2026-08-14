@@ -1,0 +1,56 @@
+{
+  "moduleName": "help-center",
+  "entryPoints": ["help"],
+  "surfaces": [
+    {
+      "surfaceId": "help.main",
+      "surfaceType": "parent",
+      "visibleActions": ["help:assistant", "help:commands", "help:support", "menu:main"]
+    },
+    {
+      "surfaceId": "help.assistant",
+      "surfaceType": "leaf",
+      "openedBy": "help:assistant",
+      "visibleActions": ["help:view", "menu:main"]
+    },
+    {
+      "callbackData": "help:assistant",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "help-center.menu.assistant"
+    },
+    {
+      "surfaceId": "help.commands",
+      "surfaceType": "leaf",
+      "openedBy": "help:commands",
+      "visibleActions": ["help:view", "menu:main"]
+    },
+    {
+      "surfaceId": "help.support",
+      "surfaceType": "leaf",
+      "openedBy": "help:support",
+      "visibleActions": ["help:view", "menu:main"]
+    }
+  ],
+  "callbackActions": [
+    {
+      "callbackData": "help:view",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "help-center.menu.button"
+    },
+    {
+      "callbackData": "help:commands",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "help-center.menu.commands"
+    },
+    {
+      "callbackData": "help:support",
+      "actionKind": "navigation",
+      "handlerStatus": "handled",
+      "labelKey": "help-center.menu.support"
+    }
+  ],
+  "exitPaths": ["menu:main"]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@tempot/session-manager",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./context": {
+      "import": "./dist/session.context.js",
+      "types": "./dist/session.context.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "@tempot/database": "workspace:*",
+    "@tempot/shared": "workspace:*",
+    "bullmq": "5.76.2",
+    "neverthrow": "8.2.0"
+  },
+  "devDependencies": {
+    "@testcontainers/redis": "^12.0.3",
+    "@types/node": "^22.19.17",
+    "ioredis": "5.10.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

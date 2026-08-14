@@ -1,0 +1,6 @@
+extends: occurrence
+message: 'Sentences should be no longer than 40 words. Consider breaking this sentence into smaller ones.'
+level: suggestion
+scope: sentence
+max: 40
+token: \b(\w+)\b

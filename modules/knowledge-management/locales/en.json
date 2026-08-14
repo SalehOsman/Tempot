@@ -1,0 +1,91 @@
+{
+  "knowledge-management": {
+    "commands": {
+      "knowledge": "Knowledge management",
+      "knowledge_custom": "Add a custom knowledge source"
+    },
+    "menu": {
+      "button": "🧠 Knowledge",
+      "status": "📊 Status",
+      "sources": "📚 Sources",
+      "dry_run": "🧪 Dry run",
+      "write": "🧱 Write index",
+      "full_reindex": "♻️ Full reindex",
+      "history": "📜 History",
+      "test_query": "❓ Test query",
+      "custom_source": "➕ Custom source",
+      "confirm_write": "✅ Confirm write",
+      "confirm_reindex": "✅ Confirm reindex",
+      "cancel": "↩️ Cancel",
+      "back": "↩️ Back",
+      "providers": "⚙️ AI providers",
+      "chat_provider": "💬 Chat provider",
+      "embedding_provider": "🧠 Embeddings",
+      "embedding_model": "🧬 Embedding model",
+      "provider_gemini": "✨ Gemini",
+      "provider_openai": "🔷 OpenAI",
+      "provider_deepseek": "🔎 DeepSeek",
+      "provider_ollama": "🖥️ Ollama",
+      "current_option": "✅ Current: {{label}}",
+      "model_gemini_v2": "🧠 Gemini v2",
+      "model_openai_small": "🧠 OpenAI small",
+      "model_openai_large": "🧠 OpenAI large",
+      "model_ollama_embeddinggemma": "🧠 EmbeddingGemma"
+    },
+    "view": {
+      "title": "Knowledge management",
+      "unavailable": "Knowledge operations are not available in this runtime. Review AI/RAG service configuration and try again.",
+      "status_failed": "RAG status could not be loaded. Review AI, database, and pgvector configuration.",
+      "status": "RAG readiness\nAI enabled: {{ai}}\nEmbedding key ready: {{provider}}\nChat provider: {{chatProvider}} ({{chatProviderReady}})\nEmbedding provider: {{embeddingProvider}}\nEmbedding model: {{embeddingModel}}\nDatabase: {{database}}\nVector: {{vector}}\nEmbeddings: {{embeddings}}\nMounted sources: {{mounted}}",
+      "sources_title": "Approved knowledge sources: {{count}}",
+      "sources_empty": "No approved knowledge source profiles are configured.",
+      "sources_failed": "Knowledge source profiles could not be loaded.",
+      "source_item": "{{index}}. {{name}}\nRoots: {{roots}}\nMounted: {{mounted}}",
+      "source_detail": "{{name}}\nRoots: {{roots}}\nMounted: {{mounted}}\nChoose the required operation.",
+      "source_missing": "The selected knowledge source is no longer available.",
+      "dry_run_completed": "Dry-run completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nSkipped: {{skipped}}\nFailed: {{failed}}\nChunks: {{chunks}}",
+      "dry_run_failed": "Dry-run could not be completed. Check source mounts and AI/RAG configuration.",
+      "write_confirm": "Confirm writing the index.\nDry-run job: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
+      "write_waiting": "⏳ Knowledge indexing is running.\nPlease wait until the operation completes.",
+      "write_blocked": "Write indexing is blocked until a recent successful dry-run exists for the selected source profile.",
+      "write_completed": "Write indexing completed.\nJob: {{id}}\nProfile: {{profile}}\nFiles: {{processed}}\nChunks: {{chunks}}",
+      "write_failed": "Write indexing could not be completed. Review AI provider and database logs.",
+      "write_failed_reason": "Write indexing could not be completed.\nReason: {{reason}}",
+      "operation_failed": "Knowledge operation failed unexpectedly. Review the service logs and try again.",
+      "custom_hint": "Add a custom knowledge source with:\n/knowledge_custom Name | relative/path | Description\nExample:\n/knowledge_custom Finance Docs | docs/finance | Finance module documentation",
+      "custom_created": "Custom knowledge source was added.\nName: {{name}}\nRoot: {{root}}",
+      "custom_failed": "Custom knowledge source could not be added. Use a relative mounted path inside the project knowledge sources.",
+      "history_title": "Recent knowledge jobs",
+      "history_item": "{{index}}. {{id}}",
+      "history_empty": "No knowledge ingestion jobs are available yet.",
+      "history_failed": "Knowledge ingestion history could not be loaded.",
+      "full_reindex_planned": "Full reindex requires two confirmations and will be enabled after the write path is verified.",
+      "test_query_hint": "Use /ask followed by a question to test retrieval after indexing is complete.",
+      "providers": "AI provider settings\nChat: {{chat}} ({{chatReady}})\nEmbeddings: {{embedding}} ({{embeddingReady}})\nEmbedding model: {{model}}\n\nAPI keys are read from the runtime environment and are never stored from Telegram.",
+      "providers_failed": "AI provider settings could not be loaded.",
+      "provider_updated": "AI chat provider was updated to {{provider}}.",
+      "embedding_provider_updated": "Embedding provider was updated to {{provider}}.\nRebuild the knowledge index before using search answers.",
+      "embedding_model_updated": "Embedding model was updated to {{model}}.\nRebuild the knowledge index before using search answers.",
+      "provider_update_failed": "AI provider settings could not be updated. Review runtime settings storage and try again."
+    },
+    "source": {
+      "product_help": "Product help",
+      "operations": "Operations",
+      "architecture": "Architecture",
+      "analysis": "Analysis",
+      "custom": "Custom",
+      "full_project": "Full project"
+    },
+    "value": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "reason": {
+      "quota_exceeded": "The embedding provider quota or rate limit has been exceeded. Review the AI provider usage limits, billing, or wait for quota reset before rebuilding the index.",
+      "embedding_failed": "The embedding provider failed while creating vectors. Check the AI provider key, quota, model, and network access.",
+      "database_failed": "The database operation failed. Check PostgreSQL, pgvector, and migration status.",
+      "too_large": "The selected source is too large for safe bot-side indexing. Build smaller sections first or raise TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS after planning a long background run.",
+      "unknown": "The service reported an unexpected failure. Check bot-server logs for the detailed reference."
+    }
+  }
+}

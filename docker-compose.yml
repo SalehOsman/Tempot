@@ -1,0 +1,142 @@
+# Tempot — Local Development Infrastructure
+# Provides: PostgreSQL (pgvector) + Redis
+# Usage: pnpm docker:dev (starts) | pnpm docker:down (stops)
+#
+# Constitution Rule XVII — Graceful Shutdown:
+# Services are configured with health checks to support ordered shutdown.
+# Shutdown order: Hono → grammY → BullMQ → Redis → Prisma → Drizzle
+
+# =============================================================================
+# LOCAL DEVELOPMENT STACK
+# Services: bot-server + PostgreSQL (pgvector) + Redis.
+# Redis is intentionally internal-only to avoid conflicts with host Redis
+# instances; bot-server reaches it through the Compose network as `redis:6379`.
+# =============================================================================
+services:
+  bot-server:
+    build:
+      context: .
+      dockerfile: ./apps/bot-server/Dockerfile
+    container_name: tempot-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      restore-postgres:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - >
+        cd /app/node_modules/@tempot/database &&
+        PRISMA_SCHEMA_PATH=/app/node_modules/@tempot/database/prisma/schema.prisma
+        /app/node_modules/.pnpm/node_modules/.bin/prisma migrate deploy &&
+        cd /app &&
+        node dist/index.js
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://tempot:tempot_password@postgres:5432/tempot_db
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BOT_MODE=polling
+      - TEMPOT_BACKUP_STORAGE_PATH=/app/backups
+      - TEMPOT_BACKUP_FILENAME_TIME_ZONE=Africa/Cairo
+      - TEMPOT_BACKUP_RESTORE_DATABASE_URL=postgresql://tempot:tempot_password@restore-postgres:5432/tempot_restore_db
+      - TEMPOT_BACKUP_RESTORE_FILES_PATH=/app/restore-rehearsals
+      - TEMPOT_BACKUP_ACTIVE_JOB_STALE_AFTER_MS=900000
+      - TEMPOT_HELP_ASSISTANT_RESPONSE_TIMEOUT_MS=60000
+      - TEMPOT_KNOWLEDGE_SOURCES_ROOT=/app/knowledge-sources
+      - TEMPOT_KNOWLEDGE_CUSTOM_PROFILES_FILE=/app/data/knowledge-custom-profiles.json
+      # Provide via .env or shell: SUPER_ADMIN_IDS=<your_telegram_id>
+      - SUPER_ADMIN_IDS=${SUPER_ADMIN_IDS:-}
+      - TEMPOT_INPUT=true
+      - TEMPOT_DYNAMIC_CMS=true
+      - TEMPOT_SEARCH=true
+      - TEMPOT_DOCUMENTS=true
+      - TEMPOT_IMPORT=true
+      # Uncomment for webhook mode (production). Requires a public URL.
+      # - BOT_MODE=webhook
+      # - WEBHOOK_URL=${WEBHOOK_URL:-https://example.com/webhook}
+      # - WEBHOOK_SECRET_TOKEN=${WEBHOOK_SECRET_TOKEN:-}
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - ./backups:/app/backups
+      - ./data:/app/data
+      - ./docs:/app/knowledge-sources/docs:ro
+      - ./specs:/app/knowledge-sources/specs:ro
+      - ./modules:/app/knowledge-sources/modules:ro
+      - ./packages:/app/knowledge-sources/packages:ro
+      - restore_rehearsal_data:/app/restore-rehearsals
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/live']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  postgres:
+    image: pgvector/pgvector:0.8.2-pg16
+    container_name: tempot-postgres
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:5432:5432'
+    environment:
+      POSTGRES_USER: tempot
+      POSTGRES_PASSWORD: tempot_password
+      POSTGRES_DB: tempot_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tempot -d tempot_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: tempot-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  restore-postgres:
+    image: pgvector/pgvector:0.8.2-pg16
+    container_name: tempot-restore-postgres
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:5433:5432'
+    environment:
+      POSTGRES_USER: tempot
+      POSTGRES_PASSWORD: tempot_password
+      POSTGRES_DB: tempot_restore_db
+    volumes:
+      - restore_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tempot -d tempot_restore_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    name: tempot_postgres_data
+  redis_data:
+    name: tempot_redis_data
+  restore_rehearsal_data:
+    name: tempot_restore_rehearsal_data
+  restore_postgres_data:
+    name: tempot_restore_postgres_data

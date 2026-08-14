@@ -1,0 +1,206 @@
+import { ok, err } from 'neverthrow';
+import type { Bot as GrammyBot, Context as GrammyContext } from 'grammy';
+import { AppError } from '@tempot/shared';
+import {
+  AuditLogRepository,
+  BootstrapSessionRepository,
+  InteractionEventRepository,
+  prisma,
+  type ProtectedDataService,
+} from '@tempot/database';
+import { bootstrapSuperAdmins } from './bootstrap.js';
+import { warmCaches } from './cache-warmer.js';
+import { loadModuleHandlers } from './module-loader.js';
+import { buildBackupOperationsProvider } from './backup-operations.provider.js';
+import { buildHelpAiAssistantProvider } from './help-ai-assistant.provider.js';
+import { buildKnowledgeOperationsProvider } from './knowledge-operations.provider.js';
+import { buildBotFactory } from './deps.bot-factory.js';
+import { buildHttpServerFactory } from './deps.server-factory.js';
+import { buildLifecycleFactory } from './deps.lifecycle.js';
+import { buildModuleSessionProviderAdapter } from './module-session-provider.adapter.js';
+import { buildAuthorizationContextResolver } from './module-authorization-context.resolver.js';
+import { AbilityRegistry } from '../authorization/ability-registry.js';
+import type { OrchestratorDeps } from './orchestrator.js';
+import { createStartupStateStore } from './startup-state.js';
+import type {
+  AuditLogProviderRecord,
+  InteractionEventProviderRecord,
+} from '../bot-server.types.js';
+import type { ShutdownManager, CacheService } from '@tempot/shared';
+import type { EventBusOrchestrator } from '@tempot/event-bus';
+import type { SessionProvider } from '@tempot/session-manager';
+import type { SettingsService } from '@tempot/settings';
+import type { ModuleRegistry } from '@tempot/module-registry';
+import type { SentryReporter } from '@tempot/sentry';
+import { buildSettingsProvider } from './deps.settings-provider.js';
+
+type LoaderDeps = Parameters<typeof loadModuleHandlers>[2];
+export interface AssembleDepsOptions {
+  loadConfig: typeof import('./config.loader.js').loadConfig;
+  log: typeof import('@tempot/logger').logger;
+  shutdownManager: ShutdownManager;
+  eventBus: EventBusOrchestrator;
+  cache: CacheService;
+  sessionProvider: SessionProvider;
+  settingsService: SettingsService;
+  protectedDataService: ProtectedDataService | undefined;
+  registry: ModuleRegistry;
+  sentryReporter: SentryReporter | undefined;
+  loadModuleLocales: typeof import('@tempot/i18n-core').loadModuleLocales;
+  t: typeof import('@tempot/i18n-core').t;
+}
+
+function buildModuleHandlersDep(
+  opts: AssembleDepsOptions,
+  abilityRegistry: AbilityRegistry,
+): OrchestratorDeps['loadModuleHandlers'] {
+  const auditLogRepository = new AuditLogRepository();
+  const interactionEventRepository = new InteractionEventRepository();
+  const loaderDeps = buildLoaderDeps({
+    opts,
+    abilityRegistry,
+    auditLogRepository,
+    interactionEventRepository,
+  });
+  return (bot, validated) =>
+    loadModuleHandlers(bot as GrammyBot<GrammyContext>, validated, loaderDeps);
+}
+
+function buildLoaderDeps(input: {
+  readonly opts: AssembleDepsOptions;
+  readonly abilityRegistry: AbilityRegistry;
+  readonly auditLogRepository: AuditLogRepository;
+  readonly interactionEventRepository: InteractionEventRepository;
+}): LoaderDeps {
+  const { opts, abilityRegistry, auditLogRepository, interactionEventRepository } = input;
+  const settings = buildSettingsProvider(opts.settingsService);
+  const eventBus = buildModuleEventBusAdapter(opts);
+  const backups = buildBackupOperationsProvider({
+    auditLogRepository,
+    eventBus: opts.eventBus,
+    logger: opts.log,
+  });
+  const knowledge = buildKnowledgeOperationsProvider({
+    eventBus,
+    logger: opts.log,
+    settings,
+  });
+  return {
+    logger: opts.log,
+    eventBus,
+    sessionProvider: buildModuleSessionProviderAdapter(opts.sessionProvider),
+    i18n: { t: (key: string, options?: Record<string, unknown>) => opts.t(key, options) },
+    settings,
+    protectedData: opts.protectedDataService,
+    auditLog: {
+      findMany: async (args: Record<string, unknown>) => {
+        const result = await auditLogRepository.findMany(args);
+        if (result.isErr()) throw result.error;
+        return result.value as AuditLogProviderRecord[];
+      },
+    },
+    interactionEvents: {
+      findMany: async (args: Record<string, unknown>) => {
+        const result = await interactionEventRepository.findMany(args);
+        if (result.isErr()) throw result.error;
+        return result.value as InteractionEventProviderRecord[];
+      },
+    },
+    backups,
+    knowledge,
+    aiAssistant: buildHelpAiAssistantProvider({ logger: opts.log, eventBus, settings }),
+    resolveAuthorizationContext: buildAuthorizationContextResolver(opts, abilityRegistry),
+    abilityRegistry,
+    importer: moduleImporter,
+  };
+}
+
+async function moduleImporter(p: string) {
+  const { pathToFileURL } = await import('node:url');
+  const entryPoint = pathToFileURL(`${p}/dist/index.js`).href;
+  return import(entryPoint) as Promise<{
+    default?: import('../bot-server.types.js').ModuleSetupFn;
+    abilityDefinition?: import('@tempot/auth-core').AbilityDefinition;
+  }>;
+}
+
+function buildModuleEventBusAdapter(opts: AssembleDepsOptions) {
+  return {
+    publish: async (event: string, payload: unknown) => {
+      await opts.eventBus.publish(event, payload);
+      return { isOk: () => true };
+    },
+    subscribe: async (event: string, handler: (payload: unknown) => void) => {
+      await opts.eventBus.subscribe(event, handler);
+      return { isOk: () => true };
+    },
+  };
+}
+
+function buildBasicDeps(opts: AssembleDepsOptions): Partial<OrchestratorDeps> {
+  return {
+    loadConfig: opts.loadConfig,
+    connectDatabase: async () => {
+      try {
+        await prisma.$connect();
+        return ok(undefined);
+      } catch (error: unknown) {
+        return err(
+          new AppError('bot-server.startup.database_unreachable', { error: String(error) }),
+        );
+      }
+    },
+    bootstrapSuperAdmins: (ids: number[]) =>
+      bootstrapSuperAdmins(ids, {
+        sessions: new BootstrapSessionRepository(),
+        logger: opts.log,
+      }),
+    warmCaches: () =>
+      warmCaches({
+        settingsWarmer: {
+          warmAll: async () => {
+            const result = await opts.settingsService.getDynamic('maintenance_mode');
+            if (result.isErr()) throw result.error;
+          },
+        },
+        i18nWarmer: {
+          warmAll: async () => {
+            const result = await opts.loadModuleLocales();
+            if (result.isErr()) throw result.error;
+          },
+        },
+        logger: opts.log,
+      }),
+    discover: () => opts.registry.discover(),
+    validate: () => opts.registry.validate(),
+    registerCommands: (bot) =>
+      opts.registry.register(bot as unknown as import('@tempot/module-registry').RegistryBot),
+    eventBus: {
+      publish: async (event: string, payload: unknown) => {
+        await opts.eventBus.publish(event, payload);
+      },
+    },
+    startupState: createStartupStateStore(),
+    logger: opts.log,
+  };
+}
+
+export function assembleOrchestratorDeps(opts: AssembleDepsOptions): OrchestratorDeps {
+  const abilityRegistry = new AbilityRegistry();
+  const lifecycle = buildLifecycleFactory({
+    shutdownManager: opts.shutdownManager,
+    cache: opts.cache,
+    prismaClient: prisma,
+    eventBus: opts.eventBus,
+    log: opts.log,
+  });
+
+  return {
+    ...(buildBasicDeps(opts) as OrchestratorDeps),
+    loadModuleHandlers: buildModuleHandlersDep(opts, abilityRegistry),
+    createBot: buildBotFactory(opts, abilityRegistry),
+    createHttpServer: buildHttpServerFactory(opts),
+    registerShutdownHooks: lifecycle.registerShutdownHooks,
+    setupSignalHandlers: lifecycle.setupSignalHandlers,
+  };
+}

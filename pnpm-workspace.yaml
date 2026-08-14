@@ -1,0 +1,60 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'modules/*'
+allowBuilds:
+  '@prisma/engines': true
+  cpu-features: true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true
+  protobufjs: true
+  sharp: true
+  ssh2: true
+  unrs-resolver: true
+overrides:
+  # Security: CVE-2025-47935 (devalue DoS via sparse array deserialization)
+  # astro@6.3.3 (latest) pins devalue@5.8.0 exactly. Force >=5.8.1 patched version.
+  devalue: '>=5.8.1'
+  # Security: GHSA-gv7w-rqvm-qjhr allows binary replacement through a custom
+  # registry in Deno-backed tooling. Affects drizzle-kit (dev-only).
+  esbuild: '>=0.28.1'
+  # Security: GHSA-frvp-7c67-39w9 — @hono/node-server Windows serve-static bypass (<2.0.5).
+  '@hono/node-server': '>=2.0.5'
+  markdown-it: 14.2.0
+  # Security: GHSA-wcpc-wj8m-hjx6 - protobufjs DoS via unbounded Any expansion (<=8.4.0).
+  protobufjs: '>=8.4.1'
+  qs: 6.15.2
+  # Security: GHSA-ph9p-34f9-6g65 - tmp path traversal via unsanitized prefix/postfix (<0.2.6).
+  tmp: '>=0.2.6'
+  undici: 7.28.0
+  # Security: GHSA-99f4-grh7-6pcq + GHSA-5375-pq7m-f5r2 — @grpc/grpc-js server/client
+  # crash on malformed message (>=1.14.0 <1.14.4). Affects dev-only path
+  # testcontainers > dockerode. Pin to patched range.
+  '@grpc/grpc-js': '>=1.14.4'
+  # Security: GHSA-fx2h-pf6j-xcff - Vite Windows server.fs.deny bypass (<=7.3.4).
+  vite: '>=7.3.5'
+  # Security: GHSA-r28c-9q8g-f849 - PostCSS previous source map path traversal.
+  postcss: '>=8.5.18'
+  # Security: GHSA-3jxr-9vmj-r5cp - brace expansion DoS in glob/minimatch paths.
+  brace-expansion@1: 5.0.8
+  brace-expansion@2: 5.0.8
+  brace-expansion@5: 5.0.8
+  # Security: GHSA-52cp-r559-cp3m - js-yaml quadratic CPU consumption.
+  js-yaml@3: 3.15.0
+  js-yaml@4: 4.3.0
+  # Security: GHSA-4c8g-83qw-93j6 and GHSA-v2hh-gcrm-f6hx - fast-uri host confusion.
+  fast-uri: 3.1.4
+  # Security: GHSA-vj59-8hwv-xxmv - Astro authorization bypass.
+  astro: 6.4.8
+  # Security: GHSA-v245-v573-v5vm - linkify-it mailto validator DoS.
+  linkify-it: 5.0.2
+  # Security: GHSA-2p49-hgcm-8545 - SVGO removeScripts incomplete removal.
+  svgo: 4.0.2
+  # Security: GHSA-f88m-g3jw-g9cj - sharp inherited libvips vulnerabilities.
+  sharp: 0.35.0
+auditConfig:
+  ignoreCves:
+    - CVE-2026-53550
+  ignoreGhsas:
+    - GHSA-h67p-54hq-rp68

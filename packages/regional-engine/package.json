@@ -1,0 +1,33 @@
+{
+  "name": "@tempot/regional-engine",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate:geo": "tsx scripts/generate-geo-data.ts"
+  },
+  "dependencies": {
+    "dayjs": "1.11.13",
+    "neverthrow": "8.2.0",
+    "@tempot/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "country-state-city": "3.2.1"
+  },
+  "files": [
+    "dist"
+  ]
+}

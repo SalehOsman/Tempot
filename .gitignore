@@ -1,0 +1,308 @@
+# ===================================================================
+# Tempot â€” Enterprise Telegram Bot Framework
+# Comprehensive .gitignore
+# ===================================================================
+
+# -------------------------------------------------------------------
+# Node.js & Package Managers
+# -------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.pnpm-store-docs/
+.pnpm-debug.log
+.yarn/
+.yarnrc.yml
+package-lock.json
+yarn.lock
+
+# -------------------------------------------------------------------
+# Environment & Secrets
+# -------------------------------------------------------------------
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+.env.*
+!.env.example
+
+# -------------------------------------------------------------------
+# TypeScript Build Output
+# -------------------------------------------------------------------
+dist/
+build/
+out/
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+tsconfig.tsbuildinfo
+
+# -------------------------------------------------------------------
+# Compiled TypeScript artifacts in source directories
+# (compiled output belongs in dist/, never in src/ or tests/)
+# -------------------------------------------------------------------
+packages/*/src/**/*.js
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts.map
+packages/*/tests/**/*.js
+packages/*/tests/**/*.d.ts
+packages/*/tests/**/*.js.map
+packages/*/tests/**/*.d.ts.map
+packages/*/scripts/**/*.js
+packages/*/scripts/**/*.d.ts
+packages/*/scripts/**/*.js.map
+packages/*/scripts/**/*.d.ts.map
+packages/*/vitest.config.js
+packages/*/vitest.config.d.ts
+packages/*/vitest.config.js.map
+packages/*/vitest.config.d.ts.map
+packages/*/drizzle.config.js
+packages/*/drizzle.config.d.ts
+packages/*/drizzle.config.js.map
+packages/*/drizzle.config.d.ts.map
+packages/*/prisma.config.js
+packages/*/prisma.config.d.ts
+packages/*/prisma.config.js.map
+packages/*/prisma.config.d.ts.map
+apps/*/src/**/*.js
+apps/*/src/**/*.d.ts
+vitest.config.base.js
+vitest.config.base.d.ts
+vitest.workspace.js
+vitest.workspace.d.ts
+
+# -------------------------------------------------------------------
+# Monorepo & Build Tools
+# -------------------------------------------------------------------
+.turbo/
+.nx/
+.cache/
+
+# -------------------------------------------------------------------
+# Testing
+# -------------------------------------------------------------------
+coverage/
+.vitest/
+test-results/
+playwright-report/
+*.lcov
+
+# -------------------------------------------------------------------
+# Database
+# -------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+prisma/migrations/*.sql.bak
+data/
+pgdata/
+
+# -------------------------------------------------------------------
+# Docker
+# -------------------------------------------------------------------
+docker-compose.override.yml
+.docker/
+
+# -------------------------------------------------------------------
+# Backups
+# -------------------------------------------------------------------
+backups/*.enc
+backups/*.gz
+backups/*.tar
+backups/*.zip
+backups/*.sql
+
+# -------------------------------------------------------------------
+# Logs
+# -------------------------------------------------------------------
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# -------------------------------------------------------------------
+# Understand Anything
+# -------------------------------------------------------------------
+.understand-anything/intermediate/
+.understand-anything/tmp/
+.understand-anything/diff-overlay.json
+.understand-anything/*.log
+.understand-anything/extract-onboard.cjs
+
+# -------------------------------------------------------------------
+# IDE & Editors
+# -------------------------------------------------------------------
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------------------------------------------------
+# Operating System
+# -------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+nul
+
+# -------------------------------------------------------------------
+# Next.js (Dashboard + Mini App)
+# -------------------------------------------------------------------
+.next/
+out/
+.vercel/
+
+# -------------------------------------------------------------------
+# Docusaurus (Documentation)
+# -------------------------------------------------------------------
+apps/docs/.docusaurus/
+apps/docs/build/
+apps/docs/.cache-loader/
+
+# -------------------------------------------------------------------
+# AI Tools & Local State
+# -------------------------------------------------------------------
+apps/docs/.docs-hashes.json
+.agents/
+.claude/
+.gemini/
+.opencode/
+.windsurf/
+.specify/
+.understand-anything/
+.worktrees/
+.gemini/settings.json
+.gemini/context/
+
+# -------------------------------------------------------------------
+# Internal governance and release tooling
+# -------------------------------------------------------------------
+.changeset/
+.husky/
+.github/workflows/
+specs/
+
+# -------------------------------------------------------------------
+# Internal development documentation
+# -------------------------------------------------------------------
+docs/archive/
+docs/architecture/
+docs/developer/
+docs/development/
+docs/project-analysis/
+docs/superpowers/
+docs/prompt/
+docs/ONBOARDING.md
+docs/ROADMAP.md
+
+# -------------------------------------------------------------------
+# Internal scripts not required by bot-template users
+# -------------------------------------------------------------------
+scripts/ci/
+scripts/spec-validate/
+scripts/security/
+scripts/operations/
+scripts/setup-dev.sh
+scripts/insert-user.ts
+
+# -------------------------------------------------------------------
+# Tests are local Tempot development assets, not public template assets.
+# -------------------------------------------------------------------
+**/tests/
+**/__tests__/
+**/*.test.ts
+**/*.spec.ts
+vitest.config.ts
+vitest.config.base.ts
+vitest.workspace.ts
+**/vitest.config.ts
+
+# -------------------------------------------------------------------
+# Sentry
+# -------------------------------------------------------------------
+.sentryclirc
+
+# -------------------------------------------------------------------
+# Temporary Files
+# -------------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+
+# -------------------------------------------------------------------
+# Generated Files
+# -------------------------------------------------------------------
+*.generated.ts
+api-docs/
+runtime/
+typedoc-output/
+docs/product/reference/
+
+# -------------------------------------------------------------------
+# Certificates & Keys (never commit)
+# -------------------------------------------------------------------
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# -------------------------------------------------------------------
+# Cloudflare Tunnel (local dev)
+# -------------------------------------------------------------------
+.cloudflared/
+
+# -------------------------------------------------------------------
+# BullMQ & Redis dumps
+# -------------------------------------------------------------------
+dump.rdb
+appendonly.aof
+
+# -------------------------------------------------------------------
+# OS-specific package managers
+# -------------------------------------------------------------------
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Worktrees
+.worktrees/
+
+# Local clean-template scratch space
+tempot-github-template-clean/
+
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+opencode.json
+commitlint.config.js
+CHANGELOG.md
+CONTRIBUTING.md
+docs/operations/evidence/
+docs/operations/release-evidence-template.md
+docs/operations/RISK-REGISTRY.md
+docs/guides/TESTING-STRATEGY-EXTENDED.md
+docs/product/ai-context/
+docs/product/governance/
+docs/product/operations/quality-gates.md
+docs/product/modules/module-methodology.md
+.github/

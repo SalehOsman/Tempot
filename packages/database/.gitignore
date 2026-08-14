@@ -1,0 +1,13 @@
+src/**/*.js
+src/**/*.d.ts
+src/**/*.js.map
+src/**/*.d.ts.map
+tests/**/*.js
+tests/**/*.d.ts
+tests/**/*.js.map
+tests/**/*.d.ts.map
+*.js
+*.d.ts
+*.js.map
+*.d.ts.map
+dist/

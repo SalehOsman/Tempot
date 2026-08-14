@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.astro/
+
+# Junction to docs/product/ — created by setup script
+# Content lives at project root docs/product/, this junction lets Starlight find it
+src/content/docs/

@@ -1,0 +1,12 @@
+extends: existence
+message: "Avoid using '%s'. This term is deprecated or incorrect in the Tempot project."
+level: error
+ignorecase: true
+tokens:
+  - 'console.log'
+  - 'console.error'
+  - 'console.warn'
+  - '@ts-ignore'
+  - 'eslint-disable'
+  - 'any type'
+  - 'Docusaurus'

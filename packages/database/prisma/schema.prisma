@@ -1,0 +1,642 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Global Audit Fields (Constitution Rule XXVII)
+// These should be copied to every model that needs audit/soft-delete
+// until Prisma supports native mixins or global fields.
+
+// User Management Module - User Profile
+model UserProfile {
+  id         String  @id @default(cuid())
+  telegramId BigInt  @unique
+  username   String?
+  email      String?
+  language   String  @default("ar")
+  role       String  @default("USER")
+  status     String  @default("ACTIVE")
+
+  // Additional identity fields
+  nationalId                     String?   @unique
+  mobileNumber                   String?
+  birthDate                      DateTime?
+  emailProtected                 Json?
+  emailLookupToken               String?
+  emailLookupKeyVersion          String?
+  emailNormalizationVersion      String?
+  nationalIdProtected            Json?
+  nationalIdLookupToken          String?
+  nationalIdLookupKeyVersion     String?
+  nationalIdNormalizationVersion String?
+  mobileNumberProtected          Json?
+  birthDateProtected             Json?
+  gender                         String? // 'male' | 'female'
+  governorate                    String?
+  countryCode                    String?   @default("+20")
+
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([telegramId])
+  @@index([username])
+  @@index([email])
+  @@index([emailLookupToken])
+  @@index([role])
+  @@index([status])
+  @@index([nationalId])
+  @@index([nationalIdLookupToken])
+  @@index([mobileNumber])
+  @@index([isDeleted])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userRole  String?
+  action    String
+  module    String
+  targetId  String?
+  before    Json?
+  after     Json?
+  status    String   @default("SUCCESS")
+  timestamp DateTime @default(now())
+
+  @@index([module, action])
+  @@index([userId])
+}
+
+model SensitiveDataMigrationCheckpoint {
+  migrationId    String   @id
+  phase          String
+  cursor         String?
+  processedCount Int      @default(0)
+  verifiedCount  Int      @default(0)
+  failureCount   Int      @default(0)
+  status         String
+  updatedAt      DateTime @updatedAt
+}
+
+model InteractionEvent {
+  id                String   @id @default(cuid())
+  traceId           String   @map("trace_id")
+  sequence          Int
+  updateId          Int?     @map("update_id")
+  updateType        String   @map("update_type")
+  command           String?
+  callbackData      String?  @map("callback_data")
+  callbackNamespace String?  @map("callback_namespace")
+  module            String
+  userId            String?  @map("user_id")
+  chatId            String?  @map("chat_id")
+  stage             String
+  status            String
+  action            String?
+  viewKey           String?  @map("view_key")
+  responseType      String?  @map("response_type")
+  reason            String?
+  errorCode         String?  @map("error_code")
+  referenceCode     String?  @map("reference_code")
+  metadata          Json?
+  occurredAt        DateTime @default(now()) @map("occurred_at")
+
+  // Audit fields
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@unique([traceId, sequence], map: "interaction_events_trace_sequence_key")
+  @@index([traceId, sequence], map: "idx_interaction_events_trace_sequence")
+  @@index([module, stage], map: "idx_interaction_events_module_stage")
+  @@index([status, occurredAt], map: "idx_interaction_events_status_time")
+  @@index([callbackNamespace], map: "idx_interaction_events_callback_namespace")
+  @@index([isDeleted], map: "idx_interaction_events_deleted")
+  @@map("interaction_events")
+}
+
+model Session {
+  id                 String  @id // Composite of userId:chatId
+  userId             String
+  chatId             String
+  role               String  @default("GUEST")
+  status             String  @default("ACTIVE")
+  language           String  @default("ar-EG")
+  activeConversation String?
+  metadata           Json?
+  schemaVersion      Int     @default(1)
+  version            Int     @default(1)
+
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([userId, chatId])
+  @@index([isDeleted])
+}
+
+model Attachment {
+  id           String  @id @default(cuid())
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  provider     String
+  providerKey  String  @unique
+  url          String?
+  metadata     Json?
+  moduleId     String?
+  entityId     String?
+  isEncrypted  Boolean @default(false)
+
+  // Audit fields (BaseEntity pattern)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([moduleId, entityId])
+  @@index([provider])
+  @@index([isDeleted])
+}
+
+model BackupJob {
+  id                 String    @id
+  requestedBy        String    @map("requested_by")
+  scope              String
+  status             String
+  sourceEnvironment  String    @map("source_environment")
+  requestedAt        DateTime  @map("requested_at")
+  startedAt          DateTime? @map("started_at")
+  completedAt        DateTime? @map("completed_at")
+  failureCategory    String?   @map("failure_category")
+  safeFailureMessage String?   @map("safe_failure_message")
+
+  artifacts  BackupArtifact[]
+  rehearsals RestoreRehearsal[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([status, requestedAt], map: "idx_backup_jobs_status_requested")
+  @@index([requestedBy], map: "idx_backup_jobs_requested_by")
+  @@index([isDeleted], map: "idx_backup_jobs_deleted")
+  @@map("backup_jobs")
+}
+
+model BackupArtifact {
+  id                  String @id @default(cuid())
+  backupJobId         String @map("backup_job_id")
+  artifactType        String @map("artifact_type")
+  checksum            String
+  encrypted           Boolean
+  sizeBytes           Int    @map("size_bytes")
+  storageAttachmentId String? @map("storage_attachment_id")
+  storageReference    String? @map("storage_reference")
+  storageProvider     String? @map("storage_provider")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_backup_artifacts_job")
+  @@index([artifactType], map: "idx_backup_artifacts_type")
+  @@index([isDeleted], map: "idx_backup_artifacts_deleted")
+  @@map("backup_artifacts")
+}
+
+model RestoreRehearsal {
+  id                  String    @id
+  backupJobId          String    @map("backup_job_id")
+  confirmedBy          String    @map("confirmed_by")
+  targetClassification String    @map("target_classification")
+  status               String
+  requestedAt          DateTime  @map("requested_at")
+  completedAt          DateTime? @map("completed_at")
+  schemaCheck          String    @map("schema_check")
+  dataCheck            String    @map("data_check")
+  protectedDataCheck   String    @map("protected_data_check")
+  fileCoverageCheck    String    @map("file_coverage_check")
+  safeFailureMessage   String?   @map("safe_failure_message")
+
+  backupJob BackupJob @relation(fields: [backupJobId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  @@index([backupJobId], map: "idx_restore_rehearsals_backup")
+  @@index([status, requestedAt], map: "idx_restore_rehearsals_status_requested")
+  @@index([isDeleted], map: "idx_restore_rehearsals_deleted")
+  @@map("restore_rehearsals")
+}
+
+model Setting {
+  key         String  @id
+  value       String
+  description String?
+
+  // Audit fields (Constitution Rule XXVII)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@map("settings")
+}
+
+// From ..\..\modules\user-management\database\schema.prisma
+// user-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/025-user-management/data-model.md
+
+// Models for this module are merged into the root Prisma schema at build time.
+// This file serves as the module-level schema reference and validator gate.
+
+// Placeholder — replace with actual models when implementing the module.
+// Example:
+//
+// model UserProfile {
+//   id        String   @id @default(cuid())
+//   userId    String   @unique
+//   bio       String?
+//
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   createdBy String?
+//   updatedBy String?
+//   isDeleted Boolean  @default(false)
+//   deletedAt DateTime?
+//   deletedBy String?
+//
+//   @@index([isDeleted])
+// }
+
+// From ..\..\modules\template-management\database\schema.prisma
+// template-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/039-template-management/data-model.md
+
+// Models for this module are merged into the root Prisma schema at build time.
+// This file serves as the module-level schema reference and validator gate.
+
+model Template {
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(255)
+  description    String   @db.Text
+  slug           String   @db.VarChar(255)
+  status         String   @default("DRAFT") @db.VarChar(20)
+  content        Json     @default("{}")
+  categoryId     String?  @map("category_id")
+  authorId       String   @map("author_id")
+  clonedFrom     String?  @map("cloned_from")
+  language       String   @default("ar") @db.VarChar(10)
+  usageCount     Int      @default(0) @map("usage_count")
+  ratingAvg      Decimal  @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount    Int      @default(0) @map("rating_count")
+  currentVersion String?  @map("current_version") @db.VarChar(20)
+  isOfficial     Boolean  @default(false) @map("is_official")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isDeleted      Boolean  @default(false) @map("is_deleted")
+  deletedAt      DateTime? @map("deleted_at")
+  deletedBy      String?  @map("deleted_by")
+
+  category      Category?          @relation(fields: [categoryId], references: [id])
+  sourceTemplate Template?         @relation("TemplateClone", fields: [clonedFrom], references: [id])
+  clones        Template[]         @relation("TemplateClone")
+  versions      TemplateVersion[]
+  tags          TemplateTag[]
+  ratings       TemplateRating[]
+  subscriptions TemplateSubscription[]
+
+  @@index([status], map: "idx_templates_status")
+  @@index([authorId], map: "idx_templates_author")
+  @@index([categoryId], map: "idx_templates_category")
+  @@index([slug], map: "idx_templates_slug")
+  @@index([ratingAvg(sort: Desc)], map: "idx_templates_rating")
+  @@index([usageCount(sort: Desc)], map: "idx_templates_usage")
+  @@map("templates")
+}
+
+model TemplateVersion {
+  id            String   @id @default(cuid())
+  templateId    String   @map("template_id")
+  version       String   @db.VarChar(20)
+  content       Json
+  metadata      Json
+  changeSummary String?  @map("change_summary") @db.Text
+  publishedBy   String   @map("published_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, version])
+  @@index([templateId], map: "idx_versions_template")
+  @@map("template_versions")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  nameAr    String   @map("name_ar") @db.VarChar(255)
+  nameEn    String   @map("name_en") @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  icon      String?  @db.VarChar(10)
+  parentId  String?  @map("parent_id")
+  sortOrder Int      @default(0) @map("sort_order")
+  depth     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+  templates Template[]
+
+  @@index([parentId], map: "idx_categories_parent")
+  @@map("categories")
+}
+
+model Tag {
+  id         String   @id @default(cuid())
+  name       String   @unique @db.VarChar(100)
+  slug       String   @unique @db.VarChar(100)
+  usageCount Int      @default(0) @map("usage_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  templates TemplateTag[]
+
+  @@map("tags")
+}
+
+model TemplateTag {
+  templateId String @map("template_id")
+  tagId      String @map("tag_id")
+
+  template Template @relation(fields: [templateId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([templateId, tagId])
+  @@index([tagId], map: "idx_template_tags_tag")
+  @@map("template_tags")
+}
+
+model TemplateRating {
+  id         String   @id @default(cuid())
+  templateId String   @map("template_id")
+  userId     String   @map("user_id")
+  stars      Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, userId])
+  @@index([templateId], map: "idx_ratings_template")
+  @@map("template_ratings")
+}
+
+model TemplateSubscription {
+  id         String   @id @default(cuid())
+  templateId String   @map("template_id")
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  template Template @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, userId])
+  @@index([templateId], map: "idx_subscriptions_template")
+  @@index([userId], map: "idx_subscriptions_user")
+  @@map("template_subscriptions")
+}
+
+// From ..\..\modules\membership-management\database\schema.prisma
+// membership-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/058-bot-access-mode-membership-gate/data-model.md
+
+model MembershipRequest {
+  id                   String    @id @default(cuid())
+  telegramId           BigInt    @map("telegram_id")
+  fullName             String?   @map("full_name")
+  nickname             String?   @map("nickname")
+  mobileNumber         String?   @map("mobile_number")
+  telegramUsername     String?   @map("telegram_username")
+  telegramFirstName    String?   @map("telegram_first_name")
+  telegramLastName     String?   @map("telegram_last_name")
+  telegramLanguageCode String?   @map("telegram_language_code")
+  status               String    @default("PENDING")
+  requestMessage       String?   @map("request_message")
+  reviewerUserId       String?   @map("reviewer_user_id")
+  reviewerNote         String?   @map("reviewer_note")
+  rejectionReason      String?   @map("rejection_reason")
+  createdUserProfileId String?   @map("created_user_profile_id")
+  requestedAt          DateTime  @default(now()) @map("requested_at")
+  reviewedAt           DateTime? @map("reviewed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  createdBy            String?   @map("created_by")
+  updatedBy            String?   @map("updated_by")
+  isDeleted            Boolean   @default(false) @map("is_deleted")
+  deletedAt            DateTime? @map("deleted_at")
+  deletedBy            String?   @map("deleted_by")
+
+  @@index([telegramId], map: "idx_membership_requests_telegram")
+  @@index([status], map: "idx_membership_requests_status")
+  @@index([isDeleted], map: "idx_membership_requests_deleted")
+  @@map("membership_requests")
+}
+
+// From ..\..\modules\bot-management\database\schema.prisma
+// bot-management module schema
+// Extends the root schema in packages/database/prisma/schema.prisma
+// See: specs/040-bot-management/data-model.md
+
+model ManagedBot {
+  id               String   @id @default(cuid())
+  displayName      String   @map("display_name") @db.VarChar(120)
+  telegramUsername String   @map("telegram_username") @db.VarChar(64)
+  tokenFingerprint String   @map("token_fingerprint") @db.VarChar(255)
+  tokenRedacted    String   @map("token_redacted") @db.VarChar(255)
+  ownerId          String   @map("owner_id")
+  runtimeMode      String   @map("runtime_mode") @db.VarChar(20)
+  status           String   @default("DRAFT") @db.VarChar(20)
+  defaultLocale    String   @default("ar-EG") @map("default_locale") @db.VarChar(10)
+  defaultCountry   String   @default("EG") @map("default_country") @db.VarChar(10)
+  timezone         String   @default("Africa/Cairo") @db.VarChar(100)
+  healthStatus     String   @default("unknown") @map("health_status") @db.VarChar(20)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  createdBy        String?  @map("created_by")
+  updatedBy        String?  @map("updated_by")
+  isDeleted        Boolean  @default(false) @map("is_deleted")
+  deletedAt        DateTime? @map("deleted_at")
+  deletedBy        String?  @map("deleted_by")
+
+  settingsProfile BotSettingsProfile?
+  moduleEnablements BotModuleEnablement[]
+  templateSource BotTemplateSource?
+  lifecycleEvents BotLifecycleEvent[]
+  healthSnapshots BotHealthSnapshot[]
+  exports BotProfileExport[]
+
+  @@unique([telegramUsername, isDeleted])
+  @@unique([tokenFingerprint, isDeleted])
+  @@index([status], map: "idx_managed_bots_status")
+  @@index([ownerId], map: "idx_managed_bots_owner")
+  @@index([runtimeMode], map: "idx_managed_bots_runtime")
+  @@index([isDeleted], map: "idx_managed_bots_deleted")
+  @@map("managed_bots")
+}
+
+model BotSettingsProfile {
+  id                   String   @id @default(cuid())
+  botId                String   @unique @map("bot_id")
+  locale               String   @db.VarChar(10)
+  country              String   @db.VarChar(10)
+  timezone             String   @db.VarChar(100)
+  notificationsEnabled Boolean  @default(true) @map("notifications_enabled")
+  privacyMode          String   @default("standard") @map("privacy_mode") @db.VarChar(20)
+  featureToggles       Json     @default("{}") @map("feature_toggles")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@map("bot_settings_profiles")
+}
+
+model BotModuleEnablement {
+  id            String   @id @default(cuid())
+  botId         String   @map("bot_id")
+  moduleName    String   @map("module_name") @db.VarChar(120)
+  state         String   @db.VarChar(20)
+  blockedReason String?  @map("blocked_reason")
+  enabledBy     String?  @map("enabled_by")
+  enabledAt     DateTime? @map("enabled_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@unique([botId, moduleName])
+  @@index([moduleName], map: "idx_bot_modules_name")
+  @@index([state], map: "idx_bot_modules_state")
+  @@map("bot_module_enablements")
+}
+
+model BotTemplateSource {
+  id                   String   @id @default(cuid())
+  botId                String   @unique @map("bot_id")
+  templateId           String   @map("template_id")
+  templateVersionId    String   @map("template_version_id")
+  templateNameSnapshot String   @map("template_name_snapshot") @db.VarChar(255)
+  provisionedBy        String   @map("provisioned_by")
+  provisionedAt        DateTime @default(now()) @map("provisioned_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([templateId], map: "idx_bot_template_source_template")
+  @@map("bot_template_sources")
+}
+
+model BotLifecycleEvent {
+  id         String   @id @default(cuid())
+  botId      String   @map("bot_id")
+  fromStatus String?  @map("from_status") @db.VarChar(20)
+  toStatus   String   @map("to_status") @db.VarChar(20)
+  actorId    String   @map("actor_id")
+  reason     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId], map: "idx_bot_lifecycle_bot")
+  @@index([toStatus], map: "idx_bot_lifecycle_status")
+  @@map("bot_lifecycle_events")
+}
+
+model BotHealthSnapshot {
+  id         String   @id @default(cuid())
+  botId      String   @map("bot_id")
+  status     String   @db.VarChar(20)
+  summaryKey String   @map("summary_key") @db.VarChar(255)
+  details    Json?
+  observedAt DateTime @default(now()) @map("observed_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId, observedAt], map: "idx_bot_health_bot_observed")
+  @@index([status], map: "idx_bot_health_status")
+  @@map("bot_health_snapshots")
+}
+
+model BotProfileExport {
+  id          String   @id @default(cuid())
+  botId       String   @map("bot_id")
+  requestedBy String   @map("requested_by")
+  format      String   @db.VarChar(20)
+  artifactId  String?  @map("artifact_id")
+  status      String   @default("PENDING") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  bot ManagedBot @relation(fields: [botId], references: [id])
+
+  @@index([botId], map: "idx_bot_exports_bot")
+  @@index([status], map: "idx_bot_exports_status")
+  @@map("bot_profile_exports")
+}
+
+model BotProfileImport {
+  id                  String   @id @default(cuid())
+  requestedBy         String   @map("requested_by")
+  sourceArtifactId    String   @map("source_artifact_id")
+  createdBotId        String?  @map("created_bot_id")
+  status              String   @default("PENDING") @db.VarChar(20)
+  validationErrors    Json?    @map("validation_errors")
+  blockedRequirements Json?    @map("blocked_requirements")
+  createdAt           DateTime @default(now()) @map("created_at")
+  completedAt         DateTime? @map("completed_at")
+
+  @@index([createdBotId], map: "idx_bot_imports_created_bot")
+  @@index([status], map: "idx_bot_imports_status")
+  @@map("bot_profile_imports")
+}

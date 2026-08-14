@@ -1,0 +1,125 @@
+{
+  "template-management": {
+    "menu": {
+      "title": "📦 إدارة القوالب",
+      "my_templates": "📋 قوالبي",
+      "browse": "🔍 تصفح القوالب",
+      "create": "➕ قالب جديد",
+      "back": "🔙 العودة"
+    },
+    "commands": {
+      "templates": "إدارة القوالب",
+      "new_template": "إنشاء قالب جديد",
+      "import_template": "استيراد قالب"
+    },
+    "detail": {
+      "title": "📦 تفاصيل القالب",
+      "name": "📛 الاسم",
+      "description": "📝 الوصف",
+      "category": "🗂️ التصنيف",
+      "tags": "🏷️ الوسوم",
+      "author": "👤 المؤلف",
+      "version": "📌 الإصدار",
+      "status": "📊 الحالة",
+      "rating": "⭐ التقييم",
+      "usage": "📈 مرات الاستخدام",
+      "language": "🌐 اللغة",
+      "created": "📅 تاريخ الإنشاء",
+      "updated": "🔄 آخر تحديث"
+    },
+    "status": {
+      "DRAFT": "مسودة",
+      "REVIEW": "قيد المراجعة",
+      "PUBLISHED": "منشور",
+      "ARCHIVED": "مؤرشف"
+    },
+    "actions": {
+      "edit": "✏️ تعديل",
+      "delete": "🗑️ حذف",
+      "submit_review": "📤 إرسال للمراجعة",
+      "publish": "✅ نشر",
+      "reject": "↩️ إرجاع",
+      "archive": "📥 أرشفة",
+      "reactivate": "♻️ إعادة نشر",
+      "clone": "📋 استخدام هذا القالب",
+      "export": "📤 تصدير",
+      "export_json": "📄 تصدير JSON",
+      "export_pdf": "📑 تصدير PDF",
+      "import": "📥 استيراد",
+      "versions": "📜 سجل الإصدارات",
+      "subscribe": "🔔 متابعة",
+      "unsubscribe": "🔕 إلغاء المتابعة",
+      "rate": "⭐ تقييم",
+      "confirm_delete": "هل أنت متأكد من حذف هذا القالب؟",
+      "confirm_yes": "✅ نعم",
+      "confirm_no": "❌ لا"
+    },
+    "wizard": {
+      "step_name": "👤 أدخل اسم القالب:",
+      "step_description": "📝 أدخل وصف القالب:",
+      "step_category": "🗂️ اختر التصنيف:",
+      "step_language": "🌐 اختر اللغة:",
+      "step_tags": "🏷️ أدخل الوسوم (مفصولة بفاصلة):",
+      "created_success": "✅ تم إنشاء القالب بنجاح!"
+    },
+    "browse": {
+      "title": "🔍 تصفح القوالب",
+      "search": "🔎 بحث",
+      "categories": "🏷️ تصنيفات",
+      "sort_relevance": "📊 الأكثر صلة",
+      "sort_rating": "⭐ الأعلى تقييماً",
+      "sort_usage": "📈 الأكثر استخداماً",
+      "sort_newest": "🆕 الأحدث",
+      "no_results": "لا توجد نتائج",
+      "page_info": "صفحة {{page}} من {{total}}"
+    },
+    "categories": {
+      "manage_title": "🗂️ إدارة التصنيفات",
+      "add": "➕ إضافة تصنيف",
+      "edit": "✏️ تعديل",
+      "delete": "🗑️ حذف",
+      "reorder": "↕️ إعادة ترتيب",
+      "depth_limit": "⚠️ الحد الأقصى للتداخل هو 3 مستويات"
+    },
+    "rating": {
+      "title": "⭐ تقييم القالب",
+      "stars_1": "⭐",
+      "stars_2": "⭐⭐",
+      "stars_3": "⭐⭐⭐",
+      "stars_4": "⭐⭐⭐⭐",
+      "stars_5": "⭐⭐⭐⭐⭐",
+      "your_rating": "تقييمك: {{stars}} نجوم",
+      "avg_rating": "متوسط التقييم: {{avg}} ({{count}} تقييم)",
+      "success": "✅ تم حفظ تقييمك"
+    },
+    "version": {
+      "title": "📜 سجل الإصدارات",
+      "entry": "v{{version}} — {{date}}",
+      "change_summary": "ملخص التغييرات: {{summary}}",
+      "published_by": "نُشر بواسطة: {{author}}"
+    },
+    "notification": {
+      "new_version": "📦 تم نشر إصدار جديد v{{version}} من القالب \"{{name}}\"",
+      "pending_review": "📋 القالب \"{{name}}\" بحاجة لمراجعة",
+      "status_changed": "📊 تم تغيير حالة القالب \"{{name}}\" إلى {{status}}"
+    },
+    "import": {
+      "prompt": "📥 أرسل ملف JSON لاستيراد القالب",
+      "validating": "⏳ جارٍ التحقق من الملف...",
+      "success": "✅ تم استيراد القالب بنجاح كمسودة",
+      "invalid_format": "❌ تنسيق الملف غير صالح",
+      "file_too_large": "❌ حجم الملف يتجاوز الحد الأقصى (5 ميجابايت)"
+    },
+    "error": {
+      "not_found": "❌ القالب غير موجود",
+      "unauthorized": "⚠️ ليس لديك صلاحية لهذا الإجراء",
+      "invalid_transition": "⚠️ لا يمكن تنفيذ هذا الإجراء في الحالة الحالية",
+      "missing_name": "⚠️ اسم القالب مطلوب",
+      "missing_description": "⚠️ وصف القالب مطلوب",
+      "missing_category": "⚠️ تصنيف القالب مطلوب",
+      "missing_commands": "⚠️ يجب إضافة أمر واحد على الأقل",
+      "rate_limit": "⚠️ تم تجاوز الحد الأقصى لإنشاء القوالب (10 يومياً)",
+      "concurrent_update": "⚠️ تم تحديث البيانات مؤخراً، أعد المحاولة"
+    }
+  }
+}

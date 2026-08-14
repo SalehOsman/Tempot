@@ -1,0 +1,11 @@
+# Compiled TypeScript output (should only exist in dist/)
+*.js
+*.d.ts
+*.js.map
+*.d.ts.map
+
+# But keep config files that are intentionally .js
+!config/*.js
+
+# Build output
+dist/
