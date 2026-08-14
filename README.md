@@ -33,8 +33,8 @@ deployment basics from scratch.
 ## Quick Start
 
 ```bash
-git clone https://github.com/<your-org>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/SalehOsman/Tempot.git
+cd Tempot
 pnpm install
 cp .env.example .env
 pnpm docker:dev
