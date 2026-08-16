@@ -12,7 +12,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16_+_pgvector-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[Getting Started](#-quick-start) • [Architecture](#-architecture) • [Pre-built Modules](#-built-in-modules) • [CLI Tooling](#-tempot-cli) • [Documentation](#-documentation--governance)
+[Getting Started](#-quick-start) • [Architecture](#-architecture) • [Modules](#-built-in-modules) • [Packages](#-infrastructure-packages) • [CLI Tooling](#-tempot-cli) • [Documentation](#-documentation--governance)
 
 </div>
 
@@ -69,21 +69,35 @@ graph TD
 
 ## 📦 Built-in Modules
 
-Tempot includes 11 production-ready, fully tested modules located in `modules/`:
+Tempot includes 11 production-ready, fully tested modules located in [`modules/`](modules/README.md):
 
-| Module | Description | Core Features |
+| Module | Category | Primary Commands | Documentation |
+|---|---|---|---|
+| 👤 **`user-management`** | Core Platform | `/start`, `/profile`, `/users` | [Read Docs](modules/user-management/README.md) |
+| 🛡️ **`audit-viewer`** | Operational | `/stats` | [Read Docs](modules/audit-viewer/README.md) |
+| 💾 **`backup-management`** | Operations | `/backups` | [Read Docs](modules/backup-management/README.md) |
+| 🤖 **`bot-management`** | Product | `/bots`, `/new_bot` | [Read Docs](modules/bot-management/README.md) |
+| 📝 **`content-management`** | Product | `/messages` | [Read Docs](modules/content-management/README.md) |
+| ❓ **`help-center`** | Core Platform | `/help` | [Read Docs](modules/help-center/README.md) |
+| 🧠 **`knowledge-management`** | Operations | `/knowledge`, `/knowledge_custom` | [Read Docs](modules/knowledge-management/README.md) |
+| 💳 **`membership-management`** | Core Platform | `/join` | [Read Docs](modules/membership-management/README.md) |
+| 🔔 **`notification-center`** | Operational | `/notifications` | [Read Docs](modules/notification-center/README.md) |
+| ⚙️ **`settings-management`** | Core Platform | `/settings` | [Read Docs](modules/settings-management/README.md) |
+| 📋 **`template-management`** | Product | `/templates`, `/new_template` | [Read Docs](modules/template-management/README.md) |
+
+---
+
+## ⚙️ Infrastructure Packages
+
+Tempot includes 23 standalone, headless TypeScript packages located in [`packages/`](packages/README.md):
+
+| Category | Packages | Description |
 |---|---|---|
-| 👤 **`user-management`** | User profiles & Administration | Onboarding, RBAC roles, profile management, banning |
-| 🛡️ **`audit-viewer`** | Audit Trail & Compliance | Log inspection, security events, operator actions |
-| 💾 **`backup-management`** | Automated Data Backups | Database dump/restore, S3 export, scheduled backups |
-| 🤖 **`bot-management`** | Bot Instance Governance | Multi-instance controls, rate limits, status tracking |
-| 📝 **`content-management`** | Dynamic Bot Content & CMS | Text management, media broadcasts, interactive FAQs |
-| ❓ **`help-center`** | Interactive Support & Help | Guided menus, command discovery, ticketing |
-| 🧠 **`knowledge-management`** | RAG & Vector Knowledgebase | Document indexing, semantic search, AI answering |
-| 💳 **`membership-management`** | Subscriptions & Access | VIP tiers, expiration tracking, access gates |
-| 🔔 **`notification-center`** | Targeted Broadcasting | Scheduled notifications, batch messaging, alerts |
-| ⚙️ **`settings-management`** | Runtime Bot Settings | Dynamic configuration, feature flags, preferences |
-| 📋 **`template-management`** | Blueprint Scaffold Engine | Modular generation, validation, and diagnostics |
+| **🗄️ Core Data & Infra** | [`@tempot/database`](packages/database/README.md), [`@tempot/shared`](packages/shared/README.md), [`@tempot/event-bus`](packages/event-bus/README.md), [`@tempot/session-manager`](packages/session-manager/README.md), [`@tempot/settings`](packages/settings/README.md), [`@tempot/module-registry`](packages/module-registry/README.md) | Dual-ORM (Prisma 7 + Drizzle pgvector), Redis pub/sub, session state, Result error hierarchy. |
+| **🛡️ Identity & Region** | [`@tempot/auth-core`](packages/auth-core/README.md), [`@tempot/i18n-core`](packages/i18n-core/README.md), [`@tempot/regional-engine`](packages/regional-engine/README.md), [`@tempot/national-id-parser`](packages/national-id-parser/README.md) | CASL RBAC authorization, Arabic/English i18n, Eastern/Western numerals, Egyptian National ID parser. |
+| **🧠 AI & Content** | [`@tempot/ai-core`](packages/ai-core/README.md), [`@tempot/search-engine`](packages/search-engine/README.md), [`@tempot/cms-engine`](packages/cms-engine/README.md), [`@tempot/document-engine`](packages/document-engine/README.md), [`@tempot/import-engine`](packages/import-engine/README.md) | Vercel AI SDK integration, semantic search planner, deterministic dynamic CMS, PDF/Excel generator. |
+| **☁️ Storage & Messaging** | [`@tempot/storage-engine`](packages/storage-engine/README.md), [`@tempot/notifier`](packages/notifier/README.md), [`@tempot/backup-engine`](packages/backup-engine/README.md) | Google Drive / S3 / Local storage, queue-backed message broadcasts, automated encrypted DB dumps. |
+| **📊 UI/UX & Telemetry** | [`@tempot/logger`](packages/logger/README.md), [`@tempot/interaction-observability`](packages/interaction-observability/README.md), [`@tempot/sentry`](packages/sentry/README.md), [`@tempot/ux-helpers`](packages/ux-helpers/README.md), [`@tempot/input-engine`](packages/input-engine/README.md) | Pino JSON logging + PII redaction, Sentry telemetry, interactive menus, multi-step conversational forms. |
 
 ---
 
