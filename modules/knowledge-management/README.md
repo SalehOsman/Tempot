@@ -1,78 +1,133 @@
-# Knowledge Management
+# 🧠 Knowledge Management Module (`modules/knowledge-management`)
 
-`knowledge-management` is the super-admin Telegram operations console for AI/RAG
-knowledge indexing. It owns bot UX and delegates all ingestion, retrieval, and
-runtime checks to an injected provider from `bot-server`.
+> RAG vector knowledgebase orchestration, document embeddings ingestion, and semantic search administration for Tempot.
 
-The module does not accept arbitrary filesystem paths. Operators choose approved
-source profiles only, then run dry-run previews before any write operation.
+---
 
-## Source Profiles
+## 📋 Overview
 
-The bot exposes these build profiles from the Knowledge menu:
+The **`knowledge-management`** module provides full administrative oversight and execution tools for the platform's Retrieval-Augmented Generation (RAG) vector store. Super Administrators can trigger document embedding ingestion, monitor vector database synchronization, inspect vector index metrics, and execute test semantic queries directly through Telegram.
 
-| Profile | Root |
-| --- | --- |
-| Product | `docs/product/ar`, `docs/product/en`, `docs/product/modules`, `docs/product/architecture` |
-| Operations | `docs/operations` |
-| Architecture | `docs/architecture` |
-| Analysis | `docs/project-analysis` |
-| Full Project | `docs`, `specs`, `packages`, `modules` |
+---
 
-Long-running dry-run and write operations run in the background. The bot sends
-an immediate waiting message, then sends a separate completion or failure message
-when the operation finishes. `Write index` is a one-step operation from the bot
-menu; the older confirmation contract remains available only for compatibility.
-One-step writes are capped by `TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS` so large
-sources, especially Full Project, do not starve Telegram responsiveness. Build
-large knowledge bases section by section, or raise the limit only for a planned
-long background run.
+## 🛠️ Commands & Access Control
 
-The Full Reindex menu path currently returns a planned-operation response. Do
-not document it as a completed destructive rebuild workflow until the provider
-implementation and staging evidence exist.
+| Command | Description | Required Role | Access Classification | CASL Ability |
+|---|---|---|---|---|
+| `/knowledge` | Open the vector knowledgebase and RAG operations panel | `SUPER_ADMIN` | `admin` | `manage.knowledge` |
+| `/knowledge_custom` | Execute custom vector queries and test similarity thresholds | `SUPER_ADMIN` | `admin` | `manage.knowledge` |
 
-## Custom Profiles
+---
 
-Super admins can add a mounted custom source from the bot:
+## 📱 Navigation & UI/UX Surface
 
-```text
-/knowledge_custom Name | relative/path | Description
+- **Main Menu Entry:**
+  - **Button Label Key:** `knowledge-management.menu.button`
+  - **Callback Query:** `knowledge:view`
+  - **Layout:** Row 5, Order 50 (Super Admin section)
+- **Interactive Operations:**
+  - **RAG Status:** View total indexed documents, embedding dimensions, vector store latency, and model metadata.
+  - **Dry-run Ingestion:** Preview document chunking and token consumption without modifying the vector store.
+  - **Execute Ingestion:** Compute embeddings via Vercel AI SDK and write vectors to PostgreSQL `pgvector`.
+  - **Full Re-indexing:** Re-chunk and regenerate embeddings for the entire documentation corpus.
+  - **Semantic Query Tester:** Test cosine similarity search against live documentation chunks with score breakdowns.
+
+---
+
+## 📡 Event Contracts (Event Bus)
+
+### Publishes
+- `knowledge.ingestion.dry_run_requested`: Triggered when previewing document chunking.
+- `knowledge.ingestion.write_requested`: Triggered when writing embeddings to pgvector.
+- `knowledge.ingestion.full_reindex_requested`: Triggered when forcing a complete knowledgebase rebuild.
+
+### Consumes
+- *None (Originating RAG orchestrator)*
+
+---
+
+## ⚙️ Module Configuration (`module.config.ts`)
+
+```typescript
+import type { ModuleConfig } from '@tempot/module-registry';
+
+const config: ModuleConfig = {
+  name: 'knowledge-management',
+  version: '0.1.0',
+  requiredRole: 'SUPER_ADMIN',
+  isActive: true,
+  isCore: false,
+  commands: [
+    { command: 'knowledge', description: 'knowledge-management.commands.knowledge' },
+    {
+      command: 'knowledge_custom',
+      description: 'knowledge-management.commands.knowledge_custom',
+    },
+  ],
+  navigation: {
+    mainMenu: [
+      {
+        id: 'knowledge-management',
+        labelKey: 'knowledge-management.menu.button',
+        callbackData: 'knowledge:view',
+        requiredRole: 'SUPER_ADMIN',
+        accessClassification: 'admin',
+        requiredAbility: 'manage.knowledge',
+        row: 5,
+        order: 50,
+      },
+    ],
+  },
+  features: {
+    hasDatabase: true,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasAI: true,
+    hasInputEngine: false,
+    hasImport: false,
+    hasSearch: true,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+  aiDegradationMode: 'graceful',
+  requires: {
+    packages: ['@tempot/ai-core', '@tempot/ux-helpers'],
+    optional: ['@tempot/event-bus'],
+  },
+};
+
+export default config;
 ```
 
-The path must be relative to `TEMPOT_KNOWLEDGE_SOURCES_ROOT`, must not contain
-`..`, and must be mounted into the bot container. In local Docker Desktop,
-custom definitions are stored in `data/knowledge-custom-profiles.json` through
-`TEMPOT_KNOWLEDGE_CUSTOM_PROFILES_FILE`.
+---
 
-## AI Providers
+## 🧩 Dependencies & Packages
 
-The Knowledge menu includes AI provider controls for super admins. These
-controls update dynamic settings only; API keys are still read from runtime
-environment variables.
+| Package | Requirement | Purpose |
+|---|---|---|
+| `@tempot/ai-core` | **Mandatory** | Text embedding generation, vector distance calculations, and LLM queries |
+| `@tempot/ux-helpers` | **Mandatory** | Keyboard builders and status message formatters |
+| `@tempot/database` | Mandatory | PostgreSQL 16 + `pgvector` extension schema and queries |
+| `@tempot/event-bus` | Optional | Async queue job notifications for long-running batch ingestion |
 
-| Capability | Supported providers |
-| --- | --- |
-| Chat | Gemini, OpenAI, DeepSeek |
-| Embeddings | Gemini, OpenAI, Ollama |
+---
 
-Changing the embedding provider or model requires rebuilding the knowledge
-index before relying on `/ask` answers. The help assistant uses the same dynamic
-embedding settings for retrieval, so indexing and asking stay in one vector
-space.
+## 🌐 Localization (I18n)
 
-For local free indexing, run Ollama on the host machine and configure the bot
-container with:
+- **Translation Keys Prefix:** `knowledge-management.*`
+- **Supported Locales:**
+  - `locales/ar.json` — Arabic (Primary)
+  - `locales/en.json` — English
 
-```env
-AI_EMBEDDING_PROVIDER=ollama
-AI_EMBEDDING_MODEL=embeddinggemma
-AI_EMBEDDING_DIMENSIONS=768
-OLLAMA_BASE_URL=http://host.docker.internal:11434
-TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD=
-TEMPOT_KNOWLEDGE_MAX_WRITE_CHUNKS=500
+---
+
+## 🧪 Testing & Diagnostics
+
+```bash
+# Validate module structure and manifest contracts
+pnpm tempot module doctor knowledge-management
+
+# Run module test suites
+pnpm --filter @tempot/knowledge-management test
 ```
-
-Leave `TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD` empty for the provider-aware
-default. Set it explicitly only when acceptance evidence shows that a specific
-deployment needs a tighter or looser retrieval threshold.

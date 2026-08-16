@@ -1,36 +1,122 @@
-# @tempot/help-center
+# ❓ Help Center Module (`modules/help-center`)
 
-Active core-platform module that renders contextual help, available commands,
-support information, and the first governed AI/RAG assistant entry point inside
-Telegram.
+> Interactive end-user support menus, command discovery, AI-assisted question answering, and guided help flows for Tempot.
 
-- Commands: `/help`, `/ask <question>`
-- Smart question entry: `help:assistant` button, `/ask`, `ask/`, `ask`, and Arabic ask aliases.
-- Assistant sessions remain open for follow-up questions until the user presses `help:assistant:close`.
-- Minimum role: `USER`
-- Required runtime packages: `@tempot/i18n-core`, `@tempot/ai-core`
-- Optional package: `@tempot/search-engine`
-- AI mode: `hasAI: true`, `aiDegradationMode: graceful`
-- Main callback namespace: `help:*`
+---
 
-The module owns Telegram UX, command parsing, callback handling, and localized
-response rendering. It receives an optional `HelpAssistantProvider` from
-`bot-server`; it does not instantiate AI infrastructure directly.
+## 📋 Overview
 
-The current assistant implementation is retrieval-grounded. When the runtime
-RAG provider returns context, the assistant renders the best grounded snippet
-with citations. Users can ask through the inline button or command-style text.
-If AI is unavailable or no authorized context is found, the module renders
-localized graceful fallback messages.
+The **`help-center`** module provides users with an intuitive, self-service help environment. It automatically discovers all active bot commands and module capabilities, renders structured interactive navigation menus, and integrates graceful fallback AI answering for unstructured user questions.
 
-The runtime provider uses `TEMPOT_HELP_RAG_CONFIDENCE_THRESHOLD` when set.
-When the value is omitted, hosted embedding providers keep the stricter default
-threshold, while local Ollama embeddings use a lower provider-aware default so
-valid local matches are not discarded before answer rendering.
+---
 
-```bash
-pnpm --filter @tempot/help-center build
-pnpm --filter @tempot/help-center test
+## 🛠️ Commands & Access Control
+
+| Command | Description | Required Role | Access Classification | CASL Ability |
+|---|---|---|---|---|
+| `/help` | Open the interactive help center and feature directory | `GUEST` / `USER` | `public` / `protected` | `read.help` |
+
+---
+
+## 📱 Navigation & UI/UX Surface
+
+- **Main Menu Entry:**
+  - **Button Label Key:** `help-center.menu.button`
+  - **Callback Query:** `help:view`
+  - **Layout:** Row 3, Order 10 (User navigation section)
+- **Interactive Features:**
+  - **Command Catalog:** Dynamic listing of commands available to the requesting user's specific role.
+  - **Feature Guides:** Interactive step-by-step walkthroughs for core bot operations.
+  - **AI Assistant Fallback:** When `hasAI: true` is enabled, user queries not matched by static FAQs are answered using context-grounded AI models.
+  - **Operator Contact:** Direct action button to connect users with human support administrators.
+
+---
+
+## 📡 Event Contracts (Event Bus)
+
+- **Publishes:** *None (Stateless user navigation module)*
+- **Consumes:** *None*
+
+---
+
+## ⚙️ Module Configuration (`module.config.ts`)
+
+```typescript
+import type { ModuleConfig } from '@tempot/module-registry';
+
+const config: ModuleConfig = {
+  name: 'help-center',
+  version: '0.1.0',
+  requiredRole: 'USER',
+  isActive: true,
+  isCore: false,
+  commands: [
+    { command: 'help', description: 'help-center.commands.help' },
+  ],
+  navigation: {
+    mainMenu: [
+      {
+        id: 'help-center',
+        labelKey: 'help-center.menu.button',
+        callbackData: 'help:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.help',
+        row: 3,
+        order: 10,
+      },
+    ],
+  },
+  features: {
+    hasDatabase: false,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasAI: true,
+    hasInputEngine: false,
+    hasImport: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+  aiDegradationMode: 'graceful',
+  requires: {
+    packages: ['@tempot/i18n-core', '@tempot/ai-core'],
+    optional: ['@tempot/search-engine'],
+  },
+};
+
+export default config;
 ```
 
-Runtime text is provided through `locales/ar.json` and `locales/en.json`.
+---
+
+## 🧩 Dependencies & Packages
+
+| Package | Requirement | Purpose |
+|---|---|---|
+| `@tempot/i18n-core` | **Mandatory** | Localized help strings and button labels |
+| `@tempot/ai-core` | **Mandatory** | Natural language assistance and conversational answering |
+| `@tempot/search-engine` | Optional | Instant semantic indexing over help topics |
+| `@tempot/shared` | Mandatory | Bot context, Result types, and error handling |
+
+---
+
+## 🌐 Localization (I18n)
+
+- **Translation Keys Prefix:** `help-center.*`
+- **Supported Locales:**
+  - `locales/ar.json` — Arabic (Primary)
+  - `locales/en.json` — English
+
+---
+
+## 🧪 Testing & Diagnostics
+
+```bash
+# Validate module structure and manifest contracts
+pnpm tempot module doctor help-center
+
+# Run module test suites
+pnpm --filter @tempot/help-center test
+```

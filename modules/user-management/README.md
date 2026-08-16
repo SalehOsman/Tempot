@@ -1,59 +1,141 @@
-# User Management Module
+# 👤 User Management Module (`modules/user-management`)
 
-Profile and administrator user-management workflows for Tempot.
+> Core user onboarding, profile lifecycle, RBAC administration, and regional identity parsing for Tempot.
 
-## Purpose
+---
 
-The module provides inline-keyboard-first profile management, administrator user search, and role management. Commands remain available as shortcuts, but the primary UX surface is button-driven navigation.
+## 📋 Overview
 
-## Features
+The **`user-management`** module serves as the primary user onboarding and identity foundation for Tempot. It provides button-first profile inspection and editing, administrator user management, CASL-based role assignment, national ID verification via `@tempot/national-id-parser`, and guest membership application integration.
 
-- Profile viewing
-- Profile editing
-- Administrator user management
-- Role changes with authorization checks
-- Super-admin user blocking with last-active-super-admin protection
-- Guest users can submit a new membership request from `/start`
-- User search for administrators
+---
 
-## UI/UX
+## 🛠️ Commands & Access Control
 
-- **Primary**: Inline Keyboards
-- **Secondary**: command shortcuts
-- **Navigation**: hierarchical menu screens with back actions
-- **Start menu**: one action per row with leading icons for narrow Telegram clients
+| Command | Description | Required Role | Access Classification | CASL Ability |
+|---|---|---|---|---|
+| `/start` | Bot bootstrap entry point and main menu renderer | `GUEST` / `USER` | `public` | *Bootstrap* |
+| `/profile` | View and edit personal user profile | `USER` | `protected` | `read.profile` |
+| `/users` | Administrator user list, role controls, and search | `ADMIN` / `SUPER_ADMIN` | `admin` | `manage.users` |
 
-## Commands
+---
 
-| Command | Description | Access |
-| ------- | ----------- | ------ |
-| `/start` | Show the main menu | All users |
-| `/profile` | Open the profile shortcut | All users |
-| `/users` | Open user management | Admin and above |
+## 📱 Navigation & UI/UX Surface
 
-## Dependencies
+- **Main Menu Entries:**
+  - **Profile Button:** `user-management.menu.button.profile` ➔ Callback `profile:view` (Row 0, Order 10)
+  - **Users Button:** `user-management.menu.button.users` ➔ Callback `users:list` (Row 2, Order 10 - Admin Only)
+- **Interactive Workflows:**
+  - **Profile Editor:** Multi-step wizard to update display name, phone, national ID, and regional governorate.
+  - **Admin User Directory:** Search users by username, Telegram ID, or phone number with real-time banning/unbanning.
+  - **Role Management:** Elevate or demote roles (`USER` ⇄ `ADMIN`) with protection preventing demotion of the last active Super Admin.
 
-| Package | Purpose |
-| ------- | ------- |
-| `@tempot/session-manager` | Session management |
-| `@tempot/database` | User repositories |
-| `@tempot/event-bus` | Event publishing |
-| `@tempot/i18n-core` | Translations |
-| `@tempot/shared` | Result pattern and application errors |
-| `@tempot/ux-helpers` | Inline keyboards and status messages |
-| `@tempot/regional-engine` | Regional formatting |
-| `@tempot/input-engine` | Dynamic forms |
-| `@tempot/auth-core` | Authorization |
+---
 
-## Status
+## 📡 Event Contracts (Event Bus)
 
-Implemented. Current hardening focus: package checklist compliance, documentation parity, and benchmark coverage.
+### Publishes
+- `user-management.user.started`: Emitted when a user sends `/start` or registers for the first time.
 
-## Authorization
+### Consumes
+- `membership-management.request.approved`: Automatically promotes user role from `GUEST` to `USER`.
 
-`/start` is an explicit bootstrap policy. Known `GUEST` profiles are routed
-back to the membership request path instead of receiving an empty protected
-menu. Profile reads and edits use separate CASL actions, while user
-administration and role or block actions require protected management
-authorization. Callback and text-state denials occur before service calls or
-pending state mutation.
+---
+
+## ⚙️ Module Configuration (`module.config.ts`)
+
+```typescript
+import type { ModuleConfig } from '@tempot/module-registry';
+
+const config: ModuleConfig = {
+  name: 'user-management',
+  version: '1.0.0',
+  requiredRole: 'USER',
+  isActive: true,
+  isCore: false,
+
+  commands: [
+    { command: 'start', description: 'user-management.commands.start' },
+    { command: 'profile', description: 'user-management.commands.profile' },
+    { command: 'users', description: 'user-management.commands.users' },
+  ],
+
+  navigation: {
+    mainMenu: [
+      {
+        id: 'profile',
+        labelKey: 'user-management.menu.button.profile',
+        callbackData: 'profile:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.profile',
+        row: 0,
+        order: 10,
+      },
+      {
+        id: 'users',
+        labelKey: 'user-management.menu.button.users',
+        callbackData: 'users:list',
+        requiredRole: 'ADMIN',
+        accessClassification: 'admin',
+        requiredAbility: 'manage.users',
+        row: 2,
+        order: 10,
+      },
+    ],
+  },
+
+  features: {
+    hasDatabase: true,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasImport: false,
+    hasAI: false,
+    hasInputEngine: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: true,
+  },
+
+  requires: {
+    packages: ['@tempot/database', '@tempot/auth-core', '@tempot/national-id-parser'],
+    optional: ['@tempot/input-engine', '@tempot/regional-engine'],
+  },
+};
+
+export default config;
+```
+
+---
+
+## 🧩 Dependencies & Packages
+
+| Package | Requirement | Purpose |
+|---|---|---|
+| `@tempot/database` | **Mandatory** | User, UserProfile, and Role database tables |
+| `@tempot/auth-core` | **Mandatory** | CASL RBAC rule evaluation and authorization guards |
+| `@tempot/national-id-parser` | **Mandatory** | Validation and parsing of Egyptian National IDs (birth date, gender, governorate) |
+| `@tempot/regional-engine` | Optional | Localized date and numeral formatting for profile details |
+| `@tempot/input-engine` | Optional | Structured form fields for profile registration |
+
+---
+
+## 🌐 Localization (I18n)
+
+- **Translation Keys Prefix:** `user-management.*`
+- **Supported Locales:**
+  - `locales/ar.json` — Arabic (Primary)
+  - `locales/en.json` — English
+
+---
+
+## 🧪 Testing & Diagnostics
+
+```bash
+# Validate module structure and manifest contracts
+pnpm tempot module doctor user-management
+
+# Run module test suites
+pnpm --filter @tempot/user-management test
+```

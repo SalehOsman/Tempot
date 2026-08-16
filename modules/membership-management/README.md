@@ -1,41 +1,126 @@
-# @tempot/membership-management
+# 💳 Membership Management Module (`modules/membership-management`)
 
-Membership request workflow for private/public bot access control.
+> Membership tier tracking, access request workflows, VIP expiration handling, and gated access controls for Tempot.
 
-## Purpose
+---
 
-This module owns membership request persistence and review state transitions. It does not create or mutate user profiles directly; profile activation remains owned by `user-management` and will be connected through an approved event boundary.
+## 📋 Overview
 
-## Implemented
+The **`membership-management`** module governs onboarding workflows for guest users requesting bot membership, subscription tier assignments, automated expiration tracking, and administrative review of pending membership applications.
 
-- Visitor callback handler for `membership:request`.
-- Administrator review callbacks for pending list, detail, approve, and reject.
-- Administrator review inline menus.
-- Empty pending-list state with a back-to-main-menu action.
-- PostgreSQL persistence through `PrismaMembershipRequestRepository`.
-- Pending request lookup by Telegram id.
-- Submit, approve, and reject service methods.
-- Event publication for submitted, approved, and rejected requests.
-- Typed event names and payload contracts for submitted, approved, rejected, cancelled, and expired request events.
-- English and Arabic locale keys.
-- CASL ability definition for membership request management.
-- User-management approval consumer for default member profile activation.
+---
 
-## Access Boundary
+## 🛠️ Commands & Access Control
 
-- `membership:request` is bootstrap-only and allowed for unknown visitors.
-- Membership administration callbacks such as `membership:list` are protected by `manage.membership-request`.
-- Approval emits `membership-management.request.approved`, which `user-management` consumes through its own boundary.
-- Services and handlers use the repository boundary; they do not access Prisma directly.
+| Command | Description | Required Role | Access Classification | CASL Ability |
+|---|---|---|---|---|
+| `/join` | Submit a membership or tier upgrade request | `GUEST` / `USER` | `public` | `create.membership-request` |
 
-## Follow-up Scope
+---
 
-- Visitor-facing cancellation and automatic expiry commands are not exposed yet.
-- Production rollout evidence remains governed by Spec #057 and is outside this module.
+## 📱 Navigation & UI/UX Surface
 
-## Verification
+- **Main Menu Entry (Administrators):**
+  - **Button Label Key:** `membership-management.menu.button`
+  - **Callback Query:** `membership:list`
+  - **Layout:** Row 2, Order 10 (Admin section)
+- **User Workflows:**
+  - **Membership Application:** Interactive questionnaire collecting user details and preferred tier.
+  - **Application Status:** Real-time checking of request review status (`PENDING`, `APPROVED`, `REJECTED`).
+- **Admin Review Workflows:**
+  - **Pending Applications Queue:** Inline keyboard list of new user requests with one-click Approve / Reject buttons.
+  - **Tier Assignment:** Dynamically adjust expiration dates and VIP permissions.
 
-```powershell
-pnpm --filter @tempot/membership-management build
-pnpm --filter @tempot/membership-management test -- --run tests/unit/membership-request.service.test.ts tests/handlers/callback.handler.test.ts tests/integration/membership-request.repository.test.ts
+---
+
+## 📡 Event Contracts (Event Bus)
+
+### Publishes
+- `membership-management.request.submitted`: Emitted when a user completes a membership application.
+- `membership-management.request.approved`: Emitted when an admin approves a membership request (promotes role).
+- `membership-management.request.rejected`: Emitted when an admin rejects a request with an optional reason.
+
+### Consumes
+- *None (Originating workflow)*
+
+---
+
+## ⚙️ Module Configuration (`module.config.ts`)
+
+```typescript
+import type { ModuleConfig } from '@tempot/module-registry';
+
+const config: ModuleConfig = {
+  name: 'membership-management',
+  version: '0.1.0',
+  requiredRole: 'GUEST',
+  isActive: true,
+  isCore: false,
+  commands: [
+    { command: 'join', description: 'membership-management.commands.join' },
+  ],
+  navigation: {
+    mainMenu: [
+      {
+        id: 'membership-management',
+        labelKey: 'membership-management.menu.button',
+        callbackData: 'membership:list',
+        requiredRole: 'ADMIN',
+        accessClassification: 'admin',
+        requiredAbility: 'manage.membership-request',
+        row: 2,
+        order: 10,
+      },
+    ],
+  },
+  features: {
+    hasDatabase: true,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasAI: false,
+    hasInputEngine: false,
+    hasImport: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+  requires: {
+    packages: ['@tempot/shared'],
+    optional: [],
+  },
+};
+
+export default config;
+```
+
+---
+
+## 🧩 Dependencies & Packages
+
+| Package | Requirement | Purpose |
+|---|---|---|
+| `@tempot/shared` | **Mandatory** | Application error classes, Result patterns, and context definitions |
+| `@tempot/database` | Mandatory | Membership entity persistence and request status tracking |
+| `@tempot/event-bus` | Mandatory | Publishing approval/rejection events for inter-module action |
+
+---
+
+## 🌐 Localization (I18n)
+
+- **Translation Keys Prefix:** `membership-management.*`
+- **Supported Locales:**
+  - `locales/ar.json` — Arabic (Primary)
+  - `locales/en.json` — English
+
+---
+
+## 🧪 Testing & Diagnostics
+
+```bash
+# Validate module structure and manifest contracts
+pnpm tempot module doctor membership-management
+
+# Run module test suites
+pnpm --filter @tempot/membership-management test
 ```

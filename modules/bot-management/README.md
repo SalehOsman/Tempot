@@ -1,39 +1,141 @@
-# Bot Management
+# 🤖 Bot Management Module (`modules/bot-management`)
 
-`bot-management` is the operational Tempot module for managed Telegram bot
-profiles. It owns the registry, lifecycle contracts, settings profiles, module
-enablement state, template source attribution, and import/export profile
-contracts.
+> Multi-bot instance governance, provisioning lifecycle, operational health tracking, and configuration management for Tempot.
 
-This module does not start, stop, or reconfigure running bot processes. Runtime
-consumers must use approved events and package contracts.
+---
 
-## Current Implementation
+## 📋 Overview
 
-Production completion is in progress under Spec #040. The current implementation
-includes the module shell, contracts, locale keys, Prisma schema references,
-managed bot repository, registration service, Telegram list/detail menus,
-`/bots`, `/new_bot`, callback handlers, guided registration through
-`@tempot/input-engine`, and targeted unit tests for the registry slice.
+The **`bot-management`** module provides comprehensive controls for administering and orchestrating multiple Telegram bot instances from a central administrative interface. It supports dynamic bot registration, webhook lifecycle management, feature toggling per bot instance, health probe tracking, and configuration import/export.
 
-Spec #042 hardens the lifecycle operating surface:
+---
 
-- bot detail views open inline lifecycle controls;
-- valid next actions are projected from the existing transition policy;
-- direct transitions reuse `LifecycleService.transition`;
-- pause, maintenance, and archive collect reasons through
-  `@tempot/input-engine`;
-- archive requires inline confirmation before the reason flow starts;
-- successful lifecycle updates return an updated bot detail surface, while
-  invalid or cancelled paths remain non-mutating.
+## 🛠️ Commands & Access Control
 
-The module is not yet production complete. Remaining work is tracked in
-`specs/040-bot-management/tasks.md` and the production completion plan under
-`docs/superpowers/plans/2026-05-12-bot-management-production-completion.md`.
+| Command | Description | Required Role | Access Classification | CASL Ability |
+|---|---|---|---|---|
+| `/bots` | List all registered bot instances and operational statuses | `SUPER_ADMIN` | `admin` | `manage.bots` |
+| `/new_bot` | Provision and configure a new bot instance | `SUPER_ADMIN` | `admin` | `create.bot` |
 
-## Authorization
+---
 
-Commands and callbacks declare CASL action/subject policies at registration or
-dispatch. Registration and lifecycle conversations re-resolve the current
-session and ability immediately before persistence, preventing a stale role
-from committing a protected mutation.
+## 📱 Navigation & UI/UX Surface
+
+- **Main Menu Entry:**
+  - **Button Label Key:** `bot-management.menu.button`
+  - **Callback Query:** `bots:list`
+  - **Layout:** Row 4, Order 10 (Admin section)
+- **Interactive Workflows:**
+  - **Instance Explorer:** View bot health, webhook latency, active user counts, and current uptime.
+  - **Lifecycle Actions:** Start, pause, reload, or decommission bot runtime tokens.
+  - **Module Enablement:** Toggle specific business modules on or off per bot instance.
+  - **Import & Export:** Export complete bot configuration bundles to JSON/YAML.
+
+---
+
+## 📡 Event Contracts (Event Bus)
+
+### Publishes
+- `bot-management.bot.registered`: Emitted when a new bot token is verified and added.
+- `bot-management.bot.updated`: Emitted on configuration or name changes.
+- `bot-management.lifecycle.changed`: Emitted when a bot instance is started, stopped, or restarted.
+- `bot-management.settings.changed`: Emitted when instance-level settings are updated.
+- `bot-management.module-enablement.changed`: Emitted when modules are toggled.
+- `bot-management.provisioning.completed`: Emitted after database schema and webhooks are initialized.
+- `bot-management.health.changed`: Emitted when a health check status transitions (e.g. Healthy -> Degraded).
+- `bot-management.export.completed`: Emitted when bot configuration export finishes.
+- `bot-management.import.completed`: Emitted when bot configuration import finishes.
+
+### Consumes
+- *None (Originating lifecycle manager)*
+
+---
+
+## ⚙️ Module Configuration (`module.config.ts`)
+
+```typescript
+import type { ModuleConfig } from '@tempot/module-registry';
+
+const config: ModuleConfig = {
+  name: 'bot-management',
+  version: '0.1.0',
+  requiredRole: 'SUPER_ADMIN',
+  isActive: true,
+  isCore: false,
+  commands: [
+    { command: 'bots', description: 'bot-management.commands.bots' },
+    { command: 'new_bot', description: 'bot-management.commands.new_bot' },
+  ],
+  navigation: {
+    mainMenu: [
+      {
+        id: 'bot-management',
+        labelKey: 'bot-management.menu.button',
+        callbackData: 'bots:list',
+        requiredRole: 'SUPER_ADMIN',
+        accessClassification: 'admin',
+        requiredAbility: 'manage.bots',
+        row: 4,
+        order: 10,
+      },
+    ],
+  },
+  features: {
+    hasDatabase: true,
+    hasNotifications: true,
+    hasAttachments: false,
+    hasExport: true,
+    hasAI: false,
+    hasInputEngine: true,
+    hasImport: true,
+    hasSearch: true,
+    hasDynamicCMS: false,
+    hasRegional: true,
+  },
+  requires: {
+    packages: [
+      '@tempot/database',
+      '@tempot/auth-core',
+      '@tempot/event-bus',
+      '@tempot/notifier',
+      '@tempot/input-engine',
+    ],
+    optional: ['@tempot/regional-engine', '@tempot/search-engine'],
+  },
+};
+
+export default config;
+```
+
+---
+
+## 🧩 Dependencies & Packages
+
+| Package | Requirement | Purpose |
+|---|---|---|
+| `@tempot/database` | **Mandatory** | Bot instance entities, API token storage, and configuration tables |
+| `@tempot/auth-core` | **Mandatory** | Strict Super Administrator authorization checks |
+| `@tempot/event-bus` | **Mandatory** | Broadcasting instance lifecycle transitions across the cluster |
+| `@tempot/notifier` | **Mandatory** | Dispatching alerts on bot downtime or health degradation |
+| `@tempot/input-engine` | **Mandatory** | Multi-step interactive forms for registering new bot tokens |
+
+---
+
+## 🌐 Localization (I18n)
+
+- **Translation Keys Prefix:** `bot-management.*`
+- **Supported Locales:**
+  - `locales/ar.json` — Arabic (Primary)
+  - `locales/en.json` — English
+
+---
+
+## 🧪 Testing & Diagnostics
+
+```bash
+# Validate module structure and manifest contracts
+pnpm tempot module doctor bot-management
+
+# Run module test suites
+pnpm --filter @tempot/bot-management test
+```
