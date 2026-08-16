@@ -1,48 +1,112 @@
-# Tempot
+<div align="center">
 
-Tempot is a production-oriented TypeScript template for building modular
-Telegram bots. It combines a grammY bot runtime, Hono HTTP server,
-PostgreSQL/Prisma data access, Redis-backed infrastructure, Docker-based local
-services, role-aware modules, and AI-ready service boundaries in one reusable
-monorepo.
+# 🤖 Tempot
 
-Use Tempot when you want to start a new bot from a structured foundation instead
-of wiring authentication, persistence, localization, module loading, and
-deployment basics from scratch.
+**Enterprise-Grade, Modular Telegram Bot Framework & Production Template**
 
-## What You Get
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9_Strict-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.12+-green?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/pnpm-10.33.3-orange?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![grammY](https://img.shields.io/badge/grammY-1.41+-blueviolet?logo=telegram&logoColor=white)](https://grammy.dev/)
+[![Hono](https://img.shields.io/badge/Hono-4.x-E36002?logo=hono&logoColor=white)](https://hono.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16_+_pgvector-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- Telegram bot runtime built with grammY.
-- Hono server for webhooks and health endpoints.
-- PostgreSQL 16, Prisma, Drizzle, and pgvector foundations.
-- Redis-ready sessions, queues, cache, and event-driven module communication.
-- Modular business features under `modules/`.
-- Reusable infrastructure packages under `packages/`.
-- Arabic and English localization support.
-- AI-provider abstraction ready for OpenAI, Gemini, or local providers.
-- Docker Compose setup for local development.
-- Tempot CLI helpers for initialization, diagnostics, and module scaffolding.
+[Getting Started](#-quick-start) • [Architecture](#-architecture) • [Pre-built Modules](#-built-in-modules) • [CLI Tooling](#-tempot-cli) • [Documentation](#-documentation--governance)
 
-## Requirements
+</div>
 
-- Node.js 22.12 or newer.
-- Corepack with the pnpm version pinned in `package.json`.
-- Docker Desktop or a compatible Docker runtime.
-- A Telegram bot token from BotFather.
+---
 
-## Quick Start
+## 🌟 Overview
 
+**Tempot** (Template × Bot) is a battle-tested, enterprise-ready TypeScript framework designed for building scalable, multi-tenant Telegram bots. Built on top of **grammY** and **Hono**, it provides a rock-solid foundation with strict type safety, modular architecture, Redis-backed queues/sessions, PostgreSQL with pgvector AI memory, and native Arabic/English bilingual support with RTL and localized formatting.
+
+Use Tempot to bootstrap your bots instantly with production-grade authentication, RBAC permissions, audit logging, backup management, and event-driven module isolation out-of-the-box.
+
+---
+
+## ✨ Key Capabilities
+
+- ⚡ **High-Performance Runtime:** grammY 1.41+ with Hono 4.x HTTP server for high-throughput webhooks, health checks, and metrics.
+- 🧩 **Modular Architecture:** Self-contained business modules communicating strictly via a typed Event Bus.
+- 🛡️ **Enterprise Security & RBAC:** CASL-based declarative authorization, non-root Docker execution, and soft-delete database lifecycle.
+- 🗄️ **Multi-Model Data Layer:** Prisma 7 + Drizzle ORM for PostgreSQL 16 with native `pgvector` embedding storage.
+- 🧠 **AI-Ready Engine:** Multi-provider abstraction powered by Vercel AI SDK (OpenAI, Gemini, Claude, Local Ollama).
+- 🌐 **Native Bilingual I18n:** Built-in Arabic (primary) & English translation keys with Arabic-Indic numeral formatting, timezone conversions, and RTL support.
+- 🔄 **Multi-Instance Docker Isolation:** Run dozens of bot instances on the same host with automated project naming and port isolation.
+- 🛠️ **Developer-First CLI:** Diagnostic tools (`pnpm tempot doctor`), instant module generators, and template validation.
+
+---
+
+## 🏛️ Architecture
+
+```mermaid
+graph TD
+    subgraph "Entry Layer"
+        TG[Telegram API / Webhook] --> BS[apps/bot-server<br>grammY + Hono]
+    end
+
+    subgraph "Core Packages (packages/*)"
+        BS --> DB["@tempot/database<br>(PostgreSQL + pgvector)"]
+        BS --> EVT["@tempot/event-bus<br>(Typed Pub/Sub)"]
+        BS --> AUTH["@tempot/auth-core<br>(CASL RBAC)"]
+        BS --> I18N["@tempot/i18n-core & regional<br>(AR / EN Localization)"]
+        BS --> AI["@tempot/ai-core<br>(Vercel AI SDK)"]
+        BS --> LOG["@tempot/logger & sentry<br>(Pino + Error Tracking)"]
+    end
+
+    subgraph "Business Modules (modules/*)"
+        EVT <--> UM[user-management]
+        EVT <--> CM[content-management]
+        EVT <--> BM[backup-management]
+        EVT <--> HC[help-center]
+        EVT <--> KM[knowledge-management]
+    end
+```
+
+---
+
+## 📦 Built-in Modules
+
+Tempot includes 11 production-ready, fully tested modules located in `modules/`:
+
+| Module | Description | Core Features |
+|---|---|---|
+| 👤 **`user-management`** | User profiles & Administration | Onboarding, RBAC roles, profile management, banning |
+| 🛡️ **`audit-viewer`** | Audit Trail & Compliance | Log inspection, security events, operator actions |
+| 💾 **`backup-management`** | Automated Data Backups | Database dump/restore, S3 export, scheduled backups |
+| 🤖 **`bot-management`** | Bot Instance Governance | Multi-instance controls, rate limits, status tracking |
+| 📝 **`content-management`** | Dynamic Bot Content & CMS | Text management, media broadcasts, interactive FAQs |
+| ❓ **`help-center`** | Interactive Support & Help | Guided menus, command discovery, ticketing |
+| 🧠 **`knowledge-management`** | RAG & Vector Knowledgebase | Document indexing, semantic search, AI answering |
+| 💳 **`membership-management`** | Subscriptions & Access | VIP tiers, expiration tracking, access gates |
+| 🔔 **`notification-center`** | Targeted Broadcasting | Scheduled notifications, batch messaging, alerts |
+| ⚙️ **`settings-management`** | Runtime Bot Settings | Dynamic configuration, feature flags, preferences |
+| 📋 **`template-management`** | Blueprint Scaffold Engine | Modular generation, validation, and diagnostics |
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- **Node.js** `22.12` or newer
+- **pnpm** `10.33.3` (enforced via Corepack: `corepack enable`)
+- **Docker Desktop** / Docker Compose V2
+- A Telegram bot token from [@BotFather](https://t.me/botfather)
+
+### 2. Clone & Install
 ```bash
 git clone https://github.com/SalehOsman/Tempot.git
 cd Tempot
 pnpm install
-cp .env.example .env
-pnpm docker:dev
-pnpm dev
 ```
 
-Update `.env` before connecting to Telegram:
-
+### 3. Configure Environment
+```bash
+cp .env.example .env
+```
+Edit `.env` with your core credentials:
 ```env
 BOT_TOKEN=your-telegram-bot-token
 DATABASE_URL=postgresql://tempot:tempot_password@localhost:5432/tempot_db
@@ -50,187 +114,77 @@ REDIS_URL=redis://localhost:6379
 SUPER_ADMIN_IDS=123456789
 ```
 
-The exact environment list is documented in `.env.example`.
-
-Tempot also includes a default Docker project identity:
-
-```env
-COMPOSE_PROJECT_NAME=tempot
-BOT_HTTP_HOST_PORT=3000
-POSTGRES_HOST_PORT=5432
-RESTORE_POSTGRES_HOST_PORT=5433
-```
-
-If you create more than one bot from this template on the same Docker host,
-change `COMPOSE_PROJECT_NAME` and any conflicting host ports before running
-`pnpm docker:dev`.
-
-## Common Commands
-
+### 4. Start Infrastructure & Run
 ```bash
-pnpm dev              # Start the bot server in development mode
-pnpm dev:bot          # Build runtime packages, then run the bot watcher
-pnpm build            # Build all workspace packages and apps
-pnpm lint             # Run static analysis
-pnpm template:audit   # Verify that private development files are excluded
-pnpm docker:dev       # Start local services with Docker Compose
-pnpm docker:down      # Stop local services
-pnpm tempot doctor    # Run project diagnostics
-pnpm tempot init      # Create local starter files when needed
-```
-
-## Project Structure
-
-```text
-apps/
-  bot-server/      Telegram bot and HTTP runtime
-  docs/            Optional documentation site
-
-packages/
-  */               Reusable infrastructure packages
-
-modules/
-  */               Business modules and bot capabilities
-
-scripts/tempot/
-  */               Public Tempot CLI helpers
-
-docs/
-  product/         Product and user-facing documentation
-  product/enterprise/
-                   Public governance, launch, and template-use checklists
-  guides/          Usage guides
-  operations/      Deployment and operations notes
-  security/        Security guidance
-  troubleshooting/ Troubleshooting notes
-```
-
-Internal development artifacts, AI-agent files, historical analysis, SpecKit
-artifacts, test suites, local stores, and generated files are intentionally
-excluded from the public template through `.gitignore`.
-
-## Creating a Bot
-
-1. Clone or generate a new repository from this template.
-2. Copy `.env.example` to `.env`.
-3. Keep the default `COMPOSE_PROJECT_NAME=tempot`, or set a unique project name
-   such as `my-customer-bot` before the first Docker start.
-4. Set `BOT_TOKEN`, database, Redis, and super-admin values.
-5. Start local services with `pnpm docker:dev`.
-6. Run the bot with `pnpm dev`.
-7. Add or customize modules under `modules/`.
-8. Run `pnpm build` before deployment.
-
-The Telegram display name and username are configured in BotFather. The Docker
-project name is only the local infrastructure identity used for containers,
-networks, volumes, and default image tags.
-
-For the complete public checklist, see
-`docs/product/enterprise/bot-creation-checklist.md`.
-
-## Enterprise Template Governance
-
-Tempot separates the public bot template from internal development artifacts.
-Before using a generated bot with real users, review:
-
-- `docs/product/enterprise/public-template-scope.md`
-- `docs/product/enterprise/bot-creation-checklist.md`
-- `docs/product/enterprise/pre-launch-checklist.md`
-- `docs/product/enterprise/rag-governance.md`
-- `docs/product/operations/slo-catalog.md`
-- `docs/product/operations/change-governance.md`
-- `docs/product/architecture/boundary-records.md`
-- `docs/product/upgrades/template-upgrade-guide.md`
-- `docs/product/upgrades/compatibility-matrix.md`
-- `docs/product/releases/release-evidence-template.md`
-
-Minimum local evidence before experimental launch:
-
-```bash
-pnpm check
-pnpm docs:check
-pnpm template:audit
-```
-
-## Creating a Module
-
-Use the Tempot CLI as the public entry point:
-
-```bash
-pnpm tempot module create <module-name>
-pnpm tempot module doctor <module-name>
-```
-
-Each module should keep handlers, services, repositories, localization, and
-module metadata together under its own directory.
-
-## Docker
-
-Start the local stack:
-
-```bash
+# 1. Start PostgreSQL & Redis services
 pnpm docker:dev
+
+# 2. Apply database schemas
+pnpm --filter @tempot/database db:generate
+pnpm --filter @tempot/database db:migrate
+
+# 3. Start bot in development mode
+pnpm dev
 ```
 
-Run multiple bot instances on the same host by giving each checkout its own
-identity and free host ports:
+---
+
+## 🛠️ Tempot CLI
+
+Tempot provides a built-in CLI for developer diagnostics and code generation:
+
+```bash
+# Run system & environment health check
+pnpm tempot doctor
+
+# Create a new business module from blueprint
+pnpm tempot module create my-custom-feature
+
+# Validate an existing module's structure and contracts
+pnpm tempot module doctor my-custom-feature
+```
+
+---
+
+## 💻 Common Commands
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start the bot server in live development mode |
+| `pnpm dev:bot` | Compile runtime packages and start the hot-reload watcher |
+| `pnpm build` | Build all workspace packages and production artifacts |
+| `pnpm lint` | Run ESLint across all apps, packages, and modules |
+| `pnpm format` | Format entire repository with Prettier |
+| `pnpm check` | Run complete quality gate: template audit + lint + build |
+| `pnpm docker:dev` | Start local development containers in background |
+| `pnpm docker:logs` | Tail real-time logs from all running Docker services |
+| `pnpm docker:down` | Stop and teardown local Docker containers |
+| `pnpm --filter docs dev` | Launch the Astro/Starlight documentation website locally |
+
+---
+
+## 🐳 Multi-Bot Docker Isolation
+
+Deploy multiple bots on a single VPS or development machine without container or port conflicts by setting unique identities in `.env`:
 
 ```env
-COMPOSE_PROJECT_NAME=my-customer-bot
+COMPOSE_PROJECT_NAME=customer-support-bot
 BOT_HTTP_HOST_PORT=3001
 POSTGRES_HOST_PORT=5434
 RESTORE_POSTGRES_HOST_PORT=5435
 ```
 
-Docker Compose uses `COMPOSE_PROJECT_NAME` to isolate the local containers,
-networks, and volumes for each bot checkout.
+---
 
-Stop it:
+## 📖 Documentation & Governance
 
-```bash
-pnpm docker:down
-```
+- **Documentation Website:** Authored under `docs/product/`, rendered via Astro at `apps/docs/`. Run locally via `pnpm --filter docs dev`.
+- **Public Template Scope:** See [`docs/product/enterprise/public-template-scope.md`](docs/product/enterprise/public-template-scope.md).
+- **Pre-launch Checklist:** See [`docs/product/enterprise/pre-launch-checklist.md`](docs/product/enterprise/pre-launch-checklist.md).
+- **Upgrade Guide:** See [`docs/product/upgrades/template-upgrade-guide.md`](docs/product/upgrades/template-upgrade-guide.md).
 
-For webhook development, use `docker-compose.webhook.yml` together with the
-required `WEBHOOK_URL` and Telegram webhook commands provided by `bot-server`.
+---
 
-Detailed instance naming guidance is documented in
-`docs/product/en/guides/bot-template-instance-identity.md`.
+## 📄 License
 
-## Upgrade Strategy
-
-Bots created from Tempot should keep custom business logic inside dedicated
-modules and avoid editing shared packages unless necessary. When a new Tempot
-version is released, compare changes in `apps/`, `packages/`, shared module
-contracts, and `.env.example`, then merge selectively into the bot repository.
-
-Recommended upgrade workflow:
-
-1. Create a backup branch in your bot repository.
-2. Review the new Tempot release notes.
-3. Merge infrastructure changes first.
-4. Run `pnpm install`, `pnpm build`, and `pnpm lint`.
-5. Test critical bot flows in a staging Telegram bot.
-6. Deploy only after environment variables and database migrations are verified.
-
-## Public Repository Hygiene
-
-Before publishing a new repository, run:
-
-```bash
-pnpm template:audit
-```
-
-For a newly initialized Git repository, the audit should be run in strict mode:
-
-```bash
-TEMPOT_TEMPLATE_AUDIT_STRICT=1 pnpm template:audit
-```
-
-The audit blocks private development folders, AI-agent state, historical
-analysis, internal specifications, tests, generated outputs, local stores, and
-secrets from being committed to the public template.
-
-## License
-
-MIT. See `LICENSE`.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
