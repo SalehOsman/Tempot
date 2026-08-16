@@ -18,60 +18,103 @@ Modules are the core functional units in Tempot. Each module is fully self-conta
 
 ## Required Module Structure
 
-Every module must follow this structure:
+Every module in Tempot follows a standardized layout:
 
 ```
 modules/{module-name}/
-├── index.ts              # Entry point: module registration
-├── module.config.ts      # Module configuration (22 mandatory fields)
-├── abilities.ts          # CASL permission definitions
-├── features/             # Sub-features
-│   └── {feature-name}/
-│       ├── {name}.handler.ts      # Command handler (mandatory)
-│       ├── {name}.service.ts      # Business logic (mandatory)
-│       ├── {name}.conversation.ts # Conversation flow (optional)
-│       └── {name}.test.ts         # Tests
-├── shared/               # Shared repositories and types
-├── locales/
-│   ├── ar.json           # Arabic translations (primary)
-│   └── en.json           # English translations
-├── database/             # (if hasDatabase = true)
-│   ├── schema.prisma
-│   └── migrations/
-└── tests/                # Module tests
+├── module.manifest.ts    # Module metadata, capabilities, commands & event contracts
+├── module.config.ts      # Runtime configuration (navigation, roles, features)
+├── package.json          # Workspace package definition
+├── tsconfig.json         # TypeScript configuration
+├── src/
+│   ├── index.ts          # Module export barrel
+│   ├── commands/         # Telegram bot command handlers
+│   ├── handlers/         # Message and callback handlers
+│   ├── services/         # Business logic services
+│   ├── repositories/     # Database access repositories (if applicable)
+│   ├── menus/            # Inline keyboard menus (optional)
+│   ├── features/         # Feature aggregators
+│   ├── contracts/        # Types, interfaces & event schemas
+│   └── locales/
+│       ├── ar.json       # Arabic translations (primary)
+│       └── en.json       # English translations
+└── __tests__/            # Unit and integration test suites
 ```
 
-## Setting Up the Configuration
+## 1. Module Manifest (`module.manifest.ts`)
 
-Create a `module.config.ts` file:
+Declare static metadata, capabilities, and event contracts:
+
+```typescript
+export const moduleManifest = {
+  name: 'my-module',
+  type: 'business',
+  blueprint: 'basic',
+  status: 'active',
+  capabilities: ['my-feature'] as const,
+  commands: ['mycommand'] as const,
+  events: {
+    publishes: ['my-module.item.created'] as const,
+    consumes: [] as const,
+  },
+} as const;
+
+export type ModuleManifest = typeof moduleManifest;
+```
+
+## 2. Module Runtime Configuration (`module.config.ts`)
+
+Create a `module.config.ts` file exporting the runtime configuration:
 
 ```typescript
 import type { ModuleConfig } from '@tempot/module-registry';
 
-export const config: ModuleConfig = {
+const config: ModuleConfig = {
   name: 'my-module',
   version: '1.0.0',
   requiredRole: 'USER',
-  commands: [{ command: 'mycommand', description: 'Command description' }],
-  features: {
-    hasDatabase: false,
-    hasAI: false,
-    hasSearch: false,
-    hasNotifications: false,
-    hasAttachments: false,
-    hasInputEngine: false,
-    hasImport: false,
-    hasDynamicCMS: false,
-    hasRegional: false,
-    hasPayment: false,
-  },
   isActive: true,
   isCore: false,
+
+  commands: [
+    { command: 'mycommand', description: 'my-module.commands.mycommand' },
+  ],
+
+  navigation: {
+    mainMenu: [
+      {
+        id: 'my-feature',
+        labelKey: 'my-module.menu.button.title',
+        callbackData: 'my-module:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.my-feature',
+        row: 1,
+        order: 10,
+      },
+    ],
+  },
+
+  features: {
+    hasDatabase: false,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasImport: false,
+    hasAI: false,
+    hasInputEngine: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+
   requires: {
-    packages: ['shared', 'logger'],
+    packages: ['@tempot/shared', '@tempot/logger'],
     optional: [],
   },
 };
+
+export default config;
 ```
 
 ## Defining Permissions

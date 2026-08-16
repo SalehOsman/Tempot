@@ -41,10 +41,19 @@ Phase 4 — Advanced Engines
 ## API
 
 ```typescript
-import { storageEngine } from '@tempot/storage-engine';
+import { StorageService, createStorageProvider } from '@tempot/storage-engine';
+
+// Initialize provider and service
+const provider = createStorageProvider(storageConfig);
+const storageService = new StorageService(provider, {
+  logger,
+  eventBus,
+  attachmentRepo,
+  validation,
+});
 
 // Upload
-const result = await storageEngine.upload({
+const result = await storageService.upload({
   file: buffer,
   filename: 'invoice-456.pdf',
   mimeType: 'application/pdf',
@@ -55,10 +64,10 @@ const result = await storageEngine.upload({
 // result: Result<{ url: string; attachmentId: string }, AppError>
 
 // Delete
-await storageEngine.delete(attachmentId);
+await storageService.delete(attachmentId);
 
 // Get URL
-const url = await storageEngine.getUrl(attachmentId); // pre-signed if S3
+const urlResult = await storageService.getUrl(attachmentId); // pre-signed if S3
 ```
 
 ## ADRs

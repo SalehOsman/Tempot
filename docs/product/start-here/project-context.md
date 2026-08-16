@@ -34,7 +34,7 @@ opening detailed archive or SpecKit files.
 | Layer               | Purpose                                                      |
 | ------------------- | ------------------------------------------------------------ |
 | Source of truth     | Constitution, roles, SpecKit, Roadmap, ADRs, and source code |
-| Published docs      | Starlight pages under `apps/docs/src/content/docs/`          |
+| Published docs      | Authored under `docs/product/`, rendered via `apps/docs/`   |
 | Repository map      | `docs/README.md` and `docs/development/README.md`            |
 | Generated reference | TypeDoc pages under `reference/`                             |
 | AI context          | Understand Anything graph and onboarding summaries           |

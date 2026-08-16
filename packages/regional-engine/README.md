@@ -59,7 +59,7 @@ const cairo = RegionalEngine.getStateByCode('CAI', ctx); // { name: 'القاه�
 
 `EG` (default) · `SA` · `AE` · `KW` · `JO`
 
-Add a new country: `pnpm geo:generate {ISO2_CODE}`
+Add a new country: `pnpm generate:geo {ISO2_CODE}`
 
 ## ADRs
 

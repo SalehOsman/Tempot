@@ -18,60 +18,103 @@ difficulty: intermediate
 
 ## بنية الوحدة المطلوبة
 
-كل وحدة يجب أن تتبع هذه البنية:
+تتبع كل وحدة في تمبوت بنية قياسية موحدة:
 
 ```
 modules/{module-name}/
-├── index.ts              # نقطة الدخول: تسجيل الوحدة
-├── module.config.ts      # إعدادات الوحدة (22 حقلًا إلزاميًا)
-├── abilities.ts          # تعريف صلاحيات CASL
-├── features/             # الميزات الفرعية
-│   └── {feature-name}/
-│       ├── {name}.handler.ts      # معالج الأوامر (إلزامي)
-│       ├── {name}.service.ts      # منطق الأعمال (إلزامي)
-│       ├── {name}.conversation.ts # تدفق المحادثة (اختياري)
-│       └── {name}.test.ts         # الاختبارات
-├── shared/               # مستودعات وأنواع مشتركة
-├── locales/
-│   ├── ar.json           # الترجمة العربية (أساسية)
-│   └── en.json           # الترجمة الإنجليزية
-├── database/             # (إذا كان hasDatabase = true)
-│   ├── schema.prisma
-│   └── migrations/
-└── tests/                # اختبارات الوحدة
+├── module.manifest.ts    # البيانات الوصفية والإمكانيات وعقود الأحداث
+├── module.config.ts      # إعدادات التشغيل (التنقل، الأدوار، الميزات)
+├── package.json          # تعريف حزمة مساحة العمل
+├── tsconfig.json         # إعدادات TypeScript
+├── src/
+│   ├── index.ts          # نقطة الدخول وتصدير الوحدة
+│   ├── commands/         # معالجات أوامر تيليجرام
+│   ├── handlers/         # معالجات الرسائل والـ callbacks
+│   ├── services/         # خدمات منطق الأعمال
+│   ├── repositories/     # مستودعات الوصول لقاعدة البيانات (إن وجدت)
+│   ├── menus/            # القوائم والأزرار الشفافة (اختياري)
+│   ├── features/         # مجمعات الميزات
+│   ├── contracts/        # الأنواع والواجهات ومخططات الأحداث
+│   └── locales/
+│       ├── ar.json       # الترجمة العربية (الأساسية)
+│       └── en.json       # الترجمة الإنجليزية
+└── __tests__/            # حزم الاختبارات الوظيفية والتكاملية
 ```
 
-## إعداد ملف الإعدادات
+## 1. بيان الوحدة (`module.manifest.ts`)
 
-أنشئ ملف `module.config.ts` بالبنية التالية:
+حدد البيانات الوصفية الثابتة والإمكانيات وعقود الأحداث:
+
+```typescript
+export const moduleManifest = {
+  name: 'my-module',
+  type: 'business',
+  blueprint: 'basic',
+  status: 'active',
+  capabilities: ['my-feature'] as const,
+  commands: ['mycommand'] as const,
+  events: {
+    publishes: ['my-module.item.created'] as const,
+    consumes: [] as const,
+  },
+} as const;
+
+export type ModuleManifest = typeof moduleManifest;
+```
+
+## 2. إعدادات التشغيل للوحدة (`module.config.ts`)
+
+أنشئ ملف `module.config.ts` لتصدير تكوين التشغيل:
 
 ```typescript
 import type { ModuleConfig } from '@tempot/module-registry';
 
-export const config: ModuleConfig = {
+const config: ModuleConfig = {
   name: 'my-module',
   version: '1.0.0',
   requiredRole: 'USER',
-  commands: [{ command: 'mycommand', description: 'وصف الأمر' }],
-  features: {
-    hasDatabase: false,
-    hasAI: false,
-    hasSearch: false,
-    hasNotifications: false,
-    hasAttachments: false,
-    hasInputEngine: false,
-    hasImport: false,
-    hasDynamicCMS: false,
-    hasRegional: false,
-    hasPayment: false,
-  },
   isActive: true,
   isCore: false,
+
+  commands: [
+    { command: 'mycommand', description: 'my-module.commands.mycommand' },
+  ],
+
+  navigation: {
+    mainMenu: [
+      {
+        id: 'my-feature',
+        labelKey: 'my-module.menu.button.title',
+        callbackData: 'my-module:view',
+        requiredRole: 'USER',
+        accessClassification: 'protected',
+        requiredAbility: 'read.my-feature',
+        row: 1,
+        order: 10,
+      },
+    ],
+  },
+
+  features: {
+    hasDatabase: false,
+    hasNotifications: false,
+    hasAttachments: false,
+    hasExport: false,
+    hasImport: false,
+    hasAI: false,
+    hasInputEngine: false,
+    hasSearch: false,
+    hasDynamicCMS: false,
+    hasRegional: false,
+  },
+
   requires: {
-    packages: ['shared', 'logger'],
+    packages: ['@tempot/shared', '@tempot/logger'],
     optional: [],
   },
 };
+
+export default config;
 ```
 
 ## تعريف الصلاحيات

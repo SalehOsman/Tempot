@@ -11,6 +11,14 @@ Developer documentation for all Tempot packages:
 - Developer guides and workflows
 - Package documentation and usage examples
 
+## Content Source & Junction Model
+
+> ⚠️ **Important:** `apps/docs/` is only the documentation website renderer application. It contains **no** independent canonical documentation content.
+
+- **Canonical Content Location:** All human-authored documentation lives in the root directory [`docs/product/`](../../docs/product/).
+- **Automated Junction:** During `pnpm install`, the script `scripts/setup-content-link.cjs` creates a directory junction `apps/docs/src/content/docs` pointing directly to `docs/product/`.
+- **Authoring Rule:** Do **not** create or edit markdown files inside `apps/docs/src/content/docs/`. Always edit the source documents in `docs/product/`.
+
 ## Phase
 
 Phase 2 — Documentation System (spec #021)

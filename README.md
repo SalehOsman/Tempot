@@ -97,6 +97,8 @@ scripts/tempot/
 
 docs/
   product/         Product and user-facing documentation
+  product/enterprise/
+                   Public governance, launch, and template-use checklists
   guides/          Usage guides
   operations/      Deployment and operations notes
   security/        Security guidance
@@ -123,13 +125,40 @@ The Telegram display name and username are configured in BotFather. The Docker
 project name is only the local infrastructure identity used for containers,
 networks, volumes, and default image tags.
 
+For the complete public checklist, see
+`docs/product/enterprise/bot-creation-checklist.md`.
+
+## Enterprise Template Governance
+
+Tempot separates the public bot template from internal development artifacts.
+Before using a generated bot with real users, review:
+
+- `docs/product/enterprise/public-template-scope.md`
+- `docs/product/enterprise/bot-creation-checklist.md`
+- `docs/product/enterprise/pre-launch-checklist.md`
+- `docs/product/enterprise/rag-governance.md`
+- `docs/product/operations/slo-catalog.md`
+- `docs/product/operations/change-governance.md`
+- `docs/product/architecture/boundary-records.md`
+- `docs/product/upgrades/template-upgrade-guide.md`
+- `docs/product/upgrades/compatibility-matrix.md`
+- `docs/product/releases/release-evidence-template.md`
+
+Minimum local evidence before experimental launch:
+
+```bash
+pnpm check
+pnpm docs:check
+pnpm template:audit
+```
+
 ## Creating a Module
 
 Use the Tempot CLI as the public entry point:
 
 ```bash
-pnpm tempot module:generate
-pnpm tempot module:doctor
+pnpm tempot module create <module-name>
+pnpm tempot module doctor <module-name>
 ```
 
 Each module should keep handlers, services, repositories, localization, and

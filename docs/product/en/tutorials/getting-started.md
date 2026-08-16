@@ -43,15 +43,18 @@ Edit the file and add your bot token and database credentials:
 
 ```
 BOT_TOKEN=your_bot_token_here
-DATABASE_URL=postgresql://user:password@localhost:5432/tempot
+DATABASE_URL=postgresql://tempot:tempot_password@localhost:5432/tempot_db
 REDIS_URL=redis://localhost:6379
 ```
 
 ### Step 3: Set Up the Database
 
+Start the local Docker Compose stack and generate the database client:
+
 ```bash
-pnpm db:migrate
-pnpm db:seed
+pnpm docker:dev
+pnpm --filter @tempot/database db:generate
+pnpm --filter @tempot/database db:migrate
 ```
 
 ### Step 4: Run the Bot

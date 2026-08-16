@@ -43,15 +43,18 @@ cp .env.example .env
 
 ```
 BOT_TOKEN=your_bot_token_here
-DATABASE_URL=postgresql://user:password@localhost:5432/tempot
+DATABASE_URL=postgresql://tempot:tempot_password@localhost:5432/tempot_db
 REDIS_URL=redis://localhost:6379
 ```
 
 ### الخطوة الثالثة: إعداد قاعدة البيانات
 
+شغّل خدمات Docker المحلية ثم قم بتوليد عميل قاعدة البيانات:
+
 ```bash
-pnpm db:migrate
-pnpm db:seed
+pnpm docker:dev
+pnpm --filter @tempot/database db:generate
+pnpm --filter @tempot/database db:migrate
 ```
 
 ### الخطوة الرابعة: تشغيل البوت

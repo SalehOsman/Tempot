@@ -5,29 +5,29 @@
 ### Database Migration Fails
 ```bash
 # Stop bot server
-docker-compose down
+docker compose down
 
 # Apply migration manually
-docker exec -i tempot-postgres psql -U tempot -d tempot_db < migration.sql
+docker compose exec -T postgres psql -U tempot -d tempot_db < migration.sql
 
 # Generate Prisma Client
 cd packages/database && pnpm db:generate
 
 # Restart services
-cd ../.. && docker-compose up -d
+cd ../.. && docker compose up -d
 ```
 
 ### Docker Build Slow
 ```bash
 # Clean build
-docker-compose down
+docker compose down
 docker system prune -f
 
 # Build with BuildKit
-DOCKER_BUILDKIT=1 docker-compose build --no-cache
+DOCKER_BUILDKIT=1 docker compose build --no-cache
 
 # Start services
-docker-compose up -d
+docker compose up -d
 ```
 
 ### New Fields Not Displayed
@@ -47,16 +47,16 @@ docker-compose up -d
 ### Database Operations
 ```bash
 # Check database tables
-docker exec -i tempot-postgres psql -U tempot -d tempot_db -c "\dt"
+docker compose exec postgres psql -U tempot -d tempot_db -c "\dt"
 
 # Check table structure
-docker exec -i tempot-postgres psql -U tempot -d tempot_db -c "\d UserProfile"
+docker compose exec postgres psql -U tempot -d tempot_db -c "\d UserProfile"
 
 # Check specific columns
-docker exec -i tempot-postgres psql -U tempot -d tempot_db -c "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'UserProfile' ORDER BY ordinal_position;"
+docker compose exec postgres psql -U tempot -d tempot_db -c "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'UserProfile' ORDER BY ordinal_position;"
 
 # Apply migration
-docker exec -i tempot-postgres psql -U tempot -d tempot_db < migration.sql
+docker compose exec -T postgres psql -U tempot -d tempot_db < migration.sql
 
 # Generate Prisma Client
 cd packages/database && pnpm db:generate
@@ -68,27 +68,27 @@ cd packages/database && pnpm db:migrate
 ### Docker Operations
 ```bash
 # Stop all services
-docker-compose down
+docker compose down
 
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View specific service logs
-docker-compose logs -f bot-server
-docker-compose logs -f postgres
-docker-compose logs -f redis
+docker compose logs -f bot-server
+docker compose logs -f postgres
+docker compose logs -f redis
 
 # Rebuild specific service
-docker-compose build bot-server
+docker compose build bot-server
 
 # Rebuild all services
-docker-compose build
+docker compose build
 
 # Clean up
-docker-compose down -v
+docker compose down -v
 docker system prune -f
 ```
 
@@ -136,7 +136,7 @@ Error: column UserProfile.nationalId does not exist
 ```
 Error: No such image: tempot-bot:latest
 ```
-**Solution**: Build the Docker image first: `docker-compose build`
+**Solution**: Build the Docker image first: `docker compose build`
 
 ---
 
@@ -180,9 +180,10 @@ Error: No such image: tempot-bot:latest
 
 3. **Apply Migration**:
    ```bash
-   docker-compose down
-   docker exec -i tempot-postgres psql -U tempot -d tempot_db < prisma/migrations/<timestamp>/migration.sql
-   docker-compose up -d
+   docker compose down
+   docker compose up -d postgres
+   docker compose exec -T postgres psql -U tempot -d tempot_db < prisma/migrations/<timestamp>/migration.sql
+   docker compose up -d
    ```
 
 4. **Generate Prisma Client**:
