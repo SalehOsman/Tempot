@@ -1,8 +1,8 @@
 import { ValidationError } from '@tembot/shared-types';
 
 export const TELEGRAM_LIMITS = {
-  MAX_CALLBACK_BYTES: 36, // Budgeted within official 64B limit
-  MAX_BUTTON_LABEL_LENGTH: 16,
+  MAX_CALLBACK_BYTES: 64, // Telegram official limit is 64 bytes
+  MAX_BUTTON_LABEL_LENGTH: 32,
   MAX_KEYBOARD_ROWS: 7,
   MAX_BUTTONS_PER_ROW: 3,
   MAX_MESSAGE_LENGTH: 32768,

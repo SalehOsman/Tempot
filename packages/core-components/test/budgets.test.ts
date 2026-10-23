@@ -14,21 +14,26 @@ describe('Telegram Budgets & Rich Components Specification', () => {
     expect(() => validateButtonBudgets(validButtons)).not.toThrow();
   });
 
-  it('throws ValidationError when button label exceeds 16 characters', () => {
+  it('throws ValidationError when button label exceeds 32 characters', () => {
     const oversizedLabelButtons: readonly (readonly InlineButton[])[] = [
-      [{ text: 'هذا الزر طويل جدا ويتجاوز الحد المسموح', callbackData: 'ok' }],
+      [
+        {
+          text: 'This is a very long button label that exceeds thirty two characters limit',
+          callbackData: 'ok',
+        },
+      ],
     ];
 
-    expect(() => validateButtonBudgets(oversizedLabelButtons)).toThrow('exceeds 16 chars');
+    expect(() => validateButtonBudgets(oversizedLabelButtons)).toThrow('exceeds 32 chars');
   });
 
-  it('throws ValidationError when callback data exceeds 36 bytes', () => {
+  it('throws ValidationError when callback data exceeds 64 bytes', () => {
     const oversizedCallbackButtons: readonly (readonly InlineButton[])[] = [
-      [{ text: 'زر تجربة', callbackData: 'a'.repeat(40) }],
+      [{ text: 'Sample Button', callbackData: 'a'.repeat(70) }],
     ];
 
     expect(() => validateButtonBudgets(oversizedCallbackButtons)).toThrow(
-      'exceeding budgeted limit of 36 bytes',
+      'exceeding budgeted limit of 64 bytes',
     );
   });
 
