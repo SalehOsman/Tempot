@@ -30,6 +30,6 @@ RUN addgroup --system --gid 10001 tembot && \
 COPY --from=builder --chown=tembot:tembot /app ./
 
 USER tembot
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["node", "apps/server/dist/index.js"]

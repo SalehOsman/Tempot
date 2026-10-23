@@ -31,6 +31,10 @@ interface WindowWithTelegram extends Window {
 
 declare const window: WindowWithTelegram;
 
+const API_BASE_URL =
+  (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL ||
+  'http://localhost:4000';
+
 export function TmaApp() {
   const [authStatus, setAuthStatus] = useState<string>('جاري التحقق التشفيري...');
   const [user, setUser] = useState<TelegramUser | null>(null);
@@ -47,7 +51,7 @@ export function TmaApp() {
       const rawInitData = tg.initData;
       if (rawInitData && rawInitData.length > 0) {
         // Authenticate cryptographically against backend gateway
-        fetch('http://localhost:3000/api/v1/auth/telegram', {
+        fetch(`${API_BASE_URL}/api/v1/auth/telegram`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ initData: rawInitData }),

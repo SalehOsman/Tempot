@@ -4,7 +4,7 @@ import { createApp } from './app.js';
 
 const logger = createChildLogger({ module: 'app-server', slice: 'main' });
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT ?? 4000);
 const app = createApp();
 
 logger.info({ port }, 'Starting Tembot Ingress API Gateway...');

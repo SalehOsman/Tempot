@@ -26,6 +26,10 @@ const DEFAULT_SETTINGS: SurfaceSettingsState = {
   sessionTimeoutMinutes: 60,
 };
 
+const API_BASE_URL =
+  (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL ||
+  'http://localhost:4000';
+
 export function DashboardApp() {
   const [activeTab, setActiveTab] = useState<'settings' | 'roles' | 'status'>('settings');
   const [settings, setSettings] = useState<SurfaceSettingsState>(DEFAULT_SETTINGS);
@@ -33,7 +37,7 @@ export function DashboardApp() {
   const [healthStatus, setHealthStatus] = useState<string>('جاري الفحص...');
 
   useEffect(() => {
-    fetch('http://localhost:3000/health')
+    fetch(`${API_BASE_URL}/health`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.status === 'ok') {
@@ -50,7 +54,7 @@ export function DashboardApp() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:3000/api/v1/settings', {
+      await fetch(`${API_BASE_URL}/api/v1/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
