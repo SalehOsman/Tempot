@@ -1,14 +1,8 @@
+import { Check, Globe, Moon, Settings, Sun, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { getTmaLocale } from './locales/index.js';
-
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-}
+import './theme/tokens.css';
 
 interface WindowWithTelegram extends Window {
   Telegram?: {
@@ -16,15 +10,13 @@ interface WindowWithTelegram extends Window {
       ready(): void;
       expand(): void;
       close(): void;
-      initData: string;
-      initDataUnsafe?: {
-        user?: TelegramUser;
+      HapticFeedback?: {
+        impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
+        notificationOccurred(type: 'error' | 'success' | 'warning'): void;
       };
       themeParams?: {
         bg_color?: string;
         text_color?: string;
-        button_color?: string;
-        button_text_color?: string;
       };
     };
   };
@@ -32,241 +24,359 @@ interface WindowWithTelegram extends Window {
 
 declare const window: WindowWithTelegram;
 
-const API_BASE_URL =
-  (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL ||
-  'http://localhost:4000';
-
 export function TmaApp() {
-  const [currentLocale, setCurrentLocale] = useState<'ar' | 'en'>('en');
-  const dict = getTmaLocale(currentLocale);
-  const [authStatus, setAuthStatus] = useState<string>(dict.auth.verifying);
-  const [isVerified, setIsVerified] = useState<boolean>(false);
-  const [user, setUser] = useState<TelegramUser | null>(null);
-  const [isTelegramEnv, setIsTelegramEnv] = useState<boolean>(false);
-  const [serverConnected, setServerConnected] = useState<boolean>(false);
+  const [locale, setLocale] = useState<'en' | 'ar'>('en');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  const dict = getTmaLocale(locale);
+  const isRtl = locale === 'ar';
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (tg && typeof tg.ready === 'function') {
       tg.ready();
       tg.expand();
-      setIsTelegramEnv(true);
-
-      const rawInitData = tg.initData;
-      if (rawInitData && rawInitData.length > 0) {
-        // Authenticate cryptographically against backend gateway
-        fetch(`${API_BASE_URL}/api/v1/auth/telegram`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: rawInitData }),
-        })
-          .then((res) => (res.ok ? res.json() : null))
-          .then((data) => {
-            if (data && data.status === 'authenticated') {
-              setAuthStatus(dict.auth.verified);
-              setIsVerified(true);
-              setUser(data.user);
-              if (data.user?.language_code === 'en') {
-                setCurrentLocale('en');
-              }
-              setServerConnected(true);
-            } else {
-              setAuthStatus(dict.auth.failed);
-              setIsVerified(false);
-            }
-          })
-          .catch(() => {
-            setAuthStatus(dict.auth.offlinePreview);
-            setIsVerified(false);
-            if (tg.initDataUnsafe?.user) {
-              setUser(tg.initDataUnsafe.user);
-            }
-          });
-      } else {
-        setAuthStatus(dict.auth.browserDev);
-        setIsVerified(false);
-        setUser({
-          id: 77889900,
-          first_name: dict.auth.mockUserName,
-          username: 'dev_user',
-          language_code: 'ar',
-        });
-      }
-    } else {
-      setAuthStatus(dict.auth.browserPreview);
-      setIsVerified(false);
-      setUser({
-        id: 77889900,
-        first_name: dict.auth.mockUserName,
-        username: 'dev_user',
-        language_code: 'ar',
-      });
     }
-  }, [dict]);
+  }, []);
 
-  const isRtl = currentLocale === 'ar';
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  }, [locale, isRtl]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const triggerHaptic = () => {
+    try {
+      window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
+    } catch {
+      // Haptics optional outside Telegram client
+    }
+  };
+
+  const handleLanguageChange = (newLocale: 'en' | 'ar') => {
+    triggerHaptic();
+    setLocale(newLocale);
+  };
+
+  const handleThemeChange = (newTheme: 'dark' | 'light') => {
+    triggerHaptic();
+    setTheme(newTheme);
+  };
+
+  const handleClose = () => {
+    triggerHaptic();
+    if (window.Telegram?.WebApp && typeof window.Telegram.WebApp.close === 'function') {
+      window.Telegram.WebApp.close();
+    } else {
+      window.close();
+    }
+  };
 
   return (
     <div
       style={{
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        padding: '1.25rem',
-        maxWidth: '480px',
+        maxWidth: '460px',
         margin: '0 auto',
-        direction: isRtl ? 'rtl' : 'ltr',
+        padding: 'var(--space-4)',
         minHeight: '100vh',
-        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-6)',
       }}
     >
-      {/* TMA Header */}
-      <div
+      {/* Top Bar: Bot Name & Settings Icon & Close */}
+      <header
         style={{
-          background: '#1e293b',
-          borderRadius: '16px',
-          padding: '1.25rem',
-          border: '1px solid #334155',
-          textAlign: 'center',
-          marginBottom: '1rem',
-        }}
-      >
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📱</div>
-        <h1 style={{ margin: 0, fontSize: '1.4rem', color: '#38bdf8', fontWeight: 700 }}>
-          {dict.header.title}
-        </h1>
-        <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-          {dict.header.subtitle}
-        </p>
-      </div>
-
-      {/* Security Authentication Status Badge */}
-      <div
-        style={{
-          background: isVerified ? '#064e3b' : '#1e293b',
-          color: isVerified ? '#34d399' : '#cbd5e1',
-          padding: '0.75rem 1rem',
-          borderRadius: '10px',
-          border: `1px solid ${isVerified ? '#059669' : '#475569'}`,
-          fontSize: '0.85rem',
-          fontWeight: 600,
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '1.25rem',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3) var(--space-4)',
+          background: 'var(--color-bg-surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+          boxShadow: 'var(--shadow-card)',
         }}
       >
-        <span>{dict.auth.statusLabel}</span>
-        <span>{authStatus}</span>
-      </div>
-
-      {/* Verified User Identity Card */}
-      {user && (
-        <div
-          style={{
-            background: '#1e293b',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            border: '1px solid #334155',
-            marginBottom: '1.25rem',
-          }}
-        >
-          <h2 style={{ fontSize: '1rem', margin: '0 0 1rem', color: '#f8fafc', fontWeight: 600 }}>
-            {dict.userCard.title}
-          </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
           <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem' }}
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: 'var(--radius-md)',
+              background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+            }}
           >
-            <div
+            <Settings size={20} />
+          </div>
+          <div>
+            <h1
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid #334155',
-                paddingBottom: '0.35rem',
+                fontSize: '1.05rem',
+                fontWeight: 700,
+                color: 'var(--color-text-primary)',
+                letterSpacing: '-0.01em',
               }}
             >
-              <span style={{ color: '#94a3b8' }}>{dict.userCard.nameLabel}</span>
-              <strong style={{ color: '#f1f5f9' }}>
-                {user.first_name} {user.last_name ?? ''}
-              </strong>
-            </div>
-            <div
+              {dict.botName}
+            </h1>
+            <span
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid #334155',
-                paddingBottom: '0.35rem',
+                fontSize: '0.75rem',
+                color: 'var(--color-text-muted)',
+                fontWeight: 500,
               }}
             >
-              <span style={{ color: '#94a3b8' }}>{dict.userCard.idLabel}</span>
-              <code
-                style={{
-                  background: '#0f172a',
-                  padding: '0.1rem 0.4rem',
-                  borderRadius: '4px',
-                  color: '#38bdf8',
-                }}
-              >
-                {user.id}
-              </code>
-            </div>
-            {user.username && (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: '1px solid #334155',
-                  paddingBottom: '0.35rem',
-                }}
-              >
-                <span style={{ color: '#94a3b8' }}>{dict.userCard.usernameLabel}</span>
-                <span style={{ color: '#38bdf8' }}>@{user.username}</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#94a3b8' }}>{dict.userCard.langLabel}</span>
-              <span style={{ color: '#f1f5f9' }}>{user.language_code ?? 'ar'}</span>
-            </div>
+              {dict.settingsTitle}
+            </span>
           </div>
         </div>
-      )}
 
-      {/* Surface Environment Status */}
-      <div
-        style={{
-          background: '#0f172a',
-          borderRadius: '12px',
-          padding: '1rem',
-          border: '1px solid #334155',
-          fontSize: '0.85rem',
-          color: '#94a3b8',
-        }}
-      >
-        <p style={{ margin: '0 0 0.5rem', fontWeight: 600, color: '#cbd5e1' }}>
-          {dict.environment.title}
-        </p>
-        <ul
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label={dict.closeButton}
           style={{
-            margin: 0,
-            paddingRight: isRtl ? '1.25rem' : '0',
-            paddingLeft: isRtl ? '0' : '1.25rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--space-1)',
+            minHeight: 'var(--min-touch-target)',
+            padding: '0 var(--space-3)',
+            borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--color-border)',
+            background: 'var(--color-bg-elevated)',
+            color: 'var(--color-text-secondary)',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all var(--transition-fast)',
           }}
         >
-          <li>
-            {dict.environment.currentEnvLabel}{' '}
-            {isTelegramEnv ? dict.environment.envTelegram : dict.environment.envBrowser}
-          </li>
-          <li>
-            {dict.environment.gatewayConnectionLabel}{' '}
-            {serverConnected ? dict.environment.connectedPort : dict.environment.localMode}
-          </li>
-          <li>
-            {dict.environment.capabilityEngineLabel} <code>tma:access</code> (
-            {dict.environment.activeStatus})
-          </li>
-        </ul>
-      </div>
+          <X size={16} />
+          <span>{dict.closeButton}</span>
+        </button>
+      </header>
+
+      {/* Main Settings Container */}
+      <main
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-4)',
+        }}
+      >
+        {/* Function 1: Language Switcher */}
+        <section
+          style={{
+            background: 'var(--color-bg-surface)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-5)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+              marginBottom: 'var(--space-1)',
+            }}
+          >
+            <Globe size={18} style={{ color: 'var(--color-primary)' }} />
+            <h2
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {dict.languageTitle}
+            </h2>
+          </div>
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-text-muted)',
+              marginBottom: 'var(--space-4)',
+            }}
+          >
+            {dict.languageSubtitle}
+          </p>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-3)',
+            }}
+          >
+            {/* English Button */}
+            <button
+              type="button"
+              onClick={() => handleLanguageChange('en')}
+              style={{
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 var(--space-4)',
+                borderRadius: 'var(--radius-md)',
+                border: `1.5px solid ${locale === 'en' ? 'var(--color-border-active)' : 'var(--color-border)'}`,
+                background:
+                  locale === 'en' ? 'var(--color-bg-elevated)' : 'var(--color-bg-surface)',
+                boxShadow: locale === 'en' ? 'var(--shadow-active)' : 'none',
+                color: locale === 'en' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                fontWeight: locale === 'en' ? 700 : 500,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all var(--transition-fast)',
+              }}
+            >
+              <span>{dict.langEn}</span>
+              {locale === 'en' && <Check size={16} />}
+            </button>
+
+            {/* Arabic Button */}
+            <button
+              type="button"
+              onClick={() => handleLanguageChange('ar')}
+              style={{
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 var(--space-4)',
+                borderRadius: 'var(--radius-md)',
+                border: `1.5px solid ${locale === 'ar' ? 'var(--color-border-active)' : 'var(--color-border)'}`,
+                background:
+                  locale === 'ar' ? 'var(--color-bg-elevated)' : 'var(--color-bg-surface)',
+                boxShadow: locale === 'ar' ? 'var(--shadow-active)' : 'none',
+                color: locale === 'ar' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                fontWeight: locale === 'ar' ? 700 : 500,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all var(--transition-fast)',
+              }}
+            >
+              <span>{dict.langAr}</span>
+              {locale === 'ar' && <Check size={16} />}
+            </button>
+          </div>
+        </section>
+
+        {/* Function 2: Theme Switcher */}
+        <section
+          style={{
+            background: 'var(--color-bg-surface)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-5)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+              marginBottom: 'var(--space-1)',
+            }}
+          >
+            {theme === 'dark' ? (
+              <Moon size={18} style={{ color: 'var(--color-primary)' }} />
+            ) : (
+              <Sun size={18} style={{ color: 'var(--color-primary)' }} />
+            )}
+            <h2
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {dict.themeTitle}
+            </h2>
+          </div>
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-text-muted)',
+              marginBottom: 'var(--space-4)',
+            }}
+          >
+            {dict.themeSubtitle}
+          </p>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-3)',
+            }}
+          >
+            {/* Dark Theme Button */}
+            <button
+              type="button"
+              onClick={() => handleThemeChange('dark')}
+              style={{
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-2)',
+                padding: '0 var(--space-4)',
+                borderRadius: 'var(--radius-md)',
+                border: `1.5px solid ${theme === 'dark' ? 'var(--color-border-active)' : 'var(--color-border)'}`,
+                background:
+                  theme === 'dark' ? 'var(--color-bg-elevated)' : 'var(--color-bg-surface)',
+                boxShadow: theme === 'dark' ? 'var(--shadow-active)' : 'none',
+                color: theme === 'dark' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                fontWeight: theme === 'dark' ? 700 : 500,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all var(--transition-fast)',
+              }}
+            >
+              <Moon size={16} />
+              <span>{dict.themeDark}</span>
+            </button>
+
+            {/* Light Theme Button */}
+            <button
+              type="button"
+              onClick={() => handleThemeChange('light')}
+              style={{
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-2)',
+                padding: '0 var(--space-4)',
+                borderRadius: 'var(--radius-md)',
+                border: `1.5px solid ${theme === 'light' ? 'var(--color-border-active)' : 'var(--color-border)'}`,
+                background:
+                  theme === 'light' ? 'var(--color-bg-elevated)' : 'var(--color-bg-surface)',
+                boxShadow: theme === 'light' ? 'var(--shadow-active)' : 'none',
+                color: theme === 'light' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                fontWeight: theme === 'light' ? 700 : 500,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all var(--transition-fast)',
+              }}
+            >
+              <Sun size={16} />
+              <span>{dict.themeLight}</span>
+            </button>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
