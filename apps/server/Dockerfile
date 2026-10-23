@@ -13,4 +13,4 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @tembot/app-server build
 
 EXPOSE 4000
-CMD ["node", "apps/server/dist/index.js"]
+CMD ["pnpm", "--filter", "@tembot/app-server", "exec", "tsx", "src/index.ts"]

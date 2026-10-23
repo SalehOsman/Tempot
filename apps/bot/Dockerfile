@@ -12,4 +12,4 @@ COPY apps/bot ./apps/bot
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @tembot/app-bot build
 
-CMD ["node", "apps/bot/dist/index.js"]
+CMD ["pnpm", "--filter", "@tembot/app-bot", "exec", "tsx", "src/index.ts"]
