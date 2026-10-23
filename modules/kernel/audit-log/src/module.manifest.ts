@@ -6,12 +6,7 @@ export const auditLogManifest: ModuleManifest = {
   category: 'kernel',
   context: 'observability-hub',
   requires: [],
-  capabilities: [
-    'audit:read',
-    'audit:export',
-    'audit:record',
-    'error:capture',
-  ],
+  capabilities: ['audit:read', 'audit:export', 'audit:record', 'error:capture'],
   slices: [
     {
       sliceId: 'record-audit-event',

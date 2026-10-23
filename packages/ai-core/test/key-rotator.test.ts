@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ApiKeyRotator } from '../src/key-rotator.js';
 
 describe('ApiKeyRotator Specification', () => {
@@ -19,11 +19,9 @@ describe('ApiKeyRotator Specification', () => {
     const result = await rotator.executeWithRotation(async (key) => {
       keysUsed.push(key);
       if (key === 'key-1') {
-        const error = new Error('Resource exhausted');
-        (error as any).status = 429;
-        throw error;
+        throw Object.assign(new Error('Resource exhausted'), { status: 429 });
       }
-      return 'success-from-' + key;
+      return `success-from-${key}`;
     });
 
     expect(result.isOk()).toBe(true);
@@ -41,15 +39,15 @@ describe('ApiKeyRotator Specification', () => {
     });
 
     const result = await rotator.executeWithRotation(async (_key) => {
-      const error = new Error('rate limit reached');
-      (error as any).status = 429;
-      throw error;
+      throw Object.assign(new Error('rate limit reached'), { status: 429 });
     });
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error.code).toBe('RATE_LIMITED');
-      expect(result.error.message).toContain('All 2 API keys for provider \'deepseek\' are exhausted');
+      expect(result.error.message).toContain(
+        "All 2 API keys for provider 'deepseek' are exhausted",
+      );
     }
   });
 

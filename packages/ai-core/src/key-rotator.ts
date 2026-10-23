@@ -1,4 +1,4 @@
-import { Result, ok, err, RateLimitedError, DomainError } from '@tembot/shared-types';
+import { type DomainError, RateLimitedError, type Result, err, ok } from '@tembot/shared-types';
 import type { KeyPoolConfig } from './types.js';
 
 interface KeyState {
@@ -20,7 +20,9 @@ export class ApiKeyRotator {
 
   constructor(private readonly config: KeyPoolConfig) {
     if (!config.keys || config.keys.length === 0) {
-      throw new Error(`ApiKeyRotator for provider '${config.provider}' must have at least one key.`);
+      throw new Error(
+        `ApiKeyRotator for provider '${config.provider}' must have at least one key.`,
+      );
     }
     this.cooldownMs = config.cooldownMs ?? 60_000; // 1 minute default cooldown
     this.keyStates = config.keys.map((key) => ({
@@ -68,7 +70,9 @@ export class ApiKeyRotator {
 
         // For non-quota errors (e.g. invalid prompt), don't exhaust the key
         const message = error instanceof Error ? error.message : 'AI execution failure';
-        return err(new RateLimitedError(`AI call failed on provider '${this.config.provider}': ${message}`));
+        return err(
+          new RateLimitedError(`AI call failed on provider '${this.config.provider}': ${message}`),
+        );
       }
     }
 
@@ -82,8 +86,9 @@ export class ApiKeyRotator {
   private isRateLimitError(error: unknown): boolean {
     if (!error) return false;
     const errStr = String(error).toLowerCase();
-    const status = (error as { status?: number; statusCode?: number }).status ??
-                   (error as { status?: number; statusCode?: number }).statusCode;
+    const status =
+      (error as { status?: number; statusCode?: number }).status ??
+      (error as { status?: number; statusCode?: number }).statusCode;
 
     return (
       status === 429 ||

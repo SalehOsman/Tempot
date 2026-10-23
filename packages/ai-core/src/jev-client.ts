@@ -1,4 +1,4 @@
-import type { Result, DomainError } from '@tembot/shared-types';
+import type { DomainError, Result } from '@tembot/shared-types';
 import { ApiKeyRotator } from './key-rotator.js';
 import type { JevDecisionResult } from './types.js';
 
@@ -19,7 +19,7 @@ export class JevClient {
       keys: config.apiKeys,
     });
     this.baseUrl = config.baseUrl ?? 'https://api.typesafe.ai/v1';
-    this.defaultThreshold = config.defaultThreshold ?? 0.90;
+    this.defaultThreshold = config.defaultThreshold ?? 0.9;
   }
 
   /**
