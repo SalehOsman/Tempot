@@ -37,7 +37,7 @@ const API_BASE_URL =
   'http://localhost:4000';
 
 export function TmaApp() {
-  const [currentLocale, setCurrentLocale] = useState<'ar' | 'en'>('ar');
+  const [currentLocale, setCurrentLocale] = useState<'ar' | 'en'>('en');
   const dict = getTmaLocale(currentLocale);
   const [authStatus, setAuthStatus] = useState<string>(dict.auth.verifying);
   const [isVerified, setIsVerified] = useState<boolean>(false);

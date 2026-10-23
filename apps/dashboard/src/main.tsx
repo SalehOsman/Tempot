@@ -15,11 +15,11 @@ interface SurfaceSettingsState {
   sessionTimeoutMinutes: number;
 }
 
-const defaultDict = getDashboardLocale('ar');
+const defaultDict = getDashboardLocale('en');
 
 const DEFAULT_SETTINGS: SurfaceSettingsState = {
   platformName: 'Tembot Sovereign Platform',
-  defaultLocale: 'ar',
+  defaultLocale: 'en',
   botName: 'Tembot Pro',
   botWelcomeMessage: defaultDict.defaults.welcomeMessage,
   botMaintenanceMode: false,

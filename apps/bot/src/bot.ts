@@ -16,6 +16,18 @@ export interface BotDependencies {
   readonly tmaUrl?: string;
 }
 
+async function resolveLocale(
+  tenantId: string,
+  settingsService?: SettingsService,
+): Promise<'ar' | 'en'> {
+  if (!settingsService) return 'en';
+  const res = await settingsService.getSettings(tenantId);
+  if (res.isOk() && res.value.defaultLocale) {
+    return res.value.defaultLocale as 'ar' | 'en';
+  }
+  return 'en';
+}
+
 /**
  * Creates and configures the Sovereign grammY Telegram Bot.
  */
@@ -38,7 +50,9 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   bot.command('start', async (ctx: Context) => {
     const user = ctx.from;
     const actorId = user ? `tg:${user.id}` : 'tg:unknown';
-    const dict = getBotLocale('ar');
+    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const isRtl = locale === 'ar';
+    const dict = getBotLocale(locale);
 
     let botName = 'Tembot';
     let welcomeMessage = dict.greeting.defaultWelcome;
@@ -55,7 +69,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
 
     await ctx.reply(greetingHtml, {
       parse_mode: 'HTML',
-      reply_markup: buildPersistentReplyKeyboard({ tmaUrl: deps.tmaUrl }),
+      reply_markup: buildPersistentReplyKeyboard({ tmaUrl: deps.tmaUrl, isRtl }),
     });
 
     if (deps.tmaUrl?.startsWith('https://')) {
@@ -69,9 +83,13 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   });
 
   // TMA Button handler when HTTPS web_app is pressed or sent as text
-  const defaultDict = getBotLocale('ar');
-  bot.hears([...defaultDict.tma.buttonHears], async (ctx: Context) => {
-    const dict = getBotLocale('ar');
+  const arDict = getBotLocale('ar');
+  const enDict = getBotLocale('en');
+  const allTmaHears = Array.from(new Set([...enDict.tma.buttonHears, ...arDict.tma.buttonHears]));
+  bot.hears(allTmaHears, async (ctx: Context) => {
+    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const dict = getBotLocale(locale);
+
     if (deps.tmaUrl?.startsWith('https://')) {
       const inlineKb = new InlineKeyboard().webApp(dict.tma.openNowInlineButton, deps.tmaUrl);
       await ctx.reply(
@@ -91,8 +109,14 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   });
 
   // Persistent Keyboard Settings Button or command
-  bot.hears([...defaultDict.settings.buttonHears], async (ctx: Context) => {
-    const dict = getBotLocale('ar');
+  const allSettingsHears = Array.from(
+    new Set([...enDict.settings.buttonHears, ...arDict.settings.buttonHears]),
+  );
+  bot.hears(allSettingsHears, async (ctx: Context) => {
+    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const dict = getBotLocale(locale);
+    const isRtl = locale === 'ar';
+
     if (!router) {
       await ctx.reply(dict.settings.initializing);
       return;
@@ -105,6 +129,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
       tenantId,
       actorId,
       isOperator: true,
+      isRtl,
     });
 
     if (menuRes.isErr() || !menuRes.value) {
@@ -141,7 +166,24 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     const data = ctx.callbackQuery?.data;
     if (!data || !data.startsWith('cfg:')) return;
 
-    const dict = getBotLocale('ar');
+    // Direct Close Button Handler
+    if (data === SETTINGS_CALLBACKS.CLOSE) {
+      await ctx.answerCallbackQuery();
+      try {
+        await ctx.deleteMessage();
+      } catch {
+        try {
+          await ctx.editMessageReplyMarkup({ reply_markup: new InlineKeyboard() });
+        } catch {
+          // ignore
+        }
+      }
+      return;
+    }
+
+    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const dict = getBotLocale(locale);
+
     if (!router) {
       await ctx.answerCallbackQuery({ text: dict.settings.callbackInitializing });
       return;
