@@ -22,7 +22,8 @@
     "check:i18n": "node tooling/scripts/verify-no-hardcoded-strings.mjs",
     "check:docs": "node tooling/scripts/verify-docs.mjs",
     "format:biome": "biome format --write .",
-    "db:generate": "turbo run db:generate",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push --force",
     "db:migrate": "turbo run db:migrate",
     "db:studio": "turbo run db:studio",
     "module:create": "plop --plopfile ./tooling/plop/plopfile.mjs module",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "drizzle-kit": "^0.31.11",
     "plop": "^4.0.1",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3",
