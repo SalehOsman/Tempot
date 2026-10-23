@@ -46,3 +46,7 @@ To ensure long-term stability, security, and enterprise robustness, the followin
 ### 🚫 Taboo 10: Sham & Cosmetic Test Assertions
 - **Violation:** Writing tautological tests like `expect(true).toBe(true)` or mocking pure business logic calculations.
 - **Mandatory Pattern:** Assert authentic state transitions, error outcomes, and database mutations against genuine ports.
+
+### 🚫 Taboo 11: Hardcoded Natural Language Strings in Source Code (Zero Hardcoded Locales Invariant)
+- **Violation:** Embedding raw Arabic, English, or any other natural language text directly into business logic, domain services, controllers, Telegram bots, or UI component JSX outside designated `locales/` catalogs.
+- **Mandatory Pattern:** All user-facing strings must be referenced through typed locale dictionaries (`locales/ar.ts`, `locales/en.ts`) and translation helpers. Mechanical sentinel gate `check:i18n` fails build on any unindexed string literal.
