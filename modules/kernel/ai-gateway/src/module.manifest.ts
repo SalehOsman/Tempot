@@ -6,11 +6,7 @@ export const aiGatewayManifest: ModuleManifest = {
   category: 'kernel',
   context: 'intelligence-hub',
   requires: ['audit-log'],
-  capabilities: [
-    'ai:evaluate',
-    'ai:generate',
-    'ai:manage',
-  ],
+  capabilities: ['ai:evaluate', 'ai:generate', 'ai:manage'],
   slices: [
     {
       sliceId: 'evaluate-intent-decision',
