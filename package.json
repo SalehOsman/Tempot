@@ -1,0 +1,31 @@
+{
+  "name": "tembot-v2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sovereign Domain-Agnostic Omnichannel Modular Monolith Template & Starter Kit",
+  "packageManager": "pnpm@10.5.2",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "typecheck": "turbo run typecheck",
+    "check:biome": "biome check .",
+    "format:biome": "biome format --write .",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "turbo run db:studio",
+    "module:create": "plop --plopfile ./tooling/plop/plopfile.mjs module",
+    "slice:create": "plop --plopfile ./tooling/plop/plopfile.mjs slice"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "plop": "^4.0.1",
+    "turbo": "^2.4.4",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  }
+}
