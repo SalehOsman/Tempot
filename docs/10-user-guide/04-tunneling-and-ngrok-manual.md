@@ -38,14 +38,21 @@ endpoints:
 
 ## 3. Running the Tunnel
 
-### Method A: Using the Built-In Script (Recommended)
+### Method A: Fully Containerized in Docker (Recommended for Zero-Terminal Operation)
+ngrok is configured directly inside `docker-compose.yml`. When starting the stack with:
+```bash
+docker compose up -d
+```
+The `tembot-ngrok` container starts automatically, bridges into the internal Docker network `tembot-net`, and tunnels `http://tma:80` directly to your domain with `--pooling-enabled=true` without requiring any open terminals or host port bindings!
+
+### Method B: Using the Built-In Script
 Once your `authtoken` and domain are configured in `ngrok.yml`:
 
 ```bash
 pnpm tunnel
 ```
 
-### Method B: Using npx Directly (Zero-Install)
+### Method C: Using npx Directly (Zero-Install)
 If you prefer not to touch `ngrok.yml`:
 
 ```powershell

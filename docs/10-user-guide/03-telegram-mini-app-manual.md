@@ -7,10 +7,11 @@
 ## 1. Overview & Architecture
 
 The Telegram Mini App (TMA) is a web application that runs inside Telegram's embedded browser context (Webview). It bridges web technologies with native Telegram mobile features:
-* Seamless authentication via Telegram `initData` HMAC cryptographic signatures.
-* Automatic dark/light theme synchronization with Telegram's client theme.
-* Native Haptic Feedback and mobile viewport expansion.
-* Dual LTR/RTL internationalization (English & Arabic).
+* Minimalist Ergonomics: Clean, focused interface displaying only the bot identity, settings gear, and essential user preferences.
+* Dual Language Control: Instantaneous toggling between English (default, LTR) and Arabic (RTL) with dynamic DOM attributes.
+* Appearance & Theme Switcher: Instant toggling between Dark Mode and Light Mode with calibrated CSS design tokens.
+* Responsive Close Control: Native `Telegram.WebApp.close()` button for dismissals.
+* Native Haptic Feedback: Vibrational touch confirmation via `Telegram.WebApp.HapticFeedback`.
 
 ---
 
