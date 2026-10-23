@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import { getDashboardLocale } from './locales/index.js';
 
 interface SurfaceSettingsState {
   platformName: string;
@@ -14,11 +15,13 @@ interface SurfaceSettingsState {
   sessionTimeoutMinutes: number;
 }
 
+const defaultDict = getDashboardLocale('ar');
+
 const DEFAULT_SETTINGS: SurfaceSettingsState = {
   platformName: 'Tembot Sovereign Platform',
   defaultLocale: 'ar',
   botName: 'Tembot Pro',
-  botWelcomeMessage: 'مرحباً بك في البوت السيادي! كيف يمكنني خدمتك اليوم؟',
+  botWelcomeMessage: defaultDict.defaults.welcomeMessage,
   botMaintenanceMode: false,
   tmaTitle: 'Tembot Mini App',
   tmaPrimaryColor: '#2563eb',
@@ -34,22 +37,23 @@ export function DashboardApp() {
   const [activeTab, setActiveTab] = useState<'settings' | 'roles' | 'status'>('settings');
   const [settings, setSettings] = useState<SurfaceSettingsState>(DEFAULT_SETTINGS);
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [healthStatus, setHealthStatus] = useState<string>('جاري الفحص...');
+  const dict = getDashboardLocale(settings.defaultLocale);
+  const [healthStatus, setHealthStatus] = useState<string>(dict.health.checking);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/health`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.status === 'ok') {
-          setHealthStatus('متصل ونشط 🟢');
+          setHealthStatus(dict.health.online);
         } else {
-          setHealthStatus('غير متصل (الخادم متوقف) 🔴');
+          setHealthStatus(dict.health.offline);
         }
       })
       .catch(() => {
-        setHealthStatus('محلي (وضع المعاينة المستقل)');
+        setHealthStatus(dict.health.standalone);
       });
-  }, []);
+  }, [dict]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +71,8 @@ export function DashboardApp() {
     }
   };
 
+  const isRtl = settings.defaultLocale === 'ar';
+
   return (
     <div
       style={{
@@ -74,7 +80,7 @@ export function DashboardApp() {
         padding: '2rem',
         maxWidth: '1000px',
         margin: '0 auto',
-        direction: 'rtl',
+        direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
       {/* Top Header */}
@@ -90,10 +96,10 @@ export function DashboardApp() {
       >
         <div>
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#38bdf8' }}>
-            ⚙️ لوحة التحكم السيادية | Tembot Admin
+            {dict.header.title}
           </h1>
           <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-            إدارة الأسطح الثلاثية والصلاحيات وحوكمة المنصة
+            {dict.header.subtitle}
           </p>
         </div>
         <div
@@ -105,7 +111,7 @@ export function DashboardApp() {
             color: '#cbd5e1',
           }}
         >
-          حالة الخادم: <strong>{healthStatus}</strong>
+          {dict.health.label} <strong>{healthStatus}</strong>
         </div>
       </header>
 
@@ -124,7 +130,7 @@ export function DashboardApp() {
             fontWeight: 600,
           }}
         >
-          ⚙️ إعدادات الأسطح الثلاثية
+          {dict.tabs.settings}
         </button>
         <button
           type="button"
@@ -139,7 +145,7 @@ export function DashboardApp() {
             fontWeight: 600,
           }}
         >
-          🛡️ الصلاحيات ومحرك ctx.can
+          {dict.tabs.roles}
         </button>
       </nav>
 
@@ -155,7 +161,7 @@ export function DashboardApp() {
           }}
         >
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: '#f8fafc' }}>
-            تخصيص أسطح التليجرام والميني اب ولوحة التحكم
+            {dict.settingsForm.title}
           </h2>
 
           {savedSuccess && (
@@ -168,7 +174,7 @@ export function DashboardApp() {
                 marginBottom: '1.5rem',
               }}
             >
-              ✓ تم حفظ الإعدادات وتحديث الكاش الموزع بنجاح!
+              {dict.settingsForm.savedSuccess}
             </div>
           )}
 
@@ -182,14 +188,14 @@ export function DashboardApp() {
             }}
           >
             <legend style={{ color: '#38bdf8', padding: '0 0.5rem', fontWeight: 600 }}>
-              🤖 سطح بوت التليجرام (Telegram Bot Surface)
+              {dict.settingsForm.botSectionTitle}
             </legend>
             <div style={{ marginBottom: '1rem' }}>
               <label
                 htmlFor="botName"
                 style={{ display: 'block', marginBottom: '0.25rem', color: '#cbd5e1' }}
               >
-                اسم البوت:
+                {dict.settingsForm.botNameLabel}
               </label>
               <input
                 id="botName"
@@ -211,7 +217,7 @@ export function DashboardApp() {
                 htmlFor="botWelcomeMessage"
                 style={{ display: 'block', marginBottom: '0.25rem', color: '#cbd5e1' }}
               >
-                نص الترحيب في /start:
+                {dict.settingsForm.botWelcomeLabel}
               </label>
               <textarea
                 id="botWelcomeMessage"
@@ -242,7 +248,7 @@ export function DashboardApp() {
                 checked={settings.botMaintenanceMode}
                 onChange={(e) => setSettings({ ...settings, botMaintenanceMode: e.target.checked })}
               />
-              تفعيل وضع الصيانة للبوت (إغلاق استقبال الطلبات مؤقتاً)
+              {dict.settingsForm.botMaintCheckbox}
             </label>
           </fieldset>
 
@@ -256,14 +262,14 @@ export function DashboardApp() {
             }}
           >
             <legend style={{ color: '#38bdf8', padding: '0 0.5rem', fontWeight: 600 }}>
-              📱 سطح تطبيق التليجرام المصغر (TMA Surface)
+              {dict.settingsForm.tmaSectionTitle}
             </legend>
             <div style={{ marginBottom: '1rem' }}>
               <label
                 htmlFor="tmaTitle"
                 style={{ display: 'block', marginBottom: '0.25rem', color: '#cbd5e1' }}
               >
-                عنوان تطبيق الميني اب:
+                {dict.settingsForm.tmaTitleLabel}
               </label>
               <input
                 id="tmaTitle"
@@ -285,7 +291,7 @@ export function DashboardApp() {
                 htmlFor="tmaPrimaryColor"
                 style={{ display: 'block', marginBottom: '0.25rem', color: '#cbd5e1' }}
               >
-                اللون الرئيسي للتطبيق:
+                {dict.settingsForm.tmaColorLabel}
               </label>
               <input
                 id="tmaPrimaryColor"
@@ -315,7 +321,7 @@ export function DashboardApp() {
                 checked={settings.tmaMaintenanceMode}
                 onChange={(e) => setSettings({ ...settings, tmaMaintenanceMode: e.target.checked })}
               />
-              تفعيل وضع الصيانة للميني اب
+              {dict.settingsForm.tmaMaintCheckbox}
             </label>
           </fieldset>
 
@@ -332,7 +338,7 @@ export function DashboardApp() {
               cursor: 'pointer',
             }}
           >
-            💾 حفظ التعديلات ونشر الإبطال
+            {dict.settingsForm.submitButton}
           </button>
         </form>
       )}
@@ -347,46 +353,45 @@ export function DashboardApp() {
           }}
         >
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#f8fafc' }}>
-            مصفوفة الصلاحيات الهجينة (Hybrid RBCA)
+            {dict.rolesMatrix.title}
           </h2>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            الكود البرمجي يتحقق حصراً من الصلاحيات الذرية عبر <code>ctx.can</code> دون أي ارتباط صلب
-            بمسميات الأدوار.
+            {dict.rolesMatrix.subtitle}
           </p>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: isRtl ? 'right' : 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #475569', color: '#38bdf8' }}>
-                <th style={{ padding: '0.75rem' }}>الدور القياسي</th>
-                <th style={{ padding: '0.75rem' }}>الوصف</th>
-                <th style={{ padding: '0.75rem' }}>الصلاحيات الممنوحة</th>
+                <th style={{ padding: '0.75rem' }}>{dict.rolesMatrix.thRole}</th>
+                <th style={{ padding: '0.75rem' }}>{dict.rolesMatrix.thDesc}</th>
+                <th style={{ padding: '0.75rem' }}>{dict.rolesMatrix.thCaps}</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>SuperAdmin</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>المالك وصلاحيات الطوارئ</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.superAdminDesc}</td>
                 <td style={{ padding: '0.75rem', color: '#34d399' }}>
-                  <code>*</code> (كافة الصلاحيات بلا قيد)
+                  <code>{dict.rolesMatrix.superAdminCaps}</code>
                 </td>
               </tr>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>OperationsManager</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>مدير العمليات والإعدادات</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.opsManagerDesc}</td>
                 <td style={{ padding: '0.75rem', color: '#38bdf8' }}>
                   <code>settings:*</code>, <code>broadcast:*</code>, <code>tasks:*</code>
                 </td>
               </tr>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>Auditor</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>التدقيق الجنائي والامتثال</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.auditorDesc}</td>
                 <td style={{ padding: '0.75rem', color: '#fbbf24' }}>
                   <code>audit:read</code>, <code>audit:export</code>, <code>telemetry:read</code>
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>EndUser</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>مستخدم البوت والميني اب</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.endUserDesc}</td>
                 <td style={{ padding: '0.75rem', color: '#94a3b8' }}>
                   <code>bot:interact</code>, <code>tma:access</code>
                 </td>
