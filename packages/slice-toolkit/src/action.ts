@@ -1,6 +1,5 @@
 import {
-  Result,
-  ok,
+  type Result,
   err,
   ValidationError,
   ForbiddenError,
@@ -24,7 +23,7 @@ export interface ActionDefinition<TSchema extends ZodSchema, TOutput, TError> {
 }
 
 export type ActionHandler<TSchema extends ZodSchema, TOutput, TError> = (
-  rawInput: unknown,
+  rawInput: z.input<TSchema> | unknown,
   ctx?: ActionContext,
 ) => Promise<Result<TOutput, TError | ValidationError | ForbiddenError>>;
 
