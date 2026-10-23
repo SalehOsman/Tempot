@@ -12,6 +12,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @tembot/app-tma build
 
 FROM nginx:alpine
+COPY apps/tma/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/apps/tma/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

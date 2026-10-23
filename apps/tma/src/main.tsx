@@ -34,6 +34,20 @@ export function TmaApp() {
 
   const dict = getTmaLocale(locale);
   const isRtl = locale === 'ar';
+  const isDark = theme === 'dark';
+
+  // Explicit color palette derived from Telegram brand identity
+  const palette = {
+    bgBase: isDark ? '#0e1621' : '#f0f2f5',
+    bgSurface: isDark ? '#17212b' : '#ffffff',
+    bgElevated: isDark ? '#242f3d' : '#f4f6f8',
+    border: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+    textPrimary: isDark ? '#f5f5f5' : '#111827',
+    textSecondary: isDark ? '#7f91a4' : '#707579',
+    textMuted: isDark ? '#5f7082' : '#9aa0a6',
+    primary: '#24a1de',
+    shadow: isDark ? '0 4px 16px rgba(0, 0, 0, 0.35)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
+  };
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -52,25 +66,25 @@ export function TmaApp() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.body.setAttribute('data-theme', theme);
+    document.documentElement.style.backgroundColor = palette.bgBase;
+    document.body.style.backgroundColor = palette.bgBase;
 
     const tg = window.Telegram?.WebApp;
-    const hexColor = theme === 'dark' ? '#0e1621' : '#f0f2f5';
-
     if (tg && typeof tg.setHeaderColor === 'function') {
       try {
-        tg.setHeaderColor(hexColor);
+        tg.setHeaderColor(palette.bgBase);
       } catch {
         // Optional outside Telegram
       }
     }
     if (tg && typeof tg.setBackgroundColor === 'function') {
       try {
-        tg.setBackgroundColor(hexColor);
+        tg.setBackgroundColor(palette.bgBase);
       } catch {
         // Optional outside Telegram
       }
     }
-  }, [theme]);
+  }, [theme, palette.bgBase]);
 
   // Sync Telegram native BackButton
   useEffect(() => {
@@ -141,6 +155,9 @@ export function TmaApp() {
         flexDirection: 'column',
         gap: 'var(--space-4)',
         minHeight: '100vh',
+        background: palette.bgBase,
+        color: palette.textPrimary,
+        transition: 'background 180ms ease, color 180ms ease',
       }}
     >
       {/* Universal Compact Header */}
@@ -150,21 +167,28 @@ export function TmaApp() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: 'var(--space-2) var(--space-3)',
-          background: 'var(--color-bg-surface)',
+          background: palette.bgSurface,
           borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-border)',
-          boxShadow: 'var(--shadow-subtle)',
+          border: `1px solid ${palette.border}`,
+          boxShadow: palette.shadow,
+          transition: 'background 180ms ease, border-color 180ms ease',
         }}
       >
         {currentView === 'home' ? (
           /* Home Header: Bot Identity */
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}
+          >
             <div
               style={{
                 width: '32px',
                 height: '32px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'var(--color-telegram)',
+                background: palette.primary,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -179,7 +203,7 @@ export function TmaApp() {
               style={{
                 fontSize: '0.95rem',
                 fontWeight: 700,
-                color: 'var(--color-text-primary)',
+                color: palette.textPrimary,
               }}
             >
               {dict.botName}
@@ -187,7 +211,13 @@ export function TmaApp() {
           </div>
         ) : (
           /* Settings Header: Back Button + Title */
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}
+          >
             <button
               type="button"
               onClick={handleGoHome}
@@ -195,7 +225,7 @@ export function TmaApp() {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: 'var(--color-telegram)',
+                color: palette.primary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -208,7 +238,7 @@ export function TmaApp() {
               style={{
                 fontSize: '0.95rem',
                 fontWeight: 700,
-                color: 'var(--color-text-primary)',
+                color: palette.textPrimary,
               }}
             >
               {dict.settingsTitle}
@@ -217,7 +247,13 @@ export function TmaApp() {
         )}
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-1)',
+          }}
+        >
           {currentView === 'home' && (
             <button
               type="button"
@@ -227,9 +263,9 @@ export function TmaApp() {
                 width: '36px',
                 height: '36px',
                 borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-elevated)',
-                color: 'var(--color-telegram)',
+                border: `1px solid ${palette.border}`,
+                background: palette.bgElevated,
+                color: palette.primary,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -249,9 +285,9 @@ export function TmaApp() {
               width: '36px',
               height: '36px',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-bg-elevated)',
-              color: 'var(--color-text-secondary)',
+              border: `1px solid ${palette.border}`,
+              background: palette.bgElevated,
+              color: palette.textSecondary,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -264,16 +300,25 @@ export function TmaApp() {
         </div>
       </header>
 
+      {/* VIEW: HOME (Clean canvas reserved for future operational modules) */}
+      {currentView === 'home' && <main style={{ flex: 1 }} />}
+
       {/* VIEW: SETTINGS */}
       {currentView === 'settings' && (
-        <main style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+        <main
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-2)',
+          }}
+        >
           <div
             style={{
               padding: '0 var(--space-2)',
               fontSize: '0.75rem',
               fontWeight: 600,
               textTransform: 'uppercase',
-              color: 'var(--color-text-muted)',
+              color: palette.textMuted,
               letterSpacing: '0.04em',
             }}
           >
@@ -282,11 +327,12 @@ export function TmaApp() {
 
           <div
             style={{
-              background: 'var(--color-bg-surface)',
+              background: palette.bgSurface,
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              boxShadow: 'var(--shadow-subtle)',
+              border: `1px solid ${palette.border}`,
+              boxShadow: palette.shadow,
               overflow: 'hidden',
+              transition: 'background 180ms ease, border-color 180ms ease',
             }}
           >
             {/* Setting Row 1: Language */}
@@ -296,10 +342,16 @@ export function TmaApp() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: 'var(--space-3) var(--space-4)',
-                borderBottom: '1px solid var(--color-border)',
+                borderBottom: `1px solid ${palette.border}`,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                }}
+              >
                 <div
                   style={{
                     width: '30px',
@@ -309,7 +361,7 @@ export function TmaApp() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--color-telegram)',
+                    color: palette.primary,
                   }}
                 >
                   <Globe size={16} />
@@ -319,12 +371,17 @@ export function TmaApp() {
                     style={{
                       fontSize: '0.85rem',
                       fontWeight: 600,
-                      color: 'var(--color-text-primary)',
+                      color: palette.textPrimary,
                     }}
                   >
                     {dict.languageTitle}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)' }}>
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      color: palette.textSecondary,
+                    }}
+                  >
                     {dict.languageSubtitle}
                   </div>
                 </div>
@@ -334,10 +391,10 @@ export function TmaApp() {
               <div
                 style={{
                   display: 'inline-flex',
-                  background: 'var(--color-bg-elevated)',
+                  background: palette.bgElevated,
                   borderRadius: 'var(--radius-sm)',
                   padding: '2px',
-                  border: '1px solid var(--color-border)',
+                  border: `1px solid ${palette.border}`,
                 }}
               >
                 <button
@@ -350,8 +407,8 @@ export function TmaApp() {
                     fontSize: '0.78rem',
                     fontWeight: locale === 'en' ? 700 : 500,
                     cursor: 'pointer',
-                    background: locale === 'en' ? 'var(--color-telegram)' : 'transparent',
-                    color: locale === 'en' ? '#ffffff' : 'var(--color-text-secondary)',
+                    background: locale === 'en' ? palette.primary : 'transparent',
+                    color: locale === 'en' ? '#ffffff' : palette.textSecondary,
                     transition: 'all var(--transition-fast)',
                   }}
                 >
@@ -367,8 +424,8 @@ export function TmaApp() {
                     fontSize: '0.78rem',
                     fontWeight: locale === 'ar' ? 700 : 500,
                     cursor: 'pointer',
-                    background: locale === 'ar' ? 'var(--color-telegram)' : 'transparent',
-                    color: locale === 'ar' ? '#ffffff' : 'var(--color-text-secondary)',
+                    background: locale === 'ar' ? palette.primary : 'transparent',
+                    color: locale === 'ar' ? '#ffffff' : palette.textSecondary,
                     transition: 'all var(--transition-fast)',
                   }}
                 >
@@ -386,7 +443,13 @@ export function TmaApp() {
                 padding: 'var(--space-3) var(--space-4)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                }}
+              >
                 <div
                   style={{
                     width: '30px',
@@ -396,22 +459,27 @@ export function TmaApp() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--color-telegram)',
+                    color: palette.primary,
                   }}
                 >
-                  {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+                  {isDark ? <Moon size={16} /> : <Sun size={16} />}
                 </div>
                 <div>
                   <div
                     style={{
                       fontSize: '0.85rem',
                       fontWeight: 600,
-                      color: 'var(--color-text-primary)',
+                      color: palette.textPrimary,
                     }}
                   >
                     {dict.themeTitle}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)' }}>
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      color: palette.textSecondary,
+                    }}
+                  >
                     {dict.themeSubtitle}
                   </div>
                 </div>
@@ -421,10 +489,10 @@ export function TmaApp() {
               <div
                 style={{
                   display: 'inline-flex',
-                  background: 'var(--color-bg-elevated)',
+                  background: palette.bgElevated,
                   borderRadius: 'var(--radius-sm)',
                   padding: '2px',
-                  border: '1px solid var(--color-border)',
+                  border: `1px solid ${palette.border}`,
                 }}
               >
                 <button
@@ -438,10 +506,10 @@ export function TmaApp() {
                     padding: '4px 10px',
                     borderRadius: '6px',
                     fontSize: '0.78rem',
-                    fontWeight: theme === 'dark' ? 700 : 500,
+                    fontWeight: isDark ? 700 : 500,
                     cursor: 'pointer',
-                    background: theme === 'dark' ? 'var(--color-telegram)' : 'transparent',
-                    color: theme === 'dark' ? '#ffffff' : 'var(--color-text-secondary)',
+                    background: isDark ? palette.primary : 'transparent',
+                    color: isDark ? '#ffffff' : palette.textSecondary,
                     transition: 'all var(--transition-fast)',
                   }}
                 >
@@ -459,10 +527,10 @@ export function TmaApp() {
                     padding: '4px 10px',
                     borderRadius: '6px',
                     fontSize: '0.78rem',
-                    fontWeight: theme === 'light' ? 700 : 500,
+                    fontWeight: !isDark ? 700 : 500,
                     cursor: 'pointer',
-                    background: theme === 'light' ? 'var(--color-telegram)' : 'transparent',
-                    color: theme === 'light' ? '#ffffff' : 'var(--color-text-secondary)',
+                    background: !isDark ? palette.primary : 'transparent',
+                    color: !isDark ? '#ffffff' : palette.textSecondary,
                     transition: 'all var(--transition-fast)',
                   }}
                 >
