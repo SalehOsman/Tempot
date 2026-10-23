@@ -1,7 +1,7 @@
 # The 10 Invariant Kernel Modules Inventory
 
 ## 1. Overview
-The **Tembot-v2 Platform** organizes foundational infrastructure, security, and governance capabilities into 10 autonomous Kernel modules located at `modules/kernel/<module>/`.
+The **Tembot-v2 Platform** organizes foundational infrastructure, security, and governance capabilities into autonomous Kernel modules located at `modules/kernel/<module>/`.
 
 These modules are invariant across all deployments and provide core capabilities that domain modules consume.
 
@@ -13,6 +13,7 @@ These modules are invariant across all deployments and provide core capabilities
 | :--- | :--- | :--- | :--- |
 | **`system-settings`** | `governance-hub` | Tri-surface branding, bot greeting copy, maintenance toggle. | `settings:read`, `settings:write` |
 | **`access-control`** | `governance-hub` | Hybrid Capability Engine (`ctx.can`), HMAC `initData` auth, operator sessions. | `auth:authenticate`, `auth:revoke`, `access:manage` |
+| **`ai-gateway`** | `intelligence-hub` | Dual-Tier AI: TypeSafe AI `jev` (System One Decision Engine) + Gemini/DeepSeek (System Two Generative). | `ai:evaluate`, `ai:generate`, `ai:manage` |
 | **`audit-log`** | `observability-hub` | Append-only immutable forensic audit trail, structured telemetry breadcrumbs. | `audit:read`, `audit:export` |
 | **`system-clock`** | `operations` | Deterministic time authority (`SystemTime`), clock pinning, and test temporal anchors. | `clock:read`, `clock:pin` |
 | **`performance-telemetry`** | `observability-hub` | Sub-300ms latency tracking, BullMQ queue depths, RAM/CPU monitoring. | `telemetry:read` |
@@ -20,7 +21,7 @@ These modules are invariant across all deployments and provide core capabilities
 | **`task-scheduler`** | `operations-hub` | BullMQ background queues, Bull-Board visual monitor, recurring cron runner. | `tasks:read`, `tasks:manage` |
 | **`broadcast-engine`** | `communications-hub` | Rate-limited Telegram broadcast pipeline (< 30 msg/s), flood-wait protection. | `broadcast:publish`, `broadcast:read` |
 | **`media-storage`** | `communications-hub` | Telegram `file_id` caching, MinIO / S3 storage adapters, Excel report generator. | `media:upload`, `media:read` |
-| **`google-services`** | `integrations-hub` | Google Cloud gateway (Drive sync, Sheets engine, Gemini AI integration). | `google:sync`, `google:manage` |
+| **`google-services`** | `integrations-hub` | Google Cloud gateway (Drive sync, Sheets engine). | `google:sync`, `google:manage` |
 
 ---
 
