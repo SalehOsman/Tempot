@@ -19,6 +19,7 @@
 | **07. Operations & Deployment** | [`docs/07-operations-and-deployment/`](./07-operations-and-deployment/) | Minimal Alpine Docker topologies, T3-Env boot validation, Bull-Board queue monitoring, and CI/CD pipelines. |
 | **08. Developer Playbooks** | [`docs/08-developer-playbooks/`](./08-developer-playbooks/) | Zero-to-running onboarding, step-by-step vertical slice tutorial, and Vitest/Testcontainers testing handbook. |
 | **09. Architecture Decisions** | [`docs/09-decisions/`](./09-decisions/) | Historical Architectural Decision Records (`ADR-0001` through `ADR-0012`). |
+| **10. User & Operator Guide** | [`docs/10-user-guide/`](./10-user-guide/) | End-user operating handbook, bot navigation, TMA flows, ngrok tunnels, and admin procedures. |
 
 ---
 
