@@ -10,6 +10,7 @@
     "bot:dev": "pnpm --filter @tembot/app-bot dev",
     "dashboard:dev": "pnpm --filter @tembot/app-dashboard dev",
     "tma:dev": "pnpm --filter @tembot/app-tma dev",
+    "tunnel": "npx ngrok start --all --config ./ngrok.yml",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",

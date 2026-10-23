@@ -34,6 +34,9 @@ coverage/
 *.key
 *.pem
 secrets.json
+ngrok.yml
+ngrok*.yml
+!ngrok.yml.example
 
 # Temporary & backup files
 *.bak
