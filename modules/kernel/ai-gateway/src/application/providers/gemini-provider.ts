@@ -1,6 +1,6 @@
-import { ok, err, type Result } from 'neverthrow';
-import type { ApiKeyRotator, AiPrompt, AiResponse } from '@tembot/ai-core';
+import type { AiPrompt, AiResponse, ApiKeyRotator } from '@tembot/ai-core';
 import { createChildLogger } from '@tembot/logger';
+import { type Result, err, ok } from 'neverthrow';
 import { AiGatewayError } from '../../domain/types.js';
 
 const geminiLogger = createChildLogger({ module: 'ai-gateway', slice: 'gemini-provider' });
@@ -21,10 +21,7 @@ export class GeminiProvider {
     const startTime = Date.now();
 
     const rotationResult = await this.config.rotator.executeWithRotation(async (activeKey) => {
-      geminiLogger.debug(
-        { model: this.defaultModel },
-        'Dispatching Gemini generation request'
-      );
+      geminiLogger.debug({ model: this.defaultModel }, 'Dispatching Gemini generation request');
 
       // In production runtime, activeKey is passed to the Gemini SDK / HTTP Client
       void activeKey;
@@ -55,8 +52,8 @@ export class GeminiProvider {
           'GEMINI_GENERATION_FAILED',
           rotationResult.error.message,
           rotationResult.error.httpStatus,
-          { originalError: rotationResult.error }
-        )
+          { originalError: rotationResult.error },
+        ),
       );
     }
 

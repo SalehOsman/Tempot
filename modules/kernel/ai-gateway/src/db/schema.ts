@@ -1,5 +1,5 @@
-import { pgTable, uuid, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core';
 import { monetaryColumn } from '@tembot/db-kernel';
+import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 /**
  * Sovereign AI Telemetry & Cost Accounting Schema.
@@ -20,7 +20,10 @@ export const aiUsageLogs = pgTable('ai_usage_logs', {
   latencyMs: integer('latency_ms').notNull(),
   keyId: text('key_id'),
   fallbackOccurred: boolean('fallback_occurred').default(false).notNull(),
-  status: text('status').$type<'SUCCESS' | 'RATE_LIMITED' | 'FAILED'>().default('SUCCESS').notNull(),
+  status: text('status')
+    .$type<'SUCCESS' | 'RATE_LIMITED' | 'FAILED'>()
+    .default('SUCCESS')
+    .notNull(),
   metadata: jsonb('metadata').default({}).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

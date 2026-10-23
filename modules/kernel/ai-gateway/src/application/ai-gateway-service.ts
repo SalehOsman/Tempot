@@ -1,20 +1,17 @@
-import { ok, err, type Result } from 'neverthrow';
-import type { PgDatabase } from 'drizzle-orm/pg-core';
-import type { JevClient, JevDecisionResult, AiResponse } from '@tembot/ai-core';
-import type { AuditService, ErrorRecorder } from '@tembot/module-audit-log';
+import type { AiResponse, JevClient, JevDecisionResult } from '@tembot/ai-core';
 import { createChildLogger } from '@tembot/logger';
+import type { AuditService, ErrorRecorder } from '@tembot/module-audit-log';
+import type { PgDatabase } from 'drizzle-orm/pg-core';
+import { type Result, err, ok } from 'neverthrow';
 import { aiUsageLogs } from '../db/schema.js';
-import type { GeminiProvider } from './providers/gemini-provider.js';
+import { AiGatewayError, type AiGatewayPort, type AiGenerationRequest } from '../domain/types.js';
 import type { DeepSeekProvider } from './providers/deepseek-provider.js';
-import {
-  AiGatewayError,
-  type AiGatewayPort,
-  type AiGenerationRequest,
-} from '../domain/types.js';
+import type { GeminiProvider } from './providers/gemini-provider.js';
 
 const gatewayLogger = createChildLogger({ module: 'ai-gateway', slice: 'service' });
 
 export interface AiGatewayDependencies {
+  // biome-ignore lint/suspicious/noExplicitAny: Drizzle schema container accepts any schema mapping
   readonly db: PgDatabase<any>;
   readonly jevClient: JevClient;
   readonly geminiProvider: GeminiProvider;
@@ -35,7 +32,7 @@ export class AiGatewayService implements AiGatewayPort {
       readonly confidenceThreshold?: number;
       readonly tenantId?: string;
       readonly actorId?: string;
-    } = {}
+    } = {},
   ): Promise<Result<JevDecisionResult<TDecision>, AiGatewayError>> {
     const startTime = Date.now();
     const tenantId = options.tenantId ?? '00000000-0000-0000-0000-000000000000';
@@ -44,7 +41,7 @@ export class AiGatewayService implements AiGatewayPort {
     const evalResult = await this.deps.jevClient.evaluateDecision<TDecision>(
       state,
       undefined,
-      options.confidenceThreshold ?? 0.9
+      options.confidenceThreshold ?? 0.9,
     );
 
     const durationMs = Date.now() - startTime;
@@ -54,7 +51,7 @@ export class AiGatewayService implements AiGatewayPort {
         'JEV_EVALUATION_FAILED',
         evalResult.error.message,
         evalResult.error.httpStatus,
-        { originalError: evalResult.error }
+        { originalError: evalResult.error },
       );
 
       if (this.deps.errorRecorder) {
@@ -103,14 +100,14 @@ export class AiGatewayService implements AiGatewayPort {
    * System Two: Generative response synthesis with multi-key failover and provider fallback.
    */
   async generateResponse(
-    request: AiGenerationRequest
+    request: AiGenerationRequest,
   ): Promise<Result<AiResponse, AiGatewayError>> {
     const startTime = Date.now();
     const primaryTier = request.preferredTier ?? 'fast';
 
     gatewayLogger.info(
       { tenantId: request.tenantId, actorId: request.actorId, primaryTier },
-      'Generating AI conversational response'
+      'Generating AI conversational response',
     );
 
     let fallbackOccurred = false;
@@ -124,7 +121,7 @@ export class AiGatewayService implements AiGatewayPort {
       if (result.isErr()) {
         gatewayLogger.warn(
           { error: result.error.message },
-          'DeepSeek reasoning tier failed, falling back to Gemini fast tier'
+          'DeepSeek reasoning tier failed, falling back to Gemini fast tier',
         );
         fallbackOccurred = true;
         result = await this.deps.geminiProvider.generate(request.prompt);
@@ -137,7 +134,7 @@ export class AiGatewayService implements AiGatewayPort {
       if (result.isErr()) {
         gatewayLogger.warn(
           { error: result.error.message },
-          'Gemini fast tier failed, falling back to DeepSeek tier'
+          'Gemini fast tier failed, falling back to DeepSeek tier',
         );
         fallbackOccurred = true;
         result = await this.deps.deepseekProvider.generate(request.prompt);
