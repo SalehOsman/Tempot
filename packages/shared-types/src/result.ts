@@ -1,4 +1,4 @@
-import { Result, ResultAsync, ok, err } from 'neverthrow';
+import { Result, ResultAsync, err, ok } from 'neverthrow';
 
 export { Result, ResultAsync, ok, err };
 

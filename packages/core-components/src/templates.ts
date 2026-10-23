@@ -1,4 +1,4 @@
-import { validateButtonBudgets, type InlineButton } from './budgets.js';
+import { type InlineButton, validateButtonBudgets } from './budgets.js';
 
 export interface RichPageOptions {
   title: string;
@@ -28,7 +28,7 @@ export function buildRichPage(options: RichPageOptions): RenderedRichMessage {
   const icon = options.headerIcon ? `${options.headerIcon} ` : '';
   const titleLine = `<b>${icon}${options.title}</b>`;
   const divider = '──────────────────────────';
-  
+
   const content = [
     titleLine,
     divider,

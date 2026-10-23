@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, jsonb, timestamp, integer } from 'drizzle-orm/pg-core';
+import { integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { multiTenancyColumns } from './columns.js';
 
 /**

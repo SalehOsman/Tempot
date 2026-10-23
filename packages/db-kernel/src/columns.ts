@@ -1,4 +1,4 @@
-import { timestamp, numeric, uuid } from 'drizzle-orm/pg-core';
+import { numeric, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 /**
  * Audit timestamp columns enforcing timezone awareness (timestamptz).

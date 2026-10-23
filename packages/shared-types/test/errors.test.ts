@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  ForbiddenError,
   ConflictError,
-  RateLimitedError,
+  ForbiddenError,
   InternalServerError,
+  NotFoundError,
+  RateLimitedError,
+  UnauthorizedError,
+  ValidationError,
 } from '../src/errors.js';
 
 describe('DomainError and ProblemDetails Specification', () => {
