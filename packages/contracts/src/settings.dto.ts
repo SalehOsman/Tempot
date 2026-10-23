@@ -6,7 +6,10 @@ export const UpdateSystemSettingsSchema = z.object({
   maintenanceMode: z.boolean().optional(),
   maintenanceMessage: z.string().max(512).optional(),
   defaultLocale: z.enum(['ar', 'en']).optional(),
-  brandingPrimaryColor: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, 'Invalid hex color').optional(),
+  brandingPrimaryColor: z
+    .string()
+    .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, 'Invalid hex color')
+    .optional(),
 });
 export type UpdateSystemSettingsDto = z.infer<typeof UpdateSystemSettingsSchema>;
 

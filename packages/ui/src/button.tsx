@@ -24,11 +24,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none rounded-lg';
 
     const variants = {
-      primary: 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-500',
-      secondary: 'bg-zinc-800 text-zinc-100 hover:bg-zinc-700 active:bg-zinc-600 focus-visible:ring-zinc-400',
-      destructive: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500',
-      outline: 'border border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800 focus-visible:ring-zinc-400',
-      ghost: 'bg-transparent text-zinc-100 hover:bg-zinc-800 active:bg-zinc-700 focus-visible:ring-zinc-400',
+      primary:
+        'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-500',
+      secondary:
+        'bg-zinc-800 text-zinc-100 hover:bg-zinc-700 active:bg-zinc-600 focus-visible:ring-zinc-400',
+      destructive:
+        'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-500',
+      outline:
+        'border border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800 focus-visible:ring-zinc-400',
+      ghost:
+        'bg-transparent text-zinc-100 hover:bg-zinc-800 active:bg-zinc-700 focus-visible:ring-zinc-400',
     };
 
     const sizes = {
@@ -50,7 +55,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
+            <title>Loading</title>
             <circle
               className="opacity-25"
               cx="12"

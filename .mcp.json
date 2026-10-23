@@ -2,9 +2,7 @@
   "mcpServers": {
     "overwatch-governance": {
       "command": "node",
-      "args": [
-        "F:/ECC-Overwatch/packages/governance-kernel/bin/mcp-server.mjs"
-      ],
+      "args": ["F:/ECC-Overwatch/packages/governance-kernel/bin/mcp-server.mjs"],
       "env": {
         "ECC_GOVERNANCE_MODE": "enterprise"
       },
