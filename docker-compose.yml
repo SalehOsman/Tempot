@@ -49,6 +49,41 @@ services:
     networks:
       - tembot-net
 
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: tembot-server
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-tembot}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tembot-net
+    profiles: ["app"]
+
+  bot:
+    build:
+      context: .
+      dockerfile: apps/bot/Dockerfile
+    container_name: tembot-bot
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-tembot}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TMA_URL=${TMA_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tembot-net
+    profiles: ["app"]
+
 volumes:
   tembot_postgres_data:
   tembot_redis_data:

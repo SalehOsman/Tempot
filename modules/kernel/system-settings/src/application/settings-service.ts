@@ -4,12 +4,7 @@ import type { AuditService } from '@tembot/module-audit-log';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { PgDatabase } from 'drizzle-orm/pg-core';
 import { type Result, err, ok } from 'neverthrow';
-import {
-  type SystemSettingsRecord,
-  type TelegramUserRecord,
-  systemSettings,
-  telegramUsers,
-} from '../db/schema.js';
+import { type SystemSettingsRecord, systemSettings, telegramUsers } from '../db/schema.js';
 import {
   type BotSurfaceSettings,
   type DashboardSurfaceSettings,
