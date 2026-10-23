@@ -20,6 +20,7 @@
     "typecheck": "turbo run typecheck",
     "check:biome": "biome check .",
     "check:i18n": "node tooling/scripts/verify-no-hardcoded-strings.mjs",
+    "check:docs": "node tooling/scripts/verify-docs.mjs",
     "format:biome": "biome format --write .",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
