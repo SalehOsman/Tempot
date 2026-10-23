@@ -6,11 +6,12 @@ The **Tembot-v2 Web Admin Dashboard** is the operations, configuration, and moni
 - **Build Tool:** Vite (`vite@8.3.1`)
 - **Data Tables:** TanStack Table (`@tanstack/react-table@8.21.2`)
 - **Remote State:** TanStack Query (`@tanstack/react-query@5.67.2`)
-- **Transport:** Hono RPC Client (`hc<AppType>`) with compile-time type safety
-- **Queue Monitor:** Embedded Bull-Board (`@bull-board/hono`)
+- **Transport & Types:** Hono RPC Client (`hc<AppType>`) consuming `@tembot/contracts`
+- **UI Components & Layout:** Tailwind CSS (`tailwindcss@4.3.3`) + `@tembot/ui` (shadcn/ui + Lucide Icons)
+- **Visual Design Reference:** Modeled after [Studio Admin Dashboard](https://github.com/arhamkhnz/next-shadcn-admin-dashboard) (clean card-based telemetry, collapsible sidebar, dark/light theme) adapted to Vite + React 19
+- **Queue Monitor:** Embedded Bull-Board (`@bull-board/hono`) for visual BullMQ queue tracking
 - **API Documentation:** Interactive Scalar OpenAPI (`@scalar/hono-api-reference`)
-- **UI Components:** Tailwind CSS (`tailwindcss@4.3.3`) + `@tembot/ui` (shadcn/ui)
-- **Live Stream:** Server-Sent Events (SSE) for real-time audit logs and queue statistics
+- **Live Stream:** Server-Sent Events (SSE) for real-time audit logs and queue statistics without polling
 
 ---
 
@@ -50,3 +51,6 @@ flowchart TD
 ### 3.2 Real-Time Observability & Queue Control
 - **Bull-Board:** Embedded visual inspector for BullMQ background queues. Operators can inspect active, delayed, and failed jobs, and trigger instant retries.
 - **Live SSE Event Stream:** Real-time push stream of audit logs, errors, and system state transitions without polling.
+
+### 3.3 Zero-Leakage Typed Transport (`@tembot/contracts`)
+The dashboard imports API routes and DTO contracts strictly from `@tembot/contracts`. It contains zero dependencies on Node.js, database drivers, or backend runtime code, ensuring clean, lightweight client-side Vite builds.
