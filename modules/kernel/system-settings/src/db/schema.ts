@@ -14,7 +14,7 @@ export const systemSettings = pgTable('system_settings', {
 
   // 1. General & Global Platform Governance
   platformName: text('platform_name').default('Tembot Platform').notNull(),
-  defaultLocale: text('default_locale').$type<'ar' | 'en'>().default('ar').notNull(),
+  defaultLocale: text('default_locale').$type<'ar' | 'en'>().default('en').notNull(),
   isGlobalMaintenance: boolean('is_global_maintenance').default(false).notNull(),
   globalMaintenanceMessage: text('global_maintenance_message'),
 

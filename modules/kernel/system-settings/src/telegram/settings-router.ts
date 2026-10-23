@@ -27,12 +27,11 @@ export class TelegramSettingsRouter {
     callbackData: string,
     ctx: TelegramSettingsContext,
   ): Promise<Result<RenderedRichMessage | null, SettingsError>> {
-    const isRtl = ctx.isRtl ?? true;
-
     // 1. Navigation to Main Settings
     if (callbackData === SETTINGS_CALLBACKS.MAIN) {
       const res = await this.settingsService.getSettings(ctx.tenantId);
       if (res.isErr()) return err(res.error);
+      const isRtl = ctx.isRtl ?? res.value.defaultLocale === 'ar';
       return ok(renderMainSettingsPage(res.value, isRtl));
     }
 
@@ -40,6 +39,7 @@ export class TelegramSettingsRouter {
     if (callbackData === SETTINGS_CALLBACKS.LOCALE_MENU) {
       const res = await this.settingsService.getSettings(ctx.tenantId);
       if (res.isErr()) return err(res.error);
+      const isRtl = ctx.isRtl ?? res.value.defaultLocale === 'ar';
       return ok(renderLocaleSelectionPage(res.value.defaultLocale, isRtl));
     }
 
@@ -55,6 +55,7 @@ export class TelegramSettingsRouter {
         ctx.actorId,
       );
       if (updateRes.isErr()) return err(updateRes.error);
+      const isRtl = targetLocale === 'ar';
       return ok(renderMainSettingsPage(updateRes.value, isRtl));
     }
 
@@ -62,6 +63,7 @@ export class TelegramSettingsRouter {
     if (callbackData === SETTINGS_CALLBACKS.MAINT_MENU) {
       const res = await this.settingsService.getSettings(ctx.tenantId);
       if (res.isErr()) return err(res.error);
+      const isRtl = ctx.isRtl ?? res.value.defaultLocale === 'ar';
       return ok(renderMaintenanceMenuPage(res.value, isRtl));
     }
 
@@ -84,6 +86,7 @@ export class TelegramSettingsRouter {
       const res = await this.settingsService.getSettings(ctx.tenantId);
       if (res.isErr()) return err(res.error);
       const s = res.value;
+      const isRtl = ctx.isRtl ?? s.defaultLocale === 'ar';
 
       if (callbackData === SETTINGS_CALLBACKS.TOGGLE_MAINT_BOT) {
         return ok(renderMaintenanceConfirmCard('bot', !s.botMaintenanceMode, isRtl));
@@ -125,6 +128,7 @@ export class TelegramSettingsRouter {
         ctx.actorId,
       );
       if (updateRes.isErr()) return err(updateRes.error);
+      const isRtl = ctx.isRtl ?? updateRes.value.defaultLocale === 'ar';
       return ok(renderMaintenanceMenuPage(updateRes.value, isRtl));
     }
 

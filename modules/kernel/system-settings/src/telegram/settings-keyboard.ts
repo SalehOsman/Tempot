@@ -25,7 +25,7 @@ export const SETTINGS_CALLBACKS = {
  * Builds the persistent bottom reply keyboard including the Settings button.
  */
 export function buildPersistentReplyKeyboard(options: { tmaUrl?: string; isRtl?: boolean } = {}) {
-  const isRtl = options.isRtl ?? true;
+  const isRtl = options.isRtl ?? false;
   const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
   const tmaLabel = dict.replyKeyboard.tmaButton;
   const settingsLabel = dict.replyKeyboard.settingsButton;
@@ -52,9 +52,10 @@ export function buildPersistentReplyKeyboard(options: { tmaUrl?: string; isRtl?:
  */
 export function renderMainSettingsPage(
   settings: SystemSettingsRecord,
-  isRtl = true,
+  isRtl?: boolean,
 ): RenderedRichMessage {
-  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const effectiveIsRtl = isRtl ?? settings.defaultLocale === 'ar';
+  const dict = getSystemSettingsLocale(effectiveIsRtl ? 'ar' : 'en');
   const title = dict.mainPage.title;
   const localeText =
     settings.defaultLocale === 'ar' ? dict.mainPage.localeArabic : dict.mainPage.localeEnglish;
@@ -91,7 +92,7 @@ export function renderMainSettingsPage(
     bodyBlocks,
     footer: dict.mainPage.footerHint,
     buttons,
-    isRtl,
+    isRtl: effectiveIsRtl,
   });
 }
 
@@ -100,9 +101,10 @@ export function renderMainSettingsPage(
  */
 export function renderLocaleSelectionPage(
   currentLocale: string,
-  isRtl = true,
+  isRtl?: boolean,
 ): RenderedRichMessage {
-  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const effectiveIsRtl = isRtl ?? currentLocale === 'ar';
+  const dict = getSystemSettingsLocale(effectiveIsRtl ? 'ar' : 'en');
   const title = dict.localeSelection.title;
   const activeLocaleName =
     currentLocale === 'ar' ? dict.mainPage.localeArabic : dict.mainPage.localeEnglish;
@@ -125,7 +127,7 @@ export function renderLocaleSelectionPage(
     headerIcon: '🌐',
     bodyBlocks,
     buttons,
-    isRtl,
+    isRtl: effectiveIsRtl,
   });
 }
 
@@ -134,9 +136,10 @@ export function renderLocaleSelectionPage(
  */
 export function renderMaintenanceMenuPage(
   settings: SystemSettingsRecord,
-  isRtl = true,
+  isRtl?: boolean,
 ): RenderedRichMessage {
-  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const effectiveIsRtl = isRtl ?? settings.defaultLocale === 'ar';
+  const dict = getSystemSettingsLocale(effectiveIsRtl ? 'ar' : 'en');
   const title = dict.maintenance.title;
 
   const botStatus = settings.botMaintenanceMode
@@ -175,7 +178,7 @@ export function renderMaintenanceMenuPage(
     headerIcon: '🛡️',
     bodyBlocks,
     buttons,
-    isRtl,
+    isRtl: effectiveIsRtl,
   });
 }
 
@@ -185,7 +188,7 @@ export function renderMaintenanceMenuPage(
 export function renderMaintenanceConfirmCard(
   surface: 'bot' | 'tma' | 'all',
   targetActive: boolean,
-  isRtl = true,
+  isRtl = false,
 ): RenderedRichMessage {
   const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
   const surfaceName =

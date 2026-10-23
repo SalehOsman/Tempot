@@ -21,7 +21,7 @@ function createDefaultSettingsRecord(tenantId: string): SystemSettingsRecord {
     id: '00000000-0000-0000-0000-000000000001',
     tenantId,
     platformName: 'Tembot Platform',
-    defaultLocale: 'ar',
+    defaultLocale: 'en',
     isGlobalMaintenance: false,
     globalMaintenanceMessage: null,
     botName: 'Tembot',
@@ -108,7 +108,7 @@ export class SettingsService {
         .values({
           tenantId,
           platformName: 'Tembot Platform',
-          defaultLocale: 'ar',
+          defaultLocale: 'en',
           botName: 'Tembot',
           botWelcomeMessage: 'Welcome to the platform!',
           botHelpMessage: 'Available commands list:...',
