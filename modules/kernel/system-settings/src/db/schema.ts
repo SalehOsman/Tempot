@@ -20,8 +20,8 @@ export const systemSettings = pgTable('system_settings', {
 
   // 2. Telegram Bot Surface Configuration
   botName: text('bot_name').default('Tembot').notNull(),
-  botWelcomeMessage: text('bot_welcome_message').default('مرحباً بك في المنصة!').notNull(),
-  botHelpMessage: text('bot_help_message').default('قائمة الأوامر المتاحة:...').notNull(),
+  botWelcomeMessage: text('bot_welcome_message').default('Welcome to the platform!').notNull(),
+  botHelpMessage: text('bot_help_message').default('Available commands list:...').notNull(),
   botMaintenanceMode: boolean('bot_maintenance_mode').default(false).notNull(),
 
   // 3. Telegram Mini App (TMA) Surface Configuration

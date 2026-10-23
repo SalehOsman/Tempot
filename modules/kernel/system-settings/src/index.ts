@@ -28,3 +28,4 @@ export {
   TelegramSettingsRouter,
   type TelegramSettingsContext,
 } from './telegram/settings-router.js';
+export * from './locales/index.js';

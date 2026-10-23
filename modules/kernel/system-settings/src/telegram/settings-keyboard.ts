@@ -5,6 +5,7 @@ import {
   buildRichPage,
 } from '@tembot/core-components';
 import type { SystemSettingsRecord } from '../db/schema.js';
+import { getSystemSettingsLocale } from '../locales/index.js';
 
 export const SETTINGS_CALLBACKS = {
   MAIN: 'cfg:main',
@@ -25,8 +26,9 @@ export const SETTINGS_CALLBACKS = {
  */
 export function buildPersistentReplyKeyboard(options: { tmaUrl?: string; isRtl?: boolean } = {}) {
   const isRtl = options.isRtl ?? true;
-  const tmaLabel = isRtl ? '🚀 فتح التطبيق' : '🚀 Open App';
-  const settingsLabel = isRtl ? '⚙️ الإعدادات' : '⚙️ Settings';
+  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const tmaLabel = dict.replyKeyboard.tmaButton;
+  const settingsLabel = dict.replyKeyboard.settingsButton;
 
   // Telegram Invariant: web_app buttons strictly require HTTPS links
   const hasHttpsTma = Boolean(options.tmaUrl?.startsWith('https://'));
@@ -52,53 +54,42 @@ export function renderMainSettingsPage(
   settings: SystemSettingsRecord,
   isRtl = true,
 ): RenderedRichMessage {
-  const title = isRtl ? 'إعدادات النظام والأسطح الثلاثية' : 'System & Tri-Surface Settings';
-  const localeText = settings.defaultLocale === 'ar' ? 'العربية (Arabic)' : 'الإنجليزية (English)';
-  const botStatus = settings.botMaintenanceMode ? '🛑 وضع الصيانة' : '🟢 يعمل بنشاط';
-  const tmaStatus = settings.tmaMaintenanceMode ? '🛑 وضع الصيانة' : '🟢 متاح للمستخدمين';
-  const globalStatus = settings.isGlobalMaintenance ? '🛑 صيانة شاملة' : '🟢 تشغيل طبيعي';
+  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const title = dict.mainPage.title;
+  const localeText =
+    settings.defaultLocale === 'ar' ? dict.mainPage.localeArabic : dict.mainPage.localeEnglish;
+  const botStatus = settings.botMaintenanceMode
+    ? dict.mainPage.statusMaintenance
+    : dict.mainPage.statusActive;
+  const tmaStatus = settings.tmaMaintenanceMode
+    ? dict.mainPage.statusMaintenance
+    : dict.mainPage.statusActive;
+  const globalStatus = settings.isGlobalMaintenance
+    ? dict.mainPage.statusSuspended
+    : dict.mainPage.statusActive;
 
-  const bodyBlocks = isRtl
-    ? [
-        `🏢 <b>اسم المنصة:</b> ${settings.platformName}`,
-        `🌐 <b>اللغة الافتراضية:</b> ${localeText}`,
-        `🤖 <b>سطح البوت:</b> ${botStatus}`,
-        `📱 <b>سطح الميني اب:</b> ${tmaStatus}`,
-        `🛡️ <b>الحالة العامة:</b> ${globalStatus}`,
-        `🎨 <b>لون الهوية (TMA):</b> <code>${settings.tmaPrimaryColor}</code>`,
-      ]
-    : [
-        `🏢 <b>Platform:</b> ${settings.platformName}`,
-        `🌐 <b>Default Locale:</b> ${localeText}`,
-        `🤖 <b>Bot Surface:</b> ${botStatus}`,
-        `📱 <b>TMA Surface:</b> ${tmaStatus}`,
-        `🛡️ <b>Global Status:</b> ${globalStatus}`,
-        `🎨 <b>Brand Color:</b> <code>${settings.tmaPrimaryColor}</code>`,
-      ];
+  const bodyBlocks = [
+    `🏢 <b>${dict.mainPage.platformName}:</b> ${settings.platformName}`,
+    `🌐 <b>${dict.mainPage.defaultLocale}:</b> ${localeText}`,
+    `🤖 <b>${dict.mainPage.botSurface}:</b> ${botStatus}`,
+    `📱 <b>${dict.mainPage.tmaSurface}:</b> ${tmaStatus}`,
+    `🛡️ <b>${dict.mainPage.globalStatus}:</b> ${globalStatus}`,
+    `🎨 <b>${dict.mainPage.brandColor}:</b> <code>${settings.tmaPrimaryColor}</code>`,
+  ];
 
-  const buttons: readonly (readonly InlineButton[])[] = isRtl
-    ? [
-        [
-          { text: '🌐 تغيير اللغة', callbackData: SETTINGS_CALLBACKS.LOCALE_MENU },
-          { text: '🛡️ وضع الصيانة', callbackData: SETTINGS_CALLBACKS.MAINT_MENU },
-        ],
-        [{ text: '❌ إغلاق القائمة', callbackData: SETTINGS_CALLBACKS.CLOSE }],
-      ]
-    : [
-        [
-          { text: '🌐 Change Locale', callbackData: SETTINGS_CALLBACKS.LOCALE_MENU },
-          { text: '🛡️ Maintenance', callbackData: SETTINGS_CALLBACKS.MAINT_MENU },
-        ],
-        [{ text: '❌ Close Menu', callbackData: SETTINGS_CALLBACKS.CLOSE }],
-      ];
+  const buttons: readonly (readonly InlineButton[])[] = [
+    [
+      { text: dict.mainPage.changeLocaleButton, callbackData: SETTINGS_CALLBACKS.LOCALE_MENU },
+      { text: dict.mainPage.maintenanceButton, callbackData: SETTINGS_CALLBACKS.MAINT_MENU },
+    ],
+    [{ text: dict.mainPage.closeButton, callbackData: SETTINGS_CALLBACKS.CLOSE }],
+  ];
 
   return buildRichPage({
     title,
     headerIcon: '⚙️',
     bodyBlocks,
-    footer: isRtl
-      ? 'اختر أحد الخيارات لتعديل الإعدادات فورياً'
-      : 'Select an option to update settings',
+    footer: dict.mainPage.footerHint,
     buttons,
     isRtl,
   });
@@ -111,23 +102,22 @@ export function renderLocaleSelectionPage(
   currentLocale: string,
   isRtl = true,
 ): RenderedRichMessage {
-  const title = isRtl ? 'اختيار لغة النظام' : 'Select System Language';
-  const bodyBlocks = isRtl
-    ? [
-        `اللغة الحالية هي: <b>${currentLocale === 'ar' ? 'العربية' : 'English'}</b>`,
-        'اختر اللغة المطلوبة لتطبيقها فورياً على جميع واجهات المنصة:',
-      ]
-    : [
-        `Current language is: <b>${currentLocale === 'ar' ? 'العربية' : 'English'}</b>`,
-        'Select the target language to apply instantly across all platform surfaces:',
-      ];
+  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const title = dict.localeSelection.title;
+  const activeLocaleName =
+    currentLocale === 'ar' ? dict.mainPage.localeArabic : dict.mainPage.localeEnglish;
+
+  const bodyBlocks = [
+    `${dict.localeSelection.currentLocaleIntro}: <b>${activeLocaleName}</b>`,
+    dict.localeSelection.choosePrompt,
+  ];
 
   const buttons: readonly (readonly InlineButton[])[] = [
     [
-      { text: '🇸🇦 العربية', callbackData: SETTINGS_CALLBACKS.SET_LOCALE_AR },
-      { text: '🇬🇧 English', callbackData: SETTINGS_CALLBACKS.SET_LOCALE_EN },
+      { text: dict.localeSelection.arabicOption, callbackData: SETTINGS_CALLBACKS.SET_LOCALE_AR },
+      { text: dict.localeSelection.englishOption, callbackData: SETTINGS_CALLBACKS.SET_LOCALE_EN },
     ],
-    [{ text: isRtl ? '🔙 عودة' : '🔙 Back', callbackData: SETTINGS_CALLBACKS.MAIN }],
+    [{ text: dict.localeSelection.backButton, callbackData: SETTINGS_CALLBACKS.MAIN }],
   ];
 
   return buildRichPage({
@@ -146,38 +136,34 @@ export function renderMaintenanceMenuPage(
   settings: SystemSettingsRecord,
   isRtl = true,
 ): RenderedRichMessage {
-  const title = isRtl ? 'إدارة أوضاع الصيانة' : 'Maintenance Mode Management';
-  const bodyBlocks = isRtl
-    ? [
-        'يمكنك التحكم في وضع الصيانة لكل سطح بشكل مستقل، أو إيقاف المنصة بالكامل:',
-        `• <b>البوت:</b> ${settings.botMaintenanceMode ? '🛑 معطل' : '🟢 مفعل'}`,
-        `• <b>الميني اب:</b> ${settings.tmaMaintenanceMode ? '🛑 معطل' : '🟢 مفعل'}`,
-        `• <b>المنصة ككل:</b> ${settings.isGlobalMaintenance ? '🛑 معطلة' : '🟢 مفعلة'}`,
-      ]
-    : [
-        'You can toggle maintenance mode per surface independently, or globally:',
-        `• <b>Bot:</b> ${settings.botMaintenanceMode ? '🛑 Disabled' : '🟢 Active'}`,
-        `• <b>TMA:</b> ${settings.tmaMaintenanceMode ? '🛑 Disabled' : '🟢 Active'}`,
-        `• <b>Global:</b> ${settings.isGlobalMaintenance ? '🛑 Suspended' : '🟢 Active'}`,
-      ];
+  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
+  const title = dict.maintenance.title;
 
-  const buttons: readonly (readonly InlineButton[])[] = isRtl
-    ? [
-        [
-          { text: '🤖 تبديل البوت', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_BOT },
-          { text: '📱 تبديل TMA', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_TMA },
-        ],
-        [{ text: '🛡️ صيانة شاملة', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_GLOBAL }],
-        [{ text: '🔙 عودة للرئيسية', callbackData: SETTINGS_CALLBACKS.MAIN }],
-      ]
-    : [
-        [
-          { text: '🤖 Toggle Bot', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_BOT },
-          { text: '📱 Toggle TMA', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_TMA },
-        ],
-        [{ text: '🛡️ Global Toggle', callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_GLOBAL }],
-        [{ text: '🔙 Back to Menu', callbackData: SETTINGS_CALLBACKS.MAIN }],
-      ];
+  const botStatus = settings.botMaintenanceMode
+    ? dict.maintenance.disabledState
+    : dict.maintenance.activeState;
+  const tmaStatus = settings.tmaMaintenanceMode
+    ? dict.maintenance.disabledState
+    : dict.maintenance.activeState;
+  const globalStatus = settings.isGlobalMaintenance
+    ? dict.maintenance.disabledState
+    : dict.maintenance.activeState;
+
+  const bodyBlocks = [
+    dict.maintenance.bodyIntro,
+    `• <b>${dict.maintenance.botLabel}:</b> ${botStatus}`,
+    `• <b>${dict.maintenance.tmaLabel}:</b> ${tmaStatus}`,
+    `• <b>${dict.maintenance.globalLabel}:</b> ${globalStatus}`,
+  ];
+
+  const buttons: readonly (readonly InlineButton[])[] = [
+    [
+      { text: dict.maintenance.toggleBotButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_BOT },
+      { text: dict.maintenance.toggleTmaButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_TMA },
+    ],
+    [{ text: dict.maintenance.toggleGlobalButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_GLOBAL }],
+    [{ text: dict.maintenance.backButton, callbackData: SETTINGS_CALLBACKS.MAIN }],
+  ];
 
   return buildRichPage({
     title,
@@ -196,24 +182,25 @@ export function renderMaintenanceConfirmCard(
   targetActive: boolean,
   isRtl = true,
 ): RenderedRichMessage {
+  const dict = getSystemSettingsLocale(isRtl ? 'ar' : 'en');
   const surfaceName =
-    surface === 'bot' ? 'سطح البوت' : surface === 'tma' ? 'سطح الميني اب' : 'المنصة بالكامل';
-  const actionName = targetActive ? 'تفعيل وضع الصيانة' : 'إلغاء وضع الصيانة وتشغيل السطح';
+    surface === 'bot'
+      ? dict.maintenance.botSurfaceName
+      : surface === 'tma'
+        ? dict.maintenance.tmaSurfaceName
+        : dict.maintenance.globalSurfaceName;
 
-  const title = isRtl ? 'تأكيد تبديل وضع الصيانة' : 'Confirm Maintenance Toggle';
-  const summaryLines = isRtl
-    ? [
-        `أنت على وشك: <b>${actionName}</b>`,
-        `السطح المستهدف: <b>${surfaceName}</b>`,
-        '',
-        '⚠️ <i>سيتم تقييد وصول المستخدمين العاديين فور تأكيد هذا الإجراء.</i>',
-      ]
-    : [
-        `You are about to: <b>${actionName}</b>`,
-        `Target Surface: <b>${surfaceName}</b>`,
-        '',
-        '⚠️ <i>User ingress will be restricted immediately upon confirmation.</i>',
-      ];
+  const actionName = targetActive
+    ? dict.maintenance.enableAction
+    : dict.maintenance.disableAction;
+
+  const title = dict.maintenance.confirmTitle;
+  const summaryLines = [
+    `${dict.maintenance.confirmIntro}: <b>${actionName}</b>`,
+    `${dict.maintenance.targetSurfaceIntro}: <b>${surfaceName}</b>`,
+    '',
+    dict.maintenance.warningNote,
+  ];
 
   return buildRichConfirmation({
     title,
