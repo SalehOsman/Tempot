@@ -104,6 +104,23 @@ services:
     networks:
       - tembot-net
 
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: tembot-ngrok
+    restart: unless-stopped
+    command:
+      - "http"
+      - "tma:80"
+      - "--url=https://enquirer-hardening-penny.ngrok-free.dev"
+      - "--pooling-enabled=true"
+      - "--log=stdout"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-3JFieSwgdlTLmQEss4dHVNDYKhq_2wUP8LAMuxxM6guLSeXHd}
+    depends_on:
+      - tma
+    networks:
+      - tembot-net
+
 volumes:
   tembot_postgres_data:
   tembot_redis_data:
