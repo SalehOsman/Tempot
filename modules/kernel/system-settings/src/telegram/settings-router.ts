@@ -43,20 +43,20 @@ export class TelegramSettingsRouter {
       return ok(renderLocaleSelectionPage(res.value.defaultLocale, isRtl));
     }
 
-    // 3. Set Locale Actions
+    // 3. Set Locale Actions (INC-20261023-02: Isolated per-user preference)
     if (
       callbackData === SETTINGS_CALLBACKS.SET_LOCALE_AR ||
       callbackData === SETTINGS_CALLBACKS.SET_LOCALE_EN
     ) {
       const targetLocale = callbackData === SETTINGS_CALLBACKS.SET_LOCALE_AR ? 'ar' : 'en';
-      const updateRes = await this.settingsService.updateSettings(
-        ctx.tenantId,
-        { defaultLocale: targetLocale },
-        ctx.actorId,
-      );
-      if (updateRes.isErr()) return err(updateRes.error);
+      if (ctx.actorId.startsWith('tg:')) {
+        const tgUserId = ctx.actorId.replace('tg:', '');
+        await this.settingsService.setUserLocale(ctx.tenantId, tgUserId, targetLocale);
+      }
+      const settingsRes = await this.settingsService.getSettings(ctx.tenantId);
+      if (settingsRes.isErr()) return err(settingsRes.error);
       const isRtl = targetLocale === 'ar';
-      return ok(renderMainSettingsPage(updateRes.value, isRtl));
+      return ok(renderMainSettingsPage(settingsRes.value, isRtl));
     }
 
     // 4. Navigation to Maintenance Menu

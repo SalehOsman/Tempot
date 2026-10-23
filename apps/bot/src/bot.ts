@@ -19,8 +19,15 @@ export interface BotDependencies {
 async function resolveLocale(
   tenantId: string,
   settingsService?: SettingsService,
+  telegramUserId?: number | string,
 ): Promise<'ar' | 'en'> {
   if (!settingsService) return 'en';
+  if (telegramUserId) {
+    const userRes = await settingsService.getUserLocale(tenantId, String(telegramUserId));
+    if (userRes.isOk()) {
+      return userRes.value;
+    }
+  }
   const res = await settingsService.getSettings(tenantId);
   if (res.isOk() && res.value.defaultLocale) {
     return res.value.defaultLocale as 'ar' | 'en';
@@ -50,7 +57,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   bot.command('start', async (ctx: Context) => {
     const user = ctx.from;
     const actorId = user ? `tg:${user.id}` : 'tg:unknown';
-    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const locale = await resolveLocale(tenantId, deps.settingsService, user?.id);
     const isRtl = locale === 'ar';
     const dict = getBotLocale(locale);
 
@@ -87,7 +94,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   const enDict = getBotLocale('en');
   const allTmaHears = Array.from(new Set([...enDict.tma.buttonHears, ...arDict.tma.buttonHears]));
   bot.hears(allTmaHears, async (ctx: Context) => {
-    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const locale = await resolveLocale(tenantId, deps.settingsService, ctx.from?.id);
     const dict = getBotLocale(locale);
 
     if (deps.tmaUrl?.startsWith('https://')) {
@@ -113,7 +120,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     new Set([...enDict.settings.buttonHears, ...arDict.settings.buttonHears]),
   );
   bot.hears(allSettingsHears, async (ctx: Context) => {
-    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const locale = await resolveLocale(tenantId, deps.settingsService, ctx.from?.id);
     const dict = getBotLocale(locale);
     const isRtl = locale === 'ar';
 
@@ -181,7 +188,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
       return;
     }
 
-    const locale = await resolveLocale(tenantId, deps.settingsService);
+    const locale = await resolveLocale(tenantId, deps.settingsService, ctx.from?.id);
     const dict = getBotLocale(locale);
 
     if (!router) {

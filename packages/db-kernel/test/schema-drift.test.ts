@@ -2,8 +2,8 @@ import { isTable } from 'drizzle-orm';
 import { getTableColumns } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 import {
-  operators,
   operatorSessions,
+  operators,
   roleProfiles,
 } from '../../../modules/kernel/access-control/src/db/schema.js';
 import { aiUsageLogs } from '../../../modules/kernel/ai-gateway/src/db/schema.js';
