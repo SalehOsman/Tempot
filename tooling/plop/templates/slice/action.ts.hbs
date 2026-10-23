@@ -1,0 +1,39 @@
+import { ok, err, type Result, ValidationError } from '@tembot/shared-types';
+import { defineAction, type ActionContext } from '@tembot/slice-toolkit';
+import { createChildLogger } from '@tembot/logger';
+import {
+  {{camelCase name}}InputSchema,
+  type {{pascalCase name}}Input,
+  type {{pascalCase name}}Output,
+} from './dto.js';
+
+const sliceLogger = createChildLogger({
+  module: '{{dashCase name}}',
+  slice: '{{dashCase name}}-action',
+});
+
+/**
+ * Sovereign Vertical Slice Action: {{name}}.
+ * Enforces compile-time contracts, capability checks, and structured logging.
+ */
+export const {{camelCase name}}Action = defineAction({
+  inputSchema: {{camelCase name}}InputSchema,
+  requiredCapabilities: ['{{dashCase name}}:write'],
+  async handler(
+    input: {{pascalCase name}}Input,
+    ctx: ActionContext
+  ): Promise<Result<{{pascalCase name}}Output, ValidationError>> {
+    sliceLogger.info(
+      { tenantId: input.tenantId, actor: ctx.actor?.actorId },
+      'Executing slice action: {{name}}'
+    );
+
+    // Business domain logic goes here
+    const result: {{pascalCase name}}Output = {
+      id: crypto.randomUUID(),
+      status: 'PROCESSED',
+    };
+
+    return ok(result);
+  },
+});

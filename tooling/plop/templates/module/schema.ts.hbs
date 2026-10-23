@@ -1,0 +1,24 @@
+import { pgTable, uuid, text } from 'drizzle-orm/pg-core';
+import {
+  auditTimestamps,
+  softDeleteColumns,
+  multiTenancyColumns,
+} from '@tembot/db-kernel';
+
+/**
+ * Sovereign Drizzle Table Definition for {{name}}.
+ * Adheres to 10 Engineering Taboos:
+ * - Deterministic audit timestamps (timestamptz)
+ * - Zero Hard Deletes (deleted_at)
+ * - Multi-tenancy isolation (tenant_id)
+ */
+export const {{camelCase name}}Records = pgTable('{{snakeCase name}}_records', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  ...multiTenancyColumns,
+  ...auditTimestamps,
+  ...softDeleteColumns,
+});
+
+export type {{pascalCase name}}Record = typeof {{camelCase name}}Records.$inferSelect;
+export type New{{pascalCase name}}Record = typeof {{camelCase name}}Records.$inferInsert;
