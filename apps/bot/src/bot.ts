@@ -6,6 +6,7 @@ import {
   buildPersistentReplyKeyboard,
 } from '@tembot/module-system-settings';
 import { Bot, type Context, InlineKeyboard } from 'grammy';
+import { getBotLocale } from './locales/index.js';
 
 const botLogger = createChildLogger({ module: 'app-bot', slice: 'telegram' });
 
@@ -37,9 +38,10 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   bot.command('start', async (ctx: Context) => {
     const user = ctx.from;
     const actorId = user ? `tg:${user.id}` : 'tg:unknown';
+    const dict = getBotLocale('ar');
 
     let botName = 'Tembot';
-    let welcomeMessage = 'مرحباً بك في منصة تيمبوت السيادية!';
+    let welcomeMessage = dict.greeting.defaultWelcome;
 
     if (deps.settingsService) {
       const res = await deps.settingsService.getSurfaceSettings(tenantId, 'bot');
@@ -49,7 +51,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
       }
     }
 
-    const greetingHtml = `<b>🤖 ${botName}</b>\n\n${welcomeMessage}\n\n<i>استخدم القائمة أدناه أو زر ⚙️ الإعدادات للتحكم.</i>`;
+    const greetingHtml = `<b>🤖 ${botName}</b>\n\n${welcomeMessage}\n\n<i>${dict.greeting.guideHint}</i>`;
 
     await ctx.reply(greetingHtml, {
       parse_mode: 'HTML',
@@ -58,10 +60,10 @@ export function createBot(token: string, deps: BotDependencies = {}) {
 
     if (deps.tmaUrl?.startsWith('https://')) {
       const inlineKb = new InlineKeyboard().webApp(
-        '🚀 فتح الميني اب داخل التليجرام',
+        dict.greeting.openTmaInlineButton,
         deps.tmaUrl,
       );
-      await ctx.reply('📱 يمكنك فتح الميني اب مباشرة عبر هذا الزر:', {
+      await ctx.reply(dict.greeting.openTmaDirectPrompt, {
         reply_markup: inlineKb,
       });
     }
@@ -70,16 +72,16 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   });
 
   // TMA Button handler when HTTPS web_app is pressed or sent as text
-  bot.hears(['🚀 فتح التطبيق', 'فتح التطبيق'], async (ctx: Context) => {
+  const defaultDict = getBotLocale('ar');
+  bot.hears([...defaultDict.tma.buttonHears], async (ctx: Context) => {
+    const dict = getBotLocale('ar');
     if (deps.tmaUrl?.startsWith('https://')) {
       const inlineKb = new InlineKeyboard().webApp(
-        '🚀 اضغط هنا لفتح الميني اب الآن',
+        dict.tma.openNowInlineButton,
         deps.tmaUrl,
       );
       await ctx.reply(
-        '📱 <b>تطبيق التليجرام المصغر (TMA) جاهز!</b>\n\n' +
-          'اضغط على الزر أدناه لفتح واجهة التطبيق مباشرة داخل التليجرام:\n' +
-          `🔗 <code>${deps.tmaUrl}</code>`,
+        `${dict.tma.readyTitle}\n\n${dict.tma.directOpenInstruction}\n🔗 <code>${deps.tmaUrl}</code>`,
         {
           parse_mode: 'HTML',
           reply_markup: inlineKb,
@@ -89,18 +91,16 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     }
 
     await ctx.reply(
-      '📱 <b>تطبيق التليجرام المصغر (TMA)</b>\n\n' +
-        'يشترط تيليجرام رابطاً آمناً <b>HTTPS</b> لفتح النوافذ المنبثقة مباشرة داخل التطبيق.\n\n' +
-        '🔗 <b>رابط المعاينة المحلية بالمتصفح:</b>\nhttp://localhost:5173\n\n' +
-        '💡 <i>عند رفع المنصة لسيرفر أو تشغيل نفق محلي (ngrok/cloudflared)، ضع الرابط في متغير TMA_URL وسيفتح داخل التليجرام بضغطة زر.</i>',
+      `${dict.tma.httpsRequiredTitle}\n\n${dict.tma.httpsRequiredBody}\n\n${dict.tma.localPreviewLabel}\nhttp://localhost:5173\n\n${dict.tma.productionTip}`,
       { parse_mode: 'HTML' },
     );
   });
 
   // Persistent Keyboard Settings Button or command
-  bot.hears(['⚙️ الإعدادات', 'الإعدادات', '/settings'], async (ctx: Context) => {
+  bot.hears([...defaultDict.settings.buttonHears], async (ctx: Context) => {
+    const dict = getBotLocale('ar');
     if (!router) {
-      await ctx.reply('⚙️ نظام الإعدادات قيد التهيئة...');
+      await ctx.reply(dict.settings.initializing);
       return;
     }
 
@@ -114,7 +114,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     });
 
     if (menuRes.isErr() || !menuRes.value) {
-      await ctx.reply('تعذر فتح قائمة الإعدادات حالياً.');
+      await ctx.reply(dict.settings.openFailed);
       return;
     }
 
@@ -147,8 +147,9 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     const data = ctx.callbackQuery?.data;
     if (!data || !data.startsWith('cfg:')) return;
 
+    const dict = getBotLocale('ar');
     if (!router) {
-      await ctx.answerCallbackQuery({ text: 'النظام قيد التهيئة' });
+      await ctx.answerCallbackQuery({ text: dict.settings.callbackInitializing });
       return;
     }
 
