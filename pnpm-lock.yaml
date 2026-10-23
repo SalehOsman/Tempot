@@ -22,7 +22,59 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.7
-        version: 3.2.7(@types/node@26.6.5)
+        version: 3.2.7(@types/node@26.6.5)(tsx@4.23.15)
+
+  apps/server:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.13.8
+        version: 1.19.17(hono@4.13.13)
+      '@tembot/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@tembot/core-components':
+        specifier: workspace:*
+        version: link:../../packages/core-components
+      '@tembot/db-kernel':
+        specifier: workspace:*
+        version: link:../../packages/db-kernel
+      '@tembot/kernel-registry':
+        specifier: workspace:*
+        version: link:../../packages/kernel-registry
+      '@tembot/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@tembot/module-access-control':
+        specifier: workspace:*
+        version: link:../../modules/kernel/access-control
+      '@tembot/module-audit-log':
+        specifier: workspace:*
+        version: link:../../modules/kernel/audit-log
+      '@tembot/module-system-settings':
+        specifier: workspace:*
+        version: link:../../modules/kernel/system-settings
+      '@tembot/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
+      drizzle-orm:
+        specifier: ^0.39.3
+        version: 0.39.3(@types/pg@8.23.1)(pg@8.23.1)
+      hono:
+        specifier: ^4.7.2
+        version: 4.13.13
+      neverthrow:
+        specifier: ^8.2.0
+        version: 8.2.0
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.23.15
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
 
   modules/kernel/access-control:
     dependencies:
@@ -518,6 +570,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@hono/node-server@1.19.17':
+    resolution: {integrity: sha512-dSneS5qhiauZWGDCeK4o695Xd9nUNjviSZCMQrj10eetr8Uln1ucn6bbphOM6UynAMMtNIzZNSpL9vnASJwrPQ==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@inquirer/external-editor@1.0.3':
     resolution: {integrity: sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==}
@@ -1179,6 +1237,10 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+    engines: {node: '>=16.9.0'}
+
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
@@ -1627,6 +1689,11 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  tsx@4.23.15:
+    resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   turbo@2.11.10:
     resolution: {integrity: sha512-3GJYwig8ygEI89oaOZdduJX8/aw6O9eRPYHoIt6T3FZl9hkKjiyIspufJoVgqXihPoJu8M5CSV0DlZvzfohBCw==}
     hasBin: true
@@ -1880,6 +1947,10 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
+  '@hono/node-server@1.19.17(hono@4.13.13)':
+    dependencies:
+      hono: 4.13.13
+
   '@inquirer/external-editor@1.0.3(@types/node@26.6.5)':
     dependencies:
       chardet: 2.2.0
@@ -2042,13 +2113,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.7(vite@7.3.7(@types/node@26.6.5))':
+  '@vitest/mocker@3.2.7(vite@7.3.7(@types/node@26.6.5)(tsx@4.23.15))':
     dependencies:
       '@vitest/spy': 3.2.7
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.7(@types/node@26.6.5)
+      vite: 7.3.7(@types/node@26.6.5)(tsx@4.23.15)
 
   '@vitest/pretty-format@3.2.7':
     dependencies:
@@ -2307,6 +2378,8 @@ snapshots:
   homedir-polyfill@1.0.3:
     dependencies:
       parse-passwd: 1.0.0
+
+  hono@4.13.13: {}
 
   iconv-lite@0.7.3:
     dependencies:
@@ -2781,6 +2854,12 @@ snapshots:
 
   tslib@2.8.1: {}
 
+  tsx@4.23.15:
+    dependencies:
+      esbuild: 0.28.2
+    optionalDependencies:
+      fsevents: 2.3.3
+
   turbo@2.11.10:
     optionalDependencies:
       '@turbo/darwin-64': 2.11.10
@@ -2805,13 +2884,13 @@ snapshots:
 
   v8flags@4.0.1: {}
 
-  vite-node@3.2.4(@types/node@26.6.5):
+  vite-node@3.2.4(@types/node@26.6.5)(tsx@4.23.15):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.3.7(@types/node@26.6.5)
+      vite: 7.3.7(@types/node@26.6.5)(tsx@4.23.15)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -2826,7 +2905,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@7.3.7(@types/node@26.6.5):
+  vite@7.3.7(@types/node@26.6.5)(tsx@4.23.15):
     dependencies:
       esbuild: 0.28.2
       fdir: 6.5.0(picomatch@4.0.7)
@@ -2837,12 +2916,13 @@ snapshots:
     optionalDependencies:
       '@types/node': 26.6.5
       fsevents: 2.3.3
+      tsx: 4.23.15
 
-  vitest@3.2.7(@types/node@26.6.5):
+  vitest@3.2.7(@types/node@26.6.5)(tsx@4.23.15):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
-      '@vitest/mocker': 3.2.7(vite@7.3.7(@types/node@26.6.5))
+      '@vitest/mocker': 3.2.7(vite@7.3.7(@types/node@26.6.5)(tsx@4.23.15))
       '@vitest/pretty-format': 3.2.7
       '@vitest/runner': 3.2.7
       '@vitest/snapshot': 3.2.7
@@ -2860,8 +2940,8 @@ snapshots:
       tinyglobby: 0.2.17
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.3.7(@types/node@26.6.5)
-      vite-node: 3.2.4(@types/node@26.6.5)
+      vite: 7.3.7(@types/node@26.6.5)(tsx@4.23.15)
+      vite-node: 3.2.4(@types/node@26.6.5)(tsx@4.23.15)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.6.5

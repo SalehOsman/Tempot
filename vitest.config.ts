@@ -9,6 +9,8 @@ export default defineConfig({
       'packages/**/*.spec.ts',
       'modules/**/*.test.ts',
       'modules/**/*.spec.ts',
+      'apps/**/*.test.ts',
+      'apps/**/*.spec.ts',
     ],
   },
 });
