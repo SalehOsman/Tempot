@@ -1,0 +1,14 @@
+import type { ModuleManifest } from '@tembot/kernel-registry';
+
+export const {{camelCase name}}Manifest: ModuleManifest = {
+  id: '{{dashCase name}}',
+  version: '0.1.0',
+  category: '{{category}}',
+  context: '{{context}}',
+  requires: ['audit-log'],
+  capabilities: [
+    '{{dashCase name}}:read',
+    '{{dashCase name}}:write',
+  ],
+  slices: [],
+};
