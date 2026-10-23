@@ -1,9 +1,9 @@
 import {
-  type Result,
-  err,
-  ValidationError,
-  ForbiddenError,
   type ActorIdentity,
+  ForbiddenError,
+  type Result,
+  ValidationError,
+  err,
 } from '@tembot/shared-types';
 import type { ZodSchema, z } from 'zod';
 
@@ -16,10 +16,7 @@ export interface ActionContext {
 export interface ActionDefinition<TSchema extends ZodSchema, TOutput, TError> {
   readonly inputSchema: TSchema;
   readonly requiredCapabilities?: readonly string[];
-  handler(
-    input: z.infer<TSchema>,
-    ctx: ActionContext,
-  ): Promise<Result<TOutput, TError>>;
+  handler(input: z.infer<TSchema>, ctx: ActionContext): Promise<Result<TOutput, TError>>;
 }
 
 export type ActionHandler<TSchema extends ZodSchema, TOutput, TError> = (
@@ -55,11 +52,7 @@ export function defineAction<TSchema extends ZodSchema, TOutput, TError>(
       if (!isSuperAdmin) {
         for (const reqCap of definition.requiredCapabilities) {
           if (!actorCaps.has(reqCap)) {
-            return err(
-              new ForbiddenError(
-                `Actor lacks required capability: '${reqCap}'`,
-              ),
-            );
+            return err(new ForbiddenError(`Actor lacks required capability: '${reqCap}'`));
           }
         }
       }

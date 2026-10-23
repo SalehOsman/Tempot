@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { KernelRegistry } from '../src/registry.js';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { TembotModule } from '../src/manifest.js';
+import { KernelRegistry } from '../src/registry.js';
 
 describe('KernelRegistry Specification', () => {
   let registry: KernelRegistry;
@@ -93,7 +93,7 @@ describe('KernelRegistry Specification', () => {
     const bootOrderResult = registry.validateDependencyGraph();
     expect(bootOrderResult.isErr()).toBe(true);
     if (bootOrderResult.isErr()) {
-      expect(bootOrderResult.error.message).toContain('requires dependency \'missing-dependency\'');
+      expect(bootOrderResult.error.message).toContain("requires dependency 'missing-dependency'");
     }
   });
 });

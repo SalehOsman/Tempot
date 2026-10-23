@@ -1,4 +1,4 @@
-import { Result, ok, err, DomainError } from '@tembot/shared-types';
+import { DomainError, type Result, err, ok } from '@tembot/shared-types';
 import type { TembotModule } from './manifest.js';
 
 export class RegistryError extends DomainError {

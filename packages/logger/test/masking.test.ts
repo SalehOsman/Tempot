@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { maskSensitiveString, SENSITIVE_REDACTION_PATHS } from '../src/masking.js';
+import { describe, expect, it } from 'vitest';
+import { SENSITIVE_REDACTION_PATHS, maskSensitiveString } from '../src/masking.js';
 
 describe('Logger PII Redaction & Masking Specification', () => {
   it('masks sensitive phone and card digits preserving last 4 digits', () => {

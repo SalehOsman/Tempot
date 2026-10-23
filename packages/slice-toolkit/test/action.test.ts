@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { z } from 'zod';
 import { ok } from '@tembot/shared-types';
+import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 import { defineAction } from '../src/action.js';
 
 describe('defineAction Specification', () => {
@@ -28,7 +28,7 @@ describe('defineAction Specification', () => {
   it('enforces capability checks and returns ForbiddenError when capability is missing', async () => {
     const res = await testAction(
       { username: 'valid_user', age: 25 },
-      { actor: { actorId: 'user_123', actorType: 'user', capabilities: ['other:cap'] } }
+      { actor: { actorId: 'user_123', actorType: 'user', capabilities: ['other:cap'] } },
     );
     expect(res.isErr()).toBe(true);
     if (res.isErr()) {
@@ -39,7 +39,7 @@ describe('defineAction Specification', () => {
   it('allows execution when actor possesses required capability', async () => {
     const res = await testAction(
       { username: 'valid_user', age: 25 },
-      { actor: { actorId: 'admin_1', actorType: 'admin', capabilities: ['user:create'] } }
+      { actor: { actorId: 'admin_1', actorType: 'admin', capabilities: ['user:create'] } },
     );
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
@@ -50,7 +50,7 @@ describe('defineAction Specification', () => {
   it('allows execution for superadmin wildcard capability "*"', async () => {
     const res = await testAction(
       { username: 'super_user', age: 30 },
-      { actor: { actorId: 'root', actorType: 'admin', capabilities: ['*'] } }
+      { actor: { actorId: 'root', actorType: 'admin', capabilities: ['*'] } },
     );
     expect(res.isOk()).toBe(true);
   });
