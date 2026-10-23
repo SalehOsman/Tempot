@@ -1,0 +1,10 @@
+{
+  "capsuleId": "capsule-tembot-v2",
+  "projectSlug": "tembot-v2",
+  "name": "tembot_v2",
+  "authorityLevel": "HighAssurance",
+  "constitutionalHash": "a9d7bd7a74edb8871f886421f496585dfd9b13cb84aef91802d94ad50883eea7",
+  "lineageVersion": "0.1.0",
+  "createdAt": "2026-10-23T01:47:42.480Z",
+  "status": "Active"
+}

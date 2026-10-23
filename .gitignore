@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+pnpm-debug.log*
+
+# Build & test outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# SQLite databases & governance ephemeral state
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.governance/state/sessions/
+.governance/state/locks/
+
+# Secrets & environment
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# Temporary & backup files
+*.bak
+*.tmp
+*.temp
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
