@@ -34,7 +34,8 @@ export const en: DashboardLocaleDictionary = {
   },
   rolesMatrix: {
     title: 'Hybrid RBCA Capabilities Matrix',
-    subtitle: 'System code checks atomic capabilities exclusively via ctx.can with zero rigid role coupling.',
+    subtitle:
+      'System code checks atomic capabilities exclusively via ctx.can with zero rigid role coupling.',
     thRole: 'Standard Role',
     thDesc: 'Description',
     thCaps: 'Granted Capabilities',

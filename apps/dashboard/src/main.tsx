@@ -359,7 +359,13 @@ export function DashboardApp() {
             {dict.rolesMatrix.subtitle}
           </p>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: isRtl ? 'right' : 'left' }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              textAlign: isRtl ? 'right' : 'left',
+            }}
+          >
             <thead>
               <tr style={{ borderBottom: '1px solid #475569', color: '#38bdf8' }}>
                 <th style={{ padding: '0.75rem' }}>{dict.rolesMatrix.thRole}</th>
@@ -370,28 +376,36 @@ export function DashboardApp() {
             <tbody>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>SuperAdmin</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.superAdminDesc}</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>
+                  {dict.rolesMatrix.superAdminDesc}
+                </td>
                 <td style={{ padding: '0.75rem', color: '#34d399' }}>
                   <code>{dict.rolesMatrix.superAdminCaps}</code>
                 </td>
               </tr>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>OperationsManager</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.opsManagerDesc}</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>
+                  {dict.rolesMatrix.opsManagerDesc}
+                </td>
                 <td style={{ padding: '0.75rem', color: '#38bdf8' }}>
                   <code>settings:*</code>, <code>broadcast:*</code>, <code>tasks:*</code>
                 </td>
               </tr>
               <tr style={{ borderBottom: '1px solid #334155' }}>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>Auditor</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.auditorDesc}</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>
+                  {dict.rolesMatrix.auditorDesc}
+                </td>
                 <td style={{ padding: '0.75rem', color: '#fbbf24' }}>
                   <code>audit:read</code>, <code>audit:export</code>, <code>telemetry:read</code>
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '0.75rem', fontWeight: 600 }}>EndUser</td>
-                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>{dict.rolesMatrix.endUserDesc}</td>
+                <td style={{ padding: '0.75rem', color: '#cbd5e1' }}>
+                  {dict.rolesMatrix.endUserDesc}
+                </td>
                 <td style={{ padding: '0.75rem', color: '#94a3b8' }}>
                   <code>bot:interact</code>, <code>tma:access</code>
                 </td>

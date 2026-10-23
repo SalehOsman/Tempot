@@ -1,4 +1,4 @@
-import { ar, type DashboardLocaleDictionary } from './ar.js';
+import { type DashboardLocaleDictionary, ar } from './ar.js';
 import { en } from './en.js';
 
 export * from './ar.js';

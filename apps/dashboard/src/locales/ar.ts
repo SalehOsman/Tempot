@@ -78,7 +78,8 @@ export const ar: DashboardLocaleDictionary = {
   },
   rolesMatrix: {
     title: 'مصفوفة الصلاحيات الهجينة (Hybrid RBCA)',
-    subtitle: 'الكود البرمجي يتحقق حصراً من الصلاحيات الذرية عبر ctx.can دون أي ارتباط صلب بمسميات الأدوار.',
+    subtitle:
+      'الكود البرمجي يتحقق حصراً من الصلاحيات الذرية عبر ctx.can دون أي ارتباط صلب بمسميات الأدوار.',
     thRole: 'الدور القياسي',
     thDesc: 'الوصف',
     thCaps: 'الصلاحيات الممنوحة',
