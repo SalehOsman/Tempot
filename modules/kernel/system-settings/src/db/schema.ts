@@ -1,8 +1,4 @@
-import {
-  auditTimestamps,
-  multiTenancyColumns,
-  softDeleteColumns,
-} from '@tembot/db-kernel';
+import { auditTimestamps, multiTenancyColumns, softDeleteColumns } from '@tembot/db-kernel';
 import { boolean, integer, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 
 /**

@@ -86,6 +86,43 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  modules/kernel/system-settings:
+    dependencies:
+      '@tembot/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      '@tembot/core-components':
+        specifier: workspace:*
+        version: link:../../../packages/core-components
+      '@tembot/db-kernel':
+        specifier: workspace:*
+        version: link:../../../packages/db-kernel
+      '@tembot/kernel-registry':
+        specifier: workspace:*
+        version: link:../../../packages/kernel-registry
+      '@tembot/logger':
+        specifier: workspace:*
+        version: link:../../../packages/logger
+      '@tembot/module-audit-log':
+        specifier: workspace:*
+        version: link:../audit-log
+      '@tembot/shared-types':
+        specifier: workspace:*
+        version: link:../../../packages/shared-types
+      drizzle-orm:
+        specifier: ^0.39.3
+        version: 0.39.3(@types/pg@8.23.1)(pg@8.23.1)
+      neverthrow:
+        specifier: ^8.2.0
+        version: 8.2.0
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/ai-core:
     dependencies:
       '@tembot/shared-types':
