@@ -13,9 +13,11 @@ export const en: BotLocaleDictionary = {
     openNowInlineButton: '🚀 Tap here to launch Mini App now',
     directOpenInstruction: 'Tap the button below to launch the Mini App directly inside Telegram:',
     httpsRequiredTitle: '📱 <b>Telegram Mini App (TMA)</b>',
-    httpsRequiredBody: 'Telegram strictly requires a secure <b>HTTPS</b> URL to launch popup windows inside the app.',
+    httpsRequiredBody:
+      'Telegram strictly requires a secure <b>HTTPS</b> URL to launch popup windows inside the app.',
     localPreviewLabel: '🔗 <b>Browser Preview URL:</b>',
-    productionTip: '💡 <i>When deploying or running a tunnel (ngrok/cloudflared), configure the URL in TMA_URL to open with 1-tap.</i>',
+    productionTip:
+      '💡 <i>When deploying or running a tunnel (ngrok/cloudflared), configure the URL in TMA_URL to open with 1-tap.</i>',
   },
   settings: {
     buttonHears: ['⚙️ Settings', 'Settings', '/settings', '⚙️ الإعدادات', 'الإعدادات'],

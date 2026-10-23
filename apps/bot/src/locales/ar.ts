@@ -36,9 +36,11 @@ export const ar: BotLocaleDictionary = {
     openNowInlineButton: '🚀 اضغط هنا لفتح الميني اب الآن',
     directOpenInstruction: 'اضغط على الزر أدناه لفتح واجهة التطبيق مباشرة داخل التليجرام:',
     httpsRequiredTitle: '📱 <b>تطبيق التليجرام المصغر (TMA)</b>',
-    httpsRequiredBody: 'يشترط تيليجرام رابطاً آمناً <b>HTTPS</b> لفتح النوافذ المنبثقة مباشرة داخل التطبيق.',
+    httpsRequiredBody:
+      'يشترط تيليجرام رابطاً آمناً <b>HTTPS</b> لفتح النوافذ المنبثقة مباشرة داخل التطبيق.',
     localPreviewLabel: '🔗 <b>رابط المعاينة المحلية بالمتصفح:</b>',
-    productionTip: '💡 <i>عند رفع المنصة لسيرفر أو تشغيل نفق محلي (ngrok/cloudflared)، ضع الرابط في متغير TMA_URL وسيفتح داخل التليجرام بضغطة زر.</i>',
+    productionTip:
+      '💡 <i>عند رفع المنصة لسيرفر أو تشغيل نفق محلي (ngrok/cloudflared)، ضع الرابط في متغير TMA_URL وسيفتح داخل التليجرام بضغطة زر.</i>',
   },
   settings: {
     buttonHears: ['⚙️ الإعدادات', 'الإعدادات', '/settings'],

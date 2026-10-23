@@ -1,4 +1,4 @@
-import { ar, type BotLocaleDictionary } from './ar.js';
+import { type BotLocaleDictionary, ar } from './ar.js';
 import { en } from './en.js';
 
 export * from './ar.js';
