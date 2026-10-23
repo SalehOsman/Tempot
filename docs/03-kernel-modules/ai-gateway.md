@@ -3,6 +3,7 @@
 > **Architectural Paradigm:** Dual-Tier System One + System Two Cognitive Engine  
 > **System One Engine:** TypeSafe AI `jev` (Deterministic Probabilistic Decision Engine)  
 > **System Two Engine:** Generative LLMs (Google Gemini 2.5 Flash/Pro, DeepSeek-V3 / R1)  
+> **Resilience & Key Failover:** Automatic Multi-Key Rotation (`ApiKeyRotator`) with Cooldown & Fallback  
 > **Authority & Registry:** `modules/kernel/ai-gateway`
 
 ---
@@ -17,7 +18,10 @@ The `ai-gateway` module provides an enterprise-grade, omnichannel AI control pla
 2. **System Two Generative Synthesis (Gemini & DeepSeek):**
    * Contextual multi-turn conversational replies in the Telegram Bot and TMA.
    * Content summarization, language translation, and complex business drafting.
-3. **Cost, Quota & Token Accounting:**
+3. **Resilient Multi-Key Pool & Automatic Rotation (`ApiKeyRotator`):**
+   * Support for registering multiple API keys per provider.
+   * When an API key hits rate limits or quota exhaustion (HTTP 429), it automatically marks the key for cooldown and rotates to the next available healthy key transparently without failing user transactions.
+4. **Cost, Quota & Token Accounting:**
    * Tracking per-user, per-slice, and per-tenant token usage and financial cost in PostgreSQL.
    * Web Admin Dashboard views for live model latency, fallback events, and spend analytics.
 
@@ -31,13 +35,14 @@ flowchart TD
     
     subgraph SystemOne ["Tier 1: TypeSafe AI jev (System One Engine)"]
         JevEngine["jev Decision Engine\n(Fast Parallel Pass)"]
-        JevIntent["Intent Classification & Entity Scoring"]
         JevGuard["Security, Injection & PII Masking"]
+        JevIntent["Intent Classification & Entity Scoring"]
         JevConfidence{"Confidence $\ge$ Threshold?"}
     end
 
     subgraph SystemTwo ["Tier 2: Generative LLMs (System Two Engine)"]
-        Router["Model Router & Fallback Chain"]
+        Router["Model Router & Failover Engine"]
+        Rotator["ApiKeyRotator\n(Automatic Key Pool Failover on 429)"]
         Gemini["Google Gemini 2.5 (Flash / Pro)"]
         DeepSeek["DeepSeek-V3 / R1"]
     end
@@ -54,8 +59,9 @@ flowchart TD
     JevConfidence -->|"High Confidence Direct Action"| SliceAction["Direct Slice Execution\n(e.g., Cancel Order, Check Balance)"]
     JevConfidence -->|"Requires Generative Synthesis"| Router
 
-    Router --> Gemini
-    Router -.->|"Fallback / Complex Reasoning"| DeepSeek
+    Router --> Rotator
+    Rotator --> Gemini
+    Rotator -.->|"All Keys Exhausted / Reasoning Needed"| DeepSeek
 
     Gemini --> UsageLogger
     DeepSeek --> UsageLogger
@@ -77,7 +83,7 @@ export interface AiGatewayPort {
   ): Promise<Result<JevDecisionResult<TSchema>, AiGatewayError>>;
 
   /**
-   * System Two: Generative response synthesis with automatic fallback.
+   * System Two: Generative response synthesis with automatic multi-key rotation.
    */
   generateResponse(
     request: AiGenerationRequest,
@@ -88,4 +94,4 @@ export interface AiGatewayPort {
 Exposed Capabilities:
 - `ai:evaluate`: Run System One decision scoring via `jev`.
 - `ai:generate`: Run generative LLM workflows via Gemini/DeepSeek.
-- `ai:manage`: Configure model keys, fallback chains, and view usage metrics in the Admin Dashboard.
+- `ai:manage`: Configure model keys, key pools, fallback chains, and view usage metrics in the Admin Dashboard.
