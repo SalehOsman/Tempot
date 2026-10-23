@@ -12,6 +12,8 @@
     "tma:dev": "pnpm --filter @tembot/app-tma dev",
     "tunnel": "npx ngrok start --all --config ./ngrok.yml",
     "docker:up": "docker compose up -d",
+    "docker:infra": "docker compose up -d postgres redis minio",
+    "docker:build": "docker compose build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "build": "turbo run build",

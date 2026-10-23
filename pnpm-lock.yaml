@@ -131,8 +131,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-types
       drizzle-orm:
-        specifier: ^0.39.3
-        version: 0.39.3(@types/pg@8.23.1)(pg@8.23.1)
+        specifier: ^0.45.3
+        version: 0.45.4(@types/pg@8.23.1)(pg@8.23.1)
       hono:
         specifier: ^4.7.2
         version: 4.13.13
