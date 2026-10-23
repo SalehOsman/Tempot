@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import { getTmaLocale } from './locales/index.js';
 
 interface TelegramUser {
   id: number;
@@ -36,7 +37,10 @@ const API_BASE_URL =
   'http://localhost:4000';
 
 export function TmaApp() {
-  const [authStatus, setAuthStatus] = useState<string>('جاري التحقق التشفيري...');
+  const [currentLocale, setCurrentLocale] = useState<'ar' | 'en'>('ar');
+  const dict = getTmaLocale(currentLocale);
+  const [authStatus, setAuthStatus] = useState<string>(dict.auth.verifying);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [isTelegramEnv, setIsTelegramEnv] = useState<boolean>(false);
   const [serverConnected, setServerConnected] = useState<boolean>(false);
@@ -59,38 +63,48 @@ export function TmaApp() {
           .then((res) => (res.ok ? res.json() : null))
           .then((data) => {
             if (data && data.status === 'authenticated') {
-              setAuthStatus('موثق تشفيرياً عبر HMAC-SHA256 🛡️');
+              setAuthStatus(dict.auth.verified);
+              setIsVerified(true);
               setUser(data.user);
+              if (data.user?.language_code === 'en') {
+                setCurrentLocale('en');
+              }
               setServerConnected(true);
             } else {
-              setAuthStatus('فشل التحقق من التوقيع التشفيري ⚠️');
+              setAuthStatus(dict.auth.failed);
+              setIsVerified(false);
             }
           })
           .catch(() => {
-            setAuthStatus('وضع المعاينة المحلي (الخادم غير متصل)');
+            setAuthStatus(dict.auth.offlinePreview);
+            setIsVerified(false);
             if (tg.initDataUnsafe?.user) {
               setUser(tg.initDataUnsafe.user);
             }
           });
       } else {
-        setAuthStatus('وضع التطوير خارج التليجرام (Browser Standalone)');
+        setAuthStatus(dict.auth.browserDev);
+        setIsVerified(false);
         setUser({
           id: 77889900,
-          first_name: 'مطور تجريبي',
+          first_name: dict.auth.mockUserName,
           username: 'dev_user',
           language_code: 'ar',
         });
       }
     } else {
-      setAuthStatus('وضع المعاينة (خارج بيئة التليجرام)');
+      setAuthStatus(dict.auth.browserPreview);
+      setIsVerified(false);
       setUser({
         id: 77889900,
-        first_name: 'مطور تجريبي',
+        first_name: dict.auth.mockUserName,
         username: 'dev_user',
         language_code: 'ar',
       });
     }
-  }, []);
+  }, [dict]);
+
+  const isRtl = currentLocale === 'ar';
 
   return (
     <div
@@ -99,7 +113,7 @@ export function TmaApp() {
         padding: '1.25rem',
         maxWidth: '480px',
         margin: '0 auto',
-        direction: 'rtl',
+        direction: isRtl ? 'rtl' : 'ltr',
         minHeight: '100vh',
         boxSizing: 'border-box',
       }}
@@ -117,21 +131,21 @@ export function TmaApp() {
       >
         <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📱</div>
         <h1 style={{ margin: 0, fontSize: '1.4rem', color: '#38bdf8', fontWeight: 700 }}>
-          تطبيق التليجرام المصغر (TMA)
+          {dict.header.title}
         </h1>
         <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-          Tembot Sovereign Telegram Mini App
+          {dict.header.subtitle}
         </p>
       </div>
 
       {/* Security Authentication Status Badge */}
       <div
         style={{
-          background: authStatus.includes('موثق') ? '#064e3b' : '#1e293b',
-          color: authStatus.includes('موثق') ? '#34d399' : '#cbd5e1',
+          background: isVerified ? '#064e3b' : '#1e293b',
+          color: isVerified ? '#34d399' : '#cbd5e1',
           padding: '0.75rem 1rem',
           borderRadius: '10px',
-          border: `1px solid ${authStatus.includes('موثق') ? '#059669' : '#475569'}`,
+          border: `1px solid ${isVerified ? '#059669' : '#475569'}`,
           fontSize: '0.85rem',
           fontWeight: 600,
           display: 'flex',
@@ -140,7 +154,7 @@ export function TmaApp() {
           marginBottom: '1.25rem',
         }}
       >
-        <span>حالة الأمان:</span>
+        <span>{dict.auth.statusLabel}</span>
         <span>{authStatus}</span>
       </div>
 
@@ -156,7 +170,7 @@ export function TmaApp() {
           }}
         >
           <h2 style={{ fontSize: '1rem', margin: '0 0 1rem', color: '#f8fafc', fontWeight: 600 }}>
-            👤 بيانات المستخدم الموثقة:
+            {dict.userCard.title}
           </h2>
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem' }}
@@ -169,7 +183,7 @@ export function TmaApp() {
                 paddingBottom: '0.35rem',
               }}
             >
-              <span style={{ color: '#94a3b8' }}>الاسم:</span>
+              <span style={{ color: '#94a3b8' }}>{dict.userCard.nameLabel}</span>
               <strong style={{ color: '#f1f5f9' }}>
                 {user.first_name} {user.last_name ?? ''}
               </strong>
@@ -182,7 +196,7 @@ export function TmaApp() {
                 paddingBottom: '0.35rem',
               }}
             >
-              <span style={{ color: '#94a3b8' }}>المعرف (ID):</span>
+              <span style={{ color: '#94a3b8' }}>{dict.userCard.idLabel}</span>
               <code
                 style={{
                   background: '#0f172a',
@@ -203,12 +217,12 @@ export function TmaApp() {
                   paddingBottom: '0.35rem',
                 }}
               >
-                <span style={{ color: '#94a3b8' }}>اسم المستخدم:</span>
+                <span style={{ color: '#94a3b8' }}>{dict.userCard.usernameLabel}</span>
                 <span style={{ color: '#38bdf8' }}>@{user.username}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#94a3b8' }}>لغة الواجهة:</span>
+              <span style={{ color: '#94a3b8' }}>{dict.userCard.langLabel}</span>
               <span style={{ color: '#f1f5f9' }}>{user.language_code ?? 'ar'}</span>
             </div>
           </div>
@@ -227,23 +241,29 @@ export function TmaApp() {
         }}
       >
         <p style={{ margin: '0 0 0.5rem', fontWeight: 600, color: '#cbd5e1' }}>
-          ⚙️ مواصفات السطح المشغل:
+          {dict.environment.title}
         </p>
         <ul
           style={{
             margin: 0,
-            paddingRight: '1.25rem',
+            paddingRight: isRtl ? '1.25rem' : '0',
+            paddingLeft: isRtl ? '0' : '1.25rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '0.25rem',
           }}
         >
           <li>
-            البيئة الحالية: {isTelegramEnv ? 'داخل التليجرام (Telegram WebApp)' : 'متصفح ويب خارجي'}
+            {dict.environment.currentEnvLabel}{' '}
+            {isTelegramEnv ? dict.environment.envTelegram : dict.environment.envBrowser}
           </li>
-          <li>اتصال البوابة: {serverConnected ? 'متصل بالبوابة port 3000' : 'محلي'}</li>
           <li>
-            محرك الصلاحيات: <code>tma:access</code> (نشط)
+            {dict.environment.gatewayConnectionLabel}{' '}
+            {serverConnected ? dict.environment.connectedPort : dict.environment.localMode}
+          </li>
+          <li>
+            {dict.environment.capabilityEngineLabel} <code>tma:access</code> (
+            {dict.environment.activeStatus})
           </li>
         </ul>
       </div>
