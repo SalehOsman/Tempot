@@ -20,6 +20,7 @@ export interface BotLocaleDictionary {
     readonly initializing: string;
     readonly openFailed: string;
     readonly callbackInitializing: string;
+    readonly localeChanged: string;
   };
 }
 
@@ -47,5 +48,6 @@ export const ar: BotLocaleDictionary = {
     initializing: '⚙️ نظام الإعدادات قيد التهيئة...',
     openFailed: 'تعذر فتح قائمة الإعدادات حالياً.',
     callbackInitializing: 'النظام قيد التهيئة',
+    localeChanged: '✅ تم تغيير اللغة إلى العربية بنجاح.',
   },
 };

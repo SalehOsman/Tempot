@@ -230,6 +230,22 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     } catch {
       // In case editMessageText is identical or impossible
     }
+
+    if (data === SETTINGS_CALLBACKS.SET_LOCALE_AR || data === SETTINGS_CALLBACKS.SET_LOCALE_EN) {
+      const targetLocale = data === SETTINGS_CALLBACKS.SET_LOCALE_AR ? 'ar' : 'en';
+      const targetDict = getBotLocale(targetLocale);
+      const isRtl = targetLocale === 'ar';
+      try {
+        await ctx.reply(targetDict.settings.localeChanged, {
+          reply_markup: buildPersistentReplyKeyboard({
+            tmaUrl: deps.tmaUrl,
+            isRtl,
+          }),
+        });
+      } catch {
+        // ignore
+      }
+    }
   });
 
   return bot;

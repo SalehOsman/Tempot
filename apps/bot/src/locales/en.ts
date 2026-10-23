@@ -24,5 +24,6 @@ export const en: BotLocaleDictionary = {
     initializing: '⚙️ Settings engine is initializing...',
     openFailed: 'Unable to open settings menu at this time.',
     callbackInitializing: 'System is initializing',
+    localeChanged: '✅ Language switched to English successfully.',
   },
 };
