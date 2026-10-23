@@ -4,7 +4,12 @@ import type { AuditService } from '@tembot/module-audit-log';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { PgDatabase } from 'drizzle-orm/pg-core';
 import { type Result, err, ok } from 'neverthrow';
-import { type SystemSettingsRecord, systemSettings } from '../db/schema.js';
+import {
+  type SystemSettingsRecord,
+  type TelegramUserRecord,
+  systemSettings,
+  telegramUsers,
+} from '../db/schema.js';
 import {
   type BotSurfaceSettings,
   type DashboardSurfaceSettings,
@@ -48,6 +53,7 @@ export interface SettingsServiceConfig {
 export class SettingsService {
   private readonly cache = new Map<string, { data: SystemSettingsRecord; expiresAt: number }>();
   private readonly inMemoryStore = new Map<string, SystemSettingsRecord>();
+  private readonly userLocalesInMemory = new Map<string, 'ar' | 'en'>();
   private readonly cacheTtlMs: number;
   private readonly cacheInvalidator?: CacheInvalidator;
   private readonly invalidationChannel: string;
@@ -254,5 +260,114 @@ export class SettingsService {
     const res = await this.getSurfaceSettings(tenantId, surface);
     if (res.isErr()) return false;
     return res.value.isMaintenance;
+  }
+
+  /**
+   * Retrieves user-specific locale preference (INC-20261023-02).
+   * If unset, falls back to tenant default locale.
+   */
+  async getUserLocale(
+    tenantId: string,
+    telegramUserId: string,
+  ): Promise<Result<'ar' | 'en', SettingsError>> {
+    try {
+      const memoryKey = `${tenantId}:${telegramUserId}`;
+      const cached = this.userLocalesInMemory.get(memoryKey);
+      if (cached) {
+        return ok(cached);
+      }
+
+      if (this.db) {
+        const [found] = await this.db
+          .select()
+          .from(telegramUsers)
+          .where(
+            and(
+              eq(telegramUsers.tenantId, tenantId),
+              eq(telegramUsers.telegramUserId, telegramUserId),
+            ),
+          )
+          .limit(1);
+
+        if (found) {
+          this.userLocalesInMemory.set(memoryKey, found.locale as 'ar' | 'en');
+          return ok(found.locale as 'ar' | 'en');
+        }
+      }
+
+      // Fallback to tenant default locale
+      const settingsRes = await this.getSettings(tenantId);
+      if (settingsRes.isOk()) {
+        return ok(settingsRes.value.defaultLocale as 'ar' | 'en');
+      }
+
+      return ok('en');
+    } catch (error) {
+      settingsLogger.warn(
+        { error, tenantId, telegramUserId },
+        'Failed to fetch user locale, fallback to tenant default',
+      );
+      return ok('en');
+    }
+  }
+
+  /**
+   * Sets user-specific locale preference without mutating tenant-wide default (INC-20261023-02).
+   */
+  async setUserLocale(
+    tenantId: string,
+    telegramUserId: string,
+    locale: 'ar' | 'en',
+    actorDetails: { username?: string; firstName?: string } = {},
+  ): Promise<Result<void, SettingsError>> {
+    try {
+      const memoryKey = `${tenantId}:${telegramUserId}`;
+      this.userLocalesInMemory.set(memoryKey, locale);
+
+      if (this.db) {
+        const [existing] = await this.db
+          .select()
+          .from(telegramUsers)
+          .where(
+            and(
+              eq(telegramUsers.tenantId, tenantId),
+              eq(telegramUsers.telegramUserId, telegramUserId),
+            ),
+          )
+          .limit(1);
+
+        if (existing) {
+          await this.db
+            .update(telegramUsers)
+            .set({
+              locale,
+              username: actorDetails.username ?? existing.username,
+              firstName: actorDetails.firstName ?? existing.firstName,
+              updatedAt: new Date(),
+            })
+            .where(eq(telegramUsers.id, existing.id));
+        } else {
+          await this.db.insert(telegramUsers).values({
+            tenantId,
+            telegramUserId,
+            locale,
+            username: actorDetails.username,
+            firstName: actorDetails.firstName,
+          });
+        }
+      }
+
+      return ok(undefined);
+    } catch (error) {
+      settingsLogger.error(
+        { error, tenantId, telegramUserId },
+        'Failed to persist user locale preference',
+      );
+      return err(
+        new SettingsError('UPDATE_FAILED', 'Failed to update user locale preference', 500, {
+          originalError: String(error),
+        }),
+      );
+    }
   }
 }

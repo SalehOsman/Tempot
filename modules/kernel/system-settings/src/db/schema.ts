@@ -39,3 +39,20 @@ export const systemSettings = pgTable('system_settings', {
 
 export type SystemSettingsRecord = typeof systemSettings.$inferSelect;
 export type NewSystemSettingsRecord = typeof systemSettings.$inferInsert;
+
+/**
+ * Sovereign Per-User Telegram Preferences & Identity Schema.
+ * Addresses INC-20261023-02: isolates per-user language preference.
+ */
+export const telegramUsers = pgTable('telegram_users', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  ...multiTenancyColumns,
+  telegramUserId: text('telegram_user_id').notNull(),
+  username: text('username'),
+  firstName: text('first_name'),
+  locale: text('locale').$type<'ar' | 'en'>().default('en').notNull(),
+  ...auditTimestamps,
+});
+
+export type TelegramUserRecord = typeof telegramUsers.$inferSelect;
+export type NewTelegramUserRecord = typeof telegramUsers.$inferInsert;
