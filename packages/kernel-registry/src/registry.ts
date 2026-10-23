@@ -1,5 +1,5 @@
 import { Result, ok, err, DomainError } from '@tembot/shared-types';
-import type { ModuleManifest, TembotModule } from './manifest.js';
+import type { TembotModule } from './manifest.js';
 
 export class RegistryError extends DomainError {
   public readonly code = 'REGISTRY_ERROR';
@@ -85,7 +85,7 @@ export class KernelRegistry {
     for (const id of this.modules.keys()) {
       if (!visited.has(id)) {
         const res = dfs(id);
-        if (res.isErr()) return res;
+        if (res.isErr()) return err(res.error);
       }
     }
 
