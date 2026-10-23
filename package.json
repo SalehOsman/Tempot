@@ -6,6 +6,13 @@
   "packageManager": "pnpm@10.5.2",
   "scripts": {
     "dev": "turbo run dev --parallel",
+    "server:dev": "pnpm --filter @tembot/app-server dev",
+    "bot:dev": "pnpm --filter @tembot/app-bot dev",
+    "dashboard:dev": "pnpm --filter @tembot/app-dashboard dev",
+    "tma:dev": "pnpm --filter @tembot/app-tma dev",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
     "build": "turbo run build",
     "test": "vitest run",
     "test:integration": "turbo run test:integration",
