@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ok, ValidationError, InternalServerError } from '@tembot/shared-types';
-import { ErrorRecorder } from '../src/application/error-recorder.js';
+import { InternalServerError, ValidationError, ok } from '@tembot/shared-types';
+import { describe, expect, it, vi } from 'vitest';
 import type { AuditService } from '../src/application/audit-service.js';
+import { ErrorRecorder } from '../src/application/error-recorder.js';
 
 describe('ErrorRecorder Specification', () => {
   it('serializes DomainError with status code, error code, and details', async () => {
@@ -9,7 +9,7 @@ describe('ErrorRecorder Specification', () => {
       ok({
         id: 'log-1',
         status: 'FAILURE',
-      })
+      }),
     );
 
     const mockAuditService = {

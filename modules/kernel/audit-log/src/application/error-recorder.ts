@@ -1,9 +1,9 @@
-import type { Result } from 'neverthrow';
-import { DomainError } from '@tembot/shared-types';
 import { createChildLogger } from '@tembot/logger';
-import type { AuditService } from './audit-service.js';
+import { DomainError } from '@tembot/shared-types';
+import type { Result } from 'neverthrow';
 import type { AuditLogRecord } from '../db/schema.js';
-import type { CaptureErrorInput, AuditError } from '../domain/types.js';
+import type { AuditError, CaptureErrorInput } from '../domain/types.js';
+import type { AuditService } from './audit-service.js';
 
 const errorLogger = createChildLogger({ module: 'audit-log', slice: 'error-recorder' });
 
@@ -14,9 +14,7 @@ export class ErrorRecorder {
    * Captures an error, sanitizes diagnostic details, logs a structured error,
    * and persists a forensic audit trail entry.
    */
-  async captureError(
-    input: CaptureErrorInput
-  ): Promise<Result<AuditLogRecord, AuditError>> {
+  async captureError(input: CaptureErrorInput): Promise<Result<AuditLogRecord, AuditError>> {
     const errorDetails = this.serializeError(input.error);
 
     errorLogger.error(
@@ -26,7 +24,7 @@ export class ErrorRecorder {
         actorId: input.actorId,
         errorDetails,
       },
-      `Forensic Error Captured: [${input.action}]`
+      `Forensic Error Captured: [${input.action}]`,
     );
 
     return this.auditService.record({

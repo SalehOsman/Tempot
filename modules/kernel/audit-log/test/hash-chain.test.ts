@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { computeAuditHash, GENESIS_HASH } from '../src/domain/hash-chain.js';
+import { describe, expect, it } from 'vitest';
+import { GENESIS_HASH, computeAuditHash } from '../src/domain/hash-chain.js';
 
 describe('Audit Hash Chaining Specification', () => {
   it('computes deterministic SHA-256 hash for audit events', () => {

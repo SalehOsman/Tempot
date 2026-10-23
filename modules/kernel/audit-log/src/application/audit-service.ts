@@ -1,29 +1,25 @@
-import { eq, desc, asc } from 'drizzle-orm';
-import type { PgDatabase } from 'drizzle-orm/pg-core';
-import { ok, err, type Result } from 'neverthrow';
 import { createChildLogger } from '@tembot/logger';
-import { auditLogs, type AuditLogRecord } from '../db/schema.js';
-import {
-  computeAuditHash,
-  GENESIS_HASH,
-} from '../domain/hash-chain.js';
+import { asc, desc, eq } from 'drizzle-orm';
+import type { PgDatabase } from 'drizzle-orm/pg-core';
+import { type Result, err, ok } from 'neverthrow';
+import { type AuditLogRecord, auditLogs } from '../db/schema.js';
+import { GENESIS_HASH, computeAuditHash } from '../domain/hash-chain.js';
 import {
   AuditError,
-  type CreateAuditEventInput,
   type AuditIntegrityReport,
+  type CreateAuditEventInput,
 } from '../domain/types.js';
 
 const auditLogger = createChildLogger({ module: 'audit-log', slice: 'service' });
 
 export class AuditService {
+  // biome-ignore lint/suspicious/noExplicitAny: Drizzle schema container accepts any schema mapping
   constructor(private readonly db: PgDatabase<any>) {}
 
   /**
    * Appends an immutable audit event to the cryptographic ledger.
    */
-  async record(
-    input: CreateAuditEventInput
-  ): Promise<Result<AuditLogRecord, AuditError>> {
+  async record(input: CreateAuditEventInput): Promise<Result<AuditLogRecord, AuditError>> {
     try {
       // 1. Fetch latest audit entry for this tenant to acquire previous hash
       const latestEntries = await this.db
@@ -78,7 +74,7 @@ export class AuditService {
           tenantId: inserted.tenantId,
           hash: inserted.hash,
         },
-        'Audit event appended to ledger'
+        'Audit event appended to ledger',
       );
 
       return ok(inserted);
@@ -89,8 +85,8 @@ export class AuditService {
           'AUDIT_RECORD_FAILED',
           'Failed to record audit event into immutable ledger',
           500,
-          { input, originalError: String(error) }
-        )
+          { input, originalError: String(error) },
+        ),
       );
     }
   }
@@ -98,9 +94,7 @@ export class AuditService {
   /**
    * Cryptographically verifies the unbroken continuity of the audit trail.
    */
-  async verifyChain(
-    tenantId: string
-  ): Promise<Result<AuditIntegrityReport, AuditError>> {
+  async verifyChain(tenantId: string): Promise<Result<AuditIntegrityReport, AuditError>> {
     try {
       const records = await this.db
         .select()
@@ -167,8 +161,8 @@ export class AuditService {
           'AUDIT_VERIFICATION_FAILED',
           'Failed to complete cryptographic verification of audit ledger',
           500,
-          { tenantId, originalError: String(error) }
-        )
+          { tenantId, originalError: String(error) },
+        ),
       );
     }
   }

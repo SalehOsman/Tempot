@@ -8,12 +8,7 @@ export class AuditError extends DomainError {
   public readonly code: string;
   public readonly httpStatus: number;
 
-  constructor(
-    code: string,
-    message: string,
-    httpStatus = 500,
-    details?: unknown
-  ) {
+  constructor(code: string, message: string, httpStatus = 500, details?: unknown) {
     super(message, details);
     this.code = code;
     this.httpStatus = httpStatus;
