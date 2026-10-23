@@ -27,9 +27,13 @@ function walk(dir) {
     } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) {
       // Exclude dedicated locale catalogs and unit test files (which may test localized fixtures)
       const normalizedPath = full.replace(/\\/g, '/');
-      const isLocaleFile = normalizedPath.includes('/locales/') || normalizedPath.endsWith('locales.ts');
-      const isTestFile = normalizedPath.includes('/test/') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.spec.ts');
-      
+      const isLocaleFile =
+        normalizedPath.includes('/locales/') || normalizedPath.endsWith('locales.ts');
+      const isTestFile =
+        normalizedPath.includes('/test/') ||
+        normalizedPath.endsWith('.test.ts') ||
+        normalizedPath.endsWith('.spec.ts');
+
       if (!isLocaleFile && !isTestFile) {
         results.push(full);
       }
@@ -61,13 +65,19 @@ for (const dir of targetDirs) {
 
 if (violations.length > 0) {
   console.error('\n❌ SOVEREIGN HARNESS AUDIT FAILURE: Taboo 11 Violation Detected!');
-  console.error(`Found ${violations.length} hardcoded natural language string literals in source code outside locales:\n`);
+  console.error(
+    `Found ${violations.length} hardcoded natural language string literals in source code outside locales:\n`,
+  );
   for (const v of violations) {
     console.error(`  - ${v.file}:${v.line} -> ${v.content}`);
   }
-  console.error('\nAll natural language strings must reside in typed locales/ catalogs (ar.ts, en.ts).');
+  console.error(
+    '\nAll natural language strings must reside in typed locales/ catalogs (ar.ts, en.ts).',
+  );
   process.exit(1);
 } else {
-  console.log('✅ SOVEREIGN HARNESS PASS: Zero hardcoded strings detected outside locales/ catalogs.');
+  console.log(
+    '✅ SOVEREIGN HARNESS PASS: Zero hardcoded strings detected outside locales/ catalogs.',
+  );
   process.exit(0);
 }

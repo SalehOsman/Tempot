@@ -59,10 +59,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     });
 
     if (deps.tmaUrl?.startsWith('https://')) {
-      const inlineKb = new InlineKeyboard().webApp(
-        dict.greeting.openTmaInlineButton,
-        deps.tmaUrl,
-      );
+      const inlineKb = new InlineKeyboard().webApp(dict.greeting.openTmaInlineButton, deps.tmaUrl);
       await ctx.reply(dict.greeting.openTmaDirectPrompt, {
         reply_markup: inlineKb,
       });
@@ -76,10 +73,7 @@ export function createBot(token: string, deps: BotDependencies = {}) {
   bot.hears([...defaultDict.tma.buttonHears], async (ctx: Context) => {
     const dict = getBotLocale('ar');
     if (deps.tmaUrl?.startsWith('https://')) {
-      const inlineKb = new InlineKeyboard().webApp(
-        dict.tma.openNowInlineButton,
-        deps.tmaUrl,
-      );
+      const inlineKb = new InlineKeyboard().webApp(dict.tma.openNowInlineButton, deps.tmaUrl);
       await ctx.reply(
         `${dict.tma.readyTitle}\n\n${dict.tma.directOpenInstruction}\n🔗 <code>${deps.tmaUrl}</code>`,
         {

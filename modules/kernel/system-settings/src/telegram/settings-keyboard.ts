@@ -161,7 +161,12 @@ export function renderMaintenanceMenuPage(
       { text: dict.maintenance.toggleBotButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_BOT },
       { text: dict.maintenance.toggleTmaButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_TMA },
     ],
-    [{ text: dict.maintenance.toggleGlobalButton, callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_GLOBAL }],
+    [
+      {
+        text: dict.maintenance.toggleGlobalButton,
+        callbackData: SETTINGS_CALLBACKS.TOGGLE_MAINT_GLOBAL,
+      },
+    ],
     [{ text: dict.maintenance.backButton, callbackData: SETTINGS_CALLBACKS.MAIN }],
   ];
 
@@ -190,9 +195,7 @@ export function renderMaintenanceConfirmCard(
         ? dict.maintenance.tmaSurfaceName
         : dict.maintenance.globalSurfaceName;
 
-  const actionName = targetActive
-    ? dict.maintenance.enableAction
-    : dict.maintenance.disableAction;
+  const actionName = targetActive ? dict.maintenance.enableAction : dict.maintenance.disableAction;
 
   const title = dict.maintenance.confirmTitle;
   const summaryLines = [
