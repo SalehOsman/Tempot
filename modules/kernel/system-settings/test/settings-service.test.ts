@@ -153,4 +153,44 @@ describe('SettingsService & Telegram Flow Specification', () => {
       expect(res.error.httpStatus).toBe(403);
     }
   });
+
+  it('propagates distributed cache invalidation via CacheInvalidator', async () => {
+    let subscriberCallback: ((tenantId: string) => void) | undefined;
+    const publishedMessages: Array<{ channel: string; payload: string }> = [];
+
+    const mockInvalidator = {
+      publishInvalidate: vi.fn().mockImplementation((channel, payload) => {
+        publishedMessages.push({ channel, payload });
+        return Promise.resolve();
+      }),
+      subscribeInvalidate: vi.fn().mockImplementation((_channel, callback) => {
+        subscriberCallback = callback;
+      }),
+    };
+
+    const mockDb = createMockDb();
+    const service = new SettingsService(mockDb, undefined, {
+      cacheInvalidator: mockInvalidator,
+    });
+
+    const tenantId = '00000000-0000-0000-0000-000000000000';
+
+    // 1. Prime cache
+    await service.getSettings(tenantId);
+
+    // 2. Update settings -> should publish invalidation
+    await service.updateSettings(tenantId, { botName: 'UpdatedBot' });
+
+    expect(mockInvalidator.publishInvalidate).toHaveBeenCalledWith(
+      'cache:system-settings',
+      tenantId,
+    );
+    expect(publishedMessages.length).toBe(1);
+
+    // 3. Simulate another pod emitting invalidation via subscriber
+    expect(subscriberCallback).toBeDefined();
+    if (subscriberCallback) {
+      subscriberCallback(tenantId);
+    }
+  });
 });

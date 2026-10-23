@@ -1,3 +1,4 @@
+import type { CacheInvalidator } from '@tembot/contracts';
 import { createChildLogger } from '@tembot/logger';
 import type { AuditService } from '@tembot/module-audit-log';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -17,11 +18,15 @@ const settingsLogger = createChildLogger({ module: 'system-settings', slice: 'se
 
 export interface SettingsServiceConfig {
   readonly cacheTtlMs?: number; // In-memory cache TTL (default: 60,000ms)
+  readonly cacheInvalidator?: CacheInvalidator;
+  readonly invalidationChannel?: string;
 }
 
 export class SettingsService {
   private readonly cache = new Map<string, { data: SystemSettingsRecord; expiresAt: number }>();
   private readonly cacheTtlMs: number;
+  private readonly cacheInvalidator?: CacheInvalidator;
+  private readonly invalidationChannel: string;
 
   constructor(
     // biome-ignore lint/suspicious/noExplicitAny: Drizzle schema container
@@ -30,6 +35,15 @@ export class SettingsService {
     config: SettingsServiceConfig = {},
   ) {
     this.cacheTtlMs = config.cacheTtlMs ?? 60_000;
+    this.cacheInvalidator = config.cacheInvalidator;
+    this.invalidationChannel = config.invalidationChannel ?? 'cache:system-settings';
+
+    if (this.cacheInvalidator) {
+      this.cacheInvalidator.subscribeInvalidate(this.invalidationChannel, (tenantId) => {
+        this.cache.delete(tenantId);
+        settingsLogger.debug({ tenantId }, 'Distributed cache invalidated via pub/sub');
+      });
+    }
   }
 
   /**
@@ -151,6 +165,10 @@ export class SettingsService {
 
       // Invalidate cache immediately
       this.cache.delete(tenantId);
+
+      if (this.cacheInvalidator) {
+        await this.cacheInvalidator.publishInvalidate(this.invalidationChannel, tenantId);
+      }
 
       settingsLogger.info({ tenantId, actorId, input }, 'System settings updated');
 
