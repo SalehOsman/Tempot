@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ChevronRight, Globe, Moon, Settings, Sun, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Globe, Moon, Settings, Sun, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { getTmaLocale } from './locales/index.js';
@@ -10,6 +10,8 @@ interface WindowWithTelegram extends Window {
       ready(): void;
       expand(): void;
       close(): void;
+      setHeaderColor?(color: string): void;
+      setBackgroundColor?(color: string): void;
       BackButton?: {
         show(): void;
         hide(): void;
@@ -18,11 +20,6 @@ interface WindowWithTelegram extends Window {
       };
       HapticFeedback?: {
         impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
-      };
-      themeParams?: {
-        bg_color?: string;
-        text_color?: string;
-        button_color?: string;
       };
     };
   };
@@ -51,14 +48,34 @@ export function TmaApp() {
     document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
   }, [locale, isRtl]);
 
+  // Synchronize theme across DOM, body and Telegram native chrome
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+
+    const tg = window.Telegram?.WebApp;
+    const hexColor = theme === 'dark' ? '#0e1621' : '#f0f2f5';
+
+    if (tg && typeof tg.setHeaderColor === 'function') {
+      try {
+        tg.setHeaderColor(hexColor);
+      } catch {
+        // Optional outside Telegram
+      }
+    }
+    if (tg && typeof tg.setBackgroundColor === 'function') {
+      try {
+        tg.setBackgroundColor(hexColor);
+      } catch {
+        // Optional outside Telegram
+      }
+    }
   }, [theme]);
 
   // Sync Telegram native BackButton
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
-    if (!tg?.BackButton) return;
+    if (!tg?.BackButton) return undefined;
 
     if (currentView === 'settings') {
       tg.BackButton.show();
@@ -123,6 +140,7 @@ export function TmaApp() {
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-4)',
+        minHeight: '100vh',
       }}
     >
       {/* Universal Compact Header */}
@@ -168,7 +186,7 @@ export function TmaApp() {
             </h1>
           </div>
         ) : (
-          /* Settings Header: Back + Title */
+          /* Settings Header: Back Button + Title */
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <button
               type="button"
@@ -245,106 +263,6 @@ export function TmaApp() {
           </button>
         </div>
       </header>
-
-      {/* VIEW: HOME */}
-      {currentView === 'home' && (
-        <main style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <div
-            style={{
-              background: 'var(--color-bg-surface)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-5) var(--space-4)',
-              border: '1px solid var(--color-border)',
-              boxShadow: 'var(--shadow-subtle)',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}
-          >
-            {/* Online Status Pill */}
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-1)',
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-full)',
-                background: 'rgba(34, 197, 94, 0.12)',
-                color: '#22c55e',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                marginBottom: 'var(--space-1)',
-              }}
-            >
-              <span
-                style={{
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#22c55e',
-                }}
-              />
-              <span>{dict.systemReady}</span>
-            </div>
-
-            <h2
-              style={{
-                fontSize: '1.15rem',
-                fontWeight: 700,
-                color: 'var(--color-text-primary)',
-              }}
-            >
-              {dict.homeTitle}
-            </h2>
-            <p
-              style={{
-                fontSize: '0.85rem',
-                color: 'var(--color-text-secondary)',
-                maxWidth: '280px',
-                lineHeight: 1.4,
-              }}
-            >
-              {dict.homeSubtitle}
-            </p>
-
-            {/* Compact Gear Card Shortcut */}
-            <button
-              type="button"
-              onClick={handleOpenSettings}
-              style={{
-                marginTop: 'var(--space-2)',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: 'var(--space-3) var(--space-4)',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-elevated)',
-                color: 'var(--color-text-primary)',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'background var(--transition-fast)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <Settings size={16} style={{ color: 'var(--color-telegram)' }} />
-                <span>{dict.openSettings}</span>
-              </div>
-              <ChevronRight
-                size={16}
-                style={{
-                  color: 'var(--color-text-muted)',
-                  transform: isRtl ? 'rotate(180deg)' : 'none',
-                }}
-              />
-            </button>
-          </div>
-        </main>
-      )}
 
       {/* VIEW: SETTINGS */}
       {currentView === 'settings' && (

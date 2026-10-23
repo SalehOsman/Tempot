@@ -29,36 +29,40 @@
   --radius-full: 9999px;
 }
 
-/* Telegram Dark Theme (Default) */
-[data-theme="dark"] {
-  --color-bg-base: var(--tg-theme-bg-color, #0e1621);
-  --color-bg-surface: var(--tg-theme-secondary-bg-color, #17212b);
-  --color-bg-elevated: #202b36;
-  --color-bg-hover: #24313f;
+/* Telegram True Dark Theme */
+[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  --color-bg-base: #0e1621;
+  --color-bg-surface: #17212b;
+  --color-bg-elevated: #242f3d;
+  --color-bg-hover: #2b394a;
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-active: var(--tg-theme-button-color, #24a1de);
-  --color-text-primary: var(--tg-theme-text-color, #f5f5f5);
-  --color-text-secondary: var(--tg-theme-hint-color, #7f91a4);
+  --color-border-active: #24a1de;
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #7f91a4;
   --color-text-muted: #5f7082;
-  --color-primary: var(--tg-theme-button-color, #24a1de);
-  --color-primary-text: var(--tg-theme-button-text-color, #ffffff);
-  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --color-primary: #24a1de;
+  --color-primary-text: #ffffff;
+  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-/* Telegram Light Theme */
-[data-theme="light"] {
-  --color-bg-base: var(--tg-theme-bg-color, #f0f2f5);
-  --color-bg-surface: var(--tg-theme-secondary-bg-color, #ffffff);
+/* Telegram True Light Theme */
+[data-theme="light"],
+body[data-theme="light"],
+html[data-theme="light"] {
+  --color-bg-base: #f0f2f5;
+  --color-bg-surface: #ffffff;
   --color-bg-elevated: #f4f6f8;
   --color-bg-hover: #e9ecf0;
   --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-active: var(--tg-theme-button-color, #24a1de);
-  --color-text-primary: var(--tg-theme-text-color, #111827);
-  --color-text-secondary: var(--tg-theme-hint-color, #707579);
+  --color-border-active: #24a1de;
+  --color-text-primary: #111827;
+  --color-text-secondary: #707579;
   --color-text-muted: #9aa0a6;
-  --color-primary: var(--tg-theme-button-color, #24a1de);
-  --color-primary-text: var(--tg-theme-button-text-color, #ffffff);
-  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --color-primary: #24a1de;
+  --color-primary-text: #ffffff;
+  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -68,10 +72,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
   font-family: var(--font-family);
-  background-color: var(--color-bg-base);
-  color: var(--color-text-primary);
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-primary) !important;
   line-height: var(--line-height-base);
   min-height: 100vh;
   transition: background-color var(--transition-normal), color var(--transition-normal);

@@ -1,9 +1,5 @@
 export interface TmaLocaleDictionary {
   readonly botName: string;
-  readonly homeTitle: string;
-  readonly homeSubtitle: string;
-  readonly systemReady: string;
-  readonly openSettings: string;
   readonly settingsTitle: string;
   readonly preferencesHeader: string;
   readonly backButton: string;
@@ -20,12 +16,8 @@ export interface TmaLocaleDictionary {
 
 export const ar: TmaLocaleDictionary = {
   botName: 'Tembot',
-  homeTitle: 'مرحباً بك في Tembot',
-  homeSubtitle: 'المساعد الذكي المستقل جاهز لخدمتك',
-  systemReady: 'متصل وجاهز',
-  openSettings: 'فتح الإعدادات',
   settingsTitle: 'الإعدادات',
-  preferencesHeader: 'التفضيلات العامة',
+  preferencesHeader: 'التفضيلات',
   backButton: 'رجوع',
   closeButton: 'إغلاق',
   languageTitle: 'اللغة',

@@ -2,12 +2,8 @@ import type { TmaLocaleDictionary } from './ar.js';
 
 export const en: TmaLocaleDictionary = {
   botName: 'Tembot',
-  homeTitle: 'Welcome to Tembot',
-  homeSubtitle: 'Your sovereign omnichannel assistant is ready',
-  systemReady: 'Online & Ready',
-  openSettings: 'Open Settings',
   settingsTitle: 'Settings',
-  preferencesHeader: 'General Preferences',
+  preferencesHeader: 'Preferences',
   backButton: 'Back',
   closeButton: 'Close',
   languageTitle: 'Language',
