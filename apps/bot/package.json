@@ -1,0 +1,30 @@
+{
+  "name": "@tembot/app-bot",
+  "version": "0.1.0",
+  "description": "Sovereign Telegram Bot Ingress Runner powered by grammY",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@tembot/contracts": "workspace:*",
+    "@tembot/core-components": "workspace:*",
+    "@tembot/logger": "workspace:*",
+    "@tembot/module-access-control": "workspace:*",
+    "@tembot/module-system-settings": "workspace:*",
+    "@tembot/shared-types": "workspace:*",
+    "grammy": "^1.35.0",
+    "neverthrow": "^8.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
