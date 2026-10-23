@@ -1,13 +1,14 @@
 import {
   OperatorLoginSchema,
   TelegramInitDataAuthSchema,
-  UpdateSettingsInputSchema,
+  UpdateSystemSettingsSchema,
 } from '@tembot/contracts';
 import { createChildLogger } from '@tembot/logger';
 import { type AccessService, validateTelegramInitData } from '@tembot/module-access-control';
 import type { SettingsService } from '@tembot/module-system-settings';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 const serverLogger = createChildLogger({ module: 'app-server', slice: 'gateway' });
 
@@ -100,7 +101,7 @@ export function createApp(deps: AppServerDependencies = {}) {
     if (loginRes.isErr()) {
       return c.json(
         { error: loginRes.error.code, message: loginRes.error.message },
-        loginRes.error.statusCode,
+        loginRes.error.statusCode as ContentfulStatusCode,
       );
     }
 
@@ -124,7 +125,10 @@ export function createApp(deps: AppServerDependencies = {}) {
     const res = await deps.settingsService.getSettings(tenantId);
 
     if (res.isErr()) {
-      return c.json({ error: res.error.code, message: res.error.message }, res.error.httpStatus);
+      return c.json(
+        { error: res.error.code, message: res.error.message },
+        res.error.httpStatus as ContentfulStatusCode,
+      );
     }
 
     return c.json({
@@ -143,7 +147,7 @@ export function createApp(deps: AppServerDependencies = {}) {
 
     const tenantId = c.req.header('X-Tenant-ID') ?? defaultTenantId;
     const body = await c.req.json().catch(() => ({}));
-    const parsed = UpdateSettingsInputSchema.safeParse(body);
+    const parsed = UpdateSystemSettingsSchema.safeParse(body);
 
     if (!parsed.success) {
       return c.json({ error: 'VALIDATION_ERROR', details: parsed.error.issues }, 400);
@@ -158,7 +162,7 @@ export function createApp(deps: AppServerDependencies = {}) {
     if (updateRes.isErr()) {
       return c.json(
         { error: updateRes.error.code, message: updateRes.error.message },
-        updateRes.error.httpStatus,
+        updateRes.error.httpStatus as ContentfulStatusCode,
       );
     }
 
