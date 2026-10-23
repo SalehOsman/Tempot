@@ -1,5 +1,21 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { createChildLogger } from '@tembot/logger';
 import { createBot } from './bot.js';
+
+for (const envPath of [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../../.env'),
+]) {
+  if (fs.existsSync(envPath)) {
+    try {
+      process.loadEnvFile(envPath);
+      break;
+    } catch {
+      // Ignore parsing errors
+    }
+  }
+}
 
 const logger = createChildLogger({ module: 'app-bot', slice: 'runner' });
 
