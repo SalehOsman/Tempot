@@ -1,4 +1,5 @@
 import { type InlineButton, validateButtonBudgets } from './budgets.js';
+import { getCoreComponentsLocale } from './locales/index.js';
 
 export interface RichPageOptions {
   title: string;
@@ -60,8 +61,9 @@ export interface ConfirmationOptions {
  */
 export function buildRichConfirmation(options: ConfirmationOptions): RenderedRichMessage {
   const isRtl = options.isRtl ?? true;
-  const confirmText = options.confirmLabel ?? (isRtl ? '✅ تأكيد' : '✅ Confirm');
-  const cancelText = options.cancelLabel ?? (isRtl ? '❌ إلغاء' : '❌ Cancel');
+  const localeDict = getCoreComponentsLocale(isRtl ? 'ar' : 'en');
+  const confirmText = options.confirmLabel ?? localeDict.actions.confirm;
+  const cancelText = options.cancelLabel ?? localeDict.actions.cancel;
 
   const buttons: readonly (readonly InlineButton[])[] = [
     [
