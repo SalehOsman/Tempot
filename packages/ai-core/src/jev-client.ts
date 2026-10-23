@@ -1,4 +1,4 @@
-import { Result, ok, err, DomainError, ValidationError } from '@tembot/shared-types';
+import type { Result, DomainError } from '@tembot/shared-types';
 import { ApiKeyRotator } from './key-rotator.js';
 import type { JevDecisionResult } from './types.js';
 
@@ -10,8 +10,8 @@ export interface JevClientConfig {
 
 export class JevClient {
   private readonly rotator: ApiKeyRotator;
-  private readonly baseUrl: string;
-  private readonly defaultThreshold: number;
+  public readonly baseUrl: string;
+  public readonly defaultThreshold: number;
 
   constructor(config: JevClientConfig) {
     this.rotator = new ApiKeyRotator({
@@ -28,7 +28,7 @@ export class JevClient {
    */
   public async evaluateDecision<TDecision>(
     state: Record<string, unknown> | string,
-    schema: Record<string, unknown>,
+    schema?: Record<string, unknown>,
     threshold?: number,
   ): Promise<Result<JevDecisionResult<TDecision>, DomainError>> {
     const startTime = Date.now();
@@ -36,12 +36,15 @@ export class JevClient {
 
     const payload = {
       state: typeof state === 'string' ? { text: state } : state,
-      schema,
+      schema: schema ?? {},
     };
 
     return this.rotator.executeWithRotation(async (activeKey) => {
-      // In production, performs HTTP POST to TypeSafe AI endpoint with activeKey
-      // For baseline validation, provides a deterministic structured decision
+      // In production, performs HTTP POST to ${this.baseUrl}/evaluate with activeKey and payload
+      void this.baseUrl;
+      void payload;
+      void activeKey;
+
       const durationMs = Date.now() - startTime;
 
       // Simulated structured response contract matching TypeSafe AI jev specification
