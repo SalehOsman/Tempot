@@ -16,6 +16,29 @@ import {
 
 const settingsLogger = createChildLogger({ module: 'system-settings', slice: 'service' });
 
+function createDefaultSettingsRecord(tenantId: string): SystemSettingsRecord {
+  return {
+    id: '00000000-0000-0000-0000-000000000001',
+    tenantId,
+    platformName: 'Tembot Platform',
+    defaultLocale: 'ar',
+    isGlobalMaintenance: false,
+    globalMaintenanceMessage: null,
+    botName: 'Tembot',
+    botWelcomeMessage: 'مرحباً بك في المنصة!',
+    botHelpMessage: 'قائمة الأوامر المتاحة:...',
+    botMaintenanceMode: false,
+    tmaTitle: 'Tembot Mini App',
+    tmaPrimaryColor: '#2563eb',
+    tmaMaintenanceMode: false,
+    dashboardLogoUrl: null,
+    sessionTimeoutMinutes: 60,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  };
+}
+
 export interface SettingsServiceConfig {
   readonly cacheTtlMs?: number; // In-memory cache TTL (default: 60,000ms)
   readonly cacheInvalidator?: CacheInvalidator;
@@ -24,13 +47,14 @@ export interface SettingsServiceConfig {
 
 export class SettingsService {
   private readonly cache = new Map<string, { data: SystemSettingsRecord; expiresAt: number }>();
+  private readonly inMemoryStore = new Map<string, SystemSettingsRecord>();
   private readonly cacheTtlMs: number;
   private readonly cacheInvalidator?: CacheInvalidator;
   private readonly invalidationChannel: string;
 
   constructor(
     // biome-ignore lint/suspicious/noExplicitAny: Drizzle schema container
-    private readonly db: PgDatabase<any>,
+    private readonly db?: PgDatabase<any>,
     private readonly auditService?: AuditService,
     config: SettingsServiceConfig = {},
   ) {
@@ -53,6 +77,16 @@ export class SettingsService {
     const cached = this.cache.get(tenantId);
     if (cached && cached.expiresAt > Date.now()) {
       return ok(cached.data);
+    }
+
+    if (!this.db) {
+      let record = this.inMemoryStore.get(tenantId);
+      if (!record) {
+        record = createDefaultSettingsRecord(tenantId);
+        this.inMemoryStore.set(tenantId, record);
+      }
+      this.cache.set(tenantId, { data: record, expiresAt: Date.now() + this.cacheTtlMs });
+      return ok(record);
     }
 
     try {
@@ -153,6 +187,21 @@ export class SettingsService {
     try {
       const prevRes = await this.getSettings(tenantId);
       const prevState = prevRes.isOk() ? prevRes.value : null;
+
+      if (!this.db) {
+        const prev = prevState ?? createDefaultSettingsRecord(tenantId);
+        const updated: SystemSettingsRecord = {
+          ...prev,
+          ...input,
+          updatedAt: new Date(),
+        };
+        this.inMemoryStore.set(tenantId, updated);
+        this.cache.delete(tenantId);
+        if (this.cacheInvalidator) {
+          await this.cacheInvalidator.publishInvalidate(this.invalidationChannel, tenantId);
+        }
+        return ok(updated);
+      }
 
       const [updated] = await this.db
         .update(systemSettings)

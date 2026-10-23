@@ -1,16 +1,19 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createChildLogger } from '@tembot/logger';
+import { SettingsService } from '@tembot/module-system-settings';
 import { createBot } from './bot.js';
 
-for (const envPath of [
+const candidatePaths = [
   path.resolve(process.cwd(), '.env'),
   path.resolve(process.cwd(), '../../.env'),
-]) {
+  path.resolve(process.cwd(), '../.env'),
+];
+
+for (const envPath of candidatePaths) {
   if (fs.existsSync(envPath)) {
     try {
       process.loadEnvFile(envPath);
-      break;
     } catch {
       // Ignore parsing errors
     }
@@ -28,8 +31,18 @@ if (!token || token === 'your_telegram_bot_token_here') {
   process.exit(0);
 }
 
-const tmaUrl = process.env.TMA_URL ?? 'http://localhost:5173';
-const bot = createBot(token, { tmaUrl });
+const tmaUrl = process.env.TMA_URL;
+const settingsService = new SettingsService();
+
+logger.info(
+  {
+    tmaUrl: tmaUrl || '(none)',
+    hasSettingsService: Boolean(settingsService),
+  },
+  'Configured Bot dependencies',
+);
+
+const bot = createBot(token, { tmaUrl, settingsService });
 
 logger.info('Starting Tembot in Long Polling mode (Local Development)...');
 

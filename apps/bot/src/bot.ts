@@ -56,11 +56,38 @@ export function createBot(token: string, deps: BotDependencies = {}) {
       reply_markup: buildPersistentReplyKeyboard({ tmaUrl: deps.tmaUrl }),
     });
 
+    if (deps.tmaUrl?.startsWith('https://')) {
+      const inlineKb = new InlineKeyboard().webApp(
+        '🚀 فتح الميني اب داخل التليجرام',
+        deps.tmaUrl,
+      );
+      await ctx.reply('📱 يمكنك فتح الميني اب مباشرة عبر هذا الزر:', {
+        reply_markup: inlineKb,
+      });
+    }
+
     botLogger.info({ actorId, username: user?.username }, 'User executed /start command');
   });
 
-  // TMA Button handler when HTTPS web_app is not configured
+  // TMA Button handler when HTTPS web_app is pressed or sent as text
   bot.hears(['🚀 فتح التطبيق', 'فتح التطبيق'], async (ctx: Context) => {
+    if (deps.tmaUrl?.startsWith('https://')) {
+      const inlineKb = new InlineKeyboard().webApp(
+        '🚀 اضغط هنا لفتح الميني اب الآن',
+        deps.tmaUrl,
+      );
+      await ctx.reply(
+        '📱 <b>تطبيق التليجرام المصغر (TMA) جاهز!</b>\n\n' +
+          'اضغط على الزر أدناه لفتح واجهة التطبيق مباشرة داخل التليجرام:\n' +
+          `🔗 <code>${deps.tmaUrl}</code>`,
+        {
+          parse_mode: 'HTML',
+          reply_markup: inlineKb,
+        },
+      );
+      return;
+    }
+
     await ctx.reply(
       '📱 <b>تطبيق التليجرام المصغر (TMA)</b>\n\n' +
         'يشترط تيليجرام رابطاً آمناً <b>HTTPS</b> لفتح النوافذ المنبثقة مباشرة داخل التطبيق.\n\n' +
