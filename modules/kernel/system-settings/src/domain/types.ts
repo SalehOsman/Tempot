@@ -33,6 +33,7 @@ export interface DashboardSurfaceSettings {
   readonly logoUrl: string | null;
   readonly defaultLocale: 'ar' | 'en';
   readonly sessionTimeoutMinutes: number;
+  readonly isMaintenance: boolean;
   readonly isGlobalMaintenance: boolean;
 }
 
