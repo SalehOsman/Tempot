@@ -1,6 +1,24 @@
+import { DomainError } from '@tembot/shared-types';
+
 export type ActorType = 'user' | 'admin' | 'system' | 'cron';
 
 export type AuditStatus = 'SUCCESS' | 'FAILURE' | 'REJECTED';
+
+export class AuditError extends DomainError {
+  public readonly code: string;
+  public readonly httpStatus: number;
+
+  constructor(
+    code: string,
+    message: string,
+    httpStatus = 500,
+    details?: unknown
+  ) {
+    super(message, details);
+    this.code = code;
+    this.httpStatus = httpStatus;
+  }
+}
 
 export interface CreateAuditEventInput {
   readonly tenantId: string;
