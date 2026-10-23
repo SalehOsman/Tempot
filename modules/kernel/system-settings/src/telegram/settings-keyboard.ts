@@ -28,10 +28,15 @@ export function buildPersistentReplyKeyboard(options: { tmaUrl?: string; isRtl?:
   const tmaLabel = isRtl ? '🚀 فتح التطبيق' : '🚀 Open App';
   const settingsLabel = isRtl ? '⚙️ الإعدادات' : '⚙️ Settings';
 
+  // Telegram Invariant: web_app buttons strictly require HTTPS links
+  const hasHttpsTma = Boolean(options.tmaUrl?.startsWith('https://'));
+
   return {
     keyboard: [
       [
-        options.tmaUrl ? { text: tmaLabel, web_app: { url: options.tmaUrl } } : { text: tmaLabel },
+        hasHttpsTma && options.tmaUrl
+          ? { text: tmaLabel, web_app: { url: options.tmaUrl } }
+          : { text: tmaLabel },
         { text: settingsLabel },
       ],
     ],

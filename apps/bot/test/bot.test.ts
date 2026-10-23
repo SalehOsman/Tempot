@@ -37,4 +37,15 @@ describe('Tembot grammY Bot Ingress Runner', () => {
     expect(tmaBtn.text).toBe('🚀 Open App');
     expect(settingsBtn.text).toBe('⚙️ Settings');
   });
+
+  it('omits web_app url when URL is not HTTPS to prevent Telegram API rejection', () => {
+    const keyboard = buildPersistentReplyKeyboard({
+      tmaUrl: 'http://localhost:5173',
+      isRtl: true,
+    });
+
+    const [tmaBtn] = keyboard.keyboard[0];
+    expect(tmaBtn.web_app).toBeUndefined();
+    expect(tmaBtn.text).toBe('🚀 فتح التطبيق');
+  });
 });

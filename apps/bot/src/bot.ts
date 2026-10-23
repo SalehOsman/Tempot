@@ -59,6 +59,17 @@ export function createBot(token: string, deps: BotDependencies = {}) {
     botLogger.info({ actorId, username: user?.username }, 'User executed /start command');
   });
 
+  // TMA Button handler when HTTPS web_app is not configured
+  bot.hears(['🚀 فتح التطبيق', 'فتح التطبيق'], async (ctx: Context) => {
+    await ctx.reply(
+      '📱 <b>تطبيق التليجرام المصغر (TMA)</b>\n\n' +
+        'يشترط تيليجرام رابطاً آمناً <b>HTTPS</b> لفتح النوافذ المنبثقة مباشرة داخل التطبيق.\n\n' +
+        '🔗 <b>رابط المعاينة المحلية بالمتصفح:</b>\nhttp://localhost:5173\n\n' +
+        '💡 <i>عند رفع المنصة لسيرفر أو تشغيل نفق محلي (ngrok/cloudflared)، ضع الرابط في متغير TMA_URL وسيفتح داخل التليجرام بضغطة زر.</i>',
+      { parse_mode: 'HTML' },
+    );
+  });
+
   // Persistent Keyboard Settings Button or command
   bot.hears(['⚙️ الإعدادات', 'الإعدادات', '/settings'], async (ctx: Context) => {
     if (!router) {
